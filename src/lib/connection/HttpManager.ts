@@ -6,7 +6,7 @@ import {RESTService} from "../connection/RESTService";
 import {PresenceService} from "../services/PresenceService";
 import {S2SService} from "../services/S2SService";
 import {Core} from "../Core";
-import {getRandomInt, logEntryExit, pause, until} from "../common/Utils";
+import {getRandomInt, logEntryExit, pause, stackTrace, until} from "../common/Utils";
 import {IEnumerable, IList, List} from "ts-generic-collections-linq";
 import {Dictionary, IDictionary} from "ts-generic-collections-linq";
 import {KeyValuePair} from "ts-generic-collections-linq/lib/dictionary";
@@ -18,6 +18,7 @@ import {Logger} from "../common/Logger";
 // @ ts-ignore
  import RequestRateLimiter, {BackoffError} from "./request-rate-limiter/index";
 import {TimeOutManager} from "../common/TimeOutManager.js";
+import {LevelInterface} from "../common/LevelInterface.js";
 // const RequestRateLimiter = require("request-rate-limiter").RequestRateLimiter;  
 // const BackoffError = require("request-rate-limiter").BackoffError; 
         
@@ -89,7 +90,7 @@ class MyRequestHandler {
 /**
  *
  */
-class HttpManager {
+class HttpManager implements LevelInterface{
     public _logger: Logger;
     private _eventEmitter: EventEmitter;
     private _imOptions: any;
@@ -118,12 +119,43 @@ class HttpManager {
         that._options = {};
         that._logger = _logger;
         that._eventEmitter = _eventEmitter;
-        
+        let obj = that;
+
+        if (obj) {
+            obj.INFO = {"callerObj": obj, "level": "info", isApi: false};
+            obj.DEBUG = {"callerObj": obj, "level": "debug", isApi: false};
+            obj.INTERNAL = {"callerObj": obj, "level": "internal", isApi: false};
+            obj.WARN = {"callerObj": obj, "level": "warn", isApi: false};
+            obj.ERROR = {"callerObj": obj, "level": "error", isApi: false};
+            obj.INTERNALERROR = {"callerObj": obj, "level": "internalerror", isApi: false};
+            obj.INFOAPI = {"callerObj": obj, "level": "info", isApi: true};
+            obj.DEBUGAPI = {"callerObj": obj, "level": "debug", isApi: true};
+            obj.INTERNALAPI = {"callerObj": obj, "level": "internal", isApi: true};
+            obj.WARNAPI = {"callerObj": obj, "level": "warn", isApi: true};
+            obj.ERRORAPI = {"callerObj": obj, "level": "error", isApi: true};
+            obj.INTERNALERRORAPI = {"callerObj": obj, "level": "internalerror", isApi: true}; // */
+        } else {
+            console.log("Can not set Logs Levels : ", stackTrace());
+        }
+
         that.lockEngine = new AsyncLock({timeout: 5000, maxPending: 1000});
 
-        that._logger.log("debug", LOG_ID + "(constructor) HttpManager created successfull.");
-        that._logger.log("internal", LOG_ID + "(constructor) HttpManager created successfull nbHttpAdded : ", that.nbHttpAdded);
+        that._logger.log(that.DEBUG, LOG_ID + `=== CONSTRUCTED at (${new Date()} ===`);
+        that._logger.log(that.INTERNAL, LOG_ID + "(constructor) HttpManager created successfull nbHttpAdded : ", that.nbHttpAdded);
     }
+
+    INFO: any;
+    DEBUG: any;
+    INTERNAL: any;
+    WARN: any;
+    ERROR: any;
+    INTERNALERROR: any;
+    INFOAPI: any;
+    DEBUGAPI: any;
+    INTERNALAPI: any;
+    WARNAPI: any;
+    ERRORAPI: any;
+    INTERNALERRORAPI: any;
 
     init(_options, _core: Core) {
         let that = this;
@@ -142,8 +174,8 @@ class HttpManager {
 
                 that.nbHttpAdded = 0;
                 that._options = _options;
-                that._logger.log("debug", LOG_ID + "(constructor) HttpManager initialized successfull.");
-                //that._logger.log("internal", LOG_ID + "(constructor) HttpManager initialized successfull");
+                that._logger.log(that.DEBUG, LOG_ID + "(constructor) HttpManager initialized successfull.");
+                //that._logger.log(that.INTERNAL, LOG_ID + "(constructor) HttpManager initialized successfull");
                 
                 that.started = true;
                 resolve(undefined);
@@ -164,7 +196,7 @@ class HttpManager {
         retryAfterStartTime : number
     }> {
         let that = this;
-        //that.logger.log("debug", LOG_ID + "(checkEveryPortals) ");
+        //that._logger.log(that.DEBUG, LOG_ID + "(checkEveryPortals) ");
         let httpStatus : {
             nbHttpAdded: number,
             httpQueueSize: number,
@@ -194,9 +226,9 @@ class HttpManager {
             httpStatus.retryAfterTime = that.retryAfterTime ;
             httpStatus.retryAfterEndTime = that.retryAfterEndTime;
             httpStatus.retryAfterStartTime = that.retryAfterStartTime;
-            that._logger.log("debug", LOG_ID + "(checkHTTPStatus) httpStatus : ", httpStatus);
+            that._logger.log(that.DEBUG, LOG_ID + "(checkHTTPStatus) httpStatus : ", httpStatus);
         } catch (err) {
-            that._logger.log("debug", LOG_ID + "(checkHTTPStatus) check Http status failed : ", err);
+            that._logger.log(that.DEBUG, LOG_ID + "(checkHTTPStatus) check Http status failed : ", err);
         }
 
         return httpStatus;
@@ -209,12 +241,12 @@ class HttpManager {
         let opts = undefined;
         return that.lockEngine.acquire(that.lockKey,
             async function () {
-                // that._logger.log("debug", LOG_ID + "(lock) lock the ", that.lockKey);
-                // that._logger.log("internal", LOG_ID + "(lock) lock the ", that.lockKey);
+                // that._logger.log(that.DEBUG, LOG_ID + "(lock) lock the ", that.lockKey);
+                // that._logger.log(that.INTERNAL, LOG_ID + "(lock) lock the ", that.lockKey);
                 return await fn(); // async work
             }, opts).then((result) => {
-            // that._logger.log("debug", LOG_ID + "(lock) release the ", that.lockKey);
-            // that._logger.log("internal", LOG_ID + "(lock) release the ", that.lockKey, ", result : ", result);
+            // that._logger.log(that.DEBUG, LOG_ID + "(lock) release the ", that.lockKey);
+            // that._logger.log(that.INTERNAL, LOG_ID + "(lock) release the ", that.lockKey, ", result : ", result);
             return result;
         });
     }
@@ -225,12 +257,12 @@ class HttpManager {
         let opts = undefined;
         return that.lockEngine.acquire(that.lockKeyNbHttpAdded,
             async function () {
-                // that._logger.log("debug", LOG_ID + "(lock) lock the ", that.lockKey);
-                // that._logger.log("internal", LOG_ID + "(lock) lock the ", that.lockKeyNbHttpAdded);
+                // that._logger.log(that.DEBUG, LOG_ID + "(lock) lock the ", that.lockKey);
+                // that._logger.log(that.INTERNAL, LOG_ID + "(lock) lock the ", that.lockKeyNbHttpAdded);
                 return await fn(); // async work
             }, opts).then((result) => {
-            // that._logger.log("debug", LOG_ID + "(lock) release the ", that.lockKey);
-            // that._logger.log("internal", LOG_ID + "(lock) release the ", that.lockKeyNbHttpAdded, ", result : ", result);
+            // that._logger.log(that.DEBUG, LOG_ID + "(lock) release the ", that.lockKey);
+            // that._logger.log(that.INTERNAL, LOG_ID + "(lock) release the ", that.lockKeyNbHttpAdded, ", result : ", result);
             return result;
         });
     }
@@ -243,7 +275,7 @@ class HttpManager {
         let that = this;
         return that.locknbRunningReq(() => {
             that.nbRunningReq++;
-            // that._logger.log("debug", LOG_ID + "(incNbRunningReq) nbRunningReq : ", that.nbRunningReq);
+            // that._logger.log(that.DEBUG, LOG_ID + "(incNbRunningReq) nbRunningReq : ", that.nbRunningReq);
             return that.nbRunningReq;
         });
     }
@@ -252,7 +284,7 @@ class HttpManager {
         let that = this;
         return that.locknbRunningReq(() => {
             that.nbRunningReq--;
-            // that._logger.log("debug", LOG_ID + "(decNbRunningReq) nbRunningReq : ", that.nbRunningReq);
+            // that._logger.log(that.DEBUG, LOG_ID + "(decNbRunningReq) nbRunningReq : ", that.nbRunningReq);
             return that.nbRunningReq;
         });
     }
@@ -272,9 +304,9 @@ class HttpManager {
             that.nbHttpAdded++;
         }
         req.id = new Date().getTime() + "_" + that.nbHttpAdded;
-        this._logger.log("debug", LOG_ID + "(add) The req will be add to queue. that.nbRunningReq : ", that.nbRunningReq, ", nbHttpAdded : ", that.nbHttpAdded, ", req.id : ", req.id, ", req.label : ", req.label);
+        that._logger.log(that.DEBUG, LOG_ID + "(add) The req will be add to queue. that.nbRunningReq : ", that.nbRunningReq, ", nbHttpAdded : ", that.nbHttpAdded, ", req.id : ", req.id, ", req.label : ", req.label);
         if (that.retryAfterEndTime > Date.now()) {
-            this._logger.log("debug", LOG_ID + "(add) The req will failed because an retryAfter is Activated. that.retryAfterStartTime : ", new Date(that.retryAfterStartTime).toLocaleString('en-GB', { timeZone: 'UTC' }), ", that.retryAfterEndTime : ", new Date(that.retryAfterEndTime).toLocaleString('en-GB', { timeZone: 'UTC' }) + ", that.nbRunningReq : ", that.nbRunningReq, ", nbHttpAdded : ", that.nbHttpAdded, ", req.id : ", req.id, ", req.label : ", req.label);
+            that._logger.log(that.DEBUG, LOG_ID + "(add) The req will failed because an retryAfter is Activated. that.retryAfterStartTime : ", new Date(that.retryAfterStartTime).toLocaleString('en-GB', { timeZone: 'UTC' }), ", that.retryAfterEndTime : ", new Date(that.retryAfterEndTime).toLocaleString('en-GB', { timeZone: 'UTC' }) + ", that.nbRunningReq : ", that.nbRunningReq, ", nbHttpAdded : ", that.nbHttpAdded, ", req.id : ", req.id, ", req.label : ", req.label);
             let error = {
                 code: 429,
                 url: req.params[0],
@@ -293,16 +325,16 @@ class HttpManager {
             return Promise.reject(error);
         }  else {
             return this.limiter.request(req).catch((error) => {
-                that._logger.log("warn", LOG_ID + "(add) The req failed. that.nbRunningReq : ", that.nbRunningReq, ", nbHttpAdded : ", that.nbHttpAdded, ", req.id : ", req.id, ", req.label : ", req.label, ", error : ", error);
+                that._logger.log(that.WARN, LOG_ID + "(add) The req failed. that.nbRunningReq : ", that.nbRunningReq, ", nbHttpAdded : ", that.nbHttpAdded, ", req.id : ", req.id, ", req.label : ", req.label, ", error : ", error);
                 if (error && error.code == 429 && error.headers) {
                     that.retryAfterTime = (error.headers["retry-after"] ? Number.parseInt(error.headers["retry-after"]):10) * 1000;
                     //that.retryAfterActivated = true;
                     that.retryAfterStartTime = Date.now();
                     that.retryAfterEndTime = that.retryAfterStartTime + that.retryAfterTime + getRandomInt(5000);
-                    that._logger.log("warn", LOG_ID + "(add) The req failed. that.retryAfterStartTime : ", that.retryAfterStartTime, ", that.retryAfterEndTime : ", that.retryAfterEndTime,"that.nbRunningReq : ", that.nbRunningReq, ", nbHttpAdded : ", that.nbHttpAdded, ", req.id : ", req.id, ", req.label : ", req.label, ", error : ", error);
+                    that._logger.log(that.WARN, LOG_ID + "(add) The req failed. that.retryAfterStartTime : ", that.retryAfterStartTime, ", that.retryAfterEndTime : ", that.retryAfterEndTime,"that.nbRunningReq : ", that.nbRunningReq, ", nbHttpAdded : ", that.nbHttpAdded, ", req.id : ", req.id, ", req.label : ", req.label, ", error : ", error);
                     /*
                      that._core.timeOutManager.setTimeout(() => {
-                        that._logger.log("internalerror", LOG_ID + "(add) The req failed. that.nbRunningReq : ", that.nbRunningReq, ", nbHttpAdded : ", that.nbHttpAdded, ", req.id : ", req.id, ", req.label : ", req.label, ", error : ", error);
+                        that._logger.log(that.INTERNALERROR, LOG_ID + "(add) The req failed. that.nbRunningReq : ", that.nbRunningReq, ", nbHttpAdded : ", that.nbHttpAdded, ", req.id : ", req.id, ", req.label : ", req.label, ", error : ", error);
                         that.retryAfterTime = 10;
                         that.retryAfterActivated = false;
                     }, that.retryAfterTime, "retryAfterActivated")
@@ -315,7 +347,7 @@ class HttpManager {
 
     stop() {
         let that = this;
-        that._logger.log("info", LOG_ID + "(stop) stopping.");
+        that._logger.log(that.INFO, LOG_ID + "(stop) stopping.");
         that.started = false;
         that.limiter.bucket.end();
     }

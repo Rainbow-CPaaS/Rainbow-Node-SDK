@@ -26,17 +26,18 @@ const LOG_ID = "CONTACTS/SVCE - ";
 const API_ID = "API_CALL - ";
 
 class RosterPresenceQueue {
-    private logger : Logger;
+    private _logger : Logger;
     private _rosterPresenceQueue: any;
+    private _contacts : ContactsService;
 
 
-    constructor(_logger : Logger) {
+    constructor(_logger : Logger, _contacts: ContactsService) {
         let that = this;
-        that.logger = _logger;
-
+        that._logger = _logger;
+        that._contacts = _contacts;
         that._rosterPresenceQueue = [];
-        
-        // timeout: 5000, Specify timeout - max amount of time an item can remain in the queue before acquiring the lock 
+
+        // timeout: 5000, Specify timeout - max amount of time an item can remain in the queue before acquiring the lock
         // maxPending: 1000, Set max pending tasks - max number of tasks allowed in the queue at a time
         // maxOccupationTime : 3000 Specify max occupation time - max amount of time allowed between entering the queue and completing execution
         that.lockEngine = new AsyncLock({timeout: 3 * 60 * 1000, maxPending: 1000, maxOccupationTime : 5 * 60 * 1000});
@@ -48,31 +49,31 @@ class RosterPresenceQueue {
         let that = this;
         let resultLock = "Lock failed.";
         try {
-            that.logger.log("internal", LOG_ID + "(lock) - id : ", id, " - will acquire lock the ", that.lockKey);
+            that._logger.log(that._contacts.INTERNAL, LOG_ID + "(lock) - id : ", id, " - will acquire lock the ", that.lockKey);
             await that.lockEngine.acquire(that.lockKey, async () => {
-                // that._logger.log(that.DEBUG, LOG_ID + "(lock) lock the ", that.lockKey);
-                that.logger.log("internal", LOG_ID + "(lock) - id : ", id, " - lock the ", that.lockKey);
+                // that._logger.log(that._contacts.DEBUG, LOG_ID + "(lock) lock the ", that.lockKey);
+                that._logger.log(that._contacts.INTERNAL, LOG_ID + "(lock) - id : ", id, " - lock the ", that.lockKey);
                 let result = undefined;
                 try {
                     result = await fn(); // async work
                     return result;
                 } catch (err3) {
-                    that.logger.log("error", LOG_ID + "(lock) - id : ", id, " - CATCH Error !!! error at run : ", that.lockKey, ", error : ", err3);
+                    that._logger.log(that._contacts.ERROR, LOG_ID + "(lock) - id : ", id, " - CATCH Error !!! error at run : ", that.lockKey, ", error : ", err3);
                 }
             }).then((result) => {
                 // that._logger.log(that.DEBUG, LOG_ID + "(lock) release the ", that.lockKey);
-                that.logger.log("internal", LOG_ID + "(lock) - id : ", id, " - release the ", that.lockKey, ", result : ", result);
+                that._logger.log(that._contacts.INTERNAL, LOG_ID + "(lock) - id : ", id, " - release the ", that.lockKey, ", result : ", result);
                 resultLock = result;
             }).catch((err2) => {
-                        that.logger.log("warn", LOG_ID + "(lock) - id : ", id, " - catch at acquire : ", that.lockKey, ", error : ", err2);
+                        that._logger.log(that._contacts.WARN, LOG_ID + "(lock) - id : ", id, " - catch at acquire : ", that.lockKey, ", error : ", err2);
                         throw resultLock = err2;
                     }
             );
         } catch (err) {
-            that.logger.log("error", LOG_ID + "(lock) - id : ", id, " - CATCH Error !!! error at acquire : ", that.lockKey, ", error : ", err);
+            that._logger.log(that._contacts.ERROR, LOG_ID + "(lock) - id : ", id, " - CATCH Error !!! error at acquire : ", that.lockKey, ", error : ", err);
             throw resultLock = err;
         }
-        that.logger.log("internal", LOG_ID + "(lock) - id : ", id, " - __ exiting __ ", that.lockKey, ", resultLock : ", resultLock);
+        that._logger.log(that._contacts.INTERNAL, LOG_ID + "(lock) - id : ", id, " - __ exiting __ ", that.lockKey, ", resultLock : ", resultLock);
         return resultLock;
     }
 
@@ -82,14 +83,14 @@ class RosterPresenceQueue {
         let that = this;
         let id = (new Date()).getTime();
 
-        that.logger.log("internal", LOG_ID + "(add) - id : ", id, " - will lock.");
+        that._logger.log(that._contacts.INTERNAL, LOG_ID + "(add) - id : ", id, " - will lock.");
         that.lock(() => {
-            that.logger.log("internal", LOG_ID + "(add) - id : ", id, " - will call fn for presence.jid : ", presenceToSave.presence.jid);
+            that._logger.log(that._contacts.INTERNAL, LOG_ID + "(add) - id : ", id, " - will call fn for presence.jid : ", presenceToSave.presence.jid);
             this._rosterPresenceQueue.push(presenceToSave);
         }, id).then(() => {
-            that.logger.log("debug", LOG_ID + "(add) - id : ", id, " -  lock succeed.");
+            that._logger.log(that._contacts.DEBUG, LOG_ID + "(add) - id : ", id, " -  lock succeed.");
         }).catch((error) => {
-            that.logger.log("error", LOG_ID + "(add) - id : ", id, " - Catch Error, error : ", error);
+            that._logger.log(that._contacts.ERROR, LOG_ID + "(add) - id : ", id, " - Catch Error, error : ", error);
         });
     }
 
@@ -97,40 +98,40 @@ class RosterPresenceQueue {
         let that = this;
         let id = (new Date()).getTime();
 
-        that.logger.log("internal", LOG_ID + "(treatPresenceForContact) - id : ", id, " - will lock.");
+        that._logger.log(that._contacts.INTERNAL, LOG_ID + "(treatPresenceForContact) - id : ", id, " - will lock.");
         that.lock(() => {
             that._rosterPresenceQueue.filter(presenceItem => presenceItem.presence.jid===contact.jid).forEach(item => {
-                that.logger.log("internal", LOG_ID + "(treatPresenceForContact) - id : ", id, " - will call treat presence : ", item.presence, " for contact.jid : ", contact.jid);
+                that._logger.log(that._contacts.INTERNAL, LOG_ID + "(treatPresenceForContact) - id : ", id, " - will call treat presence : ", item.presence, " for contact.jid : ", contact.jid);
                 fn(item.presence);
             });
             let currentDate = Date.now();
             that._rosterPresenceQueue = that._rosterPresenceQueue.filter(presenceItem => presenceItem.presence.jid!==contact.jid || (presenceItem.date + 10000) < currentDate);
         }, id).then(() => {
-            that.logger.log("debug", LOG_ID + "(treatPresenceForContact) - id : ", id, " -  lock succeed.");
+            that._logger.log(that._contacts.DEBUG, LOG_ID + "(treatPresenceForContact) - id : ", id, " -  lock succeed.");
         }).catch((error) => {
-            that.logger.log("error", LOG_ID + "(treatPresenceForContact) - id : ", id, " - Catch Error, error : ", error);            
+            that._logger.log(that._contacts.ERROR, LOG_ID + "(treatPresenceForContact) - id : ", id, " - Catch Error, error : ", error);
         });
     }
-    
+
     treatPresenceForAllContacts(fn) {
         let that = this;
         let id = (new Date()).getTime();
 
-        that.logger.log("internal", LOG_ID + "(treatPresenceForAllContacts) - id : ", id, " - will lock.");
+        that._logger.log(that._contacts.INTERNAL, LOG_ID + "(treatPresenceForAllContacts) - id : ", id, " - will lock.");
         that.lock(() => {
             that._rosterPresenceQueue.forEach(item => {
-                that.logger.log("internal", LOG_ID + "(treatPresenceForAllContacts) - id : ", id, " - will call fn for presence.jid : ", item.presence.jid);
+                that._logger.log(that._contacts.INTERNAL, LOG_ID + "(treatPresenceForAllContacts) - id : ", id, " - will call fn for presence.jid : ", item.presence.jid);
                 fn(item.presence);
             });
             let currentDate = Date.now();
             that._rosterPresenceQueue = [];
         }, id).then(() => {
-            that.logger.log("debug", LOG_ID + "(treatPresenceForAllContacts) - id : ", id, " -  lock succeed.");
+            that._logger.log(that._contacts.DEBUG, LOG_ID + "(treatPresenceForAllContacts) - id : ", id, " -  lock succeed.");
         }).catch((error) => {
-            that.logger.log("error", LOG_ID + "(treatPresenceForAllContacts) - id : ", id, " - Catch Error, error : ", error);            
+            that._logger.log(that._contacts.ERROR, LOG_ID + "(treatPresenceForAllContacts) - id : ", id, " - Catch Error, error : ", error);
         });
     }
-    
+
     remove(contact) {
         let that = this;
         let id = (new Date()).getTime();
@@ -139,14 +140,14 @@ class RosterPresenceQueue {
             let currentDate = Date.now();
             that._rosterPresenceQueue = that._rosterPresenceQueue.filter(presenceItem => presenceItem.presence.jid!==contact.jid || (presenceItem.date + 10000) < currentDate);
         }, id).then(() => {
-            that.logger.log("debug", LOG_ID + "(remove) - id : ", id, " -  lock succeed.");
+            that._logger.log(that._contacts.DEBUG, LOG_ID + "(remove) - id : ", id, " -  lock succeed.");
         }).catch((error) => {
-            that.logger.log("error", LOG_ID + "(remove) - id : ", id, " - Catch Error, error : ", error);
-        }); 
+            that._logger.log(that._contacts.ERROR, LOG_ID + "(remove) - id : ", id, " - Catch Error, error : ", error);
+        });
     }
-    
+
     private lockEngine: any;
-    private lockKey = "LOCK_ROSTER_QUEUE";    
+    private lockKey = "LOCK_ROSTER_QUEUE";
 }
 
 
@@ -199,7 +200,7 @@ class ContactsService extends GenericService {
         this._eventEmitter = _eventEmitter;
         this._logger = _logger;
         //this._rosterPresenceQueue3 = [];
-        this._rosterPresenceQueue = new RosterPresenceQueue(_logger);
+        this._rosterPresenceQueue = new RosterPresenceQueue(_logger, this);
         this.userContact = new Contact();
 
         this._core = _core;
@@ -250,8 +251,8 @@ class ContactsService extends GenericService {
                 resolve(undefined);
 
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(start) Catch ErrorManager !!!");
-                that._logger.log("internalerror", LOG_ID + "(start) Catch ErrorManager !!! : ", err.message);
+                that._logger.log(that.ERROR, LOG_ID + "(start) Catch ErrorManager !!!");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(start) Catch ErrorManager !!! : ", err.message);
                 return reject(err);
             }
         });
@@ -280,7 +281,7 @@ class ContactsService extends GenericService {
                 if (that._rest.account.id) {
                     let userInfo = that.getContactById(that._rest.account.id, true);
                     await Promise.all([userInfo]).then((contact: Contact[]) => {
-                        //that._logger.log("internal", LOG_ID + "(init) before updateFromUserData ", contact);
+                        //that._logger.log(that.INTERNAL, LOG_ID + "(init) before updateFromUserData ", contact);
                         if (contact) {
                             that.userContact.updateFromUserData(contact[0]);
                         }
@@ -299,25 +300,25 @@ class ContactsService extends GenericService {
                             undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined,
                             undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, that._rest.account.jid_im, undefined)
                             .then((result) => {
-                                that._logger.log("internal", LOG_ID + "(init) search by jid_im result : ", result);
+                                that._logger.log(that.INTERNAL, LOG_ID + "(init) search by jid_im result : ", result);
                             });
                     /* .then((contact: Contact) => {
-                        //that._logger.log("internal", LOG_ID + "(init) before updateFromUserData ", contact);
+                        //that._logger.log(that.INTERNAL, LOG_ID + "(init) before updateFromUserData ", contact);
                         that.userContact.updateFromUserData(contact);
-                    }); 
+                    });
                     // */
                     await Promise.all([userInfo]).then(() => {
                         that.setInitialized();
                         //resolve(undefined);
                     }).catch((err) => {
-                        that._logger.log("warn", LOG_ID + "(init) search by jid_im failed with error : ", err);
+                        that._logger.log(that.WARN, LOG_ID + "(init) search by jid_im failed with error : ", err);
                         that.setInitialized();
                         //resolve(undefined);
                         //return reject();
                     });
                 }
             } else {
-                that._logger.log("internal", LOG_ID + "(init) else from contact : ", that._rest.account);
+                that._logger.log(that.INTERNAL, LOG_ID + "(init) else from contact : ", that._rest.account);
                 that.setInitialized();
                 //resolve(undefined);
             }
@@ -331,16 +332,16 @@ class ContactsService extends GenericService {
         for (let i = 0; i < that._contacts.length ; i++) {
             if (that._contacts[i]) {
                 if ( that._contacts[i].isObsoleteCache()) {
-                    that._logger.log("info", LOG_ID + "(cleanMemoryCache) contact obsolete. Will remove it from cache.");
-                    that._logger.log("internal", LOG_ID + "(cleanMemoryCache) contact obsolete. Will remove it from cache : ", that._contacts[i]);
+                    that._logger.log(that.INFO, LOG_ID + "(cleanMemoryCache) contact obsolete. Will remove it from cache.");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(cleanMemoryCache) contact obsolete. Will remove it from cache : ", that._contacts[i]);
                     that._contacts.splice(i,1);
                     i--;
                 } else {
-                    that._logger.log("info", LOG_ID + "(cleanMemoryCache) contact not obsolete.");
-                    that._logger.log("internal", LOG_ID + "(cleanMemoryCache) contact not obsolete : ", that._contacts[i]);
+                    that._logger.log(that.INFO, LOG_ID + "(cleanMemoryCache) contact not obsolete.");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(cleanMemoryCache) contact not obsolete : ", that._contacts[i]);
                 }
             } else {
-                that._logger.log("info", LOG_ID + "(cleanMemoryCache) contact empty, so it is obsolete. Will remove it from cache.");
+                that._logger.log(that.INFO, LOG_ID + "(cleanMemoryCache) contact empty, so it is obsolete. Will remove it from cache.");
                 that._contacts.splice(i,1);
                 i--;
             }
@@ -348,7 +349,7 @@ class ContactsService extends GenericService {
     }
 
     //region Contacts MANAGEMENT
-    
+
     createEmptyContactContact(jid) {
         let that = this;
         let contact = that.createBasicContact(jid);
@@ -370,7 +371,7 @@ class ContactsService extends GenericService {
         if (that.isUserContactJid(contactId)) {
             // Create the contact object
             contact = new Contact();
-            // that._logger.log("internal", LOG_ID + "(getContact) before updateFromUserData ", contact);
+            // that._logger.log(that.INTERNAL, LOG_ID + "(getContact) before updateFromUserData ", contact);
             contact.updateFromUserData(that._rest.account);
             contact.status = that._presenceService.getUserConnectedPresence().presenceDetails;
             contact.presence = that._presenceService.getUserConnectedPresence().presenceLevel;
@@ -423,7 +424,7 @@ class ContactsService extends GenericService {
                 contact = that._contacts[contactIndex];
             }
 
-            //that._logger.log("internal", LOG_ID + "(getOrCreateContact) before updateFromUserData ", contact);
+            //that._logger.log(that.INTERNAL, LOG_ID + "(getOrCreateContact) before updateFromUserData ", contact);
             contact.updateFromUserData(_contactFromServer);
             contact.avatar = that.getAvatarByContactId(_contactFromServer.id, _contactFromServer.lastAvatarUpdateDate);
             //that._contacts.push(contact);
@@ -502,7 +503,7 @@ class ContactsService extends GenericService {
      */
     getAll() : Array<Contact>{
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getAll) ");
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getAll) ");
         return this._contacts?this._contacts.filter(contact => contact.roster):[];
     }
 
@@ -520,7 +521,7 @@ class ContactsService extends GenericService {
      */
     getAllContactsInCache() : Array<Contact>{
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getAllContactsInCache) ");
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getAllContactsInCache) ");
         return this._contacts;
     }
 
@@ -541,11 +542,11 @@ class ContactsService extends GenericService {
      */
     getContactByJid(jid : string, forceServerSearch : boolean = false): Promise<Contact> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getContactByJid) jid : ", that._logger.stripStringForLogs(jid), ", forceServerSearch : ", forceServerSearch);
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getContactByJid) jid : ", that._logger.stripStringForLogs(jid), ", forceServerSearch : ", forceServerSearch);
 
         return new Promise((resolve, reject) => {
             if (!jid) {
-                that._logger.log("warn", LOG_ID + "(getContactByJid) bad or empty 'jid' parameter", jid);
+                that._logger.log(that.WARN, LOG_ID + "(getContactByJid) bad or empty 'jid' parameter", jid);
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             } else {
                 let contactFound = null;
@@ -558,7 +559,7 @@ class ContactsService extends GenericService {
                 }
 
                 if (contactFound) {
-                    that._logger.log("debug", LOG_ID + "(getContactByJid) contact found locally with jid ", jid);
+                    that._logger.log(that.INFO, LOG_ID + "(getContactByJid) contact found locally with jid ", jid);
                     if (contactFound.jid_im===connectedUser.jid_im) {
                         resolve(connectedUser);
                     } else {
@@ -569,19 +570,19 @@ class ContactsService extends GenericService {
                     that._rest.getContactInformationByJID(jid).then((_contactFromServer: any) => {
                         let contact = null;
                         if (_contactFromServer) {
-                            that._logger.log("internal", LOG_ID + "(getContactByJid) contact found on the server", _contactFromServer);
+                            that._logger.log(that.INTERNAL, LOG_ID + "(getContactByJid) contact found on the server", _contactFromServer);
                             let contactIndex = that._contacts.findIndex((value) => {
                                 return value.jid_im===_contactFromServer.jid_im;
                             });
 
                             if (contactIndex!== -1) {
                                 contact = that._contacts[contactIndex];
-                                that._logger.log("internal", LOG_ID + "(getContactByJid) contact found on local _contacts - contact id : ", contact.id, ", contact.displayName : ", contact.displayName, " for contact.jid : ", contact.jid);
+                                that._logger.log(that.INTERNAL, LOG_ID + "(getContactByJid) contact found on local _contacts - contact id : ", contact.id, ", contact.displayName : ", contact.displayName, " for contact.jid : ", contact.jid);
                             } else {
                                 contact = that.createBasicContact(_contactFromServer.jid_im, undefined);
                             }
 
-                            //that._logger.log("internal", LOG_ID + "(getContactByJid) before updateFromUserData ", contact);
+                            //that._logger.log(that.INTERNAL, LOG_ID + "(getContactByJid) before updateFromUserData ", contact);
                             contact.updateFromUserData(_contactFromServer);
                             contact.avatar = that.getAvatarByContactId(_contactFromServer.id, _contactFromServer.lastAvatarUpdateDate);
                             if (contact.jid_im===connectedUser.jid_im) {
@@ -589,7 +590,7 @@ class ContactsService extends GenericService {
                                 contact.presence = that._presenceService.getUserConnectedPresence().presenceLevel;
                             }
                         } else {
-                            that._logger.log("debug", LOG_ID + "(getContactByJid) no contact found on the server with Jid", jid);
+                            that._logger.log(that.INFO, LOG_ID + "(getContactByJid) no contact found on the server with Jid", jid);
                         }
                         resolve(contact);
                     }).catch((err) => {
@@ -617,10 +618,10 @@ class ContactsService extends GenericService {
      */
     getContactById(id : string, forceServerSearch: boolean = false): Promise<Contact> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getContactById) id : ", that._logger.stripStringForLogs(id), ", forceServerSearch : ", forceServerSearch);
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getContactById) id : ", that._logger.stripStringForLogs(id), ", forceServerSearch : ", forceServerSearch);
         return new Promise((resolve, reject) => {
             if (!id) {
-                that._logger.log("warn", LOG_ID + "(getContactById) bad or empty 'id' parameter", id);
+                that._logger.log(that.WARN, LOG_ID + "(getContactById) bad or empty 'id' parameter", id);
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             } else {
 
@@ -634,7 +635,7 @@ class ContactsService extends GenericService {
                 }
 
                 if (contactFound) {
-                    that._logger.log("internal", LOG_ID + "(getContactById) contact found locally - contactFound id : ", contactFound.id, ", contactFound.displayName : ", contactFound.displayName, " for contact.jid : ", contactFound.jid);
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getContactById) contact found locally - contactFound id : ", contactFound.id, ", contactFound.displayName : ", contactFound.displayName, " for contact.jid : ", contactFound.jid);
 
                     if (contactFound.id===connectedUser.id) {
                         return resolve(connectedUser);
@@ -646,21 +647,21 @@ class ContactsService extends GenericService {
                     that._rest.getContactInformationByID(id).then((_contactFromServer: any) => {
                         let contact: Contact = null;
                         if (_contactFromServer) {
-                            that._logger.log("internal", LOG_ID + "(getContactById) contact found on the server : ", _contactFromServer);
-                            that._logger.log("debug", LOG_ID + "(getContactById) contact found on the server");
+                            that._logger.log(that.INTERNAL, LOG_ID + "(getContactById) contact found on the server : ", _contactFromServer);
+                            that._logger.log(that.INFO, LOG_ID + "(getContactById) contact found on the server");
                             let contactIndex = that._contacts.findIndex((value) => {
                                 return value.jid_im===_contactFromServer.jid_im;
                             });
 
                             if (contactIndex!== -1) {
-                                //that._logger.log("debug", LOG_ID + "(getContactById) contact found on local _contacts", contact);
-                                that._logger.log("debug", LOG_ID + "(getContactById) contact found on local _contacts");
+                                //that._logger.log(that.INFO, LOG_ID + "(getContactById) contact found on local _contacts", contact);
+                                that._logger.log(that.INFO, LOG_ID + "(getContactById) contact found on local _contacts");
                                 contact = that._contacts[contactIndex];
                             } else {
                                 contact = that.createBasicContact(_contactFromServer.jid_im, undefined);
                             }
 
-                            //that._logger.log("internal", LOG_ID + "(getContactById) before updateFromUserData ", contact);
+                            //that._logger.log(that.INTERNAL, LOG_ID + "(getContactById) before updateFromUserData ", contact);
                             contact.updateFromUserData(_contactFromServer);
                             contact.avatar = that.getAvatarByContactId(_contactFromServer.id, _contactFromServer.lastAvatarUpdateDate);
 
@@ -669,7 +670,7 @@ class ContactsService extends GenericService {
                                 contact.presence = that._presenceService.getUserConnectedPresence().presenceLevel;
                             }
                         } else {
-                            that._logger.log("debug", LOG_ID + "(getContactById) no contact found on server with id", id);
+                            that._logger.log(that.INFO, LOG_ID + "(getContactById) no contact found on server with id", id);
                         }
                         return resolve(contact);
                     }).catch((err) => {
@@ -697,12 +698,12 @@ class ContactsService extends GenericService {
      */
     async getContactByLoginEmail(loginEmail : string, forceServerSearch: boolean = false): Promise<Contact> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getContactByLoginEmail) loginEmail : ", that._logger.stripStringForLogs(loginEmail), ", forceServerSearch : ", forceServerSearch);
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getContactByLoginEmail) loginEmail : ", that._logger.stripStringForLogs(loginEmail), ", forceServerSearch : ", forceServerSearch);
 
         return new Promise((resolve, reject) => {
             if (!loginEmail) {
-                this._logger.log("warn", LOG_ID + "(getContactByLoginEmail) bad or empty 'loginEmail' parameter");
-                this._logger.log("internalerror", LOG_ID + "(getContactByLoginEmail) bad or empty 'loginEmail' parameter : ", loginEmail);
+                that._logger.log(that.WARN, LOG_ID + "(getContactByLoginEmail) bad or empty 'loginEmail' parameter");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getContactByLoginEmail) bad or empty 'loginEmail' parameter : ", loginEmail);
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             } else {
 
@@ -716,7 +717,7 @@ class ContactsService extends GenericService {
                 }
 
                 if (contactFound) {
-                    that._logger.log("internal", LOG_ID + "(getContactByLoginEmail) contact found locally - contactFound id : ", contactFound.id, ", contactFound.displayName : ", contactFound.displayName, " for contact.jid : ", contactFound.jid);
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getContactByLoginEmail) contact found locally - contactFound id : ", contactFound.id, ", contactFound.displayName : ", contactFound.displayName, " for contact.jid : ", contactFound.jid);
                     if (contactFound.id===connectedUser.id) {
                         resolve(connectedUser);
                     } else {
@@ -727,7 +728,7 @@ class ContactsService extends GenericService {
                     that._rest.getContactInformationByLoginEmail(loginEmail).then(async (contactsFromServeur: [any]) => {
                         if (contactsFromServeur && contactsFromServeur.length > 0) {
                             let contact: Contact = null;
-                            that._logger.log("debug", LOG_ID + "(getContactByLoginEmail) contact found on server");
+                            that._logger.log(that.INFO, LOG_ID + "(getContactByLoginEmail) contact found on server");
                             let _contactFromServer = contactsFromServeur[0];
                             if (_contactFromServer) {
                                 // The contact is not found by email in the that._contacts tab, so it need to be find on server to get or update it.
@@ -737,7 +738,7 @@ class ContactsService extends GenericService {
                                     if (!contact.loginEmail) {
                                         contact.loginEmail = loginEmail;
                                     }
-                                    that._logger.log("internal", LOG_ID + "(getContactByLoginEmail) full data contact - contact id : ", contact.id, ", contact.displayName : ", contact.displayName, " for contact.jid : ", contact.jid, ", found on server with loginEmail : ", loginEmail);
+                                    that._logger.log(that.INTERNAL, LOG_ID + "(getContactByLoginEmail) full data contact - contact id : ", contact.id, ", contact.displayName : ", contact.displayName, " for contact.jid : ", contact.jid, ", found on server with loginEmail : ", loginEmail);
                                     /*let contactIndex = that._contacts.findIndex((value) => {
                                         return value.jid_im === contactInformation.jid_im;
                                     });
@@ -747,7 +748,7 @@ class ContactsService extends GenericService {
                                     } else {
                                         contact = that.createBasicContact(contactInformation.jid_im, undefined);
                                     }
-                                    //that._logger.log("internal", LOG_ID + "(getContactByLoginEmail) before updateFromUserData ", contact);
+                                    //that._logger.log(that.INTERNAL, LOG_ID + "(getContactByLoginEmail) before updateFromUserData ", contact);
                                     contact.updateFromUserData(contactInformation);
                                     contact.avatar = that.getAvatarByContactId(contactInformation.id, contactInformation.lastAvatarUpdateDate);
 
@@ -758,11 +759,11 @@ class ContactsService extends GenericService {
                                     }
                                 });
                             } else {
-                                that._logger.log("internal", LOG_ID + "(getContactByLoginEmail) no contact found on server with loginEmail : ", loginEmail);
+                                that._logger.log(that.INTERNAL, LOG_ID + "(getContactByLoginEmail) no contact found on server with loginEmail : ", loginEmail);
                             }
                             resolve(contact);
                         } else {
-                            that._logger.log("internal", LOG_ID + "(getContactByLoginEmail) contact not found on server with loginEmail : ", loginEmail);
+                            that._logger.log(that.INTERNAL, LOG_ID + "(getContactByLoginEmail) contact not found on server with loginEmail : ", loginEmail);
                             resolve(null);
                         }
                     }).catch((err) => {
@@ -790,12 +791,12 @@ class ContactsService extends GenericService {
      */
     async getContactIdByLoginEmail(loginEmail : string, forceServerSearch: boolean = false): Promise<String> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getContactIdByLoginEmail) loginEmail : ", that._logger.stripStringForLogs(loginEmail), ", forceServerSearch : ", forceServerSearch);
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getContactIdByLoginEmail) loginEmail : ", that._logger.stripStringForLogs(loginEmail), ", forceServerSearch : ", forceServerSearch);
 
         return new Promise((resolve, reject) => {
             if (!loginEmail) {
-                this._logger.log("warn", LOG_ID + "(getContactByLoginEmail) bad or empty 'loginEmail' parameter");
-                this._logger.log("internalerror", LOG_ID + "(getContactByLoginEmail) bad or empty 'loginEmail' parameter : ", loginEmail);
+                that._logger.log(that.WARN, LOG_ID + "(getContactByLoginEmail) bad or empty 'loginEmail' parameter");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getContactByLoginEmail) bad or empty 'loginEmail' parameter : ", loginEmail);
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             } else {
 
@@ -809,7 +810,7 @@ class ContactsService extends GenericService {
                 }
 
                 if (contactFound) {
-                    that._logger.log("internal", LOG_ID + "(getContactByLoginEmail) contact found locally - contactFound id : ", contactFound.id, ", contactFound.displayName : ", contactFound.displayName, " for contact.jid : ", contactFound.jid);
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getContactByLoginEmail) contact found locally - contactFound id : ", contactFound.id, ", contactFound.displayName : ", contactFound.displayName, " for contact.jid : ", contactFound.jid);
                     resolve(contactFound.id);
                 } else {
                     that._logger.log(that.DEBUG, LOG_ID + "(getContactByLoginEmail) contact not found locally. Ask server...");
@@ -817,16 +818,16 @@ class ContactsService extends GenericService {
                         let contactId: string = undefined;
                         if (contactsFromServeur && contactsFromServeur.length > 0) {
                             //let contact: Contact = null;
-                            that._logger.log("debug", LOG_ID + "(getContactByLoginEmail) contact found on server");
+                            that._logger.log(that.INFO, LOG_ID + "(getContactByLoginEmail) contact found on server");
                             let _contactFromServer = contactsFromServeur[0];
-                            
+
                             if (_contactFromServer) {
                                 contactId = _contactFromServer.id;
                             } else {
-                                that._logger.log("internal", LOG_ID + "(getContactByLoginEmail) no contact found on server with loginEmail : ", loginEmail);
+                                that._logger.log(that.INTERNAL, LOG_ID + "(getContactByLoginEmail) no contact found on server with loginEmail : ", loginEmail);
                             }
                         } else {
-                            that._logger.log("internal", LOG_ID + "(getContactByLoginEmail) contact not found on server with loginEmail : ", loginEmail);
+                            that._logger.log(that.INTERNAL, LOG_ID + "(getContactByLoginEmail) contact not found on server with loginEmail : ", loginEmail);
                         }
                         resolve(contactId);
                     }).catch((err) => {
@@ -852,12 +853,12 @@ class ContactsService extends GenericService {
      */
     getMyInformations(): Promise<Contact> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getContactByJid) ");
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getContactByJid) ");
 
         return new Promise((resolve, reject) => {
                     that._logger.log(that.DEBUG, LOG_ID + "(getMyInformations) Ask the server...");
                     that._rest.getMyInformations().then((_contactFromServer: any) => {
-                        that._logger.log("internal", LOG_ID + "(getMyInformations) contact informations found on server : ", _contactFromServer);
+                        that._logger.log(that.INTERNAL, LOG_ID + "(getMyInformations) contact informations found on server : ", _contactFromServer);
                         resolve(_contactFromServer);
                     }).catch((err) => {
                         return reject(err);
@@ -900,12 +901,12 @@ class ContactsService extends GenericService {
      * This filter allow to get all the Business Partner companies from a given bpType. </BR>
      * Only users with role superadmin, business_admin,customer_success_admin, support or bp_admin can use this filter.
      * @description
-     *  This API allows user to get a company data.<br> 
-     *     **Users can only retrieve their own company and companies they can see** (companies with `visibility`=`public`, companies having user's companyId in `visibleBy` field, companies being in user's company organization and having `visibility`=`organization`, BP company of user's company).<br> 
+     *  This API allows user to get a company data.<br>
+     *     **Users can only retrieve their own company and companies they can see** (companies with `visibility`=`public`, companies having user's companyId in `visibleBy` field, companies being in user's company organization and having `visibility`=`organization`, BP company of user's company).<br>
      *     If user request his own company, `numberUsers` field is returned with the number of Rainbow users being in this company. <br>
      * @return {string} Contact avatar URL or file
-     * 
-     * 
+     *
+     *
      * | Champ | Type | Description |
      * | --- | --- | --- |
      * | numberUsers | Number | Number of Rainbow users being associated to the company.  <br>Only returned if the requested company is the logged in user's company. |
@@ -1013,11 +1014,11 @@ class ContactsService extends GenericService {
      * | ddiReadOnly optionnel | Boolean | Indicates if admin of IR company is allowed to create or delete a DDI. Used only on IR companies. |
      * | locked optionnel | Boolean | Allow to lock selected theme for customers. If true, customers won't be able to manage themes (create/update/delete). |
      * | customData optionnel | Object | Company's custom data.  <br>Object with free keys/values.  <br>It is up to the client to manage the company's customData (new customData provided overwrite the existing one).  <br>  <br>Restrictions on customData Object:<br><br>* max 10 keys,<br>* max key length: 64 characters,<br>* max value length: 512 characters. |
-     * 
+     *
      */
     getCompanyInfos(companyId? : string, format : string = "small", selectedThemeObj : boolean = false, name? : string, status? : string, visibility? : string, organisationId? : string, isBP? : boolean, hasBP? : boolean, bpType? : string) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getCompanyInfos) companyId : ", that._logger.stripStringForLogs(companyId), ", format : ", format);
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getCompanyInfos) companyId : ", that._logger.stripStringForLogs(companyId), ", format : ", format);
 
         return new Promise((resolve, reject) => {
             if (!companyId) {
@@ -1026,10 +1027,10 @@ class ContactsService extends GenericService {
             }
 
             that._logger.log(that.DEBUG, LOG_ID + "(getCompanyInfos) companyId : ", companyId);
-            
+
             that._rest.getCompanyInfos(companyId, format, selectedThemeObj, name, status, visibility, organisationId, isBP, hasBP, bpType ).then((result: any) => {
-                that._logger.log("debug", LOG_ID + "(getCompanyInfos) company informations found on server.");
-                that._logger.log("internal", LOG_ID + "(getCompanyInfos) company informations found on server : ", result);
+                that._logger.log(that.INFO, LOG_ID + "(getCompanyInfos) company informations found on server.");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getCompanyInfos) company informations found on server : ", result);
                 resolve(result);
             }).catch((err) => {
                 return reject(err);
@@ -1052,7 +1053,7 @@ class ContactsService extends GenericService {
      */
     getAvatarByContactId(id : string, lastAvatarUpdateDate : string) : string {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getAvatarByContactId) id : ", that._logger.stripStringForLogs(id), ", lastAvatarUpdateDate : ", lastAvatarUpdateDate);
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getAvatarByContactId) id : ", that._logger.stripStringForLogs(id), ", lastAvatarUpdateDate : ", lastAvatarUpdateDate);
 
         if (lastAvatarUpdateDate) {
             return this.avatarDomain + "/api/avatar/" + id + "?update=" + md5(lastAvatarUpdateDate);
@@ -1072,7 +1073,7 @@ class ContactsService extends GenericService {
      */
     getConnectedUser(): Contact {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getConnectedUser) ");
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getConnectedUser) ");
 
         if (!that._rest.account) {
             return null;
@@ -1080,7 +1081,7 @@ class ContactsService extends GenericService {
         /*// Create the contact object
         let contact = new Contact();
 
-        //that._logger.log("internal", LOG_ID + "(getContactById) before updateFromUserData ", contact);
+        //that._logger.log(that.INTERNAL, LOG_ID + "(getContactById) before updateFromUserData ", contact);
         contact.updateFromUserData(that._rest.account);
         contact.avatar = that.getAvatarByContactId(that._rest.account.id, that._rest.account.lastAvatarUpdateDate);
         contact.status = that._presenceService.getUserConnectedPresence().presenceStatus;
@@ -1109,7 +1110,7 @@ class ContactsService extends GenericService {
      */
     getDisplayName(contact : Contact) : string {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getDisplayName) contact.id : ", that._logger.stripStringForLogs(contact?.id), ", contact.name : ", that._logger.stripStringForLogs(contact?.name));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getDisplayName) contact.id : ", that._logger.stripStringForLogs(contact?.id), ", contact.name : ", that._logger.stripStringForLogs(contact?.name));
 
         return contact.firstName + " " + contact.lastName;
     }
@@ -1120,73 +1121,73 @@ class ContactsService extends GenericService {
      * @method updateMyInformations
      * @instance
      * @category Contacts INFORMATIONS
-     * @param {Object} dataToUpdate : 
-     * { 
-     * {string} number User phone number (as entered by user). Not mandatory if the PhoneNumber to update is a PhoneNumber linked to a system (pbx)  
-     * {string} type 	String Phone number type Possible values : home, work, other
-     * {string} deviceType 	String Phone number device type Possible values : landline, mobile, fax, other
-     * {boolean} isVisibleByOthers optionnel 	Boolean Allow user to choose if the phone number is visible by other users or not. Note that administrators can see all the phone numbers, even if isVisibleByOthers is set to false. Note that phone numbers linked to a system (isFromSystem=true) are always visible, isVisibleByOthers can't be set to false for these numbers.
-     * {string} shortNumber optionnel 	String [Only for update of PhoneNumbers linked to a system (pbx)] Short phone number (corresponds to the number monitored by PCG). Read only field, only used by server to find the related system PhoneNumber to update (couple shortNumber/systemId). 
-     * {string} systemId optionnel 	String [Only for update of PhoneNumbers linked to a system (pbx)] Unique identifier of the system in Rainbow database to which the system PhoneNumbers belong. Read only field, only used by server to find the related system PhoneNumber to update (couple shortNumber/systemId). 
-     * {string} internalNumber optionnel 	String [Only for update of PhoneNumbers linked to a system (pbx)] Internal phone number. Usable within a PBX group. By default, it is equal to shortNumber. Admins and users can modify this internalNumber field. internalNumber must be unique in the whole system group to which the related PhoneNumber belong (an error 409 is raised if someone tries to update internalNumber to a number already used by another PhoneNumber in the same system group). 
-     * {Array<string>} emails optionnel 	Object Array of user emails addresses objects
-     * {Array<string>} phoneNumbers optionnel 	Object[] Array of user PhoneNumbers objects Notes: Provided PhoneNumbers data overwrite previous values: PhoneNumbers which are not known on server side are added, PhoneNumbers which are changed are updated, PhoneNumbers which are not provided but existed on server side are deleted. This does not applies to PhoneNumbers linked to a system(pbx), which can only be updated (addition and deletion of system PhoneNumbers are ignored). When number is present, the server tries to compute the associated E.164 number (numberE164 field) using provided PhoneNumber country if available, user country otherwise. If numberE164 can't be computed, an error 400 is returned (ex: wrong phone number, phone number not matching country code, ...) PhoneNumber linked to a system (pbx) can also be updated. In that case, shortNumber and systemId of the existing system PhoneNumber must be provided with the fields to update (see example bellow).     * System phoneNumbers can't be created nor deleted using this API, only PCG can create/delete system PhoneNumbers.
-     * {string} selectedTheme optionnel 	String Theme to be used by the user If the user is allowed to (company has 'allowUserSelectTheme' set to true), he can choose his preferred theme among the list of supported themes (see https://openrainbow.com/api/rainbow/enduser/v1.0/themes).
-     * {string} firstName optionnel 	String User first name 
-     * {string} lastName optionnel 	String User last name 
-     * {string} nickName optionnel 	String User nickName 
-     * {string} title optionnel 	String User title (honorifics title, like Mr, Mrs, Sir, Lord, Lady, Dr, Prof,...) 
-     * {string} jobTitle optionnel 	String User job title 
-     * {string} visibility optionnel 	String User visibility Define if the user can be searched by users being in other company and if the user can search users being in other companies. Visibility can be: same_than_company: The same visibility than the user's company's is applied to the user. When this user visibility is used, if the visibility of the company is changed the user's visibility will use this company new visibility. public: User can be searched by external users / can search external users. User can invite external users / can be invited by external users private: User can't be searched by external users / can search external users. User can invite external users / can be invited by external users closed: User can't be searched by external users / can't search external users. User can invite external users / can be invited by external users isolated: User can't be searched by external users / can't search external users. User can't invite external users / can't be invited by external users none: Default value reserved for guest. User can't be searched by any users (even within the same company) / can search external users. User can invite external users / can be invited by external users External users mean 'public user not being in user's company nor user's organisation nor a company visible by user's company. Default value : same_than_company Possible values : same_than_company, public, private, closed, isolated, none
-     * {boolean} isInitialized optionnel 	Boolean Is user initialized
-     * {string} timezone optionnel 	String User timezone name Allowed values: one of the timezone names defined in IANA tz database Timezone name are composed as follow: Area/Location (ex: Europe/Paris, America/New_York,...)
-     * {string} language optionnel 	String User language Language format is composed of locale using format ISO 639-1, with optionally the regional variation using ISO 3166‑1 alpha-2 (separated by hyphen). Locale part is in lowercase, regional part is in uppercase. Examples: en, en-US, fr, fr-FR, fr-CA, es-ES, es-MX, ... More information about the format can be found on this link. 
-     * {string} state optionnel 	String When country is 'USA' or 'CAN', a state can be defined. Else it is not managed (null).
-     * {string} country optionnel 	String User country (ISO 3166-1 alpha3 format) 
-     * {string} department optionnel 	String User department 
-     * {string} email 	String User email address 
-     * {string} country optionnel 	String Phone number country (ISO 3166-1 alpha3 format). country field is automatically computed using the following algorithm when creating/updating a phoneNumber entry: If number is provided and is in E164 format, country is computed from E164 number Else if country field is provided in the phoneNumber entry, this one is used Else user country field is used Note that in the case number field is set (but not in E164 format), associated numberE164 field is computed using phoneNumber'country field. So, number and country field must match so that numberE164 can be computed. 
-     * {string} type 	String User email type Possible values : home, work, other
-     * {string} customData optionnel 	Object User's custom data. Object with free keys/values. It is up to the client to manage the user's customData (new customData provided overwrite the existing one). Restrictions on customData Object: max 20 keys, max key length: 64 characters, max value length: 4096 characters. User customData can only be created/updated by: the user himself `company_admin` or `organization_admin` of his company, `bp_admin` and `bp_finance` of his company, `superadmin`.
+     * @param {Object} dataToUpdate :
+     * {
+     * {string} number User phone number (as entered by user). Not mandatory if the PhoneNumber to update is a PhoneNumber linked to a system (pbx)
+     * {string} type    String Phone number type Possible values : home, work, other
+     * {string} deviceType      String Phone number device type Possible values : landline, mobile, fax, other
+     * {boolean} isVisibleByOthers optionnel    Boolean Allow user to choose if the phone number is visible by other users or not. Note that administrators can see all the phone numbers, even if isVisibleByOthers is set to false. Note that phone numbers linked to a system (isFromSystem=true) are always visible, isVisibleByOthers can't be set to false for these numbers.
+     * {string} shortNumber optionnel   String [Only for update of PhoneNumbers linked to a system (pbx)] Short phone number (corresponds to the number monitored by PCG). Read only field, only used by server to find the related system PhoneNumber to update (couple shortNumber/systemId).
+     * {string} systemId optionnel      String [Only for update of PhoneNumbers linked to a system (pbx)] Unique identifier of the system in Rainbow database to which the system PhoneNumbers belong. Read only field, only used by server to find the related system PhoneNumber to update (couple shortNumber/systemId).
+     * {string} internalNumber optionnel        String [Only for update of PhoneNumbers linked to a system (pbx)] Internal phone number. Usable within a PBX group. By default, it is equal to shortNumber. Admins and users can modify this internalNumber field. internalNumber must be unique in the whole system group to which the related PhoneNumber belong (an error 409 is raised if someone tries to update internalNumber to a number already used by another PhoneNumber in the same system group).
+     * {Array<string>} emails optionnel         Object Array of user emails addresses objects
+     * {Array<string>} phoneNumbers optionnel   Object[] Array of user PhoneNumbers objects Notes: Provided PhoneNumbers data overwrite previous values: PhoneNumbers which are not known on server side are added, PhoneNumbers which are changed are updated, PhoneNumbers which are not provided but existed on server side are deleted. This does not applies to PhoneNumbers linked to a system(pbx), which can only be updated (addition and deletion of system PhoneNumbers are ignored). When number is present, the server tries to compute the associated E.164 number (numberE164 field) using provided PhoneNumber country if available, user country otherwise. If numberE164 can't be computed, an error 400 is returned (ex: wrong phone number, phone number not matching country code, ...) PhoneNumber linked to a system (pbx) can also be updated. In that case, shortNumber and systemId of the existing system PhoneNumber must be provided with the fields to update (see example bellow).     * System phoneNumbers can't be created nor deleted using this API, only PCG can create/delete system PhoneNumbers.
+     * {string} selectedTheme optionnel         String Theme to be used by the user If the user is allowed to (company has 'allowUserSelectTheme' set to true), he can choose his preferred theme among the list of supported themes (see https://openrainbow.com/api/rainbow/enduser/v1.0/themes).
+     * {string} firstName optionnel     String User first name
+     * {string} lastName optionnel      String User last name
+     * {string} nickName optionnel      String User nickName
+     * {string} title optionnel         String User title (honorifics title, like Mr, Mrs, Sir, Lord, Lady, Dr, Prof,...)
+     * {string} jobTitle optionnel      String User job title
+     * {string} visibility optionnel    String User visibility Define if the user can be searched by users being in other company and if the user can search users being in other companies. Visibility can be: same_than_company: The same visibility than the user's company's is applied to the user. When this user visibility is used, if the visibility of the company is changed the user's visibility will use this company new visibility. public: User can be searched by external users / can search external users. User can invite external users / can be invited by external users private: User can't be searched by external users / can search external users. User can invite external users / can be invited by external users closed: User can't be searched by external users / can't search external users. User can invite external users / can be invited by external users isolated: User can't be searched by external users / can't search external users. User can't invite external users / can't be invited by external users none: Default value reserved for guest. User can't be searched by any users (even within the same company) / can search external users. User can invite external users / can be invited by external users External users mean 'public user not being in user's company nor user's organisation nor a company visible by user's company. Default value : same_than_company Possible values : same_than_company, public, private, closed, isolated, none
+     * {boolean} isInitialized optionnel        Boolean Is user initialized
+     * {string} timezone optionnel      String User timezone name Allowed values: one of the timezone names defined in IANA tz database Timezone name are composed as follow: Area/Location (ex: Europe/Paris, America/New_York,...)
+     * {string} language optionnel      String User language Language format is composed of locale using format ISO 639-1, with optionally the regional variation using ISO 3166‑1 alpha-2 (separated by hyphen). Locale part is in lowercase, regional part is in uppercase. Examples: en, en-US, fr, fr-FR, fr-CA, es-ES, es-MX, ... More information about the format can be found on this link.
+     * {string} state optionnel         String When country is 'USA' or 'CAN', a state can be defined. Else it is not managed (null).
+     * {string} country optionnel       String User country (ISO 3166-1 alpha3 format)
+     * {string} department optionnel    String User department
+     * {string} email   String User email address
+     * {string} country optionnel       String Phone number country (ISO 3166-1 alpha3 format). country field is automatically computed using the following algorithm when creating/updating a phoneNumber entry: If number is provided and is in E164 format, country is computed from E164 number Else if country field is provided in the phoneNumber entry, this one is used Else user country field is used Note that in the case number field is set (but not in E164 format), associated numberE164 field is computed using phoneNumber'country field. So, number and country field must match so that numberE164 can be computed.
+     * {string} type    String User email type Possible values : home, work, other
+     * {string} customData optionnel    Object User's custom data. Object with free keys/values. It is up to the client to manage the user's customData (new customData provided overwrite the existing one). Restrictions on customData Object: max 20 keys, max key length: 64 characters, max value length: 4096 characters. User customData can only be created/updated by: the user himself `company_admin` or `organization_admin` of his company, `bp_admin` and `bp_finance` of his company, `superadmin`.
      * }
-     * 
+     *
      * @return {string} The contact first name and last name
      * @description
      *          This API can be used to update data of logged in user. This API can only be used by user himself (i.e. userId of logged in user = value of userId parameter in URL)
      */
     updateMyInformations(dataToUpdate: any) : Promise<any> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(updateMyInformations) ");
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(updateMyInformations) ");
 
-//        that._logger.log("internal", LOG_ID + "(updateMyInformations) parameters : dataToUpdate : ", dataToUpdate);
+//        that._logger.log(that.INTERNAL, LOG_ID + "(updateMyInformations) parameters : dataToUpdate : ", dataToUpdate);
 
         return new Promise(function (resolve, reject) {
             try {
                 if (!dataToUpdate) {
-                    that._logger.log("error", LOG_ID + "(updateMyInformations) bad or empty 'dataToUpdate' parameter");
+                    that._logger.log(that.ERROR, LOG_ID + "(updateMyInformations) bad or empty 'dataToUpdate' parameter");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
 
-                let meId = that._rest.account.id; 
-                
+                let meId = that._rest.account.id;
+
                 that._rest.updateEndUserInformations(meId, dataToUpdate).then((result) => {
-                    that._logger.log("internal", LOG_ID + "(updateMyInformations) Successfully result : ", result);
+                    that._logger.log(that.INTERNAL, LOG_ID + "(updateMyInformations) Successfully result : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(updateMyInformations) Error when updating informations.");
-                    that._logger.log("internalerror", LOG_ID + "(updateMyInformations) Error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(updateMyInformations) Error when updating informations.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(updateMyInformations) Error : ", err);
                     return reject(err);
                 });
 
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(updateMyInformations) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(updateMyInformations) error : ", err);
                 return reject(err);
             }
         });
     }
-    
+
     //endregion Contacts INFORMATIONS
 
     //region Contacts Sources
@@ -1200,14 +1201,14 @@ class ContactsService extends GenericService {
      * @async
      * @since 2.21.0
      * @return {Object} The result
-     * 
-     * 
+     *
+     *
      * | Champ | Type | Description |
      * | --- | --- | --- |
      * | id  | String | Source unique identifier |
      * | os  | String | Operating system name and version |
      * | sourceId | String | Id of source that could be IMEI or factory number for mobiles, email for Outloock or account number for Facebook |
-     * 
+     *
      * @description
      *          A client could have one or more mobile devices as a source of contacts with his contacts stored in. </br>
      *          Also a source of contacts could be Microsoft Outlook / Linkedin or Facebook. </br>
@@ -1219,36 +1220,36 @@ class ContactsService extends GenericService {
      */
     async createSource (userId : string, sourceId : string, os : string ) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(createSource) userId : ", that._logger.stripStringForLogs(userId), ", sourceId : ",  that._logger.stripStringForLogs(sourceId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(createSource) userId : ", that._logger.stripStringForLogs(userId), ", sourceId : ",  that._logger.stripStringForLogs(sourceId));
 
-//        that._logger.log("internal", LOG_ID + "(createSource) parameters : userId : ", userId);
+//        that._logger.log(that.INTERNAL, LOG_ID + "(createSource) parameters : userId : ", userId);
 
         return new Promise(function (resolve, reject) {
             try {
                 let meId = userId ? userId : that._rest.account.id;
 
                 if (!sourceId) {
-                    that._logger.log("error", LOG_ID + "(createSource) bad or empty 'sourceId' parameter");
+                    that._logger.log(that.ERROR, LOG_ID + "(createSource) bad or empty 'sourceId' parameter");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
 
                 if (!os) {
-                    that._logger.log("error", LOG_ID + "(createSource) bad or empty 'os' parameter");
+                    that._logger.log(that.ERROR, LOG_ID + "(createSource) bad or empty 'os' parameter");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
 
                 that._rest.createSource(meId, sourceId, os).then((result) => {
-                    that._logger.log("internal", LOG_ID + "(createSource) Successfully result : ", result);
+                    that._logger.log(that.INTERNAL, LOG_ID + "(createSource) Successfully result : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(createSource) Error when updating informations.");
-                    that._logger.log("internalerror", LOG_ID + "(createSource) Error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(createSource) Error when updating informations.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(createSource) Error : ", err);
                     return reject(err);
                 });
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(createSource) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(createSource) error : ", err);
                 return reject(err);
             }
         });
@@ -1269,7 +1270,7 @@ class ContactsService extends GenericService {
      *  | --- | --- | --- |
      *  | status | String | Deletion status |
      *  | data | Object\[\] | No data (empty Array) |
-     *  
+     *
      * @description
      *          This API is used to delete a source. </br>
      * @param {string} userId User unique identifier
@@ -1277,30 +1278,30 @@ class ContactsService extends GenericService {
      */
     async deleteSource (userId : string, sourceId : string) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(deleteSource) userId : ", that._logger.stripStringForLogs(userId), ", sourceId : ",  that._logger.stripStringForLogs(sourceId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(deleteSource) userId : ", that._logger.stripStringForLogs(userId), ", sourceId : ",  that._logger.stripStringForLogs(sourceId));
 
-//        that._logger.log("internal", LOG_ID + "(deleteSource) parameters : userId : ", userId);
+//        that._logger.log(that.INTERNAL, LOG_ID + "(deleteSource) parameters : userId : ", userId);
 
         return new Promise(function (resolve, reject) {
             try {
                 let meId = userId ? userId : that._rest.account.id;
 
                 if (!sourceId) {
-                    that._logger.log("error", LOG_ID + "(deleteSource) bad or empty 'sourceId' parameter");
+                    that._logger.log(that.ERROR, LOG_ID + "(deleteSource) bad or empty 'sourceId' parameter");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
 
                 that._rest.deleteSource(meId, sourceId).then((result) => {
-                    that._logger.log("internal", LOG_ID + "(deleteSource) Successfully result : ", result);
+                    that._logger.log(that.INTERNAL, LOG_ID + "(deleteSource) Successfully result : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(deleteSource) Error when updating informations.");
-                    that._logger.log("internalerror", LOG_ID + "(deleteSource) Error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(deleteSource) Error when updating informations.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteSource) Error : ", err);
                     return reject(err);
                 });
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(deleteSource) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteSource) error : ", err);
                 return reject(err);
             }
         });
@@ -1330,30 +1331,30 @@ class ContactsService extends GenericService {
      */
     async getSourceData(userId : string, sourceId : string) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getSourceData) userId : ", that._logger.stripStringForLogs(userId), ", sourceId : ",  that._logger.stripStringForLogs(sourceId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getSourceData) userId : ", that._logger.stripStringForLogs(userId), ", sourceId : ",  that._logger.stripStringForLogs(sourceId));
 
-       // that._logger.log("internal", LOG_ID + "(getSourceData) parameters : userId : ", userId);
+       // that._logger.log(that.INTERNAL, LOG_ID + "(getSourceData) parameters : userId : ", userId);
 
         return new Promise(function (resolve, reject) {
             try {
                 let meId = userId ? userId : that._rest.account.id;
 
                 if (!sourceId) {
-                    that._logger.log("error", LOG_ID + "(getSourceData) bad or empty 'sourceId' parameter");
+                    that._logger.log(that.ERROR, LOG_ID + "(getSourceData) bad or empty 'sourceId' parameter");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
 
                 that._rest.getSourceData(meId, sourceId).then((result) => {
-                    that._logger.log("internal", LOG_ID + "(getSourceData) Successfully result : ", result);
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getSourceData) Successfully result : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(getSourceData) Error when updating informations.");
-                    that._logger.log("internalerror", LOG_ID + "(getSourceData) Error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(getSourceData) Error when updating informations.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getSourceData) Error : ", err);
                     return reject(err);
                 });
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(getSourceData) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getSourceData) error : ", err);
                 return reject(err);
             }
         });
@@ -1387,32 +1388,32 @@ class ContactsService extends GenericService {
      * - full: all source fields </BR>
      * Default value : small. Possibles values : small, medium, full
      * @param {string} sortField Sort items list based on the given field. Default value : name
-     * @param {number} limit Allow to specify the number of items to retrieve. Default value : 100. 
+     * @param {number} limit Allow to specify the number of items to retrieve. Default value : 100.
      * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Default value : 0
      * @param {number} sortOrder Specify order when sorting items list. Default value : 1. Possibles values -1, 1.
      */
     async getAllSourcesByUserId (userId? : string, format : string = "small", sortField : string = "name", limit : number = 100, offset : number = 0, sortOrder : number = 1) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getAllSourcesByUserId) userId : ", that._logger.stripStringForLogs(userId), ", format : ",  that._logger.stripStringForLogs(format));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getAllSourcesByUserId) userId : ", that._logger.stripStringForLogs(userId), ", format : ",  that._logger.stripStringForLogs(format));
 
-        //that._logger.log("internal", LOG_ID + "(getAllSourcesByUserId) parameters : userId : ", userId);
+        //that._logger.log(that.INTERNAL, LOG_ID + "(getAllSourcesByUserId) parameters : userId : ", userId);
 
         return new Promise(function (resolve, reject) {
             try {
                 let meId = userId ? userId : that._rest.account.id;
 
                 that._rest.getAllSourcesByUserId(meId, format, sortField, limit, offset, sortOrder).then((result) => {
-                    that._logger.log("internal", LOG_ID + "(getAllSourcesByUserId) Successfully result : ", result);
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getAllSourcesByUserId) Successfully result : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(getAllSourcesByUserId) Error when updating informations.");
-                    that._logger.log("internalerror", LOG_ID + "(getAllSourcesByUserId) Error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(getAllSourcesByUserId) Error when updating informations.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getAllSourcesByUserId) Error : ", err);
                     return reject(err);
                 });
 
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(getAllSourcesByUserId) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getAllSourcesByUserId) error : ", err);
                 return reject(err);
             }
         });
@@ -1443,36 +1444,36 @@ class ContactsService extends GenericService {
      */
     async updateSourceData (userId : string, sourceId : string, os : string ) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(updateSourceData) userId : ", that._logger.stripStringForLogs(userId), ", sourceId : ",  that._logger.stripStringForLogs(sourceId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(updateSourceData) userId : ", that._logger.stripStringForLogs(userId), ", sourceId : ",  that._logger.stripStringForLogs(sourceId));
 
-       // that._logger.log("internal", LOG_ID + "(updateSourceData) parameters : userId : ", userId);
+       // that._logger.log(that.INTERNAL, LOG_ID + "(updateSourceData) parameters : userId : ", userId);
 
         return new Promise(function (resolve, reject) {
             try {
                 let meId = userId ? userId : that._rest.account.id;
 
                 if (!sourceId) {
-                    that._logger.log("error", LOG_ID + "(updateSourceData) bad or empty 'sourceId' parameter");
+                    that._logger.log(that.ERROR, LOG_ID + "(updateSourceData) bad or empty 'sourceId' parameter");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
 
                 if (!os) {
-                    that._logger.log("error", LOG_ID + "(updateSourceData) bad or empty 'os' parameter");
+                    that._logger.log(that.ERROR, LOG_ID + "(updateSourceData) bad or empty 'os' parameter");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
 
                 that._rest.updateSourceData(meId, sourceId, os).then((result) => {
-                    that._logger.log("internal", LOG_ID + "(updateSourceData) Successfully result : ", result);
+                    that._logger.log(that.INTERNAL, LOG_ID + "(updateSourceData) Successfully result : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(updateSourceData) Error when updating informations.");
-                    that._logger.log("internalerror", LOG_ID + "(updateSourceData) Error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(updateSourceData) Error when updating informations.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(updateSourceData) Error : ", err);
                     return reject(err);
                 });
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(updateSourceData) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(updateSourceData) error : ", err);
                 return reject(err);
             }
         });
@@ -1549,39 +1550,39 @@ class ContactsService extends GenericService {
      */
     async updateContactData (userId  : string, sourceId  : string, contactIddb  : string, contactId  : string = undefined, firstName  : string = undefined, lastName : string = undefined, displayName : string = undefined, company  : string = undefined, jobTitle  : string = undefined, phoneNumbers : Array<any> = undefined, emails : Array<any> = undefined,addresses : Array<any> = undefined, groups : Array<string> = undefined, otherData : Array<any> = undefined) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(updateContactData) userId : ", that._logger.stripStringForLogs(userId), ", sourceId : ",  that._logger.stripStringForLogs(sourceId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(updateContactData) userId : ", that._logger.stripStringForLogs(userId), ", sourceId : ",  that._logger.stripStringForLogs(sourceId));
 
-        //that._logger.log("internal", LOG_ID + "(updateContactData) parameters : userId : ", userId);
+        //that._logger.log(that.INTERNAL, LOG_ID + "(updateContactData) parameters : userId : ", userId);
 
         return new Promise(function (resolve, reject) {
             try {
                 let meId = userId ? userId : that._rest.account.id;
 
                 if (!sourceId) {
-                    that._logger.log("error", LOG_ID + "(updateContactData) bad or empty 'sourceId' parameter");
+                    that._logger.log(that.ERROR, LOG_ID + "(updateContactData) bad or empty 'sourceId' parameter");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
 
                 if (!contactIddb) {
-                    that._logger.log("error", LOG_ID + "(updateContactData) bad or empty 'contactIddb' parameter");
+                    that._logger.log(that.ERROR, LOG_ID + "(updateContactData) bad or empty 'contactIddb' parameter");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
 
                 that._rest.updateContactData(meId, sourceId, contactIddb, contactId, firstName, lastName, displayName, company, jobTitle, phoneNumbers, emails,addresses, groups, otherData).then((result) => {
-                    that._logger.log("internal", LOG_ID + "(updateContactData) Successfully result : ", result);
+                    that._logger.log(that.INTERNAL, LOG_ID + "(updateContactData) Successfully result : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(updateContactData) Error when updating informations.");
-                    that._logger.log("internalerror", LOG_ID + "(updateContactData) Error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(updateContactData) Error when updating informations.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(updateContactData) Error : ", err);
                     return reject(err);
                 });
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(updateContactData) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(updateContactData) error : ", err);
                 return reject(err);
             }
-        }); 
+        });
     }
 
     /**
@@ -1650,85 +1651,85 @@ class ContactsService extends GenericService {
      */
     async createContact (userId : string, sourceId : string, contactId : string, firstName : string, lastName : string, displayName : string, company : string, jobTitle : string, phoneNumbers : Array<any>= [], emails : Array<any>= [], addresses : Array<any>= [], groups : Array<string>= [], otherData : Array<any> = []) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(createContact) userId : ", that._logger.stripStringForLogs(userId), ", sourceId : ",  that._logger.stripStringForLogs(sourceId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(createContact) userId : ", that._logger.stripStringForLogs(userId), ", sourceId : ",  that._logger.stripStringForLogs(sourceId));
 
-        //that._logger.log("internal", LOG_ID + "(createContact) parameters : userId : ", userId);
+        //that._logger.log(that.INTERNAL, LOG_ID + "(createContact) parameters : userId : ", userId);
 
         return new Promise(function (resolve, reject) {
             try {
                 let meId = userId ? userId : that._rest.account.id;
 
                 if (!sourceId) {
-                    that._logger.log("error", LOG_ID + "(createContact) bad or empty 'sourceId' parameter");
+                    that._logger.log(that.ERROR, LOG_ID + "(createContact) bad or empty 'sourceId' parameter");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
                 if (!contactId) {
-                    that._logger.log("error", LOG_ID + "(createContact) bad or empty 'contactId' parameter");
+                    that._logger.log(that.ERROR, LOG_ID + "(createContact) bad or empty 'contactId' parameter");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
                 if (!firstName) {
-                    that._logger.log("error", LOG_ID + "(createContact) bad or empty 'firstName' parameter");
+                    that._logger.log(that.ERROR, LOG_ID + "(createContact) bad or empty 'firstName' parameter");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
                 if (!lastName) {
-                    that._logger.log("error", LOG_ID + "(createContact) bad or empty 'lastName' parameter");
+                    that._logger.log(that.ERROR, LOG_ID + "(createContact) bad or empty 'lastName' parameter");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
                 if (!displayName) {
-                    that._logger.log("error", LOG_ID + "(createContact) bad or empty 'displayName' parameter");
+                    that._logger.log(that.ERROR, LOG_ID + "(createContact) bad or empty 'displayName' parameter");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
                 if (!company) {
-                    that._logger.log("error", LOG_ID + "(createContact) bad or empty 'company' parameter");
+                    that._logger.log(that.ERROR, LOG_ID + "(createContact) bad or empty 'company' parameter");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
                 if (!jobTitle) {
-                    that._logger.log("error", LOG_ID + "(createContact) bad or empty 'jobTitle' parameter");
+                    that._logger.log(that.ERROR, LOG_ID + "(createContact) bad or empty 'jobTitle' parameter");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
                 if (!phoneNumbers) {
-                    that._logger.log("error", LOG_ID + "(createContact) bad or empty 'phoneNumbers' parameter");
+                    that._logger.log(that.ERROR, LOG_ID + "(createContact) bad or empty 'phoneNumbers' parameter");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
                 if (!emails) {
-                    that._logger.log("error", LOG_ID + "(createContact) bad or empty 'emails' parameter");
+                    that._logger.log(that.ERROR, LOG_ID + "(createContact) bad or empty 'emails' parameter");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
                 if (!addresses) {
-                    that._logger.log("error", LOG_ID + "(createContact) bad or empty 'addresses' parameter");
+                    that._logger.log(that.ERROR, LOG_ID + "(createContact) bad or empty 'addresses' parameter");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
                 if (!groups) {
-                    that._logger.log("error", LOG_ID + "(createContact) bad or empty 'groups' parameter");
+                    that._logger.log(that.ERROR, LOG_ID + "(createContact) bad or empty 'groups' parameter");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
                 if (!otherData) {
-                    that._logger.log("error", LOG_ID + "(createContact) bad or empty 'otherData' parameter");
+                    that._logger.log(that.ERROR, LOG_ID + "(createContact) bad or empty 'otherData' parameter");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
 
                 that._rest.createContact(meId, sourceId, contactId, firstName, lastName, displayName, company, jobTitle, phoneNumbers, emails, addresses, groups, otherData).then((result) => {
-                    that._logger.log("internal", LOG_ID + "(createContact) Successfully result : ", result);
+                    that._logger.log(that.INTERNAL, LOG_ID + "(createContact) Successfully result : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(createContact) Error when updating informations.");
-                    that._logger.log("internalerror", LOG_ID + "(createContact) Error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(createContact) Error when updating informations.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(createContact) Error : ", err);
                     return reject(err);
                 });
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(createContact) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(createContact) error : ", err);
                 return reject(err);
             }
         });
@@ -1781,36 +1782,36 @@ class ContactsService extends GenericService {
      */
     async getContactData (userId : string, sourceId : string, contactId : string ) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getContactData) userId : ", that._logger.stripStringForLogs(userId), ", sourceId : ",  that._logger.stripStringForLogs(sourceId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getContactData) userId : ", that._logger.stripStringForLogs(userId), ", sourceId : ",  that._logger.stripStringForLogs(sourceId));
 
-        //that._logger.log("internal", LOG_ID + "(getContactData) parameters : userId : ", userId);
+        //that._logger.log(that.INTERNAL, LOG_ID + "(getContactData) parameters : userId : ", userId);
 
         return new Promise(function (resolve, reject) {
             try {
                 let meId = userId ? userId : that._rest.account.id;
 
                 if (!sourceId) {
-                    that._logger.log("error", LOG_ID + "(getContactData) bad or empty 'sourceId' parameter");
+                    that._logger.log(that.ERROR, LOG_ID + "(getContactData) bad or empty 'sourceId' parameter");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
 
                 if (!contactId) {
-                    that._logger.log("error", LOG_ID + "(getContactData) bad or empty 'contactId' parameter");
+                    that._logger.log(that.ERROR, LOG_ID + "(getContactData) bad or empty 'contactId' parameter");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
 
                 that._rest.getContactData(meId, sourceId, contactId).then((result : any) => {
-                    that._logger.log("internal", LOG_ID + "(getContactData) Successfully result : ", result);
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getContactData) Successfully result : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(getContactData) Error when updating informations.");
-                    that._logger.log("internalerror", LOG_ID + "(getContactData) Error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(getContactData) Error when updating informations.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getContactData) Error : ", err);
                     return reject(err);
                 });
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(getContactData) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getContactData) error : ", err);
                 return reject(err);
             }
         });
@@ -1868,30 +1869,30 @@ class ContactsService extends GenericService {
      */
     async getContactsList (userId : string, sourceId : string, format : string = "small" ) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getContactsList) userId : ", that._logger.stripStringForLogs(userId), ", sourceId : ",  that._logger.stripStringForLogs(sourceId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getContactsList) userId : ", that._logger.stripStringForLogs(userId), ", sourceId : ",  that._logger.stripStringForLogs(sourceId));
 
-       // that._logger.log("internal", LOG_ID + "(getContactsList) parameters : userId : ", userId);
+       // that._logger.log(that.INTERNAL, LOG_ID + "(getContactsList) parameters : userId : ", userId);
 
         return new Promise(function (resolve, reject) {
             try {
                 let meId = userId ? userId : that._rest.account.id;
 
                 if (!sourceId) {
-                    that._logger.log("error", LOG_ID + "(getContactsList) bad or empty 'sourceId' parameter");
+                    that._logger.log(that.ERROR, LOG_ID + "(getContactsList) bad or empty 'sourceId' parameter");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
 
                 that._rest.getContactsList(meId, sourceId, format).then((result) => {
-                    that._logger.log("internal", LOG_ID + "(getContactsList) Successfully result : ", result);
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getContactsList) Successfully result : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(getContactsList) Error when updating informations.");
-                    that._logger.log("internalerror", LOG_ID + "(getContactsList) Error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(getContactsList) Error when updating informations.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getContactsList) Error : ", err);
                     return reject(err);
                 });
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(getContactsList) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getContactsList) error : ", err);
                 return reject(err);
             }
         });
@@ -1921,41 +1922,41 @@ class ContactsService extends GenericService {
      */
     deleteContact (userId : string, sourceId : string, contactId: string) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(deleteContact) userId : ", that._logger.stripStringForLogs(userId), ", sourceId : ",  that._logger.stripStringForLogs(sourceId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(deleteContact) userId : ", that._logger.stripStringForLogs(userId), ", sourceId : ",  that._logger.stripStringForLogs(sourceId));
 
-      //  that._logger.log("internal", LOG_ID + "(deleteContact) parameters : userId : ", userId);
+      //  that._logger.log(that.INTERNAL, LOG_ID + "(deleteContact) parameters : userId : ", userId);
 
         return new Promise(function (resolve, reject) {
             try {
                 let meId = userId ? userId : that._rest.account.id;
 
                 if (!sourceId) {
-                    that._logger.log("error", LOG_ID + "(deleteContact) bad or empty 'sourceId' parameter");
+                    that._logger.log(that.ERROR, LOG_ID + "(deleteContact) bad or empty 'sourceId' parameter");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
 
                 if (!contactId) {
-                    that._logger.log("error", LOG_ID + "(deleteContact) bad or empty 'contactId' parameter");
+                    that._logger.log(that.ERROR, LOG_ID + "(deleteContact) bad or empty 'contactId' parameter");
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
 
                 that._rest.deleteContact(meId, sourceId, contactId).then((result) => {
-                    that._logger.log("internal", LOG_ID + "(deleteContact) Successfully result : ", result);
+                    that._logger.log(that.INTERNAL, LOG_ID + "(deleteContact) Successfully result : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(deleteContact) Error when updating informations.");
-                    that._logger.log("internalerror", LOG_ID + "(deleteContact) Error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(deleteContact) Error when updating informations.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteContact) Error : ", err);
                     return reject(err);
                 });
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(getContactsList) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getContactsList) error : ", err);
                 return reject(err);
             }
         });
     }
-    
+
     //endregion Contacts API - Enduser portal
 
     // ************************************************** //
@@ -2026,14 +2027,14 @@ class ContactsService extends GenericService {
      */
     getRosters() : Promise<Array<Contact>> {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getRosters) ");
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getRosters) ");
 
         return new Promise((resolve, reject) => {
             that._rest.getContacts().then(async (listOfContacts: any) => {
                 /*
                 for (const contact of listOfContacts) {
-                    that._logger.log("internal", LOG_ID + "(getRosters) list contact found on the server contact : ", contact);
-                } 
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getRosters) list contact found on the server contact : ", contact);
+                }
                 // */
 
                 if (! that._contacts) {
@@ -2042,7 +2043,7 @@ class ContactsService extends GenericService {
 
                 /*
                 listOfContacts.forEach((contactData: any) => {
-                //for (const contactData of listOfContacts) {                        
+                //for (const contactData of listOfContacts) {
                     let contactIndex = that._contacts.findIndex((_contact: any) => {
                         return _contact.jid_im===contactData.jid_im;
                     });
@@ -2067,25 +2068,25 @@ class ContactsService extends GenericService {
 
                 // store/update contacts in cache with infos of roster list from server.
                 listOfContacts.forEach((contactData: any) => {
-                    that._logger.log("internal", LOG_ID + "(getRosters) contact find on the server : id : ", contactData.id, ", jid_im : ", contactData.jid_im, ", displayName : ", contactData.displayName);
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getRosters) contact find on the server : id : ", contactData.id, ", jid_im : ", contactData.jid_im, ", displayName : ", contactData.displayName);
 
                     //for (const contactData of listOfContacts) {
                     //await that._rest.getContactInformationByJID(contactData.jid_im).then((_contactFromServer: any) => {
                      that._rest.getContactInformationByJID(contactData.jid_im).then((_contactFromServer: any) => {
-                        that._logger.log("debug", LOG_ID + "(getRosters) contact found on the server");
-                        //that._logger.log("internal", LOG_ID + "(getRosters) contact found on the server : ", util.inspect(_contactFromServer));
-                        that._logger.log("internal", LOG_ID + "(getRosters) contact found on the server : id : ", _contactFromServer.id, ", jid_im : ", _contactFromServer.jid_im, ", displayName : ", _contactFromServer.displayName);
+                        that._logger.log(that.INFO, LOG_ID + "(getRosters) contact found on the server");
+                        //that._logger.log(that.INTERNAL, LOG_ID + "(getRosters) contact found on the server : ", util.inspect(_contactFromServer));
+                        that._logger.log(that.INTERNAL, LOG_ID + "(getRosters) contact found on the server : id : ", _contactFromServer.id, ", jid_im : ", _contactFromServer.jid_im, ", displayName : ", _contactFromServer.displayName);
                         // Update or Add contact
                         let contactIndex = that._contacts.findIndex((_contact: any) => {
                             return _contact.jid_im===_contactFromServer.jid_im;
                         });
 
                         let contact = null;
-                        //that._logger.log("internal", LOG_ID + "(_onRosterContactInfoChanged) contact found on the server : ", contact);
+                        //that._logger.log(that.INTERNAL, LOG_ID + "(_onRosterContactInfoChanged) contact found on the server : ", contact);
 
                         if (contactIndex!== -1) {
                             contact = that._contacts[contactIndex];
-                            //that._logger.log("internal", LOG_ID + "(_onRosterContactInfoChanged) local contact before updateFromUserData ", contact);
+                            //that._logger.log(that.INTERNAL, LOG_ID + "(_onRosterContactInfoChanged) local contact before updateFromUserData ", contact);
                             contact.updateFromUserData(_contactFromServer);
                             contact.avatar = that.getAvatarByContactId(_contactFromServer.id, _contactFromServer.lastAvatarUpdateDate);
 
@@ -2094,7 +2095,7 @@ class ContactsService extends GenericService {
                             // this._eventEmitter.emit("evt_internal_contactinformationchanged", that._contacts[contactIndex]);
                         } else {
                             contact = that.createBasicContact(_contactFromServer.jid_im, undefined);
-                            //that._logger.log("internal", LOG_ID + "(_onRosterContactInfoChanged) from server contact before updateFromUserData ", contact);
+                            //that._logger.log(that.INTERNAL, LOG_ID + "(_onRosterContactInfoChanged) from server contact before updateFromUserData ", contact);
                             contact.updateFromUserData(_contactFromServer);
                             contact.roster = true;
                             contact.avatar = that.getAvatarByContactId(_contactFromServer.id, _contactFromServer.lastAvatarUpdateDate);
@@ -2106,21 +2107,21 @@ class ContactsService extends GenericService {
 
 
                     }).catch((err) => {
-                        this._logger.log("debug", LOG_ID + "(getRosters) no contact found with contactData.jid_im " + contactData.jid_im);
+                        that._logger.log(that.INFO, LOG_ID + "(getRosters) no contact found with contactData.jid_im " + contactData.jid_im);
                     });
                 //};
                 });
 
-                this._logger.log("debug", LOG_ID + "(getRosters) contacts retrieved, return the one from roster.");
+                that._logger.log(that.INFO, LOG_ID + "(getRosters) contacts retrieved, return the one from roster.");
                 resolve(that._contacts.filter((contact) => { return contact.roster === true; }));
                 /*
-                
+
                 that._contacts = [];
                 listOfContacts.forEach((contactData: any) => {
                     // Create the contact object
                     let contact = new Contact();
                     Object.assign(contact, contactData);
-                    // that._logger.log("internal", LOG_ID + "(getRosters) before updateFromUserData ", contact);
+                    // that._logger.log(that.INTERNAL, LOG_ID + "(getRosters) before updateFromUserData ", contact);
                     contact.updateFromUserData(contactData);
                     contact.roster = true;
                     contact.avatar = that.getAvatarByContactId(contact.id, contact.lastAvatarUpdateDate);
@@ -2128,14 +2129,14 @@ class ContactsService extends GenericService {
                     // that._contacts[contact.id] = contact;
                     that._contacts.push(contact);
                 });
-                that._logger.log("internal", LOG_ID + "(getRosters) get rosters successfully : ", that._contacts);
+                that._logger.log(that.INTERNAL, LOG_ID + "(getRosters) get rosters successfully : ", that._contacts);
 
-                that._logger.log("debug", LOG_ID + "(getRosters) get rosters successfully");
+                that._logger.log(that.INFO, LOG_ID + "(getRosters) get rosters successfully");
                 resolve(that.getAll());
                 // */
             }).catch((err) => {
-                that._logger.log("error", LOG_ID + "(getRosters) error");
-                that._logger.log("internalerror", LOG_ID + "(getRosters) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getRosters) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getRosters) error : ", err);
                 return reject(err);
             });
         });
@@ -2158,7 +2159,7 @@ class ContactsService extends GenericService {
      */
     addToNetwork(contact: Contact) : Promise<Contact>{
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(addToNetwork) contact.id : ", that._logger.stripStringForLogs(contact?.id), ", contact.name : ", that._logger.stripStringForLogs(contact?.name));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(addToNetwork) contact.id : ", that._logger.stripStringForLogs(contact?.id), ", contact.name : ", that._logger.stripStringForLogs(contact?.name));
 
         return this.addToContactsList(contact);
     }
@@ -2181,30 +2182,30 @@ class ContactsService extends GenericService {
      */
     addToContactsList(contact: Contact) : Promise<Contact>{
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(addToContactsList) contact.id : ", that._logger.stripStringForLogs(contact?.id), ", contact.name : ", that._logger.stripStringForLogs(contact?.name));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(addToContactsList) contact.id : ", that._logger.stripStringForLogs(contact?.id), ", contact.name : ", that._logger.stripStringForLogs(contact?.name));
 
         return new Promise((resolve, reject) => {
             if (!contact) {
-                this._logger.log("warn", LOG_ID + "(addToContactsList) bad or empty 'contact' parameter");
-                this._logger.log("internalerror", LOG_ID + "(addToContactsList) bad or empty 'contact' parameter : ", contact);
+                that._logger.log(that.WARN, LOG_ID + "(addToContactsList) bad or empty 'contact' parameter");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(addToContactsList) bad or empty 'contact' parameter : ", contact);
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             } else {
 
-                that._logger.log("internal", LOG_ID + "(addToContactsList) contact invitation to server... : ", contact);
+                that._logger.log(that.INTERNAL, LOG_ID + "(addToContactsList) contact invitation to server... : ", contact);
                 that._rest.joinContactInvitation(contact).then((_contact: any) => {
                     if (_contact && _contact.status!==undefined) {
-                        that._logger.log("debug", LOG_ID + "(addToContactsList) contact invited : ", _contact.invitedUserId);
+                        that._logger.log(that.INFO, LOG_ID + "(addToContactsList) contact invited : ", _contact.invitedUserId);
                         that.getContactById(_contact.invitedUserId, false).then((invitedUser) => {
                             resolve(invitedUser);
                         }).catch((err) => {
                             return reject(err);
                         });
                     } else {
-                        that._logger.log("internalerror", LOG_ID + "(addToContactsList) contact cannot be added : ", util.inspect(contact));
+                        that._logger.log(that.INTERNALERROR, LOG_ID + "(addToContactsList) contact cannot be added : ", util.inspect(contact));
                         resolve(null);
                     }
                 }).catch((err) => {
-                    that._logger.log("internalerror", LOG_ID + "(addToContactsList) contact cannot be added : ", util.inspect(contact));
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(addToContactsList) contact cannot be added : ", util.inspect(contact));
                     return reject(err);
                 });
             }
@@ -2225,25 +2226,25 @@ class ContactsService extends GenericService {
      */
     removeFromNetwork(contact) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(removeFromNetwork) contact.id : ", that._logger.stripStringForLogs(contact?.id), ", contact.name : ", that._logger.stripStringForLogs(contact?.name));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(removeFromNetwork) contact.id : ", that._logger.stripStringForLogs(contact?.id), ", contact.name : ", that._logger.stripStringForLogs(contact?.name));
 
         return new Promise((resolve, reject) => {
             if (!contact) {
-                this._logger.log("warn", LOG_ID + "(removeFromNetwork) bad or empty 'contact' parameter");
-                this._logger.log("internalerror", LOG_ID + "(removeFromNetwork) bad or empty 'contact' parameter : ", contact);
+                that._logger.log(that.WARN, LOG_ID + "(removeFromNetwork) bad or empty 'contact' parameter");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(removeFromNetwork) bad or empty 'contact' parameter : ", contact);
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
 
             that._rest.removeContactFromRoster(contact.id).then(function () {
-                that._logger.log("debug", LOG_ID + "(removeFromNetwork) contact removed from network.");
-                that._logger.log("internal", LOG_ID + "(removeFromNetwork) contact removed from network : ", contact);
+                that._logger.log(that.INFO, LOG_ID + "(removeFromNetwork) contact removed from network.");
+                that._logger.log(that.INTERNAL, LOG_ID + "(removeFromNetwork) contact removed from network : ", contact);
                 return resolve({
                     code: 1,
                     label: "OK"
                 });
             }).catch(function (err) {
-                that._logger.log("error", LOG_ID + "(removeFromNetwork) contact cannot be removed.");
-                that._logger.log("internalerror", LOG_ID + "(removeFromNetwork) contact cannot be removed : ", util.inspect(contact));
+                that._logger.log(that.ERROR, LOG_ID + "(removeFromNetwork) contact cannot be removed.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(removeFromNetwork) contact cannot be removed : ", util.inspect(contact));
                 return reject(err);
             });
         });
@@ -2263,11 +2264,11 @@ class ContactsService extends GenericService {
      */
     async getInvitationById(strInvitationId : string) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getInvitationById) strInvitationId : ", that._logger.stripStringForLogs(strInvitationId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getInvitationById) strInvitationId : ", that._logger.stripStringForLogs(strInvitationId));
 
         if (!strInvitationId) {
-            this._logger.log("warn", LOG_ID + "(getInvitationById) bad or empty 'strInvitationId' parameter");
-            this._logger.log("internalerror", LOG_ID + "(getInvitationById) bad or empty 'strInvitationId' parameter : ", strInvitationId);
+            that._logger.log(that.WARN, LOG_ID + "(getInvitationById) bad or empty 'strInvitationId' parameter");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(getInvitationById) bad or empty 'strInvitationId' parameter : ", strInvitationId);
             let error = ErrorManager.getErrorManager().BAD_REQUEST;
             error.msg += ", invitation not defined, can not getInvitationById";
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
@@ -2292,9 +2293,9 @@ class ContactsService extends GenericService {
      */
     async acceptInvitation(invitation : Invitation) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(acceptInvitation) invitation.id : ", invitation?.id);
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(acceptInvitation) invitation.id : ", invitation?.id);
 
-      //  that._logger.log("internal", LOG_ID + "(acceptInvitation) invitation : ", invitation);
+      //  that._logger.log(that.INTERNAL, LOG_ID + "(acceptInvitation) invitation : ", invitation);
         if (!invitation) {
             let error = ErrorManager.getErrorManager().BAD_REQUEST;
             error.msg += ", invitation not defined, can not acceptInvitation";
@@ -2321,9 +2322,9 @@ class ContactsService extends GenericService {
      */
     declineInvitation(invitation : Invitation) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(declineInvitation) invitation.id : ", invitation?.id);
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(declineInvitation) invitation.id : ", invitation?.id);
 
-    //    that._logger.log("internal", LOG_ID + "(declineInvitation) intivation : ", invitation);
+    //    that._logger.log(that.INTERNAL, LOG_ID + "(declineInvitation) intivation : ", invitation);
         if (!invitation) {
             let error = ErrorManager.getErrorManager().BAD_REQUEST;
             error.msg += ", invitation not defined, can not declineInvitation";
@@ -2353,12 +2354,12 @@ class ContactsService extends GenericService {
      */
     joinContacts(contact: Contact, contactIds : Array<string>) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(joinContacts) contact.id : ", that._logger.stripStringForLogs(contact?.id), ", contact.name : ", that._logger.stripStringForLogs(contact?.name));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(joinContacts) contact.id : ", that._logger.stripStringForLogs(contact?.id), ", contact.name : ", that._logger.stripStringForLogs(contact?.name));
 
         return new Promise((resolve, reject) => {
             if (!contact) {
-                this._logger.log("warn", LOG_ID + "(joinContacts) bad or empty 'contact' parameter");
-                this._logger.log("internalerror", LOG_ID + "(joinContacts) bad or empty 'contact' parameter : ", contact);
+                that._logger.log(that.WARN, LOG_ID + "(joinContacts) bad or empty 'contact' parameter");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(joinContacts) bad or empty 'contact' parameter : ", contact);
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             } else {
                 that._logger.log(that.DEBUG, LOG_ID + "(joinContacts) contact join to server...");
@@ -2380,7 +2381,7 @@ class ContactsService extends GenericService {
                         return Object.assign(prev, current);
                     }, {"success": [], "failed": []});
 
-                    that._logger.log("internal", LOG_ID + "(joinContacts) " + mergeResult.success.length + " contact(s) joined, " + mergeResult.failed.length + " contact(s) failed ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(joinContacts) " + mergeResult.success.length + " contact(s) joined, " + mergeResult.failed.length + " contact(s) failed ");
                     resolve(mergeResult);
                 }).catch((err) => {
                     return reject(err);
@@ -2409,12 +2410,12 @@ class ContactsService extends GenericService {
      * <br>
      * For both cases, systemId or pbxId must be provided, corresponding to the identifier of the system for which the search is requested. <br>
      * <br>
-     * This API tries to find a resource in the directories: 
+     * This API tries to find a resource in the directories:
      *   * PBX devices of the system for which the search is requested, if associated to a Rainbow user (PBX devices of all systems belonging to the system's group if applicable),
      *   * phonebook of the system for which the search is requested (phonebooks of all systems belonging to the system's group if applicable),
      *   * Office365 database associated to the company(ies) to which is(are) linked the system for which the search is requested,
      *   * Business directory database associated to the company(ies) to which is(are) linked the system for which the search is requested.
-     *    <br>   
+     *    <br>
      * If several entries match in several directories, the order defined in searchResultOrder setting of the system is applied. <br>
      *    <br>
      * @return {Promise<any>} An object of the result
@@ -2438,22 +2439,22 @@ class ContactsService extends GenericService {
      */
     searchInAlldirectories (pbxId? : string, systemId? : string, numberE164? : string, shortnumber? : string, format : string = "small", limit : number = 100, offset? : number, sortField : string = "reverseDisplayName", sortOrder : number = 1) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(searchInAlldirectories) pbxId : ",  that._logger.stripStringForLogs(pbxId));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(searchInAlldirectories) pbxId : ",  that._logger.stripStringForLogs(pbxId));
 
         return new Promise((resolve, reject) => {
 
             that._rest.searchInAlldirectories (pbxId, systemId, numberE164, shortnumber, format, limit, offset, sortField, sortOrder) .then(function (result) {
-                that._logger.log("debug", LOG_ID + "(searchInAlldirectories) contact searched from server.");
-                that._logger.log("internal", LOG_ID + "(searchInAlldirectories) result : ", result);
+                that._logger.log(that.INFO, LOG_ID + "(searchInAlldirectories) contact searched from server.");
+                that._logger.log(that.INTERNAL, LOG_ID + "(searchInAlldirectories) result : ", result);
                 return resolve(result);
             }).catch(function (err) {
-                that._logger.log("error", LOG_ID + "(searchInAlldirectories) failed.");
-                that._logger.log("internalerror", LOG_ID + "(searchInAlldirectories) failed : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(searchInAlldirectories) failed.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(searchInAlldirectories) failed : ", err);
                 return reject(err);
             });
         });
     }
-    
+
     /**
      * @public
      * @nodered true
@@ -2510,22 +2511,22 @@ class ContactsService extends GenericService {
      */
     searchInPhonebook (pbxId : string, name : string, number : string, format : string, limit : number = 100, offset : number, sortField : string, sortOrder : number = 1) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(searchInPhonebook) pbxId : ", that._logger.stripStringForLogs(pbxId), ", name : ", that._logger.stripStringForLogs(name));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(searchInPhonebook) pbxId : ", that._logger.stripStringForLogs(pbxId), ", name : ", that._logger.stripStringForLogs(name));
 
         return new Promise((resolve, reject) => {
 
             that._rest.searchInPhonebook (pbxId, name, number, format, limit, offset, sortField, sortOrder ).then(function (result) {
-                that._logger.log("debug", LOG_ID + "(searchInPhonebook) contact searched from server.");
-                that._logger.log("internal", LOG_ID + "(searchInPhonebook) REST result : ", result);
+                that._logger.log(that.INFO, LOG_ID + "(searchInPhonebook) contact searched from server.");
+                that._logger.log(that.INTERNAL, LOG_ID + "(searchInPhonebook) REST result : ", result);
                 return resolve(result);
             }).catch(function (err) {
-                that._logger.log("error", LOG_ID + "(searchInPhonebook) failed.");
-                that._logger.log("internalerror", LOG_ID + "(searchInPhonebook) failed : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(searchInPhonebook) failed.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(searchInPhonebook) failed : ", err);
                 return reject(err);
             });
         });
     }
-     
+
     /**
      * @public
      * @nodered true
@@ -2541,7 +2542,7 @@ class ContactsService extends GenericService {
      * If several numbers match, the first one found is returned. <br>
      *    <br>
      * @return {Promise<any>} An object of the result
-     * 
+     *
      * | Champ | Type | Description |
      * | --- | --- | --- |
      * | id  | String | User unique identifier |
@@ -2568,26 +2569,26 @@ class ContactsService extends GenericService {
      * @param {string} number number to search. The number can be: <br>
      *      - a system phone number being in the pbx group of logged in user's pbx <br>
      *      - a phone number entered manually by a user in his profile and being in the same organisation than logged in user's (in that case, provided number must be in E164 format) <br>
-     *      
+     *
      */
     searchUserByPhonenumber(number : string ){
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(searchUserByPhonenumber)number : ",  that._logger.stripStringForLogs(number));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(searchUserByPhonenumber)number : ",  that._logger.stripStringForLogs(number));
 
         return new Promise((resolve, reject) => {
-            
+
             that._rest.searchUserByPhonenumber(number).then(function (result) {
-                that._logger.log("debug", LOG_ID + "(searchUserByPhonenumber) contact searched from server.");
-                that._logger.log("internal", LOG_ID + "(searchUserByPhonenumber) REST result : ", result);
+                that._logger.log(that.INFO, LOG_ID + "(searchUserByPhonenumber) contact searched from server.");
+                that._logger.log(that.INTERNAL, LOG_ID + "(searchUserByPhonenumber) REST result : ", result);
                 return resolve(result);
             }).catch(function (err) {
-                that._logger.log("error", LOG_ID + "(searchUserByPhonenumber) failed.");
-                that._logger.log("internalerror", LOG_ID + "(searchUserByPhonenumber) failed : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(searchUserByPhonenumber) failed.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(searchUserByPhonenumber) failed : ", err);
                 return reject(err);
             });
         });
     }
-    
+
     /**
      * @public
      * @nodered true
@@ -2642,7 +2643,7 @@ class ContactsService extends GenericService {
      * One of `displayName` or `search` parameters must be provided to execute the search request.
      *    <br>
      * @return {Promise<any>} An object of the result
-     * 
+     *
      * | Champ | Type | Description |
      * | --- | --- | --- |
      * | limit | Number | Number of requested items |
@@ -2694,28 +2695,28 @@ class ContactsService extends GenericService {
      * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned.
      * @param {string} sortField Sort items list based on the given field.
      * @param {number} sortOrder Specify order when sorting items list. Default value : 1. Possible values : -1, 1
-     */    
+     */
     searchUsers(limit : number = 20, displayName? : string, search? : string, companyId? : string, excludeCompanyId? : string, offset? : number, sortField? : string, sortOrder : number = 1){
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(searchUsers) ");
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(searchUsers) ");
 
         return new Promise((resolve, reject) => {
-            
+
             that._rest.searchUsers(limit, displayName, search, companyId, excludeCompanyId, offset, sortField, sortOrder).then(function (result) {
-                that._logger.log("debug", LOG_ID + "(searchUsers) contact searched from server.");
-                that._logger.log("internal", LOG_ID + "(searchUsers) REST result : ", result);
+                that._logger.log(that.INFO, LOG_ID + "(searchUsers) contact searched from server.");
+                that._logger.log(that.INTERNAL, LOG_ID + "(searchUsers) REST result : ", result);
                 return resolve(result);
             }).catch(function (err) {
-                that._logger.log("error", LOG_ID + "(searchUsers) failed.");
-                that._logger.log("internalerror", LOG_ID + "(searchUsers) failed : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(searchUsers) failed.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(searchUsers) failed : ", err);
                 return reject(err);
             });
         });
     }
-    
+
     //endregion Contacts Search
-    
-    //region Contacts Personnal Directory 
+
+    //region Contacts Personnal Directory
 
     /**
      * @public
@@ -2767,11 +2768,11 @@ class ContactsService extends GenericService {
                            custom2 : string
     ) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(createPersonalDirectoryEntry) ");
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(createPersonalDirectoryEntry) ");
 
         return new Promise(function (resolve, reject) {
             try {
-                that._logger.log("debug", LOG_ID + "(createPersonalDirectoryEntry) __ entering __ firstName :  ", firstName , ", lastName : ", lastName, ", companyName : ", companyName, ", department : ", department , ", street : ", street, " city : ", city,
+                that._logger.log(that.INFO, LOG_ID + "(createPersonalDirectoryEntry) __ entering __ firstName :  ", firstName , ", lastName : ", lastName, ", companyName : ", companyName, ", department : ", department , ", street : ", street, " city : ", city,
                         ",  state : ", state, " postalCode : ", postalCode, ", country : ", country, ", workPhoneNumbers : ", workPhoneNumbers, ", mobilePhoneNumbers : ", mobilePhoneNumbers, ", otherPhoneNumbers : ", otherPhoneNumbers, ", jobTitle : ", jobTitle, ", eMail : ", eMail,
                         ", tags : ", tags, ", custom1 : ", custom1, " custom2 : ", custom2);
 
@@ -2794,15 +2795,15 @@ class ContactsService extends GenericService {
                         custom1,
                         custom2).then((result) => {
                     that._logger.log(that.DEBUG, LOG_ID + "(createPersonalDirectoryEntry) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(createPersonalDirectoryEntry) Successfully - sent : ", result);
+                    that._logger.log(that.INTERNAL, LOG_ID + "(createPersonalDirectoryEntry) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(createPersonalDirectoryEntry) ErrorManager error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(createPersonalDirectoryEntry) ErrorManager error : ", err);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(createPersonalDirectoryEntry) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(createPersonalDirectoryEntry) error : ", err);
                 return reject(err);
             }
         });
@@ -2829,32 +2830,32 @@ class ContactsService extends GenericService {
      */
     getDirectoryEntryData (entryId : string, format : string = "small") {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getDirectoryEntryData) entryId : ", that._logger.stripStringForLogs(entryId), ", format : ", that._logger.stripStringForLogs(format));
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getDirectoryEntryData) entryId : ", that._logger.stripStringForLogs(entryId), ", format : ", that._logger.stripStringForLogs(format));
 
         return new Promise(function (resolve, reject) {
             try {
                 if (!entryId) {
-                    this._logger.log("warn", LOG_ID + "(getDirectoryEntryData) bad or empty 'entryId' parameter");
-                    this._logger.log("internalerror", LOG_ID + "(getDirectoryEntryData) bad or empty 'entryId' parameter : ", entryId);
+                    that._logger.log(that.WARN, LOG_ID + "(getDirectoryEntryData) bad or empty 'entryId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getDirectoryEntryData) bad or empty 'entryId' parameter : ", entryId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 that._rest.getDirectoryEntryData (entryId, format ).then((result) => {
                     that._logger.log(that.DEBUG, LOG_ID + "(getDirectoryEntryData) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(getDirectoryEntryData) Successfully - sent : ", result);
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getDirectoryEntryData) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(getDirectoryEntryData) ErrorManager error : ", err, ' : ', entryId);
+                    that._logger.log(that.ERROR, LOG_ID + "(getDirectoryEntryData) ErrorManager error : ", err, ' : ', entryId);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(getDirectoryEntryData) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getDirectoryEntryData) error : ", err);
                 return reject(err);
             }
         });
     }
-   
+
     /**
      * @public
      * @nodered true
@@ -2953,22 +2954,22 @@ class ContactsService extends GenericService {
                                  sortOrder : number = 1,
                                  view  : string = "all") {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(getListPersonalDirectoryEntriesData) ");
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(getListPersonalDirectoryEntriesData) ");
 
         return new Promise(function (resolve, reject) {
             try {
 
                 that._rest.getListDirectoryEntriesData (undefined, undefined, name, search, type, companyName, phoneNumbers, fromUpdateDate, toUpdateDate, tags, format, limit, offset, sortField, sortOrder, view ).then((result) => {
                     that._logger.log(that.DEBUG, LOG_ID + "(getListPersonalDirectoryEntriesData) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(getListPersonalDirectoryEntriesData) Successfully - result : ", result);
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getListPersonalDirectoryEntriesData) Successfully - result : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(getListPersonalDirectoryEntriesData) ErrorManager error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(getListPersonalDirectoryEntriesData) ErrorManager error : ", err);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(getListPersonalDirectoryEntriesData) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getListPersonalDirectoryEntriesData) error : ", err);
                 return reject(err);
             }
         });
@@ -3025,13 +3026,13 @@ class ContactsService extends GenericService {
                            custom1 : string = undefined,
                            custom2 : string = undefined) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(updatePersonalDirectoryEntry) ");
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(updatePersonalDirectoryEntry) ");
 
         return new Promise(function (resolve, reject) {
             try {
                 if (!entryId) {
-                    that._logger.log("warn", LOG_ID + "(updatePersonalDirectoryEntry) bad or empty 'entryId' parameter");
-                    that._logger.log("internalerror", LOG_ID + "(updatePersonalDirectoryEntry) bad or empty 'entryId' parameter : ", entryId);
+                    that._logger.log(that.WARN, LOG_ID + "(updatePersonalDirectoryEntry) bad or empty 'entryId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(updatePersonalDirectoryEntry) bad or empty 'entryId' parameter : ", entryId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
@@ -3054,20 +3055,20 @@ class ContactsService extends GenericService {
                         custom1,
                         custom2).then((result) => {
                     that._logger.log(that.DEBUG, LOG_ID + "(updatePersonalDirectoryEntry) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(updatePersonalDirectoryEntry) Successfully - sent : ", result);
+                    that._logger.log(that.INTERNAL, LOG_ID + "(updatePersonalDirectoryEntry) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(updatePersonalDirectoryEntry) ErrorManager error : ", err, ' : ', entryId);
+                    that._logger.log(that.ERROR, LOG_ID + "(updatePersonalDirectoryEntry) ErrorManager error : ", err, ' : ', entryId);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(updatePersonalDirectoryEntry) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(updatePersonalDirectoryEntry) error : ", err);
                 return reject(err);
             }
         });
     }
-    
+
     /**
      * @public
      * @nodered true
@@ -3083,36 +3084,36 @@ class ContactsService extends GenericService {
      */
     deletePersonalDirectoryEntry (entryId : string) {
         let that = this;
-        that._logger.log("info", LOG_ID + API_ID + "(deletePersonalDirectoryEntry) ");
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(deletePersonalDirectoryEntry) ");
 
         return new Promise(function (resolve, reject) {
             try {
                 if (!entryId) {
-                    that._logger.log("warn", LOG_ID + "(deletePersonalDirectoryEntry) bad or empty 'entryId' parameter");
-                    that._logger.log("internalerror", LOG_ID + "(deletePersonalDirectoryEntry) bad or empty 'entryId' parameter : ", entryId);
+                    that._logger.log(that.WARN, LOG_ID + "(deletePersonalDirectoryEntry) bad or empty 'entryId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(deletePersonalDirectoryEntry) bad or empty 'entryId' parameter : ", entryId);
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 that._rest.deleteDirectoryEntry (entryId ).then((result) => {
                     that._logger.log(that.DEBUG, LOG_ID + "(deletePersonalDirectoryEntry) Successfully - sent. ");
-                    that._logger.log("internal", LOG_ID + "(deletePersonalDirectoryEntry) Successfully - sent : ", result);
+                    that._logger.log(that.INTERNAL, LOG_ID + "(deletePersonalDirectoryEntry) Successfully - sent : ", result);
                     resolve(result);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(deletePersonalDirectoryEntry) ErrorManager error : ", err, ' : ', entryId);
+                    that._logger.log(that.ERROR, LOG_ID + "(deletePersonalDirectoryEntry) ErrorManager error : ", err, ' : ', entryId);
                     return reject(err);
                 });
 
             } catch (err) {
-                that._logger.log("internalerror", LOG_ID + "(deletePersonalDirectoryEntry) error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(deletePersonalDirectoryEntry) error : ", err);
                 return reject(err);
             }
         });
     }
-    
+
     //endregion Contacts Personnal Directory
-    
+
     //region Events
-     
+
     /**
      * @private
      * @method _onPresenceChanged
@@ -3123,11 +3124,11 @@ class ContactsService extends GenericService {
      */
     _onPresenceChanged(presence : any) {
         let that = this;
-        that._logger.log("internal", LOG_ID + "(_onPresenceChanged) presence : ", presence);
+        that._logger.log(that.INTERNAL, LOG_ID + "(_onPresenceChanged) presence : ", presence);
 
         try {
             if (that.userContact) {
-                that._logger.log("internal", LOG_ID + "(_onPresenceChanged) current contact found : ", that.userContact);
+                that._logger.log(that.INTERNAL, LOG_ID + "(_onPresenceChanged) current contact found : ", that.userContact);
                 if (!that.userContact.resources) {
                     that.userContact.resources = {};
                 }
@@ -3135,11 +3136,11 @@ class ContactsService extends GenericService {
                 let contactFound = that._contacts.find((contact) => {
                     return contact.jid_im===that.userContact.jid;
                 });
-                
+
                 // Store the presence of the resource
                 that.userContact.resources[presence.resource] = presence.value;
                 if (contactFound) {
-                    contactFound.resources = that.userContact.resources; 
+                    contactFound.resources = that.userContact.resources;
                 }
 
                 let on_the_phone = false;
@@ -3156,20 +3157,20 @@ class ContactsService extends GenericService {
                 let calendar_dnd = false;
                 let teams_online = false;
                 let teams_dnd = false;
-                
+
                 for (let resourceId in that.userContact.resources) {
 
                     let resource = that.userContact.resources[resourceId];
 
-                    that._logger.log("internal", LOG_ID + "(_onPresenceChanged) resource : ", resource, ", for resourceId : ", resourceId);
+                    that._logger.log(that.INTERNAL, LOG_ID + "(_onPresenceChanged) resource : ", resource, ", for resourceId : ", resourceId);
 
                     if (resource.type!=="phone") {
                         if (resource.type === PresenceStatus.Calendar) {
                             //let presence = presences["calendar"];
-                            that._logger.log("internal", LOG_ID + "(_onPresenceChanged) calendar - new Date(resource.until).getTime() : ", new Date(resource.until).getTime(), ", new Date().getTime() : ", new Date().getTime());
+                            that._logger.log(that.INTERNAL, LOG_ID + "(_onPresenceChanged) calendar - new Date(resource.until).getTime() : ", new Date(resource.until).getTime(), ", new Date().getTime() : ", new Date().getTime());
                             if (resource.applyCalendarPresence && (resource.show == PresenceShow.Dnd) && (new Date(resource.until).getTime() > new Date().getTime())) {
                                 calendar_dnd = true;
-                                that._logger.log("internal", LOG_ID + "(_onPresenceChanged) calendar DND found. ");
+                                that._logger.log(that.INTERNAL, LOG_ID + "(_onPresenceChanged) calendar DND found. ");
                             }
                         } else if (resource.show!==PresenceShow.Dnd && resource.type===PresenceStatus.Teams && resource.applyMsTeamsPresence == true) {
                             teams_online = true;
@@ -3198,7 +3199,7 @@ class ContactsService extends GenericService {
                             is_offline = true;
                         }
                     } else {
-                        that._logger.log("internal", LOG_ID + "(_onPresenceChanged) resource.type === \"phone\" : ", resource.type);
+                        that._logger.log(that.INTERNAL, LOG_ID + "(_onPresenceChanged) resource.type === \"phone\" : ", resource.type);
                         if ((resource.status==="EVT_SERVICE_INITIATED" || resource.status==="EVT_ESTABLISHED") && resource.show===PresenceShow.Chat) {
                             on_the_phone = true;
                         }
@@ -3211,7 +3212,7 @@ class ContactsService extends GenericService {
                     }
                 }
 
-                that._logger.log("internal", LOG_ID + "(_onPresenceChanged) result booleans of decoded presence : ", {
+                that._logger.log(that.INTERNAL, LOG_ID + "(_onPresenceChanged) result booleans of decoded presence : ", {
                     calendar_dnd,
                     teams_online,
                     teams_dnd,
@@ -3271,7 +3272,7 @@ class ContactsService extends GenericService {
                 } else if (calendar_dnd ) {
                     //return new Presence(presence.BasicNodeJid, presence.Resource, true, presence.Date, PresenceLevel.Dnd, PresenceDetails.Appointment);
                     newPresenceRainbow.presenceLevel = PresenceLevel.Busy;
-                    newPresenceRainbow.presenceStatus = PresenceStatus.Calendar;   
+                    newPresenceRainbow.presenceStatus = PresenceStatus.Calendar;
                 } else if (teams_dnd && !teams_online) {
                     newPresenceRainbow.presenceLevel = PresenceLevel.Busy;
                     newPresenceRainbow.presenceStatus = PresenceStatus.Teams;
@@ -3307,7 +3308,7 @@ class ContactsService extends GenericService {
                     newPresenceRainbow.presenceStatus = PresenceStatus.EmptyString
                 }
 
-                that._logger.log("internal", LOG_ID + "(_onPresenceChanged) newPresenceRainbow : ", newPresenceRainbow);
+                that._logger.log(that.INTERNAL, LOG_ID + "(_onPresenceChanged) newPresenceRainbow : ", newPresenceRainbow);
 
                 that.userContact.presence = newPresenceRainbow.presenceLevel;
                 that.userContact.status = newPresenceRainbow.presenceStatus;
@@ -3326,7 +3327,7 @@ class ContactsService extends GenericService {
                 }
 
                 let presenceDisplayed = that.userContact.status.length > 0 ? that.userContact.presence + "|" + that.userContact.status:that.userContact.presence;
-                that._logger.log("internal", LOG_ID + "(_onPresenceChanged) presence changed to " + presenceDisplayed + " for " + that.getDisplayName(that.userContact));
+                that._logger.log(that.INTERNAL, LOG_ID + "(_onPresenceChanged) presence changed to " + presenceDisplayed + " for " + that.getDisplayName(that.userContact));
                 //this._eventEmitter.emit("evt_internal_onrosterpresencechanged", that.userContact);
                 that._eventEmitter.emit("evt_internal_mypresencechanged", that.userContact);
 
@@ -3376,7 +3377,7 @@ class ContactsService extends GenericService {
                     }
                 }
 
-                this._logger.log("internal", LOG_ID + "(_onPresenceChanged) new presence : ", presence, ", old presence oldPresence : ", oldPresence, ", oldStatus", oldStatus);
+                that._logger.log(that.INTERNAL, LOG_ID + "(_onPresenceChanged) new presence : ", presence, ", old presence oldPresence : ", oldPresence, ", oldStatus", oldStatus);
 
                 if (oldPresence !== "unknown" && presence.presence === oldPresence && presence.status === oldStatus) {
                     that._logger.log(that.DEBUG, LOG_ID + "(_onPresenceChanged) presence presence.presence (" + presence.presence + ") === oldPresence && presence.status (" + presence.status + ") === oldStatus, so ignore presence.");
@@ -3389,20 +3390,20 @@ class ContactsService extends GenericService {
                 that.userContact.status = presence.status;
 
                 if (that.userContact.resources[presence.resource].show === PresenceLevel.Offline ) {
-                    this._logger.log("debug", LOG_ID + "(onRosterPresenceChanged) delete resource : " , presence.resource, ", contact.resources[presence.resource].show :", that.userContact.resources[presence.resource].show, " the contact.presence (" + that.userContact.presence + ")");
+                    that._logger.log(that.DEBUG, LOG_ID + "(onRosterPresenceChanged) delete resource : " , presence.resource, ", contact.resources[presence.resource].show :", that.userContact.resources[presence.resource].show, " the contact.presence (" + that.userContact.presence + ")");
                     delete that.userContact.resources[presence.resource];
                 } else {
-                    this._logger.log("debug", LOG_ID + "(onRosterPresenceChanged) DO NOT delete resource : " , presence.resource, ", contact.resources[presence.resource].show :", that.userContact.resources[presence.resource].show, " the contact.presence (" + that.userContact.presence + ")");
+                    that._logger.log(that.DEBUG, LOG_ID + "(onRosterPresenceChanged) DO NOT delete resource : " , presence.resource, ", contact.resources[presence.resource].show :", that.userContact.resources[presence.resource].show, " the contact.presence (" + that.userContact.presence + ")");
                 }
 
-                that._logger.log("internal", LOG_ID + "(_onPresenceChanged) presence changed to " + presence.presence + " for " + that.getDisplayName(that.userContact));
+                that._logger.log(that.INTERNAL, LOG_ID + "(_onPresenceChanged) presence changed to " + presence.presence + " for " + that.getDisplayName(that.userContact));
                 that._eventEmitter.emit("evt_internal_mypresencechanged", presence);
                 // */
             } else {
-                that._logger.log("warn", LOG_ID + "(_onPresenceChanged) no contact found for current user.");
+                that._logger.log(that.WARN, LOG_ID + "(_onPresenceChanged) no contact found for current user.");
             }
         } catch (err) {
-            that._logger.log("warn", LOG_ID + "(_onPresenceChanged) CATCH Error !!! error : ", err);
+            that._logger.log(that.WARN, LOG_ID + "(_onPresenceChanged) CATCH Error !!! error : ", err);
         }
     }
 
@@ -3416,7 +3417,7 @@ class ContactsService extends GenericService {
      */
     _onRosterPresenceChanged(presence : any) {
         let that = this;
-        this._logger.log("internal", LOG_ID + "(onRosterPresenceChanged) presence : ", presence);
+        that._logger.log(that.INTERNAL, LOG_ID + "(onRosterPresenceChanged) presence : ", presence);
 
         try {
             let contact = undefined;
@@ -3425,11 +3426,11 @@ class ContactsService extends GenericService {
                     return contactItem.jid_im===presence.jid;
                 });
             } else {
-                this._logger.log("warn", LOG_ID + "(onRosterPresenceChanged) the contacts tab contains an undefined contact !");
+                that._logger.log(that.WARN, LOG_ID + "(onRosterPresenceChanged) the contacts tab contains an undefined contact !");
             }
 
             if (contact) {
-                this._logger.log("internal", LOG_ID + "(onRosterPresenceChanged) contact found - contact id : ", contact.id, ", contact.displayName : ", contact.displayName, " for contact.jid : ", contact.jid);
+                that._logger.log(that.INTERNAL, LOG_ID + "(onRosterPresenceChanged) contact found - contact id : ", contact.id, ", contact.displayName : ", contact.displayName, " for contact.jid : ", contact.jid);
 
                 if (!contact.resources) {
                     contact.resources = {};
@@ -3456,15 +3457,15 @@ class ContactsService extends GenericService {
 
                     let resource = contact.resources[resourceId];
 
-                    this._logger.log("internal", LOG_ID + "(onRosterPresenceChanged) resource : ", resource, ", for resourceId : ", resourceId);
+                    that._logger.log(that.INTERNAL, LOG_ID + "(onRosterPresenceChanged) resource : ", resource, ", for resourceId : ", resourceId);
 
                     if (resource.type!=="phone") {
                         if (resource.type === PresenceStatus.Calendar) {
                             //let presence = presences["calendar"];
-                            that._logger.log("internal", LOG_ID + "(_onPresenceChanged) calendar - new Date(resource.until).getTime() : ", new Date(resource.until).getTime(), ", new Date().getTime() : ", new Date().getTime());
+                            that._logger.log(that.INTERNAL, LOG_ID + "(_onPresenceChanged) calendar - new Date(resource.until).getTime() : ", new Date(resource.until).getTime(), ", new Date().getTime() : ", new Date().getTime());
                             if (resource.applyCalendarPresence && (resource.show == PresenceShow.Dnd) && (new Date(resource.until).getTime() > new Date().getTime())) {
                                 calendar_dnd = true;
-                                that._logger.log("internal", LOG_ID + "(_onPresenceChanged) calendar DND found. ");
+                                that._logger.log(that.INTERNAL, LOG_ID + "(_onPresenceChanged) calendar DND found. ");
                             }
                         } else if (resource.show!==PresenceShow.Dnd && resource.type===PresenceStatus.Teams && resource.applyMsTeamsPresence == true) {
                             teams_online = true;
@@ -3492,12 +3493,12 @@ class ContactsService extends GenericService {
                         } else if (resource.show==="unavailable" || resource.show===PresenceShow.Offline) {
                             is_offline = true;
                         } /*else if (resource.type!=="calendar") {
-                            if (resource.show = "chat") { 
-                                
-                            } 
+                            if (resource.show = "chat") {
+
+                            }
                         } // */
                     } else {
-                        this._logger.log("internal", LOG_ID + "(onRosterPresenceChanged) resource.type === \"phone\" : ", resource.type);
+                        that._logger.log(that.INTERNAL, LOG_ID + "(onRosterPresenceChanged) resource.type === \"phone\" : ", resource.type);
                         if ((resource.status==="EVT_SERVICE_INITIATED" || resource.status==="EVT_ESTABLISHED") && resource.show===PresenceShow.Chat) {
                             on_the_phone = true;
                         }
@@ -3510,7 +3511,7 @@ class ContactsService extends GenericService {
                     }
                 }
 
-                this._logger.log("internal", LOG_ID + "(onRosterPresenceChanged) result booleans of decoded presence : ", {
+                that._logger.log(that.INTERNAL, LOG_ID + "(onRosterPresenceChanged) result booleans of decoded presence : ", {
                     calendar_dnd,
                     teams_online,
                     teams_dnd,
@@ -3606,29 +3607,29 @@ class ContactsService extends GenericService {
                     newPresenceRainbow.presenceStatus = PresenceStatus.EmptyString
                 }
 
-                this._logger.log("internal", LOG_ID + "(onRosterPresenceChanged) newPresenceRainbow : ", newPresenceRainbow);
+                that._logger.log(that.INTERNAL, LOG_ID + "(onRosterPresenceChanged) newPresenceRainbow : ", newPresenceRainbow);
 
                 contact.presence = newPresenceRainbow.presenceLevel;
                 contact.status = newPresenceRainbow.presenceStatus;
 
                 //if (contact.resources[presence.resource].show === "unavailable") {
                 if (contact.resources[presence.resource].show===PresenceLevel.Offline) {
-                    this._logger.log("debug", LOG_ID + "(onRosterPresenceChanged) delete resource : ", presence.resource, ", contact.resources[presence.resource].show :", contact.resources[presence.resource].show, " the contact.presence (" + contact.presence + ")");
+                    that._logger.log(that.DEBUG, LOG_ID + "(onRosterPresenceChanged) delete resource : ", presence.resource, ", contact.resources[presence.resource].show :", contact.resources[presence.resource].show, " the contact.presence (" + contact.presence + ")");
                     delete contact.resources[presence.resource];
                 } else {
-                    this._logger.log("debug", LOG_ID + "(onRosterPresenceChanged) DO NOT delete resource : ", presence.resource, ", contact.resources[presence.resource].show :", contact.resources[presence.resource].show, " the contact.presence (" + contact.presence + ")");
+                    that._logger.log(that.DEBUG, LOG_ID + "(onRosterPresenceChanged) DO NOT delete resource : ", presence.resource, ", contact.resources[presence.resource].show :", contact.resources[presence.resource].show, " the contact.presence (" + contact.presence + ")");
                 }
 
                 if (oldPresence!=="unknown" && contact.presence===oldPresence && contact.status===oldStatus) {
-                    this._logger.log("debug", LOG_ID + "(onRosterPresenceChanged) presence contact.presence (" + contact.presence + ") === oldPresence && contact.status (" + contact.status + ") === oldStatus, so ignore presence.");
+                    that._logger.log(that.DEBUG, LOG_ID + "(onRosterPresenceChanged) presence contact.presence (" + contact.presence + ") === oldPresence && contact.status (" + contact.status + ") === oldStatus, so ignore presence.");
                     //return;
                 }
 
                 let presenceDisplayed = contact.status.length > 0 ? contact.presence + "|" + contact.status:contact.presence;
-                this._logger.log("internal", LOG_ID + "(onRosterPresenceChanged) presence changed to " + presenceDisplayed + " for " + this.getDisplayName(contact));
+                that._logger.log(that.INTERNAL, LOG_ID + "(onRosterPresenceChanged) presence changed to " + presenceDisplayed + " for " + this.getDisplayName(contact));
                 this._eventEmitter.emit("evt_internal_onrosterpresencechanged", contact);
             } else {
-                this._logger.log("warn", LOG_ID + "(onRosterPresenceChanged) no contact found for " + presence.jid);
+                that._logger.log(that.WARN, LOG_ID + "(onRosterPresenceChanged) no contact found for " + presence.jid);
                 // Seems to be a pending presence update in roster associated contact not yet available
                 if (presence.value.show!=="unavailable") {
                     // To a pending presence queue
@@ -3637,7 +3638,7 @@ class ContactsService extends GenericService {
                 }
             }
         } catch (err) {
-            this._logger.log("warn", LOG_ID + "(onRosterPresenceChanged) CATCH Error !!! error : ", err);
+            that._logger.log(that.WARN, LOG_ID + "(onRosterPresenceChanged) CATCH Error !!! error : ", err);
         }
     }
 
@@ -3653,8 +3654,8 @@ class ContactsService extends GenericService {
         let that = this;
 
         that._rest.getContactInformationByJID(jid).then((_contactFromServer: any) => {
-            that._logger.log("debug", LOG_ID + "(getContactByJid) contact found on the server");
-            that._logger.log("internal", LOG_ID + "(getContactByJid) contact found on the server : ", util.inspect(_contactFromServer));
+            that._logger.log(that.INFO, LOG_ID + "(getContactByJid) contact found on the server");
+            that._logger.log(that.INTERNAL, LOG_ID + "(getContactByJid) contact found on the server : ", util.inspect(_contactFromServer));
             let connectedUser = that.getConnectedUser() ? that.getConnectedUser():new Contact();
 
             if (jid === connectedUser.jid) {
@@ -3666,7 +3667,7 @@ class ContactsService extends GenericService {
             }
 
         }).catch((err) => {
-            this._logger.log("warn", LOG_ID + "(_onContactInfoChanged) no contact found with jid " + jid);
+            that._logger.log(that.WARN, LOG_ID + "(_onContactInfoChanged) no contact found with jid " + jid);
         });
     }
     /**
@@ -3681,9 +3682,9 @@ class ContactsService extends GenericService {
         let that = this;
 
         that._rest.getContactInformationByJID(jid).then((_contactFromServer: any) => {
-            that._logger.log("debug", LOG_ID + "(_onRosterContactInfoChanged) contact found on the server jid : ", _contactFromServer.jid);
-            that._logger.log("internal", LOG_ID + "(_onRosterContactInfoChanged) contact found on the server - _contactFromServer id : ", _contactFromServer.id, ", _contactFromServer.displayName : ", _contactFromServer.displayName, " for _contactFromServer.jid : ", _contactFromServer.jid);
-            //that._logger.log("internal", LOG_ID + "(_onRosterContactInfoChanged) contact found on the server : ", util.inspect(_contactFromServer));
+            that._logger.log(that.INFO, LOG_ID + "(_onRosterContactInfoChanged) contact found on the server jid : ", _contactFromServer.jid);
+            that._logger.log(that.INTERNAL, LOG_ID + "(_onRosterContactInfoChanged) contact found on the server - _contactFromServer id : ", _contactFromServer.id, ", _contactFromServer.displayName : ", _contactFromServer.displayName, " for _contactFromServer.jid : ", _contactFromServer.jid);
+            //that._logger.log(that.INTERNAL, LOG_ID + "(_onRosterContactInfoChanged) contact found on the server : ", util.inspect(_contactFromServer));
             let contactIndex = -1;
             // Update or Add contact
             if (that._contacts) {
@@ -3692,18 +3693,18 @@ class ContactsService extends GenericService {
                 });
 
                 let contact = null;
-                // that._logger.log("internal", LOG_ID + "(_onRosterContactInfoChanged) contact found on the server : ", contact);
+                // that._logger.log(that.INTERNAL, LOG_ID + "(_onRosterContactInfoChanged) contact found on the server : ", contact);
 
                 if (contactIndex!== -1) {
                     contact = that._contacts[contactIndex];
-                    //that._logger.log("internal", LOG_ID + "(_onRosterContactInfoChanged) local contact before updateFromUserData ", contact);
+                    //that._logger.log(that.INTERNAL, LOG_ID + "(_onRosterContactInfoChanged) local contact before updateFromUserData ", contact);
                     contact.updateFromUserData(_contactFromServer);
                     contact.avatar = that.getAvatarByContactId(_contactFromServer.id, _contactFromServer.lastAvatarUpdateDate);
 
                     this._eventEmitter.emit("evt_internal_contactinformationchanged", that._contacts[contactIndex]);
                 } else {
                     contact = that.createBasicContact(_contactFromServer.jid_im, undefined);
-                    //that._logger.log("internal", LOG_ID + "(_onRosterContactInfoChanged) from server contact before updateFromUserData ", contact);
+                    //that._logger.log(that.INTERNAL, LOG_ID + "(_onRosterContactInfoChanged) from server contact before updateFromUserData ", contact);
                     contact.updateFromUserData(_contactFromServer);
                     contact.avatar = that.getAvatarByContactId(_contactFromServer.id, _contactFromServer.lastAvatarUpdateDate);
 
@@ -3712,7 +3713,7 @@ class ContactsService extends GenericService {
             }
 
         }).catch((err) => {
-            this._logger.log("warn", LOG_ID + "(_onRosterContactInfoChanged) no contact found with jid " + jid);
+            that._logger.log(that.WARN, LOG_ID + "(_onRosterContactInfoChanged) no contact found with jid " + jid);
         });
     }
 
@@ -3728,14 +3729,14 @@ class ContactsService extends GenericService {
         let that = this;
 
         that._logger.log(that.DEBUG, LOG_ID + "(_onUserInviteReceived) enter");
-        that._logger.log("internal", LOG_ID + "(_onUserInviteReceived) enter : ", data);
+        that._logger.log(that.INTERNAL, LOG_ID + "(_onUserInviteReceived) enter : ", data);
 
         that._rest.getInvitationById(data.invitationId).then( (invitation : any) => {
             that._logger.log(that.DEBUG, LOG_ID + "(_onUserInviteReceived) invitation received id", invitation.id);
 
             that._eventEmitter.emit("evt_internal_userinvitereceived", invitation);
         }, err => {
-            that._logger.log("warn", LOG_ID + "(_onUserInviteReceived) no invitation found for " + data.invitationId);
+            that._logger.log(that.WARN, LOG_ID + "(_onUserInviteReceived) no invitation found for " + data.invitationId);
         });
     } // */
 
@@ -3757,7 +3758,7 @@ class ContactsService extends GenericService {
 
             that._eventEmitter.emit("evt_internal_userinviteaccepted", invitation);
         }, err => {
-            that._logger.log("warn", LOG_ID + "(_onUserInviteAccepted) no invitation found for " + data.invitationId);
+            that._logger.log(that.WARN, LOG_ID + "(_onUserInviteAccepted) no invitation found for " + data.invitationId);
         });
     } // */
 
@@ -3779,7 +3780,7 @@ class ContactsService extends GenericService {
             that._logger.log(that.DEBUG, LOG_ID + "(_onUserInviteCanceled) invitation canceled id", invitation.id);
             that._eventEmitter.emit("evt_internal_userinvitecanceled", invitation);
         }, err => {
-            that._logger.log("warn", LOG_ID + "(_onUserInviteCanceled) no invitation found for " + data.invitationId);
+            that._logger.log(that.WARN, LOG_ID + "(_onUserInviteCanceled) no invitation found for " + data.invitationId);
         });
     } // */
 
@@ -3793,7 +3794,7 @@ class ContactsService extends GenericService {
      */
     _onRostersUpdate(contacts) {
         let that = this;
-        that._logger.log("internal", LOG_ID + "(_onRostersUpdate) enter contact length : ", contacts ? contacts.length : 0);
+        that._logger.log(that.INTERNAL, LOG_ID + "(_onRostersUpdate) enter contact length : ", contacts ? contacts.length : 0);
 
         contacts.forEach(contact => {
             if (contact.jid.substr(0, 3)!=="tel") { // Ignore telephonny events
@@ -3804,7 +3805,7 @@ class ContactsService extends GenericService {
                         foundContact.roster = false;
                         that._eventEmitter.emit("evt_internal_contactremovedfromnetwork", contact);
                         /*
-                        // replace following remove of the Contact by setting its roster property to false :                         
+                        // replace following remove of the Contact by setting its roster property to false :
                         // Add suppression delay
                         setTimeout(() => {
                             that._contacts = that._contacts.filter(_contact => _contact.jid_im!==contact.jid);

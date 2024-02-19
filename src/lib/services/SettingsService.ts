@@ -136,11 +136,11 @@ class Settings extends GenericService {
         return new Promise((resolve, reject) => {
 
             that._rest.getUserSettings().then((settings) => {
-                that._logger.log("debug", LOG_ID + "(getUserSettings) get successfully");
+                that._logger.log(that.INFO, LOG_ID + "(getUserSettings) get successfully");
                 resolve(settings);
             }).catch(function(err) {
-                that._logger.log("error", LOG_ID + "(getUserSettings) error.");
-                that._logger.log("internalerror", LOG_ID + "(getUserSettings) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getUserSettings) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getUserSettings) error : ", err);
                 return reject(err);
             });
         });
@@ -173,12 +173,12 @@ class Settings extends GenericService {
         return new Promise( (resolve, reject) => {
             // Check validity
             that._rest.updateUserSettings(settings).then( (newSettings) => {
-                    that._logger.log("debug", LOG_ID + "(updateUserSettings) update successfully");
+                    that._logger.log(that.INFO, LOG_ID + "(updateUserSettings) update successfully");
                     resolve(newSettings);
                 })
                 .catch( (err) => {
-                    that._logger.log("error", LOG_ID + "(updateUserSettings) error.");
-                    that._logger.log("internalerror", LOG_ID + "(updateUserSettings) error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(updateUserSettings) error.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(updateUserSettings) error : ", err);
                     return reject(err);
                 });
         });

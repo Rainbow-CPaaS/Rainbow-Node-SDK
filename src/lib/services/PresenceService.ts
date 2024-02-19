@@ -111,8 +111,8 @@ class PresenceService extends GenericService{
                 that.setStarted();
                 resolve(undefined);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(start) Catch Error !!!");
-                that._logger.log("internalerror", LOG_ID + "(start) Catch Error !!! : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(start) Catch Error !!!");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(start) Catch Error !!! : ", err);
                 return reject();
             }
         });
@@ -161,13 +161,13 @@ class PresenceService extends GenericService{
         let that = this;
         return new Promise((resolve) => {
             that._eventEmitter.once("evt_internal_presencechanged", function fn_onpresencechanged(presence) {
-                that._logger.log("debug", LOG_ID + "(sendInitialPresence) received.");
-                that._logger.log("internal", LOG_ID + "(sendInitialPresence) received : ", presence);
+                that._logger.log(that.INFO, LOG_ID + "(sendInitialPresence) received.");
+                that._logger.log(that.INTERNAL, LOG_ID + "(sendInitialPresence) received : ", presence);
                 that._eventEmitter.removeListener("evt_internal_presencechanged", fn_onpresencechanged);
                 resolve(ErrorManager.getErrorManager().OK);
             });
             let presenceRainbow = new PresenceRainbow();
-            that._logger.log("internal", LOG_ID + "(sendInitialPresence) presenceRainbow : ", presenceRainbow);
+            that._logger.log(that.INTERNAL, LOG_ID + "(sendInitialPresence) presenceRainbow : ", presenceRainbow);
             that._xmpp.setPresence(presenceRainbow.presenceShow, presenceRainbow.presenceStatus);
             //that._xmpp.setPresence("online", "");
         });
@@ -215,20 +215,20 @@ class PresenceService extends GenericService{
                     status = "";
                     break;
                 default:
-                    that._logger.log("warn", LOG_ID + "(setPresenceTo) Bad or empty 'presence' parameter");
-                    that._logger.log("internalerror", LOG_ID + "(setPresenceTo) Bad or empty 'presence' parameter : ", presence);
+                    that._logger.log(that.WARN, LOG_ID + "(setPresenceTo) Bad or empty 'presence' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(setPresenceTo) Bad or empty 'presence' parameter : ", presence);
                     return reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     break;
             } // */
 
             that._eventEmitter.once("evt_internal_presencechanged", function fn_onpresencechanged(_presence) {
-                that._logger.log("debug", LOG_ID + "(setPresenceTo) received.");
-                that._logger.log("internal", LOG_ID + "(setPresenceTo) received : ", _presence);
+                that._logger.log(that.INFO, LOG_ID + "(setPresenceTo) received.");
+                that._logger.log(that.INTERNAL, LOG_ID + "(setPresenceTo) received : ", _presence);
                 that._eventEmitter.removeListener("evt_internal_presencechanged", fn_onpresencechanged);
                 resolve(ErrorManager.getErrorManager().OK);
             });
 
-            that._logger.log("internal", LOG_ID + "(setPresenceTo) that._useXMPP : ", that._useXMPP, ", that._useS2S : ", that._useS2S, ", presenceRainbow : ", presenceRainbow, ", presence : ", presence);
+            that._logger.log(that.INTERNAL, LOG_ID + "(setPresenceTo) that._useXMPP : ", that._useXMPP, ", that._useS2S : ", that._useS2S, ", presenceRainbow : ", presenceRainbow, ", presence : ", presence);
 
             if (that._useXMPP) {
                 that._xmpp.setPresence(presenceRainbow.presenceShow, presenceRainbow.presenceStatus);
@@ -268,8 +268,8 @@ class PresenceService extends GenericService{
 
              if (that._useXMPP) {
                  that._eventEmitter.once("evt_internal_presencechanged", function fn_onpresencechanged(presence) {
-                     that._logger.log("debug", LOG_ID + "(_setUserPresenceStatus) received.");
-                     that._logger.log("internal", LOG_ID + "(_setUserPresenceStatus) received : ", presence);
+                     that._logger.log(that.INFO, LOG_ID + "(_setUserPresenceStatus) received.");
+                     that._logger.log(that.INTERNAL, LOG_ID + "(_setUserPresenceStatus) received : ", presence);
                      that._eventEmitter.removeListener("evt_internal_presencechanged", fn_onpresencechanged);
                      resolve(undefined);
                  });
@@ -278,19 +278,19 @@ class PresenceService extends GenericService{
              if (that._useS2S) {
                  let presenceChangedReceived = false;
                  that._eventEmitter.once("evt_internal_presencechanged", function fn_onpresencechanged(presence) {
-                     that._logger.log("debug", LOG_ID + "(_setUserPresenceStatus) received.");
-                     that._logger.log("internal", LOG_ID + "(_setUserPresenceStatus) received : ", presence);
+                     that._logger.log(that.INFO, LOG_ID + "(_setUserPresenceStatus) received.");
+                     that._logger.log(that.INTERNAL, LOG_ID + "(_setUserPresenceStatus) received : ", presence);
                      that._eventEmitter.removeListener("evt_internal_presencechanged", fn_onpresencechanged);
                      presenceChangedReceived = true;
                      //resolve(undefined);
                  });
                  let result = await that._s2s.sendS2SPresence(presenceRainbow.toJsonForServer());
-                 that._logger.log("internal", LOG_ID + "(_setUserPresenceStatus) sendS2SPresence result : ", result);
+                 that._logger.log(that.INTERNAL, LOG_ID + "(_setUserPresenceStatus) sendS2SPresence result : ", result);
                  until(() => { return (presenceChangedReceived === true); }, "Wait for presencechanged after set presence S2S.", 10000).then((untilResult)=>{
-                     that._logger.log("internal", LOG_ID + "(_setUserPresenceStatus) evt_internal_presencechanged received, can continue : ", untilResult);
+                     that._logger.log(that.INTERNAL, LOG_ID + "(_setUserPresenceStatus) evt_internal_presencechanged received, can continue : ", untilResult);
                      resolve(undefined);
                  }).catch((err)=>{
-                     that._logger.log("warn", LOG_ID + "(_setUserPresenceStatus) evt_internal_presencechanged NOT received, force continue : ", err);
+                     that._logger.log(that.WARN, LOG_ID + "(_setUserPresenceStatus) evt_internal_presencechanged NOT received, force continue : ", err);
                      resolve(undefined);
                  })
              }
@@ -320,18 +320,18 @@ class PresenceService extends GenericService{
                         message = "away";
                     } // */
 
-                    that._logger.log("internal", LOG_ID + "(_sendPresenceFromConfiguration) -> getUserSettings are ", presenceRainbow );
+                    that._logger.log(that.INTERNAL, LOG_ID + "(_sendPresenceFromConfiguration) -> getUserSettings are ", presenceRainbow );
                     //if (that._currentPresence && (that._currentPresence !== presence || (that._currentPresence. === "xa" && message !== that._currentPresence.status))) {
                     //if (that._currentPresence && (that._currentPresence.presenceLevel !== presenceRainbow.presenceLevel )) {
                     if (that._currentPresence ) {
-                        that._logger.log("internal", LOG_ID + "(_sendPresenceFromConfiguration) should update my status from ", that._currentPresence,  " to ", presenceRainbow);
+                        that._logger.log(that.INTERNAL, LOG_ID + "(_sendPresenceFromConfiguration) should update my status from ", that._currentPresence,  " to ", presenceRainbow);
                         that._setUserPresenceStatus(presenceRainbow).then(() => { resolve(undefined); }).catch((err) => { reject(err); });
                     } else {
                         resolve(undefined);
                     }
                 })
                 .catch(function(error) {
-                    that._logger.log("debug", LOG_ID + "(_sendPresenceFromConfiguration) failure, send online");
+                    that._logger.log(that.DEBUG, LOG_ID + "(_sendPresenceFromConfiguration) failure, send online");
                     that._setUserPresenceStatus(new PresenceRainbow()).then(() => { resolve(undefined); }).catch(() => { reject(error); });
                 });
 
@@ -354,13 +354,13 @@ class PresenceService extends GenericService{
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.getMyPresenceInformation();
-                that._logger.log("debug", "(getMyPresenceInformation) - sent.");
-                that._logger.log("internal", "(getMyPresenceInformation) - result : ", result);
+                that._logger.log(that.DEBUG, "(getMyPresenceInformation) - sent.");
+                that._logger.log(that.INTERNAL, "(getMyPresenceInformation) - result : ", result);
 
                 resolve (result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(getMyPresenceInformation) Error.");
-                that._logger.log("internalerror", LOG_ID + "(getMyPresenceInformation) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getMyPresenceInformation) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getMyPresenceInformation) Error : ", err);
                 return reject(err);
             }
         });
@@ -381,7 +381,7 @@ class PresenceService extends GenericService{
     async setApplyMsTeamsPresenceSettings(connectTeams : boolean= false) {
         let that = this;
         return new Promise(async (resolve, reject) => {
-            that._logger.log("internal", LOG_ID + "(setApplyMsTeamsPresenceSettings) connectTeams : ", connectTeams);
+            that._logger.log(that.INTERNAL, LOG_ID + "(setApplyMsTeamsPresenceSettings) connectTeams : ", connectTeams);
 
             resolve( that._settings.updateUserSettings({applyMsTeamsPresence: connectTeams}));
         });
@@ -406,17 +406,17 @@ class PresenceService extends GenericService{
         let that = this;
         return new Promise(async function (resolve, reject) {
             let initialPresenceSent = that.sendInitialBubblePresenceSyncFn(bubble, intervalDelay).catch((errOfSent) => {
-                that._logger.log("warn", LOG_ID + "(sendInitialBubblePresenceSync) Error while sendInitialBubblePresenceSyncFn : ", errOfSent);
+                that._logger.log(that.WARN, LOG_ID + "(sendInitialBubblePresenceSync) Error while sendInitialBubblePresenceSyncFn : ", errOfSent);
                 return errOfSent;
             });
             if (initialPresenceSent) {
-                that._logger.log("internal", LOG_ID + "(sendInitialBubblePresenceSync) initialPresenceSent initialized.");
+                that._logger.log(that.INTERNAL, LOG_ID + "(sendInitialBubblePresenceSync) initialPresenceSent initialized.");
                 resolve (initialPresenceSent);
             } else {
                 let err = {
                     label : "no initial bubble presence promise."
                 };
-                that._logger.log("internal", LOG_ID + "(sendInitialBubblePresenceSync) initialPresenceSent is undefined, err : ", err);
+                that._logger.log(that.INTERNAL, LOG_ID + "(sendInitialBubblePresenceSync) initialPresenceSent is undefined, err : ", err);
                 reject(err);
             }
         });
@@ -454,22 +454,22 @@ class PresenceService extends GenericService{
         let that = this;
         return new Promise(async function(resolve, reject) {
             if (!bubble || !bubble.jid) {
-                that._logger.log("debug", LOG_ID + "(sendInitialBubblePresence) failed");
-                that._logger.log("debug", LOG_ID + "(sendInitialBubblePresence) No Bubble id provided");
+                that._logger.log(that.DEBUG, LOG_ID + "(sendInitialBubblePresence) failed");
+                that._logger.log(that.INFO, LOG_ID + "(sendInitialBubblePresence) No Bubble id provided");
                 reject({code:-1, label:"Bubble id is not defined!!!"});
             } else {
                 const attemptInfo = attempt ? " -- attempt " + attempt : "";
-                that._logger.log("info", LOG_ID + "(sendInitialBubblePresence) " + attemptInfo + " -- " + bubble.getNameForLogs + " -- " + bubble?.id);
+                that._logger.log(that.INFO, LOG_ID + "(sendInitialBubblePresence) " + attemptInfo + " -- " + bubble.getNameForLogs + " -- " + bubble?.id);
                 if (that._useXMPP) {
                     let result = that._xmpp.sendInitialBubblePresence(bubble.jid)
-                    that._logger.log("internal", LOG_ID + "(sendInitialBubblePresence) begin wait for the bubble to be active : ", bubble?.jid);
+                    that._logger.log(that.INTERNAL, LOG_ID + "(sendInitialBubblePresence) begin wait for the bubble to be active : ", bubble?.jid);
                     // Wait for the bubble to be active
                     await until(() => {
                         return bubble.isActive === true;
                     }, "Wait for the Bubble " + bubble.jid + " to be active").catch((err)=>{
-                        that._logger.log("internal", LOG_ID + "(sendInitialBubblePresence) FAILED wait for the bubble to be active : ", bubble?.jid , " : ", err);
+                        that._logger.log(that.INTERNAL, LOG_ID + "(sendInitialBubblePresence) FAILED wait for the bubble to be active : ", bubble?.jid , " : ", err);
                     });
-                    that._logger.log("internal", LOG_ID + "(sendInitialBubblePresence) end wait for the bubble to be active : ", bubble?.jid);
+                    that._logger.log(that.INTERNAL, LOG_ID + "(sendInitialBubblePresence) end wait for the bubble to be active : ", bubble?.jid);
                     resolve(result);
                 }
                 if (that._useS2S) {
@@ -494,17 +494,17 @@ class PresenceService extends GenericService{
     public sendInitialBubblePresenceSyncFn(bubble: Bubble, intervalDelay: number = 7500): Promise<any> {
         let that = this;
         if (!bubble) {
-            that._logger.log("warn", LOG_ID + "(sendInitialBubblePresenceSyncFn) bad or empty 'bubble' parameter.");
-            //that._logger.log("internalerror", LOG_ID + "(sendInitialBubblePresenceSyncFn) bad or empty 'bubble' parameter : ", bubble);
+            that._logger.log(that.WARN, LOG_ID + "(sendInitialBubblePresenceSyncFn) bad or empty 'bubble' parameter.");
+            //that._logger.log(that.INTERNALERROR, LOG_ID + "(sendInitialBubblePresenceSyncFn) bad or empty 'bubble' parameter : ", bubble);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
-        that._logger.log("debug", LOG_ID + "(sendInitialBubblePresenceSyncFn) " + intervalDelay + " -- " + bubble.getNameForLogs + " -- " + bubble.id + " -- " + bubble.jid);
+        that._logger.log(that.INFO, LOG_ID + "(sendInitialBubblePresenceSyncFn) " + intervalDelay + " -- " + bubble.getNameForLogs + " -- " + bubble.id + " -- " + bubble.jid);
         if (bubble.initialPresence.initPresencePromise) {
-            that._logger.log("debug", LOG_ID + `(sendInitialBubblePresenceSyncFn) -- ${bubble.getNameForLogs} -- ${bubble.id}` + " -- " + bubble.jid + " -- bubble activation in progress.");
+            that._logger.log(that.DEBUG, LOG_ID + `(sendInitialBubblePresenceSyncFn) -- ${bubble.getNameForLogs} -- ${bubble.id}` + " -- " + bubble.jid + " -- bubble activation in progress.");
             return bubble.initialPresence.initPresencePromise;
         }
         if (bubble.initialPresence.initPresenceAck) {
-            that._logger.log("debug", LOG_ID + `(sendInitialBubblePresenceSyncFn) -- ${bubble.getNameForLogs} -- ${bubble.id}` + " -- " + bubble.jid + " -- bubble already activated.");
+            that._logger.log(that.DEBUG, LOG_ID + `(sendInitialBubblePresenceSyncFn) -- ${bubble.getNameForLogs} -- ${bubble.id}` + " -- " + bubble.jid + " -- bubble already activated.");
             return Promise.resolve();
         }
 //                    bubble.initialPresence.initPresencePromise()
@@ -521,12 +521,12 @@ class PresenceService extends GenericService{
                 if (attemptNumber < maxAttemptNumber) {
                     // up to <maxAttemptNumber> retries
                     attemptNumber += 1;
-                    that._logger.log("warn", LOG_ID + "(sendInitialBubblePresenceSyncFn) : re sendInitialBubblePresence, attemptNumber : " + attemptNumber + " retries for " + bubble.getNameForLogs + " -- " + bubble.jid + ", bubble.initialPresence : ", bubble.initialPresence);
+                    that._logger.log(that.WARN, LOG_ID + "(sendInitialBubblePresenceSyncFn) : re sendInitialBubblePresence, attemptNumber : " + attemptNumber + " retries for " + bubble.getNameForLogs + " -- " + bubble.jid + ", bubble.initialPresence : ", bubble.initialPresence);
                     that.sendInitialBubblePresence(bubble, attemptNumber);
                 } else {
                     // if no response after <maxAttemptNumber> retries, we clean the presence promise in the bubble 
                     // (to make it possible for further trials to re-establish presence state and chat history access)
-                    that._logger.log("warn", LOG_ID + "(sendInitialBubblePresenceSyncFn) : no response after " + attemptNumber + " retries => clean presence promise and interval for " + bubble.getNameForLogs + " -- " + bubble.jid);
+                    that._logger.log(that.WARN, LOG_ID + "(sendInitialBubblePresenceSyncFn) : no response after " + attemptNumber + " retries => clean presence promise and interval for " + bubble.getNameForLogs + " -- " + bubble.jid);
                     reject("(sendInitialBubblePresenceSyncFn) : no response");
                     bubble.initialPresence.initPresencePromise = null;
                     if (bubble.initialPresence.initPresenceInterval) {
@@ -559,7 +559,7 @@ class PresenceService extends GenericService{
     _onUserSettingsChanged() {
         let that = this;
         that._sendPresenceFromConfiguration().catch(err=>{
-            that._logger.log("warn", LOG_ID + "(_onUserSettingsChanged) _sendPresenceFromConfiguration error : ", err);
+            that._logger.log(that.WARN, LOG_ID + "(_onUserSettingsChanged) _sendPresenceFromConfiguration error : ", err);
         });
     }
 
@@ -572,9 +572,9 @@ class PresenceService extends GenericService{
      */
     _onMyPresenceChanged(user) {
         let that = this;
-        //that._logger.log("internal", LOG_ID + "(_onPresenceChanged) user : ", user);
+        //that._logger.log(that.INTERNAL, LOG_ID + "(_onPresenceChanged) user : ", user);
        // if ( presence.jid === that._xmpp.jid ) {
-            that._logger.log("internal", LOG_ID + "(_onPresenceChanged) set for connected user the presence : ", user);
+            that._logger.log(that.INTERNAL, LOG_ID + "(_onPresenceChanged) set for connected user the presence : ", user);
             that._currentPresence.presenceLevel = user.presence;
             //that._currentPresence.presenceShow = presence.show;
             that._currentPresence.presenceStatus = user.status;
@@ -620,12 +620,12 @@ class PresenceService extends GenericService{
         return new Promise((resolve, reject) => {
 
             that._rest.getCalendarState().then((calendarInfo : any) => {
-                that._logger.log("debug", LOG_ID + "(getCalendarState) calendarInfo : ", calendarInfo);
+                that._logger.log(that.INFO, LOG_ID + "(getCalendarState) calendarInfo : ", calendarInfo);
                 //let presenceCalendar = new PresenceCalendar();
                 resolve(calendarInfo);
             }).catch((err) => {
-                that._logger.log("error", LOG_ID + "(getCalendarState) error");
-                that._logger.log("internalerror", LOG_ID + "(getCalendarState) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getCalendarState) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getCalendarState) error : ", err);
                 let error : any = ErrorManager.getErrorManager().OTHERERROR;
                 error.label = "Catch Error while trying to get calendar presence.";
                 error.msg = err.message;
@@ -670,11 +670,11 @@ class PresenceService extends GenericService{
         return new Promise((resolve, reject) => {
 
             that._rest.getCalendarStates(users).then((calendarInfo : any) => {
-                that._logger.log("debug", LOG_ID + "(getCalendarStates) calendarInfo : ", calendarInfo);
+                that._logger.log(that.INFO, LOG_ID + "(getCalendarStates) calendarInfo : ", calendarInfo);
                 resolve(calendarInfo);
             }).catch((err) => {
-                that._logger.log("error", LOG_ID + "(getCalendarStates) error");
-                that._logger.log("internalerror", LOG_ID + "(getCalendarStates) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getCalendarStates) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getCalendarStates) error : ", err);
                 let error : any = ErrorManager.getErrorManager().OTHERERROR;
                 error.label = "Catch Error while trying to get calendar presence.";
                 error.msg = err.message;
@@ -710,11 +710,11 @@ class PresenceService extends GenericService{
         return new Promise((resolve, reject) => {
 
             that._rest.setCalendarRegister(type,  redirect, callbackUrl).then((calendarInfo : any) => {
-                that._logger.log("debug", LOG_ID + "(setCalendarRegister) calendarInfo : ", calendarInfo);
+                that._logger.log(that.INFO, LOG_ID + "(setCalendarRegister) calendarInfo : ", calendarInfo);
                 resolve(calendarInfo);
             }).catch((err) => {
-                that._logger.log("error", LOG_ID + "(setCalendarRegister) error");
-                that._logger.log("internalerror", LOG_ID + "(setCalendarRegister) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(setCalendarRegister) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(setCalendarRegister) error : ", err);
                 let error : any = ErrorManager.getErrorManager().OTHERERROR;
                 error.label = "Catch Error while trying to set calendar register.";
                 error.msg = err.message;
@@ -734,7 +734,7 @@ class PresenceService extends GenericService{
      * @description
      *    Allow to retrieve the calendar automatic reply status <br>
      *    return promise with { <br>
-     *    enabled : string, // 	its status <br>
+     *    enabled : string, //  its status <br>
      *    start : string, // its start date <br>
      *    end : string, // its end date <br>
      *    message_text : string, // its message as plain text <br>
@@ -757,11 +757,11 @@ class PresenceService extends GenericService{
         return new Promise((resolve, reject) => {
 
             that._rest.getCalendarAutomaticReplyStatus(userId).then((automaticReplyStatus : any) => {
-                that._logger.log("debug", LOG_ID + "(getCalendarAutomaticReplyStatus) automaticReplyStatus : ", automaticReplyStatus);
+                that._logger.log(that.INFO, LOG_ID + "(getCalendarAutomaticReplyStatus) automaticReplyStatus : ", automaticReplyStatus);
                 resolve(automaticReplyStatus);
             }).catch((err) => {
-                that._logger.log("error", LOG_ID + "(getCalendarAutomaticReplyStatus) error");
-                that._logger.log("internalerror", LOG_ID + "(getCalendarAutomaticReplyStatus) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getCalendarAutomaticReplyStatus) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getCalendarAutomaticReplyStatus) error : ", err);
                 let error : any = ErrorManager.getErrorManager().OTHERERROR;
                 error.label = "Catch Error while trying to get calendar presence.";
                 error.msg = err.message;
@@ -795,11 +795,11 @@ class PresenceService extends GenericService{
         return new Promise((resolve, reject) => {
 
             that._rest.enableOrNotCalendar(false).then((result : any) => {
-                that._logger.log("debug", LOG_ID + "(enableCalendar) result : ", result);
+                that._logger.log(that.INFO, LOG_ID + "(enableCalendar) result : ", result);
                 resolve(result);
             }).catch((err) => {
-                that._logger.log("error", LOG_ID + "(enableCalendar) error");
-                that._logger.log("internalerror", LOG_ID + "(enableCalendar) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(enableCalendar) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(enableCalendar) error : ", err);
                 let error : any = ErrorManager.getErrorManager().OTHERERROR;
                 error.label = "Catch Error while trying to enable calendar.";
                 error.msg = err.message;
@@ -834,11 +834,11 @@ class PresenceService extends GenericService{
         return new Promise((resolve, reject) => {
 
             that._rest.enableOrNotCalendar(true).then((result : any) => {
-                that._logger.log("debug", LOG_ID + "(disableCalendar) result : ", result);
+                that._logger.log(that.INFO, LOG_ID + "(disableCalendar) result : ", result);
                 resolve(result);
             }).catch((err) => {
-                that._logger.log("error", LOG_ID + "(disableCalendar) error");
-                that._logger.log("internalerror", LOG_ID + "(disableCalendar) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(disableCalendar) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(disableCalendar) error : ", err);
                 let error : any = ErrorManager.getErrorManager().OTHERERROR;
                 error.label = "Catch Error while trying to disable calendar.";
                 error.msg = err.message;
@@ -874,11 +874,11 @@ class PresenceService extends GenericService{
         return new Promise((resolve, reject) => {
 
             that._rest.controlCalendarOrIgnoreAnEntry(disable, ignore).then((result : any) => {
-                that._logger.log("debug", LOG_ID + "(controlCalendarOrIgnoreAnEntry) result : ", result);
+                that._logger.log(that.INFO, LOG_ID + "(controlCalendarOrIgnoreAnEntry) result : ", result);
                 resolve(result);
             }).catch((err) => {
-                that._logger.log("error", LOG_ID + "(controlCalendarOrIgnoreAnEntry) error");
-                that._logger.log("internalerror", LOG_ID + "(controlCalendarOrIgnoreAnEntry) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(controlCalendarOrIgnoreAnEntry) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(controlCalendarOrIgnoreAnEntry) error : ", err);
                 let error : any = ErrorManager.getErrorManager().OTHERERROR;
                 error.label = "Catch Error while trying to control calendar.";
                 error.msg = err.message;
@@ -912,11 +912,11 @@ class PresenceService extends GenericService{
         return new Promise((resolve, reject) => {
 
             that._rest.unregisterCalendar().then((result : any) => {
-                that._logger.log("debug", LOG_ID + "(unregisterCalendar) result : ", result);
+                that._logger.log(that.INFO, LOG_ID + "(unregisterCalendar) result : ", result);
                 resolve(result);
             }).catch((err) => {
-                that._logger.log("error", LOG_ID + "(unregisterCalendar) error");
-                that._logger.log("internalerror", LOG_ID + "(unregisterCalendar) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(unregisterCalendar) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(unregisterCalendar) error : ", err);
                 let error : any = ErrorManager.getErrorManager().OTHERERROR;
                 error.label = "Catch Error while trying to unregister calendar.";
                 error.msg = err.message;
@@ -1158,16 +1158,16 @@ class PresenceService extends GenericService{
         
         if (that._useXMPP) {
             let result = that._xmpp.subscribePresence(to);
-            that._logger.log("debug", LOG_ID + "(subscribePresence) begin wait for the bubble to be active : ", to);
+            that._logger.log(that.INFO, LOG_ID + "(subscribePresence) begin wait for the bubble to be active : ", to);
 /*
             // Wait for the bubble to be active
             await until(() => {
                 return bubble.isActive === true;
             }, "Wait for the Bubble " + bubble.jid + " to be active").catch((err)=>{
-                that._logger.log("internal", LOG_ID + "(sendInitialBubblePresence) FAILED wait for the bubble to be active : ", bubble , " : ", err);
+                that._logger.log(that.INTERNAL, LOG_ID + "(sendInitialBubblePresence) FAILED wait for the bubble to be active : ", bubble , " : ", err);
             });
 */
-            that._logger.log("info", LOG_ID + "(subscribePresence) end wait for the bubble to be active : ", to);
+            that._logger.log(that.INFO, LOG_ID + "(subscribePresence) end wait for the bubble to be active : ", to);
             return (result);
         }
     }

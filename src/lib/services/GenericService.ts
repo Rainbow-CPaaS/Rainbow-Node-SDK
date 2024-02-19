@@ -11,8 +11,9 @@ import {EventEmitter} from "events";
 import {RESTService} from "../connection/RESTService";
 import {ContactsService} from "./ContactsService";
 import {stackTrace} from "../common/Utils.js";
+import {LevelInterface} from "../common/LevelInterface.js";
 
-class GenericService {
+class GenericService implements LevelInterface{
     protected _logger : Logger;
     protected _logId : string;
     protected _xmpp: XMPPService;
@@ -26,18 +27,18 @@ class GenericService {
     protected _initialized: boolean;
     protected _core: Core;
 
-    protected INFO: any;
-    protected DEBUG: any;
-    protected INTERNAL: any;
-    protected WARN: any;
-    protected ERROR: any;
-    protected INTERNALERROR: any;
-    protected INFOAPI: any;
-    protected DEBUGAPI: any;
-    protected INTERNALAPI: any;
-    protected WARNAPI: any;
-    protected ERRORAPI: any;
-    protected INTERNALERRORAPI: any;
+    public INFO: any;
+    public DEBUG: any;
+    public INTERNAL: any;
+    public WARN: any;
+    public ERROR: any;
+    public INTERNALERROR: any;
+    public INFOAPI: any;
+    public DEBUGAPI: any;
+    public INTERNALAPI: any;
+    public WARNAPI: any;
+    public ERRORAPI: any;
+    public INTERNALERRORAPI: any;
 
     protected _startConfig: {
         start_up:boolean,

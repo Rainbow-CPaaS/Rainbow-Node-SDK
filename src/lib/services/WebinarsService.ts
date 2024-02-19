@@ -148,8 +148,8 @@ class WebinarsService extends GenericService {
     public async onCreateWebinar(webinarInfo: { id: string }): Promise<void> {
         let that = this;
         let webinarId = webinarInfo.id;
-        that._logger.log("debug", LOG_ID + "(onCreateWebinar) webinarId : ", webinarId);
-        //this._logger.log("internal", LOG_ID + "(onAddToWebinar) this._webinars : ", this._webinars);
+        that._logger.log(that.DEBUG, LOG_ID + "(onCreateWebinar) webinarId : ", webinarId);
+        //that._logger.log(that.INTERNAL, LOG_ID + "(onAddToWebinar) this._webinars : ", this._webinars);
 
         // Get webinars from cache
         //let webinar = this.getWebinarFromCache(webinarId);
@@ -160,7 +160,7 @@ class WebinarsService extends GenericService {
             // Handle webinars creation
             if (newWebinar) {
                 let webinarsObj: Webinar = that.addOrUpdateWebinarToCache(newWebinar);
-                //this._logger.log("debug", LOG_ID + "(onCreateWebinar) evt_internal_webinarupdated : ", webinarsObj.id);
+                //that._logger.log(that.DEBUG, LOG_ID + "(onCreateWebinar) evt_internal_webinarupdated : ", webinarsObj.id);
                 that._eventEmitter.emit("evt_internal_webinarupdated", {
                     'id': webinarsObj.id,
                     "kind": that.LIST_EVENT_TYPE.ADD.code,
@@ -169,14 +169,14 @@ class WebinarsService extends GenericService {
                 });
             }
         }).catch(err=>{
-            that._logger.log("warn", LOG_ID + "(onCreateWebinar) getWebinarData error : ", err);
+            that._logger.log(that.WARN, LOG_ID + "(onCreateWebinar) getWebinarData error : ", err);
         });
     }
 
     private async onDeleteWebinar(webinarsInfo : {id : string}): Promise<any> {
         let that = this;
         let webinarsId: string = webinarsInfo.id;
-        that._logger.log("debug", LOG_ID + "(onDeleteWebinar) webinarsId : ", webinarsId);
+        that._logger.log(that.DEBUG, LOG_ID + "(onDeleteWebinar) webinarsId : ", webinarsId);
         let webinarsDeleted = await that.removeWebinarFromCache(webinarsId);
         let webinarsIdDeleted = webinarsDeleted ? webinarsDeleted.id : webinarsInfo.id;
 
@@ -201,18 +201,18 @@ class WebinarsService extends GenericService {
      */
     private getWebinarFromCache(webinarId: string): Webinar {
         let webinarsFound = null;
-        this._logger.log("internal", LOG_ID + "(getWebinarFromCache) search id : ", webinarId);
+        that._logger.log(that.INTERNAL, LOG_ID + "(getWebinarFromCache) search id : ", webinarId);
 
         if (this._webinars) {
             let webinarsFoundindex = this._webinars.findIndex((webinars) => {
                 return webinars.id === webinarId;
             });
             if (webinarsFoundindex != -1) {
-                this._logger.log("internal", LOG_ID + "(getWebinarFromCache) webinars found : ", this._webinars[webinarsFoundindex], " with id : ", webinarId);
+                that._logger.log(that.INTERNAL, LOG_ID + "(getWebinarFromCache) webinars found : ", this._webinars[webinarsFoundindex], " with id : ", webinarId);
                 return this._webinars[webinarsFoundindex];
             }
         }
-        this._logger.log("internal", LOG_ID + "(getWebinarFromCache) webinars found : ", webinarsFound, " with id : ", webinarId);
+        that._logger.log(that.INTERNAL, LOG_ID + "(getWebinarFromCache) webinars found : ", webinarsFound, " with id : ", webinarId);
         return webinarsFound ;
     }
 
@@ -223,12 +223,12 @@ class WebinarsService extends GenericService {
             return webinarsIter.id === webinar.id;
         });
         if (webinarsFoundindex != -1) {
-            that._logger.log("internal", LOG_ID + "(addOrUpdateWebinarToCache) update in cache with webinar : ", webinar, ", at webinarsFoundindex : ", webinarsFoundindex);
-            that._logger.log("internal", LOG_ID + "(addOrUpdateWebinarToCache) in update this._webinars : ", that._webinars);
+            that._logger.log(that.INTERNAL, LOG_ID + "(addOrUpdateWebinarToCache) update in cache with webinar : ", webinar, ", at webinarsFoundindex : ", webinarsFoundindex);
+            that._logger.log(that.INTERNAL, LOG_ID + "(addOrUpdateWebinarToCache) in update this._webinars : ", that._webinars);
             Webinar.updateFromData(that._webinars[webinarsFoundindex], webinar);
             webinarsObj = that._webinars[webinarsFoundindex];
         } else {
-            that._logger.log("internal", LOG_ID + "(addOrUpdateWebinarToCache) add in cache webinarsObj : ", webinarsObj);
+            that._logger.log(that.INTERNAL, LOG_ID + "(addOrUpdateWebinarToCache) add in cache webinarsObj : ", webinarsObj);
             that._webinars.push(webinarsObj);
         }
         // this.updateWebinarsList();
@@ -250,7 +250,7 @@ class WebinarsService extends GenericService {
                 // Remove from webinarss
                 let webinarsId = webinarsToRemove.id;
 
-                this._logger.log("internal", LOG_ID + "(removeWebinarFromCache) remove from cache webinarsId : ", webinarsId);
+                that._logger.log(that.INTERNAL, LOG_ID + "(removeWebinarFromCache) remove from cache webinarsId : ", webinarsId);
                 this._webinars = this._webinars.filter( function(chnl) {
                     return !(chnl.id === webinarsId);
                 });
@@ -263,8 +263,8 @@ class WebinarsService extends GenericService {
                 /* this.retrieveLatests()
                         .then(() => { resolve(webinarsToRemove); })
                         .catch((err) => {
-                            this._logger.log("error", LOG_ID + "(removeWebinarFromCache) error retrieveLatests ");
-                            this._logger.log("internalerror", LOG_ID + "(removeWebinarFromCache) error retrieveLatests : ", err);
+                            that._logger.log(that.ERROR, LOG_ID + "(removeWebinarFromCache) error retrieveLatests ");
+                            that._logger.log(that.INTERNALERROR, LOG_ID + "(removeWebinarFromCache) error retrieveLatests : ", err);
                             return reject(err);
                         });                        
                  // */
@@ -325,8 +325,8 @@ class WebinarsService extends GenericService {
         return new Promise((resolve, reject) => {
 
             if (!name) {
-                that._logger.log("warn", LOG_ID + "(createWebinar) bad or empty 'name' parameter.");
-                that._logger.log("internalerror", LOG_ID + "(createWebinar) bad or empty 'name' parameter : ", name);
+                that._logger.log(that.WARN, LOG_ID + "(createWebinar) bad or empty 'name' parameter.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(createWebinar) bad or empty 'name' parameter : ", name);
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
             }
@@ -356,13 +356,13 @@ class WebinarsService extends GenericService {
                     waitingRoomMultimediaURL,
                     stageBackground,
                     chatOption).then((webinar: any) => {
-                that._logger.log("debug", LOG_ID + "(createWebinar) creation successfull");
-                that._logger.log("internal", LOG_ID + "(createWebinar) creation successfull, webinar", webinar);
+                that._logger.log(that.DEBUG, LOG_ID + "(createWebinar) creation successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(createWebinar) creation successfull, webinar", webinar);
 
                 resolve(webinar);
             }).catch(err => {
-                that._logger.log("error", LOG_ID + "(createWebinar) failed to create webinar.");
-                that._logger.log("internalerror", LOG_ID + "(createWebinar) failed to create webinar : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(createWebinar) failed to create webinar.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(createWebinar) failed to create webinar : ", err);
                 reject (ErrorManager.getErrorManager().OTHERERROR("webinar_create_failed", err.message));
             });
         });
@@ -416,8 +416,8 @@ class WebinarsService extends GenericService {
         return new Promise((resolve, reject) => {
 
             if (!webinarId) {
-                that._logger.log("warn", LOG_ID + "(updateWebinar) bad or empty 'webinarId' parameter.");
-                that._logger.log("internalerror", LOG_ID + "(updateWebinar) bad or empty 'webinarId' parameter : ", webinarId);
+                that._logger.log(that.WARN, LOG_ID + "(updateWebinar) bad or empty 'webinarId' parameter.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(updateWebinar) bad or empty 'webinarId' parameter : ", webinarId);
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
             }
@@ -437,13 +437,13 @@ class WebinarsService extends GenericService {
                     waitingRoomMultimediaURL,
                     stageBackground,
                     chatOption).then((webinar: any) => {
-                that._logger.log("debug", LOG_ID + "(updateWebinar) update successfull");
-                that._logger.log("internal", LOG_ID + "(updateWebinar) update successfull, webinar", webinar);
+                that._logger.log(that.DEBUG, LOG_ID + "(updateWebinar) update successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(updateWebinar) update successfull, webinar", webinar);
 
                 resolve(webinar);
             }).catch(err => {
-                that._logger.log("error", LOG_ID + "(updateWebinar) failed to update webinar.");
-                that._logger.log("internalerror", LOG_ID + "(updateWebinar) failed to update webinar : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(updateWebinar) failed to update webinar.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(updateWebinar) failed to update webinar : ", err);
                 reject (ErrorManager.getErrorManager().OTHERERROR("webinar_update_failed", err.message));
             });
         });
@@ -468,20 +468,20 @@ class WebinarsService extends GenericService {
 
         return new Promise((resolve, reject) => {
             if (!webinarId) {
-                that._logger.log("warn", LOG_ID + "(getWebinarsData) bad or empty 'webinarId' parameter.");
-                that._logger.log("internalerror", LOG_ID + "(getWebinarsData) bad or empty 'webinarId' parameter : ", webinarId);
+                that._logger.log(that.WARN, LOG_ID + "(getWebinarsData) bad or empty 'webinarId' parameter.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getWebinarsData) bad or empty 'webinarId' parameter : ", webinarId);
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
             }
 
             that._rest.getWebinarData(webinarId).then((webinar: any) => {
-                that._logger.log("debug", LOG_ID + "(getWebinarsData) get successfull");
-                that._logger.log("internal", LOG_ID + "(getWebinarsData) get successfull, webinar", webinar);
+                that._logger.log(that.DEBUG, LOG_ID + "(getWebinarsData) get successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getWebinarsData) get successfull, webinar", webinar);
 
                 resolve(webinar);
             }).catch(err => {
-                that._logger.log("error", LOG_ID + "(getWebinarsData) failed to get webinar.");
-                that._logger.log("internalerror", LOG_ID + "(getWebinarsData) failed to get webinar : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getWebinarsData) failed to get webinar.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getWebinarsData) failed to get webinar : ", err);
                 reject (ErrorManager.getErrorManager().OTHERERROR("webinar_get_failed", err.message));
             });
         });
@@ -507,8 +507,8 @@ class WebinarsService extends GenericService {
 
         return new Promise((resolve, reject) => {
             that._rest.getWebinarsData(role).then((webinarsInfo: any) => {
-                that._logger.log("debug", LOG_ID + "(getWebinarsData) get successfull.");
-                that._logger.log("internal", LOG_ID + "(getWebinarsData) get successfull, webinars : ", webinarsInfo);
+                that._logger.log(that.DEBUG, LOG_ID + "(getWebinarsData) get successfull.");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getWebinarsData) get successfull, webinars : ", webinarsInfo);
                 webinarsInfo.webinars = []; 
                 for (const listeventtypeKey in webinarsInfo.data) {
                     let webinarObj : Webinar = Webinar.createFromData(webinarsInfo.data[listeventtypeKey], that._rest.http.serverURL);
@@ -518,8 +518,8 @@ class WebinarsService extends GenericService {
                 
                 resolve(webinarsInfo);
             }).catch(err => {
-                that._logger.log("error", LOG_ID + "(getWebinarsData) failed to get webinars.");
-                that._logger.log("internalerror", LOG_ID + "(getWebinarsData) failed to get webinars : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getWebinarsData) failed to get webinars.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getWebinarsData) failed to get webinars : ", err);
                 reject (ErrorManager.getErrorManager().OTHERERROR("webinars_get_failed", err.message));
             });
         });
@@ -556,22 +556,22 @@ class WebinarsService extends GenericService {
                    
                 }
 
-                that._logger.log("debug", LOG_ID + "(fetchMyChannels) hack start get channel data individually from server...");
+                that._logger.log(that.INFO, LOG_ID + "(fetchMyChannels) hack start get channel data individually from server...");
                 Promise.all(promises).then((channels : [Channel]) => {
-                    that._logger.log("internal", LOG_ID + "(fetchMyChannels) hack done : ", channels);
+                    that._logger.log(that.INTERNAL, LOG_ID + "(fetchMyChannels) hack done : ", channels);
                     that._webinars = [];
                     if (channels) {
                         channels.forEach((channel) => {
                             that.addOrUpdateChannelToCache(channel);
                         })
                     }
-                    //that._logger.log("internal", LOG_ID + "(fetchMyChannels) get successfully and updated the channels cache : ", that._channels);
+                    //that._logger.log(that.INTERNAL, LOG_ID + "(fetchMyChannels) get successfully and updated the channels cache : ", that._channels);
                     resolve(that._webinars);
                 });
                 // */
             }).catch((err) => {
-                that._logger.log("error", LOG_ID + "(fetchMyChannels) error ");
-                that._logger.log("internalerror", LOG_ID + "(fetchMyChannels) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(fetchMyChannels) error ");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(fetchMyChannels) error : ", err);
                 // Do not block the startup on VM without channels API
                 that._webinars = [];
                 resolve(that._webinars);
@@ -603,20 +603,20 @@ class WebinarsService extends GenericService {
 
         return new Promise((resolve, reject) => {
             if (!webinarId) {
-                that._logger.log("warn", LOG_ID + "(warnWebinarModerators) bad or empty 'webinarId' parameter.");
-                that._logger.log("internalerror", LOG_ID + "(warnWebinarModerators) bad or empty 'webinarId' parameter : ", webinarId);
+                that._logger.log(that.WARN, LOG_ID + "(warnWebinarModerators) bad or empty 'webinarId' parameter.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(warnWebinarModerators) bad or empty 'webinarId' parameter : ", webinarId);
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
             }
 
             that._rest.warnWebinarModerators(webinarId).then((webinar: any) => {
-                that._logger.log("debug", LOG_ID + "(warnWebinarModerators) get successfull.");
-                that._logger.log("internal", LOG_ID + "(warnWebinarModerators) get successfull, webinars : ", webinar);
+                that._logger.log(that.DEBUG, LOG_ID + "(warnWebinarModerators) get successfull.");
+                that._logger.log(that.INTERNAL, LOG_ID + "(warnWebinarModerators) get successfull, webinars : ", webinar);
 
                 resolve(webinar);
             }).catch(err => {
-                that._logger.log("error", LOG_ID + "(warnWebinarModerators) failed to get webinars.");
-                that._logger.log("internalerror", LOG_ID + "(warnWebinarModerators) failed to get webinars : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(warnWebinarModerators) failed to get webinars.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(warnWebinarModerators) failed to get webinars : ", err);
                 reject (ErrorManager.getErrorManager().OTHERERROR("webinar_warn_failed", err.message));
             });
         });
@@ -645,20 +645,20 @@ class WebinarsService extends GenericService {
 
         return new Promise((resolve, reject) => {
             if (!webinarId) {
-                that._logger.log("warn", LOG_ID + "(publishAWebinarEvent) bad or empty 'webinarId' parameter.");
-                that._logger.log("internalerror", LOG_ID + "(publishAWebinarEvent) bad or empty 'webinarId' parameter : ", webinarId);
+                that._logger.log(that.WARN, LOG_ID + "(publishAWebinarEvent) bad or empty 'webinarId' parameter.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(publishAWebinarEvent) bad or empty 'webinarId' parameter : ", webinarId);
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
             }
 
             that._rest.publishAWebinarEvent(webinarId).then((webinar: any) => {
-                that._logger.log("debug", LOG_ID + "(publishAWebinarEvent) get successfull.");
-                that._logger.log("internal", LOG_ID + "(publishAWebinarEvent) get successfull, webinars : ", webinar);
+                that._logger.log(that.DEBUG, LOG_ID + "(publishAWebinarEvent) get successfull.");
+                that._logger.log(that.INTERNAL, LOG_ID + "(publishAWebinarEvent) get successfull, webinars : ", webinar);
 
                 resolve(webinar);
             }).catch(err => {
-                that._logger.log("error", LOG_ID + "(publishAWebinarEvent) failed to get webinars.");
-                that._logger.log("internalerror", LOG_ID + "(publishAWebinarEvent) failed to get webinars : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(publishAWebinarEvent) failed to get webinars.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(publishAWebinarEvent) failed to get webinars : ", err);
                 reject (ErrorManager.getErrorManager().OTHERERROR("webinar_publish_failed", err.message));
             });
         });
@@ -682,20 +682,20 @@ class WebinarsService extends GenericService {
 
         return new Promise((resolve, reject) => {
             if (!webinarId) {
-                that._logger.log("warn", LOG_ID + "(deleteWebinar) bad or empty 'webinarId' parameter.");
-                that._logger.log("internalerror", LOG_ID + "(deleteWebinar) bad or empty 'webinarId' parameter : ", webinarId);
+                that._logger.log(that.WARN, LOG_ID + "(deleteWebinar) bad or empty 'webinarId' parameter.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteWebinar) bad or empty 'webinarId' parameter : ", webinarId);
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
             }
 
             that._rest.deleteWebinar(webinarId).then((webinar: any) => {
-                that._logger.log("debug", LOG_ID + "(deleteWebinar) get successfull.");
-                that._logger.log("internal", LOG_ID + "(deleteWebinar) get successfull, webinars : ", webinar);
+                that._logger.log(that.DEBUG, LOG_ID + "(deleteWebinar) get successfull.");
+                that._logger.log(that.INTERNAL, LOG_ID + "(deleteWebinar) get successfull, webinars : ", webinar);
 
                 resolve(webinar);
             }).catch(err => {
-                that._logger.log("error", LOG_ID + "(deleteWebinar) failed to get webinars.");
-                that._logger.log("internalerror", LOG_ID + "(deleteWebinar) failed to get webinars : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(deleteWebinar) failed to get webinars.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteWebinar) failed to get webinars : ", err);
                 reject (ErrorManager.getErrorManager().OTHERERROR("webinar_delete_failed", err.message));
             });
         });

@@ -484,14 +484,14 @@ let urlS2S;
     let rainbowSDK6 = new RainbowSDK(options6);
     // */
 
-    let logger = rainbowSDK._core.logger;
+    let _logger = rainbowSDK._core._logger;
     let calls = [];
     let mycalllogs = {
         "callLogs": null,
         "simplifiedCallLogs": null
     };
 
-    logger.log("debug", "MAIN - rainbow SDK created with options : ", rainbowSDK.option);
+   _logger.log("debug", "MAIN - rainbow SDK created with options : ", rainbowSDK.option);
 
     function saveCall(call) {
         if (!calls[call.id]) {
@@ -502,7 +502,7 @@ let urlS2S;
 // Start the SDK
 //rainbowSDK.start();
     rainbowSDK.events.onLog("debug", (log) => {
-        console.log(logger.colors.green("MAIN - Log : ") + log);
+        console.log(_logger.colors.green("MAIN - Log : ") + log);
     });
 
     let fileLogXmpp;
@@ -517,14 +517,14 @@ let urlS2S;
 
     rainbowSDK.events.on("rainbow_onxmmpeventreceived", (...argv) => {
         // do something when the SDK is ready to be used
-        logger.log("debug", "MAIN - (rainbow_onxmmpeventreceived) - rainbow xmpp event received : ", logger.colors.cyan(...argv));
-        if (fileLogXmpp) fs.writeSync(fileLogXmpp, "in: " + logger.colors.red(argv[0]) + "\n");
+       _logger.log("debug", "MAIN - (rainbow_onxmmpeventreceived) - rainbow xmpp event received : ",_logger.colors.cyan(...argv));
+        if (fileLogXmpp) fs.writeSync(fileLogXmpp, "in: " +_logger.colors.red(argv[0]) + "\n");
     });
 
     rainbowSDK.events.on("rainbow_onxmmprequestsent", (...argv) => {
         // do something when the SDK is ready to be used
-        logger.log("debug", "MAIN - (rainbow_onxmmprequestsent) - rainbow xmpp request sent : ", logger.colors.yellow(...argv));
-        if (fileLogXmpp) fs.writeSync(fileLogXmpp, "out: " + logger.colors.green(argv[0]) + "\n");
+       _logger.log("debug", "MAIN - (rainbow_onxmmprequestsent) - rainbow xmpp request sent : ",_logger.colors.yellow(...argv));
+        if (fileLogXmpp) fs.writeSync(fileLogXmpp, "out: " +_logger.colors.green(argv[0]) + "\n");
     });
 
     let GROUP_NAME = "Services";
@@ -533,14 +533,14 @@ let urlS2S;
         //let groups = rainbowSDK.groups.getAll();
         //let group = groups.find(group => group.name === GROUP_NAME);
         let group = await rainbowSDK.groups.getGroupByName(GROUP_NAME, true)
-        logger.log("debug", "MAIN - group.length : ", group.length, ", group : ", group);
+       _logger.log("debug", "MAIN - group.length : ", group.length, ", group : ", group);
         let users = group.users.map(user => user.id)
-        logger.log("debug", "MAIN - users.length : ", users.length, ", users : ", users);
+       _logger.log("debug", "MAIN - users.length : ", users.length, ", users : ", users);
     }
 
     rainbowSDK.events.on("rainbow_onready", () => {
         // do something when the SDK is ready to be used
-        logger.log("debug", "MAIN - (rainbow_onready) - rainbow onready");
+       _logger.log("debug", "MAIN - (rainbow_onready) - rainbow onready");
         /*let contacts = rainbowSDK.contacts.getAll().filter(contact => contact.roster);
         console.log("Contacts : ",contacts.length);
         contacts.forEach(contact => {
@@ -550,17 +550,17 @@ let urlS2S;
         let list = rainbowSDK.contacts.getAll().filter(contact => contact.roster);
         if (list) {
             list.forEach((contact) => {
-                logger.log("debug", "MAIN - (rainbow_onready) contact.displayName : ", contact.displayName, " - ", contact.presence, " - ", contact.id, " - ", contact.loginEmail);
+               _logger.log("debug", "MAIN - (rainbow_onready) contact.displayName : ", contact.displayName, " - ", contact.presence, " - ", contact.id, " - ", contact.loginEmail);
             });
         } else {
-            logger.log("debug", "MAIN - (rainbow_onready) [start    " + countStop + "] :: contacts list empty");
+           _logger.log("debug", "MAIN - (rainbow_onready) [start    " + countStop + "] :: contacts list empty");
         }
         // */
         //rainbowSDK.stop();
-        logger.log("debug", "MAIN - Rainbow ready ", rainbowSDK.version);
+       _logger.log("debug", "MAIN - Rainbow ready ", rainbowSDK.version);
 
         let contacts = rainbowSDK.contacts.getAll();
-        logger.log("debug", "MAIN - Contacts : ", contacts.length);
+       _logger.log("debug", "MAIN - Contacts : ", contacts.length);
         contacts.forEach(contact => {
             console.log(contact.displayName, " - ", contact.presence, " - ", contact.id, " - ", contact.jid);
             console.log("Emails ", contact.emails);
@@ -569,43 +569,43 @@ let urlS2S;
 
         // setInterval(() => {displayGroup();} , 10000);
 
-        logger.log("debug", "MAIN - ----------------------------------------------------");
+       _logger.log("debug", "MAIN - ----------------------------------------------------");
     });
     rainbowSDK.events.on("rainbow_onconnectionerror", () => {
         // do something when the SDK has been started
-        logger.log("debug", "MAIN - (rainbow_onconnectionerror) - rainbow failed to start.");
+       _logger.log("debug", "MAIN - (rainbow_onconnectionerror) - rainbow failed to start.");
     });
     rainbowSDK.events.on("rainbow_onstarted", () => {
 
         // do something when the SDK has been started
-        logger.log("debug", "MAIN - (rainbow_onstarted) - rainbow onstarted");
+       _logger.log("debug", "MAIN - (rainbow_onstarted) - rainbow onstarted");
     });
     rainbowSDK.events.on("rainbow_oncallupdated", (data) => {
         try {
             if (data.contact) {
-                logger.log("debug", "MAIN - (rainbow_oncallupdated) - rainbow call updated. deviceType : " + data.deviceType + ", State : " + data.status.value + ", displayName : " + data.contact.displayName, data);
+               _logger.log("debug", "MAIN - (rainbow_oncallupdated) - rainbow call updated. deviceType : " + data.deviceType + ", State : " + data.status.value + ", displayName : " + data.contact.displayName, data);
             } else {
-                logger.log("debug", "MAIN - (rainbow_oncallupdated) - rainbow call updated. deviceType : " + data.deviceType + ", State : " + data.status.value + ", ", data);
+               _logger.log("debug", "MAIN - (rainbow_oncallupdated) - rainbow call updated. deviceType : " + data.deviceType + ", State : " + data.status.value + ", ", data);
             }
         } catch (err) {
         }
         saveCall(data);
     });
     rainbowSDK.events.on("rainbow_onvoicemessageupdated", (data) => {
-        logger.log("debug", "MAIN - (rainbow_onvoicemessageupdated) - rainbow voice message updated.", data);
+       _logger.log("debug", "MAIN - (rainbow_onvoicemessageupdated) - rainbow voice message updated.", data);
     });
 
     rainbowSDK.events.on("rainbow_onbubblepresencechanged", (data) => {
-        logger.log("debug", "MAIN - (rainbow_onbubblepresencechanged) - rainbow bubble presence : ", data);
+       _logger.log("debug", "MAIN - (rainbow_onbubblepresencechanged) - rainbow bubble presence : ", data);
     });
 
     let bubbleInvitationReceived = null;
     rainbowSDK.events.on("rainbow_onbubbleinvitationreceived", async (bubble) => {
-        logger.log("debug", "MAIN - (rainbow_onbubbleinvitationreceived) - rainbow event received.", bubble);
+       _logger.log("debug", "MAIN - (rainbow_onbubbleinvitationreceived) - rainbow event received.", bubble);
         bubbleInvitationReceived = bubble;
 
         let utc = new Date().toJSON().replace(/-/g, "/");
-        logger.log("debug", "MAIN - [rainbow_onbubbleinvitationreceived    ] :: bubble : ", bubble);
+       _logger.log("debug", "MAIN - [rainbow_onbubbleinvitationreceived    ] :: bubble : ", bubble);
         let message = "message de test : " + utc;
         await rainbowSDK.im.sendMessageToBubbleJid(message, bubble.jid, "en", undefined, "subject", undefined, "middle");
         /* await rainbowSDK.im.sendMessageToBubbleJid(message, bubble.jid, "en", {
@@ -615,84 +615,84 @@ let urlS2S;
     });
 
     rainbowSDK.events.on("rainbow_onbubbleconferenceupdated", (conference: ConferenceSession) => {
-        logger.log("debug", "MAIN - (rainbow_onbubbleconferenceupdated) - rainbow event received.", conference);
+       _logger.log("debug", "MAIN - (rainbow_onbubbleconferenceupdated) - rainbow event received.", conference);
     });
 
     function acceptReceivedInvitation() {
         if (bubbleInvitationReceived) {
             rainbowSDK.bubbles.acceptInvitationToJoinBubble(bubbleInvitationReceived).then((updatedBubble) => {
-                logger.log("debug", "MAIN - acceptInvitationToJoinBubble - sent : ", bubbleInvitationReceived, " : ", updatedBubble);
+               _logger.log("debug", "MAIN - acceptInvitationToJoinBubble - sent : ", bubbleInvitationReceived, " : ", updatedBubble);
                 // Do something once the invitation has been accepted
             }).catch((err) => {
                 // Do something in case of error
-                logger.log("error", "MAIN - acceptInvitationToJoinBubble - error : ", err);
+               _logger.log("error", "MAIN - acceptInvitationToJoinBubble - error : ", err);
             });
         }
     }
 
     rainbowSDK.events.on("rainbow_onownbubbledeleted", (bubble) => {
-        logger.log("debug", "MAIN - (rainbow_onownbubbledeleted) - rainbow event received.", bubble);
+       _logger.log("debug", "MAIN - (rainbow_onownbubbledeleted) - rainbow event received.", bubble);
         let bubbles = rainbowSDK.bubbles.getAll();
-        logger.log("debug", "MAIN - (rainbow_onownbubbledeleted) - bubbles.", bubbles);
+       _logger.log("debug", "MAIN - (rainbow_onownbubbledeleted) - bubbles.", bubbles);
     });
     rainbowSDK.events.on("rainbow_onmessagereceiptreceived", (data) => {
-        logger.log("debug", "MAIN - (rainbow_onmessagereceiptreceived) - rainbow event received.", data);
+       _logger.log("debug", "MAIN - (rainbow_onmessagereceiptreceived) - rainbow event received.", data);
     });
     rainbowSDK.events.on("rainbow_onchannelmessagereceived", (data) => {
-        logger.log("debug", "MAIN - (rainbow_onchannelmessagereceived) - rainbow event received.", data);
+       _logger.log("debug", "MAIN - (rainbow_onchannelmessagereceived) - rainbow event received.", data);
     });
     rainbowSDK.events.on("rainbow_onbubbleownaffiliationchanged", (data) => {
-        logger.log("debug", "MAIN - (rainbow_onbubbleownaffiliationchanged) - rainbow event received.", data);
+       _logger.log("debug", "MAIN - (rainbow_onbubbleownaffiliationchanged) - rainbow event received.", data);
     });
     rainbowSDK.events.on("rainbow_onchannelcreated", (data) => {
-        logger.log("debug", "MAIN - (rainbow_onchannelcreated) - rainbow event received.", data);
+       _logger.log("debug", "MAIN - (rainbow_onchannelcreated) - rainbow event received.", data);
         /*rainbowSDK.channels.deleteChannel(data).then((result2) => {
-            logger.log("debug", "MAIN - testcreateChannel deleteChannel result : ", JSON.stringify(result2)); //logger.colors.green(JSON.stringify(result)));
+           _logger.log("debug", "MAIN - testcreateChannel deleteChannel result : ", JSON.stringify(result2)); //logger.colors.green(JSON.stringify(result)));
     
         }); */
         rainbowSDK.contacts.getContactByLoginEmail("vincent01@vbe.test.openrainbow.net").then((vincent01) => {
             let tab = [vincent01];
-            logger.log("debug", "MAIN - (rainbow_onchannelcreated) rainbowSDK.channels.getAllChannels() result : ", rainbowSDK.channels.getAllChannels());
+           _logger.log("debug", "MAIN - (rainbow_onchannelcreated) rainbowSDK.channels.getAllChannels() result : ", rainbowSDK.channels.getAllChannels());
             rainbowSDK.channels.addMembersToChannel(data, tab).then((chnl) => {
-                logger.log("debug", "MAIN - rainbow_onchannelcreated - addMembersToChannel rainbowSDK.channels.getAllChannels() result : ", rainbowSDK.channels.getAllChannels());
-                logger.log("debug", "MAIN - rainbow_onchannelcreated addMembersToChannel result : ", chnl);
+               _logger.log("debug", "MAIN - rainbow_onchannelcreated - addMembersToChannel rainbowSDK.channels.getAllChannels() result : ", rainbowSDK.channels.getAllChannels());
+               _logger.log("debug", "MAIN - rainbow_onchannelcreated addMembersToChannel result : ", chnl);
             });
         });
     });
     rainbowSDK.events.on("rainbow_onchanneldeleted", (data) => {
-        logger.log("debug", "MAIN - (rainbow_onchanneldeleted) - rainbow event received.", data);
+       _logger.log("debug", "MAIN - (rainbow_onchanneldeleted) - rainbow event received.", data);
     });
     rainbowSDK.events.on("rainbow_onuseraddedingroup", (group, contact) => {
-        logger.log("debug", "MAIN - (rainbow_onuseraddedingroup) - rainbow event received. group", group);
-        logger.log("debug", "MAIN - (rainbow_onuseraddedingroup) - rainbow event received. contact", contact);
+       _logger.log("debug", "MAIN - (rainbow_onuseraddedingroup) - rainbow event received. group", group);
+       _logger.log("debug", "MAIN - (rainbow_onuseraddedingroup) - rainbow event received. contact", contact);
     });
     rainbowSDK.events.on("rainbow_oncalllogupdated", (calllogs) => {
-        logger.log("debug", "MAIN - (rainbow_oncalllogupdated) - rainbow event received. ");
+       _logger.log("debug", "MAIN - (rainbow_oncalllogupdated) - rainbow event received. ");
         mycalllogs = calllogs;
         if (calllogs) {
             if (calllogs.callLogs) {
-                logger.log("debug", "MAIN - (rainbow_oncalllogupdated) - calllogs.callLogs.length : ", calllogs.callLogs.length);
+               _logger.log("debug", "MAIN - (rainbow_oncalllogupdated) - calllogs.callLogs.length : ", calllogs.callLogs.length);
                 calllogs.orderByDateCallLogs.forEach((callL) => {
-                    logger.log("debug", "MAIN - (rainbow_oncalllogupdated) - one call logged in calllogs.orderByDateCallLogs : ", ", id : ", callL.id, ", date : ", callL.date);
+                   _logger.log("debug", "MAIN - (rainbow_oncalllogupdated) - one call logged in calllogs.orderByDateCallLogs : ", ", id : ", callL.id, ", date : ", callL.date);
                 });
                 // */
             }
         } else {
-            logger.log("error", "MAIN - (rainbow_oncalllogupdated) - rainbow event received. empty calllogs", calllogs);
+           _logger.log("error", "MAIN - (rainbow_oncalllogupdated) - rainbow event received. empty calllogs", calllogs);
         }
     });
     rainbowSDK.events.on("rainbow_oncalllogackupdated", (calllogs) => {
-        logger.log("debug", "MAIN - (rainbow_oncalllogackupdated) - rainbow event received. ");
+       _logger.log("debug", "MAIN - (rainbow_oncalllogackupdated) - rainbow event received. ");
         if (calllogs) {
             if (calllogs.callLogs) {
-                logger.log("debug", "MAIN - (rainbow_oncalllogackupdated) - rainbow event received. calllogs.callLogs.length", calllogs.callLogs.length);
+               _logger.log("debug", "MAIN - (rainbow_oncalllogackupdated) - rainbow event received. calllogs.callLogs.length", calllogs.callLogs.length);
             }
         }
         mycalllogs = calllogs;
     });
 // Later in the code
     rainbowSDK.events.on("rainbow_onmessagereceived", (message) => {
-        logger.log("debug", "MAIN - (rainbow_onmessagereceived) - rainbow event received. message", message);
+       _logger.log("debug", "MAIN - (rainbow_onmessagereceived) - rainbow event received. message", message);
         // send manually a 'read' receipt to the sender
         //rainbowSDK.im.markMessageAsRead(message);
         let that = this;
@@ -702,12 +702,12 @@ let urlS2S;
         /*
         if (message.fromBubbleJid ) {
             rainbowSDK.im.sendMessageToBubbleJidAnswer("hello from node sendMessageToJidAnswer", message.fromJid, 'FR', null, 'Le sujet de node sendMessageToBubbleJidAnswer', message).then((result) => {
-                logger.log("debug", "MAIN - rainbow_onmessagereceived sendMessageToBubbleJidAnswer - result : ", result);
+               _logger.log("debug", "MAIN - rainbow_onmessagereceived sendMessageToBubbleJidAnswer - result : ", result);
             });
     
         }  else {
             rainbowSDK.im.sendMessageToJidAnswer("hello from node sendMessageToJidAnswer", message.fromJid, 'FR', null, 'Le sujet de node sendMessageToJidAnswer', message).then((result) => {
-                logger.log("debug", "MAIN - rainbow_onmessagereceived sendMessageToJidAnswer - result : ", result);
+               _logger.log("debug", "MAIN - rainbow_onmessagereceived sendMessageToJidAnswer - result : ", result);
             });
         } // */
         /*
@@ -740,11 +740,11 @@ let urlS2S;
         if (ackUngency && message && message.urgency==="high") {
             if (message.fromBubbleJid) {
                 rainbowSDK.im.sendMessageToBubbleJidAnswer("Acknowledged", message.fromJid, 'EN', null, 'Acknowledged', message, undefined, "std").then((result) => {
-                    logger.log("debug", "MAIN - rainbow_onmessagereceived sendMessageToBubbleJidAnswer - Acknowledged sent result : ", result);
+                   _logger.log("debug", "MAIN - rainbow_onmessagereceived sendMessageToBubbleJidAnswer - Acknowledged sent result : ", result);
                 });
             } else {
                 rainbowSDK.im.sendMessageToJidAnswer("Acknowledged", message.fromJid, 'EN', null, "Acknowledged", message, "std").then((result) => {
-                    logger.log("debug", "MAIN - rainbow_onmessagereceived sendMessageToJidAnswer - Acknowledged sent result : ", result);
+                   _logger.log("debug", "MAIN - rainbow_onmessagereceived sendMessageToJidAnswer - Acknowledged sent result : ", result);
                 });
             } // */
         }
@@ -753,18 +753,18 @@ let urlS2S;
         if (ignoreAckUngency && message && message.urgency==="high") {
             if (message.fromBubbleJid) {
                 rainbowSDK.im.sendMessageToBubbleJidAnswer("ign", message.fromJid, 'EN', null, 'Ignored', message, undefined, "std").then((result) => {
-                    logger.log("debug", "MAIN - rainbow_onmessagereceived sendMessageToBubbleJidAnswer - Acknowledged sent result : ", result);
+                   _logger.log("debug", "MAIN - rainbow_onmessagereceived sendMessageToBubbleJidAnswer - Acknowledged sent result : ", result);
                 });
             } else {
                 rainbowSDK.im.sendMessageToJidAnswer("Ignoré", message.fromJid, 'FR', null, "Ignored", message, "std").then((result) => {
-                    logger.log("debug", "MAIN - rainbow_onmessagereceived sendMessageToJidAnswer - Acknowledged sent result : ", result);
+                   _logger.log("debug", "MAIN - rainbow_onmessagereceived sendMessageToJidAnswer - Acknowledged sent result : ", result);
                 });
             } // */
         }
 
     });
     rainbowSDK.events.on("rainbow_onmessageserverreceiptreceived", (data) => {
-        logger.log("debug", "MAIN - (rainbow_onmessageserverreceiptreceived) - rainbow event received. data", data);
+       _logger.log("debug", "MAIN - (rainbow_onmessageserverreceiptreceived) - rainbow event received. data", data);
         /*rainbowSDK.conversations.getConversations().then(() => {
            sdfsdf
         }); // */
@@ -772,31 +772,31 @@ let urlS2S;
         // rainbowSDK.im.markMessageAsRead(data);
     });
     rainbowSDK.events.on("rainbow_onuserinvitereceived", async (data) => {
-        logger.log("debug", "MAIN - (rainbow_onuserinvitereceived) - rainbow event received.  : ", data);
+       _logger.log("debug", "MAIN - (rainbow_onuserinvitereceived) - rainbow event received.  : ", data);
         let acceptInvitationResult = await rainbowSDK.contacts.acceptInvitation(data);
-        logger.log("debug", "Main - rainbow_onuserinvitereceived, acceptInvitation - result : ", acceptInvitationResult);
+       _logger.log("debug", "Main - rainbow_onuserinvitereceived, acceptInvitation - result : ", acceptInvitationResult);
     });
     rainbowSDK.events.on("rainbow_onfileupdated", (data) => {
-        logger.log("debug", "MAIN - (rainbow_onfileupdated) - rainbow event received.");
+       _logger.log("debug", "MAIN - (rainbow_onfileupdated) - rainbow event received.");
         let fileDescriptorsReceived = rainbowSDK.fileStorage.getFileDescriptorFromId(data.fileid);
-        logger.log("debug", "Main - (rainbow_onfileupdated), retrieveFileDescriptorsListPerOwner - result : - fileDescriptorsReceived.id : ", fileDescriptorsReceived.id, ", fileDescriptorsReceived.fileName : ", fileDescriptorsReceived.fileName, ", fileDescriptorsReceived.url : ", fileDescriptorsReceived.url, ", fileDescriptorsReceived.ownerId : ", fileDescriptorsReceived.ownerId);
+       _logger.log("debug", "Main - (rainbow_onfileupdated), retrieveFileDescriptorsListPerOwner - result : - fileDescriptorsReceived.id : ", fileDescriptorsReceived.id, ", fileDescriptorsReceived.fileName : ", fileDescriptorsReceived.fileName, ", fileDescriptorsReceived.url : ", fileDescriptorsReceived.url, ", fileDescriptorsReceived.ownerId : ", fileDescriptorsReceived.ownerId);
         /*rainbowSDK.fileStorage.retrieveFileDescriptorsListPerOwner().then((fileDescriptorsReceivedOwned: any) => {
-            logger.log("debug", "Main - (rainbow_onfileupdated), retrieveFileDescriptorsListPerOwner - result : ", fileDescriptorsReceivedOwned.length);
+           _logger.log("debug", "Main - (rainbow_onfileupdated), retrieveFileDescriptorsListPerOwner - result : ", fileDescriptorsReceivedOwned.length);
             for (let fileReceived of fileDescriptorsReceivedOwned) {
-                logger.log("debug", "Main - (rainbow_onfileupdated), retrieveFileDescriptorsListPerOwner - result : - fileReceived.id : ", fileReceived.id, ", fileReceived.fileName : ", fileReceived.fileName, ", fileReceived.url : ", fileReceived.url, ", fileReceived.ownerId : ", fileReceived.ownerId);
+               _logger.log("debug", "Main - (rainbow_onfileupdated), retrieveFileDescriptorsListPerOwner - result : - fileReceived.id : ", fileReceived.id, ", fileReceived.fileName : ", fileReceived.fileName, ", fileReceived.url : ", fileReceived.url, ", fileReceived.ownerId : ", fileReceived.ownerId);
 
             }
         }); // */
     });
     rainbowSDK.events.on("rainbow_onfilecreated", (data) => {
-        logger.log("debug", "MAIN - (rainbow_onfilecreated) - rainbow event received.");
+       _logger.log("debug", "MAIN - (rainbow_onfilecreated) - rainbow event received.");
         let fileDescriptorsReceived = rainbowSDK.fileStorage.getFileDescriptorFromId(data.fileid);
-        logger.log("debug", "Main - (rainbow_onfilecreated), getFileDescriptorFromId - result : - fileDescriptorsReceived.id : ", fileDescriptorsReceived.id, ", fileDescriptorsReceived.fileName : ", fileDescriptorsReceived.fileName, ", fileDescriptorsReceived.url : ", fileDescriptorsReceived.url, ", fileDescriptorsReceived.ownerId : ", fileDescriptorsReceived.ownerId);
+       _logger.log("debug", "Main - (rainbow_onfilecreated), getFileDescriptorFromId - result : - fileDescriptorsReceived.id : ", fileDescriptorsReceived.id, ", fileDescriptorsReceived.fileName : ", fileDescriptorsReceived.fileName, ", fileDescriptorsReceived.url : ", fileDescriptorsReceived.url, ", fileDescriptorsReceived.ownerId : ", fileDescriptorsReceived.ownerId);
     });
 
     let countStop = 0;
     rainbowSDK.events.on("rainbow_onerror", (data) => {
-        logger.log("debug", "MAIN - (rainbow_onerror)  - rainbow event received. data", data, " destroy and recreate the SDK.");
+       _logger.log("debug", "MAIN - (rainbow_onerror)  - rainbow event received. data", data, " destroy and recreate the SDK.");
         until(() => {
             return stopped==true;
         }, "Waiting for the stop event after the rainbow_onerror event.", 10000).then(() => {
@@ -804,15 +804,15 @@ let urlS2S;
             stopped = false;
             /*
             rainbowSDK = new RainbowSDK(options);
-            logger = rainbowSDK._core.logger;
+           _logger = rainbowSDK._core._logger;
             rainbowSDK.start().then(async(result) => {
                 try {
                     // Do something when the SDK is started
-                    logger.log("debug", "MAIN - rainbow SDK started result after rainbow_onerror : ", logger.colors.green(result)); //logger.colors.green(JSON.stringify(result)));
+                   _logger.log("debug", "MAIN - rainbow SDK started result after rainbow_onerror : ",_logger.colors.green(result)); //logger.colors.green(JSON.stringify(result)));
                     //let startDuration = Math.round(new Date() - startDate);
                     let startDuration = result.startDuration;
                     // that.stats.push({ service: "telephonyService", startDuration: startDuration });
-                    logger.log("info", "MAIN === STARTED (" + startDuration + " ms) ===");
+                   _logger.log("info", "MAIN === STARTED (" + startDuration + " ms) ===");
                     console.log("MAIN === STARTED (" + startDuration + " ms) ===");
     
                     commandLineInteraction();
@@ -834,19 +834,19 @@ let urlS2S;
     rainbowSDK.events.on("rainbow_onstopped", (data) => {
         countStop++;
         stopped = true;
-        logger.log("debug", "MAIN - (rainbow_onstopped) " + countStop + " - rainbow event received. data", data);
+       _logger.log("debug", "MAIN - (rainbow_onstopped) " + countStop + " - rainbow event received. data", data);
         //setTimeout(() => {
-        logger.log("debug", "MAIN - (rainbow_onstopped) rainbow SDK will re start " + countStop + " result : ", data); //logger.colors.green(JSON.stringify(result)));
+       _logger.log("debug", "MAIN - (rainbow_onstopped) rainbow SDK will re start " + countStop + " result : ", data); //logger.colors.green(JSON.stringify(result)));
         //rainbowSDK.start();
         //        rainbowSDK.start().then(()=>{
         /*logger.log("debug", "MAIN - rainbow_onstopped rainbow SDK started " + countStop + " result : ", data); //logger.colors.green(JSON.stringify(result)));
         let list = rainbowSDK.contacts.getAll();
         if (list) {
             list.forEach(function (contact) {
-                logger.log("debug", "MAIN - rainbow_onstopped [start    " + countStop + "] :: contact : ", contact);
+               _logger.log("debug", "MAIN - rainbow_onstopped [start    " + countStop + "] :: contact : ", contact);
             });
         } else {
-            logger.log("debug", "MAIN - rainbow_onstopped [start    " + countStop + "] :: contacts list empty");
+           _logger.log("debug", "MAIN - rainbow_onstopped [start    " + countStop + "] :: contacts list empty");
         }
         // */
         //        });
@@ -857,36 +857,36 @@ let urlS2S;
     //This is the event handler to detect change of a contact's presence and output in console contact name and new status
     rainbowSDK.events.on("rainbow_oncontactpresencechanged", (contact) => {
         //Presence event handler. Code in between curly brackets will be executed in case of presence change for a contact
-        logger.log("debug", "MAIN - (rainbow_oncontactpresencechanged) Presence status of contact in a roster : " + contact.displayName + ", changed to " + contact.presence);
+       _logger.log("debug", "MAIN - (rainbow_oncontactpresencechanged) Presence status of contact in a roster : " + contact.displayName + ", changed to " + contact.presence);
         if (contact.presence!="Unknown") {
             return false;
         }
-        logger.log("debug", "MAIN - (rainbow_oncontactpresencechanged) ----> ", contact.displayName, "(", contact.jid, ")", " - ", contact.presence);
-        logger.log("debug", "MAIN - (rainbow_oncontactpresencechanged) ------------------Presence changed --------------------------");
-        logger.log("debug", "MAIN - (rainbow_oncontactpresencechanged) --> ", contact.displayName);
-        logger.log("debug", "MAIN - (rainbow_oncontactpresencechanged) Presence ", contact.presence);
-        logger.log("debug", "MAIN - (rainbow_oncontactpresencechanged) Status", contact.status);
-        logger.log("debug", "MAIN - (rainbow_oncontactpresencechanged) Resources ", contact.resources);
-        logger.log("debug", "MAIN - (rainbow_oncontactpresencechanged) -------------------------------------------------------------");
+       _logger.log("debug", "MAIN - (rainbow_oncontactpresencechanged) ----> ", contact.displayName, "(", contact.jid, ")", " - ", contact.presence);
+       _logger.log("debug", "MAIN - (rainbow_oncontactpresencechanged) ------------------Presence changed --------------------------");
+       _logger.log("debug", "MAIN - (rainbow_oncontactpresencechanged) --> ", contact.displayName);
+       _logger.log("debug", "MAIN - (rainbow_oncontactpresencechanged) Presence ", contact.presence);
+       _logger.log("debug", "MAIN - (rainbow_oncontactpresencechanged) Status", contact.status);
+       _logger.log("debug", "MAIN - (rainbow_oncontactpresencechanged) Resources ", contact.resources);
+       _logger.log("debug", "MAIN - (rainbow_oncontactpresencechanged) -------------------------------------------------------------");
         //getLastMessageOfConversation(contact);
     });
 
     rainbowSDK.events.on("rainbow_onpresencechanged", (data) => {
         //Presence event handler. Code in between curly brackets will be executed in case of presence change for a contact
-        logger.log("debug", "MAIN - (rainbow_onpresencechanged) Presence status of contact loggued in : " + data.displayName + ", changed to " + data.presence, ", status : ", data.status);
+       _logger.log("debug", "MAIN - (rainbow_onpresencechanged) Presence status of contact loggued in : " + data.displayName + ", changed to " + data.presence, ", status : ", data.status);
         //getLastMessageOfConversation(contact);
     });
 
     rainbowSDK.events.on("rainbow_onuserinviteaccepted", function (invit) {
-        logger.log("debug", "MAIN - (rainbow_onuserinviteaccepted) invit : ", invit);
+       _logger.log("debug", "MAIN - (rainbow_onuserinviteaccepted) invit : ", invit);
     });
 
     rainbowSDK.events.on("rainbow_oncontactremovedfromnetwork", async function (contact) {
-        logger.log("debug", "MAIN - (rainbow_oncontactremovedfromnetwork) contact : ", contact);
+       _logger.log("debug", "MAIN - (rainbow_oncontactremovedfromnetwork) contact : ", contact);
     });
 
     rainbowSDK.events.on("rainbow_onrbvoicerawevent", async function (data) {
-        logger.log("debug", "MAIN - (rainbow_onrbvoicerawevent) data : ", data);
+       _logger.log("debug", "MAIN - (rainbow_onrbvoicerawevent) data : ", data);
     });
     
     class Tests {
@@ -898,18 +898,18 @@ let urlS2S;
 
         async test_renewAuthToken() {
             for (let i = 0; i < 6; i++) {
-                logger.log("debug", "MAIN - [test_renewAuthToken    ] ::  i : ", i);
+               _logger.log("debug", "MAIN - [test_renewAuthToken    ] ::  i : ", i);
                 rainbowSDK._core._rest._renewAuthToken();
                 await pause(1000);
             }
             await rainbowSDK.stop().then(()=>{}).catch(()=>{});
-            logger.log("debug", "MAIN - [test_renewAuthToken    ] ::  last.",);
+           _logger.log("debug", "MAIN - [test_renewAuthToken    ] ::  last.",);
             rainbowSDK._core._rest._renewAuthToken();            
         }
 
         async test_renewAuthToken_2() {
             await rainbowSDK.stop().then(()=>{}).catch(()=>{});
-            logger.log("debug", "MAIN - [test_renewAuthToken    ] ::  last.",);
+           _logger.log("debug", "MAIN - [test_renewAuthToken    ] ::  last.",);
             //rainbowSDK._core._rest._renewAuthToken("failedurl");
         }
 
@@ -1000,60 +1000,60 @@ let urlS2S;
      testupdateMyInformations() {
         let contactInfo = {};
         rainbowSDK.contacts.updateMyInformations(contactInfo).then(result => {
-            logger.log("debug", "MAIN - [testupdateMyInformations    ] ::  result : ", result);
+           _logger.log("debug", "MAIN - [testupdateMyInformations    ] ::  result : ", result);
         }).catch((err) => {
-            logger.log("error", "MAIN - [testupdateMyInformations    ] :: catch reject contact : ", err);
+           _logger.log("error", "MAIN - [testupdateMyInformations    ] :: catch reject contact : ", err);
         });
     }
 
      testgetUserPresenceInformation() {
         rainbowSDK.admin.getUserPresenceInformation().then(result => {
-            logger.log("debug", "MAIN - [getUserPresenceInformation    ] ::  result : ", result);
+           _logger.log("debug", "MAIN - [getUserPresenceInformation    ] ::  result : ", result);
         }).catch((err) => {
-            logger.log("error", "MAIN - [getUserPresenceInformation    ] :: catch reject contact : ", err);
+           _logger.log("error", "MAIN - [getUserPresenceInformation    ] :: catch reject contact : ", err);
         });
     }
 
      testgetContactByLoginEmail_natawi29() {
         let usersToSearch = "natawi29@gmail.com";
         rainbowSDK.contacts.getContactByLoginEmail(usersToSearch).then(contact => {
-            logger.log("debug", "MAIN - [testgetContactByLoginEmail_natawi29    ] ::  contact : ", contact);
+           _logger.log("debug", "MAIN - [testgetContactByLoginEmail_natawi29    ] ::  contact : ", contact);
         }).catch((err) => {
-            logger.log("error", "MAIN - [testgetContactByLoginEmail_natawi29    ] :: catch reject contact : ", err);
+           _logger.log("error", "MAIN - [testgetContactByLoginEmail_natawi29    ] :: catch reject contact : ", err);
         });
     }
      testgetContactByLoginEmail_UnknownUser() {
         let usershouldbeUnkown = "unknowcontact@openrainbow.org";
         rainbowSDK.contacts.getContactByLoginEmail(usershouldbeUnkown).then(contact => {
-            logger.log("debug", "MAIN - [getContactByLoginEmail    ] ::  contact : ", contact);
+           _logger.log("debug", "MAIN - [getContactByLoginEmail    ] ::  contact : ", contact);
         }).catch((err) => {
-            logger.log("error", "MAIN - [getContactByLoginEmail    ] :: catch reject contact : ", err);
+           _logger.log("error", "MAIN - [getContactByLoginEmail    ] :: catch reject contact : ", err);
         });
     }
 
      testgetContactByLoginEmail_NotInRoster() {
         let usershouldbeUnkown = "vincent06@vbe.test.openrainbow.net";
         rainbowSDK.contacts.getContactByLoginEmail(usershouldbeUnkown).then(contact => {
-            logger.log("debug", "MAIN - [getContactByLoginEmail    ] ::  contact : ", contact);
+           _logger.log("debug", "MAIN - [getContactByLoginEmail    ] ::  contact : ", contact);
         }).catch((err) => {
-            logger.log("error", "MAIN - [getContactByLoginEmail    ] :: catch reject contact : ", err);
+           _logger.log("error", "MAIN - [getContactByLoginEmail    ] :: catch reject contact : ", err);
         });
     }
 
      testgetContactByLoginEmail_david() {
         let usershouldbeUnkown = "pbx191b-32a3-d759-4d7e-90a3-215b-f2ff-f499-vna@david-all-in-one-rd-dev-1.opentouch.cloud";
         rainbowSDK.contacts.getContactByLoginEmail(usershouldbeUnkown).then(contact => {
-            logger.log("debug", "MAIN - [getContactByLoginEmail    ] ::  contact : ", contact);
+           _logger.log("debug", "MAIN - [getContactByLoginEmail    ] ::  contact : ", contact);
         }).catch((err) => {
-            logger.log("error", "MAIN - [getContactByLoginEmail    ] :: catch reject contact : ", err);
+           _logger.log("error", "MAIN - [getContactByLoginEmail    ] :: catch reject contact : ", err);
         });
         rainbowSDK.admin.getAllUsersByFilter(undefined, undefined, usershouldbeUnkown, undefined, "vna_location", undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined
                 , undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined
                 , undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined
                 , undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined).then(contact => {
-            logger.log("debug", "MAIN - [getAllUsersByFilter    ] ::  contact : ", contact);
+           _logger.log("debug", "MAIN - [getAllUsersByFilter    ] ::  contact : ", contact);
         }).catch((err) => {
-            logger.log("error", "MAIN - [getAllUsersByFilter    ] :: catch reject contact : ", err);
+           _logger.log("error", "MAIN - [getAllUsersByFilter    ] :: catch reject contact : ", err);
         });
     }
 
@@ -1062,9 +1062,9 @@ let urlS2S;
         rainbowSDK.contacts.getContactByLoginEmail(usershouldbeUnkown).then((contact: Contact) => {
             for (let i = 0; i < 20; i++) {
                 let prom = rainbowSDK._core._rest.getContactInformationByJID(contact.jid).then((_contactFromServer: any) => {
-                    logger.log("debug", "MAIN - [getContactInformationByJID    ] ::  _contactFromServer : ", _contactFromServer);
+                   _logger.log("debug", "MAIN - [getContactInformationByJID    ] ::  _contactFromServer : ", _contactFromServer);
                 }).catch((err) => {
-                    logger.log("error", "MAIN - [getContactInformationByJID    ] :: catch reject contact : ", err);
+                   _logger.log("error", "MAIN - [getContactInformationByJID    ] :: catch reject contact : ", err);
                 });
             }
         });
@@ -1072,7 +1072,7 @@ let urlS2S;
 
     async testEvents() {
         let listenerData = await rainbowSDK.events.listenerData();
-        logger.log("debug", "MAIN - [testEvents    ] ::  listenerData : ", prettydata.json(listenerData));
+       _logger.log("debug", "MAIN - [testEvents    ] ::  listenerData : ", prettydata.json(listenerData));
     }
 
     async  testgetContactByLoginEmailCaseSensitiveTest() {
@@ -1080,9 +1080,9 @@ let urlS2S;
         //let contactEmailToSearchVincent01 = "vincent01@vbe.test.openrainbow.net";
         //let utc = new Date().toJSON().replace(/-/g, "_");
         let contactVincent00 = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent00);
-        logger.log("debug", "MAIN - [testgetContactByLoginEmailCaseSensitiveTest] after getContactByLoginEmail : ", contactVincent00);
+       _logger.log("debug", "MAIN - [testgetContactByLoginEmailCaseSensitiveTest] after getContactByLoginEmail : ", contactVincent00);
         let contactVincent00upperCase = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent00.toUpperCase());
-        logger.log("debug", "MAIN - [testgetContactByLoginEmailCaseSensitiveTest] after getContactByLoginEmail UpperCase : ", contactVincent00upperCase);
+       _logger.log("debug", "MAIN - [testgetContactByLoginEmailCaseSensitiveTest] after getContactByLoginEmail UpperCase : ", contactVincent00upperCase);
     }
 
     async  testgetContactByLoginEmailVincentBerder() {
@@ -1090,7 +1090,7 @@ let urlS2S;
         //let contactEmailToSearchVincent01 = "vincent01@vbe.test.openrainbow.net";
         //let utc = new Date().toJSON().replace(/-/g, "_");
         let contactVincent00 = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent00, true);
-        logger.log("debug", "MAIN - [testgetContactByLoginEmailCaseSensitiveTest] after getContactByLoginEmail : ", contactVincent00);
+       _logger.log("debug", "MAIN - [testgetContactByLoginEmailCaseSensitiveTest] after getContactByLoginEmail : ", contactVincent00);
     }
 
     async  testgetContactIdByLoginEmailVincentBerder() {
@@ -1098,20 +1098,20 @@ let urlS2S;
         //let contactEmailToSearchVincent01 = "vincent01@vbe.test.openrainbow.net";
         //let utc = new Date().toJSON().replace(/-/g, "_");
         let contactId = await rainbowSDK.contacts.getContactIdByLoginEmail(contactEmailToSearchVincent00, true);
-        logger.log("debug", "MAIN - [testgetContactIdByLoginEmailVincentBerder] after getContactIdByLoginEmail contactId : ", contactId);
+       _logger.log("debug", "MAIN - [testgetContactIdByLoginEmailVincentBerder] after getContactIdByLoginEmail contactId : ", contactId);
     }
 
      displayRoster() {
         let contacts = rainbowSDK.contacts.getAll();
         let roster = contacts.filter(contact => contact.roster).map(contact => contact.displayName)
-        logger.log("debug", "MAIN - [displayRoster] roster.length : ", roster.length, ", roster : ", roster);
+       _logger.log("debug", "MAIN - [displayRoster] roster.length : ", roster.length, ", roster : ", roster);
     }
 
     /* testgetContactByLoginEmail() {
         let loginEmail = "vincent++@vbe.test.openrainbow.net";
         rainbowSDK.contacts.getContactByLoginEmail(loginEmail).then(contact => {
             if (contact) {
-                logger.log("debug", "MAIN - [testgetContactByLoginEmail    ] :: getContactByLoginEmail contact : ", contact);
+               _logger.log("debug", "MAIN - [testgetContactByLoginEmail    ] :: getContactByLoginEmail contact : ", contact);
             }
         });
     } // */
@@ -1120,7 +1120,7 @@ let urlS2S;
         //let loginEmail = "vincent++@vbe.test.openrainbow.net";
         rainbowSDK.contacts.getContactByLoginEmail(loginEmail, forceServerSearch).then(contact => {
             if (contact) {
-                logger.log("debug", "MAIN - [testgetContactByLoginEmail    ] :: getContactByLoginEmail contact : ", contact);
+               _logger.log("debug", "MAIN - [testgetContactByLoginEmail    ] :: getContactByLoginEmail contact : ", contact);
             }
         });
     }
@@ -1132,12 +1132,12 @@ let urlS2S;
         let loginEmail = "vincent++@vbe.test.openrainbow.net";
         rainbowSDK.contacts.getContactByLoginEmail(loginEmail).then(contact => {
             if (contact) {
-                logger.log("debug", "MAIN - [testgetContactInfos    ] :: getContactByLoginEmail contact : ", contact);
+               _logger.log("debug", "MAIN - [testgetContactInfos    ] :: getContactByLoginEmail contact : ", contact);
                 rainbowSDK.admin.getContactInfos(contact.id).then(contactInfos => {
                     if (contactInfos) {
-                        logger.log("debug", "MAIN - [testgetContactInfos    ] :: getContactInfos contactInfos : ", contactInfos);
+                       _logger.log("debug", "MAIN - [testgetContactInfos    ] :: getContactInfos contactInfos : ", contactInfos);
                     } else {
-                        logger.log("debug", "MAIN - [testgetContactInfos    ] :: getContactInfos no infos found");
+                       _logger.log("debug", "MAIN - [testgetContactInfos    ] :: getContactInfos no infos found");
                     }
                 });
             }
@@ -1148,12 +1148,12 @@ let urlS2S;
         let loginEmail = "representaive2@al-mydemo.com";
         rainbowSDK.contacts.getContactByLoginEmail(loginEmail).then(contact => {
             if (contact) {
-                logger.log("debug", "MAIN - [testgetContactInfos    ] :: getContactByLoginEmail contact : ", contact);
+               _logger.log("debug", "MAIN - [testgetContactInfos    ] :: getContactByLoginEmail contact : ", contact);
                 rainbowSDK.admin.getContactInfos(contact.id).then(contactInfos => {
                     if (contactInfos) {
-                        logger.log("debug", "MAIN - [testgetContactInfos    ] :: getContactInfos contactInfos : ", contactInfos);
+                       _logger.log("debug", "MAIN - [testgetContactInfos    ] :: getContactInfos contactInfos : ", contactInfos);
                     } else {
-                        logger.log("debug", "MAIN - [testgetContactInfos    ] :: getContactInfos no infos found");
+                       _logger.log("debug", "MAIN - [testgetContactInfos    ] :: getContactInfos no infos found");
                     }
                 });
             }
@@ -1167,7 +1167,7 @@ let urlS2S;
         let loginEmail = "vincent++@vbe.test.openrainbow.net";
         rainbowSDK.contacts.getContactByLoginEmail(loginEmail).then(contact => {
             if (contact) {
-                logger.log("debug", "MAIN - [testupdateContactInfos    ] :: getContactByLoginEmail contact : ", contact);
+               _logger.log("debug", "MAIN - [testupdateContactInfos    ] :: getContactByLoginEmail contact : ", contact);
                 let utc = new Date().toJSON().replace(/-/g, "_");
                 let infos = {
                     "userInfo1": "My Value UserInfo 1_" + utc,
@@ -1180,15 +1180,15 @@ let urlS2S;
                 };
                 rainbowSDK.admin.updateContactInfos(contact.id, infos).then(result => {
                     if (result) {
-                        logger.log("debug", "MAIN - [testupdateContactInfos    ] :: updateContactInfos result : ", result);
+                       _logger.log("debug", "MAIN - [testupdateContactInfos    ] :: updateContactInfos result : ", result);
                     } else {
-                        logger.log("debug", "MAIN - [testupdateContactInfos    ] :: updateContactInfos no infos found");
+                       _logger.log("debug", "MAIN - [testupdateContactInfos    ] :: updateContactInfos no infos found");
                     }
                     rainbowSDK.admin.getContactInfos(contact.id).then(contactInfos => {
                         if (contactInfos) {
-                            logger.log("debug", "MAIN - [testupdateContactInfos    ] :: getContactInfos contactInfos : ", contactInfos);
+                           _logger.log("debug", "MAIN - [testupdateContactInfos    ] :: getContactInfos contactInfos : ", contactInfos);
                         } else {
-                            logger.log("debug", "MAIN - [testupdateContactInfos    ] :: getContactInfos no infos found");
+                           _logger.log("debug", "MAIN - [testupdateContactInfos    ] :: getContactInfos no infos found");
                         }
                     });
                 });
@@ -1203,28 +1203,28 @@ let urlS2S;
         let loginEmail = "vincent++@vbe.test.openrainbow.net";
         rainbowSDK.contacts.getContactByLoginEmail(loginEmail).then(contact => {
             if (contact) {
-                logger.log("debug", "MAIN - [testupdateContactInfos_loginEmail    ] :: getContactByLoginEmail contact : ", contact);
+               _logger.log("debug", "MAIN - [testupdateContactInfos_loginEmail    ] :: getContactByLoginEmail contact : ", contact);
                 let utc = new Date().toJSON().replace(/-/g, "_");
                 let infos = {
                     "loginEmail" : "vincent++updated@vbe.test.openrainbow.net"
                 };
                 rainbowSDK.admin.updateContactInfos(contact.id, infos).then(result => {
                     if (result) {
-                        logger.log("debug", "MAIN - [testupdateContactInfos_loginEmail    ] :: updateInformationForUser result : ", result);
+                       _logger.log("debug", "MAIN - [testupdateContactInfos_loginEmail    ] :: updateInformationForUser result : ", result);
                     } else {
-                        logger.log("debug", "MAIN - [testupdateContactInfos_loginEmail    ] :: updateInformationForUser no infos found");
+                       _logger.log("debug", "MAIN - [testupdateContactInfos_loginEmail    ] :: updateInformationForUser no infos found");
                     }
                     rainbowSDK.admin.getContactInfos(contact.id).then(contactInfos => {
                         if (contactInfos) {
-                            logger.log("debug", "MAIN - [testupdateContactInfos_loginEmail    ] :: getContactInfos contactInfos : ", contactInfos);
+                           _logger.log("debug", "MAIN - [testupdateContactInfos_loginEmail    ] :: getContactInfos contactInfos : ", contactInfos);
                         } else {
-                            logger.log("debug", "MAIN - [testupdateContactInfos_loginEmail    ] :: getContactInfos no infos found");
+                           _logger.log("debug", "MAIN - [testupdateContactInfos_loginEmail    ] :: getContactInfos no infos found");
                         }
                         rainbowSDK.admin.updateContactInfos(contact.id, { loginEmail }).then(result => {
                             if (result) {
-                                logger.log("debug", "MAIN - [testupdateContactInfos_loginEmail    ] :: updateInformationForUser result : ", result);
+                               _logger.log("debug", "MAIN - [testupdateContactInfos_loginEmail    ] :: updateInformationForUser result : ", result);
                             } else {
-                                logger.log("debug", "MAIN - [testupdateContactInfos_loginEmail    ] :: updateInformationForUser no infos found");
+                               _logger.log("debug", "MAIN - [testupdateContactInfos_loginEmail    ] :: updateInformationForUser no infos found");
                             }
                         });
                     });
@@ -1275,14 +1275,14 @@ let urlS2S;
     async  testremoveFromNetwork() {
         let contactEmailToSearchVincent00 = "vincent02@vbe.test.openrainbow.net";
         let contactVincent00 = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent00);
-        logger.log("debug", "MAIN - [testremoveFromNetwork] contactEmailToSearchVincent00 : " + contactEmailToSearchVincent00 + " : ", contactVincent00);
+       _logger.log("debug", "MAIN - [testremoveFromNetwork] contactEmailToSearchVincent00 : " + contactEmailToSearchVincent00 + " : ", contactVincent00);
         await rainbowSDK.contacts.removeFromNetwork(contactVincent00);
     }
 
     async  testgetAllUsers() {
         // let utc = new Date().toJSON().replace(/-/g, '_');
         let users = await rainbowSDK.admin.getAllUsers("small", 2, 5, "firstName");
-        logger.log("debug", "MAIN - [testgetAllUsers] after getAllUsers : ", users);
+       _logger.log("debug", "MAIN - [testgetAllUsers] after getAllUsers : ", users);
         //let contactVincent01 = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent01);
         //let jid = contactVincent01.jid_im;
         //  let me = rainbowSDK.contacts.getConnectedUser();
@@ -1297,7 +1297,7 @@ let urlS2S;
                 , undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined
                 , undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined
                 , undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined);
-        logger.log("debug", "MAIN - [testgetAllUsersByFilter] after getAllUsersByFilter : ", users);
+       _logger.log("debug", "MAIN - [testgetAllUsersByFilter] after getAllUsersByFilter : ", users);
     }
 
     async  testgetAllUsersByCompanyId() {
@@ -1307,7 +1307,7 @@ let urlS2S;
         let contactVincent00 = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent00);
 
         let users = await rainbowSDK.admin.getAllUsersByCompanyId("small", 2, 5, "firstName", contactVincent00.companyId);
-        logger.log("debug", "MAIN - [testgetAllUsersByCompanyId] after getAllUsersByCompanyId : ", users);
+       _logger.log("debug", "MAIN - [testgetAllUsersByCompanyId] after getAllUsersByCompanyId : ", users);
     }
 
     async  testgetAllUsersBySearchEmailByCompanyId() {
@@ -1317,7 +1317,7 @@ let urlS2S;
         let contactVincent00 = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent00);
         let searchEmail = "cord";
         let users = await rainbowSDK.admin.getAllUsersBySearchEmailByCompanyId("small", 2, 5, "firstName", contactVincent00.companyId, searchEmail);
-        logger.log("debug", "MAIN - [testgetAllUsersBySearchEmailByCompanyId] after getAllUsersBySearchEmailByCompanyId : ", users);
+       _logger.log("debug", "MAIN - [testgetAllUsersBySearchEmailByCompanyId] after getAllUsersBySearchEmailByCompanyId : ", users);
     }
 
     //region Favorites
@@ -1325,7 +1325,7 @@ let urlS2S;
     async  testgetServerFavorites() {
         let utc = new Date().toJSON().replace(/-/g, "_");
         let favorites = await rainbowSDK.favorites.fetchAllFavorites();
-        logger.log("debug", "MAIN - (testgetServerFavorites) favorites :  ", favorites);
+       _logger.log("debug", "MAIN - (testgetServerFavorites) favorites :  ", favorites);
 
         //let contactVincent01 = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent01);
         //let jid = contactVincent01.jid_im;
@@ -1346,28 +1346,28 @@ let urlS2S;
 
 
             let favoriteCreated: any = await rainbowSDK.favorites.createFavorite(contactVincent00.id, "user");
-            logger.log("debug", "MAIN - (testgetServerFavorites) createFavorite favoriteCreated :  ", favoriteCreated);
+           _logger.log("debug", "MAIN - (testgetServerFavorites) createFavorite favoriteCreated :  ", favoriteCreated);
             let favoriteCreated01: any = await rainbowSDK.favorites.createFavorite(contactVincent01.id, "user");
-            logger.log("debug", "MAIN - (testgetServerFavorites) createFavorite favoriteCreated01 :  ", favoriteCreated01);
+           _logger.log("debug", "MAIN - (testgetServerFavorites) createFavorite favoriteCreated01 :  ", favoriteCreated01);
 
             let favoriteMoved: any = await rainbowSDK.favorites.moveFavoriteToPosition(favoriteCreated01.id, 0);
-            logger.log("debug", "MAIN - (testgetServerFavorites) moveFavoriteToPosition favoriteMoved :  ", favoriteMoved);
+           _logger.log("debug", "MAIN - (testgetServerFavorites) moveFavoriteToPosition favoriteMoved :  ", favoriteMoved);
 
             let favorites = await rainbowSDK.favorites.fetchAllFavorites();
-            logger.log("debug", "MAIN - (testgetServerFavorites) fetchAllFavorites favorites :  ", favorites);
+           _logger.log("debug", "MAIN - (testgetServerFavorites) fetchAllFavorites favorites :  ", favorites);
             let favoriteFoundInList = await rainbowSDK.favorites.getAllUserFavoriteList(contactVincent00.id);
-            logger.log("debug", "MAIN - (testgetServerFavorites) getAllUserFavoriteList favoriteFoundInList :  ", favoriteFoundInList);
+           _logger.log("debug", "MAIN - (testgetServerFavorites) getAllUserFavoriteList favoriteFoundInList :  ", favoriteFoundInList);
             let isPeerSettedAsFavorite = await rainbowSDK.favorites.checkIsPeerSettedAsFavorite(contactVincent00.id);
-            logger.log("debug", "MAIN - (testgetServerFavorites) checkIsPeerSettedAsFavorite isPeerSettedAsFavorite :  ", isPeerSettedAsFavorite);
+           _logger.log("debug", "MAIN - (testgetServerFavorites) checkIsPeerSettedAsFavorite isPeerSettedAsFavorite :  ", isPeerSettedAsFavorite);
             let favoriteById = await rainbowSDK.favorites.getFavoriteById(favoriteCreated.id);
-            logger.log("debug", "MAIN - (testgetServerFavorites) getFavoriteById favoriteById :  ", favoriteById);
+           _logger.log("debug", "MAIN - (testgetServerFavorites) getFavoriteById favoriteById :  ", favoriteById);
             let favoriteDeleted = await rainbowSDK.favorites.deleteFavorite(favoriteCreated.id);
-            logger.log("debug", "MAIN - (testgetServerFavorites) deleteFavorite favoriteDeleted :  ", favoriteDeleted);
+           _logger.log("debug", "MAIN - (testgetServerFavorites) deleteFavorite favoriteDeleted :  ", favoriteDeleted);
             let favoriteDeleted01 = await rainbowSDK.favorites.deleteFavorite(favoriteCreated01.id);
-            logger.log("debug", "MAIN - (testgetServerFavorites) deleteFavorite favoriteDeleted01 :  ", favoriteDeleted01);
+           _logger.log("debug", "MAIN - (testgetServerFavorites) deleteFavorite favoriteDeleted01 :  ", favoriteDeleted01);
 
         } catch (e) {
-                logger.log("error", "MAIN - (testgetServerFavorites) FAILED :  ", e);                
+               _logger.log("error", "MAIN - (testgetServerFavorites) FAILED :  ", e);                
         }
     }
 
@@ -1380,7 +1380,7 @@ let urlS2S;
             let firstnameTemp = firstname + iter;
             let lastnameTemp = lastname + iter;
             await rainbowSDK.admin.createGuestUser(firstnameTemp, lastnameTemp, "fr", 10).catch((err) => {
-                logger.log("debug", "MAIN - (testcreateGuestUserError) error while creating guest user :  ", err);
+               _logger.log("debug", "MAIN - (testcreateGuestUserError) error while creating guest user :  ", err);
             });
         }
     }
@@ -1388,9 +1388,9 @@ let urlS2S;
      testsearchUsers() {
         let usershouldbeUnkown = "unknowcontact@openrainbow.org";
         rainbowSDK.contacts.searchUsers(20, undefined, "vincent").then(contact => {
-            logger.log("debug", "MAIN - [testsearchUsers    ] ::  contact : ", contact);
+           _logger.log("debug", "MAIN - [testsearchUsers    ] ::  contact : ", contact);
         }).catch((err) => {
-            logger.log("error", "MAIN - [testsearchUsers    ] :: catch reject contact : ", err);
+           _logger.log("error", "MAIN - [testsearchUsers    ] :: catch reject contact : ", err);
         });
     }
 
@@ -1399,9 +1399,9 @@ let urlS2S;
         let contactphone = "23031" ; // 23031 is vincent01 +33298483031
         //let contactphone = encodeURIComponent("+33298483031") ; // 23031 is vincent01 +33298483031
         rainbowSDK.contacts.searchUserByPhonenumber(contactphone).then(contact => {
-            logger.log("debug", "MAIN - [testsearchUserByPhonenumber    ] ::  contact : ", contact);
+           _logger.log("debug", "MAIN - [testsearchUserByPhonenumber    ] ::  contact : ", contact);
         }).catch((err) => {
-            logger.log("error", "MAIN - [testsearchUserByPhonenumber    ] :: catch reject contact : ", err);
+           _logger.log("error", "MAIN - [testsearchUserByPhonenumber    ] :: catch reject contact : ", err);
         });
     }
 
@@ -1410,9 +1410,9 @@ let urlS2S;
         let contactphone = "+33298483031" ; // 23031 is vincent01 +33298483031
         //let contactphone = encodeURIComponent("+33298483031") ; // 23031 is vincent01 +33298483031
         rainbowSDK.contacts.searchUserByPhonenumber(contactphone).then(contact => {
-            logger.log("debug", "MAIN - [testsearchUserByPhonenumber    ] ::  contact : ", contact);
+           _logger.log("debug", "MAIN - [testsearchUserByPhonenumber    ] ::  contact : ", contact);
         }).catch((err) => {
-            logger.log("error", "MAIN - [testsearchUserByPhonenumber    ] :: catch reject contact : ", err);
+           _logger.log("error", "MAIN - [testsearchUserByPhonenumber    ] :: catch reject contact : ", err);
         });
     }
     
@@ -1425,11 +1425,11 @@ let urlS2S;
         //let contactphone = encodeURIComponent("+33298483031") ; // 23031 is vincent01 +33298483031
         let systemInfos : any = await rainbowSDK.admin.getSystemDataByPbxId(pbxId);
         rainbowSDK.admin.getAllSystemPhoneNumbers(systemInfos.id, shortNumber,undefined, undefined, undefined, undefined, undefined, undefined, undefined, "full" ).then(async infos => {
-            logger.log("debug", "MAIN - [testgetAllSystemPhoneNumbers    ] ::  infos : ", infos);
+           _logger.log("debug", "MAIN - [testgetAllSystemPhoneNumbers    ] ::  infos : ", infos);
             let contact = await rainbowSDK.contacts.getContactById(infos[0].userId);
-            logger.log("debug", "MAIN - [testgetAllSystemPhoneNumbers    ] ::  contact : ", contact);
+           _logger.log("debug", "MAIN - [testgetAllSystemPhoneNumbers    ] ::  contact : ", contact);
         }).catch((err) => {
-            logger.log("error", "MAIN - [testgetAllSystemPhoneNumbers    ] :: catch reject contact : ", err);
+           _logger.log("error", "MAIN - [testgetAllSystemPhoneNumbers    ] :: catch reject contact : ", err);
         });
 
     }
@@ -1447,40 +1447,40 @@ let urlS2S;
                 os: string,
                 id: string
             } */ = await rainbowSDK.contacts.createSource(userId, sourceId, os).then(async infos => {
-                logger.log("debug", "MAIN - [testcreateSource    ] ::  infos : ", infos);
+               _logger.log("debug", "MAIN - [testcreateSource    ] ::  infos : ", infos);
                 return infos;
             }).catch((err) => {
-                logger.log("error", "MAIN - [testcreateSource    ] :: catch reject contact : ", err);
+               _logger.log("error", "MAIN - [testcreateSource    ] :: catch reject contact : ", err);
             });
             //}
 
             //testupdateSourceData () {
             await rainbowSDK.contacts.updateSourceData(userId, srcInfos.id, os + "_UPDATED").then(async infos => {
-                logger.log("debug", "MAIN - [testupdateSourceData    ] ::  infos : ", infos);
+               _logger.log("debug", "MAIN - [testupdateSourceData    ] ::  infos : ", infos);
             }).catch((err) => {
-                logger.log("error", "MAIN - [testupdateSourceData    ] :: catch reject contact : ", err);
+               _logger.log("error", "MAIN - [testupdateSourceData    ] :: catch reject contact : ", err);
             });
             //}
 
             // testgetSourceData () {
             await rainbowSDK.contacts.getSourceData(userId, srcInfos.id).then(async infos => {
-                logger.log("debug", "MAIN - [testgetSourceData    ] ::  infos : ", infos);
+               _logger.log("debug", "MAIN - [testgetSourceData    ] ::  infos : ", infos);
             }).catch((err) => {
-                logger.log("error", "MAIN - [testgetSourceData    ] :: catch reject contact : ", err);
+               _logger.log("error", "MAIN - [testgetSourceData    ] :: catch reject contact : ", err);
             });
             //}
 
             await rainbowSDK.contacts.getAllSourcesByUserId().then(async infos => {
-                logger.log("debug", "MAIN - [testgetAllSourcesByUserId    ] ::  infos : ", infos);
+               _logger.log("debug", "MAIN - [testgetAllSourcesByUserId    ] ::  infos : ", infos);
             }).catch((err) => {
-                logger.log("error", "MAIN - [testgetAllSourcesByUserId    ] :: catch reject contact : ", err);
+               _logger.log("error", "MAIN - [testgetAllSourcesByUserId    ] :: catch reject contact : ", err);
             });
 
             //testdeleteSource () {
             await rainbowSDK.contacts.deleteSource(userId, srcInfos.id).then(async infos => {
-                logger.log("debug", "MAIN - [testdeleteSource    ] ::  infos : ", infos);
+               _logger.log("debug", "MAIN - [testdeleteSource    ] ::  infos : ", infos);
             }).catch((err) => {
-                logger.log("error", "MAIN - [testdeleteSource    ] :: catch reject contact : ", err);
+               _logger.log("error", "MAIN - [testdeleteSource    ] :: catch reject contact : ", err);
             });
         }
 
@@ -1488,25 +1488,25 @@ let urlS2S;
          let userId = connectedUser.id;
 
             await rainbowSDK.contacts.getAllSourcesByUserId().then(async (infos: any) => {
-                logger.log("debug", "MAIN - [testgetAllSourcesByUserId    ] ::  infos : ", infos);
+               _logger.log("debug", "MAIN - [testgetAllSourcesByUserId    ] ::  infos : ", infos);
                 for (let i = 0; i < infos.data.length ; i++) {
                     await rainbowSDK.contacts.deleteSource(userId, infos.data[i].id).then(async result => {
-                        logger.log("debug", "MAIN - [testdeleteSource    ] ::  result : ", result);
+                       _logger.log("debug", "MAIN - [testdeleteSource    ] ::  result : ", result);
                     }).catch((err) => {
-                        logger.log("error", "MAIN - [testdeleteSource    ] :: catch reject contact : ", err);
+                       _logger.log("error", "MAIN - [testdeleteSource    ] :: catch reject contact : ", err);
                     });
                 }
             }).catch((err) => {
-                logger.log("error", "MAIN - [testgetAllSourcesByUserId    ] :: catch reject contact : ", err);
+               _logger.log("error", "MAIN - [testgetAllSourcesByUserId    ] :: catch reject contact : ", err);
             });
 
         }
 
         testgetAllSourcesByUserId () {
             rainbowSDK.contacts.getAllSourcesByUserId().then(async infos => {
-                logger.log("debug", "MAIN - [testgetAllSourcesByUserId    ] ::  infos : ", infos);
+               _logger.log("debug", "MAIN - [testgetAllSourcesByUserId    ] ::  infos : ", infos);
             }).catch((err) => {
-                logger.log("error", "MAIN - [testgetAllSourcesByUserId    ] :: catch reject contact : ", err);
+               _logger.log("error", "MAIN - [testgetAllSourcesByUserId    ] :: catch reject contact : ", err);
             });
         }
 
@@ -1526,10 +1526,10 @@ let urlS2S;
                 os: string,
                 id: string
             } */ = await rainbowSDK.contacts.createSource(userId, sourceIdName, os).then(async infos => {
-                logger.log("debug", "MAIN - [testcreateContact    ] :: testcreateSource infos : ", infos);
+               _logger.log("debug", "MAIN - [testcreateContact    ] :: testcreateSource infos : ", infos);
                 return infos;
             }).catch((err) => {
-                logger.log("error", "MAIN - [testcreateContact    ] :: testcreateSource catch reject contact : ", err);
+               _logger.log("error", "MAIN - [testcreateContact    ] :: testcreateSource catch reject contact : ", err);
             });
             //}
             
@@ -1550,41 +1550,41 @@ let urlS2S;
             groups = [];
             otherData = [];
             let result = await rainbowSDK.contacts.createContact(userId, sourceId, contactId, firstName, lastName, displayName, company, jobTitle, phoneNumbers, emails, addresses, groups, otherData).then(async infos => {
-                logger.log("debug", "MAIN - [testcreateContact    ] :: createContact infos : ", infos);
+               _logger.log("debug", "MAIN - [testcreateContact    ] :: createContact infos : ", infos);
                 return infos;
             }).catch((err) => {
-                logger.log("error", "MAIN - [testcreateContact    ] :: createContact catch reject contact : ", err);
+               _logger.log("error", "MAIN - [testcreateContact    ] :: createContact catch reject contact : ", err);
             });
             //}
 
             let result2 = await rainbowSDK.contacts.getContactsList(userId, sourceId, "full").then(async (infos:any) => {
-                logger.log("debug", "MAIN - [testcreateContact    ] :: getContactsList infos : ", infos);
+               _logger.log("debug", "MAIN - [testcreateContact    ] :: getContactsList infos : ", infos);
                 for (let i = 0; i < infos.data.length ; i++) {
-                    logger.log("debug", "MAIN - [testcreateContact    ] :: getContactsList infos.data["+ i +"] : ", infos.data[i]);
+                   _logger.log("debug", "MAIN - [testcreateContact    ] :: getContactsList infos.data["+ i +"] : ", infos.data[i]);
                     let result4 = await rainbowSDK.contacts.updateContactData(userId, sourceId, infos.data[i].id, undefined, "firstnameUpdated", "lastnameUpdated").then(async (infos3:any) => {
-                        logger.log("debug", "MAIN - [testcreateContact    ] :: updateContactData infos3 : ", infos3);
+                       _logger.log("debug", "MAIN - [testcreateContact    ] :: updateContactData infos3 : ", infos3);
                     });
                     let result3 = await rainbowSDK.contacts.getContactData(userId, sourceId, infos.data[i].id).then(async (infos2:any) => {
-                        logger.log("debug", "MAIN - [testcreateContact    ] :: getContactData after update infos2 : ", infos2);
+                       _logger.log("debug", "MAIN - [testcreateContact    ] :: getContactData after update infos2 : ", infos2);
                     });
                     let result5 = await rainbowSDK.contacts.deleteContact(userId, sourceId, infos.data[i].id).then(async (infos4:any) => {
-                        logger.log("debug", "MAIN - [testcreateContact    ] :: deleteContact infos4 : ", infos4);
+                       _logger.log("debug", "MAIN - [testcreateContact    ] :: deleteContact infos4 : ", infos4);
                     });
                     let result6 = await rainbowSDK.contacts.getContactsList(userId, sourceId, "full").then(async (infos5:any) => {
-                        logger.log("debug", "MAIN - [testcreateContact    ] :: getContactsList after delete infos5 : ", infos5);
+                       _logger.log("debug", "MAIN - [testcreateContact    ] :: getContactsList after delete infos5 : ", infos5);
                     });
                 }
                 return infos;
             }).catch((err) => {
-                logger.log("error", "MAIN - [testcreateContact    ] :: getContactsList catch reject contact : ", err);
+               _logger.log("error", "MAIN - [testcreateContact    ] :: getContactsList catch reject contact : ", err);
             });
             //}
 
             //testdeleteSource () {
             await rainbowSDK.contacts.deleteSource(userId, srcInfos.id).then(async infos => {
-                logger.log("debug", "MAIN - [testcreateContact    ] :: deleteSource infos : ", infos);
+               _logger.log("debug", "MAIN - [testcreateContact    ] :: deleteSource infos : ", infos);
             }).catch((err) => {
-                logger.log("error", "MAIN - [testcreateContact    ] :: deleteSource catch reject contact : ", err);
+               _logger.log("error", "MAIN - [testcreateContact    ] :: deleteSource catch reject contact : ", err);
             });
         }
         
@@ -1610,9 +1610,9 @@ let urlS2S;
         let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
         let destArray = ["vincent02@vbe.test.openrainbow.net", "blablabla@vbe.test.openrainbow.net"] ;
         let sentConv = await rainbowSDK.conversations.sendConversationByEmail(conversation.dbId, destArray, "fr");
-        logger.log("debug", "MAIN - testsendConversationByEmail - result sendConversationByEmail : ", sentConv);
+       _logger.log("debug", "MAIN - testsendConversationByEmail - result sendConversationByEmail : ", sentConv);
         let sentConv2 = await rainbowSDK.conversations.sendConversationByEmail(conversation.dbId, undefined, "fr");
-        logger.log("debug", "MAIN - testsendConversationByEmail - result sendConversationByEmail : ", sentConv2);
+       _logger.log("debug", "MAIN - testsendConversationByEmail - result sendConversationByEmail : ", sentConv2);
     }
 
     async testgetContactsMessagesFromConversationId() {
@@ -1627,7 +1627,7 @@ let urlS2S;
         //let now = new Date().getTime();
         // get messages which are not events
         let msgNotEvents = await rainbowSDK.conversations.getContactsMessagesFromConversationId(conversation.id);
-        logger.log("debug", "MAIN - testgetContactsMessagesFromConversationId - result getContactsMessagesFromConversationId : ", msgNotEvents);
+       _logger.log("debug", "MAIN - testgetContactsMessagesFromConversationId - result getContactsMessagesFromConversationId : ", msgNotEvents);
         
     }
     
@@ -1642,11 +1642,11 @@ let urlS2S;
         //let now = new Date().getTime();
         // get messages which are not events
         let msgNotEvents : any = await rainbowSDK.conversations.getContactsMessagesFromConversationId(conversation.id);
-        logger.log("debug", "MAIN - testupdateConversationBookmark - result getContactsMessagesFromConversationId : ", msgNotEvents, ", msgNotEvents.length : ", msgNotEvents.length);
+       _logger.log("debug", "MAIN - testupdateConversationBookmark - result getContactsMessagesFromConversationId : ", msgNotEvents, ", msgNotEvents.length : ", msgNotEvents.length);
         if (msgNotEvents.length > 6) {
             let messageToSetUnread = msgNotEvents[msgNotEvents.length - 5];
             let result = await rainbowSDK.conversations.updateConversationBookmark(undefined, conversation.dbId, messageToSetUnread.id);
-            logger.log("debug", "MAIN - testupdateConversationBookmark - result updateConversationBookmark : ", result);
+           _logger.log("debug", "MAIN - testupdateConversationBookmark - result updateConversationBookmark : ", result);
         }
         
     }
@@ -1662,14 +1662,14 @@ let urlS2S;
         //let now = new Date().getTime();
         // get messages which are not events
         let msgNotEvents : any = await rainbowSDK.conversations.getContactsMessagesFromConversationId(conversation.id);
-        logger.log("debug", "MAIN - testdeleteConversationBookmark - result getContactsMessagesFromConversationId : ", msgNotEvents, ", msgNotEvents.length : ", msgNotEvents.length);
+       _logger.log("debug", "MAIN - testdeleteConversationBookmark - result getContactsMessagesFromConversationId : ", msgNotEvents, ", msgNotEvents.length : ", msgNotEvents.length);
         if (msgNotEvents.length > 6) {
             let messageToSetUnread = msgNotEvents[msgNotEvents.length - 5];
             let result = await rainbowSDK.conversations.updateConversationBookmark(undefined, conversation.dbId, messageToSetUnread.id);
-            logger.log("debug", "MAIN - testdeleteConversationBookmark - result updateConversationBookmark : ", result);
+           _logger.log("debug", "MAIN - testdeleteConversationBookmark - result updateConversationBookmark : ", result);
             await pause(2000);
             let result2 = await rainbowSDK.conversations.deleteConversationBookmark(undefined, conversation.dbId);
-            logger.log("debug", "MAIN - testdeleteConversationBookmark - result deleteConversationBookmark : ", result2);
+           _logger.log("debug", "MAIN - testdeleteConversationBookmark - result deleteConversationBookmark : ", result2);
         }
 
         
@@ -1686,7 +1686,7 @@ let urlS2S;
         //let now = new Date().getTime();
         // get messages which are not events
         let msgNotEvents : any = await rainbowSDK.conversations.getContactsMessagesFromConversationId(conversation.id);
-        logger.log("debug", "MAIN - testgetContactsMessagesFromConversationId - result getContactsMessagesFromConversationId : ", msgNotEvents, ", msgNotEvents.length : ", msgNotEvents.length);
+       _logger.log("debug", "MAIN - testgetContactsMessagesFromConversationId - result getContactsMessagesFromConversationId : ", msgNotEvents, ", msgNotEvents.length : ", msgNotEvents.length);
     }
 
     async  testgetContactsMessagesFromConversationIdForGuest() {
@@ -1697,13 +1697,13 @@ let urlS2S;
 
 
         rainbowSDK.admin.createAnonymousGuestUser(60 * 60).then((guest: any) => {
-            logger.log("debug", "MAIN - testgetContactsMessagesFromConversationIdForGuest - result createAnonymousGuestUser : ", guest);
+           _logger.log("debug", "MAIN - testgetContactsMessagesFromConversationIdForGuest - result createAnonymousGuestUser : ", guest);
             rainbowSDK.contacts.getContactByJid(guest.jid_im, true).then(contact => {
-                logger.log("debug", "MAIN - testgetContactsMessagesFromConversationIdForGuest - result getContactByJid : ", contact);
+               _logger.log("debug", "MAIN - testgetContactsMessagesFromConversationIdForGuest - result getContactByJid : ", contact);
                 rainbowSDK.conversations.openConversationForContact(contact).then(async conversation => {
-                    logger.log("debug", "MAIN - testgetContactsMessagesFromConversationIdForGuest - result openConversationForContact : ", conversation);
+                   _logger.log("debug", "MAIN - testgetContactsMessagesFromConversationIdForGuest - result openConversationForContact : ", conversation);
                     let msgNotEvents = await rainbowSDK.conversations.getContactsMessagesFromConversationId(conversation.id);
-                    logger.log("debug", "MAIN - testgetContactsMessagesFromConversationIdForGuest - result getContactsMessagesFromConversationId : ", msgNotEvents);
+                   _logger.log("debug", "MAIN - testgetContactsMessagesFromConversationIdForGuest - result getContactsMessagesFromConversationId : ", msgNotEvents);
                 });
             });
         });
@@ -1715,7 +1715,7 @@ let urlS2S;
         //let now = new Date().getTime();
         // get messages which are not events
         let msgNotEvents = await rainbowSDK.conversations.getContactsMessagesFromConversationId(conversation.id);
-        logger.log("debug", "MAIN - testgetContactsMessagesFromConversationId - result getContactsMessagesFromConversationId : ", msgNotEvents);
+       _logger.log("debug", "MAIN - testgetContactsMessagesFromConversationId - result getContactsMessagesFromConversationId : ", msgNotEvents);
         // */
     }
 
@@ -1734,16 +1734,16 @@ let urlS2S;
             let now = new Date().getTime();
             // Send message
             let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "hello num " + i + " from node : " + now, "FR", null, "Le sujet de node : " + now);
-            // logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
-            // logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
+            //_logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
+            //_logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
             msgsSent.push(msgSent);
-            logger.log("debug", "MAIN - testremoveAllMessages - wait for message to be in conversation : ", msgSent);
+           _logger.log("debug", "MAIN - testremoveAllMessages - wait for message to be in conversation : ", msgSent);
             await Utils.until(() => {
                 return conversation.getMessageById(msgSent.id)!==undefined;
             }, "Wait for message to be added in conversation num : " + i);
         }
         let conversationWithMessagesRemoved = await rainbowSDK.conversations.removeAllMessages(conversation);
-        logger.log("debug", "MAIN - testremoveAllMessages - conversation with messages removed : ", conversationWithMessagesRemoved);
+       _logger.log("debug", "MAIN - testremoveAllMessages - conversation with messages removed : ", conversationWithMessagesRemoved);
     }
 
     async  testsendMessageToConversationForContact() {
@@ -1762,18 +1762,18 @@ let urlS2S;
             // Send message
             //let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "hello num " + i + " from node : " + now, "FR", null, "Le sujet de node : " + now, "middle");
             let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "hello num " + i + " from node : " + now, "FR", null, "Le sujet de node : " + now);
-            // logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
-            // logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
+            //_logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
+            //_logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
             msgsSent.push(msgSent);
-            logger.log("debug", "MAIN - testsendMessageToConversationForContact - wait for message to be in conversation : ", msgSent);
+           _logger.log("debug", "MAIN - testsendMessageToConversationForContact - wait for message to be in conversation : ", msgSent);
             await Utils.until(() => {
                 return conversation.getMessageById(msgSent.id)!==undefined;
             }, "Wait for message to be added in conversation num : " + i);
             let msgDeleted = await rainbowSDK.conversations.deleteMessage(conversation, msgSent.id);
-            logger.log("debug", "MAIN - testsendMessageToConversationForContact - deleted in conversation the message : ", msgDeleted);
+           _logger.log("debug", "MAIN - testsendMessageToConversationForContact - deleted in conversation the message : ", msgDeleted);
         }
         // let conversationWithMessagesRemoved = await rainbowSDK.conversations.removeAllMessages(conversation);
-        // logger.log("debug", "MAIN - testsendMessageToConversationForContact - conversation with messages removed : ", conversationWithMessagesRemoved);
+        //_logger.log("debug", "MAIN - testsendMessageToConversationForContact - conversation with messages removed : ", conversationWithMessagesRemoved);
     }
 
     async  testsendMessageToConversationForContactIrles() {
@@ -1798,8 +1798,8 @@ let urlS2S;
         // Send message
         //let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "hello num " + i + " from node : " + now, "FR", null, "Le sujet de node : " + now, "middle");
         let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "hello from node at " + now, "FR", content, "Le sujet de node : " + now);
-        // logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
-        // logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
+        //_logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
+        //_logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
     }
 
     async  testsendMessageToJid() {
@@ -1816,7 +1816,7 @@ let urlS2S;
             // Send message
             let msgSent = await rainbowSDK.im.sendMessageToJid("hello num " + i + " from node : " + now, contact.jid, "FR", null, "Le sujet de node : " + now);
             msgsSent.push(msgSent);
-            logger.log("debug", "MAIN - testsendMessageToJid - wait for message to be in conversation : ", msgSent);
+           _logger.log("debug", "MAIN - testsendMessageToJid - wait for message to be in conversation : ", msgSent);
         }
     }
 
@@ -1833,8 +1833,8 @@ let urlS2S;
                 }).then(function (conversation) {
             // Share the file
             rainbowSDK.im.sendMessageToConversation(conversation, "hello from node", "FR", null, "Le sujet de node").then((result) => {
-                logger.log("debug", "MAIN - testHDS sendMessageToConversation - result : ", result);
-                logger.log("debug", "MAIN - testHDS sendMessageToConversation - conversation : ", conversation);
+               _logger.log("debug", "MAIN - testHDS sendMessageToConversation - result : ", result);
+               _logger.log("debug", "MAIN - testHDS sendMessageToConversation - conversation : ", conversation);
             });
         });
     }
@@ -1856,8 +1856,8 @@ let urlS2S;
             type : "text/html"
         }; // */
         rainbowSDK.im.sendMessageToConversation(conversation, txt, "FR", content, "Le sujet de node").then((result) => {
-            logger.log("debug", "MAIN - testsendMessageToConversation_html sendMessageToConversation - result : ", result);
-            logger.log("debug", "MAIN - testsendMessageToConversation_html sendMessageToConversation - conversation : ", conversation);
+           _logger.log("debug", "MAIN - testsendMessageToConversation_html sendMessageToConversation - result : ", result);
+           _logger.log("debug", "MAIN - testsendMessageToConversation_html sendMessageToConversation - conversation : ", conversation);
         });
     }
 
@@ -1867,7 +1867,7 @@ let urlS2S;
         // Retrieve a contact by its id
         let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
         rainbowSDK.im.sendMessageToJid("hello from node testSendMessageToJid", contact.jid, "FR", null, "Le sujet de node testSendMessageToJid").then((result) => {
-            logger.log("debug", "MAIN - testSendMessageToJid sendMessageToJid - result : ", result);
+           _logger.log("debug", "MAIN - testSendMessageToJid sendMessageToJid - result : ", result);
         });
     }
 
@@ -1877,7 +1877,7 @@ let urlS2S;
         // Retrieve a contact by its id
         let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
         rainbowSDK.im.sendMessageToJid("hello from node testSendMessageToJid", contact.jid, "FR", null, "Le sujet de node testSendMessageToJid").then((result) => {
-            logger.log("debug", "MAIN - testSendMessageToJid sendMessageToJid - result : ", result);
+           _logger.log("debug", "MAIN - testSendMessageToJid sendMessageToJid - result : ", result);
         });
     }
 
@@ -1896,22 +1896,22 @@ let urlS2S;
             let now = new Date().getTime();
             // Send message
             let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "hello num " + i + " from node : " + now, "FR", null, "Le sujet de node : " + now);
-            // logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
-            // logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
+            //_logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
+            //_logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
             msgsSent.push(msgSent);
-            logger.log("debug", "MAIN - testsendCorrectedChatMessage - wait for message to be in conversation : ", msgSent);
+           _logger.log("debug", "MAIN - testsendCorrectedChatMessage - wait for message to be in conversation : ", msgSent);
             await until(() => {
                 return conversation.getMessageById(msgSent.id)!==undefined;
             }, "Wait for message to be added in conversation num : " + i);
         }
         let msgSentOrig = msgsSent.slice(-1)[0];
         let msgStrModified = "modified : " + msgSentOrig.content;
-        logger.log("debug", "MAIN - testsendCorrectedChatMessage - msgStrModified : ", msgStrModified);
+       _logger.log("debug", "MAIN - testsendCorrectedChatMessage - msgStrModified : ", msgStrModified);
         setTimeout(async () => {
             let msgCorrectedSent = await rainbowSDK.conversations.sendCorrectedChatMessage(conversation, msgStrModified, msgSentOrig.id).catch((err) => {
-                logger.log("error", "MAIN- testsendCorrectedChatMessage - error sendCorrectedChatMessage : ", err);
+               _logger.log("error", "MAIN- testsendCorrectedChatMessage - error sendCorrectedChatMessage : ", err);
             });
-            logger.log("debug", "MAIN- testsendCorrectedChatMessage - msgCorrectedSent : ", msgCorrectedSent);
+           _logger.log("debug", "MAIN- testsendCorrectedChatMessage - msgCorrectedSent : ", msgCorrectedSent);
         }, 10000);
     }
 
@@ -1937,17 +1937,17 @@ let urlS2S;
             };
             // Send message
             let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "hello num " + i + " from node : " + now, "FR", content, "Le sujet de node : " + now);
-            // logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
-            // logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
+            //_logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
+            //_logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
             msgsSent.push(msgSent);
-            logger.log("debug", "MAIN - testsendCorrectedChatMessageWithContent - wait for message to be in conversation : ", msgSent);
+           _logger.log("debug", "MAIN - testsendCorrectedChatMessageWithContent - wait for message to be in conversation : ", msgSent);
             await until(() => {
                 return conversation.getMessageById(msgSent.id)!==undefined;
             }, "Wait for message to be added in conversation num : " + i);
         }
         let msgSentOrig = msgsSent.slice(-1)[0];
         let msgStrModified = "modified : " + msgSentOrig.content;
-        logger.log("debug", "MAIN - testsendCorrectedChatMessageWithContent - msgStrModified : ", msgStrModified);
+       _logger.log("debug", "MAIN - testsendCorrectedChatMessageWithContent - msgStrModified : ", msgStrModified);
         setTimeout(async () => {
             let now = new Date().getTime();
             let txt = "# Test modified " + now + " \n" +
@@ -1960,9 +1960,9 @@ let urlS2S;
 
             // let msgCorrectedSent = await rainbowSDK.conversations.sendCorrectedChatMessage(conversation, msgStrModified, msgSentOrig.id, content).catch((err) => {
             let msgCorrectedSent = await rainbowSDK.conversations.sendCorrectedChatMessage(conversation, undefined, msgSentOrig.id, content).catch((err) => {
-                logger.log("error", "MAIN- testsendCorrectedChatMessageWithContent - error sendCorrectedChatMessage : ", err);
+               _logger.log("error", "MAIN- testsendCorrectedChatMessageWithContent - error sendCorrectedChatMessage : ", err);
             });
-            logger.log("debug", "MAIN- testsendCorrectedChatMessageWithContent - msgCorrectedSent : ", msgCorrectedSent);
+           _logger.log("debug", "MAIN- testsendCorrectedChatMessageWithContent - msgCorrectedSent : ", msgCorrectedSent);
         }, 10000);
     }
 
@@ -2002,7 +2002,7 @@ let urlS2S;
            "type": "form/json",
            "message": formattedMessage
        }).catch(error => {
-           logger.error("Error sending card: ", error);
+          _logger.error("Error sending card: ", error);
        }); //*/
    }
         
@@ -2025,16 +2025,16 @@ let urlS2S;
         }
         // Send message
         let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "Welcome to the MCQ Test", "en", content, undefined);
-        // logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
-        // logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
+        //_logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
+        //_logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
         msgsSent.push(msgSent);
-        logger.log("debug", "MAIN - testsendMessageToConversationWithContentAdaptiveCardWithHiddenAckResponse - wait for message to be in conversation : ", msgSent);
+       _logger.log("debug", "MAIN - testsendMessageToConversationWithContentAdaptiveCardWithHiddenAckResponse - wait for message to be in conversation : ", msgSent);
         await until(() => {
             return conversation.getMessageById(msgSent.id)!==undefined;
         }, "Wait for message to be added in conversation.");
         let msgSentOrig = msgsSent.slice(-1)[0];
         let msgStrModified = "modified : " + msgSentOrig.content;
-        logger.log("debug", "MAIN - testsendMessageToConversationWithContentAdaptiveCardWithHiddenAckResponse - msgStrModified : ", msgStrModified);
+       _logger.log("debug", "MAIN - testsendMessageToConversationWithContentAdaptiveCardWithHiddenAckResponse - msgStrModified : ", msgStrModified);
     }
 
     async  testsendCorrectedChatMessageWithContentAdaptiveCard() {
@@ -2056,16 +2056,16 @@ let urlS2S;
         }
         // Send message
         let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "Welcome to the MCQ Test", "en", content, undefined);
-        // logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
-        // logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
+        //_logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
+        //_logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
         msgsSent.push(msgSent);
-        logger.log("debug", "MAIN - testsendCorrectedChatMessageWithContentAdaptiveCard - wait for message to be in conversation : ", msgSent);
+       _logger.log("debug", "MAIN - testsendCorrectedChatMessageWithContentAdaptiveCard - wait for message to be in conversation : ", msgSent);
         await until(() => {
             return conversation.getMessageById(msgSent.id)!==undefined;
         }, "Wait for message to be added in conversation.");
         let msgSentOrig = msgsSent.slice(-1)[0];
         let msgStrModified = "modified : " + msgSentOrig.content;
-        logger.log("debug", "MAIN - testsendCorrectedChatMessageWithContentAdaptiveCard - msgStrModified : ", msgStrModified);
+       _logger.log("debug", "MAIN - testsendCorrectedChatMessageWithContentAdaptiveCard - msgStrModified : ", msgStrModified);
         setTimeout(async () => {
 
             formattedMessage = that.formatCard3("modified msg : ", now);
@@ -2077,9 +2077,9 @@ let urlS2S;
                 
             // let msgCorrectedSent = await rainbowSDK.conversations.sendCorrectedChatMessage(conversation, msgStrModified, msgSentOrig.id, content).catch((err) => {
             let msgCorrectedSent = await rainbowSDK.conversations.sendCorrectedChatMessage(conversation, "Question 1/5", msgSentOrig.id, content).catch((err) => {
-                logger.log("error", "MAIN- testsendCorrectedChatMessageWithContentAdaptiveCard - error sendCorrectedChatMessage : ", err);
+               _logger.log("error", "MAIN- testsendCorrectedChatMessageWithContentAdaptiveCard - error sendCorrectedChatMessage : ", err);
             });
-            logger.log("debug", "MAIN- testsendCorrectedChatMessageWithContentAdaptiveCard - msgCorrectedSent : ", msgCorrectedSent);
+           _logger.log("debug", "MAIN- testsendCorrectedChatMessageWithContentAdaptiveCard - msgCorrectedSent : ", msgCorrectedSent);
         }, 20000);
     }
 
@@ -2122,8 +2122,8 @@ let urlS2S;
         }
         // Send message
         let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "Welcome to the MCQ Test", "en", content, undefined);
-        // logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
-        // logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
+        //_logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
+        //_logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
     }
 
     async  testdeleteMessageFromConversation() {
@@ -2143,15 +2143,15 @@ let urlS2S;
             type : "text/html"
         }; // */
         rainbowSDK.im.sendMessageToConversation(conversation, txt, "FR", content, "Le sujet de node").then(async (msgSent) => {
-            logger.log("debug", "MAIN - testdeleteMessageFromConversation sendMessageToConversation - result : ", msgSent);
-            logger.log("debug", "MAIN - testdeleteMessageFromConversation sendMessageToConversation - conversation : ", conversation);
+           _logger.log("debug", "MAIN - testdeleteMessageFromConversation sendMessageToConversation - result : ", msgSent);
+           _logger.log("debug", "MAIN - testdeleteMessageFromConversation sendMessageToConversation - conversation : ", conversation);
 
             await Utils.until(() => {
                 return conversation.getMessageById(msgSent.id)!==undefined;
             }, "Wait for message to be added in conversation id : " + conversation.id);
 
             let conversationWithMessagesRemoved = await rainbowSDK.conversations.deleteMessage(conversation, msgSent.id);
-            logger.log("debug", "MAIN - testdeleteMessageFromConversation - conversation with message removed : ", conversationWithMessagesRemoved);
+           _logger.log("debug", "MAIN - testdeleteMessageFromConversation - conversation with message removed : ", conversationWithMessagesRemoved);
 
         });
     }
@@ -2173,15 +2173,15 @@ let urlS2S;
             type : "text/html"
         }; // */
         rainbowSDK.im.sendMessageToConversation(conversation, txt, "FR", content, "Le sujet de node").then(async (msgSent) => {
-            logger.log("debug", "MAIN - testmodifyMessageFromConversation sendMessageToConversation - result : ", msgSent);
-            logger.log("debug", "MAIN - testmodifyMessageFromConversation sendMessageToConversation - conversation : ", conversation);
+           _logger.log("debug", "MAIN - testmodifyMessageFromConversation sendMessageToConversation - result : ", msgSent);
+           _logger.log("debug", "MAIN - testmodifyMessageFromConversation sendMessageToConversation - conversation : ", conversation);
 
             await Utils.until(() => {
                 return conversation.getMessageById(msgSent.id)!==undefined;
             }, "Wait for message to be added in conversation id : " + conversation.id);
 
             let conversationWithMessagesRemoved = await rainbowSDK.conversations.deleteMessage(conversation, msgSent.id);
-            logger.log("debug", "MAIN - testmodifyMessageFromConversation - conversation with message removed : ", conversationWithMessagesRemoved);
+           _logger.log("debug", "MAIN - testmodifyMessageFromConversation - conversation with message removed : ", conversationWithMessagesRemoved);
 
         });
     }
@@ -2191,7 +2191,7 @@ let urlS2S;
         let contactEmailToSearch = "vincent00@vbe.test.openrainbow.net";
         let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
         let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
-        logger.log("debug", "MAIN - testgetlastEditableMsg - result : ", conversation.getlastEditableMsg());
+       _logger.log("debug", "MAIN - testgetlastEditableMsg - result : ", conversation.getlastEditableMsg());
     }
 
     async  testsendCorrectedChatMessageForBubble() {
@@ -2211,22 +2211,22 @@ let urlS2S;
             let now = new Date(); // .getTime()
             // Send message
             let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "hello num " + i + " from node : " + now, "FR", null, "Le sujet de node : " + now);
-            // logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
-            // logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
+            //_logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
+            //_logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
             msgsSent.push(msgSent);
-            logger.log("debug", "MAIN - testsendCorrectedChatMessage - wait for message to be in conversation : ", msgSent);
+           _logger.log("debug", "MAIN - testsendCorrectedChatMessage - wait for message to be in conversation : ", msgSent);
             await Utils.until(() => {
                 return conversation.getMessageById(msgSent.id)!==undefined;
             }, "Wait for message to be added in conversation num : " + i);
         }
         let msgSentOrig = msgsSent.slice(-1)[0];
         let msgStrModified = "modified : " + msgSentOrig.message;
-        logger.log("debug", "MAIN - testsendCorrectedChatMessage - msgStrModified : ", msgStrModified);
+       _logger.log("debug", "MAIN - testsendCorrectedChatMessage - msgStrModified : ", msgStrModified);
         setTimeout(async () => {
             let msgCorrectedSent = await rainbowSDK.conversations.sendCorrectedChatMessage(conversation, msgStrModified, msgSentOrig.id).catch((err) => {
-                logger.log("error", "MAIN- testsendCorrectedChatMessage - error sendCorrectedChatMessage : ", err);
+               _logger.log("error", "MAIN- testsendCorrectedChatMessage - error sendCorrectedChatMessage : ", err);
             });
-            logger.log("debug", "MAIN- testsendCorrectedChatMessage - msgCorrectedSent : ", msgCorrectedSent);
+           _logger.log("debug", "MAIN- testsendCorrectedChatMessage - msgCorrectedSent : ", msgCorrectedSent);
         }, 5000);
     }
 
@@ -2238,11 +2238,11 @@ let urlS2S;
         let msgSentOrig = conversation.getlastEditableMsg();
         let msgStrModified = "modified : " + msgSentOrig.content;
         setTimeout(async () => {
-            logger.log("debug", "MAIN - testsendCorrectedChatMessage - msgStrModified : ", msgStrModified);
+           _logger.log("debug", "MAIN - testsendCorrectedChatMessage - msgStrModified : ", msgStrModified);
             let msgCorrectedSent = await rainbowSDK.conversations.sendCorrectedChatMessage(conversation, msgStrModified, msgSentOrig.id).catch((err) => {
-                logger.log("error", "MAIN- testsendCorrectedChatMessage - error sendCorrectedChatMessage : ", err);
+               _logger.log("error", "MAIN- testsendCorrectedChatMessage - error sendCorrectedChatMessage : ", err);
             });
-            logger.log("debug", "MAIN- testsendCorrectedChatMessage - msgCorrectedSent : ", msgCorrectedSent);
+           _logger.log("debug", "MAIN- testsendCorrectedChatMessage - msgCorrectedSent : ", msgCorrectedSent);
         }, 5000);
     }
 
@@ -2254,23 +2254,23 @@ let urlS2S;
         let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
         if (conversation && conversation.id) {
             let result = await rainbowSDK.conversations.deleteAllMessageInOneToOneConversation(conversation);
-            logger.log("debug", "MAIN - testdeleteAllMessageInOneToOneConversation deleteAllMessageInOneToOneConversation - result : ", result);
-            logger.log("debug", "MAIN - testdeleteAllMessageInOneToOneConversation deleteAllMessageInOneToOneConversation - conversation : ", conversation);
+           _logger.log("debug", "MAIN - testdeleteAllMessageInOneToOneConversation deleteAllMessageInOneToOneConversation - result : ", result);
+           _logger.log("debug", "MAIN - testdeleteAllMessageInOneToOneConversation deleteAllMessageInOneToOneConversation - conversation : ", conversation);
         } else {
-            logger.log("debug", "MAIN - testdeleteAllMessageInOneToOneConversation conversation empty or no id defined - conversation : ", conversation);
+           _logger.log("debug", "MAIN - testdeleteAllMessageInOneToOneConversation conversation empty or no id defined - conversation : ", conversation);
         }
     }
 
     async  testSendMessageToJidOfMySelf() {
         let that = this;
         let contactEmailToSearch = options.credentials.login;
-        logger.log("debug", "MAIN - testSendMessageToJidOfMySelf contactEmailToSearch : ", contactEmailToSearch);
+       _logger.log("debug", "MAIN - testSendMessageToJidOfMySelf contactEmailToSearch : ", contactEmailToSearch);
         // Retrieve a contact by its id
         let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
         await rainbowSDK.im.sendMessageToJid("hello from node testSendMessageToJidOfMySelf", contact.jid, "FR", null, "Le sujet de node testSendMessageToJidOfMySelf").then((result) => {
-            logger.log("debug", "MAIN - testSendMessageToJidOfMySelf sendMessageToJid - result : ", result);
+           _logger.log("debug", "MAIN - testSendMessageToJidOfMySelf sendMessageToJid - result : ", result);
         }).catch((err) => {
-            logger.log("debug", "MAIN - testSendMessageToJidOfMySelf Error : ", err);
+           _logger.log("debug", "MAIN - testSendMessageToJidOfMySelf Error : ", err);
         });
     }
 
@@ -2289,14 +2289,14 @@ let urlS2S;
             let now = new Date().getTime();
             let msgstr = "hello num " + i + " from node : " + now;
             // Send message
-            logger.log("debug", "MAIN - testSendMultipleMessages - message to be sent in conversation : ", msgstr);
+           _logger.log("debug", "MAIN - testSendMultipleMessages - message to be sent in conversation : ", msgstr);
             let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, msgstr, "FR", null, "Le sujet de node : " + now).catch((err) => {
-                logger.log("internalerror", "MAIN - testSendMultipleMessages - error while sendMessageToConversation : ", err);
+               _logger.log("internalerror", "MAIN - testSendMultipleMessages - error while sendMessageToConversation : ", err);
             });
-            // logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
-            // logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
+            //_logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
+            //_logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
             msgsSent.push(msgSent);
-            logger.log("debug", "MAIN - testSendMultipleMessages - wait for message to be in conversation : ", msgSent);
+           _logger.log("debug", "MAIN - testSendMultipleMessages - wait for message to be in conversation : ", msgSent);
             await Utils.until(() => {
                 return conversation.getMessageById(msgSent.id)!==undefined;
             }, "Wait for message to be added in conversation Msg : " + msgstr);
@@ -2310,9 +2310,9 @@ let urlS2S;
         //let contactEmailToSearchVincent01 = "vincent01@vbe.test.openrainbow.net";
         //let utc = new Date().toJSON().replace(/-/g, "_");
         let contactVincent00 = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent00);
-        logger.log("debug", "MAIN - [testsendMessageToContactUrgencyMiddle] after getContactByLoginEmail : ", contactVincent00);
+       _logger.log("debug", "MAIN - [testsendMessageToContactUrgencyMiddle] after getContactByLoginEmail : ", contactVincent00);
         rainbowSDK.im.sendMessageToContact("Middle important message test", contactVincent00, null, null, null, 'middle').then((result) => {
-            logger.log("debug", "MAIN - [testsendMessageToContactUrgencyMiddle] after sendMessageToContact result : ", result);
+           _logger.log("debug", "MAIN - [testsendMessageToContactUrgencyMiddle] after sendMessageToContact result : ", result);
         });
     }
 
@@ -2321,9 +2321,9 @@ let urlS2S;
         //let contactEmailToSearchVincent01 = "vincent01@vbe.test.openrainbow.net";
         //let utc = new Date().toJSON().replace(/-/g, "_");
         let contactVincent00 = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent00);
-        logger.log("debug", "MAIN - [testsendMessageToContactUrgencyMiddle] after getContactByLoginEmail : ", contactVincent00);
+       _logger.log("debug", "MAIN - [testsendMessageToContactUrgencyMiddle] after getContactByLoginEmail : ", contactVincent00);
         rainbowSDK.im.sendMessageToContact("High important message test", contactVincent00, null, null, null, 'high').then((result) => {
-            logger.log("debug", "MAIN - [testsendMessageToContactUrgencyMiddle] after sendMessageToContact result : ", result);
+           _logger.log("debug", "MAIN - [testsendMessageToContactUrgencyMiddle] after sendMessageToContact result : ", result);
         });
     }
 
@@ -2333,24 +2333,24 @@ let urlS2S;
 
     async  testdeleteAllGroups() {
         let that = this;
-        logger.log("debug", "MAIN - testdeleteAllGroups before delete");
+       _logger.log("debug", "MAIN - testdeleteAllGroups before delete");
         await rainbowSDK.groups.deleteAllGroups();
-        logger.log("debug", "MAIN - testdeleteAllGroups after delete");
+       _logger.log("debug", "MAIN - testdeleteAllGroups after delete");
     }
 
     async  testsetGroupAsFavorite() {
         let that = this;
         //logger.log("debug", "testsetGroupAsFavorite before delete");
         let groupCreated = await rainbowSDK.groups.createGroup("myGroup", "commentGroup", false);
-        logger.log("debug", "MAIN - testsetGroupAsFavorite groupCreated : ", groupCreated);
+       _logger.log("debug", "MAIN - testsetGroupAsFavorite groupCreated : ", groupCreated);
         let groupUpdatedSet = await rainbowSDK.groups.setGroupAsFavorite(groupCreated);
-        logger.log("debug", "MAIN - testsetGroupAsFavorite groupUpdatedSet : ", groupUpdatedSet);
+       _logger.log("debug", "MAIN - testsetGroupAsFavorite groupUpdatedSet : ", groupUpdatedSet);
         await setTimeoutPromised(1500);
         let groupUpdatedUnset = await rainbowSDK.groups.unsetGroupAsFavorite(groupUpdatedSet);
-        logger.log("debug", "MAIN - testsetGroupAsFavorite groupUpdatedUnset : ", groupUpdatedUnset);
+       _logger.log("debug", "MAIN - testsetGroupAsFavorite groupUpdatedUnset : ", groupUpdatedUnset);
         await setTimeoutPromised(1500);
         let groupDeleted = await rainbowSDK.groups.deleteGroup(groupCreated);
-        logger.log("debug", "MAIN - testsetGroupAsFavorite groupDeleted : ", groupDeleted);
+       _logger.log("debug", "MAIN - testsetGroupAsFavorite groupDeleted : ", groupDeleted);
     }
 
     async  testgetGroupByName(forceSearchOnServer) {
@@ -2361,9 +2361,9 @@ let urlS2S;
         let group = await rainbowSDK.groups.getGroupByName(GROUP_NAME, forceSearchOnServer!=null ? forceSearchOnServer:false);
         if (group) {
             let users = group.users.map(user => user.id)
-            logger.log("debug", "MAIN - testgetGroupByName - result users.length : ", users.length, ", users : ", users);
+           _logger.log("debug", "MAIN - testgetGroupByName - result users.length : ", users.length, ", users : ", users);
         } else {
-            logger.log("debug", "MAIN - testgetGroupByName - result group not found.");
+           _logger.log("debug", "MAIN - testgetGroupByName - result group not found.");
         }
     }
 
@@ -2371,17 +2371,17 @@ let urlS2S;
         let groups = await rainbowSDK.groups.getGroups();
         if (groups) {
             //let users = group.users.map(user => user.id)
-            logger.log("debug", "MAIN - testgetGroupByName - result groups : ", groups);
+           _logger.log("debug", "MAIN - testgetGroupByName - result groups : ", groups);
             await rainbowSDK.groups.updateGroupName(groups[0], "updatedGroupName_" + new Date().getTime());
             let groupsUpdated = await rainbowSDK.groups.getGroups();
             if (groupsUpdated) {
                 //let users = group.users.map(user => user.id)
-                logger.log("debug", "MAIN - testgetGroupByName - result groupsUpdated : ", groupsUpdated);
+               _logger.log("debug", "MAIN - testgetGroupByName - result groupsUpdated : ", groupsUpdated);
             } else {
-                logger.log("debug", "MAIN - testgetGroupByName - result groupsUpdated not found.");
+               _logger.log("debug", "MAIN - testgetGroupByName - result groupsUpdated not found.");
             }
         } else {
-            logger.log("debug", "MAIN - testgetGroupByName - result group not found.");
+           _logger.log("debug", "MAIN - testgetGroupByName - result group not found.");
         }
     }
 
@@ -2389,23 +2389,23 @@ let urlS2S;
         let that = this;
         //logger.log("debug", "testsetGroupAsFavorite before delete");
         let groupCreated = await rainbowSDK.groups.createGroup("myGroup", "commentGroup", false);
-        logger.log("debug", "MAIN - testsetGroupAsFavorite groupCreated : ", groupCreated);
+       _logger.log("debug", "MAIN - testsetGroupAsFavorite groupCreated : ", groupCreated);
         let groupUpdatedSet = await rainbowSDK.groups.setGroupAsFavorite(groupCreated);
-        logger.log("debug", "MAIN - testsetGroupAsFavorite groupUpdatedSet : ", groupUpdatedSet);
+       _logger.log("debug", "MAIN - testsetGroupAsFavorite groupUpdatedSet : ", groupUpdatedSet);
         let groups = await rainbowSDK.groups.getGroups();
-        logger.log("debug", "MAIN - testsetGroupAsFavorite groups : ", groups);
+       _logger.log("debug", "MAIN - testsetGroupAsFavorite groups : ", groups);
 
         await setTimeoutPromised(1500);
 
         let groups2 = await rainbowSDK.groups.getGroups();
-        logger.log("debug", "MAIN - testsetGroupAsFavorite groups2 : ", groups2);
+       _logger.log("debug", "MAIN - testsetGroupAsFavorite groups2 : ", groups2);
 
 
         let groupUpdatedUnset = await rainbowSDK.groups.unsetGroupAsFavorite(groupUpdatedSet);
-        logger.log("debug", "MAIN - testsetGroupAsFavorite groupUpdatedUnset : ", groupUpdatedUnset);
+       _logger.log("debug", "MAIN - testsetGroupAsFavorite groupUpdatedUnset : ", groupUpdatedUnset);
         await setTimeoutPromised(1500);
         let groupDeleted = await rainbowSDK.groups.deleteGroup(groupCreated);
-        logger.log("debug", "MAIN - testsetGroupAsFavorite groupDeleted : ", groupDeleted);
+       _logger.log("debug", "MAIN - testsetGroupAsFavorite groupDeleted : ", groupDeleted);
     }
 
 
@@ -2417,7 +2417,7 @@ let urlS2S;
         let mychannels = rainbowSDK.channels.getAllOwnedChannels();
         let mychannel = mychannels ? mychannels[0]:null;
         rainbowSDK.fileStorage.retrieveFileDescriptorsListPerOwner().then((result) => {
-            logger.log("debug", "MAIN - retrieveFileDescriptorsListPerOwner - result : ", result);
+           _logger.log("debug", "MAIN - retrieveFileDescriptorsListPerOwner - result : ", result);
             if (result) {
                 let now = new Date().getTime();
                 let msg = " <h1>Rainbow Node SDK - Sample</h1><hr /><h2>[1.66.1] - 2020-01-29</h2>\n" +
@@ -2429,7 +2429,7 @@ let urlS2S;
                         "<ul><li>" + now + "</li><li>Add correlatorData et GlobaleCallId </li><li>Fix method ChannelsService::createItem when parameter &quot;type&quot; is setted.</li><li>Split Xmmpp error event treatment in 3 possibilities:<ul><li>Errors which need a reconnection </li><li>Errors which need to only raise an event to inform up layer. =&gt; Add an event <code>rainbow_onxmpperror</code> to inform about issue. </li><li>Errors which are fatal errors and then need to stop the SDK. =&gt; Already existing events <code>rainbow_onerror</code> + <code>rainbow_onstop</code>.</li></ul></li><li>Work done on private method BubblesServices::joinConference (Not finish, so not available).</li><li>Update Bubble::users property ordered by additionDate.</li><li>Fix ordered calllogs (<code>orderByNameCallLogsBruts</code>, <code>orderByDateCallLogsBruts</code>).</li></ul>\n";
                 let tabImages = [{"id": result[0].id}];
                 rainbowSDK.channels.createItem(mychannel, msg, "title", null, tabImages, null).then((res) => {
-                    logger.log("debug", "MAIN - createItem - res : ", res);
+                   _logger.log("debug", "MAIN - createItem - res : ", res);
                 });
             }
         });
@@ -2442,11 +2442,11 @@ let urlS2S;
         if (mychannel) {
             let now = new Date().getTime();
             await rainbowSDK.channels.publishMessageToChannel(mychannel, "-- message : " + now, "title_", null, null, null, {tag: ["tag1", "tag2"]}).then((res) => {
-                logger.log("debug", "MAIN - publishMessageToChannel - res : ", res);
+               _logger.log("debug", "MAIN - publishMessageToChannel - res : ", res);
             });
             pause(300);
         } else {
-            logger.log("debug", "MAIN - publishMessageToChannel - getAllOwnedChannel mychannel is empty, so can not publish.");
+           _logger.log("debug", "MAIN - publishMessageToChannel - getAllOwnedChannel mychannel is empty, so can not publish.");
         }
     }
 
@@ -2458,12 +2458,12 @@ let urlS2S;
             for (let i = 0; i < 100; i++) {
                 let now = new Date().getTime();
                 await rainbowSDK.channels.publishMessageToChannel(mychannel, "-- message : " + i + " : " + now, "title_" + i, null, null, null).then((res) => {
-                    logger.log("debug", "MAIN - createItem - res : ", res);
+                   _logger.log("debug", "MAIN - createItem - res : ", res);
                 });
                 pause(300);
             }
         } else {
-            logger.log("debug", "MAIN - createItem - getAllOwnedChannel mychannel is empty, so can not publish.");
+           _logger.log("debug", "MAIN - createItem - getAllOwnedChannel mychannel is empty, so can not publish.");
         }
     }
 
@@ -2471,7 +2471,7 @@ let urlS2S;
         //let mychannel = await rainbowSDK.channels.getChannel("5dea7c6294e80144c1776fe1");
         let mychannels = rainbowSDK.channels.getAllOwnedChannels();
         let mychannel = mychannels ? mychannels[0]:null;
-        logger.log("debug", "MAIN - testgetDetailedAppreciationsChannel - getAllOwnedChannel mychannel : ", mychannel);
+       _logger.log("debug", "MAIN - testgetDetailedAppreciationsChannel - getAllOwnedChannel mychannel : ", mychannel);
         if (mychannel) {
             for (let i = 0; i < 1; i++) {
                 let now = new Date().getTime();
@@ -2479,11 +2479,11 @@ let urlS2S;
                 let item = await rainbowSDK.channels.fetchChannelItems(mychannel);
                 itemId = item[0].id;
                 rainbowSDK.channels.getDetailedAppreciations(mychannel, itemId).then((res) => {
-                    logger.log("debug", "MAIN - testgetDetailedAppreciationsChannel - res : ", res);
+                   _logger.log("debug", "MAIN - testgetDetailedAppreciationsChannel - res : ", res);
                 });
             }
         } else {
-            logger.log("debug", "MAIN - testgetDetailedAppreciationsChannel - getAllOwnedChannel mychannel is empty, so can not publish.");
+           _logger.log("debug", "MAIN - testgetDetailedAppreciationsChannel - getAllOwnedChannel mychannel is empty, so can not publish.");
         }
     }
 
@@ -2491,28 +2491,28 @@ let urlS2S;
         //let mychannel = await rainbowSDK.channels.getChannel("5dea7c6294e80144c1776fe1");
         let mychannels = rainbowSDK.channels.getAllOwnedChannels();
         let mychannel = mychannels ? mychannels[0]:null;
-        logger.log("debug", "MAIN - testgetDetailedAppreciationsChannel - getAllOwnedChannel mychannel : ", mychannel);
+       _logger.log("debug", "MAIN - testgetDetailedAppreciationsChannel - getAllOwnedChannel mychannel : ", mychannel);
         if (mychannel) {
             for (let i = 0; i < 1; i++) {
                 let now = new Date().getTime();
                 let itemId = "";
                 let items = await rainbowSDK.channels.fetchChannelItems(mychannel);
-                logger.log("debug", "MAIN - testgetDetailedAtestfetchChannelItemsppreciationsChannel - items.length : ", items.length);
+               _logger.log("debug", "MAIN - testgetDetailedAtestfetchChannelItemsppreciationsChannel - items.length : ", items.length);
 
-                logger.log("debug", "MAIN - testgetDetailedAppreciationsChannel - First item itemId : ", items[0]);
-                logger.log("debug", "MAIN - testgetDetailedAppreciationsChannel - Last item itemId : ", items[items.length - 1]);
+               _logger.log("debug", "MAIN - testgetDetailedAppreciationsChannel - First item itemId : ", items[0]);
+               _logger.log("debug", "MAIN - testgetDetailedAppreciationsChannel - Last item itemId : ", items[items.length - 1]);
 
                 /*itemId = items[0].id;
                 rainbowSDK.channels.getDetailedAppreciations(mychannel, itemId).then((res) => {
-                    logger.log("debug", "MAIN - testgetDetailedAppreciationsChannel - First item itemId : ", itemId, ", res : ", res);
+                   _logger.log("debug", "MAIN - testgetDetailedAppreciationsChannel - First item itemId : ", itemId, ", res : ", res);
                 });
                 itemId = items[items.length - 1].id;
                 rainbowSDK.channels.getDetailedAppreciations(mychannel, itemId).then((res) => {
-                    logger.log("debug", "MAIN - testgetDetailedAppreciationsChannel - Last item itemId : ", itemId, ", res : ", res);
+                   _logger.log("debug", "MAIN - testgetDetailedAppreciationsChannel - Last item itemId : ", itemId, ", res : ", res);
                 }); // */
             }
         } else {
-            logger.log("debug", "MAIN - testgetDetailedAppreciationsChannel - getAllOwnedChannel mychannel is empty, so can not publish.");
+           _logger.log("debug", "MAIN - testgetDetailedAppreciationsChannel - getAllOwnedChannel mychannel is empty, so can not publish.");
         }
     }
 
@@ -2520,28 +2520,28 @@ let urlS2S;
         //let mychannel = await rainbowSDK.channels.getChannel("5dea7c6294e80144c1776fe1");
         let mychannels = rainbowSDK.channels.getAllSubscribedChannels();
         let mychannel = mychannels ? mychannels[0]:null;
-        logger.log("debug", "MAIN - testgetDetailedAppreciationsChannel - getAllOwnedChannel mychannel : ", mychannel);
+       _logger.log("debug", "MAIN - testgetDetailedAppreciationsChannel - getAllOwnedChannel mychannel : ", mychannel);
         if (mychannel) {
             for (let i = 0; i < 1; i++) {
                 let now = new Date().getTime();
                 let itemId = "";
                 let items = await rainbowSDK.channels.fetchChannelItems(mychannel);
-                logger.log("debug", "MAIN - testgetDetailedAtestfetchChannelItemsppreciationsChannel - items.length : ", items.length);
+               _logger.log("debug", "MAIN - testgetDetailedAtestfetchChannelItemsppreciationsChannel - items.length : ", items.length);
 
-                logger.log("debug", "MAIN - testgetDetailedAppreciationsChannel - First item itemId : ", items[0]);
-                logger.log("debug", "MAIN - testgetDetailedAppreciationsChannel - Last item itemId : ", items[items.length - 1]);
+               _logger.log("debug", "MAIN - testgetDetailedAppreciationsChannel - First item itemId : ", items[0]);
+               _logger.log("debug", "MAIN - testgetDetailedAppreciationsChannel - Last item itemId : ", items[items.length - 1]);
 
                 /*itemId = items[0].id;
                 rainbowSDK.channels.getDetailedAppreciations(mychannel, itemId).then((res) => {
-                    logger.log("debug", "MAIN - testgetDetailedAppreciationsChannel - First item itemId : ", itemId, ", res : ", res);
+                   _logger.log("debug", "MAIN - testgetDetailedAppreciationsChannel - First item itemId : ", itemId, ", res : ", res);
                 });
                 itemId = items[items.length - 1].id;
                 rainbowSDK.channels.getDetailedAppreciations(mychannel, itemId).then((res) => {
-                    logger.log("debug", "MAIN - testgetDetailedAppreciationsChannel - Last item itemId : ", itemId, ", res : ", res);
+                   _logger.log("debug", "MAIN - testgetDetailedAppreciationsChannel - Last item itemId : ", itemId, ", res : ", res);
                 }); // */
             }
         } else {
-            logger.log("debug", "MAIN - testgetDetailedAppreciationsChannel - getAllOwnedChannel mychannel is empty, so can not publish.");
+           _logger.log("debug", "MAIN - testgetDetailedAppreciationsChannel - getAllOwnedChannel mychannel is empty, so can not publish.");
         }
     }
 
@@ -2549,28 +2549,28 @@ let urlS2S;
         let mychannel = await rainbowSDK.channels.getChannel("5dea7c6294e80144c1776fe1");
         //let mychannels = rainbowSDK.channels.getAllSubscribedChannels();
         //let mychannel = mychannels ? mychannels[0]:null;
-        logger.log("debug", "MAIN - testfetchChannelItemsFromRNodeSdkChangeLog - getChannel mychannel : ", mychannel);
+       _logger.log("debug", "MAIN - testfetchChannelItemsFromRNodeSdkChangeLog - getChannel mychannel : ", mychannel);
         if (mychannel) {
             for (let i = 0; i < 1; i++) {
                 let now = new Date().getTime();
                 let itemId = "";
                 let items = await rainbowSDK.channels.fetchChannelItems(mychannel);
-                logger.log("debug", "MAIN - testfetchChannelItemsFromRNodeSdkChangeLog fetchChannelItems - items.length : ", items.length);
+               _logger.log("debug", "MAIN - testfetchChannelItemsFromRNodeSdkChangeLog fetchChannelItems - items.length : ", items.length);
 
-                logger.log("debug", "MAIN - testfetchChannelItemsFromRNodeSdkChangeLog fetchChannelItems - First item itemId : ", items[0]);
-                logger.log("debug", "MAIN - testfetchChannelItemsFromRNodeSdkChangeLog fetchChannelItems - Last item itemId : ", items[items.length - 1]);
+               _logger.log("debug", "MAIN - testfetchChannelItemsFromRNodeSdkChangeLog fetchChannelItems - First item itemId : ", items[0]);
+               _logger.log("debug", "MAIN - testfetchChannelItemsFromRNodeSdkChangeLog fetchChannelItems - Last item itemId : ", items[items.length - 1]);
 
                 /*itemId = items[0].id;
                 rainbowSDK.channels.getDetailedAppreciations(mychannel, itemId).then((res) => {
-                    logger.log("debug", "MAIN - testgetDetailedAppreciationsChannel - First item itemId : ", itemId, ", res : ", res);
+                   _logger.log("debug", "MAIN - testgetDetailedAppreciationsChannel - First item itemId : ", itemId, ", res : ", res);
                 });
                 itemId = items[items.length - 1].id;
                 rainbowSDK.channels.getDetailedAppreciations(mychannel, itemId).then((res) => {
-                    logger.log("debug", "MAIN - testgetDetailedAppreciationsChannel - Last item itemId : ", itemId, ", res : ", res);
+                   _logger.log("debug", "MAIN - testgetDetailedAppreciationsChannel - Last item itemId : ", itemId, ", res : ", res);
                 }); // */
             }
         } else {
-            logger.log("debug", "MAIN - testfetchChannelItemsFromRNodeSdkChangeLog - mychannel is empty, so can not publish.");
+           _logger.log("debug", "MAIN - testfetchChannelItemsFromRNodeSdkChangeLog - mychannel is empty, so can not publish.");
         }
     }
 
@@ -2582,14 +2582,14 @@ let urlS2S;
         // Retrieve a contact by its id
         let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
         let channelCreated = await rainbowSDK.channels.createPublicChannel("testchannel" + utc, "test", "");
-        logger.log("debug", "MAIN - testcreateChannel createPublicChannel result : ", channelCreated); //logger.colors.green(JSON.stringify(result)));
+       _logger.log("debug", "MAIN - testcreateChannel createPublicChannel result : ", channelCreated); //logger.colors.green(JSON.stringify(result)));
         let tab: any = [{"id": contact.id}];
         let channelMembersAdded = await rainbowSDK.channels.addMembersToChannel(channelCreated, tab);
-        logger.log("debug", "MAIN - testcreateChannel - channelMembersAdded : ", channelMembersAdded);
+       _logger.log("debug", "MAIN - testcreateChannel - channelMembersAdded : ", channelMembersAdded);
         let channelinfo = await rainbowSDK.channels.fetchChannel(channelCreated.id);
-        logger.log("debug", "MAIN - testcreateChannel - channelinfo : ", channelinfo);
+       _logger.log("debug", "MAIN - testcreateChannel - channelinfo : ", channelinfo);
         /*rainbowSDK.channels.createItem(mychannel, "message : " + now, "title", null, tabImages).then((res) => {
-            logger.log("debug", "createItem - res : ", res);
+           _logger.log("debug", "createItem - res : ", res);
         }); // */
     }
 
@@ -2597,16 +2597,16 @@ let urlS2S;
         let mychannels = rainbowSDK.channels.getAllOwnedChannels();
         let mychannel = mychannels ? mychannels[0]:null;
         rainbowSDK.channels.fetchChannelItems(mychannel).then((result) => {
-            logger.log("debug", "MAIN - getMessagesFromChannel - result : ", result);
+           _logger.log("debug", "MAIN - getMessagesFromChannel - result : ", result);
             if (result && result.length > 0) {
                 let now = new Date().getTime();
                 let idToDelete = result.length - 1;
-                logger.log("debug", "MAIN - getMessagesFromChannel - idToDelete : ", idToDelete);
+               _logger.log("debug", "MAIN - getMessagesFromChannel - idToDelete : ", idToDelete);
                 rainbowSDK.channels.deleteItemFromChannel(mychannel.id, result[idToDelete].id).then((result) => {
-                    logger.log("debug", "MAIN - deleteMessageFromChannel - result : ", result);
+                   _logger.log("debug", "MAIN - deleteMessageFromChannel - result : ", result);
                 });
                 /*rainbowSDK.channels.createItem(mychannel, "message : " + now, "title", null, null).then((res) => {
-                    logger.log("debug", "createItem - res : ", res);
+                   _logger.log("debug", "createItem - res : ", res);
                 }); */
             }
         });
@@ -2617,9 +2617,9 @@ let urlS2S;
         let mychannel = mychannels ? mychannels[0]:null;
         let utc = new Date().toJSON().replace(/-/g, "_");
         rainbowSDK.channels.updateChannelDescription(mychannel, "desc_" + utc).then((result) => {
-            logger.log("debug", "MAIN - updateChannelDescription - result : ", result);
+           _logger.log("debug", "MAIN - updateChannelDescription - result : ", result);
         }).catch(reason => {
-            logger.log("error", "MAIN - updateChannelDescription catch reject - reason : ", reason);
+           _logger.log("error", "MAIN - updateChannelDescription catch reject - reason : ", reason);
         });
     }
 
@@ -2636,7 +2636,7 @@ let urlS2S;
         let firstnameTemp = firstname;
         let lastnameTemp = lastname;
         let contact = await rainbowSDK.admin.createGuestUser(firstnameTemp, lastnameTemp, "fr", 10).catch((err) => {
-            logger.log("debug", "MAIN - (testcreateGuestUserError) error while creating guest user :  ", err);
+           _logger.log("debug", "MAIN - (testcreateGuestUserError) error while creating guest user :  ", err);
         });
 
         let mychannels = rainbowSDK.channels.getAllOwnedChannels();
@@ -2646,21 +2646,21 @@ let urlS2S;
         // Retrieve a contact by its id
         //let contact = await rainbowSDK.contacts.getContactByLoginEmail(guestUser.loginEmail);
         let channelCreated = await rainbowSDK.channels.createPublicChannel("testchannel" + utc, "test", "");
-        logger.log("debug", "MAIN - testcreateChannel createPublicChannel result : ", channelCreated); //logger.colors.green(JSON.stringify(result)));
+       _logger.log("debug", "MAIN - testcreateChannel createPublicChannel result : ", channelCreated); //logger.colors.green(JSON.stringify(result)));
         let tab: any = [{"id": contact.id}];
         let channelMembersAdded = await rainbowSDK.channels.addMembersToChannel(channelCreated, tab);
-        logger.log("debug", "MAIN - testcreateChannel - channelMembersAdded : ", channelMembersAdded);
+       _logger.log("debug", "MAIN - testcreateChannel - channelMembersAdded : ", channelMembersAdded);
         let channelinfo = await rainbowSDK.channels.fetchChannel(channelCreated.id);
-        logger.log("debug", "MAIN - testcreateChannel - channelinfo : ", channelinfo);
+       _logger.log("debug", "MAIN - testcreateChannel - channelinfo : ", channelinfo);
         /*rainbowSDK.channels.createItem(mychannel, "message : " + now, "title", null, tabImages).then((res) => {
-            logger.log("debug", "createItem - res : ", res);
+           _logger.log("debug", "createItem - res : ", res);
         }); // */
 
 
         if (contact) {
-            logger.log("debug", "MAIN - [testCleanAGuest    ] :: contact : ", contact);
+           _logger.log("debug", "MAIN - [testCleanAGuest    ] :: contact : ", contact);
             rainbowSDK.admin.deleteUser(contact.id).then(async (result) => {
-                logger.log("debug", "MAIN - [testCleanAGuest    ] :: deleteUser result : ", result);
+               _logger.log("debug", "MAIN - [testCleanAGuest    ] :: deleteUser result : ", result);
             });
         }
     }
@@ -2671,13 +2671,13 @@ let urlS2S;
     //region Files
 
      downloadFile() {
-        logger.log("debug", "Main - downloadFile - file - ");
+       _logger.log("debug", "Main - downloadFile - file - ");
         rainbowSDK.fileStorage.retrieveFileDescriptorsListPerOwner().then((fileDescriptorsReceived: any) => {
-            logger.log("debug", "Main - downloadFile, retrieveFileDescriptorsListPerOwner - result : ", fileDescriptorsReceived);
+           _logger.log("debug", "Main - downloadFile, retrieveFileDescriptorsListPerOwner - result : ", fileDescriptorsReceived);
             for (let fileReceived of fileDescriptorsReceived) {
-                logger.log("debug", "Main - downloadFile - file - ", fileReceived);
+               _logger.log("debug", "Main - downloadFile - file - ", fileReceived);
                 rainbowSDK.fileStorage.downloadFile(fileReceived).then((blob: any) => {
-                    logger.log("debug", "Main - downloadFile - blob : ", blob.mime);
+                   _logger.log("debug", "Main - downloadFile - blob : ", blob.mime);
                     fs.writeFile("c:\\temp\\" + fileReceived.fileName, blob.buffer, "binary", function (err) {
                         if (err) {
                             console.log(err);
@@ -2696,18 +2696,18 @@ let urlS2S;
         let that = this;
         for (let fd of rainbowSDK.fileStorage.getAllFilesSent()) {
             let fdjson = JSON.stringify(fd);
-            logger.log("debug", "Main - testgetAllFilesSentV1 Checking file fd.fileName : ", fd.fileName, ", JSON string : ", fdjson);
+           _logger.log("debug", "Main - testgetAllFilesSentV1 Checking file fd.fileName : ", fd.fileName, ", JSON string : ", fdjson);
             let fileDescriptorFull = await rainbowSDK.fileStorage.retrieveOneFileDescriptor(fd.id);
-            logger.log("debug", `Main - testgetAllFilesSentV1 fileDescriptorFull : `, fileDescriptorFull);
+           _logger.log("debug", `Main - testgetAllFilesSentV1 fileDescriptorFull : `, fileDescriptorFull);
         }
     }
 
     async  testgetAllFilesReceived() {
         let that = this;
         for (let fd of rainbowSDK.fileStorage.getAllFilesReceived()) {
-            logger.log("debug", `Main - Checking file ${fd.fileName} ...`, fd);
+           _logger.log("debug", `Main - Checking file ${fd.fileName} ...`, fd);
             let fileDescriptorFull = await rainbowSDK.fileStorage.retrieveOneFileDescriptor(fd.id);
-            logger.log("debug", `Main - fileDescriptorFull : `, fileDescriptorFull);
+           _logger.log("debug", `Main - fileDescriptorFull : `, fileDescriptorFull);
         }
     }
 
@@ -2715,12 +2715,12 @@ let urlS2S;
         let that = this;
         let filesSent = rainbowSDK.fileStorage.getAllFilesSent();
         let filesSentJSON = util.inspect(filesSent, false, 4, false);
-        logger.log("debug", "Main - testgetAllFilesSent Checking files stringified : ", filesSentJSON);
+       _logger.log("debug", "Main - testgetAllFilesSent Checking files stringified : ", filesSentJSON);
 
         /*for (let fd of filesSent) {
-            logger.log("debug", `Main - testgetAllFilesSent Checking file ${fd.fileName} ...`, fd);
+           _logger.log("debug", `Main - testgetAllFilesSent Checking file ${fd.fileName} ...`, fd);
             let fileDescriptorFull = await rainbowSDK.fileStorage.retrieveOneFileDescriptor(fd.id);
-            logger.log("debug", `Main - testgetAllFilesSent fileDescriptorFull : `, fileDescriptorFull);
+           _logger.log("debug", `Main - testgetAllFilesSent fileDescriptorFull : `, fileDescriptorFull);
         } // */
     }
 
@@ -2731,28 +2731,28 @@ let urlS2S;
         let filesDescriptors: [any] = await rainbowSDK.fileStorage.retrieveFileDescriptorsListPerOwner();
         for (let fileDescriptor of filesDescriptors) {
             let fileName = fileDescriptor.fileName;
-            logger.log("debug", "Main - testaddFileViewer Checking file : ", fileName);
+           _logger.log("debug", "Main - testaddFileViewer Checking file : ", fileName);
             let fileDescriptorFull = await rainbowSDK.fileStorage.retrieveOneFileDescriptor(fileDescriptor.id);
-            logger.log("debug", "Main - testaddFileViewer fileDescriptorFull : ", fileDescriptorFull);
+           _logger.log("debug", "Main - testaddFileViewer fileDescriptorFull : ", fileDescriptorFull);
             let fileShared = await rainbowSDK.fileStorage.addFileViewer(fileDescriptorFull.id, user.id, "user");
-            logger.log("debug", "Main - testaddFileViewer file shared : ", fileName);
+           _logger.log("debug", "Main - testaddFileViewer file shared : ", fileName);
         }
     }
 
     async  testdownloadFile() {
         let that = this;
         for (let fd of rainbowSDK.fileStorage.getAllFilesReceived()) {
-            logger.log("debug", `Main - Checking file ${fd.fileName} ...`);
+           _logger.log("debug", `Main - Checking file ${fd.fileName} ...`);
             if (!fs.existsSync("c:\\temp\\" + fd.fileName) || true) {
-                logger.log("debug", `Main - TEST Downloading file ${fd.fileName} ...`);
+               _logger.log("debug", `Main - TEST Downloading file ${fd.fileName} ...`);
                 if (fd.fileName!="app-ovgtw1_0_34.tar" && fd.fileName!="Delta_Player_on.png") {
                     //logger.log("debug", `Main - Will NOT Download file ${fd.fileName} done`);
                 } else {
-                    logger.log("debug", `Main - Will Download file ${fd.fileName} : `, fd);
+                   _logger.log("debug", `Main - Will Download file ${fd.fileName} : `, fd);
                     // continue;
                     let file: any;
                     file = await rainbowSDK.fileStorage.downloadFile(fd);
-                    logger.log("debug", `Main - Downloading file ${fd.fileName} done`);
+                   _logger.log("debug", `Main - Downloading file ${fd.fileName} done`);
                     if (file) {
                         try {
                             let blobArray = file.buffer;
@@ -2760,33 +2760,33 @@ let urlS2S;
                             let writeStream = createWriteStream("c:\\temp\\" + fd.fileName);
 
                             writeStream.on('error', () => {
-                                logger.log("debug", "Main - [RecordsService] WriteStream error event");
+                               _logger.log("debug", "Main - [RecordsService] WriteStream error event");
                             });
                             writeStream.on('drain', () => {
-                                logger.log("debug", "Main - [RecordsService] WriteStream drain event");
+                               _logger.log("debug", "Main - [RecordsService] WriteStream drain event");
                             });
 
                             for (let index = 0; index < blobArray.length; index++) {
                                 if (blobArray[index]) {
-                                    logger.log("debug", "[FileServerService] >writeAvailableChunksInDisk : Blob " + index + " available");
+                                   _logger.log("debug", "[FileServerService] >writeAvailableChunksInDisk : Blob " + index + " available");
                                     //fd.chunkWrittenInDisk = index;
                                     writeStream.write(new Buffer(blobArray[index]));
                                     blobArray[index] = null;
                                 } else {
-                                    logger.log("debug","[FileServerService] >writeAvailableChunksInDisk : Blob " + index + " NOT available");
+                                   _logger.log("debug","[FileServerService] >writeAvailableChunksInDisk : Blob " + index + " NOT available");
                                     break;
                                 }
                             }
-                            logger.log("debug", `Main - The file ${fd.fileName} was saved!`);
+                           _logger.log("debug", `Main - The file ${fd.fileName} was saved!`);
                         } catch (e) {
-                            logger.log("debug", `Main - Error saving file ${fd.fileName} from Rainbow`, e);
+                           _logger.log("debug", `Main - Error saving file ${fd.fileName} from Rainbow`, e);
                         }
                     } else {
-                        logger.log("error", `Main - Error downloading file ${fd.fileName}`);
+                       _logger.log("error", `Main - Error downloading file ${fd.fileName}`);
                     }
                 }
             } else {
-                logger.log("debug", `File ${fd.fileName} already downloaded`)
+               _logger.log("debug", `File ${fd.fileName} already downloaded`)
             }
         }
     }
@@ -2794,14 +2794,14 @@ let urlS2S;
     async  testdownloadFileInPath() {
         let that = this;
         for (let fd of rainbowSDK.fileStorage.getAllFilesReceived()) {
-            logger.log("debug", `Main - Checking file ${fd.fileName} ...`);
+           _logger.log("debug", `Main - Checking file ${fd.fileName} ...`);
             if (!fs.existsSync("c:\\temp\\" + fd.fileName) || true) {
-                logger.log("debug", `MAIN - TEST Downloading file ${fd.fileName} ...`);
+               _logger.log("debug", `MAIN - TEST Downloading file ${fd.fileName} ...`);
                 if (fd.fileName!="app-ovgtw1_0_34.tar") {
                     //if ( fd.fileName != "Delta_Player_on.png" ) {
                     //logger.log("debug", `Main - Will NOT Download file ${fd.fileName} done`);
                 } else {
-                    logger.log("debug", `Main - Will Download file ${fd.fileName} : `, fd);
+                   _logger.log("debug", `Main - Will Download file ${fd.fileName} : `, fd);
                     // continue;
                     let file$: any;
                     file$ = await rainbowSDK.fileStorage.downloadFileInPath(fd, "c:\\temp\\");
@@ -2810,25 +2810,25 @@ let urlS2S;
                         next(value) {
                             currentValue = value;
                             if (value < 101) {
-                                logger.log("internal", "MAIN - (downloadFile) % : ", value);
+                               _logger.log("internal", "MAIN - (downloadFile) % : ", value);
                             } else {
-                                logger.log("internal", "MAIN - value !< 101 : File downloaded in Next : ", currentValue ? currentValue.fileName:"");
-                                logger.log("debug", "MAIN - File downloaded");
+                               _logger.log("internal", "MAIN - value !< 101 : File downloaded in Next : ", currentValue ? currentValue.fileName:"");
+                               _logger.log("debug", "MAIN - File downloaded");
                             }
                         },
                         complete() {
                             if (currentValue < 101) {
-                                logger.log("internal", "MAIN - (downloadFile) % : ", currentValue);
+                               _logger.log("internal", "MAIN - (downloadFile) % : ", currentValue);
                             } else {
-                                logger.log("internal", "MAIN - value !< 101 : File downloaded in Complete : ", currentValue ? currentValue.fileName:"");
-                                logger.log("debug", "MAIN - File downloaded");
+                               _logger.log("internal", "MAIN - value !< 101 : File downloaded in Complete : ", currentValue ? currentValue.fileName:"");
+                               _logger.log("debug", "MAIN - File downloaded");
                             }
                         }
                     });
-                    logger.log("debug", `MAIN - Downloading file ${fd.fileName} done`);
+                   _logger.log("debug", `MAIN - Downloading file ${fd.fileName} done`);
                 }
             } else {
-                logger.log("debug", `File ${fd.fileName} already downloaded`)
+               _logger.log("debug", `File ${fd.fileName} already downloaded`)
             }
         }
     }
@@ -2876,14 +2876,14 @@ let urlS2S;
             "type": "image/JPEG",
             "size": 2960156
         };
-        logger.log("debug", "MAIN - uploadFileToConversation - file.name : ", file.name, ", file.type : ", file.type, ", file.path : ", file.path, ", file.size : ", file.size);
+       _logger.log("debug", "MAIN - uploadFileToConversation - file.name : ", file.name, ", file.type : ", file.type, ", file.path : ", file.path, ", file.size : ", file.size);
         rainbowSDK.contacts.getContactByLoginEmail("vincent02@vbe.test.openrainbow.net").then(function (contact) {
             // Retrieve the associated conversation
             return rainbowSDK.conversations.openConversationForContact(contact);
         }).then(function (conversation) {
             // Share the file
             return rainbowSDK.fileStorage.uploadFileToConversation(conversation, file, strMessage).then((result) => {
-                logger.log("debug", "MAIN - uploadFileToConversation - result : ", result);
+               _logger.log("debug", "MAIN - uploadFileToConversation - result : ", result);
             });
         });
         //});
@@ -2901,16 +2901,16 @@ let urlS2S;
             "type": "image/JPEG",
             "size": 2960156
         };
-        logger.log("debug", "MAIN - uploadFileToConversation - file.name : ", file.name, ", file.type : ", file.type, ", file.path : ", file.path, ", file.size : ", file.size);
+       _logger.log("debug", "MAIN - uploadFileToConversation - file.name : ", file.name, ", file.type : ", file.type, ", file.path : ", file.path, ", file.size : ", file.size);
         rainbowSDK.contacts.getContactByLoginEmail("vincent02@vbe.test.openrainbow.net").then(function (contact) {
             // Retrieve the associated conversation
             return rainbowSDK.conversations.openConversationForContact(contact);
         }).then(function (conversation) {
             // Share the file
             return rainbowSDK.fileStorage.uploadFileToConversation(conversation, file, strMessage).then((result) => {
-                logger.log("debug", "MAIN - uploadFileToConversation - result : ", result);
+               _logger.log("debug", "MAIN - uploadFileToConversation - result : ", result);
             }).catch((err) => {
-                logger.log("error", "MAIN - uploadFileToConversation - error : ", err);
+               _logger.log("error", "MAIN - uploadFileToConversation - error : ", err);
             });
         });
         //});
@@ -2923,16 +2923,16 @@ let urlS2S;
         //let strMessage = {message: "message for the file"};
         let strMessage = "message for the file";
         file = "c:\\temp\\IMG_20131005_173918XXXXXXXXXXX.jpg";
-        logger.log("debug", "MAIN - uploadFileToConversation - file : ", file);
+       _logger.log("debug", "MAIN - uploadFileToConversation - file : ", file);
         rainbowSDK.contacts.getContactByLoginEmail("vincent02@vbe.test.openrainbow.net").then(function (contact) {
             // Retrieve the associated conversation
             return rainbowSDK.conversations.openConversationForContact(contact);
         }).then(function (conversation) {
             // Share the file
             return rainbowSDK.fileStorage.uploadFileToConversation(conversation, file, strMessage).then((result) => {
-                logger.log("debug", "MAIN - uploadFileToConversation - result : ", result);
+               _logger.log("debug", "MAIN - uploadFileToConversation - result : ", result);
             }).catch((errr) => {
-                logger.log("error", "MAIN - uploadFileToConversation - error : ", errr);
+               _logger.log("error", "MAIN - uploadFileToConversation - error : ", errr);
             });
         });
         //});
@@ -2940,7 +2940,7 @@ let urlS2S;
 
     testgetRainbowNodeSdkPackagePublishedInfos() {
          rainbowSDK._core._rest.getRainbowNodeSdkPackagePublishedInfos().then((infos: any) => {
-             logger.log("debug", "MAIN - testgetRainbowNodeSdkPackagePublishedInfos - infos : ", infos);
+            _logger.log("debug", "MAIN - testgetRainbowNodeSdkPackagePublishedInfos - infos : ", infos);
         });
     }
 
@@ -2951,12 +2951,12 @@ let urlS2S;
         //let strMessage = {message: "message for the file"};
         let strMessage = "message for the file";
         file = "c:\\temp\\IMG_20131005_173918.jpg";
-        logger.log("debug", "MAIN - uploadFileToConversation - file : ", file);
+       _logger.log("debug", "MAIN - uploadFileToConversation - file : ", file);
         // Share the file
         return rainbowSDK.fileStorage.uploadFileToStorage(file).then((result) => {
-            logger.log("debug", "MAIN - uploadFileToStorage - result : ", result);
+           _logger.log("debug", "MAIN - uploadFileToStorage - result : ", result);
         }).catch((errr) => {
-            logger.log("error", "MAIN - uploadFileToStorage - error : ", errr);
+           _logger.log("error", "MAIN - uploadFileToStorage - error : ", errr);
         });
     }
 
@@ -2967,12 +2967,12 @@ let urlS2S;
         //let strMessage = {message: "message for the file"};
         let strMessage = "message for the file";
         file = "c:\\temp\\fichiertestupload.txt";
-        logger.log("debug", "MAIN - testuploadFileToStorageBig - file : ", file);
+       _logger.log("debug", "MAIN - testuploadFileToStorageBig - file : ", file);
         // Share the file
         return rainbowSDK.fileStorage.uploadFileToStorage(file).then((result) => {
-            logger.log("debug", "MAIN - testuploadFileToStorageBig - uploadFileToStorage result : ", result);
+           _logger.log("debug", "MAIN - testuploadFileToStorageBig - uploadFileToStorage result : ", result);
         }).catch((errr) => {
-            logger.log("error", "MAIN - testuploadFileToStorageBig - uploadFileToStorage error : ", errr);
+           _logger.log("error", "MAIN - testuploadFileToStorageBig - uploadFileToStorage error : ", errr);
         });
     }
 
@@ -2982,7 +2982,7 @@ let urlS2S;
         //let contactEmail = "vincent.berder@al-enterprise.com";
         rainbowSDK.contacts.getContactByLoginEmail(contactEmail).then(async (contact: any) => {
             if (contact) {
-                logger.log("debug", "MAIN - [testfileOwnershipChange    ] :: getContactByLoginEmail contact : ", contact);
+               _logger.log("debug", "MAIN - [testfileOwnershipChange    ] :: getContactByLoginEmail contact : ", contact);
 
                 try {
 
@@ -2992,31 +2992,31 @@ let urlS2S;
                     //let strMessage = {message: "message for the file"};
                     let strMessage = "message for the file";
                     file = "c:\\temp\\IMG_20131005_173918.jpg";
-                    logger.log("debug", "MAIN - testfileOwnershipChange - file : ", file);
+                   _logger.log("debug", "MAIN - testfileOwnershipChange - file : ", file);
                     // Share the file
                     let fileStored: any = await rainbowSDK.fileStorage.uploadFileToStorage(file);
-                    logger.log("debug", "MAIN - testfileOwnershipChange - fileStored.id : ", fileStored.id, ", fileStored.fileName : ", fileStored.fileName, ", fileStored.url : ", fileStored.url, ", fileStored.ownerId : ", fileStored.ownerId);
+                   _logger.log("debug", "MAIN - testfileOwnershipChange - fileStored.id : ", fileStored.id, ", fileStored.fileName : ", fileStored.fileName, ", fileStored.url : ", fileStored.url, ", fileStored.ownerId : ", fileStored.ownerId);
                     let fileOwnerChanged = await rainbowSDK.fileStorage.fileOwnershipChange(fileStored.id, contact.id);
-                    logger.log("debug", "MAIN - testfileOwnershipChange - fileOwnerChanged.id : ", fileOwnerChanged.id, ", fileOwnerChanged.fileName : ", fileOwnerChanged.fileName, ", fileOwnerChanged.url : ", fileOwnerChanged.url, ", fileOwnerChanged.ownerId : ", fileOwnerChanged.ownerId);
+                   _logger.log("debug", "MAIN - testfileOwnershipChange - fileOwnerChanged.id : ", fileOwnerChanged.id, ", fileOwnerChanged.fileName : ", fileOwnerChanged.fileName, ", fileOwnerChanged.url : ", fileOwnerChanged.url, ", fileOwnerChanged.ownerId : ", fileOwnerChanged.ownerId);
                 } catch (err) {
-                    logger.log("error", "MAIN - testfileOwnershipChange - error : ", err);
+                   _logger.log("error", "MAIN - testfileOwnershipChange - error : ", err);
                 }
             }
         });
     }
 
      testRetrieveOneFileDescriptor() {
-        logger.log("debug", "Main - testRetrieveOneFileDescriptor - file - ");
+       _logger.log("debug", "Main - testRetrieveOneFileDescriptor - file - ");
         let fileDescriptorsReceived = rainbowSDK.fileStorage.getFileDescriptorFromId("5cab49e3827d70023481c17a");
-        logger.log("debug", "Main - testRetrieveOneFileDescriptor, getFileDescriptorFromId - result : ", fileDescriptorsReceived);
+       _logger.log("debug", "Main - testRetrieveOneFileDescriptor, getFileDescriptorFromId - result : ", fileDescriptorsReceived);
         rainbowSDK.fileStorage.retrieveOneFileDescriptor("5cab49e3827d70023481c17a").then((fileDescriptorsReceived) => {
-            logger.log("debug", "Main - testRetrieveOneFileDescriptor, retrieveOneFileDescriptor - result : ", fileDescriptorsReceived);
+           _logger.log("debug", "Main - testRetrieveOneFileDescriptor, retrieveOneFileDescriptor - result : ", fileDescriptorsReceived);
         });
     }
 
     async  testgetFileDescriptorsByCompanyId() {
         // to be used with vincentbp@vbe.test.openrainbow.net on vberder AIO.
-        logger.log("debug", "MAIN - testgetFileDescriptorsByCompanyId. ");
+       _logger.log("debug", "MAIN - testgetFileDescriptorsByCompanyId. ");
         /*let format  : string = "small";
         let sortField : string = "name" ;
         let bpId : string = undefined ;
@@ -3041,32 +3041,32 @@ let urlS2S;
         let bpType : string = undefined;
 
         let allCompanies: any = await rainbowSDK.admin.getAllCompanies(format, sortField, bpId, catalogId, offerId, offerCanBeSold, externalReference, externalReference2, salesforceAccountId, selectedAppCustomisationTemplate, selectedThemeObj, offerGroupName, limit, offset, sortOrder, name, status, visibility, organisationId, isBP, hasBP, bpType);
-        logger.log("debug", "MAIN - testgetFileDescriptorsByCompanyId - allCompanies : ", allCompanies.length);
+       _logger.log("debug", "MAIN - testgetFileDescriptorsByCompanyId - allCompanies : ", allCompanies.length);
 
         // */
 
         let filesDescriptors = await rainbowSDK.fileStorage.getFileDescriptorsByCompanyId(undefined, true);
-        logger.log("debug", "MAIN - testgetFileDescriptorsByCompanyId - filesDescriptors : ", filesDescriptors);
+       _logger.log("debug", "MAIN - testgetFileDescriptorsByCompanyId - filesDescriptors : ", filesDescriptors);
 
         /*let companyId = connectedUser.companyId;
         for (let company of allCompanies.data) {
             //that._logger.log("debug", "(getSubscriptionsOfCompanyByOfferId) subscription : ", subscription);
             if (company.name==="vbeCompanie") {
-                logger.log("debug", "MAIN - testretrieveRainbowUserList vbeCompanie found : ", company);
+               _logger.log("debug", "MAIN - testretrieveRainbowUserList vbeCompanie found : ", company);
                 companyId = company.id;
             }
         }
-        logger.log("debug", "MAIN - testretrieveRainbowUserList - companyId : ", companyId);
+       _logger.log("debug", "MAIN - testretrieveRainbowUserList - companyId : ", companyId);
 
         let result = await rainbowSDK.admin.retrieveRainbowUserList(companyId, "csv", true);
-        logger.log("debug", "MAIN - testretrieveRainbowUserList - result : ", result);
+       _logger.log("debug", "MAIN - testretrieveRainbowUserList - result : ", result);
         // */
 
     }
 
     async  testretrieveFileDescriptorsListPerOwner() {
         let filesDescriptors = await rainbowSDK.fileStorage.retrieveFileDescriptorsListPerOwner();
-        logger.log("debug", "MAIN - testretrieveFileDescriptorsListPerOwner - filesDescriptors : ", filesDescriptors);
+       _logger.log("debug", "MAIN - testretrieveFileDescriptorsListPerOwner - filesDescriptors : ", filesDescriptors);
     }
 
     //endregion Files
@@ -3076,13 +3076,13 @@ let urlS2S;
      testgetContactById_65269b10bd1d36463da3c89d() {
         // userid not existing in .Net platform
          rainbowSDK.contacts.getContactById("65269b10bd1d36463da3c89d").then((contact: any) => {
-             logger.log("debug", "MAIN - [testgetContactById_65269b10bd1d36463da3c89d    ] :: getContactById contact : ", contact);
+            _logger.log("debug", "MAIN - [testgetContactById_65269b10bd1d36463da3c89d    ] :: getContactById contact : ", contact);
          });
      }
 
      testgetContactById_aluno() {
          rainbowSDK.contacts.getContactById("63fe5655db963ffcf51516cf").then((contact: any) => {
-             logger.log("debug", "MAIN - [testgetContactById_aluno    ] :: getContactById contact : ", contact);
+            _logger.log("debug", "MAIN - [testgetContactById_aluno    ] :: getContactById contact : ", contact);
          });
      }
 
@@ -3091,14 +3091,14 @@ let urlS2S;
 
         rainbowSDK.contacts.getContactByLoginEmail(loginEmail).then((contact: any) => {
             if (contact) {
-                logger.log("debug", "MAIN - [testCreateBubbles    ] :: getContactByLoginEmail result : ", contact);
+               _logger.log("debug", "MAIN - [testCreateBubbles    ] :: getContactByLoginEmail result : ", contact);
                     let utc = new Date().toJSON().replace(/-/g, "_");
                     let withHistory = false;
                     rainbowSDK.bubbles.createBubble("TestBubbleBot" + utc , "TestBubbleBot" + utc, withHistory).then((bubble) => {
-                        logger.log("debug", "MAIN - [testCreateBubbles    ] :: createBubble result : ", bubble);
+                       _logger.log("debug", "MAIN - [testCreateBubbles    ] :: createBubble result : ", bubble);
 
                         rainbowSDK.events.on("rainbow_onbubbleaffiliationchanged", async (bubbleAffiliated) => {
-                            logger.log("debug", "MAIN - (rainbow_onbubbleaffiliationchanged) - affiliationchanged.");
+                           _logger.log("debug", "MAIN - (rainbow_onbubbleaffiliationchanged) - affiliationchanged.");
                             if (bubbleAffiliated && bubbleAffiliated.users.filter((user) => {
                                 let res = false;
                                 if (user.userId===contact.id && user.status==="accepted") {
@@ -3136,7 +3136,7 @@ let urlS2S;
         let botappointment = "vincent01@vbe.test.openrainbow.net";
         rainbowSDK.contacts.getContactByLoginEmail(physician.loginEmail).then((contact: any) => {
             if (contact) {
-                logger.log("debug", "MAIN - [testCreateBubbles    ] :: getContactByLoginEmail contact : ", contact);
+               _logger.log("debug", "MAIN - [testCreateBubbles    ] :: getContactByLoginEmail contact : ", contact);
 
                 physician.name = contact.title + " " + contact.firstname + " " + contact.lastname;
                 physician.contact = contact;
@@ -3144,11 +3144,11 @@ let urlS2S;
                     let utc = new Date().toJSON().replace(/-/g, "/");
                     let withInvitation = false;
                     rainbowSDK.bubbles.createBubble(physician.appointmentRoom + utc + contact + "_" + i, physician.appointmentRoom + utc + "_" + i, withInvitation).then((bubble) => {
-                        logger.log("debug", "MAIN - [testCreateBubbles    ] :: createBubble request ok", bubble);
+                       _logger.log("debug", "MAIN - [testCreateBubbles    ] :: createBubble request ok", bubble);
 
                         rainbowSDK.events.on("rainbow_onbubbleaffiliationchanged", async (bubbleAffiliated) => {
                             // do something when the SDK has been started
-                            logger.log("debug", "MAIN - (rainbow_onbubbleaffiliationchanged) - affiliationchanged : ");
+                           _logger.log("debug", "MAIN - (rainbow_onbubbleaffiliationchanged) - affiliationchanged : ");
                             if (bubbleAffiliated && bubbleAffiliated.users.filter((user) => {
                                 let res = false;
                                 if (user.userId===contact.id && user.status==="accepted") {
@@ -3174,13 +3174,13 @@ let urlS2S;
                             // */
                             /*rainbowSDK.bubbles.deleteBubble(bubble).then(() => {
                                 let bubbles = rainbowSDK.bubbles.getAll();
-                                logger.log("debug", "MAIN testCreateBubbles - after deleteBubble - bubble : ", bubble, ", bubbles : ", bubbles);
+                               _logger.log("debug", "MAIN testCreateBubbles - after deleteBubble - bubble : ", bubble, ", bubbles : ", bubbles);
                             }); */
                             /*rainbowSDK.contacts.getContactByLoginEmail(botappointment).then(contactbot => {
                                 rainbowSDK.bubbles.inviteContactToBubble(contactbot, bubble, false, false).then(function () {
                                     setTimeout(() => { rainbowSDK.bubbles.promoteContactInBubble(contactbot, bubble).then(function (updatedBubble) {
                                         rainbowSDK.conversations.getBubbleConversation(updatedBubble).then(conversation => {
-                                           logger.log("debug", "MAIN - [start    ] :: getBubbleConversation request ok", conversation);
+                                          _logger.log("debug", "MAIN - [start    ] :: getBubbleConversation request ok", conversation);
                                        });
                                    })} , 2000);
                                });
@@ -3199,10 +3199,10 @@ let urlS2S;
         //let botappointment = "vincent01@vbe.test.openrainbow.net";
         rainbowSDK.contacts.getContactByLoginEmail(loginEmail).then(async contact => {
             if (contact) {
-                logger.log("debug", "MAIN - [testCreateBubbles    ] :: getContactByLoginEmail contact : ", contact);
+               _logger.log("debug", "MAIN - [testCreateBubbles    ] :: getContactByLoginEmail contact : ", contact);
                 let utc = new Date().toJSON().replace(/-/g, "/");
                 await rainbowSDK.bubbles.createBubble(appointmentRoom + utc + contact + "_" + 1, appointmentRoom + utc + "_" + 1).then(async (bubble: any) => {
-                    logger.log("debug", "MAIN - [testCreateBubbles    ] :: createBubble request ok", bubble);
+                   _logger.log("debug", "MAIN - [testCreateBubbles    ] :: createBubble request ok", bubble);
                     rainbowSDK.bubbles.inviteContactToBubble(contact, bubble, false, false).then(async () => {
                         let message = "message de test";
                         await rainbowSDK.im.sendMessageToBubbleJid(message, bubble.jid, "en", {
@@ -3222,10 +3222,10 @@ let urlS2S;
         //let botappointment = "vincent01@vbe.test.openrainbow.net";
         rainbowSDK.contacts.getContactByLoginEmail(loginEmail).then(async contact => {
             if (contact) {
-                logger.log("debug", "MAIN - [testCreateBubbleAndInvite    ] :: getContactByLoginEmail contact : ", contact);
+               _logger.log("debug", "MAIN - [testCreateBubbleAndInvite    ] :: getContactByLoginEmail contact : ", contact);
                 let utc = new Date().toJSON().replace(/-/g, "/");
                 await rainbowSDK.bubbles.createBubble(appointmentRoom + utc + contact + "_" + 1, appointmentRoom + utc + "_" + 1).then(async (bubble: any) => {
-                    logger.log("debug", "MAIN - [testCreateBubbleAndInvite    ] :: createBubble request ok", bubble);
+                   _logger.log("debug", "MAIN - [testCreateBubbleAndInvite    ] :: createBubble request ok", bubble);
                     rainbowSDK.bubbles.inviteContactToBubble(contact, bubble, false, false).then(async () => {
                         /*let message = "message de test";
                         await rainbowSDK.im.sendMessageToBubbleJid(message, bubble.jid, "en", {
@@ -3246,10 +3246,10 @@ let urlS2S;
         //let botappointment = "vincent01@vbe.test.openrainbow.net";
         rainbowSDK.contacts.getContactByLoginEmail(loginEmail).then(async contact => {
             if (contact) {
-                logger.log("debug", "MAIN - [testCreateBubbles    ] :: getContactByLoginEmail contact : ", contact);
+               _logger.log("debug", "MAIN - [testCreateBubbles    ] :: getContactByLoginEmail contact : ", contact);
                 let utc = new Date().toJSON().replace(/-/g, "/");
                 await rainbowSDK.bubbles.createBubble(appointmentRoom + utc + contact + "_" + 1, appointmentRoom + utc + "_" + 1).then(async (bubble: any) => {
-                    logger.log("debug", "MAIN - [testCreateBubbles    ] :: createBubble request ok", bubble);
+                   _logger.log("debug", "MAIN - [testCreateBubbles    ] :: createBubble request ok", bubble);
                     rainbowSDK.bubbles.inviteContactToBubble(contact, bubble, false, false).then(async () => {
                         /* let message = "message de test";
                         await rainbowSDK.im.sendMessageToBubbleJid(message, bubble.jid, "en", {
@@ -3270,11 +3270,11 @@ let urlS2S;
         //let botappointment = "vincent01@vbe.test.openrainbow.net";
         rainbowSDK.contacts.getContactByLoginEmail(loginEmail).then(async contact => {
             if (contact) {
-                logger.log("debug", "MAIN - [testCreateBubbles    ] :: getContactByLoginEmail contact : ", contact);
+               _logger.log("debug", "MAIN - [testCreateBubbles    ] :: getContactByLoginEmail contact : ", contact);
                 for (let i = 0; i < 5; i++) {
                     let utc = new Date().toJSON().replace(/-/g, "/");
                     await rainbowSDK.bubbles.createBubble(appointmentRoom + utc + contact + "_" + i, appointmentRoom + utc + "_" + i).then(async (bubble: any) => {
-                        logger.log("debug", "MAIN - [testCreateBubbles    ] :: createBubble request ok", bubble);
+                       _logger.log("debug", "MAIN - [testCreateBubbles    ] :: createBubble request ok", bubble);
                         rainbowSDK.bubbles.inviteContactToBubble(contact, bubble, false, false).then(async () => {
                             let message = "message de test";
                             await rainbowSDK.im.sendMessageToBubbleJid(message, bubble.jid, "en", {
@@ -3285,13 +3285,13 @@ let urlS2S;
                             await rainbowSDK.im.sendMessageToBubbleJid(message, bubble.jid, "en", { "type": "text/markdown", "message": message }, "subject"); // */
                             rainbowSDK.bubbles.archiveBubble(bubble).then(() => {
                                 let bubbles = rainbowSDK.bubbles.getAll();
-                                logger.log("debug", "MAIN testCreateBubbles - after archiveBubble - bubble : ", bubble, ", bubbles : ", bubbles);
+                               _logger.log("debug", "MAIN testCreateBubbles - after archiveBubble - bubble : ", bubble, ", bubbles : ", bubbles);
                             }); // */
                             /*rainbowSDK.contacts.getContactByLoginEmail(botappointment).then(contactbot => {
                                 rainbowSDK.bubbles.inviteContactToBubble(contactbot, bubble, false, false).then(function () {
                                     setTimeout(() => { rainbowSDK.bubbles.promoteContactInBubble(contactbot, bubble).then(function (updatedBubble) {
                                         rainbowSDK.conversations.getBubbleConversation(updatedBubble).then(conversation => {
-                                           logger.log("debug", "MAIN - [start    ] :: getBubbleConversation request ok", conversation);
+                                          _logger.log("debug", "MAIN - [start    ] :: getBubbleConversation request ok", conversation);
                                        });
                                    })} , 2000);
                                });
@@ -3301,9 +3301,9 @@ let urlS2S;
                 }
                 rainbowSDK.bubbles.getBubblesConsumption().then(consumption => {
                     if (consumption) {
-                        logger.log("debug", "MAIN - [testCreate50BubblesAndArchiveThem    ] :: getBubblesConsumption consumption : ", consumption);
+                       _logger.log("debug", "MAIN - [testCreate50BubblesAndArchiveThem    ] :: getBubblesConsumption consumption : ", consumption);
                     } else {
-                        logger.log("debug", "MAIN - [testCreate50BubblesAndArchiveThem    ] :: getBubblesConsumption no consumption found.");
+                       _logger.log("debug", "MAIN - [testCreate50BubblesAndArchiveThem    ] :: getBubblesConsumption no consumption found.");
                     }
                 });
             }
@@ -3317,16 +3317,16 @@ let urlS2S;
         //let botappointment = "vincent01@vbe.test.openrainbow.net";
         rainbowSDK.contacts.getContactByLoginEmail(loginEmail).then(async contact => {
             if (contact) {
-                logger.log("debug", "MAIN - [testCreateBubbles    ] :: getContactByLoginEmail contact : ", contact);
+               _logger.log("debug", "MAIN - [testCreateBubbles    ] :: getContactByLoginEmail contact : ", contact);
                 for (let i = 0; i < 50; i++) {
                     let utc = new Date().toJSON().replace(/-/g, "/");
                     let bubbleName = appointmentRoom + "_" + utc + contact + "_" + i;
                     let timeBetweenCreate = 2000 + (getRandomInt(6) * 1000);
                     await setTimeoutPromised(timeBetweenCreate).then(async () => {
-                        logger.log("debug", "MAIN - [testCreateBubbles    ] :: createBubble request ", bubbleName, " after : ", timeBetweenCreate, " seconds waiting.");
+                       _logger.log("debug", "MAIN - [testCreateBubbles    ] :: createBubble request ", bubbleName, " after : ", timeBetweenCreate, " seconds waiting.");
 
                         await rainbowSDK.bubbles.createBubble(bubbleName, "desc : " + appointmentRoom + "_" + utc + "_" + i).then(async (bubble: any) => {
-                            logger.log("debug", "MAIN - [testCreateBubbles    ] :: createBubble request ok", bubble);
+                           _logger.log("debug", "MAIN - [testCreateBubbles    ] :: createBubble request ok", bubble);
                             rainbowSDK.bubbles.inviteContactToBubble(contact, bubble, false, false).then(async () => {
                                 let message = "message de test";
                                 await rainbowSDK.im.sendMessageToBubbleJid(message, bubble.jid, "en", {
@@ -3336,7 +3336,7 @@ let urlS2S;
                                 // await rainbowSDK.im.sendMessageToBubbleJid(message, bubble.jid, "en", { "type": "text/markdown", "message": message }, "subject");
                                 // await rainbowSDK.im.sendMessageToBubbleJid(message, bubble.jid, "en", { "type": "text/markdown", "message": message }, "subject");
                                 let bubbles = rainbowSDK.bubbles.getAll();
-                                logger.log("debug", "MAIN testCreateBubbles - after archiveBubble - bubble : ", bubble, ", bubbles : ", bubbles);
+                               _logger.log("debug", "MAIN testCreateBubbles - after archiveBubble - bubble : ", bubble, ", bubbles : ", bubbles);
                             });
                         });
                         // */
@@ -3351,7 +3351,7 @@ let urlS2S;
      testCreateBubblesAndInviteContactsByEmails() {
         let utc = new Date().toJSON().replace(/-/g, "/");
         rainbowSDK.bubbles.createBubble("TestInviteByEmails" + utc, "TestInviteByEmails" + utc).then((bubble: any) => {
-            logger.log("debug", "MAIN - [testCreateBubblesAndInviteContactsByEmails    ] :: createBubble request ok", bubble);
+           _logger.log("debug", "MAIN - [testCreateBubblesAndInviteContactsByEmails    ] :: createBubble request ok", bubble);
 
             let contacts = [];
             let d = new Date();
@@ -3373,7 +3373,7 @@ let urlS2S;
      testCreateBubblesAndInviteUnknownContactsByEmails() {
         let utc = new Date().toJSON().replace(/-/g, "/");
         rainbowSDK.bubbles.createBubble("TestInviteByEmails" + utc, "TestInviteByEmails" + utc).then((bubble: any) => {
-            logger.log("debug", "MAIN - [testCreateBubblesAndInviteUnknownContactsByEmails    ] :: createBubble request ok", bubble);
+           _logger.log("debug", "MAIN - [testCreateBubblesAndInviteUnknownContactsByEmails    ] :: createBubble request ok", bubble);
 
             let contacts = [];
             let d = new Date();
@@ -3389,11 +3389,11 @@ let urlS2S;
  */
                 await pause(45000);
                 let invitationsSent = await rainbowSDK.invitations.searchInvitationsSentFromServer("lastNotificationDate", "pending", "full", 50, 0, 1);
-                logger.log("debug", "MAIN - [testCreateBubblesAndInviteUnknownContactsByEmails    ] :: invitationsSent : ", invitationsSent);
+               _logger.log("debug", "MAIN - [testCreateBubblesAndInviteUnknownContactsByEmails    ] :: invitationsSent : ", invitationsSent);
 
                 rainbowSDK.contacts.getContactByLoginEmail("vincent09@vbe.test.openrainbow.net").then(async contact => {
                     if (contact) {
-                        logger.log("debug", "MAIN - [testCreateBubblesAndInviteUnknownContactsByEmails    ] :: getContactByLoginEmail contact : ", contact);
+                       _logger.log("debug", "MAIN - [testCreateBubblesAndInviteUnknownContactsByEmails    ] :: getContactByLoginEmail contact : ", contact);
 
                     }
                 });
@@ -3407,7 +3407,7 @@ let urlS2S;
         // To be used with vincent01 on COM (needs vincent.berder@al-enterprise.com to not be already in rooster).
         let utc = new Date().toJSON().replace(/-/g, "/");
         rainbowSDK.bubbles.createBubble("TestInviteByEmails" + utc, "TestInviteByEmails" + utc).then(async (bubble: any) => {
-            logger.log("debug", "MAIN - [testCreateBubblesAndInviteVincentALEContactsByEmails    ] :: createBubble request ok", bubble);
+           _logger.log("debug", "MAIN - [testCreateBubblesAndInviteVincentALEContactsByEmails    ] :: createBubble request ok", bubble);
 
             let contacts = [];
             let d = new Date();
@@ -3431,21 +3431,21 @@ let urlS2S;
                 await pause(15000);
 
                 let sentInvitations = await rainbowSDK.invitations.getAllSentInvitations();
-                logger.log("debug", "MAIN - [testCreateBubblesAndInviteVincentALEContactsByEmails    ] :: sentInvitations : ", sentInvitations);
+               _logger.log("debug", "MAIN - [testCreateBubblesAndInviteVincentALEContactsByEmails    ] :: sentInvitations : ", sentInvitations);
                 let invitationsSent = await rainbowSDK.invitations.searchInvitationsSentFromServer("lastNotificationDate", "accepted", "full", 50, 0, 1);
-                logger.log("debug", "MAIN - [testCreateBubblesAndInviteVincentALEContactsByEmails    ] :: invitationsSent accepted : ", invitationsSent);
+               _logger.log("debug", "MAIN - [testCreateBubblesAndInviteVincentALEContactsByEmails    ] :: invitationsSent accepted : ", invitationsSent);
                 invitationsSent = await rainbowSDK.invitations.searchInvitationsSentFromServer("lastNotificationDate", "pending", "full", 50, 0, 1);
-                logger.log("debug", "MAIN - [testCreateBubblesAndInviteVincentALEContactsByEmails    ] :: invitationsSent pending : ", invitationsSent);
+               _logger.log("debug", "MAIN - [testCreateBubblesAndInviteVincentALEContactsByEmails    ] :: invitationsSent pending : ", invitationsSent);
                 invitationsSent = await rainbowSDK.invitations.searchInvitationsSentFromServer("lastNotificationDate", "auto-accepted", "full", 50, 0, 1);
-                logger.log("debug", "MAIN - [testCreateBubblesAndInviteVincentALEContactsByEmails    ] :: invitationsSent auto-accepted : ", invitationsSent);
+               _logger.log("debug", "MAIN - [testCreateBubblesAndInviteVincentALEContactsByEmails    ] :: invitationsSent auto-accepted : ", invitationsSent);
                 invitationsSent = await rainbowSDK.invitations.searchInvitationsSentFromServer("lastNotificationDate", "canceled", "full", 50, 0, 1);
-                logger.log("debug", "MAIN - [testCreateBubblesAndInviteVincentALEContactsByEmails    ] :: invitationsSent canceled : ", invitationsSent);
+               _logger.log("debug", "MAIN - [testCreateBubblesAndInviteVincentALEContactsByEmails    ] :: invitationsSent canceled : ", invitationsSent);
                 invitationsSent = await rainbowSDK.invitations.searchInvitationsSentFromServer("lastNotificationDate", "failed", "full", 50, 0, 1);
-                logger.log("debug", "MAIN - [testCreateBubblesAndInviteVincentALEContactsByEmails    ] :: invitationsSent failed : ", invitationsSent);
+               _logger.log("debug", "MAIN - [testCreateBubblesAndInviteVincentALEContactsByEmails    ] :: invitationsSent failed : ", invitationsSent);
 
                 await rainbowSDK.contacts.getContactByLoginEmail(contactEmail).then(async contact => {
                     if (contact) {
-                        logger.log("debug", "MAIN - [testCreateBubblesAndInviteVincentALEContactsByEmails    ] :: getContactByLoginEmail contact : ", contact);
+                       _logger.log("debug", "MAIN - [testCreateBubblesAndInviteVincentALEContactsByEmails    ] :: getContactByLoginEmail contact : ", contact);
 
                     }
                 });
@@ -3458,7 +3458,7 @@ let urlS2S;
      testCreateBubblesOnly() {
         let utc = new Date().toJSON().replace(/-/g, "/");
         rainbowSDK.bubbles.createBubble("TestInviteByEmails" + utc, "TestInviteByEmails" + utc).then((bubble: any) => {
-            logger.log("debug", "MAIN - [testCreateBubblesAndInviteContactsByEmails    ] :: createBubble request ok", bubble);
+           _logger.log("debug", "MAIN - [testCreateBubblesAndInviteContactsByEmails    ] :: createBubble request ok", bubble);
         });
         //    let utc = new Date().toJSON().replace(/-/g, '/');
     }
@@ -3467,7 +3467,7 @@ let urlS2S;
         let utc = new Date().toJSON().replace(/-/g, "/");
         for (let i = 0; i < nbBubblesToCreate; i++) {
             await rainbowSDK.bubbles.createBubble("bubbles_" + i + "_" + utc, "bubbles_" + i + "_" + utc).then((bubble: any) => {
-                logger.log("debug", "MAIN - [testNbCreateBubblesOnly    ] :: createBubble nb " + i + " ok : ", bubble.id);
+               _logger.log("debug", "MAIN - [testNbCreateBubblesOnly    ] :: createBubble nb " + i + " ok : ", bubble.id);
             });
             await setTimeoutPromised(800);
             //    let utc = new Date().toJSON().replace(/-/g, '/');
@@ -3477,9 +3477,9 @@ let urlS2S;
      testCreateBubble_closeAndDeleteBubble() {
         let utc = new Date().toJSON().replace(/-/g, "/");
         rainbowSDK.bubbles.createBubble("testCreateBubble_closeAndDeleteBubble" + utc, "testCreateBubble_closeAndDeleteBubble" + utc, true).then((bubble) => {
-            logger.log("debug", "MAIN - [testCreateBubble_closeAndDeleteBubble    ] :: createBubble request ok, bubble : ", bubble);
+           _logger.log("debug", "MAIN - [testCreateBubble_closeAndDeleteBubble    ] :: createBubble request ok, bubble : ", bubble);
             rainbowSDK.bubbles.closeAndDeleteBubble(bubble).then((result) => {
-                logger.log("debug", "MAIN - [testCreateBubble_closeAndDeleteBubble    ] :: closeAndDeleteBubble request ok, result : ", result);
+               _logger.log("debug", "MAIN - [testCreateBubble_closeAndDeleteBubble    ] :: closeAndDeleteBubble request ok, result : ", result);
             });
         });
         //    let utc = new Date().toJSON().replace(/-/g, '/');
@@ -3495,13 +3495,13 @@ let urlS2S;
         //let botappointment = "vincent01@vbe.test.openrainbow.net";
         rainbowSDK.contacts.getContactByLoginEmail(loginEmail).then(async (contact: any) => {
             if (contact) {
-                logger.log("debug", "MAIN - [testsendMessageToBubbleJid_WithMention    ] :: getContactByLoginEmail contact : ", contact);
+               _logger.log("debug", "MAIN - [testsendMessageToBubbleJid_WithMention    ] :: getContactByLoginEmail contact : ", contact);
                 let utc: string = new Date().toJSON().replace(/-/g, "/");
                 bubbleName += utc + contact.name.value;
                 bubbleDescription += utc;
                 bubbleMessageSubject += utc;
                 await rainbowSDK.bubbles.createBubble(bubbleName, bubbleDescription, true).then(async (bubble: any) => {
-                    logger.log("debug", "MAIN - [testsendMessageToBubbleJid_WithMention    ] :: createBubble request ok", bubble);
+                   _logger.log("debug", "MAIN - [testsendMessageToBubbleJid_WithMention    ] :: createBubble request ok", bubble);
                     rainbowSDK.bubbles.inviteContactToBubble(contact, bubble, false, false, "").then(async () => {
                         let message = bubbleMessage + " @" + contact.name.value + " ";
                         let mentions = [];
@@ -3531,9 +3531,9 @@ let urlS2S;
      testgetBubblesConsumption() {
         rainbowSDK.bubbles.getBubblesConsumption().then(consumption => {
             if (consumption) {
-                logger.log("debug", "MAIN - [testgetBubblesConsumption    ] :: getBubblesConsumption consumption : ", consumption);
+               _logger.log("debug", "MAIN - [testgetBubblesConsumption    ] :: getBubblesConsumption consumption : ", consumption);
             } else {
-                logger.log("debug", "MAIN - [testgetBubblesConsumption    ] :: getBubblesConsumption no consumption found.");
+               _logger.log("debug", "MAIN - [testgetBubblesConsumption    ] :: getBubblesConsumption no consumption found.");
             }
         });
 
@@ -3541,17 +3541,17 @@ let urlS2S;
 
     async  testgetAllOwnedNotArchivedBubbles() {
         let bubblesNotArchived = await rainbowSDK.bubbles.getAllOwnedNotArchivedBubbles();
-        logger.log("debug", "MAIN - testgetAllOwnedNotArchivedBubbles - bubblesNotArchived : ", bubblesNotArchived, ", nb bubblesNotArchived bulles : ", bubblesNotArchived ? bubblesNotArchived.length:0);
+       _logger.log("debug", "MAIN - testgetAllOwnedNotArchivedBubbles - bubblesNotArchived : ", bubblesNotArchived, ", nb bubblesNotArchived bulles : ", bubblesNotArchived ? bubblesNotArchived.length:0);
     }
 
     async  testgetAllOwnedArchivedBubbles() {
         let bubblesArchived = await rainbowSDK.bubbles.getAllOwnedArchivedBubbles();
-        logger.log("debug", "MAIN - testgetAllOwnedArchivedBubbles - bubblesArchived : ", bubblesArchived, ", nb bubblesArchived bulles : ", bubblesArchived ? bubblesArchived.length:0);
+       _logger.log("debug", "MAIN - testgetAllOwnedArchivedBubbles - bubblesArchived : ", bubblesArchived, ", nb bubblesArchived bulles : ", bubblesArchived ? bubblesArchived.length:0);
     }
 
     async  testgetAllOwnedBubblesArchivedBubbles() {
         let result = rainbowSDK.bubbles.getAllOwnedBubbles();
-        logger.log("debug", "MAIN - testgetAllOwnedBubblesArchivedBubbles getAllOwnedBubbles - result : ", result, ", nb owned bulles : ", result ? result.length:0);
+       _logger.log("debug", "MAIN - testgetAllOwnedBubblesArchivedBubbles getAllOwnedBubbles - result : ", result, ", nb owned bulles : ", result ? result.length:0);
 
         async function asyncFilter(arr, predicate) {
             const results = await Promise.all(arr.map(predicate));
@@ -3562,18 +3562,18 @@ let urlS2S;
         let bubblesNotArchived = await asyncFilter(result, async bubble => {
             return (await rainbowSDK.bubbles.isBubbleArchived(bubble)===false);
         });
-        logger.log("debug", "MAIN - testgetAllOwnedBubblesArchivedBubbles - bubblesNotArchived : ", bubblesNotArchived, ", nb bubblesNotArchived bulles : ", bubblesNotArchived ? bubblesNotArchived.length:0);
+       _logger.log("debug", "MAIN - testgetAllOwnedBubblesArchivedBubbles - bubblesNotArchived : ", bubblesNotArchived, ", nb bubblesNotArchived bulles : ", bubblesNotArchived ? bubblesNotArchived.length:0);
 
         let bubblesArchived = await asyncFilter(result, async bubble => {
             return (await rainbowSDK.bubbles.isBubbleArchived(bubble)===true);
         });
-        logger.log("debug", "MAIN - testgetAllOwnedBubblesArchivedBubbles - bubblesArchived : ", bubblesArchived, ", nb bubblesArchived bulles : ", bubblesArchived ? bubblesArchived.length:0);
+       _logger.log("debug", "MAIN - testgetAllOwnedBubblesArchivedBubbles - bubblesArchived : ", bubblesArchived, ", nb bubblesArchived bulles : ", bubblesArchived ? bubblesArchived.length:0);
 
     }
 
     async  testgetArchivedBubbles() {
         let result = rainbowSDK.bubbles.getAllBubbles();
-        logger.log("debug", "MAIN - testgetArchivedBubbles getAllOwnedBubbles - result : ", result, ", nb owned bulles : ", result ? result.length:0);
+       _logger.log("debug", "MAIN - testgetArchivedBubbles getAllOwnedBubbles - result : ", result, ", nb owned bulles : ", result ? result.length:0);
 
         async function asyncFilter(arr, predicate) {
             const results = await Promise.all(arr.map(predicate));
@@ -3584,22 +3584,22 @@ let urlS2S;
         let bubblesNotArchived = await asyncFilter(result, async bubble => {
             return (await rainbowSDK.bubbles.isBubbleArchived(bubble)===false);
         });
-        logger.log("debug", "MAIN - testgetArchivedBubbles - bubblesNotArchived : ", bubblesNotArchived, ", nb bubblesNotArchived bulles : ", bubblesNotArchived ? bubblesNotArchived.length:0);
+       _logger.log("debug", "MAIN - testgetArchivedBubbles - bubblesNotArchived : ", bubblesNotArchived, ", nb bubblesNotArchived bulles : ", bubblesNotArchived ? bubblesNotArchived.length:0);
 
         let bubblesArchived = await asyncFilter(result, async bubble => {
             return (await rainbowSDK.bubbles.isBubbleArchived(bubble)===true);
         });
-        logger.log("debug", "MAIN - testgetArchivedBubbles - bubblesArchived : ", bubblesArchived, ", nb bubblesArchived bulles : ", bubblesArchived ? bubblesArchived.length:0);
+       _logger.log("debug", "MAIN - testgetArchivedBubbles - bubblesArchived : ", bubblesArchived, ", nb bubblesArchived bulles : ", bubblesArchived ? bubblesArchived.length:0);
 
     }
 
      testArchive10BubblesFromgetAllActiveBubbles() {
         let bubbles = rainbowSDK.bubbles.getAllActiveBubbles();
-        logger.log("debug", "MAIN - testArchive10BubblesFromgetAllActiveBubbles getAllActiveBubbles - nb owned bulles : ", bubbles ? bubbles.length:0);
+       _logger.log("debug", "MAIN - testArchive10BubblesFromgetAllActiveBubbles getAllActiveBubbles - nb owned bulles : ", bubbles ? bubbles.length:0);
 
         for (let i = 0; i < 10; i++) {
             rainbowSDK.bubbles.archiveBubble(bubbles[i]).then((result) => {
-                logger.log("debug", "MAIN - testArchive10BubblesFromgetAllActiveBubbles archiveBubble - iter : ", i, ", result : ", result);
+               _logger.log("debug", "MAIN - testArchive10BubblesFromgetAllActiveBubbles archiveBubble - iter : ", i, ", result : ", result);
 
             });
         }
@@ -3612,11 +3612,11 @@ let urlS2S;
         /*let bubbles = rainbowSDK.bubbles.getAllBubbles();
 
         bubbles.forEach((bubble) => {
-            logger.log("debug", "MAIN - [testBubblesArchived    ] :: bubble : ", bubble);
+           _logger.log("debug", "MAIN - [testBubblesArchived    ] :: bubble : ", bubble);
         }); */
         let bubbleTestestsed = "room_e290bece54c34d69aef68f831be0d309@muc.vberder-all-in-one-dev-1.opentouch.cloud";
         rainbowSDK.bubbles.getBubbleByJid(bubbleTestestsed).then((bubbleFound) => {
-            logger.log("debug", "MAIN - [testBubblesArchived    ] :: bubbleFound : ", bubbleFound);
+           _logger.log("debug", "MAIN - [testBubblesArchived    ] :: bubbleFound : ", bubbleFound);
             let utc = new Date().toJSON().replace(/-/g, "_");
             let message = "message " + utc;
             let jid = bubbleFound.jid;
@@ -3624,9 +3624,9 @@ let urlS2S;
             let content = {"type": "text/markdown", "message": "**A message** for a _bubble_" + utc};
             let subject = "subject";
             rainbowSDK.im.sendMessageToBubbleJid(message, jid, lang, content, subject).then((result) => {
-                logger.log("debug", "MAIN - testBubblesArchived sendMessageToBubbleJid result : ", JSON.stringify(result)); //logger.colors.green(JSON.stringify(result)));
+               _logger.log("debug", "MAIN - testBubblesArchived sendMessageToBubbleJid result : ", JSON.stringify(result)); //logger.colors.green(JSON.stringify(result)));
             }).catch((err) => {
-                logger.log("error", "MAIN - testBubblesArchived error while sendMessageToBubbleJid result : ", err); //logger.colors.green(JSON.stringify(result)));
+               _logger.log("error", "MAIN - testBubblesArchived error while sendMessageToBubbleJid result : ", err); //logger.colors.green(JSON.stringify(result)));
             });
         });
     }
@@ -3634,9 +3634,9 @@ let urlS2S;
      testgetBubbleUnknown() {
         let bubbleTestestsed = "room_e290bece54c34d69aef68f831be0d309@muc.vberder-all-in-one-dev-1.opentouch.cloud";
         rainbowSDK.bubbles.getBubbleByJid(bubbleTestestsed).then((bubbleFound) => {
-            logger.log("debug", "MAIN - [testgetBubbleUnknown    ] :: bubbleFound : ", bubbleFound);
+           _logger.log("debug", "MAIN - [testgetBubbleUnknown    ] :: bubbleFound : ", bubbleFound);
         }).catch((err) => {
-            logger.log("error", "MAIN - testgetBubbleUnknown error while getBubbleByJid result : ", err); //logger.colors.green(JSON.stringify(result)));
+           _logger.log("error", "MAIN - testgetBubbleUnknown error while getBubbleByJid result : ", err); //logger.colors.green(JSON.stringify(result)));
         });
     }
 
@@ -3649,7 +3649,7 @@ let urlS2S;
             bubble = Bubble_1.Bubble.BubbleFactory("", rainbowSDK.contacts)(activesBubbles[0]);
         }
         //rainbowSDK.bubbles.getBubbleByJid("room_0f5e4e62e3ef4e43bc991dde6c53bc98@muc.vberder-all-in-one-dev-1.opentouch.cloud").then((bubble) => {
-        logger.log("debug", "MAIN - testSetBubbleCustomData - bubble : ", bubble);
+       _logger.log("debug", "MAIN - testSetBubbleCustomData - bubble : ", bubble);
         //that.rainbowSDK.bubbles.setBubbleCustomData(bubble, {});
         let now = new Date().getTime();
         await rainbowSDK.bubbles.setBubbleCustomData(bubble, {
@@ -3661,7 +3661,7 @@ let urlS2S;
             activesBubbles = rainbowSDK.bubbles.getAllOwnedBubbles();
             activesBubbles.forEach( ( bubbleIter )=> {
                 if (bubble && bubbleIter && bubbleIter.id === bubble.id) {
-                    logger.log("debug", "MAIN - testSetBubbleCustomData, Few seconds after sending the customData bubbleIter : ", bubbleIter);
+                   _logger.log("debug", "MAIN - testSetBubbleCustomData, Few seconds after sending the customData bubbleIter : ", bubbleIter);
                 }
 
             });
@@ -3678,11 +3678,11 @@ let urlS2S;
             bubble = await Bubble_1.Bubble.BubbleFactory(undefined, rainbowSDK.contacts)(activesBubbles[0]);
         }
         //rainbowSDK.bubbles.getBubbleByJid("room_0f5e4e62e3ef4e43bc991dde6c53bc98@muc.vberder-all-in-one-dev-1.opentouch.cloud").then((bubble) => {
-        logger.log("debug", "MAIN - testSetBubbleName - bubble : ", bubble);
+       _logger.log("debug", "MAIN - testSetBubbleName - bubble : ", bubble);
         //that.rainbowSDK.bubbles.setBubbleCustomData(bubble, {});
         let now = new Date().getTime();
         let bubbleUpdated = await rainbowSDK.bubbles.setBubbleName(bubble, "TestName_" + now);
-        logger.log("debug", "MAIN - testSetBubbleName, bubbleUpdated : ", bubbleUpdated);
+       _logger.log("debug", "MAIN - testSetBubbleName, bubbleUpdated : ", bubbleUpdated);
     }
 
     async  testSetBubbleTopic() {
@@ -3694,11 +3694,11 @@ let urlS2S;
             bubble = await Bubble_1.Bubble.BubbleFactory(undefined, rainbowSDK.contacts)(activesBubbles[0]);
         }
         //rainbowSDK.bubbles.getBubbleByJid("room_0f5e4e62e3ef4e43bc991dde6c53bc98@muc.vberder-all-in-one-dev-1.opentouch.cloud").then((bubble) => {
-        logger.log("debug", "MAIN - testSetBubbleTopic - bubble : ", bubble);
+       _logger.log("debug", "MAIN - testSetBubbleTopic - bubble : ", bubble);
         //that.rainbowSDK.bubbles.setBubbleCustomData(bubble, {});
         let now = new Date().getTime();
         let bubbleUpdated = await rainbowSDK.bubbles.setBubbleTopic(bubble, "TestTopic_" + now);
-        logger.log("debug", "MAIN - testSetBubbleTopic, bubbleUpdated : ", bubbleUpdated);
+       _logger.log("debug", "MAIN - testSetBubbleTopic, bubbleUpdated : ", bubbleUpdated);
     }
 
 
@@ -3710,40 +3710,40 @@ let urlS2S;
 
     async  testDeleteBubble() {
         let bubbles = await rainbowSDK.bubbles.getAllOwnedBubbles();
-        logger.log("debug", "MAIN - testDeleteBubble bubbles : ", bubbles); //logger.colors.green(JSON.stringify(result)));
+       _logger.log("debug", "MAIN - testDeleteBubble bubbles : ", bubbles); //logger.colors.green(JSON.stringify(result)));
         rainbowSDK.bubbles.deleteBubble(bubbles[0]).then((resultDelete) => {
-            logger.log("debug", "MAIN - testDeleteBubble resultDelete : ", resultDelete); //logger.colors.green(JSON.stringify(result)));
+           _logger.log("debug", "MAIN - testDeleteBubble resultDelete : ", resultDelete); //logger.colors.green(JSON.stringify(result)));
         });
     }
 
     async  testDeleteBubble_ByBubbleId(bubbleId) {
         let bubble = await rainbowSDK.bubbles.getBubbleById(bubbleId);
-        logger.log("debug", "MAIN - testDeleteBubble_ByBubbleId, ", bubbleId, ", bubble : ", bubble); //logger.colors.green(JSON.stringify(result)));
+       _logger.log("debug", "MAIN - testDeleteBubble_ByBubbleId, ", bubbleId, ", bubble : ", bubble); //logger.colors.green(JSON.stringify(result)));
         rainbowSDK.bubbles.deleteBubble(bubble).then((resultDelete) => {
-            logger.log("debug", "MAIN - testDeleteBubble_ByBubbleId resultDelete : ", resultDelete); //logger.colors.green(JSON.stringify(result)));
+           _logger.log("debug", "MAIN - testDeleteBubble_ByBubbleId resultDelete : ", resultDelete); //logger.colors.green(JSON.stringify(result)));
         });
     }
 
     async  testLeaveBubble() {
         let bubbles = await rainbowSDK.bubbles.getAllBubbles();
-        logger.log("debug", "MAIN - testLeaveBubble bubbles : ", bubbles); //logger.colors.green(JSON.stringify(result)));
+       _logger.log("debug", "MAIN - testLeaveBubble bubbles : ", bubbles); //logger.colors.green(JSON.stringify(result)));
         for (const bubble of bubbles) {
             if (bubble.name.indexOf("testBot")!= -1) {
-                logger.log("debug", "MAIN - testLeaveBubble Found bubble.name : ", bubble.name, ", bubble.isActive : ", bubble.isActive); //logger.colors.green(JSON.stringify(result)));
+               _logger.log("debug", "MAIN - testLeaveBubble Found bubble.name : ", bubble.name, ", bubble.isActive : ", bubble.isActive); //logger.colors.green(JSON.stringify(result)));
                 if (bubble.ownerContact.id===rainbowSDK._core._rest.userId) {
                     // The bubble should be deleted instead of leaved
-                    logger.log("debug", "MAIN - testLeaveBubble Found bubble.name : ", bubble.name, ", The bubble should be deleted instead of leaved."); //logger.colors.green(JSON.stringify(result)));
+                   _logger.log("debug", "MAIN - testLeaveBubble Found bubble.name : ", bubble.name, ", The bubble should be deleted instead of leaved."); //logger.colors.green(JSON.stringify(result)));
                     rainbowSDK.bubbles.deleteBubble(bubble).then((resultDelete) => {
-                        logger.log("debug", "MAIN - testLeaveBubble resultDelete : ", resultDelete); //logger.colors.green(JSON.stringify(result)));
+                       _logger.log("debug", "MAIN - testLeaveBubble resultDelete : ", resultDelete); //logger.colors.green(JSON.stringify(result)));
                     });
                 } else {
                     rainbowSDK.bubbles.leaveBubble(bubble).then((resultLeave) => {
-                        logger.log("debug", "MAIN - testLeaveBubble bubble.name : ", bubble.name, ", resultLeave : ", resultLeave); //logger.colors.green(JSON.stringify(result)));
+                       _logger.log("debug", "MAIN - testLeaveBubble bubble.name : ", bubble.name, ", resultLeave : ", resultLeave); //logger.colors.green(JSON.stringify(result)));
                     });
                     // */
                 }
             } else {
-                logger.log("debug", "MAIN - testLeaveBubble NOT Found bubble.name : ", bubble.name, ", buibble.isActive : ", bubble.isActive); //logger.colors.green(JSON.stringify(result)));
+               _logger.log("debug", "MAIN - testLeaveBubble NOT Found bubble.name : ", bubble.name, ", buibble.isActive : ", bubble.isActive); //logger.colors.green(JSON.stringify(result)));
             }
         }
     }
@@ -3751,19 +3751,19 @@ let urlS2S;
      testCreateBubblesAndSetTags() {
         let utc = new Date().toJSON().replace(/-/g, "/");
         rainbowSDK.bubbles.createBubble("testCreateBubblesAndSetTags" + utc, "testCreateBubblesAndSetTags" + utc).then((bubble: any) => {
-            logger.log("debug", "MAIN - [testCreateBubblesAndSetTags    ] :: createBubble request ok", bubble);
+           _logger.log("debug", "MAIN - [testCreateBubblesAndSetTags    ] :: createBubble request ok", bubble);
 
             let tags: any = [{"tag": "Essai1DeTag"}, {"tag": "Essai2deTag"}];
             rainbowSDK.bubbles.setTagsOnABubble(bubble, tags).then(async (result) => {
-                logger.log("debug", "MAIN - [testCreateBubblesAndSetTags    ] :: setTagsOnABubble result : ", result);
+               _logger.log("debug", "MAIN - [testCreateBubblesAndSetTags    ] :: setTagsOnABubble result : ", result);
 
                 let tags = ["Essai1DeTag"];
                 rainbowSDK.bubbles.retrieveAllBubblesByTags(tags).then(bubbles => {
                     if (bubbles) {
-                        logger.log("debug", "MAIN - [testCreateBubblesAndSetTags    ] :: bubbles : ", bubbles);
+                       _logger.log("debug", "MAIN - [testCreateBubblesAndSetTags    ] :: bubbles : ", bubbles);
                     }
                 }).catch((err) => {
-                    logger.log("error", "MAIN - [testCreateBubblesAndSetTags    ] :: error : ", err);
+                   _logger.log("error", "MAIN - [testCreateBubblesAndSetTags    ] :: error : ", err);
                 });
             });
         });
@@ -3777,47 +3777,47 @@ let urlS2S;
         let tags1 = ["Essai1DeTag"];
         rainbowSDK.bubbles.retrieveAllBubblesByTags(tags1).then(bubbles => {
             if (bubbles) {
-                logger.log("debug", "MAIN - [testretrieveAllBubblesByTags    ] :: one tag bubbles : ", bubbles);
+               _logger.log("debug", "MAIN - [testretrieveAllBubblesByTags    ] :: one tag bubbles : ", bubbles);
             }
         }).catch((err) => {
-            logger.log("error", "MAIN - [testretrieveAllBubblesByTags    ] :: error : ", err);
+           _logger.log("error", "MAIN - [testretrieveAllBubblesByTags    ] :: error : ", err);
         });
         rainbowSDK.bubbles.retrieveAllBubblesByTags(tags).then(bubbles => {
             if (bubbles) {
-                logger.log("debug", "MAIN - [testretrieveAllBubblesByTags    ] :: two tags bubbles : ", bubbles);
+               _logger.log("debug", "MAIN - [testretrieveAllBubblesByTags    ] :: two tags bubbles : ", bubbles);
             }
         }).catch((err) => {
-            logger.log("error", "MAIN - [testretrieveAllBubblesByTags    ] :: error : ", err);
+           _logger.log("error", "MAIN - [testretrieveAllBubblesByTags    ] :: error : ", err);
         });
     }
 
      testCreateBubblesAndSetTagsAndDeleteTags() {
         let utc = new Date().toJSON().replace(/-/g, "/");
         rainbowSDK.bubbles.createBubble("testCreateBubblesAndSetTagsAndDeleteTags" + utc, "testCreateBubblesAndSetTagsAndDeleteTags" + utc).then((bubble: any) => {
-            logger.log("debug", "MAIN - [testCreateBubblesAndSetTagsAndDeleteTags    ] :: createBubble request ok", bubble);
+           _logger.log("debug", "MAIN - [testCreateBubblesAndSetTagsAndDeleteTags    ] :: createBubble request ok", bubble);
 
             let tags: any = [{"tag": "Essai1DeTag"}, {"tag": "Essai2deTag"}];
             rainbowSDK.bubbles.setTagsOnABubble(bubble, tags).then(async (result) => {
-                logger.log("debug", "MAIN - [testCreateBubblesAndSetTagsAndDeleteTags    ] :: setTagsOnABubble result : ", result);
+               _logger.log("debug", "MAIN - [testCreateBubblesAndSetTagsAndDeleteTags    ] :: setTagsOnABubble result : ", result);
 
                 let tags = ["Essai1DeTag"];
                 rainbowSDK.bubbles.retrieveAllBubblesByTags(tags).then(bubblesIdTags => {
                     if (bubblesIdTags) {
-                        logger.log("debug", "MAIN - [testCreateBubblesAndSetTagsAndDeleteTags    ] :: bubblesIdTags : ", bubblesIdTags);
+                       _logger.log("debug", "MAIN - [testCreateBubblesAndSetTagsAndDeleteTags    ] :: bubblesIdTags : ", bubblesIdTags);
 
                         let bubblesTagsToDelete = [];
                         bubblesTagsToDelete.push({id: bubblesIdTags.rooms[0].roomId});
                         rainbowSDK.bubbles.deleteTagOnABubble(bubblesTagsToDelete, tags[0]).then(result => {
                             if (result) {
-                                logger.log("debug", "MAIN - [testCreateBubblesAndSetTagsAndDeleteTags    ] :: deleteTagsOnABubble result : ", JSON.stringify(result));
+                               _logger.log("debug", "MAIN - [testCreateBubblesAndSetTagsAndDeleteTags    ] :: deleteTagsOnABubble result : ", JSON.stringify(result));
                             }
                         }).catch((err) => {
-                            logger.log("error", "MAIN - [testCreateBubblesAndSetTagsAndDeleteTags    ] :: error : ", err);
+                           _logger.log("error", "MAIN - [testCreateBubblesAndSetTagsAndDeleteTags    ] :: error : ", err);
                         });
 
                     }
                 }).catch((err) => {
-                    logger.log("error", "MAIN - [testCreateBubblesAndSetTagsAndDeleteTags    ] :: error : ", err);
+                   _logger.log("error", "MAIN - [testCreateBubblesAndSetTagsAndDeleteTags    ] :: error : ", err);
                 });
             });
         });
@@ -3837,7 +3837,7 @@ let urlS2S;
         });
         //let result = that.rainbowSDK.bubbles.getAllOwnedBubbles();
         let result = rainbowSDK.bubbles.getAllActiveBubbles();
-        logger.log("debug", "MAIN - (testUploadFileToBubble) getAllActiveBubbles - result : ", result, "nb owned bulles : ", result ? result.length:0);
+       _logger.log("debug", "MAIN - (testUploadFileToBubble) getAllActiveBubbles - result : ", result, "nb owned bulles : ", result ? result.length:0);
         if (result.length > 0) {
             let bubble = result[0];
             if (bubble.isActive==false) {
@@ -3845,7 +3845,7 @@ let urlS2S;
             }
             // Share the file
             return rainbowSDK.fileStorage.uploadFileToBubble(bubble, file, strMessage).then((result) => {
-                logger.log("debug", "MAIN - (testUploadFileToBubble) uploadFileToBubble - result : ", result);
+               _logger.log("debug", "MAIN - (testUploadFileToBubble) uploadFileToBubble - result : ", result);
             });
         }
         //});
@@ -3854,24 +3854,24 @@ let urlS2S;
      test_refreshMemberAndOrganizerLists() {
         //let result = that.rainbowSDK.bubbles.getAllOwnedBubbles();
         let result = rainbowSDK.bubbles.getAllActiveBubbles();
-        logger.log("debug", "test_refreshMemberAndOrganizerLists - getAllOwnedBubbles - result : ", result, "nb owned bulles : ", result ? result.length:0);
+       _logger.log("debug", "test_refreshMemberAndOrganizerLists - getAllOwnedBubbles - result : ", result, "nb owned bulles : ", result ? result.length:0);
         if (result.length > 0) {
             let bubble = result[0];
             // Share the file
             rainbowSDK.bubbles.refreshMemberAndOrganizerLists(bubble);
-            logger.log("debug", "MAIN - refreshMemberAndOrganizerLists - bubble : ", bubble);
+           _logger.log("debug", "MAIN - refreshMemberAndOrganizerLists - bubble : ", bubble);
         }
     }
 
      testGetUsersFromBubble() {
         //let result = that.rainbowSDK.bubbles.getAllOwnedBubbles();
         let result = rainbowSDK.bubbles.getAllActiveBubbles();
-        logger.log("debug", "MAIN - testGetUsersFromBubble getAllActiveBubbles - result : ", result, "nb owned bulles : ", result ? result.length:0);
+       _logger.log("debug", "MAIN - testGetUsersFromBubble getAllActiveBubbles - result : ", result, "nb owned bulles : ", result ? result.length:0);
         if (result.length > 0) {
             let bubble = result[0];
             // Share the file
             return rainbowSDK.bubbles.getUsersFromBubble(bubble, undefined).then((users) => {
-                logger.log("debug", "MAIN - testGetUsersFromBubble - users : ", users);
+               _logger.log("debug", "MAIN - testGetUsersFromBubble - users : ", users);
             });
         }
         //});
@@ -3880,12 +3880,12 @@ let urlS2S;
      testGetUsersFullFromBubble() {
         //let result = that.rainbowSDK.bubbles.getAllOwnedBubbles();
         let result = rainbowSDK.bubbles.getAllActiveBubbles();
-        logger.log("debug", "MAIN - testGetUsersFromBubble getAllActiveBubbles - result : ", result, "nb owned bulles : ", result ? result.length:0);
+       _logger.log("debug", "MAIN - testGetUsersFromBubble getAllActiveBubbles - result : ", result, "nb owned bulles : ", result ? result.length:0);
         if (result.length > 0) {
             let bubble = result[0];
             // Share the file
             return rainbowSDK.bubbles.getUsersFromBubble(bubble, {"format":"full"}).then((users) => {
-                logger.log("debug", "MAIN - testGetUsersFromBubble - users : ", users);
+               _logger.log("debug", "MAIN - testGetUsersFromBubble - users : ", users);
             });
         }
         //});
@@ -3893,22 +3893,22 @@ let urlS2S;
 
      testupdateAvatarForBubble() {
         let result = rainbowSDK.bubbles.getAllOwnedBubbles();
-        logger.log("debug", "MAIN - testupdateAvatarForBubble - result : ", result, "nb owned bulles : ", result ? result.length:0);
+       _logger.log("debug", "MAIN - testupdateAvatarForBubble - result : ", result, "nb owned bulles : ", result ? result.length:0);
         rainbowSDK.bubbles.updateAvatarForBubble("c:\\temp\\IMG_20131005_173918.jpg", result[0]);
     }
 
      testgetAllOwnedBubbles() {
         let result = rainbowSDK.bubbles.getAllOwnedBubbles();
-        logger.log("debug", "MAIN - testupdateAvatarForBubble - result : ", result, "nb owned bulles : ", result ? result.length:0);
+       _logger.log("debug", "MAIN - testupdateAvatarForBubble - result : ", result, "nb owned bulles : ", result ? result.length:0);
     }
 
      testdeleteAllMessagesInRoomConversationFromModerator() {
          // to be used with vincent02 on .NET with bubble "test".
         let result = rainbowSDK.bubbles.getAllOwnedBubbles();
-        logger.log("debug", "MAIN - testdeleteAllMessagesInRoomConversationFromModerator getAllOwnedBubbles - result : ", result, "nb owned bulles : ", result ? result.length:0);
+       _logger.log("debug", "MAIN - testdeleteAllMessagesInRoomConversationFromModerator getAllOwnedBubbles - result : ", result, "nb owned bulles : ", result ? result.length:0);
         if (result && result.length > 0 && result[0].name=="test") {
             let resultDelete = rainbowSDK.bubbles.deleteAllMessagesInBubble(result[0], undefined);
-            logger.log("debug", "MAIN - testdeleteAllMessagesInRoomConversationFromModerator - resultDelete : ", resultDelete);
+           _logger.log("debug", "MAIN - testdeleteAllMessagesInRoomConversationFromModerator - resultDelete : ", resultDelete);
         }
     }
 
@@ -3917,14 +3917,14 @@ let urlS2S;
         //let listOfBubblesJIDs :any = await rainbowSDK.bubbles.getAllBubblesJidsOfAUserIsMemberOf(true, false, false, 100, 0, undefined, 1);
         // @ts-ignore
          let listOfBubblesJIDs :any = await rainbowSDK.bubbles.getAllBubblesJidsOfAUserIsMemberOf();
-        logger.log("debug", "MAIN - testdeleteAllMessagesInRoomConversationFromMember getAllBubblesJidsOfAUserIsMemberOf - listOfBubblesJIDs : ", listOfBubblesJIDs);
+       _logger.log("debug", "MAIN - testdeleteAllMessagesInRoomConversationFromMember getAllBubblesJidsOfAUserIsMemberOf - listOfBubblesJIDs : ", listOfBubblesJIDs);
         for (let i = 0 ; i < listOfBubblesJIDs.data.length ; i++) {
             let bubble = await rainbowSDK.bubbles.getBubbleByJid(listOfBubblesJIDs.data[i]);
             //logger.log("debug", "MAIN - testdeleteAllMessagesInRoomConversationFromMember bubble : ", bubble);
             if (bubble && bubble.name == "test") {
-                logger.log("debug", "MAIN - testdeleteAllMessagesInRoomConversationFromMember bubble name is test, so can delete all messages in bubble : ", bubble);
+               _logger.log("debug", "MAIN - testdeleteAllMessagesInRoomConversationFromMember bubble name is test, so can delete all messages in bubble : ", bubble);
                 let resultDelete = rainbowSDK.bubbles.deleteAllMessagesInBubble(bubble, undefined);
-                logger.log("debug", "MAIN - testdeleteAllMessagesInRoomConversationFromMember - resultDelete : ", resultDelete);
+               _logger.log("debug", "MAIN - testdeleteAllMessagesInRoomConversationFromMember - resultDelete : ", resultDelete);
             }
         }
     }
@@ -3932,14 +3932,14 @@ let urlS2S;
      async testdeleteAllMessagesInRoomConversationFromMe() {
          // to be used with vincent01 on .NET with bubble "test".
         let listOfBubblesJIDs :any = await rainbowSDK.bubbles.getAllBubblesJidsOfAUserIsMemberOf(true, false, false, 100, 0, undefined, 1);
-        logger.log("debug", "MAIN - testdeleteAllMessagesInRoomConversationFromMe getAllBubblesJidsOfAUserIsMemberOf - listOfBubblesJIDs : ", listOfBubblesJIDs);
+       _logger.log("debug", "MAIN - testdeleteAllMessagesInRoomConversationFromMe getAllBubblesJidsOfAUserIsMemberOf - listOfBubblesJIDs : ", listOfBubblesJIDs);
         for (let i = 0 ; i < listOfBubblesJIDs.data.length ; i++) {
             let bubble = await rainbowSDK.bubbles.getBubbleByJid(listOfBubblesJIDs.data[i]);
             //logger.log("debug", "MAIN - testdeleteAllMessagesInRoomConversationFromMember bubble : ", bubble);
             if (bubble && bubble.name == "test") {
-                logger.log("debug", "MAIN - testdeleteAllMessagesInRoomConversationFromMe bubble name is test, so can delete all messages in bubble : ", bubble);
+               _logger.log("debug", "MAIN - testdeleteAllMessagesInRoomConversationFromMe bubble name is test, so can delete all messages in bubble : ", bubble);
                 let resultDelete = rainbowSDK.bubbles.deleteAllMessagesInBubble(bubble, connectedUser.jid);
-                logger.log("debug", "MAIN - testdeleteAllMessagesInRoomConversationFromMe - resultDelete : ", resultDelete);
+               _logger.log("debug", "MAIN - testdeleteAllMessagesInRoomConversationFromMe - resultDelete : ", resultDelete);
             }
         }
     }
@@ -3949,14 +3949,14 @@ let urlS2S;
          let loginEmail = "vincent02@vbe.test.openrainbow.net"
          rainbowSDK.contacts.getContactByLoginEmail(loginEmail).then(async contact => {
              let listOfBubblesJIDs: any = await rainbowSDK.bubbles.getAllBubblesJidsOfAUserIsMemberOf(true, false, false, 100, 0, undefined, 1);
-             logger.log("debug", "MAIN - testdeleteAllMessagesInRoomConversationFromMemberToContact getAllBubblesJidsOfAUserIsMemberOf - listOfBubblesJIDs : ", listOfBubblesJIDs);
+            _logger.log("debug", "MAIN - testdeleteAllMessagesInRoomConversationFromMemberToContact getAllBubblesJidsOfAUserIsMemberOf - listOfBubblesJIDs : ", listOfBubblesJIDs);
              for (let i = 0; i < listOfBubblesJIDs.data.length; i++) {
                  let bubble = await rainbowSDK.bubbles.getBubbleByJid(listOfBubblesJIDs.data[i]);
                  //logger.log("debug", "MAIN - testdeleteAllMessagesInRoomConversationFromMember bubble : ", bubble);
                  if (bubble && bubble.name=="test") {
-                     logger.log("debug", "MAIN - testdeleteAllMessagesInRoomConversationFromMemberToContact bubble name is test, so can delete all messages in bubble : ", bubble);
+                    _logger.log("debug", "MAIN - testdeleteAllMessagesInRoomConversationFromMemberToContact bubble name is test, so can delete all messages in bubble : ", bubble);
                      let resultDelete = rainbowSDK.bubbles.deleteAllMessagesInBubble(bubble, contact.jid);
-                     logger.log("debug", "MAIN - testdeleteAllMessagesInRoomConversationFromMemberToContact - resultDelete : ", resultDelete);
+                    _logger.log("debug", "MAIN - testdeleteAllMessagesInRoomConversationFromMemberToContact - resultDelete : ", resultDelete);
                  }
              }
          });
@@ -3966,7 +3966,7 @@ let urlS2S;
          // to be used with vincent03 on .NET with bubble "test" jid room_f8780e1fabd3449788896b73cab8bbbc@muc.openrainbow.net.
          let bubbleJid = "room_f8780e1fabd3449788896b73cab8bbbc@muc.openrainbow.net";
          let resultDelete = rainbowSDK._core._xmpp.deleteAllMessagesInRoomConversation(bubbleJid, undefined);
-         logger.log("debug", "MAIN - testdeleteAllMessagesInRoomConversationFromContactNotInBubble - resultDelete : ", resultDelete);
+        _logger.log("debug", "MAIN - testdeleteAllMessagesInRoomConversationFromContactNotInBubble - resultDelete : ", resultDelete);
     }
 
         async testdeleteAllMessagesInRoomConversationFromContactNotInBubble2() {
@@ -3975,50 +3975,50 @@ let urlS2S;
             let bubble = await rainbowSDK.bubbles.getBubbleByJid(bubbleJid);
             //logger.log("debug", "MAIN - testdeleteAllMessagesInRoomConversationFromMember bubble : ", bubble);
             if (bubble && bubble.name=="test") {
-                logger.log("debug", "MAIN - testdeleteAllMessagesInRoomConversationFromContactNotInBubble2 bubble name is test, so can delete all messages in bubble : ", bubble);
+               _logger.log("debug", "MAIN - testdeleteAllMessagesInRoomConversationFromContactNotInBubble2 bubble name is test, so can delete all messages in bubble : ", bubble);
                 let resultDelete = rainbowSDK.bubbles.deleteAllMessagesInBubble(bubble, undefined);
-                logger.log("debug", "MAIN - testdeleteAllMessagesInRoomConversationFromContactNotInBubble2 - resultDelete : ", resultDelete);
+               _logger.log("debug", "MAIN - testdeleteAllMessagesInRoomConversationFromContactNotInBubble2 - resultDelete : ", resultDelete);
             }
         }
 
         async  testgetAvatarFromBubble() {
         let result = rainbowSDK.bubbles.getAllOwnedBubbles();
-        logger.log("debug", "MAIN - testgetAvatarFromBubble - result : ", result, "nb owned bulles : ", result ? result.length:0);
+       _logger.log("debug", "MAIN - testgetAvatarFromBubble - result : ", result, "nb owned bulles : ", result ? result.length:0);
         let avatarBlob = await rainbowSDK.bubbles.getAvatarFromBubble(result[0]);
-        logger.log("debug", "MAIN - testgetAvatarFromBubble - avatarBlob : ", avatarBlob);
+       _logger.log("debug", "MAIN - testgetAvatarFromBubble - avatarBlob : ", avatarBlob);
     }
 
     async  testgetABubblePublicLinkAsModerator() {
         let result = rainbowSDK.bubbles.getAllOwnedBubbles();
-        logger.log("debug", "MAIN - testgetABubblePublicLinkAsModerator - result : ", result, "nb owned bulles : ", result ? result.length:0);
+       _logger.log("debug", "MAIN - testgetABubblePublicLinkAsModerator - result : ", result, "nb owned bulles : ", result ? result.length:0);
         let bubblePublicLink = await rainbowSDK.bubbles.getABubblePublicLinkAsModerator(result[0].id);
-        logger.log("debug", "MAIN - testgetABubblePublicLinkAsModerator - bubblePublicLink : ", bubblePublicLink);
+       _logger.log("debug", "MAIN - testgetABubblePublicLinkAsModerator - bubblePublicLink : ", bubblePublicLink);
     }
 
     async  testgetAllBubblesJidsOfAUserIsMemberOf() {
         let result = rainbowSDK.bubbles.getAllOwnedBubbles();
-        logger.log("debug", "MAIN - testgetAllBubblesJidsOfAUserIsMemberOf - result : ", result, "nb owned bulles : ", result ? result.length:0);
+       _logger.log("debug", "MAIN - testgetAllBubblesJidsOfAUserIsMemberOf - result : ", result, "nb owned bulles : ", result ? result.length:0);
         let result2 = await rainbowSDK.bubbles.getAllBubblesJidsOfAUserIsMemberOf();
-        logger.log("debug", "MAIN - testgetAllBubblesJidsOfAUserIsMemberOf - result2 : ", result2);
+       _logger.log("debug", "MAIN - testgetAllBubblesJidsOfAUserIsMemberOf - result2 : ", result2);
     }
 
     async  testgetAllBubblesVisibleByTheUser() {
         let result = rainbowSDK.bubbles.getAllOwnedBubbles();
-        logger.log("debug", "MAIN - testgetAllBubblesVisibleByTheUser - result : ", result, "nb owned bulles : ", result ? result.length:0);
+       _logger.log("debug", "MAIN - testgetAllBubblesVisibleByTheUser - result : ", result, "nb owned bulles : ", result ? result.length:0);
         let result2 = await rainbowSDK.bubbles.getAllBubblesVisibleByTheUser();
-        logger.log("debug", "MAIN - testgetAllBubblesVisibleByTheUser - result2 : ", result2);
+       _logger.log("debug", "MAIN - testgetAllBubblesVisibleByTheUser - result2 : ", result2);
     }
 
     async  testgetBubblesDataByListOfBubblesIds() {
         let result = rainbowSDK.bubbles.getAllOwnedBubbles();
-        logger.log("debug", "MAIN - testgetBubblesDataByListOfBubblesIds - result : ", result, "nb owned bulles : ", result ? result.length:0);
+       _logger.log("debug", "MAIN - testgetBubblesDataByListOfBubblesIds - result : ", result, "nb owned bulles : ", result ? result.length:0);
         let bubblesIds = [];
         for (let i = 0; i < result.length; i++) {
             bubblesIds.push(result[i].id);
         }
-        logger.log("debug", "MAIN - testgetBubblesDataByListOfBubblesIds - bubblesIds : ", bubblesIds);
+       _logger.log("debug", "MAIN - testgetBubblesDataByListOfBubblesIds - bubblesIds : ", bubblesIds);
         let result2 = await rainbowSDK.bubbles.getBubblesDataByListOfBubblesIds(bubblesIds);
-        logger.log("debug", "MAIN - testgetBubblesDataByListOfBubblesIds - result2 : ", result2);
+       _logger.log("debug", "MAIN - testgetBubblesDataByListOfBubblesIds - result2 : ", result2);
     }
 
     //endregion Bubbles
@@ -4027,7 +4027,7 @@ let urlS2S;
 
      testGetAllConferences() {
         rainbowSDK.bubbles.retrieveConferences(undefined, false, false).then((conferences) => {
-            logger.log("debug", "MAIN - retrieveAllConferences : ", conferences);
+           _logger.log("debug", "MAIN - retrieveAllConferences : ", conferences);
         });
     }
 
@@ -4038,9 +4038,9 @@ let urlS2S;
         if (bubbles.length > 0) {
             let bubble = bubbles[0];
             rainbowSDK.bubbles.addPSTNParticipantToConference(bubble.id, "0622413746", "FRA").then(async function (result) {
-                logger.log("debug", "MAIN - testaddPSTNParticipantToConference - result : ", result);
+               _logger.log("debug", "MAIN - testaddPSTNParticipantToConference - result : ", result);
             }).catch ((err) => {
-                logger.log("warn", "MAIN - testaddPSTNParticipantToConference - err : ", err);
+               _logger.log("warn", "MAIN - testaddPSTNParticipantToConference - err : ", err);
             });
         }
     }
@@ -4048,73 +4048,73 @@ let urlS2S;
     /*
     async  testaskConferenceSnapshot() {
         let allConferences: [any] = await rainbowSDK.bubbles.retrieveConferences(undefined, false, false).then((conferences) => {
-            logger.log("debug", "MAIN - testaskConferenceSnapshot all conferences : ", conferences);
+           _logger.log("debug", "MAIN - testaskConferenceSnapshot all conferences : ", conferences);
             return conferences;
         });
 
         try {
             if (allConferences && allConferences.length > 0) {
                 let conferenceInfo: ConferenceSession = await rainbowSDK.bubbles.askConferenceSnapshot(allConferences[0].id);
-                logger.log("debug", "MAIN - testaskConferenceSnapshot conference : ", conferenceInfo);
+               _logger.log("debug", "MAIN - testaskConferenceSnapshot conference : ", conferenceInfo);
             }
         } catch (err) {
-            logger.log("debug", "MAIN - testaskConferenceSnapshot from existing conference Error : ", err);
+           _logger.log("debug", "MAIN - testaskConferenceSnapshot from existing conference Error : ", err);
         }
 
         try {
             let conferenceInfo: ConferenceSession = await rainbowSDK.bubbles.askConferenceSnapshot("XX7831e66d88e93afaa37cXX");
-            logger.log("debug", "MAIN - testaskConferenceSnapshot conference : ", conferenceInfo);
+           _logger.log("debug", "MAIN - testaskConferenceSnapshot conference : ", conferenceInfo);
         } catch (err) {
-            logger.log("debug", "MAIN - testaskConferenceSnapshot non existing conference Error : ", err);
+           _logger.log("debug", "MAIN - testaskConferenceSnapshot non existing conference Error : ", err);
         }
     }
 
      testStartConference() {
         let webrtcConferenceId = rainbowSDK.bubbles.getWebRtcConfEndpointId();
-        logger.log("debug", "MAIN - testStartConference, webrtcConferenceId : ", webrtcConferenceId);
+       _logger.log("debug", "MAIN - testStartConference, webrtcConferenceId : ", webrtcConferenceId);
 
         let bubbles = rainbowSDK.bubbles.getAllOwnedBubbles();
 
         let myBubbleToConferenced = null;
         for (const bubble of bubbles) {
             if (bubble.name==="BullesOfTests") {
-                logger.log("debug", "MAIN - testStartConference found BullesOfTests bubble : ", bubble);
+               _logger.log("debug", "MAIN - testStartConference found BullesOfTests bubble : ", bubble);
                 myBubbleToConferenced = bubble;
             }
         }
 
         rainbowSDK.bubbles.conferenceStart(myBubbleToConferenced).then((result) => {
-            logger.log("debug", "MAIN - testStartConference, result : ", result);
+           _logger.log("debug", "MAIN - testStartConference, result : ", result);
         });
     }
 
      testjoinConferenceV2(bubbleId : string = "621c9f61dd692c3dd3131869") {
 
         rainbowSDK.bubbles.getBubbleById(bubbleId).then((bubble) => {
-            logger.log("debug", "MAIN - testjoinConferenceV2 - found bubble.id : ", bubble.id);
+           _logger.log("debug", "MAIN - testjoinConferenceV2 - found bubble.id : ", bubble.id);
         //rainbowSDK.bubbles.getBubbleById("5bbb1f5fd6e166709a42d7c7").then((bubble) => {
             rainbowSDK.bubbles.joinConferenceV2(bubble.id).then((result) => {
                 //let bubbles = rainbowSDK.bubbles.getAll();
-                logger.log("debug", "MAIN - testjoinConferenceV2 - after joinConference - bubble : ", bubble, ", result : ", result);
+               _logger.log("debug", "MAIN - testjoinConferenceV2 - after joinConference - bubble : ", bubble, ", result : ", result);
             });
         });
 
         // rainbowSDK.contacts.getContactByLoginEmail(physician.loginEmail).then(contact => {
         //     if (contact) {
-        //         logger.log("debug", "MAIN - [testCreateBubblesAndJoinConference    ] :: getContactByLoginEmail contact : ", contact);
+        //        _logger.log("debug", "MAIN - [testCreateBubblesAndJoinConference    ] :: getContactByLoginEmail contact : ", contact);
         //         physician.name = contact.title + " " + contact.firstname + " " + contact.lastname;
         //         physician.contact = contact;
         //         for (let i = 0; i < 1; i++) {
         //             let utc = new Date().toJSON().replace(/-/g, "/");
         //             rainbowSDK.bubbles.createBubble(physician.appointmentRoom + utc + contact + "_" + i, physician.appointmentRoom + utc + "_" + i).then((bubble) => {
-        //                 logger.log("debug", "MAIN - [testCreateBubblesAndJoinConference    ] :: createBubble request ok", bubble);
+        //                _logger.log("debug", "MAIN - [testCreateBubblesAndJoinConference    ] :: createBubble request ok", bubble);
         //                 rainbowSDK.bubbles.inviteContactToBubble(contact, bubble, false, false).then(async() => {
         //                     await Utils.setTimeoutPromised(600);
         //                     let message = "message de test";
         //                     //await rainbowSDK.im.sendMessageToBubbleJid(message, bubble.jid, "en", { "type": "text/markdown", "message": message }, "subject");
         //                     rainbowSDK.bubbles.joinConference(bubble).then((result) => {
         //                         //let bubbles = rainbowSDK.bubbles.getAll();
-        //                         logger.log("debug", "MAIN testCreateBubblesAndJoinConference - after joinConference - bubble : ", bubble, ", result : ", result);
+        //                        _logger.log("debug", "MAIN testCreateBubblesAndJoinConference - after joinConference - bubble : ", bubble, ", result : ", result);
         //                     });
         //                 });
         //             });
@@ -4141,11 +4141,11 @@ let urlS2S;
         bubbleDescription += utc;
         bubbleMessageSubject += utc;
         await rainbowSDK.bubbles.createBubble(bubbleName, bubbleDescription, false).then(async (bubble: any) => {
-            logger.log("debug", "MAIN - [testCreateAGuestAndAddItToACreatedBubble    ] :: createBubble request ok : ", bubble);
+           _logger.log("debug", "MAIN - [testCreateAGuestAndAddItToACreatedBubble    ] :: createBubble request ok : ", bubble);
             rainbowSDK.bubbles.createPublicUrl(bubble).then(async (publicUrl) => {
-                logger.log("debug", "MAIN - [testCreateAGuestAndAddItToACreatedBubble    ] :: createPublicUrl publicUrl : ", publicUrl);
+               _logger.log("debug", "MAIN - [testCreateAGuestAndAddItToACreatedBubble    ] :: createPublicUrl publicUrl : ", publicUrl);
                 rainbowSDK.bubbles.registerGuestForAPublicURL(publicUrl, loginEmail, password, "VincentGuest", "berderGuest", "VBGuest", "Mr.", "DevGuest", "ITGuest").then(async (result) => {
-                    logger.log("debug", "MAIN - [testCreateAGuestAndAddItToACreatedBubble    ] :: registerGuestForAPublicURL result : ", result);
+                   _logger.log("debug", "MAIN - [testCreateAGuestAndAddItToACreatedBubble    ] :: registerGuestForAPublicURL result : ", result);
                 });
             });
         });
@@ -4166,9 +4166,9 @@ let urlS2S;
         bubbleMessageSubject += utc;
         rainbowSDK.contacts.getContactByLoginEmail(loginEmail).then(contact => {
             if (contact) {
-                logger.log("debug", "MAIN - [testCleanAGuest    ] :: getContactByLoginEmail contact : ", contact);
+               _logger.log("debug", "MAIN - [testCleanAGuest    ] :: getContactByLoginEmail contact : ", contact);
                 rainbowSDK.admin.deleteUser(contact.id).then(async (result) => {
-                    logger.log("debug", "MAIN - [testCleanAGuest    ] :: deleteUser result : ", result);
+                   _logger.log("debug", "MAIN - [testCleanAGuest    ] :: deleteUser result : ", result);
                 });
             }
         });
@@ -4215,16 +4215,16 @@ let urlS2S;
              */
             // Send message
             let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "Welcome to the MCQ Test", "en", content, undefined);
-            // logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
-            // logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
+            //_logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
+            //_logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
             msgsSent.push(msgSent);
-            logger.log("debug", "MAIN - testsendChatMessageWithContentAdaptiveCard - wait for message to be in conversation : ", msgSent);
+           _logger.log("debug", "MAIN - testsendChatMessageWithContentAdaptiveCard - wait for message to be in conversation : ", msgSent);
             await until(() => {
                 return conversation.getMessageById(msgSent.id)!==undefined;
             }, "Wait for message to be added in conversation.");
             let msgSentOrig = msgsSent.slice(-1)[0];
             let msgStrModified = "modified : " + msgSentOrig.content;
-            logger.log("debug", "MAIN - testsendChatMessageWithContentAdaptiveCard - msgStrModified : ", msgStrModified);
+           _logger.log("debug", "MAIN - testsendChatMessageWithContentAdaptiveCard - msgStrModified : ", msgStrModified);
         }
 
 
@@ -4527,15 +4527,15 @@ let urlS2S;
            rainbowSDK.conversations.sendCorrectedChatMessage(msg.conversation, `${msgSentOrig.content} up`, msgSentOrig.id, alternateContent).then(message => {
                msg.message = message;
                //node.send([msg, null])
-               logger.log("debug", "MAIN - testLoic - sendCorrectedChatMessage msg : ", msg);
+              _logger.log("debug", "MAIN - testLoic - sendCorrectedChatMessage msg : ", msg);
            }, error => {
                msg.error = error
-               logger.log("debug", "MAIN - testLoic - sendCorrectedChatMessage msg : ", msg);
+              _logger.log("debug", "MAIN - testLoic - sendCorrectedChatMessage msg : ", msg);
                //node.send([null, msg])
            })
        }, error => {
            msg.error = error
-           logger.log("debug", "MAIN - testLoic - sendCorrectedChatMessage msg : ", msg);
+          _logger.log("debug", "MAIN - testLoic - sendCorrectedChatMessage msg : ", msg);
            //node.send([null, msg])
        })
    }
@@ -4554,9 +4554,9 @@ let urlS2S;
            return new Promise(resolve => {
                let iter = 100
                let interval = setInterval(() => {
-                   logger.log("debug", "MAIN - testsendMessageToConversationFormJson - (waitUntil::setInterval) test condition in waitUntil")
+                  _logger.log("debug", "MAIN - testsendMessageToConversationFormJson - (waitUntil::setInterval) test condition in waitUntil")
                    if (!condition() && iter-->0) return;
-                   logger.log("debug", "MAIN - testsendMessageToConversationFormJson - (waitUntil::setInterval) test condition in waitUntil is true")
+                  _logger.log("debug", "MAIN - testsendMessageToConversationFormJson - (waitUntil::setInterval) test condition in waitUntil is true")
                    clearInterval(interval);
                    resolve(true);
                }, checkInterval)
@@ -4616,21 +4616,21 @@ let urlS2S;
        let conversationId = conversation.id;
 
        await rainbowSDK.im.sendMessageToConversation(conversation,'ok', "fr", alternateContent, "alternate").then(async message => {
-           logger.log("debug", "MAIN - testsendMessageToConversationFormJson - search msgId : " + message.id);
-           logger.log("debug", "MAIN - testsendMessageToConversationFormJson - msg.origin.conversation.id : " + conversation.id)
+          _logger.log("debug", "MAIN - testsendMessageToConversationFormJson - search msgId : " + message.id);
+          _logger.log("debug", "MAIN - testsendMessageToConversationFormJson - msg.origin.conversation.id : " + conversation.id)
            await waitUntil(() => {
-               logger.log("debug", "MAIN - testsendMessageToConversationFormJson - (condition) of waitUntil");
+              _logger.log("debug", "MAIN - testsendMessageToConversationFormJson - (condition) of waitUntil");
                let conversation = rainbowSDK.conversations.getConversationById(conversationId);
-               logger.log("debug", "MAIN - testsendMessageToConversationFormJson - (condition) conversation getConversationById : " + conversation.id);
+              _logger.log("debug", "MAIN - testsendMessageToConversationFormJson - (condition) conversation getConversationById : " + conversation.id);
                let msgFound = conversation.getMessageById(message.id);
                if (msgFound) {
-                   logger.log("debug", "MAIN - testsendMessageToConversationFormJson - (condition) msgFound returned by getMessageById : " + msgFound.id);;
+                  _logger.log("debug", "MAIN - testsendMessageToConversationFormJson - (condition) msgFound returned by getMessageById : " + msgFound.id);;
                } else {
-                   logger.log("debug", "MAIN - testsendMessageToConversationFormJson - (condition) empty msgFound returned by getMessageById.");
+                  _logger.log("debug", "MAIN - testsendMessageToConversationFormJson - (condition) empty msgFound returned by getMessageById.");
                }
                return msgFound!==undefined
            })
-           logger.log("debug", "MAIN - testsendMessageToConversationFormJson - after waitUntil");
+          _logger.log("debug", "MAIN - testsendMessageToConversationFormJson - after waitUntil");
 
        }, error => {
        })
@@ -4652,7 +4652,7 @@ let urlS2S;
                let dateVal = adaptiveResponse?.dateVal;
                let timeVal = adaptiveResponse?.timeVal;
                let dateRespVal = adaptiveResponse?.dateRespVal;
-               logger.log("debug", "MAIN - treatmentOfAdaptiveCardMessage - prenom : ", firstName, ", nom : ", lastName, ", le soin a-t-il était fait : ", soinDone +
+              _logger.log("debug", "MAIN - treatmentOfAdaptiveCardMessage - prenom : ", firstName, ", nom : ", lastName, ", le soin a-t-il était fait : ", soinDone +
                        ", Quantité : ", quantity +
                        ", le  : ", dateVal +
                        ", à : ", timeVal +
@@ -4664,7 +4664,7 @@ let urlS2S;
 
        // The Handle on the event should be only once. So in a prod program it should be outside of the initial send message of the adpative Card.
        rainbowSDK.events.on("rainbow_onmessagereceived", (message) => {
-           logger.log("debug", "MAIN - (rainbow_onmessagereceived) - rainbow event received. message", message);
+          _logger.log("debug", "MAIN - (rainbow_onmessagereceived) - rainbow event received. message", message);
            let responseObjJson = "";
            if (message.alternativeContent?.length > 0 && message.alternativeContent[0]?.message && message.alternativeContent[0]?.type) {
 
@@ -4824,7 +4824,7 @@ let urlS2S;
            message: buildCard("")
        };
 
-       logger.log("debug", "MAIN - testsendMessageToConversationFormJson - alternateContent : ", alternateContent?.message);
+      _logger.log("debug", "MAIN - testsendMessageToConversationFormJson - alternateContent : ", alternateContent?.message);
 
        let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
        let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
@@ -4832,8 +4832,8 @@ let urlS2S;
        //let conversationId = conversation.id;
 
        await rainbowSDK.im.sendMessageToConversation(conversation, 'ok', "fr", alternateContent, "retour intervension").then(async message => {
-           logger.log("debug", "MAIN - testsendMessageToConversationFormJson - search msgId : " + message.id);
-           logger.log("debug", "MAIN - testsendMessageToConversationFormJson - msg.origin.conversation.id : " + conversation.id)
+          _logger.log("debug", "MAIN - testsendMessageToConversationFormJson - search msgId : " + message.id);
+          _logger.log("debug", "MAIN - testsendMessageToConversationFormJson - msg.origin.conversation.id : " + conversation.id)
 
        }, error => {
        })
@@ -4853,7 +4853,7 @@ let urlS2S;
                let dateVal = adaptiveResponse?.dateVal;
                let timeVal = adaptiveResponse?.timeVal;
                let dateRespVal = adaptiveResponse?.dateRespVal;
-               logger.log("debug", "MAIN - treatmentOfAdaptiveCardMessage - prenom : ", firstName, ", nom : ", lastName, ", le soin a-t-il était fait : ", soinDone +
+              _logger.log("debug", "MAIN - treatmentOfAdaptiveCardMessage - prenom : ", firstName, ", nom : ", lastName, ", le soin a-t-il était fait : ", soinDone +
                        ", Quantité : ", quantity +
                        ", le  : ", dateVal +
                        ", à : ", timeVal +
@@ -4865,7 +4865,7 @@ let urlS2S;
 
        // The Handle on the event should be only once. So in a prod program it should be outside of the initial send message of the adpative Card.
        rainbowSDK.events.on("rainbow_onmessagereceived", (message) => {
-           logger.log("debug", "MAIN - (rainbow_onmessagereceived) - rainbow event received. message", message);
+          _logger.log("debug", "MAIN - (rainbow_onmessagereceived) - rainbow event received. message", message);
            let responseObjJson = "";
            if (message.alternativeContent?.length > 0 && message.alternativeContent[0]?.message && message.alternativeContent[0]?.type) {
 
@@ -5025,7 +5025,7 @@ let urlS2S;
            message: buildCard("")
        };
 
-       logger.log("debug", "MAIN - testsendMessageToConversationFormJson - alternateContent : ", alternateContent?.message);
+      _logger.log("debug", "MAIN - testsendMessageToConversationFormJson - alternateContent : ", alternateContent?.message);
 
        let contactEmailToSearch = "anthony.legal@al-enterprise.com" ;
        let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
@@ -5033,8 +5033,8 @@ let urlS2S;
        //let conversationId = conversation.id;
 
        await rainbowSDK.im.sendMessageToConversation(conversation, 'ok', "fr", alternateContent, "retour intervension").then(async message => {
-           logger.log("debug", "MAIN - testsendMessageToConversationFormJson - search msgId : " + message.id);
-           logger.log("debug", "MAIN - testsendMessageToConversationFormJson - msg.origin.conversation.id : " + conversation.id)
+          _logger.log("debug", "MAIN - testsendMessageToConversationFormJson - search msgId : " + message.id);
+          _logger.log("debug", "MAIN - testsendMessageToConversationFormJson - msg.origin.conversation.id : " + conversation.id)
 
        }, error => {
        })
@@ -5045,10 +5045,10 @@ let urlS2S;
         let contactEmailToSearch = "vincent00@vbe.test.openrainbow.net";
         let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
         let conversation = await that.getLastMessageOfConversation(contact);
-        logger.log("debug", "MAIN - testgetLastMessageOfConversation - conversation : ", conversation);
+       _logger.log("debug", "MAIN - testgetLastMessageOfConversation - conversation : ", conversation);
 
         conversation.messages.forEach((message) => {
-            logger.log("debug", "MAIN - testgetLastMessageOfConversation - conversation.message : ", message);
+           _logger.log("debug", "MAIN - testgetLastMessageOfConversation - conversation.message : ", message);
         });
     }
 
@@ -5056,7 +5056,7 @@ let urlS2S;
         let contactEmailToSearch = "vincent00@vbe.test.openrainbow.net";
         let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
         rainbowSDK.conversations.openConversationForContact(contact).then(async function (conversation) {
-            logger.log("debug", "MAIN - testGetHistoryPage - openConversationForContact, conversation : ", conversation);
+           _logger.log("debug", "MAIN - testGetHistoryPage - openConversationForContact, conversation : ", conversation);
             rainbowSDK.conversations.resetHistoryPageForConversation(conversation);
         });
     }
@@ -5069,7 +5069,7 @@ let urlS2S;
             //Request to create new conversation with the contact (in case if it does not exists)
             // or open existing (in case if it already exists)
             rainbowSDK.conversations.openConversationForContact(contact).then(async function (conversation) {
-                logger.log("debug", "MAIN - getLastMessageOfConversation - openConversationForContact, conversation : ", conversation);
+               _logger.log("debug", "MAIN - getLastMessageOfConversation - openConversationForContact, conversation : ", conversation);
                 conv = conversation;
 
                 //This line of code will be executed when conversation object of the contact is provided
@@ -5086,7 +5086,7 @@ let urlS2S;
                 }
             }).catch(function (err) {
                 //Something when wrong with the server. Handle the trouble here
-                logger.log("debug", "MAIN - Error occurred in function getLastMessageOfConversation:" + err);
+               _logger.log("debug", "MAIN - Error occurred in function getLastMessageOfConversation:" + err);
             });
 
         });
@@ -5097,7 +5097,7 @@ let urlS2S;
         return new Promise((resolve, reject) => {
             //get messages from conversation. Max number of messages whichcan be retrieved at once is 100
             rainbowSDK.im.getMessagesFromConversation(conversation, 3).then(function (result) {
-                logger.log("debug", "MAIN - messages : ", result);
+               _logger.log("debug", "MAIN - messages : ", result);
                 // The conversation object is updated with the messages retrieved from the server after
                 //execution of rainbowSDK.im.getMessagesFromConversation function
                 // Check if there are is possibly more messages on the server than 100 requested
@@ -5111,7 +5111,7 @@ let urlS2S;
                 }
             }).catch(function (err) {
                 //Something when wrong with the server. Handle the trouble here
-                logger.log("debug", "MAIN - Error in function getConversationHistory: " + err);
+               _logger.log("debug", "MAIN - Error in function getConversationHistory: " + err);
                 reject(err);
             });
         });
@@ -5125,21 +5125,21 @@ let urlS2S;
             //Note the messages array is 0 based, the first message has index 0
             //Therefore the last message index will be nbMessagesInConversation-1
             let theLastMessageText = conversation.messages[nbMessagesInConversation - 1].content;
-            logger.log("debug", "MAIN - The last message text is: " + theLastMessageText);
-            logger.log("debug", "MAIN - conversation.lastMessageText =" + conversation.lastMessageText);
+           _logger.log("debug", "MAIN - The last message text is: " + theLastMessageText);
+           _logger.log("debug", "MAIN - conversation.lastMessageText =" + conversation.lastMessageText);
         } else {
-            logger.log("debug", "MAIN - There are no messages in the conversation");
+           _logger.log("debug", "MAIN - There are no messages in the conversation");
         }
     }
 
      getConversationHistoryMaxime(conversation) {
         let that = this;
-        logger.log("debug", "MAIN - getConversationHistoryMaxime");
+       _logger.log("debug", "MAIN - getConversationHistoryMaxime");
         return rainbowSDK.conversations.getHistoryPage(conversation, 100).then((conversationUpdated) => {
-            logger.log("debug", "MAIN - getConversationHistoryMaxime getHistoryPage");
+           _logger.log("debug", "MAIN - getConversationHistoryMaxime getHistoryPage");
 
             let result = conversationUpdated.historyComplete ? conversationUpdated:that.getConversationHistoryMaxime(conversationUpdated);
-            logger.log("debug", "MAIN - getConversationHistoryMaxime getHistoryPage result : ", result);
+           _logger.log("debug", "MAIN - getConversationHistoryMaxime getHistoryPage result : ", result);
             return result;
         });
     }
@@ -5149,9 +5149,9 @@ let urlS2S;
         let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
         let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
         rainbowSDK.conversations.openConversationForContact(contact).then(async function (conversation) {
-            logger.log("debug", "MAIN - testGetHistoryPage - openConversationForContact, conversation : ", conversation);
+           _logger.log("debug", "MAIN - testGetHistoryPage - openConversationForContact, conversation : ", conversation);
             that.getConversationHistoryMaxime(conversation).then(() => {
-                logger.log("debug", "MAIN - testGetHistoryPage - getConversationHistoryMaxime, conversation : ", conversation);
+               _logger.log("debug", "MAIN - testGetHistoryPage - getConversationHistoryMaxime, conversation : ", conversation);
             });
             ;
         });
@@ -5163,10 +5163,10 @@ let urlS2S;
         let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
         rainbowSDK.conversations.openConversationForContact(contact).then(async function (conversation) {
             //logger.log("debug", "MAIN - testloadConversationHistory - openConversationForContact, conversation : ", conversation);
-            logger.log("debug", "MAIN - testloadConversationHistory - openConversationForContact, conversation.messages.length : ", conversation.messages.length);
+           _logger.log("debug", "MAIN - testloadConversationHistory - openConversationForContact, conversation.messages.length : ", conversation.messages.length);
             rainbowSDK.conversations.loadConversationHistory(conversation).then(() => {
-                logger.log("debug", "MAIN - testloadConversationHistory - loadConversationHistory, conversation.messages.length : ", conversation.messages.length);
-                logger.log("debug", "MAIN - testloadConversationHistory - loadConversationHistory, conversation : ", conversation);
+               _logger.log("debug", "MAIN - testloadConversationHistory - loadConversationHistory, conversation.messages.length : ", conversation.messages.length);
+               _logger.log("debug", "MAIN - testloadConversationHistory - loadConversationHistory, conversation : ", conversation);
                 for (let i = 0; i < conversation.messages.length ; i++) {
                     let msg = {
                         "id" : conversation.messages[i].id,
@@ -5179,7 +5179,7 @@ let urlS2S;
                         "deleted" : conversation.messages[i].deleted,
                         "modified" : conversation.messages[i].modified
                     }
-                    logger.log("debug", "MAIN - testloadConversationHistory - loadConversationHistory, iter : " + i + "], msg : ", msg);
+                   _logger.log("debug", "MAIN - testloadConversationHistory - loadConversationHistory, iter : " + i + "], msg : ", msg);
                 }
             });
         });
@@ -5191,9 +5191,9 @@ let urlS2S;
         if (bubbles.length > 0) {
             let bubble = bubbles[0];
             rainbowSDK.conversations.getBubbleConversation(bubble.jid).then(async function (conversation) {
-                logger.log("debug", "MAIN - testGetHistoryPageBubble - openConversationForContact, conversation : ", conversation);
+               _logger.log("debug", "MAIN - testGetHistoryPageBubble - openConversationForContact, conversation : ", conversation);
                 that.getConversationHistoryMaxime(conversation).then(() => {
-                    logger.log("debug", "MAIN - testGetHistoryPageBubble - getConversationHistoryMaxime, conversation : ", conversation, ", status : ", conversation.status);
+                   _logger.log("debug", "MAIN - testGetHistoryPageBubble - getConversationHistoryMaxime, conversation : ", conversation, ", status : ", conversation.status);
                 });
             });
         }
@@ -5204,7 +5204,7 @@ let urlS2S;
         let conversations = rainbowSDK.conversations.getAllConversations();
         if (conversations) {
             conversations.forEach((conversation) => {
-                logger.log("debug", "MAIN - [testgetAllConversations ] :: conversation.d : ", conversation.id);
+               _logger.log("debug", "MAIN - [testgetAllConversations ] :: conversation.d : ", conversation.id);
             });
         }
     }
@@ -5214,12 +5214,12 @@ let urlS2S;
         //let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
         /*
         rainbowSDK.admin.retrieveUserSubscriptions(connectedUser.id).then(async function (result) {
-            logger.log("debug", "MAIN - testretrieveUserSubscriptions - retrieveUserSubscriptions, result : ", result);
+           _logger.log("debug", "MAIN - testretrieveUserSubscriptions - retrieveUserSubscriptions, result : ", result);
         });
         // */
 
         let result = rainbowSDK.profiles.getMyProfiles()
-        logger.log("debug", "MAIN - testgetMyProfiles - getMyProfiles, result : ", result);
+       _logger.log("debug", "MAIN - testgetMyProfiles - getMyProfiles, result : ", result);
     }
 
     //region test Methodes
@@ -5227,19 +5227,19 @@ let urlS2S;
     teststripStringForLogs () {
         let str = null;
 
-        logger.log("info", "MAIN - (teststripStringForLogs) - '", str,"' value test, result : ", logger.stripStringForLogs(str));
+       _logger.log("info", "MAIN - (teststripStringForLogs) - '", str,"' value test, result : ",_logger.stripStringForLogs(str));
         str = undefined;
-        logger.log("info", "MAIN - (teststripStringForLogs) - '", str,"' value test, result : ", logger.stripStringForLogs(str));
+       _logger.log("info", "MAIN - (teststripStringForLogs) - '", str,"' value test, result : ",_logger.stripStringForLogs(str));
         str = NaN;
-        logger.log("info", "MAIN - (teststripStringForLogs) - '", str,"' value test, result : ", logger.stripStringForLogs(str));
+       _logger.log("info", "MAIN - (teststripStringForLogs) - '", str,"' value test, result : ",_logger.stripStringForLogs(str));
         str = "A";
-        logger.log("info", "MAIN - (teststripStringForLogs) - '", str,"' value test, result : ", logger.stripStringForLogs(str));
+       _logger.log("info", "MAIN - (teststripStringForLogs) - '", str,"' value test, result : ",_logger.stripStringForLogs(str));
         str = "AB";
-        logger.log("info", "MAIN - (teststripStringForLogs) - '", str,"' value test, result : ", logger.stripStringForLogs(str));
+       _logger.log("info", "MAIN - (teststripStringForLogs) - '", str,"' value test, result : ",_logger.stripStringForLogs(str));
         str = "ABC";
-        logger.log("info", "MAIN - (teststripStringForLogs) - '", str,"' value test, result : ", logger.stripStringForLogs(str));
+       _logger.log("info", "MAIN - (teststripStringForLogs) - '", str,"' value test, result : ",_logger.stripStringForLogs(str));
         str = "ABCD";
-        logger.log("info", "MAIN - (teststripStringForLogs) - '", str,"' value test, result : ", logger.stripStringForLogs(str));
+       _logger.log("info", "MAIN - (teststripStringForLogs) - '", str,"' value test, result : ",_logger.stripStringForLogs(str));
 
     }
 
@@ -5249,21 +5249,21 @@ let urlS2S;
 //region BUBBLES CONTAINERS
     async  testgetAllBubblesContainers() {
         rainbowSDK.bubbles.getAllBubblesContainers().then(async function (result) {
-            logger.log("debug", "MAIN - testgetAllBubblesContainers - getAllBubblesContainers, result : ", result);
+           _logger.log("debug", "MAIN - testgetAllBubblesContainers - getAllBubblesContainers, result : ", result);
         });
     }
 
     async  testgetAllBubblesContainersByName() {
         rainbowSDK.bubbles.getAllBubblesContainers("containers1").then(async function (result) {
-            logger.log("debug", "MAIN - testgetAllBubblesContainersByName - getAllBubblesContainers, result : ", result);
+           _logger.log("debug", "MAIN - testgetAllBubblesContainersByName - getAllBubblesContainers, result : ", result);
         });
     }
 
     async  testgetABubblesContainersById() {
         rainbowSDK.bubbles.getAllBubblesContainers().then(async function (result) {
-            logger.log("debug", "MAIN - testgetABubblesContainersById - getAllBubblesContainers, result : ", result);
+           _logger.log("debug", "MAIN - testgetABubblesContainersById - getAllBubblesContainers, result : ", result);
             rainbowSDK.bubbles.getABubblesContainersById(result[0].id).then(async function (result2) {
-                logger.log("debug", "MAIN - testgetABubblesContainersById - getABubblesContainersById, result2 : ", result2);
+               _logger.log("debug", "MAIN - testgetABubblesContainersById - getABubblesContainersById, result2 : ", result2);
 
             });
         });
@@ -5271,13 +5271,13 @@ let urlS2S;
 
     async  testaddBubblesToContainerById() {
         rainbowSDK.bubbles.getAllBubblesContainers("containers1").then(async function (result) {
-            logger.log("debug", "MAIN - testaddBubblesToContainerById - getAllBubblesContainers, result : ", result);
+           _logger.log("debug", "MAIN - testaddBubblesToContainerById - getAllBubblesContainers, result : ", result);
             let bubbles = rainbowSDK.bubbles.getAllOwnedBubbles();
             let bubble = bubbles.find(element => element.name==="bubble2")
             let bubblesToMove = [];
             bubblesToMove.push(bubble.id);
             rainbowSDK.bubbles.addBubblesToContainerById(result[0].id, bubblesToMove).then(async function (result2) {
-                logger.log("debug", "MAIN - testaddBubblesToContainerById - addBubblesToContainerById, result2 : ", result2);
+               _logger.log("debug", "MAIN - testaddBubblesToContainerById - addBubblesToContainerById, result2 : ", result2);
 
             });
         });
@@ -5286,12 +5286,12 @@ let urlS2S;
     async  testupdateBubbleContainerNameAndDescriptionById() {
         let name = "containers1"
         rainbowSDK.bubbles.getAllBubblesContainers(name).then(async function (result) {
-            logger.log("debug", "MAIN - testupdateBubbleContainerNameAndDescriptionById - getAllBubblesContainers, result : ", result);
+           _logger.log("debug", "MAIN - testupdateBubbleContainerNameAndDescriptionById - getAllBubblesContainers, result : ", result);
             let utc = new Date().toJSON().replace(/-/g, "_");
             name += "_" + utc;
             let description = "description_" + utc;
             rainbowSDK.bubbles.updateBubbleContainerNameAndDescriptionById(result[0].id, name, description).then(async function (result2) {
-                logger.log("debug", "MAIN - testupdateBubbleContainerNameAndDescriptionById - addBubblesToContainersById, result2 : ", result2);
+               _logger.log("debug", "MAIN - testupdateBubbleContainerNameAndDescriptionById - addBubblesToContainersById, result2 : ", result2);
             });
         });
     }
@@ -5302,24 +5302,24 @@ let urlS2S;
         name += "_" + utc;
         let description = "description_" + utc;
         rainbowSDK.bubbles.createBubbleContainer(name, description).then(async function (result: any) {
-            logger.log("debug", "MAIN - testcreateBubbleContainer - createBubbleContainer, result : ", result);
+           _logger.log("debug", "MAIN - testcreateBubbleContainer - createBubbleContainer, result : ", result);
             rainbowSDK.bubbles.deleteBubbleContainer(result.id).then((result2) => {
-                logger.log("debug", "MAIN - testcreateBubbleContainer - deleteBubbleContainer, result2 : ", result2);
+               _logger.log("debug", "MAIN - testcreateBubbleContainer - deleteBubbleContainer, result2 : ", result2);
             });
         });
     }
 
     async  testaddBubblesAndRemoveToContainersById() {
         rainbowSDK.bubbles.getAllBubblesContainers("containers1").then(async function (result: any) {
-            logger.log("debug", "MAIN - testaddBubblesAndRemoveToContainersById - getAllBubblesContainers, result : ", result);
+           _logger.log("debug", "MAIN - testaddBubblesAndRemoveToContainersById - getAllBubblesContainers, result : ", result);
             let bubbles = rainbowSDK.bubbles.getAllOwnedBubbles();
             let bubble = bubbles.find(element => element.name==="bubble2")
             let bubblesToMove = [];
             bubblesToMove.push(bubble.id);
             rainbowSDK.bubbles.addBubblesToContainerById(result[0].id, bubblesToMove).then(async function (result2) {
-                logger.log("debug", "MAIN - testaddBubblesAndRemoveToContainersById - addBubblesToContainerById, result2 : ", result2);
+               _logger.log("debug", "MAIN - testaddBubblesAndRemoveToContainersById - addBubblesToContainerById, result2 : ", result2);
                 rainbowSDK.bubbles.removeBubblesFromContainer(result[0].id, bubblesToMove).then(async function (result3) {
-                    logger.log("debug", "MAIN - testaddBubblesAndRemoveToContainersById - removeBubblesFromContainer, result3 : ", result3);
+                   _logger.log("debug", "MAIN - testaddBubblesAndRemoveToContainersById - removeBubblesFromContainer, result3 : ", result3);
                 });
             });
         });
@@ -5354,22 +5354,22 @@ let urlS2S;
         let utc = new Date().toJSON().replace(/-/g, "_");
         if (mycalllogs) {
             mycalllogs.simplifiedCallLogs.forEach((simpleCallL) => {
-                logger.log("debug", "MAIN - testmarkCallLogAsRead simpleCallL : ", simpleCallL); //logger.colors.green(JSON.stringify(result)));
+               _logger.log("debug", "MAIN - testmarkCallLogAsRead simpleCallL : ", simpleCallL); //logger.colors.green(JSON.stringify(result)));
                 if (!simpleCallL.read) {
                     mycalllog = simpleCallL; // Keep a ref to the last call Logged which is not read
                 }
             });
             if (mycalllog.id) {
-                logger.log("debug", "MAIN - testmarkCallLogAsRead simpleCallL not read is : ", mycalllog); //logger.colors.green(JSON.stringify(result)));
+               _logger.log("debug", "MAIN - testmarkCallLogAsRead simpleCallL not read is : ", mycalllog); //logger.colors.green(JSON.stringify(result)));
                 rainbowSDK.calllog.markCallLogAsRead(mycalllog.id);
             }
         } else {
-            logger.log("debug", "MAIN - testmarkCallLogAsRead mycalllogs is not defined : ", mycalllogs); //logger.colors.green(JSON.stringify(result)));
+           _logger.log("debug", "MAIN - testmarkCallLogAsRead mycalllogs is not defined : ", mycalllogs); //logger.colors.green(JSON.stringify(result)));
         }
     }
 
      testmarkAllCallsLogsAsRead() {
-        logger.log("debug", "MAIN - testmarkAllCallsLogsAsRead."); //logger.colors.green(JSON.stringify(result)));
+       _logger.log("debug", "MAIN - testmarkAllCallsLogsAsRead."); //logger.colors.green(JSON.stringify(result)));
         rainbowSDK.calllog.markAllCallsLogsAsRead();
     }
 
@@ -5381,24 +5381,24 @@ let urlS2S;
         return __awaiter(this, void 0, void 0, function* () {
             rainbowSDK.telephony.makeCallByPhoneNumber("23050", undefined).then((data1) => {
                 //        rainbowSDK.telephony.makeCallByPhoneNumber("23050","My_correlatorData").then((data1)=>{
-                logger.log("debug", "MAIN - [testmakeCallByPhoneNumber] after makecall : ", data1);
+               _logger.log("debug", "MAIN - [testmakeCallByPhoneNumber] after makecall : ", data1);
                 Utils.setTimeoutPromised(1000).then(() => {
                     rainbowSDK.telephony.getCalls().forEach((data2) => {
-                        logger.log("debug", "MAIN - [testmakeCallByPhoneNumber] after makecall getCalls : ", data2);
+                       _logger.log("debug", "MAIN - [testmakeCallByPhoneNumber] after makecall getCalls : ", data2);
                     });
                 });
             }).catch((error) => {
-                logger.log("debug", "MAIN - [testmakeCallByPhoneNumber] error ", error);
+               _logger.log("debug", "MAIN - [testmakeCallByPhoneNumber] error ", error);
             });
             setTimeout(() => {
-                logger.log("debug", "MAIN - [testmakeCallByPhoneNumber] Release all calls, calls size : ", Object.keys(calls).length);
+               _logger.log("debug", "MAIN - [testmakeCallByPhoneNumber] Release all calls, calls size : ", Object.keys(calls).length);
                 // Release all calls
                 calls.forEach((c) => __awaiter(this, void 0, void 0, function* () {
                     //await rainbowSDK.telephony.releaseCall(c);
                     Utils.setTimeoutPromised(10000).then(() => {
-                        logger.log("debug", "MAIN - [testmakeCallByPhoneNumber] getCallsSize : ", rainbowSDK.telephony.getCallsSize());
+                       _logger.log("debug", "MAIN - [testmakeCallByPhoneNumber] getCallsSize : ", rainbowSDK.telephony.getCallsSize());
                         rainbowSDK.telephony.getCalls().forEach((data3) => {
-                            logger.log("debug", "MAIN - [testmakeCallByPhoneNumber] after releaseCall getCalls : ", data3);
+                           _logger.log("debug", "MAIN - [testmakeCallByPhoneNumber] after releaseCall getCalls : ", data3);
                         });
                     });
                 }));
@@ -5411,25 +5411,25 @@ let urlS2S;
         return __awaiter(this, void 0, void 0, function* () {
             rainbowSDK.telephony.makeCallByPhoneNumber("23050", undefined).then((data1) => {
                 //        rainbowSDK.telephony.makeCallByPhoneNumber("23050","My_correlatorData").then((data1)=>{
-                logger.log("debug", "MAIN - [testmakeCallByPhoneNumberAndHoldCallRetrieveCall] after makecall : ", data1, " PLEASE ANSWER CALL ON PHONE.");
+               _logger.log("debug", "MAIN - [testmakeCallByPhoneNumberAndHoldCallRetrieveCall] after makecall : ", data1, " PLEASE ANSWER CALL ON PHONE.");
 
                 Utils.setTimeoutPromised(1000).then(() => {
                     rainbowSDK.telephony.getCalls().forEach((data2) => {
-                        logger.log("debug", "MAIN - [testmakeCallByPhoneNumberAndHoldCallRetrieveCall] after makecall getCalls : ", data2);
+                       _logger.log("debug", "MAIN - [testmakeCallByPhoneNumberAndHoldCallRetrieveCall] after makecall getCalls : ", data2);
                     });
                 });
             }).catch((error) => {
-                logger.log("debug", "MAIN - [testmakeCallByPhoneNumberAndHoldCallRetrieveCall] error ", error);
+               _logger.log("debug", "MAIN - [testmakeCallByPhoneNumberAndHoldCallRetrieveCall] error ", error);
             });
             setTimeout(() => {
-                logger.log("debug", "MAIN - [testmakeCallByPhoneNumberAndHoldCallRetrieveCall] holdCall all calls, calls size : ", Object.keys(calls).length);
+               _logger.log("debug", "MAIN - [testmakeCallByPhoneNumberAndHoldCallRetrieveCall] holdCall all calls, calls size : ", Object.keys(calls).length);
                 // Release all calls
                 calls.forEach(async (c) => {
                     await rainbowSDK.telephony.holdCall(c);
                     Utils.setTimeoutPromised(6000).then(async () => {
-                        logger.log("debug", "MAIN - [testmakeCallByPhoneNumberAndHoldCallRetrieveCall] getCallsSize : ", rainbowSDK.telephony.getCallsSize());
+                       _logger.log("debug", "MAIN - [testmakeCallByPhoneNumberAndHoldCallRetrieveCall] getCallsSize : ", rainbowSDK.telephony.getCallsSize());
                         rainbowSDK.telephony.getCalls().forEach((data3) => {
-                            logger.log("debug", "MAIN - [testmakeCallByPhoneNumberAndHoldCallRetrieveCall] after holdCall getCalls : ", data3);
+                           _logger.log("debug", "MAIN - [testmakeCallByPhoneNumberAndHoldCallRetrieveCall] after holdCall getCalls : ", data3);
                         });
 
                         await rainbowSDK.telephony.retrieveCall(c);
@@ -5444,24 +5444,24 @@ let urlS2S;
         return __awaiter(this, void 0, void 0, function* () {
             rainbowSDK.telephony.makeCallByPhoneNumber("00622413746", "My_correlatorData").then((data1) => {
                 //        rainbowSDK.telephony.makeCallByPhoneNumber("23050","My_correlatorData").then((data1)=>{
-                logger.log("debug", "MAIN - [testmakeCallByPhoneNumberProd] after makecall : ", data1);
+               _logger.log("debug", "MAIN - [testmakeCallByPhoneNumberProd] after makecall : ", data1);
                 Utils.setTimeoutPromised(1000).then(() => {
                     rainbowSDK.telephony.getCalls().forEach((data2) => {
-                        logger.log("debug", "MAIN - [testmakeCallByPhoneNumberProd] after makecall getCalls : ", data2);
+                       _logger.log("debug", "MAIN - [testmakeCallByPhoneNumberProd] after makecall getCalls : ", data2);
                     });
                 });
             }).catch((error) => {
-                logger.log("debug", "MAIN - [testmakeCallByPhoneNumberProd] error ", error);
+               _logger.log("debug", "MAIN - [testmakeCallByPhoneNumberProd] error ", error);
             });
             setInterval(() => {
-                logger.log("debug", "MAIN - [testmakeCallByPhoneNumberProd] Release all calls, calls size : ", Object.keys(calls).length);
+               _logger.log("debug", "MAIN - [testmakeCallByPhoneNumberProd] Release all calls, calls size : ", Object.keys(calls).length);
                 // Release all calls
                 calls.forEach((c) => __awaiter(this, void 0, void 0, function* () {
                     //await rainbowSDK.telephony.releaseCall(c);
                     Utils.setTimeoutPromised(10000).then(() => {
-                        logger.log("debug", "MAIN - [testmakeCallByPhoneNumberProd] getCallsSize : ", rainbowSDK.telephony.getCallsSize());
+                       _logger.log("debug", "MAIN - [testmakeCallByPhoneNumberProd] getCallsSize : ", rainbowSDK.telephony.getCallsSize());
                         rainbowSDK.telephony.getCalls().forEach((data3) => {
-                            logger.log("debug", "MAIN - [testmakeCallByPhoneNumberProd] after releaseCall getCalls : ", data3);
+                           _logger.log("debug", "MAIN - [testmakeCallByPhoneNumberProd] after releaseCall getCalls : ", data3);
                         });
                     });
                 }));
@@ -5480,9 +5480,9 @@ let urlS2S;
             }
         };
         let result = await rainbowSDK.telephony.deflectCallToVM(call).catch((err) => {
-            logger.log("debug", "MAIN - (testdeflectCallToVM) error while deflect call to VM : ", err);
+           _logger.log("debug", "MAIN - (testdeflectCallToVM) error while deflect call to VM : ", err);
         });
-        logger.log("debug", "MAIN - (testdeflectCallToVM) result : ", result);
+       _logger.log("debug", "MAIN - (testdeflectCallToVM) result : ", result);
     }
 
     //endregion Telephony
@@ -5491,18 +5491,18 @@ let urlS2S;
 
     async  testgetAllPublicUrlOfBubbles() {
         let result = await rainbowSDK.bubbles.getAllPublicUrlOfBubbles().catch((err) => {
-            logger.log("debug", "MAIN - (testgetAllPublicUrlOfBubbles) error while creating guest user :  ", err);
+           _logger.log("debug", "MAIN - (testgetAllPublicUrlOfBubbles) error while creating guest user :  ", err);
         });
-        logger.log("debug", "MAIN - [testgetAllPublicUrlOfBubbles] All PublicUrl Of Bubbles : ", result);
+       _logger.log("debug", "MAIN - [testgetAllPublicUrlOfBubbles] All PublicUrl Of Bubbles : ", result);
     }
 
     async  testgetAllPublicUrlOfBubblesOfAUser() {
         //let contact = await rainbowSDK.contacts.getContactByLoginEmail("vincent00@vbe.test.openrainbow.net");
         let contact = await rainbowSDK.contacts.getContactByLoginEmail("vincent.berder@al-enterprise.com");
         let result = await rainbowSDK.bubbles.getAllPublicUrlOfBubblesOfAUser(contact).catch((err) => {
-            logger.log("debug", "MAIN - (testgetAllPublicUrlOfBubblesOfAUser) error :  ", err);
+           _logger.log("debug", "MAIN - (testgetAllPublicUrlOfBubblesOfAUser) error :  ", err);
         });
-        logger.log("debug", "MAIN - [testgetAllPublicUrlOfBubblesOfAUser] All PublicUrl Of Bubbles : ", result);
+       _logger.log("debug", "MAIN - [testgetAllPublicUrlOfBubblesOfAUser] All PublicUrl Of Bubbles : ", result);
     }
 
     async  testgetAllPublicUrlOfABubble() {
@@ -5510,12 +5510,12 @@ let urlS2S;
         //let contact = await rainbowSDK.contacts.getContactByLoginEmail("vincent.berder@al-enterprise.com");
         let myBubbles = rainbowSDK.bubbles.getAllOwnedBubbles();
         if (myBubbles.length > 0) {
-            logger.log("debug", "MAIN - testgetAllPublicUrlOfABubble - myBubbles : ", myBubbles, " nb owned bulles : ", myBubbles ? myBubbles.length:0);
+           _logger.log("debug", "MAIN - testgetAllPublicUrlOfABubble - myBubbles : ", myBubbles, " nb owned bulles : ", myBubbles ? myBubbles.length:0);
             for (let bubble of myBubbles) {
                 let result = await rainbowSDK.bubbles.getAllPublicUrlOfABubble(bubble).catch((err) => {
-                    logger.log("debug", "MAIN - (testgetAllPublicUrlOfABubble) error :  ", err);
+                   _logger.log("debug", "MAIN - (testgetAllPublicUrlOfABubble) error :  ", err);
                 });
-                logger.log("debug", "MAIN - [testgetAllPublicUrlOfABubble] The PublicUrl ", result, " Of a Bubble : ", bubble);
+               _logger.log("debug", "MAIN - [testgetAllPublicUrlOfABubble] The PublicUrl ", result, " Of a Bubble : ", bubble);
             }
         }
     }
@@ -5526,12 +5526,12 @@ let urlS2S;
         let contact = await rainbowSDK.contacts.getContactByLoginEmail("vincent.berder@al-enterprise.com");
         let myBubbles = rainbowSDK.bubbles.getAllOwnedBubbles();
         if (myBubbles.length > 0) {
-            logger.log("debug", "MAIN - testgetAllPublicUrlOfABubbleOfAUser - myBubbles : ", myBubbles, " nb owned bulles : ", myBubbles ? myBubbles.length:0);
+           _logger.log("debug", "MAIN - testgetAllPublicUrlOfABubbleOfAUser - myBubbles : ", myBubbles, " nb owned bulles : ", myBubbles ? myBubbles.length:0);
             for (let bubble of myBubbles) {
                 let result = await rainbowSDK.bubbles.getAllPublicUrlOfABubbleOfAUser(contact, bubble).catch((err) => {
-                    logger.log("debug", "MAIN - (testgetAllPublicUrlOfABubbleOfAUser) error :  ", err);
+                   _logger.log("debug", "MAIN - (testgetAllPublicUrlOfABubbleOfAUser) error :  ", err);
                 });
-                logger.log("debug", "MAIN - [testgetAllPublicUrlOfABubbleOfAUser] The PublicUrl ", result, " Of a Bubble : ", bubble);
+               _logger.log("debug", "MAIN - [testgetAllPublicUrlOfABubbleOfAUser] The PublicUrl ", result, " Of a Bubble : ", bubble);
             }
         }
     }
@@ -5542,11 +5542,11 @@ let urlS2S;
 
     async  testretrieveAllOffersOfCompanyById() {
         let Offers = await rainbowSDK.admin.retrieveAllOffersOfCompanyById();
-        logger.log("debug", "MAIN - testretrieveAllOffersOfCompanyById - Offers : ", Offers);
+       _logger.log("debug", "MAIN - testretrieveAllOffersOfCompanyById - Offers : ", Offers);
         for (let offer of Offers) {
-            logger.log("debug", "MAIN - [testretrieveAllOffersOfCompanyById] offer : ", offer);
+           _logger.log("debug", "MAIN - [testretrieveAllOffersOfCompanyById] offer : ", offer);
             if (offer.name==="Enterprise Demo") {
-                logger.log("debug", "MAIN - [testretrieveAllOffersOfCompanyById] offer Enterprise Demo found : ", offer);
+               _logger.log("debug", "MAIN - [testretrieveAllOffersOfCompanyById] offer Enterprise Demo found : ", offer);
             }
         }
     }
@@ -5557,35 +5557,35 @@ let urlS2S;
         let utc = new Date().toJSON().replace(/-/g, '_');
         let companyName = "MyVberderCompany_" + utc;
         let newCompany = await (rainbowSDK.admin.createCompany(companyName, "USA", "AA", OFFERTYPES.PREMIUM).catch((e) => {
-            logger.log("error", "MAIN - testsubscribeCompanyToDemoOffer - createCompany Error : ", e);
+           _logger.log("error", "MAIN - testsubscribeCompanyToDemoOffer - createCompany Error : ", e);
         })) ;
         await pause(2000);
         let subscribeResult: any = await rainbowSDK.admin.subscribeCompanyToDemoOffer(newCompany.id).catch((e) => {
-            logger.log("error", "MAIN - testsubscribeCompanyToDemoOffer - subscribeCompanyToDemoOffer Error : ", e);
+           _logger.log("error", "MAIN - testsubscribeCompanyToDemoOffer - subscribeCompanyToDemoOffer Error : ", e);
         }) ;
-        logger.log("debug", "MAIN - testsubscribeCompanyToDemoOffer - subscribeResult : ", subscribeResult);
+       _logger.log("debug", "MAIN - testsubscribeCompanyToDemoOffer - subscribeResult : ", subscribeResult);
         let email = "vincentTest01@vbe.test.openrainbow.com";
         let password = "Password_123";
         let firstname = "vincentTest01";
         let lastname = "berderTest01";
         await pause(2000);
-        logger.log("debug", "MAIN - testsubscribeCompanyToDemoOffer - retrieveAllSubscriptionsOfCompanyById Result : ", await rainbowSDK.admin.retrieveAllSubscriptionsOfCompanyById(newCompany.id).catch((e) => {
-            logger.log("error", "MAIN - testsubscribeCompanyToDemoOffer - retrieveAllSubscriptionsOfCompanyById Error : ", e);
+       _logger.log("debug", "MAIN - testsubscribeCompanyToDemoOffer - retrieveAllSubscriptionsOfCompanyById Result : ", await rainbowSDK.admin.retrieveAllSubscriptionsOfCompanyById(newCompany.id).catch((e) => {
+           _logger.log("error", "MAIN - testsubscribeCompanyToDemoOffer - retrieveAllSubscriptionsOfCompanyById Error : ", e);
         }));
         await pause(2000);
 
         let newUser : any = await rainbowSDK.admin.createUserInCompany(email, password, firstname, lastname, newCompany.id, "en-US", false /* admin or not */, ["user", "closed_channels_admin", "private_channels_admin", "public_channels_admin"]).catch((e) => {
-            logger.log("error", "MAIN - testsubscribeCompanyToDemoOffer - createUserInCompany Error : ", e);
+           _logger.log("error", "MAIN - testsubscribeCompanyToDemoOffer - createUserInCompany Error : ", e);
         }) ;
         await pause(10000);
-        logger.log("debug", "MAIN - testsubscribeCompanyToDemoOffer - subscribeUserToSubscription Result : ", await rainbowSDK.admin.subscribeUserToSubscription(newUser.id, subscribeResult.id).catch((e) => {
-            logger.log("error", "MAIN - testsubscribeCompanyToDemoOffer - subscribeUserToSubscription Error : ", e);
+       _logger.log("debug", "MAIN - testsubscribeCompanyToDemoOffer - subscribeUserToSubscription Result : ", await rainbowSDK.admin.subscribeUserToSubscription(newUser.id, subscribeResult.id).catch((e) => {
+           _logger.log("error", "MAIN - testsubscribeCompanyToDemoOffer - subscribeUserToSubscription Error : ", e);
         }));
-        logger.log("debug", "MAIN - testsubscribeCompanyToDemoOffer - unSubscribeUserToSubscription Result : ", await rainbowSDK.admin.unSubscribeUserToSubscription(newUser.id, subscribeResult.id).catch((e) => {
-            logger.log("error", "MAIN - testsubscribeCompanyToDemoOffer - unSubscribeUserToSubscription Error : ", e);
+       _logger.log("debug", "MAIN - testsubscribeCompanyToDemoOffer - unSubscribeUserToSubscription Result : ", await rainbowSDK.admin.unSubscribeUserToSubscription(newUser.id, subscribeResult.id).catch((e) => {
+           _logger.log("error", "MAIN - testsubscribeCompanyToDemoOffer - unSubscribeUserToSubscription Error : ", e);
         }));
-        logger.log("debug", "MAIN - testsubscribeCompanyToDemoOffer - unSubscribeCompanyToDemoOffer Result : ", await rainbowSDK.admin.unSubscribeCompanyToDemoOffer(newCompany.id).catch((e) => {
-            logger.log("error", "MAIN - testsubscribeCompanyToDemoOffer - unSubscribeCompanyToDemoOffer Error : ", e);
+       _logger.log("debug", "MAIN - testsubscribeCompanyToDemoOffer - unSubscribeCompanyToDemoOffer Result : ", await rainbowSDK.admin.unSubscribeCompanyToDemoOffer(newCompany.id).catch((e) => {
+           _logger.log("error", "MAIN - testsubscribeCompanyToDemoOffer - unSubscribeCompanyToDemoOffer Error : ", e);
         }));
         let deletedUser = await rainbowSDK.admin.deleteUser(newUser.id);
         let deletedCompany = await rainbowSDK.admin.removeCompany({id: newCompany.id});
@@ -5598,13 +5598,13 @@ let urlS2S;
         let utc = new Date().toJSON().replace(/-/g, '_');
         let companyName = "MyVberderCompany_" + utc;
         let newCompany = await (rainbowSDK.admin.createCompany(companyName, "USA", "AA", OFFERTYPES.PREMIUM).catch((e) => {
-            logger.log("error", "MAIN - testCreateCompanyCreateUserAndDelete - createCompany Error : ", e);
+           _logger.log("error", "MAIN - testCreateCompanyCreateUserAndDelete - createCompany Error : ", e);
         })) ;
         await pause(2000);
        /* let subscribeResult: any = await rainbowSDK.admin.subscribeCompanyToDemoOffer(newCompany.id).catch((e) => {
-            logger.log("error", "MAIN - testCreateCompanyCreateUserAndDelete - subscribeCompanyToDemoOffer Error : ", e);
+           _logger.log("error", "MAIN - testCreateCompanyCreateUserAndDelete - subscribeCompanyToDemoOffer Error : ", e);
         }) ;
-        logger.log("debug", "MAIN - testCreateCompanyCreateUserAndDelete - subscribeResult : ", subscribeResult);
+       _logger.log("debug", "MAIN - testCreateCompanyCreateUserAndDelete - subscribeResult : ", subscribeResult);
         // */
         let generatedId = makeId(15);
         let email = "vincentTest01"+ generatedId + "@vbe.test.openrainbow.com";
@@ -5613,40 +5613,40 @@ let urlS2S;
         let lastname = "berderTest01_"+generatedId;
         await pause(2000);
         /*logger.log("debug", "MAIN - testCreateCompanyCreateUserAndDelete - retrieveAllSubscriptionsOfCompanyById Result : ", await rainbowSDK.admin.retrieveAllSubscriptionsOfCompanyById(newCompany.id).catch((e) => {
-            logger.log("error", "MAIN - testCreateCompanyCreateUserAndDelete - retrieveAllSubscriptionsOfCompanyById Error : ", e);
+           _logger.log("error", "MAIN - testCreateCompanyCreateUserAndDelete - retrieveAllSubscriptionsOfCompanyById Error : ", e);
         }));
         await pause(2000);
 // */
         let newUser : any = await rainbowSDK.admin.createUserInCompany(email, password, firstname, lastname, newCompany.id, "en-US", false /* admin or not */, ["user", "closed_channels_admin", "private_channels_admin", "public_channels_admin"]).catch((e) => {
-            logger.log("error", "MAIN - testCreateCompanyCreateUserAndDelete - createUserInCompany Error : ", e);
+           _logger.log("error", "MAIN - testCreateCompanyCreateUserAndDelete - createUserInCompany Error : ", e);
         }) ;
         await pause(10000);
         /*
-        logger.log("debug", "MAIN - testCreateCompanyCreateUserAndDelete - subscribeUserToSubscription Result : ", await rainbowSDK.admin.subscribeUserToSubscription(newUser.id, subscribeResult.id).catch((e) => {
-            logger.log("error", "MAIN - testCreateCompanyCreateUserAndDelete - subscribeUserToSubscription Error : ", e);
+       _logger.log("debug", "MAIN - testCreateCompanyCreateUserAndDelete - subscribeUserToSubscription Result : ", await rainbowSDK.admin.subscribeUserToSubscription(newUser.id, subscribeResult.id).catch((e) => {
+           _logger.log("error", "MAIN - testCreateCompanyCreateUserAndDelete - subscribeUserToSubscription Error : ", e);
         }));
-        logger.log("debug", "MAIN - testsubscribtestCreateCompanyCreateUserAndDeleteeCompanyToDemoOffer - unSubscribeUserToSubscription Result : ", await rainbowSDK.admin.unSubscribeUserToSubscription(newUser.id, subscribeResult.id).catch((e) => {
-            logger.log("error", "MAIN - testCreateCompanyCreateUserAndDelete - unSubscribeUserToSubscription Error : ", e);
+       _logger.log("debug", "MAIN - testsubscribtestCreateCompanyCreateUserAndDeleteeCompanyToDemoOffer - unSubscribeUserToSubscription Result : ", await rainbowSDK.admin.unSubscribeUserToSubscription(newUser.id, subscribeResult.id).catch((e) => {
+           _logger.log("error", "MAIN - testCreateCompanyCreateUserAndDelete - unSubscribeUserToSubscription Error : ", e);
         }));
-        logger.log("debug", "MAIN - testCreateCompanyCreateUserAndDelete - unSubscribeCompanyToDemoOffer Result : ", await rainbowSDK.admin.unSubscribeCompanyToDemoOffer(newCompany.id).catch((e) => {
-            logger.log("error", "MAIN - testCreateCompanyCreateUserAndDelete - unSubscribeCompanyToDemoOffer Error : ", e);
+       _logger.log("debug", "MAIN - testCreateCompanyCreateUserAndDelete - unSubscribeCompanyToDemoOffer Result : ", await rainbowSDK.admin.unSubscribeCompanyToDemoOffer(newCompany.id).catch((e) => {
+           _logger.log("error", "MAIN - testCreateCompanyCreateUserAndDelete - unSubscribeCompanyToDemoOffer Error : ", e);
         }));
         // */
 
         let result = await rainbowSDK.contacts.addToNetwork(newUser);
         await pause(10000);
-        logger.log("debug", "MAIN - testCreateCompanyCreateUserAndDelete - addToNetwork done Result : ", result);
+       _logger.log("debug", "MAIN - testCreateCompanyCreateUserAndDelete - addToNetwork done Result : ", result);
 
         let contacts = rainbowSDK.contacts.getAll();
-        logger.log("debug","MAIN - contacts : ", contacts);
+       _logger.log("debug","MAIN - contacts : ", contacts);
 
         let deletedUser = await rainbowSDK.admin.deleteUser(newUser.id);
 
         let contacts2 = rainbowSDK.contacts.getAll();
-        logger.log("debug","MAIN - contacts2 : ", contacts2);
+       _logger.log("debug","MAIN - contacts2 : ", contacts2);
         await pause(10000);
         let contacts3 = rainbowSDK.contacts.getAll();
-        logger.log("debug","MAIN - contacts3 : ", contacts3);
+       _logger.log("debug","MAIN - contacts3 : ", contacts3);
         let deletedCompany = await rainbowSDK.admin.removeCompany({id: newCompany.id});
     }
 
@@ -5656,7 +5656,7 @@ let urlS2S;
         let utc = new Date().toJSON().replace(/-/g, '_');
         let companyName = "MyVberderCompany_" + utc;
         let newCompany = await (rainbowSDK.admin.createCompany(companyName, "USA", "AA", OFFERTYPES.PREMIUM).catch((e) => {
-            logger.log("error", "MAIN - testJoinCompanyInvitations - createCompany Error : ", e);
+           _logger.log("error", "MAIN - testJoinCompanyInvitations - createCompany Error : ", e);
         }));
         await pause(2000);
         let email = "vincentTest01@vbe.test.openrainbow.com";
@@ -5665,7 +5665,7 @@ let urlS2S;
         let lastname = "berderTest01";
         await pause(2000);
         /*logger.log("debug", "MAIN - testJoinCompanyInvitations - retrieveAllSubscriptionsOfCompanyById Result : ", await rainbowSDK.admin.retrieveAllSubscriptionsOfCompanyById(newCompany.id).catch((e) => {
-            logger.log("error", "MAIN - testJoinCompanyInvitations - retrieveAllSubscriptionsOfCompanyById Error : ", e);
+           _logger.log("error", "MAIN - testJoinCompanyInvitations - retrieveAllSubscriptionsOfCompanyById Error : ", e);
         }));
         await pause(2000);
         // */
@@ -5693,14 +5693,14 @@ let urlS2S;
                 p_nickName, p_title, p_jobTitle, p_department, p_tags, p_emails, p_phoneNumbers, p_country, p_state, p_language,
                 p_timezone, p_accountType, p_roles, p_adminType, p_isActive, p_isInitialized, p_visibility, p_timeToLive, p_authenticationType,
                 p_authenticationExternalUid, p_userInfo1, p_selectedTheme, p_userInfo2, p_isAdmin).catch((e) => {
-            logger.log("error", "MAIN - testJoinCompanyInvitations - createUser Error : ", e);
+           _logger.log("error", "MAIN - testJoinCompanyInvitations - createUser Error : ", e);
         });
         await pause(10000);
         try {
 
 
             let invitation: any = await rainbowSDK.admin.inviteUserInCompany(newUser.loginEmail, newCompany.id, "en-US", "Hello !!!");
-            logger.log("debug", "MAIN - (testJoinCompanyInvitations) invitation : ", invitation);
+           _logger.log("debug", "MAIN - (testJoinCompanyInvitations) invitation : ", invitation);
 
             let options1: any = {};
 
@@ -5712,30 +5712,30 @@ let urlS2S;
             let rainbowSDK1 = new RainbowSDK(options1);
             rainbowSDK1.events.on("rainbow_onconnectionerror", () => {
                 // do something when the SDK has been started
-                logger.log("debug", "MAIN - (rainbow_onconnectionerror) - rainbow failed to start.");
+               _logger.log("debug", "MAIN - (rainbow_onconnectionerror) - rainbow failed to start.");
             });
             rainbowSDK1.events.on("rainbow_onerror", (data) => {
-                logger.log("debug", "MAIN - (rainbow_onerror)  - rainbow event received. data", data, " should destroy and recreate the SDK.");
+               _logger.log("debug", "MAIN - (rainbow_onerror)  - rainbow event received. data", data, " should destroy and recreate the SDK.");
                 rainbowSDK1 = undefined;
             });
             rainbowSDK1.events.on("rainbow_onjoincompanyinvitereceived", (data) => {
-                logger.log("debug", "MAIN - (rainbow_onjoincompanyinvitereceived)  - rainbow event received. data", data);
+               _logger.log("debug", "MAIN - (rainbow_onjoincompanyinvitereceived)  - rainbow event received. data", data);
                 rainbowSDK1 = undefined;
             });
 
 
             await rainbowSDK1.start(undefined).then(async (result2) => {
                 // Do something when the SDK is started
-                logger.log("debug", "MAIN - (testJoinCompanyInvitations) rainbow SDK started : ", logger.colors.green(result2)); //logger.colors.green(JSON.stringify(result)));
+               _logger.log("debug", "MAIN - (testJoinCompanyInvitations) rainbow SDK started : ",_logger.colors.green(result2)); //logger.colors.green(JSON.stringify(result)));
             });
 
             let allInvitations: any = await rainbowSDK1.admin.getAllJoinCompanyInvitations("lastNotificationDate", undefined, "small", 100, 0, 1).catch((e) => {
-                logger.log("error", "MAIN - testJoinCompanyInvitations - getAllJoinCompanyInvitations Error : ", e);
+               _logger.log("error", "MAIN - testJoinCompanyInvitations - getAllJoinCompanyInvitations Error : ", e);
             })
-            logger.log("debug", "MAIN - testJoinCompanyInvitations - getAllJoinCompanyInvitations Result : ", allInvitations); // */
+           _logger.log("debug", "MAIN - testJoinCompanyInvitations - getAllJoinCompanyInvitations Result : ", allInvitations); // */
 
-            logger.log("debug", "MAIN - testJoinCompanyInvitations - acceptJoinCompanyInvitation Result : ", await rainbowSDK1.admin.acceptJoinCompanyInvitation(allInvitations.data[0].id).catch((e) => {
-                logger.log("error", "MAIN - testJoinCompanyInvitations - acceptJoinCompanyInvitation Error : ", e);
+           _logger.log("debug", "MAIN - testJoinCompanyInvitations - acceptJoinCompanyInvitation Result : ", await rainbowSDK1.admin.acceptJoinCompanyInvitation(allInvitations.data[0].id).catch((e) => {
+               _logger.log("error", "MAIN - testJoinCompanyInvitations - acceptJoinCompanyInvitation Error : ", e);
             })); // */
 
         } catch (e) {
@@ -5753,7 +5753,7 @@ let urlS2S;
         let utc = new Date().toJSON().replace(/-/g, '_');
         let companyName = "MyVberderCompany_" + utc;
         let newCompany = await (rainbowSDK.admin.createCompany(companyName, "USA", "AA", OFFERTYPES.PREMIUM).catch((e) => {
-            logger.log("error", "MAIN - testJoinCompanyRequest - createCompany Error : ", e);
+           _logger.log("error", "MAIN - testJoinCompanyRequest - createCompany Error : ", e);
         }));
         await pause(2000);
         let email = "vincentTest01@vbe.test.openrainbow.com";
@@ -5762,7 +5762,7 @@ let urlS2S;
         let lastname = "berderTest01";
         await pause(2000);
         /*logger.log("debug", "MAIN - testJoinCompanyInvitations - retrieveAllSubscriptionsOfCompanyById Result : ", await rainbowSDK.admin.retrieveAllSubscriptionsOfCompanyById(newCompany.id).catch((e) => {
-            logger.log("error", "MAIN - testJoinCompanyInvitations - retrieveAllSubscriptionsOfCompanyById Error : ", e);
+           _logger.log("error", "MAIN - testJoinCompanyInvitations - retrieveAllSubscriptionsOfCompanyById Error : ", e);
         }));
         await pause(2000);
         // */
@@ -5790,14 +5790,14 @@ let urlS2S;
                 p_nickName, p_title, p_jobTitle, p_department, p_tags, p_emails, p_phoneNumbers, p_country, p_state, p_language,
                 p_timezone, p_accountType, p_roles, p_adminType, p_isActive, p_isInitialized, p_visibility, p_timeToLive, p_authenticationType,
                 p_authenticationExternalUid, p_userInfo1, p_selectedTheme, p_userInfo2, p_isAdmin).catch((e) => {
-            logger.log("error", "MAIN - testJoinCompanyRequest - createUser Error : ", e);
+           _logger.log("error", "MAIN - testJoinCompanyRequest - createUser Error : ", e);
         });
         await pause(10000);
         try {
 
 
             let invitation: any = await rainbowSDK.admin.inviteUserInCompany(newUser.loginEmail, newCompany.id, "en-US", "Hello !!!");
-            logger.log("debug", "MAIN - (testJoinCompanyRequest) invitation : ", invitation);
+           _logger.log("debug", "MAIN - (testJoinCompanyRequest) invitation : ", invitation);
 
             let options1: any = {};
 
@@ -5809,30 +5809,30 @@ let urlS2S;
             let rainbowSDK1 = new RainbowSDK(options1);
             rainbowSDK1.events.on("rainbow_onconnectionerror", () => {
                 // do something when the SDK has been started
-                logger.log("debug", "MAIN - (rainbow_onconnectionerror) - rainbow failed to start.");
+               _logger.log("debug", "MAIN - (rainbow_onconnectionerror) - rainbow failed to start.");
             });
             rainbowSDK1.events.on("rainbow_onerror", (data) => {
-                logger.log("debug", "MAIN - (rainbow_onerror)  - rainbow event received. data", data, " should destroy and recreate the SDK.");
+               _logger.log("debug", "MAIN - (rainbow_onerror)  - rainbow event received. data", data, " should destroy and recreate the SDK.");
                 rainbowSDK1 = undefined;
             });
             rainbowSDK1.events.on("rainbow_onjoincompanyinvitereceived", (data) => {
-                logger.log("debug", "MAIN - (rainbow_onjoincompanyinvitereceived)  - rainbow event received. data", data);
+               _logger.log("debug", "MAIN - (rainbow_onjoincompanyinvitereceived)  - rainbow event received. data", data);
                 rainbowSDK1 = undefined;
             });
 
 
             await rainbowSDK1.start(undefined).then(async (result2) => {
                 // Do something when the SDK is started
-                logger.log("debug", "MAIN - (testJoinCompanyRequest) rainbow SDK started : ", logger.colors.green(result2)); //logger.colors.green(JSON.stringify(result)));
+               _logger.log("debug", "MAIN - (testJoinCompanyRequest) rainbow SDK started : ",_logger.colors.green(result2)); //logger.colors.green(JSON.stringify(result)));
             });
 
             let allInvitations: any = await rainbowSDK1.admin.getAllJoinCompanyInvitations("lastNotificationDate", undefined, "small", 100, 0, 1).catch((e) => {
-                logger.log("error", "MAIN - testJoinCompanyRequest - getAllJoinCompanyInvitations Error : ", e);
+               _logger.log("error", "MAIN - testJoinCompanyRequest - getAllJoinCompanyInvitations Error : ", e);
             })
-            logger.log("debug", "MAIN - testJoinCompanyRequest - getAllJoinCompanyInvitations Result : ", allInvitations); // */
+           _logger.log("debug", "MAIN - testJoinCompanyRequest - getAllJoinCompanyInvitations Result : ", allInvitations); // */
 
-            logger.log("debug", "MAIN - testJoinCompanyRequest - acceptJoinCompanyInvitation Result : ", await rainbowSDK1.admin.acceptJoinCompanyInvitation(allInvitations.data[0].id).catch((e) => {
-                logger.log("error", "MAIN - testJoinCompanyRequest - acceptJoinCompanyInvitation Error : ", e);
+           _logger.log("debug", "MAIN - testJoinCompanyRequest - acceptJoinCompanyInvitation Result : ", await rainbowSDK1.admin.acceptJoinCompanyInvitation(allInvitations.data[0].id).catch((e) => {
+               _logger.log("error", "MAIN - testJoinCompanyRequest - acceptJoinCompanyInvitation Error : ", e);
             })); // */
 
         } catch (e) {
@@ -5855,21 +5855,21 @@ let urlS2S;
         addPropertyToObj(user, "loginEmail", loginEmail, false);
         addPropertyToObj(user, "companyName", companyName, true);
         addPropertyToObj(user, "phoneNumber", phoneNumber, false);
-        logger.log("debug", "MAIN - testaddPropertyToObj - user : ", user);
+       _logger.log("debug", "MAIN - testaddPropertyToObj - user : ", user);
     }
 
     async  testgetAUserProfilesByUserId() {
         let Offers = await rainbowSDK.admin.getAUserProfilesByUserId(connectedUser.id);
-        logger.log("debug", "MAIN - testgetAUserProfilesByUserId - profiles : ", Offers);
+       _logger.log("debug", "MAIN - testgetAUserProfilesByUserId - profiles : ", Offers);
         let result = await rainbowSDK.admin.getAUserProfilesByUserEmail(connectedUser.loginEmail);
-        logger.log("debug", "MAIN - testgetAUserProfilesByUserId by email - profiles : ", result);
+       _logger.log("debug", "MAIN - testgetAUserProfilesByUserId by email - profiles : ", result);
     }
 
     async  testgetAUserProfilesFeaturesByUserId() {
         let Offers = await rainbowSDK.admin.getAUserProfilesFeaturesByUserId(connectedUser.id);
-        logger.log("debug", "MAIN - testgetAUserProfilesFeaturesByUserId - profiles : ", Offers);
+       _logger.log("debug", "MAIN - testgetAUserProfilesFeaturesByUserId - profiles : ", Offers);
         let result = await rainbowSDK.admin.getAUserProfilesFeaturesByUserEmail(connectedUser.loginEmail);
-        logger.log("debug", "MAIN - testgetAUserProfilesFeaturesByUserId by email - profiles : ", result);
+       _logger.log("debug", "MAIN - testgetAUserProfilesFeaturesByUserId by email - profiles : ", result);
     }
 
     //endregion Offers
@@ -5890,11 +5890,11 @@ let urlS2S;
             // Share the file
             setInterval(() => {
                 rainbowSDK.im.sendMessageToConversation(conversation, "hello from node", "FR", null, "Le sujet de node").then((result) => {
-                    logger.log("debug", "MAIN - testReconnection sendMessageToConversation - result : ", result);
+                   _logger.log("debug", "MAIN - testReconnection sendMessageToConversation - result : ", result);
                 });
             }, 15000);
             /* that.rainbowSDK.fileStorage.getFilesSentInConversation(conversation).then((result) => {
-            that.logger.log("debug", "MAIN - testHDS getFilesSentInConversation - result : ", result);
+            that._logger.log("debug", "MAIN - testHDS getFilesSentInConversation - result : ", result);
             }); // */
         });
     }
@@ -5907,10 +5907,10 @@ let urlS2S;
         let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
         if (conversation && conversation.id) {
             let result = await rainbowSDK.conversations.deleteServerConversation(conversation.dbId);
-            logger.log("debug", "MAIN - testDeleteServerConversation deleteServerConversation - result : ", result);
-            logger.log("debug", "MAIN - testDeleteServerConversation deleteServerConversation - conversation : ", conversation);
+           _logger.log("debug", "MAIN - testDeleteServerConversation deleteServerConversation - result : ", result);
+           _logger.log("debug", "MAIN - testDeleteServerConversation deleteServerConversation - conversation : ", conversation);
         } else {
-            logger.log("debug", "MAIN - testDeleteServerConversation conversation empty or no id defined - conversation : ", conversation);
+           _logger.log("debug", "MAIN - testDeleteServerConversation conversation empty or no id defined - conversation : ", conversation);
         }
     }
 
@@ -5918,36 +5918,36 @@ let urlS2S;
         for (let i = 0; i < 1000; i++) {
             /*
             rainbowSDK._core.rest.reconnect().then((result)=> {
-                logger.log("debug", "MAIN - test_multireconnect - reconnect succeed : ", result, ", for i : ", i);
+               _logger.log("debug", "MAIN - test_multireconnect - reconnect succeed : ", result, ", for i : ", i);
             }).catch((err)=> {
-                logger.log("error", "MAIN - test_multireconnect - reconnect error : ", err, ", for i : ", i);
+               _logger.log("error", "MAIN - test_multireconnect - reconnect error : ", err, ", for i : ", i);
             });
             // */
 
             //await rainbowSDK._core.rest.reconnect();
             await rainbowSDK._core._eventEmitter.iee.emit("rainbow_xmppreconnected");
-            logger.log("debug", "MAIN - test_multireconnect - reconnect sent ++ : ", i);
+           _logger.log("debug", "MAIN - test_multireconnect - reconnect sent ++ : ", i);
         }
     }
 
     async  testcheckPortalHealth() {
 
         rainbowSDK._core.rest.checkPortalHealth(0).then((result) => {
-            logger.log("debug", "MAIN - testcheckPortalHealth - succeed : ", result);
+           _logger.log("debug", "MAIN - testcheckPortalHealth - succeed : ", result);
         }).catch((err) => {
-            logger.log("error", "MAIN - testcheckPortalHealth - error : ", err);
+           _logger.log("error", "MAIN - testcheckPortalHealth - error : ", err);
         });
         // */
 
         //await rainbowSDK._core.rest.reconnect();
-        logger.log("debug", "MAIN - testcheckPortalHealth - ");
+       _logger.log("debug", "MAIN - testcheckPortalHealth - ");
     }
 
     async  testgetConnectionStatus() {
         let connectionStatus: { restStatus: boolean, xmppStatus: boolean, s2sStatus: boolean, state: SDKSTATUSENUM, nbHttpAdded: number, httpQueueSize: number, nbRunningReq: number, maxSimultaneousRequests: number } = await rainbowSDK.getConnectionStatus();
-        logger.log("debug", "MAIN - [testgetConnectionStatus    ] :: connectionStatus : ", connectionStatus);
+       _logger.log("debug", "MAIN - [testgetConnectionStatus    ] :: connectionStatus : ", connectionStatus);
         let state = SDKSTATUSENUM.CONNECTED;
-        logger.log("debug", "MAIN - [testgetConnectionStatus    ] :: SDKSTATUSENUM.CONNECTED state : ", state);
+       _logger.log("debug", "MAIN - [testgetConnectionStatus    ] :: SDKSTATUSENUM.CONNECTED state : ", state);
 
     }
 
@@ -5961,25 +5961,25 @@ let urlS2S;
         alertDevice.name = "MyNodeDevice";
         alertDevice.jid_im = rainbowSDK._core._xmpp.fullJid;
         let result = await rainbowSDK.alerts.createDevice(alertDevice);
-        logger.log("debug", "MAIN - testcreateDevice - result : ", result);
+       _logger.log("debug", "MAIN - testcreateDevice - result : ", result);
     }
 
     async  testdeleteDevice() {
         let result: AlertDevicesData = await rainbowSDK.alerts.getDevices(connectedUser.companyId, connectedUser.id, null, null, null);
-        logger.log("debug", "MAIN - testdeleteDevice getDevices - result : ", result);
+       _logger.log("debug", "MAIN - testdeleteDevice getDevices - result : ", result);
         let alertDevices = result.getAlertDevices().toArray();
         for (let i = 0; i < alertDevices.length; i++) {
-            logger.log("debug", "MAIN - testdeleteDevice - alertDevices[" + i + "] : ", alertDevices[i].value);
+           _logger.log("debug", "MAIN - testdeleteDevice - alertDevices[" + i + "] : ", alertDevices[i].value);
             await rainbowSDK.alerts.deleteDevice(alertDevices[i].value);
         }
     }
 
     async  testgetDevicesList() {
         let result: AlertDevicesData = await rainbowSDK.alerts.getDevices(connectedUser.companyId, connectedUser.id, null, null, null);
-        logger.log("debug", "MAIN - testgetDevicesList getDevices - result : ", result);
+       _logger.log("debug", "MAIN - testgetDevicesList getDevices - result : ", result);
         let alertDevices = result.getAlertDevices().toArray();
         for (let i = 0; i < alertDevices.length; i++) {
-            logger.log("debug", "MAIN - testgetDevicesList - alertDevices[" + i + "] : ", alertDevices[i].value);
+           _logger.log("debug", "MAIN - testgetDevicesList - alertDevices[" + i + "] : ", alertDevices[i].value);
         }
     }
 
@@ -5990,7 +5990,7 @@ let urlS2S;
         filter.tags = new List<string>();
         filter.companyId = connectedUser.companyId;
         let result = await rainbowSDK.alerts.createFilter(filter);
-        logger.log("debug", "MAIN - testcreateFilter - result : ", result);
+       _logger.log("debug", "MAIN - testcreateFilter - result : ", result);
 
         /*    {
                 "executing": "api:_core._alerts.createFilter",
@@ -6016,7 +6016,7 @@ let urlS2S;
         template.mimeType = "text/html";
         template.description = "Fire in the building";
         let result = await rainbowSDK.alerts.createTemplate(template);
-        logger.log("debug", "MAIN - testcreateTemplate - result : ", result);
+       _logger.log("debug", "MAIN - testcreateTemplate - result : ", result);
 
         /*
     {
@@ -6038,10 +6038,10 @@ let urlS2S;
     async  testdeleteDevice_createDevice() {
         // Use alertDemoWestworld@vbe.test.openrainbow.net
         let result: any = await rainbowSDK.alerts.getDevices(connectedUser.companyId, connectedUser.id, null, null, null);
-        logger.log("debug", "MAIN - testdeleteDevice_createDevice - result : ", result);
+       _logger.log("debug", "MAIN - testdeleteDevice_createDevice - result : ", result);
         let alertDevices = result.getAlertDevices().toArray();
         for (let i = 0; i < alertDevices.length; i++) {
-            logger.log("debug", "MAIN - testdeleteDevice_createDevice - alertDevices[" + i + "] : ", alertDevices[i].value);
+           _logger.log("debug", "MAIN - testdeleteDevice_createDevice - alertDevices[" + i + "] : ", alertDevices[i].value);
             await rainbowSDK.alerts.deleteDevice(alertDevices[i].value);
         }
         let alertDevice: AlertDevice = new AlertDevice();
@@ -6053,7 +6053,7 @@ let urlS2S;
         alertDevice.tags.add("tag3");
         alertDevice.tags.add("tag4");
         result = await rainbowSDK.alerts.createDevice(alertDevice);
-        logger.log("debug", "MAIN - testdeleteDevice_createDevice - result : ", result);
+       _logger.log("debug", "MAIN - testdeleteDevice_createDevice - result : ", result);
 
     }
 
@@ -6064,12 +6064,12 @@ let urlS2S;
         let alert: Alert = new Alert();
         alert.companyId = connectedUser.companyId;
         let resultTemplates: any = await rainbowSDK.alerts.getTemplates(connectedUser.companyId, 0, 100);
-        logger.log("debug", "MAIN - testcreateAlert - resultTemplates : ", resultTemplates, " nb templates : ", resultTemplates.alertTemplates ? resultTemplates.alertTemplates.length:0);
+       _logger.log("debug", "MAIN - testcreateAlert - resultTemplates : ", resultTemplates, " nb templates : ", resultTemplates.alertTemplates ? resultTemplates.alertTemplates.length:0);
         if (resultTemplates.alertTemplates.length > 0) {
             let template = resultTemplates.alertTemplates.elementAt(0).value;
             alert.templateId = template.id;
             let result = await rainbowSDK.alerts.createAlert(alert);
-            logger.log("debug", "MAIN - testcreateAlert - result : ", result);
+           _logger.log("debug", "MAIN - testcreateAlert - result : ", result);
         }
         /*
 
@@ -6091,10 +6091,10 @@ let urlS2S;
     async  testgetDevices() {
         //let result = that.rainbowSDK.bubbles.getAllOwnedBubbles();
         let result: AlertDevicesData = await rainbowSDK.alerts.getDevices(connectedUser.companyId, connectedUser.id, "", "", "", 0, 100);
-        logger.log("debug", "MAIN - testgetDevices - result : ", result, " nb devices : ", result ? result.total:0);
+       _logger.log("debug", "MAIN - testgetDevices - result : ", result, " nb devices : ", result ? result.total:0);
         if (result.total > 0) {
-            logger.log("debug", "MAIN - testgetDevices - devices : ", result);
-            logger.log("debug", "MAIN - testgetDevices - first device : ", await result.first());
+           _logger.log("debug", "MAIN - testgetDevices - devices : ", result);
+           _logger.log("debug", "MAIN - testgetDevices - first device : ", await result.first());
         }
         //});
     }
@@ -6102,20 +6102,20 @@ let urlS2S;
     async  testgetDevice() {
         //let result = that.rainbowSDK.bubbles.getAllOwnedBubbles();
         let result = await rainbowSDK.alerts.getDevices(connectedUser.companyId, connectedUser.id, "", "", "", 0, 100);
-        logger.log("debug", "MAIN - testgetDevice - result : ", result, " nb devices : ", result ? result.total:0);
+       _logger.log("debug", "MAIN - testgetDevice - result : ", result, " nb devices : ", result ? result.total:0);
         if (result.total > 0) {
-            logger.log("debug", "MAIN - testgetDevice - devices : ", result);
+           _logger.log("debug", "MAIN - testgetDevice - devices : ", result);
             let result2 = await rainbowSDK.alerts.getDevice((await result.first()).id);
-            logger.log("debug", "MAIN - testgetDevice - AlertDevice : ", result2);
+           _logger.log("debug", "MAIN - testgetDevice - AlertDevice : ", result2);
         }
         //});
     }
 
     async  testgetDevicesTags() {
         //let result = that.rainbowSDK.bubbles.getAllOwnedBubbles();
-        logger.log("debug", "MAIN - testgetDevicesTags. ");
+       _logger.log("debug", "MAIN - testgetDevicesTags. ");
         let result = await rainbowSDK.alerts.getDevicesTags(connectedUser.companyId);
-        logger.log("debug", "MAIN - testgetDevicesTags - result : ", result);
+       _logger.log("debug", "MAIN - testgetDevicesTags - result : ", result);
         //});
     }
 
@@ -6127,7 +6127,7 @@ let urlS2S;
         tag = tags.tags[0]
         newTagName = "tag1_" + new Date().getTime();
         let result = await rainbowSDK.alerts.renameDevicesTags(newTagName, tag, companyId);
-        logger.log("debug", "MAIN - testrenameDevicesTags - result : ", result);
+       _logger.log("debug", "MAIN - testrenameDevicesTags - result : ", result);
         //});
     }
 
@@ -6137,23 +6137,23 @@ let urlS2S;
         let tags = await rainbowSDK.alerts.getDevicesTags(connectedUser.companyId);
         tag = tags.tags[(tags.tags.length - 1)];
         let result = await rainbowSDK.alerts.deleteDevicesTags(tag, companyId);
-        logger.log("debug", "MAIN - testdeleteDevicesTags - result : ", result);
+       _logger.log("debug", "MAIN - testdeleteDevicesTags - result : ", result);
         //});
     }
 
     async  testgetstatsTags() {
         let companyId: string = connectedUser.companyId;
         let result = await rainbowSDK.alerts.getstatsTags(companyId);
-        logger.log("debug", "MAIN - testgetstatsTags - result : ", result);
+       _logger.log("debug", "MAIN - testgetstatsTags - result : ", result);
         //});
     }
 
     async  testgetTemplates() {
         //let result = that.rainbowSDK.bubbles.getAllOwnedBubbles();
         let result: any = await rainbowSDK.alerts.getTemplates(connectedUser.companyId, 0, 100);
-        logger.log("debug", "MAIN - testgetTemplates - result : ", result, " nb templates : ", result ? result.length:0);
+       _logger.log("debug", "MAIN - testgetTemplates - result : ", result, " nb templates : ", result ? result.length:0);
         if (result.length > 0) {
-            logger.log("debug", "MAIN - testgetTemplates - filters : ", result);
+           _logger.log("debug", "MAIN - testgetTemplates - filters : ", result);
         }
         //});
     }
@@ -6161,9 +6161,9 @@ let urlS2S;
     async  testgetFilters() {
         //let result = that.rainbowSDK.bubbles.getAllOwnedBubbles();
         let result: any = await rainbowSDK.alerts.getFilters(0, 100);
-        logger.log("debug", "MAIN - testgetFilters - result : ", result, " nb filters : ", result ? result.length:0);
+       _logger.log("debug", "MAIN - testgetFilters - result : ", result, " nb filters : ", result ? result.length:0);
         if (result.length > 0) {
-            logger.log("debug", "MAIN - testgetFilters - filters : ", result);
+           _logger.log("debug", "MAIN - testgetFilters - filters : ", result);
         }
         //});
     }
@@ -6172,9 +6172,9 @@ let urlS2S;
         // To use with vincent01 on .NET
         //let result = that.rainbowSDK.bubbles.getAllOwnedBubbles();
         let result: any = await rainbowSDK.alerts.getAlerts();
-        logger.log("debug", "MAIN - testgetAlerts - result : ", result, " nb alerts : ", result ? result.length:0);
+       _logger.log("debug", "MAIN - testgetAlerts - result : ", result, " nb alerts : ", result ? result.length:0);
         if (result.length > 0) {
-            logger.log("debug", "MAIN - testgetAlerts - alerts : ", result);
+           _logger.log("debug", "MAIN - testgetAlerts - alerts : ", result);
         }
         //});
     }
@@ -6186,16 +6186,16 @@ let urlS2S;
     async  testgetCalendarState() {
         // To use with vincent.berder on Official
         let result = await rainbowSDK.presence.getCalendarState();
-        logger.log("debug", "MAIN - testgetCalendarState - result : ", result);
+       _logger.log("debug", "MAIN - testgetCalendarState - result : ", result);
     }
 
     async  testgetCalendarStates() {
         // To use with vincent.berder on Official
         let contacts = rainbowSDK.contacts.getAll();
-        logger.log("debug", "MAIN - testgetCalendarStates - contacts : ", contacts);
+       _logger.log("debug", "MAIN - testgetCalendarStates - contacts : ", contacts);
         let contactsIdentifier = contacts.map(elt => elt.loginEmail);
         //let contactsIdentifier = contacts.map(elt => elt.id ) ;
-        logger.log("debug", "MAIN - testgetCalendarStates - contactsIdentifier : ", contactsIdentifier);
+       _logger.log("debug", "MAIN - testgetCalendarStates - contactsIdentifier : ", contactsIdentifier);
         /*let usersIds = [];
         usersIds.push(contactsIdentifier[0]);
         usersIds.push(contactsIdentifier[1]);
@@ -6203,28 +6203,28 @@ let urlS2S;
         let result = await rainbowSDK.presence.getCalendarStates(usersIds);
         // */
         let result = await rainbowSDK.presence.getCalendarStates(contactsIdentifier);
-        logger.log("debug", "MAIN - testgetCalendarStates - result : ", result);
+       _logger.log("debug", "MAIN - testgetCalendarStates - result : ", result);
     }
 
     async  testgetCalendarAutomaticReplyStatus() {
         // To use with vincent.berder on Official
         let result = await rainbowSDK.presence.getCalendarAutomaticReplyStatus();
-        logger.log("debug", "MAIN - testgetCalendarAutomaticReplyStatus - result : ", result);
+       _logger.log("debug", "MAIN - testgetCalendarAutomaticReplyStatus - result : ", result);
 
         let contacts = rainbowSDK.contacts.getAll();
-        logger.log("debug", "MAIN - testgetCalendarAutomaticReplyStatus - contacts : ", contacts);
+       _logger.log("debug", "MAIN - testgetCalendarAutomaticReplyStatus - contacts : ", contacts);
 
         let result2 = await rainbowSDK.presence.getCalendarAutomaticReplyStatus(contacts[0].id);
-        logger.log("debug", "MAIN - testgetCalendarAutomaticReplyStatus - contact : ", contacts[0], ", result2 : ", result2);
+       _logger.log("debug", "MAIN - testgetCalendarAutomaticReplyStatus - contact : ", contacts[0], ", result2 : ", result2);
     }
 
     async  testenableDisableCalendar() {
         // To use with vincent.berder on Official
         /*  let result = await rainbowSDK.presence.disableCalendar();
-          logger.log("debug", "MAIN - testenableDisableCalendar - result : ", result);
+         _logger.log("debug", "MAIN - testenableDisableCalendar - result : ", result);
 
           let result2 = await rainbowSDK.presence.enableCalendar();
-          logger.log("debug", "MAIN - testenableDisableCalendar - result2 : ", result2);
+         _logger.log("debug", "MAIN - testenableDisableCalendar - result2 : ", result2);
           // */
     }
 
@@ -6235,9 +6235,9 @@ let urlS2S;
         async  testgetListOfCountries() {
             try {
                 let result = await rainbowSDK.admin.getListOfCountries();
-                logger.log("debug", "MAIN - testgetListOfCountries - result : ", result);
+               _logger.log("debug", "MAIN - testgetListOfCountries - result : ", result);
             } catch (e) {
-                logger.log("error", "MAIN - testgetListOfCountries - error : ", e);
+               _logger.log("error", "MAIN - testgetListOfCountries - error : ", e);
             }
         }
 
@@ -6249,30 +6249,30 @@ let urlS2S;
         // To be used with vincent00 on .Net
             try {
 
-                logger.log("debug", "MAIN - testdialIn - getAll bubbles : ", rainbowSDK.bubbles.getAll());
+               _logger.log("debug", "MAIN - testdialIn - getAll bubbles : ", rainbowSDK.bubbles.getAll());
 
                 let bubbles = rainbowSDK.bubbles.getAllOwnedBubbles();
-                logger.log("debug", "MAIN - testdialIn - getAllOwnedBubbles bubble : ", bubbles);
+               _logger.log("debug", "MAIN - testdialIn - getAllOwnedBubbles bubble : ", bubbles);
                 let bubble = bubbles.find(element => element.name==="bulle1")
-                logger.log("debug", "MAIN - testdialIn -  bubble \"bulle1\" : ", bubble);
+               _logger.log("debug", "MAIN - testdialIn -  bubble \"bulle1\" : ", bubble);
                 if ( bubble ) {
                     let bubbleId = bubble.id;
 
 
                     let result1 = await rainbowSDK.bubbles.enableDialInForABubble(bubbleId);
-                    logger.log("debug", "MAIN - testdialIn - enableDialInForABubble result1 : ", result1);
+                   _logger.log("debug", "MAIN - testdialIn - enableDialInForABubble result1 : ", result1);
 
                     let result = await rainbowSDK.bubbles.disableDialInForABubble(bubbleId);
-                    logger.log("debug", "MAIN - testdialIn - disableDialInForABubble result : ", result);
+                   _logger.log("debug", "MAIN - testdialIn - disableDialInForABubble result : ", result);
 
                     let result4 = await rainbowSDK.bubbles.enableDialInForABubble(bubbleId);
-                    logger.log("debug", "MAIN - testdialIn - enableDialInForABubble result4 : ", result4);
+                   _logger.log("debug", "MAIN - testdialIn - enableDialInForABubble result4 : ", result4);
 
                     let result2 = await rainbowSDK.bubbles.resetDialInCodeForABubble(bubbleId);
-                    logger.log("debug", "MAIN - testdialIn - resetDialInCodeForABubble result2 : ", result2);
+                   _logger.log("debug", "MAIN - testdialIn - resetDialInCodeForABubble result2 : ", result2);
                 }
             } catch (e) {
-                logger.log("error", "MAIN - testdialIn - error : ", e);
+               _logger.log("error", "MAIN - testdialIn - error : ", e);
             }
         }
 
@@ -6284,7 +6284,7 @@ let urlS2S;
                 //logger.log("debug", "MAIN - testgetDialInPhoneNumbersList - getAll bubbles : ", rainbowSDK.bubbles.getAll());
 
                 let result = rainbowSDK.bubbles.getDialInPhoneNumbersList(shortList);
-                logger.log("debug", "MAIN - testgetDialInPhoneNumbersList - result : ", result);
+               _logger.log("debug", "MAIN - testgetDialInPhoneNumbersList - result : ", result);
             } catch (e) {
             }
         }
@@ -6299,9 +6299,9 @@ let urlS2S;
             let ignore: string = "true";
 
             let result = await rainbowSDK.presence.controlMsteamsPresence(disable, ignore);
-            logger.log("debug", "MAIN - testcontrolMsteamsPresence - result : ", result);
+           _logger.log("debug", "MAIN - testcontrolMsteamsPresence - result : ", result);
         } catch (e) {
-            logger.log("error", "MAIN - testcontrolMsteamsPresence - error : ", e);
+           _logger.log("error", "MAIN - testcontrolMsteamsPresence - error : ", e);
         }
     }
 
@@ -6311,54 +6311,54 @@ let urlS2S;
             let ignore: string = "true";
 
             let result = await rainbowSDK.presence.controlMsteamsPresence(disable, ignore);
-            logger.log("debug", "MAIN - testcontrolMsteamsPresence - result : ", result);
+           _logger.log("debug", "MAIN - testcontrolMsteamsPresence - result : ", result);
         } catch (e) {
-            logger.log("error", "MAIN - testcontrolMsteamsPresence - error : ", e);
+           _logger.log("error", "MAIN - testcontrolMsteamsPresence - error : ", e);
         }
     }
 
     async  testgetMsteamsPresenceState() {
         try {
             let result = await rainbowSDK.presence.getMsteamsPresenceState();
-            logger.log("debug", "MAIN - testgetMsteamsPresenceState - result : ", result);
+           _logger.log("debug", "MAIN - testgetMsteamsPresenceState - result : ", result);
         } catch (e) {
-            logger.log("error", "MAIN - testgetMsteamsPresenceState - error : ", e);
+           _logger.log("error", "MAIN - testgetMsteamsPresenceState - error : ", e);
         }
     }
 
     async  testgetMsteamsPresenceStates() {
         try {
             let result = await rainbowSDK.presence.getMsteamsPresenceStates();
-            logger.log("debug", "MAIN - testgetMsteamsPresenceStates - result : ", result);
+           _logger.log("debug", "MAIN - testgetMsteamsPresenceStates - result : ", result);
         } catch (e) {
-            logger.log("error", "MAIN - testgetMsteamsPresenceStates - error : ", e);
+           _logger.log("error", "MAIN - testgetMsteamsPresenceStates - error : ", e);
         }
     }
 
     async  testunregisterMsteamsPresenceSharing() {
         try {
             let result = await rainbowSDK.presence.unregisterMsteamsPresenceSharing();
-            logger.log("debug", "MAIN - testunregisterMsteamsPresenceSharing - result : ", result);
+           _logger.log("debug", "MAIN - testunregisterMsteamsPresenceSharing - result : ", result);
         } catch (e) {
-            logger.log("error", "MAIN - testunregisterMsteamsPresenceSharing - error : ", e);
+           _logger.log("error", "MAIN - testunregisterMsteamsPresenceSharing - error : ", e);
         }
     }
 
     async  testactivateMsteamsPresence() {
         try {
             let result = await rainbowSDK.presence.activateMsteamsPresence();
-            logger.log("debug", "MAIN - testactivateMsteamsPresence - result : ", result);
+           _logger.log("debug", "MAIN - testactivateMsteamsPresence - result : ", result);
         } catch (e) {
-            logger.log("error", "MAIN - testactivateMsteamsPresence - error : ", e);
+           _logger.log("error", "MAIN - testactivateMsteamsPresence - error : ", e);
         }
     }
 
     async  testdeactivateMsteamsPresence() {
         try {
             let result = await rainbowSDK.presence.deactivateMsteamsPresence();
-            logger.log("debug", "MAIN - testdeactivateMsteamsPresence - result : ", result);
+           _logger.log("debug", "MAIN - testdeactivateMsteamsPresence - result : ", result);
         } catch (e) {
-            logger.log("error", "MAIN - testdeactivateMsteamsPresence - error : ", e);
+           _logger.log("error", "MAIN - testdeactivateMsteamsPresence - error : ", e);
         }
     }
 
@@ -6370,13 +6370,13 @@ let urlS2S;
         // To use with
         let systemId = "5cf7dd229fb99523e4de0ea9";
         let result = await rainbowSDK.admin.getCloudPbxById(systemId);
-        logger.log("debug", "MAIN - testgetCloudPbxById - result : ", result);
+       _logger.log("debug", "MAIN - testgetCloudPbxById - result : ", result);
     }
 
     async  testgetCloudPbxs() {
         // To use with
         let result = await rainbowSDK.admin.getCloudPbxs(100, 0, "companyId", 1, connectedUser.companyId, null);
-        logger.log("debug", "MAIN - testgetCloudPbxs - result : ", result);
+       _logger.log("debug", "MAIN - testgetCloudPbxs - result : ", result);
     }
 
     async testmakeCall3PCC () {
@@ -6413,9 +6413,9 @@ let urlS2S;
             calleeCountry: contactDom1.phoneNumbers[0].country,
             //dialPadCalleeNumber: string
             };
-        logger.log("debug", "MAIN - testmakeCall3PCC - callData : ", callData);
+       _logger.log("debug", "MAIN - testmakeCall3PCC - callData : ", callData);
         let result = await rainbowSDK.rbvoice.makeCall3PCC(callData);
-        logger.log("debug", "MAIN - testmakeCall3PCC - result : ", result);
+       _logger.log("debug", "MAIN - testmakeCall3PCC - result : ", result);
     }
 
     //endregion
@@ -6425,43 +6425,43 @@ let urlS2S;
     //region Company From enduser
 
         async  testgetAllCompaniesVisibleByUser() {
-            logger.log("debug", "MAIN - testgetAllCompaniesVisibleByUser. ");
+           _logger.log("debug", "MAIN - testgetAllCompaniesVisibleByUser. ");
             let allCompanies: any = await rainbowSDK.admin.getAllCompaniesVisibleByUser();
-            logger.log("debug", "MAIN - testgetAllCompaniesVisibleByUser - allCompanies : ", allCompanies.length);
+           _logger.log("debug", "MAIN - testgetAllCompaniesVisibleByUser - allCompanies : ", allCompanies.length);
         }
 
         async  testgetCompanyAdministrators() {
-            logger.log("debug", "MAIN - testgetCompanyAdministrators. ");
+           _logger.log("debug", "MAIN - testgetCompanyAdministrators. ");
             let allCompanies: any = await rainbowSDK.admin.getCompanyAdministrators();
-            logger.log("debug", "MAIN - testgetCompanyAdministrators - allCompanies : ", allCompanies.length);
+           _logger.log("debug", "MAIN - testgetCompanyAdministrators - allCompanies : ", allCompanies.length);
         }
 
     //endregion Company From enduser
 
     async  testgetAllCompanies() {
         // to be used with vincentbp@vbe.test.openrainbow.net on vberder AIO.
-        logger.log("debug", "MAIN - testgetAllCompanies. ");
+       _logger.log("debug", "MAIN - testgetAllCompanies. ");
         let allCompanies: any = await rainbowSDK.admin.getAllCompanies();
-        logger.log("debug", "MAIN - testgetAllCompanies - allCompanies : ", allCompanies.length);
+       _logger.log("debug", "MAIN - testgetAllCompanies - allCompanies : ", allCompanies.length);
         /*let companyId = connectedUser.companyId;
         for (let company of allCompanies.data) {
             //that._logger.log("debug", "(getSubscriptionsOfCompanyByOfferId) subscription : ", subscription);
             if (company.name==="vbeCompanie") {
-                logger.log("debug", "MAIN - testgetAllCompanies vbeCompanie found : ", company);
+               _logger.log("debug", "MAIN - testgetAllCompanies vbeCompanie found : ", company);
                 companyId = company.id;
             }
         }
-        logger.log("debug", "MAIN - testgetAllCompanies - companyId : ", companyId);
+       _logger.log("debug", "MAIN - testgetAllCompanies - companyId : ", companyId);
 
         let result = await rainbowSDK.admin.testgetAllCompanies(companyId, "csv", true);
-        logger.log("debug", "MAIN - testgetAllCompanies - result : ", result);
+       _logger.log("debug", "MAIN - testgetAllCompanies - result : ", result);
         // */
 
     }
 
     async  testgetAllCompaniesWithFilters() {
         // to be used with vincentbp@vbe.test.openrainbow.net on vberder AIO.
-        logger.log("debug", "MAIN - testgetAllCompaniesWithFilters. ");
+       _logger.log("debug", "MAIN - testgetAllCompaniesWithFilters. ");
         let format: string = "small";
         let sortField: string = "name";
         let bpId: string = undefined;
@@ -6486,20 +6486,20 @@ let urlS2S;
         let bpType: string = undefined;
 
         let allCompanies: any = await rainbowSDK.admin.getAllCompanies(format, sortField, bpId, catalogId, offerId, offerCanBeSold, externalReference, externalReference2, salesforceAccountId, selectedAppCustomisationTemplate, selectedThemeObj, offerGroupName, limit, offset, sortOrder, name, status, visibility, organisationId, isBP, hasBP, bpType);
-        logger.log("debug", "MAIN - testgetAllCompaniesWithFilters - allCompanies : ", allCompanies.length);
+       _logger.log("debug", "MAIN - testgetAllCompaniesWithFilters - allCompanies : ", allCompanies.length);
 
         /*let companyId = connectedUser.companyId;
         for (let company of allCompanies.data) {
             //that._logger.log("debug", "(getSubscriptionsOfCompanyByOfferId) subscription : ", subscription);
             if (company.name==="vbeCompanie") {
-                logger.log("debug", "MAIN - testgetAllCompaniesWithFilters vbeCompanie found : ", company);
+               _logger.log("debug", "MAIN - testgetAllCompaniesWithFilters vbeCompanie found : ", company);
                 companyId = company.id;
             }
         }
-        logger.log("debug", "MAIN - testgetAllCompaniesWithFilters - companyId : ", companyId);
+       _logger.log("debug", "MAIN - testgetAllCompaniesWithFilters - companyId : ", companyId);
 
         let result = await rainbowSDK.admin.retrieveRainbowUserList(companyId, "csv", true);
-        logger.log("debug", "MAIN - testgetAllCompaniesWithFilters - result : ", result);
+       _logger.log("debug", "MAIN - testgetAllCompaniesWithFilters - result : ", result);
         // */
 
     }
@@ -6508,7 +6508,7 @@ let urlS2S;
         let myCompanyId = connectedUser.companyId;
         let companyInfo = await rainbowSDK.admin.getCompanyById(myCompanyId)
 
-        logger.log("debug", "MAIN - testgetCompanyById - companyInfo : ", companyInfo);
+       _logger.log("debug", "MAIN - testgetCompanyById - companyInfo : ", companyInfo);
     }
 
     //endregion Company
@@ -6524,7 +6524,7 @@ let urlS2S;
         //let result : any= await rainbowSDK.admin.applyCustomisationTemplates("MyTemplateVBE2", contact.companyId, undefined);
         let result: any = await rainbowSDK.admin.applyCustomisationTemplates("MyTemplateVBE2", myCompanyId, undefined);
         // let result : any= await rainbowSDK.admin.applyCustomisationTemplates("MyTemplateVBE2", undefined, contact.id);
-        logger.log("debug", "MAIN - testapplyCustomisationTemplates - result : ", result);
+       _logger.log("debug", "MAIN - testapplyCustomisationTemplates - result : ", result);
     }
 
     async  testcreateCustomisationTemplate() {
@@ -6561,7 +6561,7 @@ let urlS2S;
                 useScreenSharingCustomisation, useWebRTCAudioCustomisation, useWebRTCVideoCustomisation, recordingConversationCustomisation, overridePresenceCustomisation,
                 userProfileCustomisation, userTitleNameCustomisation, changeTelephonyCustomisation, changeSettingsCustomisation, fileCopyCustomisation,
                 fileTransferCustomisation, forbidFileOwnerChangeCustomisation, readReceiptsCustomisation, useSpeakingTimeStatistics);
-        logger.log("debug", "MAIN - testcreateCustomisationTemplate - result : ", result);
+       _logger.log("debug", "MAIN - testcreateCustomisationTemplate - result : ", result);
     }
 
     async  testdeleteCustomisationTemplate() {
@@ -6569,15 +6569,15 @@ let urlS2S;
         await that.testgetCompanyById();
         let myCompanyId = connectedUser.companyId;
         let result: any = await rainbowSDK.admin.getAllAvailableCustomisationTemplates(myCompanyId);
-        logger.log("debug", "MAIN - testdeleteCustomisationTemplate - getAllAvailableCustomisationTemplates result : ", result);
+       _logger.log("debug", "MAIN - testdeleteCustomisationTemplate - getAllAvailableCustomisationTemplates result : ", result);
 
         for (const template of result.data) {
-            logger.log("debug", "MAIN - testdeleteCustomisationTemplate - template : ", template);
+           _logger.log("debug", "MAIN - testdeleteCustomisationTemplate - template : ", template);
             let templateInfo = rainbowSDK.admin.getRequestedCustomisationTemplate(template.id);
-            logger.log("debug", "MAIN - testdeleteCustomisationTemplate - getRequestedCustomisationTemplate templateInfo : ", templateInfo);
+           _logger.log("debug", "MAIN - testdeleteCustomisationTemplate - getRequestedCustomisationTemplate templateInfo : ", templateInfo);
             if (template.name=="MyTemplateVBE2") {
                 let result2: any = await rainbowSDK.admin.deleteCustomisationTemplate(template.id);
-                logger.log("debug", "MAIN - testdeleteCustomisationTemplate - delete result2 : ", result2);
+               _logger.log("debug", "MAIN - testdeleteCustomisationTemplate - delete result2 : ", result2);
             }
         }
     }
@@ -6587,12 +6587,12 @@ let urlS2S;
         await that.testgetCompanyById();
         let myCompanyId = connectedUser.companyId;
         let result: any = await rainbowSDK.admin.getAllAvailableCustomisationTemplates(myCompanyId);
-        logger.log("debug", "MAIN - testgetAllAvailableCustomisationTemplates - result : ", result);
+       _logger.log("debug", "MAIN - testgetAllAvailableCustomisationTemplates - result : ", result);
 
         for (const template of result.data) {
-            logger.log("debug", "MAIN - testgetAllAvailableCustomisationTemplates - template : ", template);
+           _logger.log("debug", "MAIN - testgetAllAvailableCustomisationTemplates - template : ", template);
             let templateInfo = rainbowSDK.admin.getRequestedCustomisationTemplate(template.id);
-            logger.log("debug", "MAIN - testgetAllAvailableCustomisationTemplates - templateInfo : ", templateInfo);
+           _logger.log("debug", "MAIN - testgetAllAvailableCustomisationTemplates - templateInfo : ", templateInfo);
         }
     }
 
@@ -6601,13 +6601,13 @@ let urlS2S;
         await that.testgetCompanyById();
         let myCompanyId = connectedUser.companyId;
         let result: any = await rainbowSDK.admin.getAllAvailableCustomisationTemplates(myCompanyId);
-        logger.log("debug", "MAIN - testgetRequestedCustomisationTemplate - result : ", result);
+       _logger.log("debug", "MAIN - testgetRequestedCustomisationTemplate - result : ", result);
 
         for (const template of result.data) {
             if (template.name=="MyTemplateVBE2") {
-                logger.log("debug", "MAIN - testgetRequestedCustomisationTemplate - template : ", template);
+               _logger.log("debug", "MAIN - testgetRequestedCustomisationTemplate - template : ", template);
                 let templateInfo = rainbowSDK.admin.getRequestedCustomisationTemplate(template.id);
-                logger.log("debug", "MAIN - testgetRequestedCustomisationTemplate - templateInfo : ", templateInfo);
+               _logger.log("debug", "MAIN - testgetRequestedCustomisationTemplate - templateInfo : ", templateInfo);
             }
         }
     }
@@ -6617,10 +6617,10 @@ let urlS2S;
         await that.testgetCompanyById();
         let myCompanyId = connectedUser.companyId;
         let result: any = await rainbowSDK.admin.getAllAvailableCustomisationTemplates(myCompanyId);
-        logger.log("debug", "MAIN - testupdateCustomisationTemplate - getAllAvailableCustomisationTemplates result : ", result);
+       _logger.log("debug", "MAIN - testupdateCustomisationTemplate - getAllAvailableCustomisationTemplates result : ", result);
 
         for (const template of result.data) {
-            logger.log("debug", "MAIN - testupdateCustomisationTemplate - template : ", template);
+           _logger.log("debug", "MAIN - testupdateCustomisationTemplate - template : ", template);
             //let templateInfo = rainbowSDK.admin.getRequestedCustomisationTemplate(template.id);
             //logger.log("debug", "MAIN - testupdateCustomisationTemplate - getRequestedCustomisationTemplate templateInfo : ", templateInfo);
             if (template.name=="MyTemplateVBE2") {
@@ -6656,7 +6656,7 @@ let urlS2S;
                         useScreenSharingCustomisation, useWebRTCAudioCustomisation, useWebRTCVideoCustomisation, recordingConversationCustomisation, overridePresenceCustomisation,
                         userProfileCustomisation, userTitleNameCustomisation, changeTelephonyCustomisation, changeSettingsCustomisation, fileCopyCustomisation,
                         fileTransferCustomisation, forbidFileOwnerChangeCustomisation, readReceiptsCustomisation, useSpeakingTimeStatistics);
-                logger.log("debug", "MAIN - testupdateCustomisationTemplate - updateCustomisationTemplate result2 : ", result2);
+               _logger.log("debug", "MAIN - testupdateCustomisationTemplate - updateCustomisationTemplate result2 : ", result2);
             }
         }
     }
@@ -6667,11 +6667,11 @@ let urlS2S;
 
     async  testcreateDirectoryEntry() {
         //let result = that.rainbowSDK.bubbles.getAllOwnedBubbles();
-        logger.log("debug", "MAIN - testcreateDirectoryEntry. ");
+       _logger.log("debug", "MAIN - testcreateDirectoryEntry. ");
         let utc = new Date().toJSON().replace(/-/g, "_");
         let utcEmail = new Date().toJSON().replace(/-|\.|:/g, "_");
 
-        logger.log("debug", "MAIN - testcreateDirectoryEntry. utcEmail : ", utcEmail);
+       _logger.log("debug", "MAIN - testcreateDirectoryEntry. utcEmail : ", utcEmail);
 
         let companyId = connectedUser.companyId,
                 firstName = "firstname_" + utc,
@@ -6692,7 +6692,7 @@ let urlS2S;
                 custom1 = "",
                 custom2 = "";
         let result = await rainbowSDK.admin.createDirectoryEntry(companyId, firstName, lastName, companyName, department, street, city, state, postalCode, country, workPhoneNumbers, mobilePhoneNumbers, otherPhoneNumbers, jobTitle, eMail, tags, custom1, custom2);
-        logger.log("debug", "MAIN - testcreateDirectoryEntry - result : ", result);
+       _logger.log("debug", "MAIN - testcreateDirectoryEntry - result : ", result);
 
         // */
         //});
@@ -6700,28 +6700,28 @@ let urlS2S;
 
     async  testexportDirectoryCsvFile() {
         //let result = that.rainbowSDK.bubbles.getAllOwnedBubbles();
-        logger.log("debug", "MAIN - testexportDirectoryCsvFile. ");
+       _logger.log("debug", "MAIN - testexportDirectoryCsvFile. ");
         let companyId = connectedUser.companyId;
         let result = await rainbowSDK.admin.exportDirectoryCsvFile(companyId, "c:\\temp\\");
-        logger.log("debug", "MAIN - testexportDirectoryCsvFile - result : ", result);
+       _logger.log("debug", "MAIN - testexportDirectoryCsvFile - result : ", result);
     }
 
     async  testImportDirectoryCsvFile() {
         //let result = that.rainbowSDK.bubbles.getAllOwnedBubbles();
-        logger.log("debug", "MAIN - testImportDirectoryCsvFile. ");
+       _logger.log("debug", "MAIN - testImportDirectoryCsvFile. ");
         let companyId = connectedUser.companyId;
         let result = await rainbowSDK.admin.ImportDirectoryCsvFile(companyId, "c:\\temp\\dirToImport.csv", "label1");
-        logger.log("debug", "MAIN - testImportDirectoryCsvFile - result : ", result);
+       _logger.log("debug", "MAIN - testImportDirectoryCsvFile - result : ", result);
     }
 
      testgetCSVTemplate() {
         // to use with bp-admin@pqa.test.openrainbow.net user on NET platform.
         rainbowSDK.admin.getCSVTemplate("5f75a07c1db9464d67e3245e", "user", "test").then((res) => {
             if (res) {
-                logger.log("debug", "MAIN - [testgetCSVTemplate    ] :: res : ", res);
+               _logger.log("debug", "MAIN - [testgetCSVTemplate    ] :: res : ", res);
             }
         }).catch((err) => {
-            logger.log("error", "MAIN - [testgetCSVTemplate    ] :: error : ", err);
+           _logger.log("error", "MAIN - [testgetCSVTemplate    ] :: error : ", err);
         });
     }
 
@@ -6737,15 +6737,15 @@ let urlS2S;
 
         rainbowSDK.admin.getListDirectoryEntriesData(companyId, organisationIds, name, search, type, companyName, phoneNumbers, fromUpdateDate, toUpdateDate, tags, format, limit, offset, sortField, sortOrder, view).then((res: any) => {
             if (res) {
-                logger.log("debug", "MAIN - [testgetListDirectoryEntriesData    ] :: res : ", res);
+               _logger.log("debug", "MAIN - [testgetListDirectoryEntriesData    ] :: res : ", res);
                 if (res.data) {
                     for (let i = 0; i < res.data.length; i++) {
-                        logger.log("debug", "MAIN - [testgetListDirectoryEntriesData    ] :: res[", i, "] : ", res.data[i]);
+                       _logger.log("debug", "MAIN - [testgetListDirectoryEntriesData    ] :: res[", i, "] : ", res.data[i]);
                     }
                 }
             }
         }).catch((err) => {
-            logger.log("error", "MAIN - [testgetListDirectoryEntriesData    ] :: error : ", err);
+           _logger.log("error", "MAIN - [testgetListDirectoryEntriesData    ] :: error : ", err);
         });
     }
 
@@ -6763,20 +6763,20 @@ let urlS2S;
 
         rainbowSDK.admin.getListDirectoryEntriesData(companyId, organisationIds, name, search, type, companyName, phoneNumbers, fromUpdateDate, toUpdateDate, tags, format, limit, offset, sortField, sortOrder, view).then((res: any) => {
             if (res) {
-                logger.log("debug", "MAIN - [testgetDirectoryEntryData    ] :: res : ", res);
+               _logger.log("debug", "MAIN - [testgetDirectoryEntryData    ] :: res : ", res);
                 if (res.data) {
                     for (let i = 0; i < res.data.length; i++) {
-                        logger.log("debug", "MAIN - [testgetDirectoryEntryData    ] :: res[", i, "] : ", res.data[i]);
+                       _logger.log("debug", "MAIN - [testgetDirectoryEntryData    ] :: res[", i, "] : ", res.data[i]);
                         if (res.data[i].companyName=="compa") {
                             rainbowSDK.admin.getDirectoryEntryData(res.data[i].id, "full").then((result) => {
-                                logger.log("debug", "MAIN - [testgetDirectoryEntryData    ] :: res[", i, "] : ", res.data[i], ", result : ", result);
+                               _logger.log("debug", "MAIN - [testgetDirectoryEntryData    ] :: res[", i, "] : ", res.data[i], ", result : ", result);
                             });
                         }
                     }
                 }
             }
         }).catch((err) => {
-            logger.log("error", "MAIN - [testgetListDirectoryEntriesData    ] :: error : ", err);
+           _logger.log("error", "MAIN - [testgetListDirectoryEntriesData    ] :: error : ", err);
         });
     }
 
@@ -6786,11 +6786,11 @@ let urlS2S;
 
     async  testcreatePersonalDirectoryEntry() {
         //let result = that.rainbowSDK.bubbles.getAllOwnedBubbles();
-        logger.log("debug", "MAIN - testcreatePersonalDirectoryEntry. ");
+       _logger.log("debug", "MAIN - testcreatePersonalDirectoryEntry. ");
         let utc = new Date().toJSON().replace(/-/g, "_");
         let utcEmail = new Date().toJSON().replace(/-|\.|:/g, "_");
 
-        logger.log("debug", "MAIN - testcreatePersonalDirectoryEntry. utcEmail : ", utcEmail);
+       _logger.log("debug", "MAIN - testcreatePersonalDirectoryEntry. utcEmail : ", utcEmail);
 
         let companyId = connectedUser.companyId,
                 firstName = "testPersonalDirectory_firstname_" + utc,
@@ -6811,7 +6811,7 @@ let urlS2S;
                 custom1 = "",
                 custom2 = "";
         let result = await rainbowSDK.contacts.createPersonalDirectoryEntry(firstName, lastName, companyName, department, street, city, state, postalCode, country, workPhoneNumbers, mobilePhoneNumbers, otherPhoneNumbers, jobTitle, eMail, tags, custom1, custom2);
-        logger.log("debug", "MAIN - testcreatePersonalDirectoryEntry - result : ", result);
+       _logger.log("debug", "MAIN - testcreatePersonalDirectoryEntry - result : ", result);
 
         // */
         //});
@@ -6819,26 +6819,26 @@ let urlS2S;
 
     async  testgetListPersonalDirectoryEntriesData() {
         let result = await rainbowSDK.contacts.getListPersonalDirectoryEntriesData("testPersonalDirectory", undefined, undefined, undefined, undefined, undefined, undefined, undefined);
-        logger.log("debug", "MAIN - getListPersonalDirectoryEntriesData - result : ", result);
+       _logger.log("debug", "MAIN - getListPersonalDirectoryEntriesData - result : ", result);
     }
 
     async  testupdatePersonalDirectoryEntry() {
         let personalDirectoryList: any = await rainbowSDK.contacts.getListPersonalDirectoryEntriesData("testPersonalDirectory", undefined, undefined, undefined, undefined, undefined, undefined, undefined);
-        logger.log("debug", "MAIN - testupdatePersonalDirectoryEntry - personalDirectoryList : ", personalDirectoryList);
+       _logger.log("debug", "MAIN - testupdatePersonalDirectoryEntry - personalDirectoryList : ", personalDirectoryList);
         if (personalDirectoryList && personalDirectoryList.data && personalDirectoryList.total > 0) {
             let result = await rainbowSDK.contacts.updatePersonalDirectoryEntry(personalDirectoryList.data[0].id, personalDirectoryList.data[0].firstName + "_updated");
-            logger.log("debug", "MAIN - testupdatePersonalDirectoryEntry - updatePersonalDirectoryEntry result : ", result);
+           _logger.log("debug", "MAIN - testupdatePersonalDirectoryEntry - updatePersonalDirectoryEntry result : ", result);
             let personalDirectoryListUpdated: any = await rainbowSDK.contacts.getListPersonalDirectoryEntriesData("testPersonalDirectory", undefined, undefined, undefined, undefined, undefined, undefined, undefined);
-            logger.log("debug", "MAIN - testupdatePersonalDirectoryEntry - personalDirectoryListUpdated : ", personalDirectoryListUpdated);
+           _logger.log("debug", "MAIN - testupdatePersonalDirectoryEntry - personalDirectoryListUpdated : ", personalDirectoryListUpdated);
         }
     }
 
     async  testdeletePersonalDirectoryEntry() {
-        logger.log("debug", "MAIN - testdeletePersonalDirectoryEntry. ");
+       _logger.log("debug", "MAIN - testdeletePersonalDirectoryEntry. ");
         let utc = new Date().toJSON().replace(/-/g, "_");
         let utcEmail = new Date().toJSON().replace(/-|\.|:/g, "_");
 
-        logger.log("debug", "MAIN - testdeletePersonalDirectoryEntry. utcEmail : ", utcEmail);
+       _logger.log("debug", "MAIN - testdeletePersonalDirectoryEntry. utcEmail : ", utcEmail);
 
         let companyId = connectedUser.companyId,
                 firstName = "testPersonalDirectory_firstname_" + utc,
@@ -6859,15 +6859,15 @@ let urlS2S;
                 custom1 = "",
                 custom2 = "";
         let result = await rainbowSDK.contacts.createPersonalDirectoryEntry(firstName, lastName, companyName, department, street, city, state, postalCode, country, workPhoneNumbers, mobilePhoneNumbers, otherPhoneNumbers, jobTitle, eMail, tags, custom1, custom2);
-        logger.log("debug", "MAIN - testdeletePersonalDirectoryEntry - createPersonalDirectoryEntry result : ", result);
+       _logger.log("debug", "MAIN - testdeletePersonalDirectoryEntry - createPersonalDirectoryEntry result : ", result);
 
         let personalDirectoryList: any = await rainbowSDK.contacts.getListPersonalDirectoryEntriesData("testPersonalDirectory", undefined, undefined, undefined, undefined, undefined, undefined, undefined);
-        logger.log("debug", "MAIN - testdeletePersonalDirectoryEntry - personalDirectoryList : ", personalDirectoryList);
+       _logger.log("debug", "MAIN - testdeletePersonalDirectoryEntry - personalDirectoryList : ", personalDirectoryList);
         if (personalDirectoryList && personalDirectoryList.data && personalDirectoryList.data.total > 0) {
             let result = await rainbowSDK.contacts.deletePersonalDirectoryEntry(personalDirectoryList.data[0].id);
-            logger.log("debug", "MAIN - testdeletePersonalDirectoryEntry - deletePersonalDirectoryEntry result : ", result);
+           _logger.log("debug", "MAIN - testdeletePersonalDirectoryEntry - deletePersonalDirectoryEntry result : ", result);
             let personalDirectoryListUpdated: any = await rainbowSDK.contacts.getListPersonalDirectoryEntriesData("testPersonalDirectory", undefined, undefined, undefined, undefined, undefined, undefined, undefined);
-            logger.log("debug", "MAIN - testdeletePersonalDirectoryEntry - personalDirectoryListUpdated : ", personalDirectoryListUpdated);
+           _logger.log("debug", "MAIN - testdeletePersonalDirectoryEntry - personalDirectoryListUpdated : ", personalDirectoryListUpdated);
         }
     }
 
@@ -6899,82 +6899,82 @@ let urlS2S;
 
         let stanzaStr = "<presence from='3ae059e2a91c40d9bdd7df0eedc911ca@openrainbow.com'> <x xmlns='vcard-temp:x:update'>    <avatar/> </x>    <actor xmlns='jabber:iq:configuration'/x>   </presence>";
        let stanza = prettydata.xmlmin(stanzaStr);
-       logger.log("debug", "MAIN - testmockUploadLdapAvatarPresence stanza : ", stanza);
+      _logger.log("debug", "MAIN - testmockUploadLdapAvatarPresence stanza : ", stanza);
         await rainbowSDK._core._xmpp.mockStanza(stanza);
    }
 
    async  testsynchronizeUsersAndDeviceswithCSV() {
         // to be used with vincentbp@vbe.test.openrainbow.net on vberder AIO.
-        logger.log("debug", "MAIN - testsynchronizeUsersAndDeviceswithCSV. ");
+       _logger.log("debug", "MAIN - testsynchronizeUsersAndDeviceswithCSV. ");
         let allCompanies: any = await rainbowSDK.admin.getAllCompanies();
-        logger.log("debug", "MAIN - testsynchronizeUsersAndDeviceswithCSV - allCompanies : ", allCompanies);
+       _logger.log("debug", "MAIN - testsynchronizeUsersAndDeviceswithCSV - allCompanies : ", allCompanies);
         let companyId = connectedUser.companyId;
         for (let company of allCompanies.data) {
             //that._logger.log("debug", "(getSubscriptionsOfCompanyByOfferId) subscription : ", subscription);
             if (company.name==="vbeCompanie") {
-                logger.log("debug", "MAIN - testsynchronizeUsersAndDeviceswithCSV vbeCompanie found : ", company);
+               _logger.log("debug", "MAIN - testsynchronizeUsersAndDeviceswithCSV vbeCompanie found : ", company);
                 companyId = company.id;
             }
         }
-        logger.log("debug", "MAIN - testsynchronizeUsersAndDeviceswithCSV - companyId : ", companyId);
+       _logger.log("debug", "MAIN - testsynchronizeUsersAndDeviceswithCSV - companyId : ", companyId);
         fs.readFile('c:\\temp\\file.csv', 'utf8', async (err: any, data: any) => {
             if (err) {
-                logger.log("error", "MAIN - testsynchronizeUsersAndDeviceswithCSV syncCSV readFile error: ", err);
+               _logger.log("error", "MAIN - testsynchronizeUsersAndDeviceswithCSV syncCSV readFile error: ", err);
                 return;
             }
             let result = await rainbowSDK.admin.synchronizeUsersAndDeviceswithCSV(data, companyId, "test synchronise", true, false);
-            logger.log("debug", "MAIN - testsynchronizeUsersAndDeviceswithCSV - result : ", result);
+           _logger.log("debug", "MAIN - testsynchronizeUsersAndDeviceswithCSV - result : ", result);
         });
     }
 
     async  testretrieveRainbowUserList() {
         // to be used with vincentbp@vbe.test.openrainbow.net on vberder AIO.
-        logger.log("debug", "MAIN - testretrieveRainbowUserList. ");
+       _logger.log("debug", "MAIN - testretrieveRainbowUserList. ");
         let allCompanies: any = await rainbowSDK.admin.getAllCompanies();
-        logger.log("debug", "MAIN - testretrieveRainbowUserList - allCompanies : ", allCompanies);
+       _logger.log("debug", "MAIN - testretrieveRainbowUserList - allCompanies : ", allCompanies);
         let companyId = connectedUser.companyId;
         for (let company of allCompanies.data) {
             //that._logger.log("debug", "(getSubscriptionsOfCompanyByOfferId) subscription : ", subscription);
             if (company.name==="vbeCompanie") {
-                logger.log("debug", "MAIN - testretrieveRainbowUserList vbeCompanie found : ", company);
+               _logger.log("debug", "MAIN - testretrieveRainbowUserList vbeCompanie found : ", company);
                 companyId = company.id;
             }
         }
-        logger.log("debug", "MAIN - testretrieveRainbowUserList - companyId : ", companyId);
+       _logger.log("debug", "MAIN - testretrieveRainbowUserList - companyId : ", companyId);
 
         let result = await rainbowSDK.admin.retrieveRainbowUserList(companyId, "csv", true);
-        logger.log("debug", "MAIN - testretrieveRainbowUserList - result : ", result);
+       _logger.log("debug", "MAIN - testretrieveRainbowUserList - result : ", result);
 
     }
 
     async  testretrieveRainbowEntriesList() {
         // to be used with vincentbp@vbe.test.openrainbow.net on vberder AIO.
-        logger.log("debug", "MAIN - testretrieveRainbowEntriesList. ");
+       _logger.log("debug", "MAIN - testretrieveRainbowEntriesList. ");
         let allCompanies: any = await rainbowSDK.admin.getAllCompanies();
-        logger.log("debug", "MAIN - testretrieveRainbowEntriesList - allCompanies : ", allCompanies);
+       _logger.log("debug", "MAIN - testretrieveRainbowEntriesList - allCompanies : ", allCompanies);
         let companyId = connectedUser.companyId;
         for (let company of allCompanies.data) {
             //that._logger.log("debug", "(getSubscriptionsOfCompanyByOfferId) subscription : ", subscription);
             if (company.name==="vbeCompanie") {
-                logger.log("debug", "MAIN - testretrieveRainbowEntriesList vbeCompanie found : ", company);
+               _logger.log("debug", "MAIN - testretrieveRainbowEntriesList vbeCompanie found : ", company);
                 companyId = company.id;
             }
         }
-        logger.log("debug", "MAIN - testretrieveRainbowEntriesList - companyId : ", companyId);
+       _logger.log("debug", "MAIN - testretrieveRainbowEntriesList - companyId : ", companyId);
 
         //companyId? : string, format : string = "json", ldap_id : boolean = true
 
         //let result = await rainbowSDK.admin.retrieveRainbowEntriesList(companyId, "json", true);
         let result = await rainbowSDK.admin.retrieveRainbowEntriesList(null, "json", false);
-        logger.log("debug", "MAIN - testretrieveRainbowEntriesList - result : ", result);
+       _logger.log("debug", "MAIN - testretrieveRainbowEntriesList - result : ", result);
 
     }
 
     testundefined2(){
         let result = undefined;
-        logger.log("debug", "MAIN - testundefined2 - with undefined result : ", result?.id);
+       _logger.log("debug", "MAIN - testundefined2 - with undefined result : ", result?.id);
         result = {"id":"423412345145325"};
-        logger.log("debug", "MAIN - testundefined2 - with initialized result : ", result?.id);
+       _logger.log("debug", "MAIN - testundefined2 - with initialized result : ", result?.id);
     }
 
    testuploadLdapAvatar() {
@@ -6985,7 +6985,7 @@ let urlS2S;
        let fileStats = fs.statSync(pathImg);
        let sizeToRead = fileStats.size;
        let buf = new Buffer(sizeToRead);
-       logger.log("debug", "MAIN - testuploadLdapAvatar sizeToRead=", sizeToRead, ", buff.byteLength : ", buf.byteLength);
+      _logger.log("debug", "MAIN - testuploadLdapAvatar sizeToRead=", sizeToRead, ", buff.byteLength : ", buf.byteLength);
        let promiseDeferred = new Deferred();
        fs.readSync(fd, buf, 0, sizeToRead, null);
 
@@ -7001,7 +7001,7 @@ let urlS2S;
        }
 
        rainbowSDK.admin.uploadLdapAvatar(buf, fileType).then((result) => {
-           logger.log("debug", "EngineVincent00 - uploadLdapAvatar - result : ", result);
+          _logger.log("debug", "EngineVincent00 - uploadLdapAvatar - result : ", result);
        });
    }
 
@@ -7010,25 +7010,25 @@ let urlS2S;
     //region Conference V2
 
     async  testConferenceV2() {
-        logger.log("debug", "MAIN - (testConferenceV2). ");
+       _logger.log("debug", "MAIN - (testConferenceV2). ");
         let utc = new Date().toJSON().replace(/-/g, "/");
         let loginEmail = "vincent02@vbe.test.openrainbow.net";
         rainbowSDK.contacts.getContactByLoginEmail(loginEmail).then(async (contact: any) => {
             if (contact) {
-                logger.log("debug", "MAIN - (testConferenceV2) :: getContactByLoginEmail contact : ", contact);
+               _logger.log("debug", "MAIN - (testConferenceV2) :: getContactByLoginEmail contact : ", contact);
                 rainbowSDK.bubbles.createBubble("testConferenceV2" + utc, "testConferenceV2" + utc, true).then((bubble: any) => {
-                    logger.log("debug", "MAIN - (testConferenceV2) :: createBubble request ok, bubble : ", bubble);
+                   _logger.log("debug", "MAIN - (testConferenceV2) :: createBubble request ok, bubble : ", bubble);
                     rainbowSDK.bubbles.inviteContactToBubble(contact, bubble, false, false, "").then(async () => {
 
                         rainbowSDK.bubbles.startConferenceOrWebinarInARoom(bubble.id).then(async (confStarted) => {
-                            logger.log("debug", "MAIN - (testConferenceV2) :: startConferenceOrWebinarInARoom request ok, confStarted : ", confStarted);
+                           _logger.log("debug", "MAIN - (testConferenceV2) :: startConferenceOrWebinarInARoom request ok, confStarted : ", confStarted);
 
                             await setTimeoutPromised(3000)
                             rainbowSDK.bubbles.stopConferenceOrWebinar(bubble.id).then(async (confStarted) => {
-                                logger.log("debug", "MAIN - (testConferenceV2) :: stopConferenceOrWebinar request ok, confStarted : ", confStarted);
+                               _logger.log("debug", "MAIN - (testConferenceV2) :: stopConferenceOrWebinar request ok, confStarted : ", confStarted);
 
                                 rainbowSDK.bubbles.closeAndDeleteBubble(bubble).then((confStopped) => {
-                                    logger.log("debug", "MAIN - (testConferenceV2) :: closeAndDeleteBubble request ok, confStopped : ", confStopped);
+                                   _logger.log("debug", "MAIN - (testConferenceV2) :: closeAndDeleteBubble request ok, confStopped : ", confStopped);
                                 });
                             });
 
@@ -7044,9 +7044,9 @@ let urlS2S;
         let bubbleId = "6213b94219fa5d0143a71e3c";
 
         rainbowSDK.bubbles.stopConferenceOrWebinar(bubbleId).then(async (confStarted) => {
-            logger.log("debug", "MAIN - (teststopConferenceV2) :: stopConferenceOrWebinar request ok, confStarted : ", confStarted);
+           _logger.log("debug", "MAIN - (teststopConferenceV2) :: stopConferenceOrWebinar request ok, confStarted : ", confStarted);
         }).catch(err => {
-            logger.log("error", "MAIN - (teststopConferenceV2) :: stopConferenceOrWebinar request not ok, err : ", err);
+           _logger.log("error", "MAIN - (teststopConferenceV2) :: stopConferenceOrWebinar request not ok, err : ", err);
         });
     }
 
@@ -7055,9 +7055,9 @@ let urlS2S;
         let bubbleId = "62f503405e9a9be52522d2c4"; // "bubble1"
 
         rainbowSDK.bubbles.startConferenceOrWebinarInARoom(bubbleId).then(async (confStarted) => {
-            logger.log("debug", "MAIN - (teststartConferenceOrWebinarInARoom) :: startConferenceOrWebinarInARoom request ok, confStarted : ", confStarted);
+           _logger.log("debug", "MAIN - (teststartConferenceOrWebinarInARoom) :: startConferenceOrWebinarInARoom request ok, confStarted : ", confStarted);
         }).catch(err => {
-            logger.log("error", "MAIN - (teststartConferenceOrWebinarInARoom) :: startConferenceOrWebinarInARoom request not ok, err : ", err);
+           _logger.log("error", "MAIN - (teststartConferenceOrWebinarInARoom) :: startConferenceOrWebinarInARoom request not ok, err : ", err);
         });
     }
 
@@ -7068,9 +7068,9 @@ let urlS2S;
         let contact = await rainbowSDK.contacts.getContactByLoginEmail("vincent00@vbe.test.openrainbow.net");
 
         rainbowSDK.bubbles.promoteContactToModerator(contact, bubble).then(async (result) => {
-            logger.log("debug", "MAIN - (testpromoteContactToModerator) :: promoteContactToModerator request ok, result : ", result);
+           _logger.log("debug", "MAIN - (testpromoteContactToModerator) :: promoteContactToModerator request ok, result : ", result);
         }).catch(err => {
-            logger.log("error", "MAIN - (testpromoteContactToModerator) :: promoteContactToModerator request not ok, err : ", err);
+           _logger.log("error", "MAIN - (testpromoteContactToModerator) :: promoteContactToModerator request not ok, err : ", err);
         });
     }
 
@@ -7081,9 +7081,9 @@ let urlS2S;
         let contact = await rainbowSDK.contacts.getContactByLoginEmail("vincent00@vbe.test.openrainbow.net");
 
         rainbowSDK.bubbles.joinConferenceV2(bubbleId).then(async (result) => {
-            logger.log("debug", "MAIN - (testjoinConferenceV2) :: joinConferenceV2 request ok, result : ", result);
+           _logger.log("debug", "MAIN - (testjoinConferenceV2) :: joinConferenceV2 request ok, result : ", result);
         }).catch(err => {
-            logger.log("error", "MAIN - (testjoinConferenceV2) :: joinConferenceV2 request not ok, err : ", err);
+           _logger.log("error", "MAIN - (testjoinConferenceV2) :: joinConferenceV2 request not ok, err : ", err);
         });
     }
 
@@ -7096,53 +7096,53 @@ let urlS2S;
         //let bubbleId = '5e56968c6f18201dde44fa7c'; // name: 'Bulle_NodeSDK',
 
         let bubble = await rainbowSDK.bubbles.getBubbleById(bubbleId);
-        logger.log("debug", "MAIN - (testjoinConferenceV2_vincent01_WithStart) :: bubble : ", bubble);
+       _logger.log("debug", "MAIN - (testjoinConferenceV2_vincent01_WithStart) :: bubble : ", bubble);
         let contact = await rainbowSDK.contacts.getContactByLoginEmail("vincent00@vbe.test.openrainbow.net");
 
         rainbowSDK.bubbles.startConferenceOrWebinarInARoom(bubbleId).then(async (confStarted) => {
-            logger.log("debug", "MAIN - (testjoinConferenceV2_vincent01_WithStart) :: startConferenceOrWebinarInARoom request ok, confStarted : ", confStarted);
+           _logger.log("debug", "MAIN - (testjoinConferenceV2_vincent01_WithStart) :: startConferenceOrWebinarInARoom request ok, confStarted : ", confStarted);
             rainbowSDK.bubbles.joinConferenceV2(bubbleId, undefined, undefined, false,["rdeu"], false, false, ["video"], undefined).then(async (result) => {
-                logger.log("debug", "MAIN - (testjoinConferenceV2_vincent01_WithStart) :: joinConferenceV2 request ok, result : ", result);
+               _logger.log("debug", "MAIN - (testjoinConferenceV2_vincent01_WithStart) :: joinConferenceV2 request ok, result : ", result);
                 rainbowSDK.bubbles.snapshotConference(bubbleId).then(async (result) => {
-                    logger.log("debug", "MAIN - (testjoinConferenceV2_vincent01_WithStart) :: snapshotConference request ok, result : ", result);
+                   _logger.log("debug", "MAIN - (testjoinConferenceV2_vincent01_WithStart) :: snapshotConference request ok, result : ", result);
                 }).catch(err => {
-                    logger.log("error", "MAIN - (testjoinConferenceV2_vincent01_WithStart) :: snapshotConference request not ok, err : ", err);
+                   _logger.log("error", "MAIN - (testjoinConferenceV2_vincent01_WithStart) :: snapshotConference request not ok, err : ", err);
                 });
             }).catch(err => {
-                logger.log("error", "MAIN - (testjoinConferenceV2_vincent01_WithStart) :: joinConferenceV2 request not ok, err : ", err);
+               _logger.log("error", "MAIN - (testjoinConferenceV2_vincent01_WithStart) :: joinConferenceV2 request not ok, err : ", err);
             });
         }).catch(err => {
-            logger.log("error", "MAIN - (testjoinConferenceV2_vincent01_WithStart) :: startConferenceOrWebinarInARoom request not ok, err : ", err);
+           _logger.log("error", "MAIN - (testjoinConferenceV2_vincent01_WithStart) :: startConferenceOrWebinarInARoom request not ok, err : ", err);
         });
     }
 
     async  testjoinConferenceV2_CreateBubble_WithStart() {
         // To be used with vincent01 NET
-        logger.log("debug", "MAIN - (testjoinConferenceV2_CreateBubble_WithStart). ");
+       _logger.log("debug", "MAIN - (testjoinConferenceV2_CreateBubble_WithStart). ");
         let utc = new Date().toJSON().replace(/-/g, "/");
         let loginEmail = "vincent02@vbe.test.openrainbow.net";
         rainbowSDK.contacts.getContactByLoginEmail(loginEmail).then(async (contact: any) => {
             if (contact) {
-                logger.log("debug", "MAIN - (testjoinConferenceV2_CreateBubble_WithStart) :: getContactByLoginEmail contact : ", contact);
+               _logger.log("debug", "MAIN - (testjoinConferenceV2_CreateBubble_WithStart) :: getContactByLoginEmail contact : ", contact);
                 rainbowSDK.bubbles.createBubble("testConferenceV2" + utc, "testConferenceV2" + utc, true).then((bubble: any) => {
-                    logger.log("debug", "MAIN - (testjoinConferenceV2_CreateBubble_WithStart) :: createBubble request ok, bubble : ", bubble);
+                   _logger.log("debug", "MAIN - (testjoinConferenceV2_CreateBubble_WithStart) :: createBubble request ok, bubble : ", bubble);
                     let bubbleId = bubble.id;
                     rainbowSDK.bubbles.inviteContactToBubble(contact, bubble, false, false, "").then(async () => {
 
                         rainbowSDK.bubbles.startConferenceOrWebinarInARoom(bubbleId).then(async (confStarted) => {
-                            logger.log("debug", "MAIN - (testjoinConferenceV2_CreateBubble_WithStart) :: startConferenceOrWebinarInARoom request ok, confStarted : ", confStarted);
+                           _logger.log("debug", "MAIN - (testjoinConferenceV2_CreateBubble_WithStart) :: startConferenceOrWebinarInARoom request ok, confStarted : ", confStarted);
                             rainbowSDK.bubbles.joinConferenceV2(bubbleId, undefined, undefined, false, ["rdeu"], false, false, ["video"], undefined).then(async (result) => {
-                                logger.log("debug", "MAIN - (testjoinConferenceV2_CreateBubble_WithStart) :: joinConferenceV2 request ok, result : ", result);
+                               _logger.log("debug", "MAIN - (testjoinConferenceV2_CreateBubble_WithStart) :: joinConferenceV2 request ok, result : ", result);
                                 rainbowSDK.bubbles.snapshotConference(bubbleId).then(async (result) => {
-                                    logger.log("debug", "MAIN - (testjoinConferenceV2_CreateBubble_WithStart) :: snapshotConference request ok, result : ", result);
+                                   _logger.log("debug", "MAIN - (testjoinConferenceV2_CreateBubble_WithStart) :: snapshotConference request ok, result : ", result);
                                 }).catch(err => {
-                                    logger.log("error", "MAIN - (testjoinConferenceV2_CreateBubble_WithStart) :: snapshotConference request not ok, err : ", err);
+                                   _logger.log("error", "MAIN - (testjoinConferenceV2_CreateBubble_WithStart) :: snapshotConference request not ok, err : ", err);
                                 });
                             }).catch(err => {
-                                logger.log("error", "MAIN - (testjoinConferenceV2_CreateBubble_WithStart) :: joinConferenceV2 request not ok, err : ", err);
+                               _logger.log("error", "MAIN - (testjoinConferenceV2_CreateBubble_WithStart) :: joinConferenceV2 request not ok, err : ", err);
                             });
                         }).catch(err => {
-                            logger.log("error", "MAIN - (testjoinConferenceV2_CreateBubble_WithStart) :: startConferenceOrWebinarInARoom request not ok, err : ", err);
+                           _logger.log("error", "MAIN - (testjoinConferenceV2_CreateBubble_WithStart) :: startConferenceOrWebinarInARoom request not ok, err : ", err);
                         });
 
                     });
@@ -7158,9 +7158,9 @@ let urlS2S;
         let contact = await rainbowSDK.contacts.getContactByLoginEmail("vincent00@vbe.test.openrainbow.net");
 
         rainbowSDK.bubbles.delegateConference(bubbleId, contact.id).then(async (result) => {
-            logger.log("debug", "MAIN - (testpromoteContactToModerator) :: promoteContactToModerator request ok, result : ", result);
+           _logger.log("debug", "MAIN - (testpromoteContactToModerator) :: promoteContactToModerator request ok, result : ", result);
         }).catch(err => {
-            logger.log("error", "MAIN - (testpromoteContactToModerator) :: promoteContactToModerator request not ok, err : ", err);
+           _logger.log("error", "MAIN - (testpromoteContactToModerator) :: promoteContactToModerator request not ok, err : ", err);
         });
     }
 
@@ -7169,9 +7169,9 @@ let urlS2S;
         let bubbleId = "62f503405e9a9be52522d2c4"; // "bubble1"
 
         rainbowSDK.bubbles.stopConferenceOrWebinar(bubbleId).then(async (confStopped) => {
-            logger.log("debug", "MAIN - (teststopConferenceV2) :: stopConferenceOrWebinar request ok, confStopped : ", confStopped);
+           _logger.log("debug", "MAIN - (teststopConferenceV2) :: stopConferenceOrWebinar request ok, confStopped : ", confStopped);
         }).catch(err => {
-            logger.log("error", "MAIN - (teststopConferenceV2) :: stopConferenceOrWebinar request not ok, err : ", err);
+           _logger.log("error", "MAIN - (teststopConferenceV2) :: stopConferenceOrWebinar request not ok, err : ", err);
         });
     }
 
@@ -7179,9 +7179,9 @@ let urlS2S;
         let confId = "60d5a4ee0eeee002d144e9bf";
 
         /*rainbowSDK.bubbles.askConferenceSnapshot(confId).then(async (confStarted) => {
-            logger.log("debug", "MAIN - (tesaskConferenceSnapshot) :: askConferenceSnapshot request ok, confStarted : ", confStarted);
+           _logger.log("debug", "MAIN - (tesaskConferenceSnapshot) :: askConferenceSnapshot request ok, confStarted : ", confStarted);
         }).catch (err => {
-            logger.log("error", "MAIN - (tesaskConferenceSnapshot) :: askConferenceSnapshot request not ok, err : ", err);
+           _logger.log("error", "MAIN - (tesaskConferenceSnapshot) :: askConferenceSnapshot request not ok, err : ", err);
         }); // */
     }
 
@@ -7191,66 +7191,66 @@ let urlS2S;
     //region Webinar
 
     async  testgetWebinarsData() {
-        logger.log("debug", "MAIN - (testgetWebinarsData). ");
+       _logger.log("debug", "MAIN - (testgetWebinarsData). ");
         let utc = new Date().toJSON().replace(/-/g, "/");
         rainbowSDK.webinars.getWebinarsData("participant").then(async (result: any) => {
-            logger.log("debug", "MAIN - [testgetWebinarsData    ] :: getWebinarsData result : ", result);
+           _logger.log("debug", "MAIN - [testgetWebinarsData    ] :: getWebinarsData result : ", result);
         });
     }
 
     async  testcreateWebinar() {
-        logger.log("debug", "MAIN - (testcreateWebinar). ");
+       _logger.log("debug", "MAIN - (testcreateWebinar). ");
         let utc = new Date().toJSON().replace(/-/g, "/");
         let nameWebinar = "nameWebinar_" + utc;
         let subjectWebinar = "subjectWebinar_" + utc;
         rainbowSDK.webinars.createWebinar(nameWebinar, subjectWebinar, null, null, null, null, null, null, null, null, null, null, null, null).then(async (result: any) => {
-            logger.log("debug", "MAIN - (testcreateWebinar) :: create Webinar result : ", result);
+           _logger.log("debug", "MAIN - (testcreateWebinar) :: create Webinar result : ", result);
             rainbowSDK.webinars.getWebinarsData("participant").then(async (result: any) => {
-                logger.log("debug", "MAIN - (testcreateWebinar) :: getWebinarsData result : ", result);
+               _logger.log("debug", "MAIN - (testcreateWebinar) :: getWebinarsData result : ", result);
             });
         });
     }
 
     async  testupdateWebinar() {
-        logger.log("debug", "MAIN - (testupdateWebinar). ");
+       _logger.log("debug", "MAIN - (testupdateWebinar). ");
         let utc = new Date().toJSON().replace(/-/g, "/");
         rainbowSDK.webinars.getWebinarsData("participant").then(async (webinarsResult: any) => {
-            logger.log("debug", "MAIN - (testupdateWebinar) :: getWebinarsData result : ", webinarsResult);
+           _logger.log("debug", "MAIN - (testupdateWebinar) :: getWebinarsData result : ", webinarsResult);
             let webinar = webinarsResult.data[0];
             rainbowSDK.webinars.updateWebinar(webinar.id, "updatedNameWebinar", webinar.subject, webinar.waitingRoomStartDate, webinar.webinarStartDate, webinar.webinarEndDate, webinar.reminderDates, webinar.timeZone, webinar.register, webinar.approvalRegistrationMethod, webinar.passwordNeeded, webinar.lockRegistration, webinar.waitingRoomMultimediaURL, webinar.stageBackground, webinar.chatOption).then(async (result: any) => {
-                logger.log("debug", "MAIN - (testupdateWebinar) :: updateWebinar result : ", result);
+               _logger.log("debug", "MAIN - (testupdateWebinar) :: updateWebinar result : ", result);
             }).catch(err => {
-                logger.log("debug", "MAIN - (testupdateWebinar) :: error during upodate : ", err);
+               _logger.log("debug", "MAIN - (testupdateWebinar) :: error during upodate : ", err);
             });
         });
     }
 
     async  testcreateAndDeleteWebinar() {
-        logger.log("debug", "MAIN - (testcreateAndDeleteWebinar). ");
+       _logger.log("debug", "MAIN - (testcreateAndDeleteWebinar). ");
         let utc = new Date().toJSON().replace(/-/g, "/");
         let nameWebinar = "nameWebinar_" + utc;
         let subjectWebinar = "subjectWebinar_" + utc;
         rainbowSDK.webinars.createWebinar(nameWebinar, subjectWebinar, null, null, null, null, null, null, null, null, null, null, null, null).then(async (createresult: any) => {
-            logger.log("debug", "MAIN - [testcreateAndDeleteWebinar    ] :: create Webinar result : ", createresult);
+           _logger.log("debug", "MAIN - [testcreateAndDeleteWebinar    ] :: create Webinar result : ", createresult);
             await rainbowSDK.webinars.getWebinarsData("participant").then(async (result: any) => {
-                logger.log("debug", "MAIN - [testcreateAndDeleteWebinar    ] :: getWebinarsData result : ", result);
+               _logger.log("debug", "MAIN - [testcreateAndDeleteWebinar    ] :: getWebinarsData result : ", result);
             });
 
             await rainbowSDK.webinars.deleteWebinar(createresult.id).then(async (deleteresult: any) => {
-                logger.log("debug", "MAIN - [testcreateAndDeleteWebinar    ] :: delete Webinar result : ", deleteresult);
+               _logger.log("debug", "MAIN - [testcreateAndDeleteWebinar    ] :: delete Webinar result : ", deleteresult);
 
             });
         });
     }
 
     async  testDeleteAllWebinar() {
-        logger.log("debug", "MAIN - (testDeleteAllWebinar). ");
+       _logger.log("debug", "MAIN - (testDeleteAllWebinar). ");
         let utc = new Date().toJSON().replace(/-/g, "/");
         rainbowSDK.webinars.getWebinarsData("participant").then(async (result: any) => {
-            logger.log("debug", "MAIN - [testDeleteAllWebinar    ] :: getWebinarsData result : ", result);
+           _logger.log("debug", "MAIN - [testDeleteAllWebinar    ] :: getWebinarsData result : ", result);
             for (let resultKey in result.data) {
                 rainbowSDK.webinars.deleteWebinar(result.data[resultKey].id).then(async (deleteresult: any) => {
-                    logger.log("debug", "MAIN - [testDeleteAllWebinar    ] :: delete Webinar result : ", deleteresult);
+                   _logger.log("debug", "MAIN - [testDeleteAllWebinar    ] :: delete Webinar result : ", deleteresult);
 
                 });
             }
@@ -7264,27 +7264,27 @@ let urlS2S;
     async  testgetAllClientsVersions() {
         let that = this;
         let res = await rainbowSDK.admin.getAllClientsVersions(null, null);
-        logger.log("debug", "MAIN - testgetAllClientsVersions, res : ", res);
+       _logger.log("debug", "MAIN - testgetAllClientsVersions, res : ", res);
     }
 
     async  testgetAllClientsVersionsBot() {
         let that = this;
         let res = await rainbowSDK.admin.getAllClientsVersions(null, "bot");
-        logger.log("debug", "MAIN - testgetAllClientsVersions, res : ", res);
+       _logger.log("debug", "MAIN - testgetAllClientsVersions, res : ", res);
     }
 
     async  testcreateAClientVersion() {
         let that = this;
         //let res = await rainbowSDK.admin.createAClientVersion(options.application.appID, "2.4.0");
         let res = await rainbowSDK.admin.createAClientVersion(undefined, "2.5.0");
-        logger.log("debug", "MAIN - testgetAllClientsVersions, res : ", res);
+       _logger.log("debug", "MAIN - testgetAllClientsVersions, res : ", res);
     }
 
     async  testdeleteAClientVersion() {
         let that = this;
         //let res = await rainbowSDK.admin.createAClientVersion(options.application.appID, "2.4.0");
         let res = await rainbowSDK.admin.deleteAClientVersion(options.application.appID);
-        logger.log("debug", "MAIN - testdeleteAClientVersion, res : ", res);
+       _logger.log("debug", "MAIN - testdeleteAClientVersion, res : ", res);
     }
 
     //endregion Clients Versions
@@ -7297,14 +7297,14 @@ let urlS2S;
         //let res = await rainbowSDK.bubbles.createBubblePoll();
         //logger.log("debug", "MAIN - testgetAllClientsVersions, res : ", res);
 
-        logger.log("debug", "MAIN - (testcreateBubblePollAndDelete). ");
+       _logger.log("debug", "MAIN - (testcreateBubblePollAndDelete). ");
         let utc = new Date().toJSON().replace(/-/g, "/");
         let loginEmail = "vincent02@vbe.test.openrainbow.net";
         rainbowSDK.contacts.getContactByLoginEmail(loginEmail).then(async (contact: any) => {
             if (contact) {
-                logger.log("debug", "MAIN - (testcreateBubblePollAndDelete) :: getContactByLoginEmail contact : ", contact);
+               _logger.log("debug", "MAIN - (testcreateBubblePollAndDelete) :: getContactByLoginEmail contact : ", contact);
                 rainbowSDK.bubbles.createBubble("testcreateBubblePollAndDelete" + utc, "testcreateBubblePollAndDelete" + utc, true).then((bubble: any) => {
-                    logger.log("debug", "MAIN - (testcreateBubblePollAndDelete) :: createBubble request ok, bubble : ", bubble);
+                   _logger.log("debug", "MAIN - (testcreateBubblePollAndDelete) :: createBubble request ok, bubble : ", bubble);
                     rainbowSDK.bubbles.inviteContactToBubble(contact, bubble, false, false, "").then(async () => {
 
                         let questions: Array<{ text: string, multipleChoice: boolean, answers: Array<{ text: string }> }> = [
@@ -7315,43 +7315,43 @@ let urlS2S;
                             }
                         ];
                         rainbowSDK.bubbles.createBubblePoll(bubble.id, "My Poll", questions, false, 0).then(async (pollCreated: any) => {
-                            logger.log("debug", "MAIN - (testcreateBubblePollAndDelete) :: createBubblePoll request ok, pollCreated : ", pollCreated);
+                           _logger.log("debug", "MAIN - (testcreateBubblePollAndDelete) :: createBubblePoll request ok, pollCreated : ", pollCreated);
 
                             await setTimeoutPromised(3000);
 
                             let polls = await rainbowSDK.bubbles.getBubblePollsByBubble(bubble.id, "full", 100, 0);
-                            logger.log("debug", "MAIN - (testcreateBubblePollAndDelete) :: getBubblePollsByBubble request ok, result : ", polls);
+                           _logger.log("debug", "MAIN - (testcreateBubblePollAndDelete) :: getBubblePollsByBubble request ok, result : ", polls);
 
                             let updatePollResult = await rainbowSDK.bubbles.updateBubblePoll(pollCreated.pollId, bubble.id, "My Poll updated", questions, false, 0);
-                            logger.log("debug", "MAIN - (testcreateBubblePollAndDelete) :: updateBubblePoll request ok, result : ", updatePollResult);
+                           _logger.log("debug", "MAIN - (testcreateBubblePollAndDelete) :: updateBubblePoll request ok, result : ", updatePollResult);
 
                             let pollsUpdated = await rainbowSDK.bubbles.getBubblePollsByBubble(bubble.id, "full", 100, 0);
-                            logger.log("debug", "MAIN - (testcreateBubblePollAndDelete) :: getBubblePollsByBubble updated request ok, result : ", pollsUpdated);
+                           _logger.log("debug", "MAIN - (testcreateBubblePollAndDelete) :: getBubblePollsByBubble updated request ok, result : ", pollsUpdated);
 
                             let pollPublishedResult = await rainbowSDK.bubbles.publishBubblePoll(pollCreated.pollId);
-                            logger.log("debug", "MAIN - (testcreateBubblePollAndDelete) :: publishBubblePoll request ok, result : ", pollPublishedResult);
+                           _logger.log("debug", "MAIN - (testcreateBubblePollAndDelete) :: publishBubblePoll request ok, result : ", pollPublishedResult);
 
                             let votesPollResult = await rainbowSDK.bubbles.votesForBubblePoll(pollCreated.pollId, [{
                                 "question": 0,
                                 "answers": [0]
                             }]);
-                            logger.log("debug", "MAIN - (testcreateBubblePollAndDelete) :: votesForBubblePoll request ok, result : ", votesPollResult);
+                           _logger.log("debug", "MAIN - (testcreateBubblePollAndDelete) :: votesForBubblePoll request ok, result : ", votesPollResult);
 
                             let unpollPublishedResult = await rainbowSDK.bubbles.unpublishBubblePoll(pollCreated.pollId);
-                            logger.log("debug", "MAIN - (testcreateBubblePollAndDelete) :: unpublishBubblePoll request ok, result : ", unpollPublishedResult);
+                           _logger.log("debug", "MAIN - (testcreateBubblePollAndDelete) :: unpublishBubblePoll request ok, result : ", unpollPublishedResult);
 
                             let pollPublishedResult2 = await rainbowSDK.bubbles.publishBubblePoll(pollCreated.pollId);
-                            logger.log("debug", "MAIN - (testcreateBubblePollAndDelete) :: publishBubblePoll request ok, result : ", pollPublishedResult2);
+                           _logger.log("debug", "MAIN - (testcreateBubblePollAndDelete) :: publishBubblePoll request ok, result : ", pollPublishedResult2);
 
                             let terminatedBubblePollResult = await rainbowSDK.bubbles.terminateBubblePoll(pollCreated.pollId);
-                            logger.log("debug", "MAIN - (testcreateBubblePollAndDelete) :: terminateBubblePoll request ok, result : ", terminatedBubblePollResult);
+                           _logger.log("debug", "MAIN - (testcreateBubblePollAndDelete) :: terminateBubblePoll request ok, result : ", terminatedBubblePollResult);
 
 
                             rainbowSDK.bubbles.deleteBubblePoll(pollCreated.pollId).then(async (result) => {
-                                logger.log("debug", "MAIN - (testcreateBubblePollAndDelete) :: deleteBubblePoll request ok, polls : ", result);
+                               _logger.log("debug", "MAIN - (testcreateBubblePollAndDelete) :: deleteBubblePoll request ok, polls : ", result);
 
                                 rainbowSDK.bubbles.closeAndDeleteBubble(bubble).then((result) => {
-                                    logger.log("debug", "MAIN - (testcreateBubblePollAndDelete) :: closeAndDeleteBubble request ok, result : ", result);
+                                   _logger.log("debug", "MAIN - (testcreateBubblePollAndDelete) :: closeAndDeleteBubble request ok, result : ", result);
                                 });
                             });
 
@@ -7366,7 +7366,7 @@ let urlS2S;
         let that = this;
         //let res = await rainbowSDK.admin.createAClientVersion(options.application.appID, "2.4.0");
         let res = await rainbowSDK.bubbles.deleteBubblePoll(undefined);
-        logger.log("debug", "MAIN - testdeleteAClientVersion, res : ", res);
+       _logger.log("debug", "MAIN - testdeleteAClientVersion, res : ", res);
     }
 
     //endregion bubbles polls
@@ -7398,9 +7398,9 @@ let urlS2S;
 
 
             let res = await rainbowSDK._core._http.postUrlRaw(urlToPost, headers, body);
-            logger.log("debug", "MAIN - testpostUrl, res : ", res);
+           _logger.log("debug", "MAIN - testpostUrl, res : ", res);
         } catch (err) {
-            logger.log("error", "MAIN - testpostUrl, error err : ", err);
+           _logger.log("error", "MAIN - testpostUrl, error err : ", err);
         }
 
     }
@@ -7408,7 +7408,7 @@ let urlS2S;
     async  testsubscribePresence() {
         let to = "29b4874d1a4b48c9be13c559da4efe3e@openrainbow.net"; // "vincent11@vbe.test.openrainbow.net";
         let res = await rainbowSDK.presence.subscribePresence(to);
-        logger.log("debug", "MAIN - testsubscribePresence, res : ", res);
+       _logger.log("debug", "MAIN - testsubscribePresence, res : ", res);
 
     }
 
@@ -7419,7 +7419,7 @@ let urlS2S;
         let headers = {"dateOfRequest": new Date().toLocaleDateString()};
         //let headers = {};
         let res = await rainbowSDK.httpoverxmpp.get(urlToGet, headers);
-        logger.log("debug", "MAIN - testgetHTTPoverXMPP, res : ", res);
+       _logger.log("debug", "MAIN - testgetHTTPoverXMPP, res : ", res);
     }
 
     async  testgetHTTPoverXMPPVNA(urlToGet: string = "http://localhost:8091/management/api/onthemove/location/", jidServer: string = "vna_175703aa87b94d8d81f9b0bc45f8691b@david-all-in-one-rd-dev-1.opentouch.cloud/node_Dufz2bRl") {
@@ -7434,9 +7434,9 @@ let urlS2S;
         };
         //let headers = {};
         let res: any = await rainbowSDK.httpoverxmpp.get(urlToGet, headers, jidServer);
-        logger.log("debug", "MAIN - testgetHTTPoverXMPPVNA, res : ", res);
+       _logger.log("debug", "MAIN - testgetHTTPoverXMPPVNA, res : ", res);
         if (res && res.iq && res.iq.resp && res.iq.resp["$attrs"] && res.iq.resp["$attrs"].statusCode==200 && res.iq.resp.data) {
-            logger.log("debug", "MAIN - testgetHTTPoverXMPPVNA, headers : ", res.iq.resp.headers);
+           _logger.log("debug", "MAIN - testgetHTTPoverXMPPVNA, headers : ", res.iq.resp.headers);
             //console.log("MAIN - testgetHTTPoverXMPPVNA, headers : ", res.iq.resp.headers);
             let isJson = false;
             for (const header of res.iq.resp.headers.header) {
@@ -7445,9 +7445,9 @@ let urlS2S;
                 }
             }
             let bodyStr = decodeURIComponent(res.iq.resp.data.text);
-            logger.log("debug", "MAIN - testgetHTTPoverXMPPVNA, bodyStr : ", bodyStr);
+           _logger.log("debug", "MAIN - testgetHTTPoverXMPPVNA, bodyStr : ", bodyStr);
             if (isJson) {
-                logger.log("debug", "MAIN - testgetHTTPoverXMPPVNA, body JSON : ", JSON.parse(bodyStr));
+               _logger.log("debug", "MAIN - testgetHTTPoverXMPPVNA, body JSON : ", JSON.parse(bodyStr));
             }
         }
     }
@@ -7477,9 +7477,9 @@ let urlS2S;
                 "\"zipcode\": \"91301\"\n" +
                 "}";
         let res: any = await rainbowSDK.httpoverxmpp.post(urlToPost, headers, data, jidServer);
-        logger.log("debug", "MAIN - testpostHTTPoverXMPPVNA, res : ", res);
+       _logger.log("debug", "MAIN - testpostHTTPoverXMPPVNA, res : ", res);
         if (res && res.iq && res.iq.resp && res.iq.resp["$attrs"] && res.iq.resp.data) {
-            logger.log("debug", "MAIN - testgetHTTPoverXMPPVNA, headers : ", res.iq.resp.headers);
+           _logger.log("debug", "MAIN - testgetHTTPoverXMPPVNA, headers : ", res.iq.resp.headers);
             //console.log("MAIN - testgetHTTPoverXMPPVNA, headers : ", res.iq.resp.headers);
             //if (res.iq.resp["$attrs"].statusCode==200) {
             let isJson = false;
@@ -7489,13 +7489,13 @@ let urlS2S;
                 }
             }
             let bodyStr = decodeURIComponent(res.iq.resp.data.text);
-            logger.log("debug", "MAIN - testgetHTTPoverXMPPVNA, bodyStr : ", bodyStr);
+           _logger.log("debug", "MAIN - testgetHTTPoverXMPPVNA, bodyStr : ", bodyStr);
             if (isJson) {
-                logger.log("debug", "MAIN - testgetHTTPoverXMPPVNA, body JSON : ", JSON.parse(bodyStr));
+               _logger.log("debug", "MAIN - testgetHTTPoverXMPPVNA, body JSON : ", JSON.parse(bodyStr));
             }
             /*} else {
                 let bodyStr = decodeURIComponent(res.iq.resp.data.text);
-                logger.log("debug", "MAIN - testgetHTTPoverXMPPVNA, bodyStr : ", bodyStr);
+               _logger.log("debug", "MAIN - testgetHTTPoverXMPPVNA, bodyStr : ", bodyStr);
 
             } //*/
         }
@@ -7514,7 +7514,7 @@ let urlS2S;
         //let headers = {};
         let data = "";
         let res = await rainbowSDK.httpoverxmpp.delete(urlToPost, headers, data, jidServer);
-        logger.log("debug", "MAIN - testdeleteHTTPoverXMPP, res : ", res);
+       _logger.log("debug", "MAIN - testdeleteHTTPoverXMPP, res : ", res);
     }
 
     async  testdiscoverHTTPoverXMPP(jidHTTPoverXMPPBot: string = "vna_175703aa87b94d8d81f9b0bc45f8691b@david-all-in-one-rd-dev-1.opentouch.cloud", vincent01?: boolean) {
@@ -7535,10 +7535,10 @@ let urlS2S;
         //let headers = {};
         //let res : any = await rainbowSDK.httpoverxmpp.discoverHTTPoverXMPP( headers, jidServer);
         let res: any = await rainbowSDK.httpoverxmpp.discoverHTTPoverXMPP(headers, jidHTTPoverXMPPBot);
-        logger.log("debug", "MAIN - testgetHTTPoverXMPPVNA, res : ", res);
+       _logger.log("debug", "MAIN - testgetHTTPoverXMPPVNA, res : ", res);
         /*
                 if (res && res.iq && res.iq.resp && res.iq.resp["$attrs"] && res.iq.resp["$attrs"].statusCode == 200 && res.iq.resp.data) {
-                    logger.log("debug", "MAIN - testgetHTTPoverXMPPVNA, headers : ", res.iq.resp.headers);
+                   _logger.log("debug", "MAIN - testgetHTTPoverXMPPVNA, headers : ", res.iq.resp.headers);
                     //console.log("MAIN - testgetHTTPoverXMPPVNA, headers : ", res.iq.resp.headers);
                     let isJson = false;
                     for (const header of res.iq.resp.headers.header) {
@@ -7547,9 +7547,9 @@ let urlS2S;
                         }
                     }
                     let bodyStr = decodeURIComponent(res.iq.resp.data.text);
-                    logger.log("debug", "MAIN - testgetHTTPoverXMPPVNA, bodyStr : ", bodyStr);
+                   _logger.log("debug", "MAIN - testgetHTTPoverXMPPVNA, bodyStr : ", bodyStr);
                     if (isJson) {
-                        logger.log("debug", "MAIN - testgetHTTPoverXMPPVNA, body JSON : ", JSON.parse(bodyStr));
+                       _logger.log("debug", "MAIN - testgetHTTPoverXMPPVNA, body JSON : ", JSON.parse(bodyStr));
                     }
                 }
         */
@@ -7566,13 +7566,13 @@ let urlS2S;
             jidHTTPoverXMPPBot = contact.jid + "/node_vnagw";
         }
         let res: any = await rainbowSDK.httpoverxmpp.trace(urlToGet, headers, jidHTTPoverXMPPBot);
-        logger.log("debug", "MAIN - tracegetHTTPoverXMPP, res : ", res);
+       _logger.log("debug", "MAIN - tracegetHTTPoverXMPP, res : ", res);
         let resp = res.iq.resp;
         if (resp.data) {
             let bodyResult = decodeURIComponent(resp.data.text);
-            logger.log("debug", "MAIN - testHTTPoverXMPP, getHTTPoverXMPP decoded bodyResult : ", bodyResult);
+           _logger.log("debug", "MAIN - testHTTPoverXMPP, getHTTPoverXMPP decoded bodyResult : ", bodyResult);
         } else {
-            logger.log("debug", "MAIN - testHTTPoverXMPP, getHTTPoverXMPP failed : ", resp);
+           _logger.log("debug", "MAIN - testHTTPoverXMPP, getHTTPoverXMPP failed : ", resp);
         }
     }
 
@@ -7583,7 +7583,7 @@ let urlS2S;
         let headers = {"dateOfRequest": new Date().toLocaleDateString()};
         //let headers = {};
         let res = await rainbowSDK.httpoverxmpp.head(urlToGet, headers);
-        logger.log("debug", "MAIN - testheadHTTPoverXMPP, res : ", res);
+       _logger.log("debug", "MAIN - testheadHTTPoverXMPP, res : ", res);
     }
 
     async  testpostHTTPoverXMPP(urlToPost: string = "https://example.org/sparql/?default-graph-uri=http%3A%2F%2Fexample.org%2Frdf/xep", jidHTTPoverXMPPBot: string = "vna_175703aa87b94d8d81f9b0bc45f8691b@david-all-in-one-rd-dev-1.opentouch.cloud", vincent01?: boolean) {
@@ -7598,7 +7598,7 @@ let urlS2S;
         }
         let data = "PREFIXdc:<http://purl.org/dc/elements/1.1/>BASE<http://example.org/>SELECT?title?creator?publisherWHERE{?xdc:title?title.OPTIONAL{?xdc:creator?creator}.}";
         let res = await rainbowSDK.httpoverxmpp.post(urlToPost, headers, data, jidHTTPoverXMPPBot);
-        logger.log("debug", "MAIN - testpostHTTPoverXMPP, res : ", res);
+       _logger.log("debug", "MAIN - testpostHTTPoverXMPP, res : ", res);
     }
 
     async  testputHTTPoverXMPP(urlToPut: string = "https://example.org/sparql/?default-graph-uri=http%3A%2F%2Fexample.org%2Frdf/xep") {
@@ -7609,7 +7609,7 @@ let urlS2S;
         //let headers = {};
         let data = "PREFIXdc:<http://purl.org/dc/elements/1.1/>BASE<http://example.org/>SELECT?title?creator?publisherWHERE{?xdc:title?title.OPTIONAL{?xdc:creator?creator}.}";
         let res = await rainbowSDK.httpoverxmpp.put(urlToPut, headers, data);
-        logger.log("debug", "MAIN - testputHTTPoverXMPP, res : ", res);
+       _logger.log("debug", "MAIN - testputHTTPoverXMPP, res : ", res);
     }
 
     async  testputHTTPoverXMPP_2(urlToPut: string = "https://reqbin.com/echo/put/json") {
@@ -7628,7 +7628,7 @@ let urlS2S;
                 "  \"Price\": 10.00\n" +
                 "}";
         let res = await rainbowSDK.httpoverxmpp.put(urlToPut, headers, data);
-        logger.log("debug", "MAIN - testputHTTPoverXMPP, res : ", res);
+       _logger.log("debug", "MAIN - testputHTTPoverXMPP, res : ", res);
     }
 
     async  testdeleteHTTPoverXMPP(urlToPut: string = "https://example.org/sparql/?default-graph-uri=http%3A%2F%2Fexample.org%2Frdf/xep") {
@@ -7639,7 +7639,7 @@ let urlS2S;
         //let headers = {};
         let data = "PREFIXdc:<http://purl.org/dc/elements/1.1/>BASE<http://example.org/>SELECT?title?creator?publisherWHERE{?xdc:title?title.OPTIONAL{?xdc:creator?creator}.}";
         let res = await rainbowSDK.httpoverxmpp.delete(urlToPut, headers, data);
-        logger.log("debug", "MAIN - testdeleteHTTPoverXMPP, res : ", res);
+       _logger.log("debug", "MAIN - testdeleteHTTPoverXMPP, res : ", res);
     }
 
     async  testHTTPoverXMPP() {
@@ -7666,7 +7666,7 @@ let urlS2S;
         let urlToGet = "https://openrainbow.net:443/api/rainbow/directory/v1.0/entries?name=testPersonalDirectory&format=small&limit=100&offset=0&sortField=lastName&sortOrder=1&view=all"
         //let res2 = await rainbowSDK.httpoverxmpp.getHTTPoverXMPP(urlToPost + "?name=testPersonalDirectory_lastname_", headers);
         let res2: any = await rainbowSDK.httpoverxmpp.get(urlToGet, headersGet);
-        logger.log("debug", "MAIN - testHTTPoverXMPP, getHTTPoverXMPP res2 : ", res2);
+       _logger.log("debug", "MAIN - testHTTPoverXMPP, getHTTPoverXMPP res2 : ", res2);
         let resp = res2.iq.resp;
         let bodyResult = decodeURIComponent(resp.data.text);
         let resultOfHttp: any = bodyResult;
@@ -7678,17 +7678,17 @@ let urlS2S;
 
             }
         } else {
-            logger.warn("internal", "MAIN - testHTTPoverXMPP HTTP response.code != 200 , bodyjs : ", bodyResult);
+           _logger.warn("internal", "MAIN - testHTTPoverXMPP HTTP response.code != 200 , bodyjs : ", bodyResult);
         }
 
-        logger.log("debug", "MAIN - testHTTPoverXMPP, getHTTPoverXMPP decoded resultOfHttp : ", resultOfHttp);
+       _logger.log("debug", "MAIN - testHTTPoverXMPP, getHTTPoverXMPP decoded resultOfHttp : ", resultOfHttp);
 
         // *** Delete directory entry ***
 
         let urlToDelete = "https://openrainbow.net:443/api/rainbow/directory/v1.0/entries/"
         for (let i = 0; i < resultOfHttp.data.length; i++) {
             let resDelete: any = await rainbowSDK.httpoverxmpp.delete(urlToDelete + resultOfHttp.data[i].id, headersGet, undefined);
-            logger.log("debug", "MAIN - testHTTPoverXMPP, deleteHTTPoverXMPP resDelete : ", resDelete);
+           _logger.log("debug", "MAIN - testHTTPoverXMPP, deleteHTTPoverXMPP resDelete : ", resDelete);
             let respDelete = resDelete.iq.resp;
             let bodyResultDelete = decodeURIComponent(respDelete.data.text);
             let resultOfHttpDelete: any = bodyResultDelete;
@@ -7700,10 +7700,10 @@ let urlS2S;
 
                 }
             } else {
-                logger.warn("internal", "MAIN - testHTTPoverXMPP, deleteHTTPoverXMPP HTTP response.code != 200 , bodyjs : ", bodyResultDelete);
+               _logger.warn("internal", "MAIN - testHTTPoverXMPP, deleteHTTPoverXMPP HTTP response.code != 200 , bodyjs : ", bodyResultDelete);
             }
 
-            logger.log("debug", "MAIN - testHTTPoverXMPP, deleteHTTPoverXMPP decoded resultOfHttpDelete : ", resultOfHttpDelete);
+           _logger.log("debug", "MAIN - testHTTPoverXMPP, deleteHTTPoverXMPP decoded resultOfHttpDelete : ", resultOfHttpDelete);
             // */
         }
 
@@ -7736,7 +7736,7 @@ let urlS2S;
         };
         let body = JSON.stringify(data);
         let res: any = await rainbowSDK.httpoverxmpp.post(urlToPost, headersPost, body);
-        logger.log("debug", "MAIN - testHTTPoverXMPP, postHTTPoverXMPP res : ", res);
+       _logger.log("debug", "MAIN - testHTTPoverXMPP, postHTTPoverXMPP res : ", res);
         resp = res.iq.resp;
         bodyResult = decodeURIComponent(resp.data.text);
         resultOfHttp = bodyResult;
@@ -7748,17 +7748,17 @@ let urlS2S;
 
             }
         } else {
-            logger.warn("internal", "MAIN - testHTTPoverXMPP, postHTTPoverXMPP HTTP response.code != 200 , bodyjs : ", bodyResult);
+           _logger.warn("internal", "MAIN - testHTTPoverXMPP, postHTTPoverXMPP HTTP response.code != 200 , bodyjs : ", bodyResult);
         } // */
 
-        logger.log("debug", "MAIN - testHTTPoverXMPP, postHTTPoverXMPP decoded resultOfHttp : ", resultOfHttp);
+       _logger.log("debug", "MAIN - testHTTPoverXMPP, postHTTPoverXMPP decoded resultOfHttp : ", resultOfHttp);
 
         // *** Get directory entry ***
 
         urlToGet = "https://openrainbow.net:443/api/rainbow/directory/v1.0/entries?name=testPersonalDirectory&format=small&limit=100&offset=0&sortField=lastName&sortOrder=1&view=all"
         //let res2 = await rainbowSDK.httpoverxmpp.getHTTPoverXMPP(urlToPost + "?name=testPersonalDirectory_lastname_", headers);
         res2 = await rainbowSDK.httpoverxmpp.get(urlToGet, headersGet);
-        logger.log("debug", "MAIN - testHTTPoverXMPP, getHTTPoverXMPP res2 : ", res2);
+       _logger.log("debug", "MAIN - testHTTPoverXMPP, getHTTPoverXMPP res2 : ", res2);
         resp = res2.iq.resp;
         bodyResult = decodeURIComponent(resp.data.text);
         resultOfHttp = bodyResult;
@@ -7770,10 +7770,10 @@ let urlS2S;
 
             }
         } else {
-            logger.warn("internal", "MAIN - testHTTPoverXMPP, getHTTPoverXMPP HTTP response.code != 200 , bodyjs : ", bodyResult);
+           _logger.warn("internal", "MAIN - testHTTPoverXMPP, getHTTPoverXMPP HTTP response.code != 200 , bodyjs : ", bodyResult);
         }
 
-        logger.log("debug", "MAIN - testHTTPoverXMPP, getHTTPoverXMPP decoded resultOfHttp : ", resultOfHttp);
+       _logger.log("debug", "MAIN - testHTTPoverXMPP, getHTTPoverXMPP decoded resultOfHttp : ", resultOfHttp);
 
         // *** Update directory entry ***
 
@@ -7784,7 +7784,7 @@ let urlS2S;
 
         let urlToPut = "https://openrainbow.net:443/api/rainbow/directory/v1.0/entries/" + resultOfHttp.data[0].id;
         res = await rainbowSDK.httpoverxmpp.put(urlToPut, headersPut, body);
-        logger.log("debug", "MAIN - testHTTPoverXMPP, putHTTPoverXMPP res : ", res);
+       _logger.log("debug", "MAIN - testHTTPoverXMPP, putHTTPoverXMPP res : ", res);
         resp = res.iq.resp;
         bodyResult = decodeURIComponent(resp.data.text);
         resultOfHttp = bodyResult;
@@ -7796,17 +7796,17 @@ let urlS2S;
 
             }
         } else {
-            logger.warn("internal", "MAIN - testHTTPoverXMPP, getHTTPoverXMPP HTTP response.code != 200 , bodyjs : ", bodyResult);
+           _logger.warn("internal", "MAIN - testHTTPoverXMPP, getHTTPoverXMPP HTTP response.code != 200 , bodyjs : ", bodyResult);
         }
 
-        logger.log("debug", "MAIN - testHTTPoverXMPP, getHTTPoverXMPP decoded updated resultOfHttp : ", resultOfHttp);
+       _logger.log("debug", "MAIN - testHTTPoverXMPP, getHTTPoverXMPP decoded updated resultOfHttp : ", resultOfHttp);
 
         // *** Get directory entry ***
 
         urlToGet = "https://openrainbow.net:443/api/rainbow/directory/v1.0/entries?name=testPersonalDirectory&format=small&limit=100&offset=0&sortField=lastName&sortOrder=1&view=all"
         //let res2 = await rainbowSDK.httpoverxmpp.getHTTPoverXMPP(urlToPost + "?name=testPersonalDirectory_lastname_", headers);
         res2 = await rainbowSDK.httpoverxmpp.get(urlToGet, headersGet);
-        logger.log("debug", "MAIN - testHTTPoverXMPP, getHTTPoverXMPP res2 : ", res2);
+       _logger.log("debug", "MAIN - testHTTPoverXMPP, getHTTPoverXMPP res2 : ", res2);
         resp = res2.iq.resp;
         bodyResult = decodeURIComponent(resp.data.text);
         resultOfHttp = bodyResult;
@@ -7818,17 +7818,17 @@ let urlS2S;
 
             }
         } else {
-            logger.warn("internal", "MAIN - testHTTPoverXMPP, getHTTPoverXMPP HTTP response.code != 200 , bodyjs : ", bodyResult);
+           _logger.warn("internal", "MAIN - testHTTPoverXMPP, getHTTPoverXMPP HTTP response.code != 200 , bodyjs : ", bodyResult);
         }
 
-        logger.log("debug", "MAIN - testHTTPoverXMPP, getHTTPoverXMPP decoded updated resultOfHttp : ", resultOfHttp);
+       _logger.log("debug", "MAIN - testHTTPoverXMPP, getHTTPoverXMPP decoded updated resultOfHttp : ", resultOfHttp);
 
         // *** Delete directory entry ***
 
         urlToDelete = "https://openrainbow.net:443/api/rainbow/directory/v1.0/entries/"
         for (let i = 0; i < resultOfHttp.data.length; i++) {
             let resDelete: any = await rainbowSDK.httpoverxmpp.delete(urlToDelete + resultOfHttp.data[i].id, headersGet, undefined);
-            logger.log("debug", "MAIN - testHTTPoverXMPP, deleteHTTPoverXMPP resDelete : ", resDelete);
+           _logger.log("debug", "MAIN - testHTTPoverXMPP, deleteHTTPoverXMPP resDelete : ", resDelete);
             let respDelete = resDelete.iq.resp;
             let bodyResultDelete = decodeURIComponent(respDelete.data.text);
             let resultOfHttpDelete: any = bodyResultDelete;
@@ -7840,24 +7840,24 @@ let urlS2S;
 
                 }
             } else {
-                logger.warn("internal", "MAIN - testHTTPoverXMPP, deleteHTTPoverXMPP HTTP response.code != 200 , bodyjs : ", bodyResultDelete);
+               _logger.warn("internal", "MAIN - testHTTPoverXMPP, deleteHTTPoverXMPP HTTP response.code != 200 , bodyjs : ", bodyResultDelete);
             }
 
-            logger.log("debug", "MAIN - testHTTPoverXMPP, deleteHTTPoverXMPP decoded resultOfHttpDelete : ", resultOfHttpDelete);
+           _logger.log("debug", "MAIN - testHTTPoverXMPP, deleteHTTPoverXMPP decoded resultOfHttpDelete : ", resultOfHttpDelete);
             // */
         }
 
 
         /*
         let personalDirectoryList : any = await rainbowSDK.contacts.getListPersonalDirectoryEntriesData("testPersonalDirectory", undefined, undefined, undefined, undefined, undefined, undefined, undefined );
-        logger.log("debug", "MAIN - testdeletePersonalDirectoryEntry - personalDirectoryList : ", personalDirectoryList);
+       _logger.log("debug", "MAIN - testdeletePersonalDirectoryEntry - personalDirectoryList : ", personalDirectoryList);
         if (personalDirectoryList &&personalDirectoryList.data && personalDirectoryList.total > 0) {
                     let result = await rainbowSDK.contacts.updatePersonalDirectoryEntry(personalDirectoryList.data[0].id, personalDirectoryList.data[0].firstName + "_updated");
 
             let result = await rainbowSDK.contacts.deletePersonalDirectoryEntry(personalDirectoryList.data[0].id);
-            logger.log("debug", "MAIN - testdeletePersonalDirectoryEntry - deletePersonalDirectoryEntry result : ", result);
+           _logger.log("debug", "MAIN - testdeletePersonalDirectoryEntry - deletePersonalDirectoryEntry result : ", result);
             let personalDirectoryListUpdated : any = await rainbowSDK.contacts.getListPersonalDirectoryEntriesData("testPersonalDirectory", undefined, undefined, undefined, undefined, undefined, undefined, undefined );
-            logger.log("debug", "MAIN - testdeletePersonalDirectoryEntry - personalDirectoryListUpdated : ", personalDirectoryListUpdated);
+           _logger.log("debug", "MAIN - testdeletePersonalDirectoryEntry - personalDirectoryListUpdated : ", personalDirectoryListUpdated);
         }
         // */
 
@@ -7866,7 +7866,7 @@ let urlS2S;
     async  testdiscover() {
         let that = this;
         let res = await rainbowSDK.httpoverxmpp.discover();
-        logger.log("debug", "MAIN - testdiscover, res : ", res);
+       _logger.log("debug", "MAIN - testdiscover, res : ", res);
     }
 
     //endregion Rainbow HTTPoverXMPP
@@ -7875,7 +7875,7 @@ let urlS2S;
 
     async  testgetMyPresenceInformation() {
         let res = await rainbowSDK.presence.getMyPresenceInformation();
-        logger.log("debug", "MAIN - testgetMyPresenceInformation, res : ", res);
+       _logger.log("debug", "MAIN - testgetMyPresenceInformation, res : ", res);
     }
 
     async  testsetPresenceTo() {
@@ -7890,7 +7890,7 @@ let urlS2S;
                 setAway = true;
             }
             let res = await rainbowSDK.presence.setPresenceTo(presenceStr);
-            logger.log("debug", "MAIN - testsetPresenceTo, set presence res : ", res);
+           _logger.log("debug", "MAIN - testsetPresenceTo, set presence res : ", res);
         }, 20000);
     }
 
@@ -7903,7 +7903,7 @@ let urlS2S;
         // API https://api.openrainbow.org/telephony/#api-telephony-Voice_all_user's_messages_delete
         let that = this;
         let res = await rainbowSDK.telephony.deleteAllMyVoiceMessagesFromPbx();
-        logger.log("debug", "MAIN - testdeleteAllMyVoiceMessagesFromPbx, res : ", res);
+       _logger.log("debug", "MAIN - testdeleteAllMyVoiceMessagesFromPbx, res : ", res);
     }
 
     async  testdeleteAVoiceMessageFromPbx() {
@@ -7912,7 +7912,7 @@ let urlS2S;
         let that = this;
         let messageId = "";
         let res = await rainbowSDK.telephony.deleteAVoiceMessageFromPbx(messageId);
-        logger.log("debug", "MAIN - testdeleteAVoiceMessageFromPbx, res : ", res);
+       _logger.log("debug", "MAIN - testdeleteAVoiceMessageFromPbx, res : ", res);
     }
 
     async  testgetAVoiceMessageFromPbx() {
@@ -7921,7 +7921,7 @@ let urlS2S;
         let that = this;
         let messageId: string, messageDate: string, messageFrom: string;
         let res = await rainbowSDK.telephony.getAVoiceMessageFromPbx(messageId, messageDate, messageFrom);
-        logger.log("debug", "MAIN - testgetAVoiceMessageFromPbx, res : ", res);
+       _logger.log("debug", "MAIN - testgetAVoiceMessageFromPbx, res : ", res);
     }
 
     async  testgetDetailedListOfVoiceMessages() {
@@ -7930,9 +7930,9 @@ let urlS2S;
         let that = this;
         try {
             let res = await rainbowSDK.telephony.getDetailedListOfVoiceMessages();
-            logger.log("debug", "MAIN - testgetDetailedListOfVoiceMessages, res : ", res);
+           _logger.log("debug", "MAIN - testgetDetailedListOfVoiceMessages, res : ", res);
         } catch (err) {
-            logger.log("error", "MAIN - testgetDetailedListOfVoiceMessages, error : ", err);
+           _logger.log("error", "MAIN - testgetDetailedListOfVoiceMessages, error : ", err);
 
         }
     }
@@ -7942,7 +7942,7 @@ let urlS2S;
         // GET /api/rainbow/telephony/v1.0/voicemessages/counters
         let that = this;
         let res = await rainbowSDK.telephony.getNumbersOfVoiceMessages();
-        logger.log("debug", "MAIN - testgetNumbersOfVoiceMessages, res : ", res);
+       _logger.log("debug", "MAIN - testgetNumbersOfVoiceMessages, res : ", res);
     }
 
     // endregion Telephony Voice Messages
@@ -7952,22 +7952,22 @@ let urlS2S;
     async  testgetRainbowSupportBotService() {
         let that = this;
         let res = await rainbowSDK.admin.getRainbowSupportBotService();
-        logger.log("debug", "MAIN - testgetRainbowSupportBotService, res : ", res);
+       _logger.log("debug", "MAIN - testgetRainbowSupportBotService, res : ", res);
     }
 
     async  testgetABotServiceData() {
         let that = this;
         let res = await rainbowSDK.admin.getRainbowSupportBotService();
-        logger.log("debug", "MAIN - testgetABotServiceData, getRainbowSupportBotService res : ", res);
+       _logger.log("debug", "MAIN - testgetABotServiceData, getRainbowSupportBotService res : ", res);
         let res2 = await rainbowSDK.admin.getABotServiceData(res.id);
-        logger.log("debug", "MAIN - testgetABotServiceData, getABotServiceData res2 : ", res2);
+       _logger.log("debug", "MAIN - testgetABotServiceData, getABotServiceData res2 : ", res2);
 
     }
 
     async  testgetAllBotServices() {
             let that = this;
             let res = await rainbowSDK.admin.getAllBotServices();
-            logger.log("debug", "MAIN - testgetAllBotServices, res : ", res);
+           _logger.log("debug", "MAIN - testgetAllBotServices, res : ", res);
     }
 
     // endregion Bots
@@ -7977,7 +7977,7 @@ let urlS2S;
     async  testgetAllPbxs() {
        let that = this;
        let res = await rainbowSDK.admin.getAllPbxs();
-       logger.log("debug", "MAIN - testgetAllPbxs, res : ", res);
+      _logger.log("debug", "MAIN - testgetAllPbxs, res : ", res);
     }
 
     //endregion PBXS
@@ -7988,30 +7988,30 @@ let urlS2S;
             let fn1 = function (arg1) {
                 return arg1;
             }
-            logger.log("debug", "MAIN - testcallRPCMethod_system, function name of fn1 : ", functionName(fn1));
+           _logger.log("debug", "MAIN - testcallRPCMethod_system, function name of fn1 : ", functionName(fn1));
 
             let fn2 = function fn2(arg1) {
                 return arg1;
             }
-            logger.log("debug", "MAIN - testcallRPCMethod_system, function name of fn2 : ", functionName(fn2));
+           _logger.log("debug", "MAIN - testcallRPCMethod_system, function name of fn2 : ", functionName(fn2));
 
             let fn3 = (arg1) => {
                 return arg1;
             }
-            logger.log("debug", "MAIN - testcallRPCMethod_system, function name of fn3 : ", functionName(fn3));
+           _logger.log("debug", "MAIN - testcallRPCMethod_system, function name of fn3 : ", functionName(fn3));
         }
 
 
         async testcallRPCMethod_system () {
             let that = this;
             let methodNames : any = await rainbowSDK.rpcoverxmpp.callRPCMethod();
-            logger.log("debug", "MAIN - testcallRPCMethod_system, methodNames : ", methodNames);
+           _logger.log("debug", "MAIN - testcallRPCMethod_system, methodNames : ", methodNames);
             for (const methodName of methodNames) {
-                logger.log("debug", "MAIN - testcallRPCMethod_system, methodName : ", methodName);
+               _logger.log("debug", "MAIN - testcallRPCMethod_system, methodName : ", methodName);
                 let methodHelp : any = await rainbowSDK.rpcoverxmpp.callRPCMethod(undefined,"system.methodHelp", [methodName]);
-                logger.log("debug", "MAIN - testcallRPCMethod_system, methodName : ", methodName, ", methodHelp : ", methodHelp);
+               _logger.log("debug", "MAIN - testcallRPCMethod_system, methodName : ", methodName, ", methodHelp : ", methodHelp);
                 let methodSignature : any = await rainbowSDK.rpcoverxmpp.callRPCMethod(undefined,"system.methodSignature", [methodName]);
-                logger.log("debug", "MAIN - testcallRPCMethod_system, methodName : ", methodName, ", methodSignature : ", methodSignature);
+               _logger.log("debug", "MAIN - testcallRPCMethod_system, methodName : ", methodName, ", methodSignature : ", methodSignature);
             }
         }
 
@@ -8019,11 +8019,11 @@ let urlS2S;
             let that = this;
 
             let resultOfAdd = await rainbowSDK.rpcoverxmpp.addRPCMethod("example.trace", (arg1, arg2, arg3, arg4, arg5) => {
-                logger.log("debug", "MAIN - example.trace, arg1 : ", arg1);
-                logger.log("debug", "MAIN - example.trace, arg2 : ", arg2);
-                logger.log("debug", "MAIN - example.trace, arg3 : ", arg3);
-                logger.log("debug", "MAIN - example.trace, arg4 : ", arg4);
-                logger.log("debug", "MAIN - example.trace, arg5 : ", arg5);
+               _logger.log("debug", "MAIN - example.trace, arg1 : ", arg1);
+               _logger.log("debug", "MAIN - example.trace, arg2 : ", arg2);
+               _logger.log("debug", "MAIN - example.trace, arg3 : ", arg3);
+               _logger.log("debug", "MAIN - example.trace, arg4 : ", arg4);
+               _logger.log("debug", "MAIN - example.trace, arg5 : ", arg5);
                 let result = {
                     arg1,
                     arg2,
@@ -8033,7 +8033,7 @@ let urlS2S;
                 }
                 return result;
             }, "example.trace description", "example.trace help");
-            logger.log("debug", "MAIN - testaddRPCMethod, resultOfAdd : ", resultOfAdd);
+           _logger.log("debug", "MAIN - testaddRPCMethod, resultOfAdd : ", resultOfAdd);
         }
 
         async testcallRPCMethod_withParams () {
@@ -8041,13 +8041,13 @@ let urlS2S;
             let param = [];
 
             await rainbowSDK.rpcoverxmpp.addRPCMethod("example.trace", (arg1, arg2, arg3, arg4, arg5, arg6, arg7) => {
-                logger.log("debug", "MAIN - example.trace, arg1 : ", arg1);
-                logger.log("debug", "MAIN - example.trace, arg2 : ", arg2);
-                logger.log("debug", "MAIN - example.trace, arg3 : ", arg3);
-                logger.log("debug", "MAIN - example.trace, arg4 : ", arg4);
-                logger.log("debug", "MAIN - example.trace, arg5 : ", arg5);
-                logger.log("debug", "MAIN - example.trace, arg6 : ", arg6);
-                logger.log("debug", "MAIN - example.trace, arg7 : ", arg7);
+               _logger.log("debug", "MAIN - example.trace, arg1 : ", arg1);
+               _logger.log("debug", "MAIN - example.trace, arg2 : ", arg2);
+               _logger.log("debug", "MAIN - example.trace, arg3 : ", arg3);
+               _logger.log("debug", "MAIN - example.trace, arg4 : ", arg4);
+               _logger.log("debug", "MAIN - example.trace, arg5 : ", arg5);
+               _logger.log("debug", "MAIN - example.trace, arg6 : ", arg6);
+               _logger.log("debug", "MAIN - example.trace, arg7 : ", arg7);
                 let result = {
                     arg1,
                     arg2,
@@ -8076,7 +8076,7 @@ let urlS2S;
             param.push(["valArrayOne"]);
 
             let res = await rainbowSDK.rpcoverxmpp.callRPCMethod(undefined,"example.trace", param);
-            logger.log("debug", "MAIN - testcallRPCMethod_withParams, res : ", res);
+           _logger.log("debug", "MAIN - testcallRPCMethod_withParams, res : ", res);
         }
 
     //endregion RPC
@@ -8102,10 +8102,10 @@ let urlS2S;
 
                 let res = await rainbowSDK.admin.sendCustomerCareReport(logId, filesPath, occurrenceDate, occurrenceDateTimezone,
                         description, externalRef, device, version, deviceDetails);
-                logger.log("debug", "MAIN - testcallRPCMethod_withParams, res : ", res);
+               _logger.log("debug", "MAIN - testcallRPCMethod_withParams, res : ", res);
             } catch (err) {
-                logger.log("error", "MAIN - CATCH error.");
-                logger.log("internalerror", "MAIN - CATCH error !!! : ", err);
+               _logger.log("error", "MAIN - CATCH error.");
+               _logger.log("internalerror", "MAIN - CATCH error !!! : ", err);
             }
         }
 
@@ -8119,15 +8119,15 @@ let urlS2S;
             await rainbowSDK.stop();
         }
 
-        let timeOutManager = new TimeOutManager(logger);
+        let timeOutManager = new TimeOutManager(_logger);
 
         function fn(id) {
             return () => {
-                logger.log("debug", "MAIN - testtimeOutManagersetTimeout, id : ", id, " done at : ", new Date().toTimeString());
+               _logger.log("debug", "MAIN - testtimeOutManagersetTimeout, id : ", id, " done at : ", new Date().toTimeString());
             }
         }
 
-        logger.log("debug", "MAIN - testtimeOutManagersetTimeout, start at : ", new Date().toTimeString());
+       _logger.log("debug", "MAIN - testtimeOutManagersetTimeout, start at : ", new Date().toTimeString());
         timeOutManager.setTimeout(fn("1"), 20000, "timer a 20 secondes");
         timeOutManager.setTimeout(fn("2"), 10000, "timer a 10 secondes");
         timeOutManager.listEveryTimeout();
@@ -8154,19 +8154,19 @@ let urlS2S;
             await rainbowSDK.stop();
         }
 
-        let timeOutManager = new TimeOutManager(logger);
+        let timeOutManager = new TimeOutManager(_logger);
 
         function fn(id) {
             return () => {
-                logger.log("debug", "MAIN - testtimeOutManagersetTimeoutPromised, id : ", id, " done at : ", new Date().toTimeString());
+               _logger.log("debug", "MAIN - testtimeOutManagersetTimeoutPromised, id : ", id, " done at : ", new Date().toTimeString());
             }
         }
 
-        logger.log("debug", "MAIN - testtimeOutManagersetTimeoutPromised, start at : ", new Date().toTimeString());
+       _logger.log("debug", "MAIN - testtimeOutManagersetTimeoutPromised, start at : ", new Date().toTimeString());
         timeOutManager.setTimeoutPromised(fn("1"), 20000, "timer a 20 secondes").then(() => {
-            logger.log("debug", "MAIN - testtimeOutManagersetTimeoutPromised, After setTimeoutPromised done at : ", new Date().toTimeString());
+           _logger.log("debug", "MAIN - testtimeOutManagersetTimeoutPromised, After setTimeoutPromised done at : ", new Date().toTimeString());
         }).catch((err) => {
-            logger.log("error", "MAIN - testtimeOutManagersetTimeoutPromised, Catch setTimeoutPromised done at : ", new Date().toTimeString(), ", error : ", err);
+           _logger.log("error", "MAIN - testtimeOutManagersetTimeoutPromised, Catch setTimeoutPromised done at : ", new Date().toTimeString(), ", error : ", err);
         });
         //timeOutManager.setTimeout(fn("2"), 10000, "timer a 10 secondes") ;
         timeOutManager.listEveryTimeout();
@@ -8202,24 +8202,24 @@ let urlS2S;
     testundefined() {
         try {
             // @ts-ignore
-            logger.log("debug", "MAIN - testundefined, start at : ", undefined.settings);
+           _logger.log("debug", "MAIN - testundefined, start at : ", undefined.settings);
         } catch (err) {
-            logger.log("debug", "MAIN - testundefined, CATCH Error !!! : ", err);
+           _logger.log("debug", "MAIN - testundefined, CATCH Error !!! : ", err);
         }
     }
 
      testresolveDns(url: string = 'www.amagicshop.com.tw') {
         Utils.resolveDns(url).then((result) => {
-            logger.log("debug", "MAIN - testresolveDns, result : ", result);
+           _logger.log("debug", "MAIN - testresolveDns, result : ", result);
         }).catch((err) => {
-            logger.log("debug", "MAIN - testresolveDns, error : ", err);
+           _logger.log("debug", "MAIN - testresolveDns, error : ", err);
         })
     }
 
      testGetEventsList() {
         let eventsTab = rainbowSDK.events.sdkPublicEventsName;
         for (const event in eventsTab) {
-            logger.log("debug", "MAIN - testGetEventsList, eventTab : ", eventsTab[event]);
+           _logger.log("debug", "MAIN - testGetEventsList, eventTab : ", eventsTab[event]);
         }
     }
 
@@ -8230,21 +8230,21 @@ let urlS2S;
         let nbRequestToSend = nb;
         let nbRequestSent = 0;
         let promiseList = []
-        logger.log("debug", "MAIN - (testMultiPromise) : START iter.");
+       _logger.log("debug", "MAIN - (testMultiPromise) : START iter.");
         for (let i = 0; i < nbRequestToSend; i++) {
             //setTimeoutPromised(100).then(() => {
             let prom = rainbowSDK._core._rest.getContactInformationByJID(contact.jid).then((_contactFromServer: any) => {
                 nbRequestSent++;
-                logger.log("debug", "MAIN - promise iter : ", logger.colors.green(i), " : nb request sent ", nbRequestSent, "/", nbRequestToSend, " needed, result : contact : ", _contactFromServer.displayName);
+               _logger.log("debug", "MAIN - promise iter : ",_logger.colors.green(i), " : nb request sent ", nbRequestSent, "/", nbRequestToSend, " needed, result : contact : ", _contactFromServer.displayName);
             }).catch((error) => {
-                logger.log("error", "MAIN - CATCH Error !!! promise to getContactInfo failed result : ", error);
+               _logger.log("error", "MAIN - CATCH Error !!! promise to getContactInfo failed result : ", error);
             });
             promiseList.push(prom);
             //});
         }
-        logger.log("debug", "MAIN - (testMultiPromise) : STOP iter.");
+       _logger.log("debug", "MAIN - (testMultiPromise) : STOP iter.");
         Promise.all(promiseList).then(() => {
-            logger.log("debug", "MAIN - (testMultiPromise) : ALL Promises done.");
+           _logger.log("debug", "MAIN - (testMultiPromise) : ALL Promises done.");
         })
     }
 
@@ -8259,18 +8259,18 @@ let urlS2S;
 
 //token = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNWMzZGY5Mzc3NmYzNTE4OTc4YzFkMDhhIn0sImFwcCI6eyJpZCI6IjIzNWFjNjAwMDk4MzExZWNiN2I4NGQ2OTk4MjVkNmQzIiwibmFtZSI6InZiZXJkZXItb2F1dGgtYXBwIn0sIm9hdXRoIjp7InRva2VuSWQiOiJMU19qV1VvcmpKIiwicmVmcmVzaFRva2VuSWQiOiI2MTJlNjhjMThkZDU3MTc4NTdmZTU1ZjIiLCJ0eXBlIjoiYWNjZXNzX3Rva2VuIiwic2NvcGUiOiJhbGwiLCJncmFudCI6ImF1dGhvcml6YXRpb25fY29kZSJ9LCJlbnZpcm9ubWVudCI6eyJlbnZpcm9ubWVudE5hbWUiOiJwcmVwcm9kdWN0aW9uIiwiZW52aXJvbm1lbnRBcGlVcmwiOiJodHRwczovL29wZW5yYWluYm93Lm5ldCJ9LCJpYXQiOjE2MzA0MzE0MjUsImV4cCI6MTYzMDQzMTcyNX0.DeWye85KexHllKsMwvJMfnC5ajl_NBXLzzE7DHaDuisrN3g3WA27C3Z1Saa7cGAQGixI5zK1DZScJPQaCC6Bv-gR3MJAfuyidF_HA5pjp7oHV40Dt6791NaMCQQDHhlpzbabDWL0pw9gqrO55y4bgtJ07EXg4j-H34nue6SxKfupXqmgx3A_4IM_rIn_HMMpNgooFOv2ktQIPNmRkXL8nUwyiyNIeIhCWtO8KQ4j23zXdgPP30jfS14vSEpRS19dlbCZ3dcdckj42cV8lPm_XEspk-F_x5DcjwGhtfvjrCcqWMn8mQ6x50lcnk_gfqB6K8lIrwWPZXw5PKdruHB40g";
 
-        logger.log("debug", "MAIN - (testStartWithToken) rainbow SDK token : ", logger.colors.green(token)); //logger.colors.green(JSON.stringify(result)));
+       _logger.log("debug", "MAIN - (testStartWithToken) rainbow SDK token : ",_logger.colors.green(token)); //logger.colors.green(JSON.stringify(result)));
          token = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb3VudFJlbmV3ZWQiOjAsIm1heFRva2VuUmVuZXciOjcsInVzZXIiOnsiaWQiOiI1NzMxZmU0Zjc4MjQwOTFiMzVmNWUyYjciLCJsb2dpbkVtYWlsIjoidmluY2VudC5iZXJkZXJAYWwtZW50ZXJwcmlzZS5jb20ifSwiZW52aXJvbm1lbnQiOnsiZW52aXJvbm1lbnROYW1lIjoib2ZmaWNpYWwiLCJlbnZpcm9ubWVudEFwaVVybCI6Imh0dHBzOi8vb3BlbnJhaW5ib3cuY29tIn0sImFwcCI6eyJpZCI6ImEyZjg5MDMwMDBmMDExZTg4NmQ5YjViYmQzMjYwNzkyIiwibmFtZSI6IlJhaW5ib3cgb2ZmaWNpYWwgV2ViIGFwcGxpY2F0aW9uIn0sInNhbWwiOnsibmFtZUlkIjoidmluY2VudC5iZXJkZXJAYWwtZW50ZXJwcmlzZS5jb20iLCJzZXNzaW9uSWR4IjoiXzZhZmM4Y2ZmLTg3OTEtNDZhNy1iZWEyLTAzODgwMGI4OGIwMCJ9LCJpYXQiOjE2MjkyMTEzMDQsImV4cCI6MTYzMDUwNzMwNH0.aP4LC9HX-QO1s9gf68-R08goe4472YQYEOErRc7_piaVRRPYchD6Fo3u3CXJNmwep5MJjnypuJKlttQ4mtMRHG5np3b_1peARj0qqMpePag4JiQZWV9ne9DwcwNRhxD8uTmYEDOezGH8hhpIvkqUfuHpR4ZW7Anff5SeVOHPWzwcJ5EUJQKQKKR3sEfEC_2PHd7fywEw0BDOxCIXFQjC1jG3_JbIgnIGOqTwOFdH9-ZaurDjj9mU2JL4l9GKPn_afi1YiBjoAm3Er7hM-x6XwHHdJBvl49SY-4p7uzhqFIFNnrZ-73Cihbo8RTyb0hnCdOB36p6HfiVytL6UwZHQCw";
-        logger.log("debug", "MAIN - (testStartWithToken) rainbow SDK token : ", logger.colors.green(token)); //logger.colors.green(JSON.stringify(result)));
+       _logger.log("debug", "MAIN - (testStartWithToken) rainbow SDK token : ",_logger.colors.green(token)); //logger.colors.green(JSON.stringify(result)));
         try {
-            logger.log("debug", "MAIN - rainbow SDK token decoded : ", jwtDecode(token));
+           _logger.log("debug", "MAIN - rainbow SDK token decoded : ", jwtDecode(token));
         } catch (err) {
-            logger.log("error", "MAIN - rainbow SDK token decoded error : ", token);
+           _logger.log("error", "MAIN - rainbow SDK token decoded error : ", token);
         }
 
         await rainbowSDK.start(token).then(async (result2) => {
             // Do something when the SDK is started
-            logger.log("debug", "MAIN - (testStartWithToken) rainbow SDK started with token result 2: ", logger.colors.green(result2)); //logger.colors.green(JSON.stringify(result)));
+           _logger.log("debug", "MAIN - (testStartWithToken) rainbow SDK started with token result 2: ",_logger.colors.green(result2)); //logger.colors.green(JSON.stringify(result)));
         });
         await rainbowSDK.stop();
     }
@@ -8284,24 +8284,24 @@ let urlS2S;
 
 //token = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiNWMzZGY5Mzc3NmYzNTE4OTc4YzFkMDhhIn0sImFwcCI6eyJpZCI6IjIzNWFjNjAwMDk4MzExZWNiN2I4NGQ2OTk4MjVkNmQzIiwibmFtZSI6InZiZXJkZXItb2F1dGgtYXBwIn0sIm9hdXRoIjp7InRva2VuSWQiOiJMU19qV1VvcmpKIiwicmVmcmVzaFRva2VuSWQiOiI2MTJlNjhjMThkZDU3MTc4NTdmZTU1ZjIiLCJ0eXBlIjoiYWNjZXNzX3Rva2VuIiwic2NvcGUiOiJhbGwiLCJncmFudCI6ImF1dGhvcml6YXRpb25fY29kZSJ9LCJlbnZpcm9ubWVudCI6eyJlbnZpcm9ubWVudE5hbWUiOiJwcmVwcm9kdWN0aW9uIiwiZW52aXJvbm1lbnRBcGlVcmwiOiJodHRwczovL29wZW5yYWluYm93Lm5ldCJ9LCJpYXQiOjE2MzA0MzE0MjUsImV4cCI6MTYzMDQzMTcyNX0.DeWye85KexHllKsMwvJMfnC5ajl_NBXLzzE7DHaDuisrN3g3WA27C3Z1Saa7cGAQGixI5zK1DZScJPQaCC6Bv-gR3MJAfuyidF_HA5pjp7oHV40Dt6791NaMCQQDHhlpzbabDWL0pw9gqrO55y4bgtJ07EXg4j-H34nue6SxKfupXqmgx3A_4IM_rIn_HMMpNgooFOv2ktQIPNmRkXL8nUwyiyNIeIhCWtO8KQ4j23zXdgPP30jfS14vSEpRS19dlbCZ3dcdckj42cV8lPm_XEspk-F_x5DcjwGhtfvjrCcqWMn8mQ6x50lcnk_gfqB6K8lIrwWPZXw5PKdruHB40g";
 
-            logger.log("debug", "MAIN - (testTokenJwtDecode) rainbow SDK token : ", logger.colors.green(token)); //logger.colors.green(JSON.stringify(result)));
+           _logger.log("debug", "MAIN - (testTokenJwtDecode) rainbow SDK token : ",_logger.colors.green(token)); //logger.colors.green(JSON.stringify(result)));
             token = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb3VudFJlbmV3ZWQiOjAsIm1heFRva2VuUmVuZXciOjcsInVzZXIiOnsiaWQiOiI1NzMxZmU0Zjc4MjQwOTFiMzVmNWUyYjciLCJsb2dpbkVtYWlsIjoidmluY2VudC5iZXJkZXJAYWwtZW50ZXJwcmlzZS5jb20ifSwiZW52aXJvbm1lbnQiOnsiZW52aXJvbm1lbnROYW1lIjoib2ZmaWNpYWwiLCJlbnZpcm9ubWVudEFwaVVybCI6Imh0dHBzOi8vb3BlbnJhaW5ib3cuY29tIn0sImFwcCI6eyJpZCI6ImEyZjg5MDMwMDBmMDExZTg4NmQ5YjViYmQzMjYwNzkyIiwibmFtZSI6IlJhaW5ib3cgb2ZmaWNpYWwgV2ViIGFwcGxpY2F0aW9uIn0sInNhbWwiOnsibmFtZUlkIjoidmluY2VudC5iZXJkZXJAYWwtZW50ZXJwcmlzZS5jb20iLCJzZXNzaW9uSWR4IjoiXzZhZmM4Y2ZmLTg3OTEtNDZhNy1iZWEyLTAzODgwMGI4OGIwMCJ9LCJpYXQiOjE2MjkyMTEzMDQsImV4cCI6MTYzMDUwNzMwNH0.aP4LC9HX-QO1s9gf68-R08goe4472YQYEOErRc7_piaVRRPYchD6Fo3u3CXJNmwep5MJjnypuJKlttQ4mtMRHG5np3b_1peARj0qqMpePag4JiQZWV9ne9DwcwNRhxD8uTmYEDOezGH8hhpIvkqUfuHpR4ZW7Anff5SeVOHPWzwcJ5EUJQKQKKR3sEfEC_2PHd7fywEw0BDOxCIXFQjC1jG3_JbIgnIGOqTwOFdH9-ZaurDjj9mU2JL4l9GKPn_afi1YiBjoAm3Er7hM-x6XwHHdJBvl49SY-4p7uzhqFIFNnrZ-73Cihbo8RTyb0hnCdOB36p6HfiVytL6UwZHQCw";
-            logger.log("debug", "MAIN - (testTokenJwtDecode) rainbow SDK token : ", logger.colors.green(token)); //logger.colors.green(JSON.stringify(result)));
+           _logger.log("debug", "MAIN - (testTokenJwtDecode) rainbow SDK token : ",_logger.colors.green(token)); //logger.colors.green(JSON.stringify(result)));
             try {
                 let decodedToken = jwtDecode(token);
-                logger.log("debug", "MAIN - (testTokenJwtDecode) token decodedToken : ", decodedToken);
+               _logger.log("debug", "MAIN - (testTokenJwtDecode) token decodedToken : ", decodedToken);
 
-                logger.log("debug", "MAIN - (testTokenJwtDecode) token full duration : ", msToTime((decodedToken.exp - decodedToken.iat)*1000 ));
+               _logger.log("debug", "MAIN - (testTokenJwtDecode) token full duration : ", msToTime((decodedToken.exp - decodedToken.iat)*1000 ));
                 // 1 jours = 86400000, 1 heure = 3600000, 1 min = 60000, 1 seconde = 1000
                 let timToTest = 86400000 * 15 + 3600000 * 6 + 60000 * 24 + 1000 *3 ;
-                logger.log("debug", "MAIN - (testTokenJwtDecode) timToTest full duration : ", msToTime(timToTest));
+               _logger.log("debug", "MAIN - (testTokenJwtDecode) timToTest full duration : ", msToTime(timToTest));
                 /* await rainbowSDK._core._rest.getContactByToken(token).then(async (result2) => {
                     // Do something when the SDK is started
-                    logger.log("debug", "MAIN - (testStartWithToken) rainbow SDK started with token result 2: ", logger.colors.green(result2)); //logger.colors.green(JSON.stringify(result)));
+                   _logger.log("debug", "MAIN - (testStartWithToken) rainbow SDK started with token result 2: ",_logger.colors.green(result2)); //logger.colors.green(JSON.stringify(result)));
                 }); // */
 
             } catch (err) {
-                logger.log("error", "MAIN - (testTokenJwtDecode) token decoded error : ", token);
+               _logger.log("error", "MAIN - (testTokenJwtDecode) token decoded error : ", token);
             }
         }
 
@@ -8310,63 +8310,63 @@ let urlS2S;
 
     async  testStopAndStart() {
         let result = await this.start();
-        logger.log("debug", "MAIN - (testStopAndStart) rainbow SDK started first time : ", logger.colors.green(result));
+       _logger.log("debug", "MAIN - (testStopAndStart) rainbow SDK started first time : ",_logger.colors.green(result));
         await rainbowSDK.stop();
         let token = undefined;
 
-        logger.log("debug", "MAIN - (testStopAndStart) rainbow SDK stopped.");
+       _logger.log("debug", "MAIN - (testStopAndStart) rainbow SDK stopped.");
         await rainbowSDK.start(token).then(async (result2) => {
             // Do something when the SDK is started
-            logger.log("debug", "MAIN - (testStopAndStart) rainbow SDK started second time : ", logger.colors.green(result2)); //logger.colors.green(JSON.stringify(result)));
+           _logger.log("debug", "MAIN - (testStopAndStart) rainbow SDK started second time : ",_logger.colors.green(result2)); //logger.colors.green(JSON.stringify(result)));
         });
         await rainbowSDK.stop();
     }
 
     async  testsend429Appid() {
 
-        logger.log("debug", "MAIN - (testsend429Appid) rainbow SDK stopped.");
+       _logger.log("debug", "MAIN - (testsend429Appid) rainbow SDK stopped.");
         let headers = rainbowSDK._core._rest.getLoginHeader();
         headers["x-rainbow-client-id"] = "098b3333e3f254ddbce01e2311edb8dec";
         await rainbowSDK._core._rest.http.get("/api/rainbow/authentication/v1.0/login", headers, undefined).then(
                 async (result) => {
-                    logger.log("debug", "MAIN - (testsend429Appid) rainbow get result : ", logger.colors.green(result));
+                   _logger.log("debug", "MAIN - (testsend429Appid) rainbow get result : ",_logger.colors.green(result));
                 }
         ).catch(async error => {
-            logger.log("error", "MAIN - (testsend429Appid) CATCH Error !!! : ", logger.colors.green(error));
+           _logger.log("error", "MAIN - (testsend429Appid) CATCH Error !!! : ",_logger.colors.green(error));
             let res = await rainbowSDK.admin.getAllBotServices().then(() => {
-                logger.log("debug", "MAIN - (testsend429Appid), getAllBotServices res : ", res);
+               _logger.log("debug", "MAIN - (testsend429Appid), getAllBotServices res : ", res);
             }).catch((error2) => {
-                logger.log("error", "MAIN - (testsend429Appid), getAllBotServices error2 : ", error2);
+               _logger.log("error", "MAIN - (testsend429Appid), getAllBotServices error2 : ", error2);
             });
             let connectionStatus = await rainbowSDK.getConnectionStatus().catch(err => { return err; } );
-            logger.log("debug", "MAIN - [testgetConnectionStatus    ] :: connectionStatus : ", connectionStatus);
+           _logger.log("debug", "MAIN - [testgetConnectionStatus    ] :: connectionStatus : ", connectionStatus);
 
         });
     }
 
     async  testsendMultiHttpRequest() {
 
-        logger.log("debug", "MAIN - (testsendMultiHttpRequest) .");
+       _logger.log("debug", "MAIN - (testsendMultiHttpRequest) .");
         let headers = rainbowSDK._core._rest.getRequestHeader();
 
         for (let i = 0; i < 102; i++) {
             rainbowSDK._core._rest.http.get("/api/rainbow/enduser/v1.0/users/jids/209c7d9cf1fe4b818ae4004899cbd03c@openrainbow.com", headers, undefined).then(
                     async (result) => {
-                        logger.log("debug", "MAIN - (testsendMultiHttpRequest) rainbow get result : ", logger.colors.green(result));
+                       _logger.log("debug", "MAIN - (testsendMultiHttpRequest) rainbow get result : ",_logger.colors.green(result));
                     }
             ).catch(async error => {
-                logger.log("error", "MAIN - (testsendMultiHttpRequest) CATCH Error !!! : ", logger.colors.green(error));
+               _logger.log("error", "MAIN - (testsendMultiHttpRequest) CATCH Error !!! : ",_logger.colors.green(error));
                 let connectionStatus = await rainbowSDK.getConnectionStatus().catch(err => {
                     return err;
                 });
-                logger.log("debug", "MAIN - [testsendMultiHttpRequest    ] :: connectionStatus : ", connectionStatus);
+               _logger.log("debug", "MAIN - [testsendMultiHttpRequest    ] :: connectionStatus : ", connectionStatus);
 
             });
         }
     }
 
     async  test5Start() {
-        logger.log("debug", "MAIN - (test5Start) __ begin __.");
+       _logger.log("debug", "MAIN - (test5Start) __ begin __.");
         let options1: any={};
         let options2: any={};
         let options3: any={};
@@ -8378,10 +8378,10 @@ let urlS2S;
         let rainbowSDK1 = new RainbowSDK(options1);
         rainbowSDK1.events.on("rainbow_onconnectionerror", () => {
             // do something when the SDK has been started
-            logger.log("debug", "MAIN - (rainbow_onconnectionerror) - rainbow failed to start.");
+           _logger.log("debug", "MAIN - (rainbow_onconnectionerror) - rainbow failed to start.");
         });
         rainbowSDK1.events.on("rainbow_onerror", (data) => {
-            logger.log("debug", "MAIN - (rainbow_onerror)  - rainbow event received. data", data, " destroy and recreate the SDK.");
+           _logger.log("debug", "MAIN - (rainbow_onerror)  - rainbow event received. data", data, " destroy and recreate the SDK.");
             rainbowSDK1 = undefined;
         });
 
@@ -8391,10 +8391,10 @@ let urlS2S;
         let rainbowSDK2 = new RainbowSDK(options2);
         rainbowSDK2.events.on("rainbow_onconnectionerror", () => {
             // do something when the SDK has been started
-            logger.log("debug", "MAIN - (rainbow_onconnectionerror) - rainbow failed to start.");
+           _logger.log("debug", "MAIN - (rainbow_onconnectionerror) - rainbow failed to start.");
         });
         rainbowSDK2.events.on("rainbow_onerror", (data) => {
-            logger.log("debug", "MAIN - (rainbow_onerror)  - rainbow event received. data", data, " destroy and recreate the SDK.");
+           _logger.log("debug", "MAIN - (rainbow_onerror)  - rainbow event received. data", data, " destroy and recreate the SDK.");
             rainbowSDK2 = undefined;
         });
 
@@ -8404,10 +8404,10 @@ let urlS2S;
         let rainbowSDK3 = new RainbowSDK(options3);
         rainbowSDK3.events.on("rainbow_onconnectionerror", () => {
             // do something when the SDK has been started
-            logger.log("debug", "MAIN - (rainbow_onconnectionerror) - rainbow failed to start.");
+           _logger.log("debug", "MAIN - (rainbow_onconnectionerror) - rainbow failed to start.");
         });
         rainbowSDK3.events.on("rainbow_onerror", (data) => {
-            logger.log("debug", "MAIN - (rainbow_onerror)  - rainbow event received. data", data, " destroy and recreate the SDK.");
+           _logger.log("debug", "MAIN - (rainbow_onerror)  - rainbow event received. data", data, " destroy and recreate the SDK.");
             rainbowSDK3 = undefined;
         });
 
@@ -8417,35 +8417,35 @@ let urlS2S;
         let rainbowSDK4 = new RainbowSDK(options4);
         rainbowSDK4.events.on("rainbow_onconnectionerror", () => {
             // do something when the SDK has been started
-            logger.log("debug", "MAIN - (rainbow_onconnectionerror) - rainbow failed to start.");
+           _logger.log("debug", "MAIN - (rainbow_onconnectionerror) - rainbow failed to start.");
         });
         rainbowSDK4.events.on("rainbow_onerror", (data) => {
-            logger.log("debug", "MAIN - (rainbow_onerror)  - rainbow event received. data", data, " destroy and recreate the SDK.");
+           _logger.log("debug", "MAIN - (rainbow_onerror)  - rainbow event received. data", data, " destroy and recreate the SDK.");
             rainbowSDK4 = undefined;
         });
 // */
         /*
         await rainbowSDK.start(token).then(async (result2) => {
             // Do something when the SDK is started
-            logger.log("debug", "MAIN - (test5Start) rainbow SDK started : ", logger.colors.green(result2)); //logger.colors.green(JSON.stringify(result)));
+           _logger.log("debug", "MAIN - (test5Start) rainbow SDK started : ",_logger.colors.green(result2)); //logger.colors.green(JSON.stringify(result)));
         });
         await rainbowSDK1.start(token).then(async (result2) => {
             // Do something when the SDK is started
-            logger.log("debug", "MAIN - (test5Start) rainbow SDK 1 started : ", logger.colors.green(result2)); //logger.colors.green(JSON.stringify(result)));
+           _logger.log("debug", "MAIN - (test5Start) rainbow SDK 1 started : ",_logger.colors.green(result2)); //logger.colors.green(JSON.stringify(result)));
         });
         // */
         /*
         await rainbowSDK2.start(token).then(async (result2) => {
             // Do something when the SDK is started
-            logger.log("debug", "MAIN - (test5Start) rainbow SDK 2 started : ", logger.colors.green(result2)); //logger.colors.green(JSON.stringify(result)));
+           _logger.log("debug", "MAIN - (test5Start) rainbow SDK 2 started : ",_logger.colors.green(result2)); //logger.colors.green(JSON.stringify(result)));
         });
         await rainbowSDK3.start(token).then(async (result2) => {
             // Do something when the SDK is started
-            logger.log("debug", "MAIN - (test5Start) rainbow SDK 3 started : ", logger.colors.green(result2)); //logger.colors.green(JSON.stringify(result)));
+           _logger.log("debug", "MAIN - (test5Start) rainbow SDK 3 started : ",_logger.colors.green(result2)); //logger.colors.green(JSON.stringify(result)));
         });
         await rainbowSDK4.start(token).then(async (result2) => {
             // Do something when the SDK is started
-            logger.log("debug", "MAIN - (test5Start) rainbow SDK 4 started : ", logger.colors.green(result2)); //logger.colors.green(JSON.stringify(result)));
+           _logger.log("debug", "MAIN - (test5Start) rainbow SDK 4 started : ",_logger.colors.green(result2)); //logger.colors.green(JSON.stringify(result)));
         });
         */
         // await rainbowSDK.stop();
@@ -8458,21 +8458,21 @@ let urlS2S;
                 // Do something when the SDK is started
                 connectedUser = result.loggedInUser;
                 token = result.token;
-                logger.log("debug", "MAIN - rainbow SDK started with result 1 : ", result); //logger.colors.green(JSON.stringify(result)));
+               _logger.log("debug", "MAIN - rainbow SDK started with result 1 : ", result); //logger.colors.green(JSON.stringify(result)));
                 console.log("MAIN - rainbow SDK started with result 1 : ", inspect(result)); //logger.colors.green(JSON.stringify(result)));
-                logger.log("debug", "MAIN - rainbow SDK started with credentials result 1 : ", logger.colors.green(connectedUser)); //logger.colors.green(JSON.stringify(result)));
+               _logger.log("debug", "MAIN - rainbow SDK started with credentials result 1 : ",_logger.colors.green(connectedUser)); //logger.colors.green(JSON.stringify(result)));
 
                 //let startDuration = Math.round(new Date() - startDate);
                 let startDuration = result.startDuration;
                 // that.stats.push({ service: "telephonyService", startDuration: startDuration });
-                logger.log("info", "MAIN === STARTED (" + startDuration + " ms) ===");
+               _logger.log("info", "MAIN === STARTED (" + startDuration + " ms) ===");
                 console.log("MAIN === STARTED (" + startDuration + " ms) ===");
 
                 rainbowSDK.stop().then(() => {
-                    logger.log("debug", "MAIN - rainbow SDK startedand stopped, now we start WS Only : token : ", token, ", connectedUser : ", JSON.stringify(connectedUser)); //logger.colors.green(JSON.stringify(result)));
+                   _logger.log("debug", "MAIN - rainbow SDK startedand stopped, now we start WS Only : token : ", token, ", connectedUser : ", JSON.stringify(connectedUser)); //logger.colors.green(JSON.stringify(result)));
                     rainbowSDK.startWSOnly(token, connectedUser).then((result) => {
                         // Do something when the SDK is started
-                        logger.log("debug", "MAIN - rainbow SDK started WS Only result : ", JSON.stringify(result)); //logger.colors.green(JSON.stringify(result)));
+                       _logger.log("debug", "MAIN - rainbow SDK started WS Only result : ", JSON.stringify(result)); //logger.colors.green(JSON.stringify(result)));
                     })
                     ;
                 }); // */
@@ -8491,7 +8491,7 @@ let urlS2S;
          let rainbowSDK1 = new RainbowSDK(options1);
 
          // XMPP WebSocket Server
-         logger.log("debug", "MAIN - (startMockXMPP) going to MockServer : " + "wss://openrainbow.net:443/websocket");
+        _logger.log("debug", "MAIN - (startMockXMPP) going to MockServer : " + "wss://openrainbow.net:443/websocket");
          class XmppWebSocket extends WS {
              constructor( address, protocols ) {
                  super(address, protocols);
@@ -8507,9 +8507,9 @@ let urlS2S;
 
          const mockServer = new MockServer("wss://openrainbow.net:443/websocket");
          mockServer.on("connection", (socket) => {
-             logger.log("debug", "MAIN - (startMockXMPP) (on) MockServer.connection : " + "socket : " + socket);
+            _logger.log("debug", "MAIN - (startMockXMPP) (on) MockServer.connection : " + "socket : " + socket);
               socket.on('message', (message: string) => {
-                 logger.log("debug", "MAIN - (startMockXMPP) (on) we have intercepted the message and can assert on it " + "socket : " + socket);
+                _logger.log("debug", "MAIN - (startMockXMPP) (on) we have intercepted the message and can assert on it " + "socket : " + socket);
                 // t.is(data, 'test message from app', 'we have intercepted the message and can assert on it');
                  //socket.send('test message from mock server');
                   if (message.startsWith("<open")) {
@@ -8567,23 +8567,23 @@ let urlS2S;
          // */
 
          mockServer.on("message", message => {
-             logger.log("debug", "MAIN - (startMockXMPP) (on) message : ", message);
+            _logger.log("debug", "MAIN - (startMockXMPP) (on) message : ", message);
          });
 
 
          rainbowSDK1.events.on("rainbow_onconnectionerror", () => {
              // do something when the SDK has been started
-             logger.log("debug", "MAIN - (rainbow_onconnectionerror) - rainbow failed to start.");
+            _logger.log("debug", "MAIN - (rainbow_onconnectionerror) - rainbow failed to start.");
          });
          rainbowSDK1.events.on("rainbow_onerror", (data) => {
-             logger.log("debug", "MAIN - (rainbow_onerror)  - rainbow event received. data", data, " destroy and recreate the SDK.");
+            _logger.log("debug", "MAIN - (rainbow_onerror)  - rainbow event received. data", data, " destroy and recreate the SDK.");
              rainbowSDK1 = undefined;
          });
          const path = './xmpp.txt';
          writeFileSync(path, "", "utf8");
 
          rainbowSDK1.events.on("rainbow_onxmmpeventreceived", (data) => {
-             logger.log("debug", "MAIN - (rainbow_onxmmpeventreceived) - rainbow failed to start.");
+            _logger.log("debug", "MAIN - (rainbow_onxmmpeventreceived) - rainbow failed to start.");
              try {
                  appendFileSync(path, "in:" + data + "\n");
                  console.log('Data successfully saved to disk');
@@ -8592,7 +8592,7 @@ let urlS2S;
              }
          });
          rainbowSDK1.events.on("rainbow_onxmmprequestsent", (data) => {
-             logger.log("debug", "MAIN - (rainbow_onxmmprequestsent) - rainbow failed to start.");
+            _logger.log("debug", "MAIN - (rainbow_onxmmprequestsent) - rainbow failed to start.");
              try {
                  appendFileSync(path, "out:" + data + "\n");
                  console.log('Data successfully saved to disk');
@@ -8610,14 +8610,14 @@ let urlS2S;
                 // Do something when the SDK is started
                 connectedUser = result.loggedInUser;
                 token = result.token;
-                logger.log("debug", "MAIN - rainbow SDK started with result 1 : ", result); //logger.colors.green(JSON.stringify(result)));
+               _logger.log("debug", "MAIN - rainbow SDK started with result 1 : ", result); //logger.colors.green(JSON.stringify(result)));
                 console.log("MAIN - rainbow SDK started with result 1 : ", inspect(result)); //logger.colors.green(JSON.stringify(result)));
-                logger.log("debug", "MAIN - rainbow SDK started with credentials result 1 : ", logger.colors.green(connectedUser)); //logger.colors.green(JSON.stringify(result)));
+               _logger.log("debug", "MAIN - rainbow SDK started with credentials result 1 : ",_logger.colors.green(connectedUser)); //logger.colors.green(JSON.stringify(result)));
 
                 //let startDuration = Math.round(new Date() - startDate);
                 let startDuration = result.startDuration;
                 // that.stats.push({ service: "telephonyService", startDuration: startDuration });
-                logger.log("info", "MAIN === STARTED (" + startDuration + " ms) ===");
+               _logger.log("info", "MAIN === STARTED (" + startDuration + " ms) ===");
                 console.log("MAIN === STARTED (" + startDuration + " ms) ===");
             } catch (err) {
                 console.log("MAIN - Error during starting : ", inspect(err));
@@ -8634,83 +8634,83 @@ let urlS2S;
                 // Do something when the SDK is started
                 connectedUser = result.loggedInUser;
                 token = result.token;
-                logger.log("info", "MAIN - rainbow SDK started with result 1 : ", result); //logger.colors.green(JSON.stringify(result)));
+               _logger.log("info", "MAIN - rainbow SDK started with result 1 : ", result); //logger.colors.green(JSON.stringify(result)));
                 console.log("MAIN - rainbow SDK started with result 1 : ", inspect(result)); //logger.colors.green(JSON.stringify(result)));
-                logger.log("info", "MAIN - rainbow SDK started with credentials result 1 : ", logger.colors.green(connectedUser)); //logger.colors.green(JSON.stringify(result)));
+               _logger.log("info", "MAIN - rainbow SDK started with credentials result 1 : ",_logger.colors.green(connectedUser)); //logger.colors.green(JSON.stringify(result)));
                 /*
                             let companyInfo = await rainbowSDK.contacts.getCompanyInfos().catch((err) => {
-                                logger.log("warn", "MAIN - failed to retrieve company infos :" , err);
+                               _logger.log("warn", "MAIN - failed to retrieve company infos :" , err);
                             });
 
-                            logger.log("debug", "MAIN - company infos :" , companyInfo);
+                           _logger.log("debug", "MAIN - company infos :" , companyInfo);
                 // */
                 /*
                         await rainbowSDK.stop().then((result)=>{
-                            logger.log("debug", "MAIN - rainbow SDK stop : ", result); //logger.colors.green(JSON.stringify(result)));
+                           _logger.log("debug", "MAIN - rainbow SDK stop : ", result); //logger.colors.green(JSON.stringify(result)));
                         });
                         await rainbowSDK.start(token).then(async(result2) => {
                             // Do something when the SDK is started
-                            logger.log("debug", "MAIN - rainbow SDK started result 2: ", logger.colors.green(result2)); //logger.colors.green(JSON.stringify(result)));
+                           _logger.log("debug", "MAIN - rainbow SDK started result 2: ",_logger.colors.green(result2)); //logger.colors.green(JSON.stringify(result)));
                             await rainbowSDK.stop().then((result)=>{
-                                logger.log("debug", "MAIN - rainbow SDK stop : ", result); //logger.colors.green(JSON.stringify(result)));
+                               _logger.log("debug", "MAIN - rainbow SDK stop : ", result); //logger.colors.green(JSON.stringify(result)));
                             });
                             await rainbowSDK.start(token).then(async (result3) => {
                                 // Do something when the SDK is started
-                                logger.log("debug", "MAIN - rainbow SDK started result 3 : ", logger.colors.green(result3)); //logger.colors.green(JSON.stringify(result)));
+                               _logger.log("debug", "MAIN - rainbow SDK started result 3 : ",_logger.colors.green(result3)); //logger.colors.green(JSON.stringify(result)));
                                 await rainbowSDK.stop().then((result)=>{
-                                    logger.log("debug", "MAIN - rainbow SDK stop : ", result); //logger.colors.green(JSON.stringify(result)));
+                                   _logger.log("debug", "MAIN - rainbow SDK stop : ", result); //logger.colors.green(JSON.stringify(result)));
                                 });
                                 await rainbowSDK.start(token).then(async (result4) => {
                                     // Do something when the SDK is started
-                                    logger.log("debug", "MAIN - rainbow SDK started result 4 : ", logger.colors.green(result4)); //logger.colors.green(JSON.stringify(result)));
+                                   _logger.log("debug", "MAIN - rainbow SDK started result 4 : ",_logger.colors.green(result4)); //logger.colors.green(JSON.stringify(result)));
                                     await rainbowSDK.stop().then((result)=>{
-                                        logger.log("debug", "MAIN - rainbow SDK stop : ", result); //logger.colors.green(JSON.stringify(result)));
+                                       _logger.log("debug", "MAIN - rainbow SDK stop : ", result); //logger.colors.green(JSON.stringify(result)));
                                     });
                                     await rainbowSDK.start(token).then(async (result5) => {
                                         // Do something when the SDK is started
-                                        logger.log("debug", "MAIN - rainbow SDK started result 5 : ", logger.colors.green(result5)); //logger.colors.green(JSON.stringify(result)));
+                                       _logger.log("debug", "MAIN - rainbow SDK started result 5 : ",_logger.colors.green(result5)); //logger.colors.green(JSON.stringify(result)));
                                         await rainbowSDK.stop().then((result)=>{
-                                            logger.log("debug", "MAIN - rainbow SDK stop : ", result); //logger.colors.green(JSON.stringify(result)));
+                                           _logger.log("debug", "MAIN - rainbow SDK stop : ", result); //logger.colors.green(JSON.stringify(result)));
                                         });
                                         await rainbowSDK.start(token).then(async (result6) => {
                                             // Do something when the SDK is started
-                                            logger.log("debug", "MAIN - rainbow SDK started result 6 : ", logger.colors.green(result6)); //logger.colors.green(JSON.stringify(result)));
+                                           _logger.log("debug", "MAIN - rainbow SDK started result 6 : ",_logger.colors.green(result6)); //logger.colors.green(JSON.stringify(result)));
                                             await rainbowSDK.stop().then((result)=>{
-                                                logger.log("debug", "MAIN - rainbow SDK stop : ", result); //logger.colors.green(JSON.stringify(result)));
+                                               _logger.log("debug", "MAIN - rainbow SDK stop : ", result); //logger.colors.green(JSON.stringify(result)));
                                             });
                                             await rainbowSDK.start(token).then(async (result7) => {
                                                 // Do something when the SDK is started
-                                                logger.log("debug", "MAIN - rainbow SDK started result 7 : ", logger.colors.green(result7)); //logger.colors.green(JSON.stringify(result)));
+                                               _logger.log("debug", "MAIN - rainbow SDK started result 7 : ",_logger.colors.green(result7)); //logger.colors.green(JSON.stringify(result)));
                                                 await rainbowSDK.stop().then((result)=>{
-                                                    logger.log("debug", "MAIN - rainbow SDK stop : ", result); //logger.colors.green(JSON.stringify(result)));
+                                                   _logger.log("debug", "MAIN - rainbow SDK stop : ", result); //logger.colors.green(JSON.stringify(result)));
                                                 });
                                                 await rainbowSDK.start(token).then(async (result8) => {
                                                     // Do something when the SDK is started
-                                                    logger.log("debug", "MAIN - rainbow SDK started result 8 : ", logger.colors.green(result8)); //logger.colors.green(JSON.stringify(result)));
+                                                   _logger.log("debug", "MAIN - rainbow SDK started result 8 : ",_logger.colors.green(result8)); //logger.colors.green(JSON.stringify(result)));
                                                     await rainbowSDK.stop().then((result)=>{
-                                                        logger.log("debug", "MAIN - rainbow SDK stop : ", result); //logger.colors.green(JSON.stringify(result)));
+                                                       _logger.log("debug", "MAIN - rainbow SDK stop : ", result); //logger.colors.green(JSON.stringify(result)));
                                                     });
                                                     await rainbowSDK.start(token).then(async (result9) => {
                                                         // Do something when the SDK is started
-                                                        logger.log("debug", "MAIN - rainbow SDK started result 9 : ", logger.colors.green(result9)); //logger.colors.green(JSON.stringify(result)));
+                                                       _logger.log("debug", "MAIN - rainbow SDK started result 9 : ",_logger.colors.green(result9)); //logger.colors.green(JSON.stringify(result)));
                                                         await rainbowSDK.stop().then((result)=>{
-                                                            logger.log("debug", "MAIN - rainbow SDK stop : ", result); //logger.colors.green(JSON.stringify(result)));
+                                                           _logger.log("debug", "MAIN - rainbow SDK stop : ", result); //logger.colors.green(JSON.stringify(result)));
                                                         });
                                                         await rainbowSDK.start(token).then(async (result10) => {
                                                             // Do something when the SDK is started
-                                                            logger.log("debug", "MAIN - rainbow SDK started result 10 : ", logger.colors.green(result10)); //logger.colors.green(JSON.stringify(result)));
+                                                           _logger.log("debug", "MAIN - rainbow SDK started result 10 : ",_logger.colors.green(result10)); //logger.colors.green(JSON.stringify(result)));
                                                             await rainbowSDK.stop().then((result)=>{
-                                                                logger.log("debug", "MAIN - rainbow SDK stop : ", result); //logger.colors.green(JSON.stringify(result)));
+                                                               _logger.log("debug", "MAIN - rainbow SDK stop : ", result); //logger.colors.green(JSON.stringify(result)));
                                                             });
                                                             await rainbowSDK.start(token).then(async (result11) => {
                                                                 // Do something when the SDK is started
-                                                                logger.log("debug", "MAIN - rainbow SDK started result 11 : ", logger.colors.green(result11)); //logger.colors.green(JSON.stringify(result)));
+                                                               _logger.log("debug", "MAIN - rainbow SDK started result 11 : ",_logger.colors.green(result11)); //logger.colors.green(JSON.stringify(result)));
                                                                 await rainbowSDK.stop().then((result)=>{
-                                                                    logger.log("debug", "MAIN - rainbow SDK stop : ", result); //logger.colors.green(JSON.stringify(result)));
+                                                                   _logger.log("debug", "MAIN - rainbow SDK stop : ", result); //logger.colors.green(JSON.stringify(result)));
                                                                 });
                                                                 await rainbowSDK.start(token).then(async (result12) => {
                                                                     // Do something when the SDK is started
-                                                                    logger.log("debug", "MAIN - rainbow SDK started result 12 : ", logger.colors.green(result12)); //logger.colors.green(JSON.stringify(result)));
+                                                                   _logger.log("debug", "MAIN - rainbow SDK started result 12 : ",_logger.colors.green(result12)); //logger.colors.green(JSON.stringify(result)));
                                                                 });
                                                             });
                                                         });
@@ -8730,15 +8730,15 @@ let urlS2S;
 
                 if (list) {
                     list.forEach(function (contact) {
-                        logger.log("debug", "MAIN - [start    ] :: contact : ", contact);
+                       _logger.log("debug", "MAIN - [start    ] :: contact : ", contact);
                     });
                 } else {
-                    logger.log("debug", "MAIN - [start    ] :: contacts list empty");
+                   _logger.log("debug", "MAIN - [start    ] :: contacts list empty");
                 }
                 // */
 
                 /*let roster = await rainbowSDK.contacts.getRosters();
-                logger.log("debug", "MAIN - getRosters - roster : ", roster);
+               _logger.log("debug", "MAIN - getRosters - roster : ", roster);
 
                  */
                 class Dog {
@@ -8757,13 +8757,13 @@ let urlS2S;
                     return 'vvv' + this.name;
                 }; */
                 let dog1 = new Dog("Gabby");
-                logger.log("debug", "MAIN - dog1", dog1);
+               _logger.log("debug", "MAIN - dog1", dog1);
 
 
                 //let startDuration = Math.round(new Date() - startDate);
                 let startDuration = result.startDuration;
                 // that.stats.push({ service: "telephonyService", startDuration: startDuration });
-                logger.log("info", "MAIN === STARTED (" + startDuration + " ms) ===");
+               _logger.log("info", "MAIN === STARTED (" + startDuration + " ms) ===");
                 console.log("MAIN === STARTED (" + startDuration + " ms) ===");
 
                 /*
@@ -8790,7 +8790,7 @@ let urlS2S;
                 /* while (true) {
                      readline.question("Command>", cmd => {
                          //console.log(`run ${cmd}!`);
-                         logger.log("debug", "MAIN - run : ", cmd); //logger.colors.green(JSON.stringify(result)));
+                        _logger.log("debug", "MAIN - run : ", cmd); //logger.colors.green(JSON.stringify(result)));
 
                          try {
                              if (cmd === "by") {
@@ -8798,7 +8798,7 @@ let urlS2S;
                              }
                              eval(cmd);
                          } catch (e) {
-                             logger.log("debug", "MAIN - CATCH Error : ", e); //logger.colors.green(JSON.stringify(result)));
+                            _logger.log("debug", "MAIN - CATCH Error : ", e); //logger.colors.green(JSON.stringify(result)));
 
                          }
                          readline.close();
@@ -8821,10 +8821,10 @@ let urlS2S;
                         for (let bubble of bubbles) {
                             bubblesInfos += "\n{ id : " + bubble.id + ", name : " + bubble.name + " },";
                             if (bubble.id == "5da6d969e6ca5a023da44edd") {
-                                logger.log("debug", "MAIN - Bubble 5da6d969e6ca5a023da44edd : ", bubble);
+                               _logger.log("debug", "MAIN - Bubble 5da6d969e6ca5a023da44edd : ", bubble);
                             }
                         }
-                        logger.log("debug", "MAIN - Bubbles count = ", bubblesCount, " bubblesInfos : ", bubblesInfos);
+                       _logger.log("debug", "MAIN - Bubbles count = ", bubblesCount, " bubblesInfos : ", bubblesInfos);
                     }
                 }, 20000);
             // */
@@ -8882,7 +8882,7 @@ let urlS2S;
                                             setTimeout(() => { rainbowSDK.bubbles.promoteContactInBubble(contactbot, bubble).then(function (updatedBubble) {
                                                 rainbowSDK.conversations.getBubbleConversation/*openConversationForBubble // */
                 /*(updatedBubble).then(conversation => {
-                                                   logger.log("debug", "MAIN - [start    ] :: getBubbleConversation request ok");
+                                                  _logger.log("debug", "MAIN - [start    ] :: getBubbleConversation request ok");
                                                });
                                            })} , 2000);
                                        });
@@ -8894,9 +8894,9 @@ let urlS2S;
                 //    let utc = new Date().toJSON().replace(/-/g, '/');
                 /*
                     rainbowSDK.telephony.makeCallByPhoneNumber("23026").then((data)=>{
-                        logger.log("debug", "MAIN - [makeCallByPhoneNumber] ", data);
+                       _logger.log("debug", "MAIN - [makeCallByPhoneNumber] ", data);
                     }).catch((error) => {
-                        logger.log("debug", "MAIN - [makeCallByPhoneNumber] error ", error);
+                       _logger.log("debug", "MAIN - [makeCallByPhoneNumber] error ", error);
                     });
 
                     setTimeout(() => {
@@ -8918,7 +8918,7 @@ let urlS2S;
                  )// */
                 /* .then((msg) => {
                         //console.log("message sent", msg);
-                        logger.log("debug", "MAIN - sendMessageToJid.then() message sent", msg);
+                       _logger.log("debug", "MAIN - sendMessageToJid.then() message sent", msg);
                     }).catch((err) => {
                         console.log("Error while sending message ", err);
                     }); // */
@@ -8977,14 +8977,14 @@ let urlS2S;
                 /* rainbowSDK.stop().then(() => {
                     rainbowSDK.start().then((result) => {
                         // Do something when the SDK is started
-                        logger.log("debug", "MAIN - rainbow SDK started result : ", JSON.stringify(result)); //logger.colors.green(JSON.stringify(result)));
+                       _logger.log("debug", "MAIN - rainbow SDK started result : ", JSON.stringify(result)); //logger.colors.green(JSON.stringify(result)));
                         let list = rainbowSDK.contacts.getAll();
                         if (list) {
                             list.forEach(function (contact) {
-                                logger.log("debug", "MAIN - [start    ] :: contact : ", contact);
+                               _logger.log("debug", "MAIN - [start    ] :: contact : ", contact);
                             });
                         } else {
-                            logger.log("debug", "MAIN - [start    ] :: contacts list empty");
+                           _logger.log("debug", "MAIN - [start    ] :: contacts list empty");
                         }
 
 
@@ -8993,19 +8993,19 @@ let urlS2S;
                 }); // */
                 /*
                 rainbowSDK.stop().then((result)=>{
-                    logger.log("debug", "MAIN - rainbow SDK stop : ", result); //logger.colors.green(JSON.stringify(result)));
+                   _logger.log("debug", "MAIN - rainbow SDK stop : ", result); //logger.colors.green(JSON.stringify(result)));
                 });
                 // */
                 /*.then(()=>{
                    rainbowSDK.start().then(()=>{
-                       logger.log("debug", "MAIN - rainbow SDK started step_2 result : ", JSON.stringify(result)); //logger.colors.green(JSON.stringify(result)));
+                      _logger.log("debug", "MAIN - rainbow SDK started step_2 result : ", JSON.stringify(result)); //logger.colors.green(JSON.stringify(result)));
                        let list = rainbowSDK.contacts.getAll();
                        if (list) {
                            list.forEach(function (contact) {
-                               logger.log("debug", "MAIN - [start    step_2] :: contact : ", contact);
+                              _logger.log("debug", "MAIN - [start    step_2] :: contact : ", contact);
                            });
                        } else {
-                           logger.log("debug", "MAIN - [start    step_2] :: contacts list empty");
+                          _logger.log("debug", "MAIN - [start    step_2] :: contacts list empty");
                        }
                        rainbowSDK.stop();
                    });
@@ -9025,13 +9025,13 @@ let urlS2S;
                 // Do something when the SDK is started
                 connectedUser = result.loggedInUser;
                 token = result.token;
-                logger.log("info", "MAIN - rainbow SDK started with result 1 : ", result); //logger.colors.green(JSON.stringify(result)));
+               _logger.log("info", "MAIN - rainbow SDK started with result 1 : ", result); //logger.colors.green(JSON.stringify(result)));
                 console.log("MAIN - rainbow SDK started with result 1 : ", inspect(result)); //logger.colors.green(JSON.stringify(result)));
-                logger.log("info", "MAIN - rainbow SDK started with credentials result 1 : ", logger.colors.green(connectedUser)); //logger.colors.green(JSON.stringify(result)));
+               _logger.log("info", "MAIN - rainbow SDK started with credentials result 1 : ",_logger.colors.green(connectedUser)); //logger.colors.green(JSON.stringify(result)));
 
                 //let startDuration = Math.round(new Date() - startDate);
                 let startDuration = result.startDuration;
-                logger.log("info", "MAIN === STARTED (" + startDuration + " ms) ===");
+               _logger.log("info", "MAIN === STARTED (" + startDuration + " ms) ===");
                 console.log("MAIN === STARTED (" + startDuration + " ms) ===");
 
                rainbowSDK.stop();
@@ -9055,7 +9055,7 @@ let urlS2S;
         let tests = new Tests();
         let testsFunctions = findTests(tests);
 
-        logger.log("info", "MAIN - findTests : ", testsFunctions);
+       _logger.log("info", "MAIN - findTests : ", testsFunctions);
         let questions = [
             {
                 type: "input",
@@ -9066,20 +9066,20 @@ let urlS2S;
         ];
         
         function enterCmd () {
-            logger.log("info", "MAIN - commandLineInteraction (help, start, stop, by, exit, testsFunction), enter a command to eval : "); //logger.colors.green(JSON.stringify(result)));
+           _logger.log("info", "MAIN - commandLineInteraction (help, start, stop, by, exit, testsFunction), enter a command to eval : "); //logger.colors.green(JSON.stringify(result)));
             inquirer.prompt(questions).then(answers => {
                 //console.log(`Hi ${answers.cmd}!`);
-                logger.log("info", "MAIN - cmd entered : ", answers.cmd); //logger.colors.green(JSON.stringify(result)));
+               _logger.log("info", "MAIN - cmd entered : ", answers.cmd); //logger.colors.green(JSON.stringify(result)));
                 try {
                     switch (answers.cmd) {
                         case "exit":
                         case "by":
-                            logger.log("info", "MAIN - exit."); //logger.colors.green(JSON.stringify(result)));
+                           _logger.log("info", "MAIN - exit."); //logger.colors.green(JSON.stringify(result)));
                                 if (rainbowSDK) {
                                     rainbowSDK.stop().then(() => {
                                         process.exit(0);
                                 }).catch((err)=>{
-                                    logger.log("warn", "MAIN - RainbowSDK stop failed : ", err, ", but even stop the process."); //logger.colors.green(JSON.stringify(result)));
+                                   _logger.log("warn", "MAIN - RainbowSDK stop failed : ", err, ", but even stop the process."); //logger.colors.green(JSON.stringify(result)));
                                     process.exit(0);
                                     });
                                 } else {
@@ -9087,37 +9087,37 @@ let urlS2S;
                                 }
                             break;
                         case "help":
-                            logger.log("info", "MAIN - help."); //logger.colors.green(JSON.stringify(result)));
+                           _logger.log("info", "MAIN - help."); //logger.colors.green(JSON.stringify(result)));
                             for (const testsFunction of testsFunctions) {
-                                logger.log("info", "MAIN - testsFunction : tests.",testsFunction ); //logger.colors.green(JSON.stringify(result)));
+                               _logger.log("info", "MAIN - testsFunction : tests.",testsFunction ); //logger.colors.green(JSON.stringify(result)));
                             }
                             enterCmd();
                             break;
                         case "start":
-                            logger.log("info", "MAIN - run cmd : tests.start()"); //logger.colors.green(JSON.stringify(result)));
+                           _logger.log("info", "MAIN - run cmd : tests.start()"); //logger.colors.green(JSON.stringify(result)));
                             eval("tests.start()");
                             enterCmd();
                             break;
                         case "startstop":
-                            logger.log("info", "MAIN - run cmd : tests.startstop()"); //logger.colors.green(JSON.stringify(result)));
+                           _logger.log("info", "MAIN - run cmd : tests.startstop()"); //logger.colors.green(JSON.stringify(result)));
                             eval("tests.startstop()");
                             enterCmd();
                             break;
                         case "stop":
-                            logger.log("info", "MAIN - run cmd : tests.stop()"); //logger.colors.green(JSON.stringify(result)));
+                           _logger.log("info", "MAIN - run cmd : tests.stop()"); //logger.colors.green(JSON.stringify(result)));
                             eval("tests.stop()");
                             enterCmd();
                             break;
                         default:
-                            logger.log("info", "MAIN - run cmd : ", answers.cmd); //logger.colors.green(JSON.stringify(result)));
+                           _logger.log("info", "MAIN - run cmd : ", answers.cmd); //logger.colors.green(JSON.stringify(result)));
                             if (answers.cmd) {
                                 if (answers.cmd?.indexOf("eval:")===0) {
                                     let cmdStr = answers.cmd.substring("eval:".length);
-                                    logger.log("info", "MAIN - run eval cmdStr : ", answers.cmd); //logger.colors.green(JSON.stringify(result)));
+                                   _logger.log("info", "MAIN - run eval cmdStr : ", answers.cmd); //logger.colors.green(JSON.stringify(result)));
                                     eval(cmdStr);
                                 } else {
                                     let cmdStr = (answers.cmd + "").indexOf("tests.")===0 ? answers.cmd:"tests." + answers.cmd
-                                    logger.log("info", "MAIN - run cmdStr : ", answers.cmd); //logger.colors.green(JSON.stringify(result)));
+                                   _logger.log("info", "MAIN - run cmdStr : ", answers.cmd); //logger.colors.green(JSON.stringify(result)));
                                     eval(cmdStr);
                                 }
                             }
@@ -9126,18 +9126,18 @@ let urlS2S;
                     }
                     /*
                     if (answers.cmd==="by") {
-                        logger.log("debug", "MAIN - exit."); //logger.colors.green(JSON.stringify(result)));
+                       _logger.log("debug", "MAIN - exit."); //logger.colors.green(JSON.stringify(result)));
                         rainbowSDK.stop().then(() => {
                             process.exit(0);
                         });
                     } else {
-                        logger.log("debug", "MAIN - run cmd : ", answers.cmd); //logger.colors.green(JSON.stringify(result)));
+                       _logger.log("debug", "MAIN - run cmd : ", answers.cmd); //logger.colors.green(JSON.stringify(result)));
                         eval(answers.cmd);
                         enterCmd();
                     }
                     // */
                 } catch (e) {
-                    logger.log("debug", "MAIN - CATCH Error : ", e); //logger.colors.green(JSON.stringify(result)));
+                   _logger.log("debug", "MAIN - CATCH Error : ", e); //logger.colors.green(JSON.stringify(result)));
                     console.log("debug", "MAIN - CATCH Error : ", e); //logger.colors.green(JSON.stringify(result)));
                     enterCmd();
                 }
@@ -9164,23 +9164,23 @@ let urlS2S;
 
         let props = Object.getPrototypeOf(obj);
         Object.getOwnPropertyNames(props).forEach(function (property) {
-            //that.logger.log("debug", logService + "[iterateAPI] getPrototypeOf property : " + property);
+            //that._logger.log("debug", logService + "[iterateAPI] getPrototypeOf property : " + property);
             try {
                 if ((propertiestoIgnore.indexOf(property) == -1) && depth < MAXDEPTH) {
-                    //that.logger.log("debug",logService + "[iterateAPI] iter properties of obj " + typeof obj[property] + ", current propertie  : " + property + "()");
+                    //that._logger.log("debug",logService + "[iterateAPI] iter properties of obj " + typeof obj[property] + ", current propertie  : " + property + "()");
                     if (props.hasOwnProperty(property)) {
                         if (typeof obj[property] === "object") {
-                            //that.logger.log("debug", logService + "[iterateAPI] found a child object : " + currentStack + "->" + property);
+                            //that._logger.log("debug", logService + "[iterateAPI] found a child object : " + currentStack + "->" + property);
                             /*if (property === "_contacts" || property === "_core") {
-                                that.logger.log("debug",logService + "[iterateAPI] contacts found a child object : " + currentStack + "." + property);
+                                that._logger.log("debug",logService + "[iterateAPI] contacts found a child object : " + currentStack + "." + property);
                                 iterateAPI(obj[property], currentStack + "." + property, list);
                             } // */
 //                            iterateAPI(obj[property], currentStack + "." + property, list);
                         } else {
                             if (typeof props[property] === "function") {
-                                //that.logger.log("debug", logService + "[iterateAPI] found a child function : " + property + "()");
+                                //that._logger.log("debug", logService + "[iterateAPI] found a child function : " + property + "()");
                                 if (!(property in privateAPI)) {
-                                    logger.log("info", "MAIN - (findTests) found in props a test function : tests." + property + "()");
+                                   _logger.log("info", "MAIN - (findTests) found in props a test function : tests." + property + "()");
                                     /*servicesList[currentStack] = currentStack;
                                     var item = {
                                         "serviceName": currentStack,
@@ -9196,7 +9196,7 @@ let urlS2S;
                     }
                 }
             } catch (err) {
-                // that.logger.log("debug",logService + "[iterateAPI] !!! CATCH ERROR : " + err.message);
+                // that._logger.log("debug",logService + "[iterateAPI] !!! CATCH ERROR : " + err.message);
             }
         });
 
@@ -9206,21 +9206,21 @@ let urlS2S;
                     //Object.getOwnPropertyNames(obj).forEach(function (property) {
                     try {
                         if ((propertiestoIgnore.indexOf(property) == -1) && depth < MAXDEPTH) {
-                            //that.logger.log("debug",logService + "[iterateAPI] iter properties of obj " + typeof obj[property] + ", current propertie  : " + property + "()");
+                            //that._logger.log("debug",logService + "[iterateAPI] iter properties of obj " + typeof obj[property] + ", current propertie  : " + property + "()");
                             if (obj.hasOwnProperty(property)) {
                                 if (typeof obj[property] === "object") {
-                                    //that.logger.log("debug",logService + "[iterateAPI] found a child object : " + currentStack + "->" + property);
+                                    //that._logger.log("debug",logService + "[iterateAPI] found a child object : " + currentStack + "->" + property);
                                     if (property === "_contacts" || property === "_core") {
-//                                that.logger.log("debug",logService + "[iterateAPI] contacts found a child object : " + currentStack + "." + property  );
+//                                that._logger.log("debug",logService + "[iterateAPI] contacts found a child object : " + currentStack + "." + property  );
 //                                iterateAPI(obj[property], currentStack + "." + property, list);
                                     }
-                                    //that.logger.log("debug", logService + "[iterateAPI] contacts found a child object : " + currentStack + "." + property);
+                                    //that._logger.log("debug", logService + "[iterateAPI] contacts found a child object : " + currentStack + "." + property);
                                    // iterateAPI(obj[property], currentStack + "." + property, list, servicesList, depth + 1 );
                                 } else {
                                     if (typeof obj[property] === "function") {
-                                        //that.logger.log("debug", logService + "[iterateAPI] found a child function : " + property + "()");
+                                        //that._logger.log("debug", logService + "[iterateAPI] found a child function : " + property + "()");
                                         if (!(property in privateAPI)) {
-                                             logger.log("info","MAIN - (findTests) found in propreties a test function : tests." + property + "()");
+                                            _logger.log("info","MAIN - (findTests) found in propreties a test function : tests." + property + "()");
                                             /*
                                             servicesList[currentStack] = currentStack;
                                             var item = {
@@ -9237,7 +9237,7 @@ let urlS2S;
                             }
                         }
                     } catch (err) {
-                        // that.logger.log("debug",logService + "[iterateAPI] !!! CATCH ERROR : " + err.message);
+                        // that._logger.log("debug",logService + "[iterateAPI] !!! CATCH ERROR : " + err.message);
                     }
                 });
 

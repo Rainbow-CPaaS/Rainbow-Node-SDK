@@ -64,9 +64,9 @@ class WebinarEventHandler extends GenericHandler {
         /*
         this.findChildren = (element) => {
             try {
-                that.logger.log("debug", LOG_ID + "(findChildren) _entering_");
-                that.logger.log("internal", LOG_ID + "(findChildren) _entering_", element);
-                that.logger.log("error", LOG_ID + "(findChildren) findChildren element : ", element, " name : ", element.getName());
+                that._logger.log(that.DEBUG, LOG_ID + "(findChildren) _entering_");
+                that._logger.log(that.INTERNAL, LOG_ID + "(findChildren) _entering_", element);
+                that._logger.log(that.ERROR, LOG_ID + "(findChildren) findChildren element : ", element, " name : ", element.getName());
                 let json = {};
                 //let result = null;
                 let children = element.children;
@@ -76,20 +76,20 @@ class WebinarEventHandler extends GenericHandler {
                     children.forEach((elemt) => {
                         // @ts-ignore
                         if (typeof elemt.children === Array) {
-                            that.logger.log("error", LOG_ID + "(findChildren)  children.forEach Array : ", element, ", elemt : ", elemt);
+                            that._logger.log(that.ERROR, LOG_ID + "(findChildren)  children.forEach Array : ", element, ", elemt : ", elemt);
                             childrenJson[elemt.getName()] = elemt.children[0];
                         }
-                        that.logger.log("error", LOG_ID + "(findChildren)  children.forEach element : ", element, ", elemt : ", elemt);
+                        that._logger.log(that.ERROR, LOG_ID + "(findChildren)  children.forEach element : ", element, ", elemt : ", elemt);
                         childrenJson[elemt.getName()] = this.findChildren(elemt);
                     });
                     return json;
                 } else {
-                    that.logger.log("error", LOG_ID + "(findChildren)  No children element : ", element);
+                    that._logger.log(that.ERROR, LOG_ID + "(findChildren)  No children element : ", element);
                     return element.getText();
                 }
                 //return result;
             } catch (err) {
-                that.logger.log("error", LOG_ID + "(findChildren) CATCH Error !!! : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(findChildren) CATCH Error !!! : ", err);
             }
         };
          */
@@ -100,7 +100,7 @@ class WebinarEventHandler extends GenericHandler {
     onManagementMessageReceived (msg, stanza) {
         let that = this;
         try {
-            that.logger.log("internal", LOG_ID + "(onManagementMessageReceived) _entering_ : ", msg, stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
+            that._logger.log(that.INTERNAL, LOG_ID + "(onManagementMessageReceived) _entering_ : ", msg, stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
             let children = stanza.children;
             children.forEach(function (node) {
                 switch (node.getName()) {
@@ -176,20 +176,20 @@ class WebinarEventHandler extends GenericHandler {
                         // treated in conversationEventHandler
                         break;
                     default:
-                        that.logger.log("error", LOG_ID + "(onManagementMessageReceived) unmanaged management message node " + node.getName());
+                        that._logger.log(that.ERROR, LOG_ID + "(onManagementMessageReceived) unmanaged management message node " + node.getName());
                         break;
                 }
             });
         } catch (err) {
-            that.logger.log("error", LOG_ID + "(onManagementMessageReceived) CATCH Error !!! ");
-            that.logger.log("internalerror", LOG_ID + "(onManagementMessageReceived) CATCH Error !!! : ", err);
+            that._logger.log(that.ERROR, LOG_ID + "(onManagementMessageReceived) CATCH Error !!! ");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(onManagementMessageReceived) CATCH Error !!! : ", err);
         }
     };
 
     onWebinarManagementMessageReceived (stanza) {
         let that = this;
 
-        that.logger.log("internal", LOG_ID + "(onWebinarManagementMessageReceived) _entering_ : ", "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
+        that._logger.log(that.INTERNAL, LOG_ID + "(onWebinarManagementMessageReceived) _entering_ : ", "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
 
         try {
             let webinarElem = stanza.find("webinar");
@@ -202,7 +202,7 @@ class WebinarEventHandler extends GenericHandler {
 
                         // Handle channel action events
                         let action = webinarElem.attrs.action;
-                        that.logger.log("debug", LOG_ID + "(onWebinarManagementMessageReceived) - action : " + action + " event received on webinar " + webinarid);
+                        that._logger.log(that.DEBUG, LOG_ID + "(onWebinarManagementMessageReceived) - action : " + action + " event received on webinar " + webinarid);
                         switch (action) {
                             case 'create':
                                 that.eventEmitter.emit("evt_internal_createwebinar", {'id': webinarid});
@@ -238,8 +238,8 @@ class WebinarEventHandler extends GenericHandler {
             return true;
         }
         catch (err) {
-            that.logger.log("error", LOG_ID + "(onWebinarManagementMessageReceived) -- failure -- " );
-            that.logger.log("internalerror", LOG_ID + "(onWebinarManagementMessageReceived) -- failure -- : " + err.message);
+            that._logger.log(that.ERROR, LOG_ID + "(onWebinarManagementMessageReceived) -- failure -- " );
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(onWebinarManagementMessageReceived) -- failure -- : " + err.message);
             return true;
         }
     };
@@ -253,15 +253,15 @@ class WebinarEventHandler extends GenericHandler {
 
         try {
             if (stanza.getChild('no-store') != undefined){
-                // // Treated in conversation handler that.logger.log("error", LOG_ID + "(onErrorMessageReceived) The 'to' of the message can not received the message");
+                // // Treated in conversation handler that._logger.log(that.ERROR, LOG_ID + "(onErrorMessageReceived) The 'to' of the message can not received the message");
             } else {
-                that.logger.log("error", LOG_ID + "(onErrorMessageReceived) something goes wrong...");
-                that.logger.log("internalerror", LOG_ID + "(onErrorMessageReceived) something goes wrong...", msg, "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
+                that._logger.log(that.ERROR, LOG_ID + "(onErrorMessageReceived) something goes wrong...");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(onErrorMessageReceived) something goes wrong...", msg, "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
                 that.eventEmitter.emit("evt_internal_xmpperror", msg);
             }
         } catch (err) {
-            that.logger.log("error", LOG_ID + "(onErrorMessageReceived) CATCH Error !!! ");
-            that.logger.log("internalerror", LOG_ID + "(onErrorMessageReceived) CATCH Error !!! : ", err);
+            that._logger.log(that.ERROR, LOG_ID + "(onErrorMessageReceived) CATCH Error !!! ");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(onErrorMessageReceived) CATCH Error !!! : ", err);
         }
     };
 

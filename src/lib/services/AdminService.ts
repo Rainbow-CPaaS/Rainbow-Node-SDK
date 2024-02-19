@@ -2328,7 +2328,7 @@ class AdminService extends GenericService {
      * <li> <code>AB</code>: "Alberta", </BR>
      * <li> <code>BC</code>: "British Columbia", </BR>
      * <li> <code>MB</code>: "Manitoba", </BR>
-     * <li> <code>NB</code>:	"New Brunswick", </BR>
+     * <li> <code>NB</code>:    "New Brunswick", </BR>
      * <li> <code>NL</code>: "Newfoundland and Labrador", </BR>
      * <li> <code>NS</code>: "Nova Scotia", </BR>
      * <li> <code>NT</code>: "Northwest Territories", </BR>
@@ -2388,8 +2388,8 @@ class AdminService extends GenericService {
      * {string{0..64}}  [infos.userInfo2]      2nd Free field that admin can use to link their users to their IS/IT tools / to perform analytics (this field is output in the CDR file) </BR>
      * {string} selectedTheme Set the selected theme for the user. </BR>
      * {Object} customData  User's custom data. </BR>
-     *    key1 	string User's custom data key1. </BR>
-     *    key2 	string Company's custom data key2. </BR>
+     *    key1  string User's custom data key1. </BR>
+     *    key2  string Company's custom data key2. </BR>
      *  customData can only be created/updated by: </BR>
      *   the user himself, company_admin or organization_admin of his company, bp_admin and bp_finance of his company, superadmin. </BR>
      *   Restrictions on customData Object: </BR>
@@ -5669,7 +5669,7 @@ class AdminService extends GenericService {
      *              created : number Count of created entries </BR>
      *              updated : number Count of updated entries </BR>
      *              deleted : number Count of deleted entries </BR>
-     *              failed : 	Integer Count of failed entries </BR>
+     *              failed :    Integer Count of failed entries </BR>
      *        } </BR>
      *
      *      return an {Object}  of synchronization data. </BR>
@@ -5933,27 +5933,27 @@ class AdminService extends GenericService {
      *              phoneNumberId string Phone number unique id in phone-numbers directory collection. </BR>
      *              number optionnel string User phone number (as entered by user) </BR>
      *              numberE164 optionnel string User E.164 phone number, computed by server from number and country fields </BR>
-     *              country 	string Phone number country (ISO 3166-1 alpha3 format) country field is automatically computed using the following algorithm when creating/updating a phoneNumber entry: If number is provided and is in E164 format, country is computed from E164 number Else if country field is provided in the phoneNumber entry, this one is used Else user country field is used   isFromSystem boolean boolean indicating if phone is linked to a system (pbx). </BR>
-     *              shortNumber optionnel 	string [Only for phone numbers linked to a system (pbx)] If phone is linked to a system (pbx), short phone number (corresponds to the number monitored by PCG). Only usable within the same PBX. Only PCG can set this field. </BR>
-     *              internalNumber optionnel 	string [Only for phone numbers linked to a system (pbx)] If phone is linked to a system (pbx), internal phone number. Usable within a PBX group. Admins and users can modify this internalNumber field. </BR>
-     *              systemId optionnel 	string [Only for phone numbers linked to a system (pbx)] If phone is linked to a system (pbx), unique identifier of that system in Rainbow database. </BR>
-     *              pbxId optionnel 	string [Only for phone numbers linked to a system (pbx)] If phone is linked to a system (pbx), unique identifier of that pbx. </BR>
-     *              type 	string Phone number type, one of home, work, other. </BR>
-     *              deviceType 	string Phone number device type, one of landline, mobile, fax, other. </BR>
-     *              isVisibleByOthers 	boolean Allow user to choose if the phone number is visible by other users or not. Note that administrators can see all the phone numbers, even if isVisibleByOthers is set to false. Note that phone numbers linked to a system (isFromSystem=true) are always visible, isVisibleByOthers can't be set to false for these numbers. </BR>
-     *         country 	string User country (ISO 3166-1 alpha3 format) </BR>
-     *         state optionnel 	string When country is 'USA' or 'CAN', a state can be defined. Else it is not managed (null). </BR>
-     *         language optionnel 	string User language (ISO 639-1 code format, with possibility of regional variation. Ex: both 'en' and 'en-US' are supported) </BR>
-     *         timezone optionnel 	string User timezone name </BR>
-     *         jid_im 	string User Jabber IM identifier </BR>
-     *         jid_tel 	string User Jabber TEL identifier </BR>
-     *         jid_password 	string User Jabber IM and TEL password </BR>
-     *         roles 	string[] List of user roles (Array of string) Note: company_support role is only used for support redirection. If a user writes a #support ticket and have the role company_support, the ticket will be sent to ALE's support (otherwise the ticket is sent to user's company's supportEmail address is set, ALE otherwise). </BR>
-     *         adminType 	string In case of user's is 'admin', define the subtype (organisation_admin, company_admin, site_admin (default undefined) </BR>
-     *         organisationId 	string In addition to User companyId, optional identifier to indicate the user belongs also to an organization </BR>
-     *         siteId 	string In addition to User companyId, optional identifier to indicate the user belongs also to a site </BR>
-     *         companyName 	string User company name </BR>
-     *         visibility 	string User visibility Define if the user can be searched by users being in other company and if the user can search users being in other companies. Visibility can be: </BR>
+     *              country     string Phone number country (ISO 3166-1 alpha3 format) country field is automatically computed using the following algorithm when creating/updating a phoneNumber entry: If number is provided and is in E164 format, country is computed from E164 number Else if country field is provided in the phoneNumber entry, this one is used Else user country field is used   isFromSystem boolean boolean indicating if phone is linked to a system (pbx). </BR>
+     *              shortNumber optionnel       string [Only for phone numbers linked to a system (pbx)] If phone is linked to a system (pbx), short phone number (corresponds to the number monitored by PCG). Only usable within the same PBX. Only PCG can set this field. </BR>
+     *              internalNumber optionnel    string [Only for phone numbers linked to a system (pbx)] If phone is linked to a system (pbx), internal phone number. Usable within a PBX group. Admins and users can modify this internalNumber field. </BR>
+     *              systemId optionnel  string [Only for phone numbers linked to a system (pbx)] If phone is linked to a system (pbx), unique identifier of that system in Rainbow database. </BR>
+     *              pbxId optionnel     string [Only for phone numbers linked to a system (pbx)] If phone is linked to a system (pbx), unique identifier of that pbx. </BR>
+     *              type        string Phone number type, one of home, work, other. </BR>
+     *              deviceType  string Phone number device type, one of landline, mobile, fax, other. </BR>
+     *              isVisibleByOthers   boolean Allow user to choose if the phone number is visible by other users or not. Note that administrators can see all the phone numbers, even if isVisibleByOthers is set to false. Note that phone numbers linked to a system (isFromSystem=true) are always visible, isVisibleByOthers can't be set to false for these numbers. </BR>
+     *         country  string User country (ISO 3166-1 alpha3 format) </BR>
+     *         state optionnel  string When country is 'USA' or 'CAN', a state can be defined. Else it is not managed (null). </BR>
+     *         language optionnel       string User language (ISO 639-1 code format, with possibility of regional variation. Ex: both 'en' and 'en-US' are supported) </BR>
+     *         timezone optionnel       string User timezone name </BR>
+     *         jid_im   string User Jabber IM identifier </BR>
+     *         jid_tel  string User Jabber TEL identifier </BR>
+     *         jid_password     string User Jabber IM and TEL password </BR>
+     *         roles    string[] List of user roles (Array of string) Note: company_support role is only used for support redirection. If a user writes a #support ticket and have the role company_support, the ticket will be sent to ALE's support (otherwise the ticket is sent to user's company's supportEmail address is set, ALE otherwise). </BR>
+     *         adminType        string In case of user's is 'admin', define the subtype (organisation_admin, company_admin, site_admin (default undefined) </BR>
+     *         organisationId   string In addition to User companyId, optional identifier to indicate the user belongs also to an organization </BR>
+     *         siteId   string In addition to User companyId, optional identifier to indicate the user belongs also to a site </BR>
+     *         companyName      string User company name </BR>
+     *         visibility       string User visibility Define if the user can be searched by users being in other company and if the user can search users being in other companies. Visibility can be: </BR>
      *         same_than_company: The same visibility than the user's company's is applied to the user. When this user visibility is used, if the visibility of the company is changed the user's visibility will use this company new visibility. </BR>
      *         public: User can be searched by external users / can search external users. User can invite external users / can be invited by external users </BR>
      *         private: User can't be searched by external users / can search external users. User can invite external users / can be invited by external users </BR>
@@ -5961,139 +5961,139 @@ class AdminService extends GenericService {
      *         isolated: User can't be searched by external users / can't search external users. User can't invite external users / can't be invited by external users </BR>
      *         none: Default value reserved for guest. User can't be searched by any users (even within the same company) / can search external users. User can invite external users / can be invited by external users </BR>
      *         External users mean 'public user not being in user's company nor user's organisation nor a company visible by user's company. Values(same_than_company, public, private, closed, isolated, none) </BR>
-     *         isActive 	boolean Is user active  </BR>
-     *         isInitialized 	boolean Is user initialized </BR>
-     *         initializationDate 	Date-Time User initialization date </BR>
-     *         activationDate 	Date-Time User activation date </BR>
-     *         creationDate 	Date-Time User creation date </BR>
-     *         lastUpdateDate 	Date-Time Date of last user update (whatever the field updated) </BR>
-     *         lastAvatarUpdateDate 	Date-Time Date of last user avatar create/update, null if no avatar </BR>
-     *         createdBySelfRegister 	boolean true if user has been created using self register </BR>
-     *         createdByAdmin optionnel 	Object If user has been created by an admin or superadmin, contain userId and loginEmail of the admin who created this user </BR>
-     *         userId 	string userId of the admin who created this user </BR>
-     *         loginEmail 	string loginEmail of the admin who created this user </BR>
-     *         invitedBy optionnel 	Object If user has been created from an email invitation sent by another rainbow user, contain the date the invitation was sent and userId and loginEmail of the user who invited this user </BR>
-     *         userId 	string userId of the user who invited this user </BR>
-     *         loginEmail 	string loginEmail of the user who invited this user </BR>
-     *         authenticationType optionnel 	string User authentication type (if not set company default authentication will be used) Values (DEFAULT, RAINBOW, SAML, OIDC) </BR>
-     *         authenticationExternalUid optionnel 	string User external authentication ID (return by identity provider in case of SAML or OIDC authenticationType) </BR>
-     *         firstLoginDate 	Date-Time Date of first user login (only set the first time user logs in, null if user never logged in) </BR>
-     *         lastLoginDate 	Date-Time Date of last user login (defined even if user is logged out) </BR>
-     *         loggedSince 	Date-Time Date of last user login (null if user is logged out) </BR>
-     *         isTerminated 	boolean Indicates if the Rainbow account of this user has been deleted </BR>
-     *         guestMode 	boolean Indicated a user embedded in a chat or conference room, as guest, with limited rights until he finalizes his registration. </BR>
-     *         timeToLive optionnel 	Number Duration in second to wait before automatically starting a user deletion from the creation date. Once the timeToLive has been reached, the user won't be usable to use APIs anymore (error 401523). His account may then be deleted from the database at any moment. Value -1 means timeToLive is disable (i.e. user account will not expire). </BR>
-     *         userInfo1 optionnel 	string Free field that admin can use to link their users to their IS/IT tools / to perform analytics (this field is output in the CDR file) </BR>
-     *         userInfo2 optionnel 	string 2nd Free field that admin can use to link their users to their IS/IT tools / to perform analytics (this field is output in the CDR file) </BR>
-     *         useScreenSharingCustomisation 	string Activate/Deactivate the capability for a user to share a screen. Define if a user has the right to share his screen. </BR>
+     *         isActive         boolean Is user active  </BR>
+     *         isInitialized    boolean Is user initialized </BR>
+     *         initializationDate       Date-Time User initialization date </BR>
+     *         activationDate   Date-Time User activation date </BR>
+     *         creationDate     Date-Time User creation date </BR>
+     *         lastUpdateDate   Date-Time Date of last user update (whatever the field updated) </BR>
+     *         lastAvatarUpdateDate     Date-Time Date of last user avatar create/update, null if no avatar </BR>
+     *         createdBySelfRegister    boolean true if user has been created using self register </BR>
+     *         createdByAdmin optionnel         Object If user has been created by an admin or superadmin, contain userId and loginEmail of the admin who created this user </BR>
+     *         userId   string userId of the admin who created this user </BR>
+     *         loginEmail       string loginEmail of the admin who created this user </BR>
+     *         invitedBy optionnel      Object If user has been created from an email invitation sent by another rainbow user, contain the date the invitation was sent and userId and loginEmail of the user who invited this user </BR>
+     *         userId   string userId of the user who invited this user </BR>
+     *         loginEmail       string loginEmail of the user who invited this user </BR>
+     *         authenticationType optionnel     string User authentication type (if not set company default authentication will be used) Values (DEFAULT, RAINBOW, SAML, OIDC) </BR>
+     *         authenticationExternalUid optionnel      string User external authentication ID (return by identity provider in case of SAML or OIDC authenticationType) </BR>
+     *         firstLoginDate   Date-Time Date of first user login (only set the first time user logs in, null if user never logged in) </BR>
+     *         lastLoginDate    Date-Time Date of last user login (defined even if user is logged out) </BR>
+     *         loggedSince      Date-Time Date of last user login (null if user is logged out) </BR>
+     *         isTerminated     boolean Indicates if the Rainbow account of this user has been deleted </BR>
+     *         guestMode        boolean Indicated a user embedded in a chat or conference room, as guest, with limited rights until he finalizes his registration. </BR>
+     *         timeToLive optionnel     Number Duration in second to wait before automatically starting a user deletion from the creation date. Once the timeToLive has been reached, the user won't be usable to use APIs anymore (error 401523). His account may then be deleted from the database at any moment. Value -1 means timeToLive is disable (i.e. user account will not expire). </BR>
+     *         userInfo1 optionnel      string Free field that admin can use to link their users to their IS/IT tools / to perform analytics (this field is output in the CDR file) </BR>
+     *         userInfo2 optionnel      string 2nd Free field that admin can use to link their users to their IS/IT tools / to perform analytics (this field is output in the CDR file) </BR>
+     *         useScreenSharingCustomisation    string Activate/Deactivate the capability for a user to share a screen. Define if a user has the right to share his screen. </BR>
      *         useScreenSharingCustomisation can be: </BR>
      *            same_than_company: The same useScreenSharingCustomisation setting than the user's company's is applied to the user. if the useScreenSharingCustomisation of the company is changed the user's useScreenSharingCustomisation will use this company new setting. </BR>
      *            enabled: Each user of the company can share his screen. </BR>
      *            disabled: No user of the company can share his screen. </BR>
-     *         customData optionnel 	Object User's custom data. Object with free keys/values. It is up to the client to manage the user's customData (new customData provided overwrite the existing one). Restrictions on customData Object: max 20 keys, max key length: 64 characters, max value length: 4096 characters. </BR>
-     *         activationCodeGenerationStatus 	string Status the activation code generation done if the activation code generation is successful </BR>
+     *         customData optionnel     Object User's custom data. Object with free keys/values. It is up to the client to manage the user's customData (new customData provided overwrite the existing one). Restrictions on customData Object: max 20 keys, max key length: 64 characters, max value length: 4096 characters. </BR>
+     *         activationCodeGenerationStatus   string Status the activation code generation done if the activation code generation is successful </BR>
      *         in_progress if the activation code generation failed and the security mechanism is ongoing to try to generate it again every minute Possible values : done, in_progress </BR>
-     *         fileSharingCustomisation 	string Activate/Deactivate file sharing capability per user Define if the user can use the file sharing service then, allowed to download and share file. </BR>
+     *         fileSharingCustomisation         string Activate/Deactivate file sharing capability per user Define if the user can use the file sharing service then, allowed to download and share file. </BR>
      *         FileSharingCustomisation can be: </BR>
      *            same_than_company: The same fileSharingCustomisation setting than the user's company's is applied to the user. if the fileSharingCustomisation of the company is changed the user's fileSharingCustomisation will use this company new setting. </BR>
      *            enabled: Whatever the fileSharingCustomisation of the company setting, the user can use the file sharing service. </BR>
      *            disabled: Whatever the fileSharingCustomisation of the company setting, the user can't use the file sharing service. </BR>
-     *         userTitleNameCustomisation 	string Activate/Deactivate the capability for a user to modify his profile (title, firstName, lastName) Define if the user can change some profile data. </BR>
+     *         userTitleNameCustomisation       string Activate/Deactivate the capability for a user to modify his profile (title, firstName, lastName) Define if the user can change some profile data. </BR>
      *         userTitleNameCustomisation can be: </BR>
      *            same_than_company: The same userTitleNameCustomisation setting than the user's company's is applied to the user. if the userTitleNameCustomisation of the company is changed the user's userTitleNameCustomisation will use this company new setting. </BR>
      *            enabled: Whatever the userTitleNameCustomisation of the company setting, the user can change some profile data. </BR>
      *            disabled: Whatever the userTitleNameCustomisation of the company setting, the user can't change some profile data. </BR>
-     *         softphoneOnlyCustomisation 	string Activate/Deactivate the capability for an UCaas application not to offer all Rainbow services but to focus to telephony services Define if UCaas apps used by a user of this company must provide Softphone functions, i.e. no chat, no bubbles, no meetings, no channels, and so on. </BR>
+     *         softphoneOnlyCustomisation       string Activate/Deactivate the capability for an UCaas application not to offer all Rainbow services but to focus to telephony services Define if UCaas apps used by a user of this company must provide Softphone functions, i.e. no chat, no bubbles, no meetings, no channels, and so on. </BR>
      *         softphoneOnlyCustomisation can be: </BR>
      *            same_than_company: The same softphoneOnlyCustomisation setting than the user's company's is applied to the user. if the softphoneOnlyCustomisation of the company is changed the user's softphoneOnlyCustomisation will use this company new setting. </BR>
      *            enabled: The user switch to a softphone mode only. </BR>
      *            disabled: The user can use telephony services, chat, bubbles, channels meeting services and so on. </BR>
-     *         useRoomCustomisation 	string Activate/Deactivate the capability for a user to use bubbles. Define if a user can create bubbles or participate in bubbles (chat and web conference). </BR>
+     *         useRoomCustomisation     string Activate/Deactivate the capability for a user to use bubbles. Define if a user can create bubbles or participate in bubbles (chat and web conference). </BR>
      *         useRoomCustomisation can be: </BR>
      *            same_than_company: The same useRoomCustomisation setting than the user's company's is applied to the user. if the useRoomCustomisation of the company is changed the user's useRoomCustomisation will use this company new setting. </BR>
      *            enabled: The user can use bubbles. </BR>
      *            disabled: The user can't use bubbles. </BR>
-     *         phoneMeetingCustomisation 	string Activate/Deactivate the capability for a user to use phone meetings (PSTN conference). Define if a user has the right to join phone meetings. </BR>
+     *         phoneMeetingCustomisation        string Activate/Deactivate the capability for a user to use phone meetings (PSTN conference). Define if a user has the right to join phone meetings. </BR>
      *         phoneMeetingCustomisation can be: </BR>
      *            same_than_company: The same phoneMeetingCustomisation setting than the user's company's is applied to the user. if the phoneMeetingCustomisation of the company is changed the user's phoneMeetingCustomisation will use this company new setting. </BR>
      *            enabled: The user can join phone meetings. </BR>
      *            disabled: The user can't join phone meetings. </BR>
-     *         useChannelCustomisation 	string Activate/Deactivate the capability for a user to use a channel. Define if a user has the right to create channels or be a member of channels. </BR>
+     *         useChannelCustomisation  string Activate/Deactivate the capability for a user to use a channel. Define if a user has the right to create channels or be a member of channels. </BR>
      *         useChannelCustomisation can be: </BR>
      *            same_than_company: The same useChannelCustomisation setting than the user's company's is applied to the user. if the useChannelCustomisation of the company is changed the user's useChannelCustomisation will use this company new setting. </BR>
      *            enabled: The user can use some channels. </BR>
      *            disabled: The user can't use some channel. </BR>
-     *         useWebRTCVideoCustomisation 	string Activate/Deactivate the capability for a user to switch to a Web RTC video conversation. Define if a user has the right to be joined via video and to use video (start a P2P video call, add video in a P2P call, add video in a web conference call). </BR>
+     *         useWebRTCVideoCustomisation      string Activate/Deactivate the capability for a user to switch to a Web RTC video conversation. Define if a user has the right to be joined via video and to use video (start a P2P video call, add video in a P2P call, add video in a web conference call). </BR>
      *         useWebRTCVideoCustomisation can be: </BR>
      *            same_than_company: The same useWebRTCVideoCustomisation setting than the user's company's is applied to the user. if the useWebRTCVideoCustomisation of the company is changed the user's useWebRTCVideoCustomisation will use this company new setting. </BR>
      *            enabled: The user can switch to a Web RTC video conversation. </BR>
      *            disabled: The user can't switch to a Web RTC video conversation. </BR>
-     *         useWebRTCAudioCustomisation 	string Activate/Deactivate the capability for a user to switch to a Web RTC audio conversation. Define if a user has the right to be joined via audio (WebRTC) and to use Rainbow audio (WebRTC) (start a P2P audio call, start a web conference call). </BR>
+     *         useWebRTCAudioCustomisation      string Activate/Deactivate the capability for a user to switch to a Web RTC audio conversation. Define if a user has the right to be joined via audio (WebRTC) and to use Rainbow audio (WebRTC) (start a P2P audio call, start a web conference call). </BR>
      *         useWebRTCAudioCustomisation can be: </BR>
      *            same_than_company: The same useWebRTCAudioCustomisation setting than the user's company's is applied to the user. if the useWebRTCAudioCustomisation of the company is changed the user's useWebRTCAudioCustomisation will use this company new setting. </BR>
      *            enabled: The user can switch to a Web RTC audio conversation. </BR>
      *            disabled: The user can't switch to a Web RTC audio conversation. </BR>
-     *         instantMessagesCustomisation 	string Activate/Deactivate the capability for a user to use instant messages. Define if a user has the right to use IM, then to start a chat (P2P ou group chat) or receive chat messages and chat notifications. </BR>
+     *         instantMessagesCustomisation     string Activate/Deactivate the capability for a user to use instant messages. Define if a user has the right to use IM, then to start a chat (P2P ou group chat) or receive chat messages and chat notifications. </BR>
      *         instantMessagesCustomisation can be: </BR>
      *            same_than_company: The same instantMessagesCustomisation setting than the user's company's is applied to the user. if the instantMessagesCustomisation of the company is changed the user's instantMessagesCustomisation will use this company new setting. </BR>
      *            enabled: The user can use instant messages. </BR>
      *            disabled: The user can't use instant messages. </BR>
-     *         userProfileCustomisation 	string Activate/Deactivate the capability for a user to modify his profile. Define if a user has the right to modify the globality of his profile and not only (title, firstName, lastName). </BR>
+     *         userProfileCustomisation         string Activate/Deactivate the capability for a user to modify his profile. Define if a user has the right to modify the globality of his profile and not only (title, firstName, lastName). </BR>
      *         userProfileCustomisation can be: </BR>
      *            same_than_company: The same userProfileCustomisation setting than the user's company's is applied to the user. if the userProfileCustomisation of the company is changed the user's userProfileCustomisation will use this company new setting. </BR>
      *            enabled: The user can modify his profile. </BR>
      *            disabled: The user can't modify his profile. </BR>
-     *         fileStorageCustomisation 	string Activate/Deactivate the capability for a user to access to Rainbow file storage.. Define if a user has the right to upload/download/copy or share documents. </BR>
+     *         fileStorageCustomisation         string Activate/Deactivate the capability for a user to access to Rainbow file storage.. Define if a user has the right to upload/download/copy or share documents. </BR>
      *         fileStorageCustomisation can be: </BR>
      *            same_than_company: The same fileStorageCustomisation setting than the user's company's is applied to the user. if the fileStorageCustomisation of the company is changed the user's fileStorageCustomisation will use this company new setting. </BR>
      *            enabled: The user can manage and share files. </BR>
      *            disabled: The user can't manage and share files. </BR>
-     *         overridePresenceCustomisation 	string Activate/Deactivate the capability for a user to use instant messages. Define if a user has the right to change his presence manually or only use automatic states. </BR>
+     *         overridePresenceCustomisation    string Activate/Deactivate the capability for a user to use instant messages. Define if a user has the right to change his presence manually or only use automatic states. </BR>
      *         overridePresenceCustomisation can be: </BR>
      *            same_than_company: The same overridePresenceCustomisation setting than the user's company's is applied to the user. if the overridePresenceCustomisation of the company is changed the user's overridePresenceCustomisation will use this company new setting. </BR>
      *            enabled: The user can change his presence. </BR>
      *            disabled: The user can't change his presence. </BR>
-     *         changeTelephonyCustomisation 	string Activate/Deactivate the ability for a user to modify telephony settings. Define if a user has the right to modify some telephony settigs like forward activation... </BR>
+     *         changeTelephonyCustomisation     string Activate/Deactivate the ability for a user to modify telephony settings. Define if a user has the right to modify some telephony settigs like forward activation... </BR>
      *         changeTelephonyCustomisation can be: </BR>
      *            same_than_company: The same changeTelephonyCustomisation setting than the user's company's is applied to the user. if the changeTelephonyCustomisation of the company is changed the user's changeTelephonyCustomisation will use this company new setting. </BR>
      *            enabled: The user can modify telephony settings. </BR>
      *            disabled: The user can't modify telephony settings. </BR>
-     *         changeSettingsCustomisation 	string Activate/Deactivate the ability for a user to change all client general settings. </BR>
+     *         changeSettingsCustomisation      string Activate/Deactivate the ability for a user to change all client general settings. </BR>
      *         changeSettingsCustomisation can be: </BR>
      *            same_than_company: The same changeSettingsCustomisation setting than the user's company's is applied to the user. if the changeSettingsCustomisation of the company is changed the user's changeSettingsCustomisation will use this company new setting. </BR>
      *            enabled: The user can change all client general settings. </BR>
      *            disabled: The user can't change any client general setting. </BR>
-     *         recordingConversationCustomisation 	string Activate/Deactivate the capability for a user to record a conversation. Define if a user has the right to record a conversation (for P2P and multi-party calls). </BR>
+     *         recordingConversationCustomisation       string Activate/Deactivate the capability for a user to record a conversation. Define if a user has the right to record a conversation (for P2P and multi-party calls). </BR>
      *         recordingConversationCustomisation can be: </BR>
      *            same_than_company: The same recordingConversationCustomisation setting than the user's company's is applied to the user. if the recordingConversationCustomisation of the company is changed the user's recordingConversationCustomisation will use this company new setting. </BR>
      *            enabled: The user can record a peer to peer or a multi-party call. </BR>
      *            disabled: The user can't record a peer to peer or a multi-party call. </BR>
-     *         useGifCustomisation 	string Activate/Deactivate the ability for a user to Use GIFs in conversations. Define if a user has the is allowed to send animated GIFs in conversations </BR>
+     *         useGifCustomisation      string Activate/Deactivate the ability for a user to Use GIFs in conversations. Define if a user has the is allowed to send animated GIFs in conversations </BR>
      *         useGifCustomisation can be: </BR>
      *            same_than_company: The same useGifCustomisation setting than the user's company's is applied to the user. if the useGifCustomisation of the company is changed the user's useGifCustomisation will use this company new setting. </BR>
      *            enabled: The user can send animated GIFs in conversations. </BR>
      *            disabled: The user can't send animated GIFs in conversations. </BR>
-     *         fileCopyCustomisation 	string Activate/Deactivate the capability for one user to copy any file he receives in his personal cloud space </BR>
+     *         fileCopyCustomisation    string Activate/Deactivate the capability for one user to copy any file he receives in his personal cloud space </BR>
      *         fileCopyCustomisation can be: </BR>
      *            same_than_company: The same fileCopyCustomisation setting than the user's company's is applied to the user. if the fileCopyCustomisation of the company is changed the user's fileCopyCustomisation will use this company new setting. </BR>
      *            enabled: The user can make a copy of a file to his personal cloud space. </BR>
      *            disabled: The user can't make a copy of a file to his personal cloud space. </BR>
-     *         fileTransferCustomisation 	string Activate/Deactivate the capability for a user to copy a file from a conversation then share it inside another conversation. The file cannot be re-shared. </BR>
+     *         fileTransferCustomisation        string Activate/Deactivate the capability for a user to copy a file from a conversation then share it inside another conversation. The file cannot be re-shared. </BR>
      *         fileTransferCustomisation can be: </BR>
      *            same_than_company: The same fileTransferCustomisation setting than the user's company's is applied to the user. if the fileTransferCustomisation of the company is changed the user's fileTransferCustomisation will use this company new setting. </BR>
      *            enabled: The user can transfer a file doesn't belong to him. </BR>
      *            disabled: The user can't transfer a file doesn't belong to him. </BR>
-     *         forbidFileOwnerChangeCustomisation 	string Activate/Deactivate the capability for a user to loose the ownership on one file.. One user can drop the ownership to another Rainbow user of the same company. </BR>
+     *         forbidFileOwnerChangeCustomisation       string Activate/Deactivate the capability for a user to loose the ownership on one file.. One user can drop the ownership to another Rainbow user of the same company. </BR>
      *         forbidFileOwnerChangeCustomisation can be: </BR>
      *            same_than_company: The same forbidFileOwnerChangeCustomisation setting than the user's company's is applied to the user. if the forbidFileOwnerChangeCustomisation of the company is changed the user's forbidFileOwnerChangeCustomisation will use this company new setting. </BR>
      *            enabled: The user can't give the ownership of his file. </BR>
      *            disabled: The user can give the ownership of his file. </BR>
-     *         useDialOutCustomisation 	string Activate/Deactivate the capability for a user to use dial out in phone meetings. Define if a user is allowed to be called by the Rainbow conference bridge. </BR>
+     *         useDialOutCustomisation  string Activate/Deactivate the capability for a user to use dial out in phone meetings. Define if a user is allowed to be called by the Rainbow conference bridge. </BR>
      *         useDialOutCustomisation can be: </BR>
      *            same_than_company: The same useDialOutCustomisation setting than the user's company's is applied to the user. if the useDialOutCustomisation of the company is changed the user's useDialOutCustomisation will use this company new setting. </BR>
      *            enabled: The user can be called by the Rainbow conference bridge. </BR>
      *            disabled: The user can't be called by the Rainbow conference bridge. </BR>
-     *         selectedAppCustomisationTemplate 	string To log the last template applied to the user. </BR>
+     *         selectedAppCustomisationTemplate         string To log the last template applied to the user. </BR>
      *      } </BR>
      * @return {Promise<any>}
      */
@@ -6308,17 +6308,17 @@ class AdminService extends GenericService {
      *      an organization_admin can retrieve the connectors configuration only in a company he can manage (i.e. companies having organisationId equal to his organisationId) </BR>
      *      a company_admin can only retrieve the connectors configuration in his company. </BR>
      *      return { </BR>
-     *         id 	string Config unique identifier. </BR>
-     *         type 	string Config type  </BR>
-     *         companyId 	string Allows to specify for which company the connectors configuration is done.. </BR>
-     *         settings 	Object config settings </BR>
-     *             massproFromLdap 	Object list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal. </BR>
-     *                 headerName 	string headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap. </BR>
-     *             company 	Object specific settings for the company. Each key represent a setting. </BR>
-     *                 login 	string login for the ldap server. </BR>
-     *                 password 	string password for the ldap server. </BR>
-     *                 synchronizationTimeInterval 	string time interval between synchronization in hours. </BR>
-     *                 url 	string url of the ldap server. </BR>
+     *         id       string Config unique identifier. </BR>
+     *         type     string Config type  </BR>
+     *         companyId        string Allows to specify for which company the connectors configuration is done.. </BR>
+     *         settings         Object config settings </BR>
+     *             massproFromLdap      Object list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal. </BR>
+     *                 headerName       string headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap. </BR>
+     *             company      Object specific settings for the company. Each key represent a setting. </BR>
+     *                 login    string login for the ldap server. </BR>
+     *                 password         string password for the ldap server. </BR>
+     *                 synchronizationTimeInterval      string time interval between synchronization in hours. </BR>
+     *                 url      string url of the ldap server. </BR>
      *          } </BR>
      * @return {Promise<any>}
      */
@@ -6360,17 +6360,17 @@ class AdminService extends GenericService {
      * @description
      *      This API allows to retrieve the configuration template for the connector. </BR>
      *      return { </BR>
-     *         id 	string Config unique identifier. </BR>
-     *         type 	string Config type  </BR>
-     *         companyId 	string Allows to specify for which company the connectors configuration is done.. </BR>
-     *         settings 	Object config settings </BR>
-     *             massproFromLdap 	Object list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal. </BR>
-     *                 headerName 	string headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap. </BR>
-     *             company 	Object specific settings for the company. Each key represent a setting. </BR>
-     *                 login 	string login for the ldap server. </BR>
-     *                 password 	string password for the ldap server. </BR>
-     *                 synchronizationTimeInterval 	string time interval between synchronization in hours. </BR>
-     *                 url 	string url of the ldap server. </BR>
+     *         id       string Config unique identifier. </BR>
+     *         type     string Config type  </BR>
+     *         companyId        string Allows to specify for which company the connectors configuration is done.. </BR>
+     *         settings         Object config settings </BR>
+     *             massproFromLdap      Object list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal. </BR>
+     *                 headerName       string headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap. </BR>
+     *             company      Object specific settings for the company. Each key represent a setting. </BR>
+     *                 login    string login for the ldap server. </BR>
+     *                 password         string password for the ldap server. </BR>
+     *                 synchronizationTimeInterval      string time interval between synchronization in hours. </BR>
+     *                 url      string url of the ldap server. </BR>
      *          } </BR>
      * @return {Promise<any>}
      */
@@ -6403,19 +6403,19 @@ class AdminService extends GenericService {
      * @description
      *      This API allows to retrieve all the configuration templates for the connector. </BR>
      *      return { </BR>
-     *         id 	string Config unique identifier. </BR>
-     *         type 	string Config type  </BR>
-     *         companyId 	string Allows to specify for which company the connectors configuration is done.. </BR>
-     *         settings 	Object config settings </BR>
-     *             massproFromLdap 	Object list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal. </BR>
-     *                 default 	String default field name in ldap. </BR>
-     *                 mandatory optionnel 	Boolean specify if field is mandatory. </BR>
-     *             company 	Object specific settings for the company. Each key represent a setting. </BR>
-     *                  headerName 	Object headerName as specified in the csv templates for the massprovisioning portal. </BR>
+     *         id       string Config unique identifier. </BR>
+     *         type     string Config type  </BR>
+     *         companyId        string Allows to specify for which company the connectors configuration is done.. </BR>
+     *         settings         Object config settings </BR>
+     *             massproFromLdap      Object list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal. </BR>
+     *                 default  String default field name in ldap. </BR>
+     *                 mandatory optionnel      Boolean specify if field is mandatory. </BR>
+     *             company      Object specific settings for the company. Each key represent a setting. </BR>
+     *                  headerName      Object headerName as specified in the csv templates for the massprovisioning portal. </BR>
      *                  settingName Object name of the setting. Each key represent a setting. As of now list of setting is "login", "password", "synchronizationTimeInterval", "url". This list can evolve. </BR>
-     *                  default optionnel 	String 	 </BR>
+     *                  default optionnel       String   </BR>
      *                  default value of the setting.  </BR>
-     *                  mandatory optionnel 	String specify if field is mandatory. </BR>
+     *                  mandatory optionnel     String specify if field is mandatory. </BR>
      *          } </BR>
      * @return {Promise<any>}
      */
@@ -6455,24 +6455,24 @@ class AdminService extends GenericService {
      *      an organization_admin can retrieve the connectors configuration only in a company he can manage (i.e. companies having organisationId equal to his organisationId) </BR>
      *      a company_admin can only retrieve the connectors configuration in his company. </BR>
      *      return { </BR>
-     *         id 	string Config unique identifier. </BR>
-     *         type 	string Config type  </BR>
-     *         companyId 	string Allows to specify for which company the connectors configuration is done.. </BR>
-     *         settings 	Object config settings </BR>
-     *             massproFromLdap 	Object list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal. </BR>
-     *                 headerName 	string headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap. </BR>
-     *             company 	Object specific settings for the company. Each key represent a setting. </BR>
-     *                 login 	string login for the ldap server. </BR>
-     *                 password 	string password for the ldap server. </BR>
-     *                 synchronizationTimeInterval 	string time interval between synchronization in hours. </BR>
-     *                 url 	string url of the ldap server. </BR>
-     *                 connectorStatus 	string status of the connector (set by the connector itself). </BR>
-     *                 nextSynchronization 	Date-Time date (ISO 8601 format) which defines when the next synchronization will be performed. </BR>
-     *                 enrollmentEmailEnable 	boolean defines if an enrollment email is sent to new users </BR>
-     *                 synchronisationDiffMode 	boolean defines if synching only users changed since last sync date </BR>
-     *                 search_rule 	string filters to use when requesting the ldap server. </BR>
-     *                 lastSynchronization 	Date-Time date (ISO 8601 format) when the last synchronization was performed by the ldap connector (filled by the ldap connector). </BR>
-     *                 softwareVersion 	string software Version of the ldap connector (filled by the ldap connector). </BR>
+     *         id       string Config unique identifier. </BR>
+     *         type     string Config type  </BR>
+     *         companyId        string Allows to specify for which company the connectors configuration is done.. </BR>
+     *         settings         Object config settings </BR>
+     *             massproFromLdap      Object list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal. </BR>
+     *                 headerName       string headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap. </BR>
+     *             company      Object specific settings for the company. Each key represent a setting. </BR>
+     *                 login    string login for the ldap server. </BR>
+     *                 password         string password for the ldap server. </BR>
+     *                 synchronizationTimeInterval      string time interval between synchronization in hours. </BR>
+     *                 url      string url of the ldap server. </BR>
+     *                 connectorStatus  string status of the connector (set by the connector itself). </BR>
+     *                 nextSynchronization      Date-Time date (ISO 8601 format) which defines when the next synchronization will be performed. </BR>
+     *                 enrollmentEmailEnable    boolean defines if an enrollment email is sent to new users </BR>
+     *                 synchronisationDiffMode  boolean defines if synching only users changed since last sync date </BR>
+     *                 search_rule      string filters to use when requesting the ldap server. </BR>
+     *                 lastSynchronization      Date-Time date (ISO 8601 format) when the last synchronization was performed by the ldap connector (filled by the ldap connector). </BR>
+     *                 softwareVersion  string software Version of the ldap connector (filled by the ldap connector). </BR>
      *          } </BR>
      * @return {Promise<any>}
      */
@@ -6520,24 +6520,24 @@ class AdminService extends GenericService {
      *      an organization_admin can retrieve the connectors configuration only in a company he can manage (i.e. companies having organisationId equal to his organisationId) </BR>
      *      a company_admin can only retrieve the connectors configuration in his company. </BR>
      *      return { </BR>
-     *         id 	string Config unique identifier. </BR>
-     *         type 	string Config type  </BR>
-     *         companyId 	string Allows to specify for which company the connectors configuration is done.. </BR>
-     *         settings 	Object config settings </BR>
-     *             massproFromLdap 	Object list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal. </BR>
-     *                 headerName 	string headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap. </BR>
-     *             company 	Object specific settings for the company. Each key represent a setting. </BR>
-     *                 login 	string login for the ldap server. </BR>
-     *                 password 	string password for the ldap server. </BR>
-     *                 synchronizationTimeInterval 	string time interval between synchronization in hours. </BR>
-     *                 url 	string url of the ldap server. </BR>
-     *                 connectorStatus 	string status of the connector (set by the connector itself). </BR>
-     *                 nextSynchronization 	Date-Time date (ISO 8601 format) which defines when the next synchronization will be performed. </BR>
-     *                 enrollmentEmailEnable 	boolean defines if an enrollment email is sent to new users </BR>
-     *                 synchronisationDiffMode 	boolean defines if synching only users changed since last sync date </BR>
-     *                 search_rule 	string filters to use when requesting the ldap server. </BR>
-     *                 lastSynchronization 	Date-Time date (ISO 8601 format) when the last synchronization was performed by the ldap connector (filled by the ldap connector). </BR>
-     *                 softwareVersion 	string software Version of the ldap connector (filled by the ldap connector). </BR>
+     *         id       string Config unique identifier. </BR>
+     *         type     string Config type  </BR>
+     *         companyId        string Allows to specify for which company the connectors configuration is done.. </BR>
+     *         settings         Object config settings </BR>
+     *             massproFromLdap      Object list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal. </BR>
+     *                 headerName       string headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap. </BR>
+     *             company      Object specific settings for the company. Each key represent a setting. </BR>
+     *                 login    string login for the ldap server. </BR>
+     *                 password         string password for the ldap server. </BR>
+     *                 synchronizationTimeInterval      string time interval between synchronization in hours. </BR>
+     *                 url      string url of the ldap server. </BR>
+     *                 connectorStatus  string status of the connector (set by the connector itself). </BR>
+     *                 nextSynchronization      Date-Time date (ISO 8601 format) which defines when the next synchronization will be performed. </BR>
+     *                 enrollmentEmailEnable    boolean defines if an enrollment email is sent to new users </BR>
+     *                 synchronisationDiffMode  boolean defines if synching only users changed since last sync date </BR>
+     *                 search_rule      string filters to use when requesting the ldap server. </BR>
+     *                 lastSynchronization      Date-Time date (ISO 8601 format) when the last synchronization was performed by the ldap connector (filled by the ldap connector). </BR>
+     *                 softwareVersion  string software Version of the ldap connector (filled by the ldap connector). </BR>
      *          } </BR>
      * @return {Promise<any>}
      */

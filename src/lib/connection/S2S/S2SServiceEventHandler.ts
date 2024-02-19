@@ -7,7 +7,7 @@ export {};
 
 import {XMPPUTils} from "../../common/XMPPUtils";
 
-import {logEntryExit} from "../../common/Utils";
+import {logEntryExit, stackTrace} from "../../common/Utils";
 import {rejects} from "assert";
 import {RESTService} from "../RESTService";
 import {ContactsService} from "../../services/ContactsService";
@@ -20,6 +20,7 @@ import {Bubble} from "../../common/models/Bubble";
 import {BubblesService} from "../../services/BubblesService";
 import {Core} from "../../Core";
 import {PresenceRainbow} from "../../common/models/PresenceRainbow";
+import {LevelInterface} from "../../common/LevelInterface.js";
 
 const util = require('util');
 
@@ -31,7 +32,7 @@ const TYPE_CHAT = "chat";
 const TYPE_GROUPCHAT = "groupchat";
 
 @logEntryExit(LOG_ID)
-class S2SServiceEventHandler {
+class S2SServiceEventHandler implements LevelInterface{
     private _logger: Logger;
     private _eventEmitter: EventEmitter;
     private _rest: RESTService;
@@ -55,6 +56,25 @@ class S2SServiceEventHandler {
     getAccessorName(){ return S2SServiceEventHandler.getAccessorName(); }
 
     constructor(_im, _application, _eventEmitter, _logger, _hostCallback) {
+        let that = this;
+        let obj = that;
+        if (obj) {
+            obj.INFO = {"callerObj": obj, "level": "info", isApi: false};
+            obj.DEBUG = {"callerObj": obj, "level": "debug", isApi: false};
+            obj.INTERNAL = {"callerObj": obj, "level": "internal", isApi: false};
+            obj.WARN = {"callerObj": obj, "level": "warn", isApi: false};
+            obj.ERROR = {"callerObj": obj, "level": "error", isApi: false};
+            obj.INTERNALERROR = {"callerObj": obj, "level": "internalerror", isApi: false};
+            obj.INFOAPI = {"callerObj": obj, "level": "info", isApi: true};
+            obj.DEBUGAPI = {"callerObj": obj, "level": "debug", isApi: true};
+            obj.INTERNALAPI = {"callerObj": obj, "level": "internal", isApi: true};
+            obj.WARNAPI = {"callerObj": obj, "level": "warn", isApi: true};
+            obj.ERRORAPI = {"callerObj": obj, "level": "error", isApi: true};
+            obj.INTERNALERRORAPI = {"callerObj": obj, "level": "internalerror", isApi: true}; // */
+        } else {
+            console.log("Can not set Logs Levels : ", stackTrace());
+        }
+
         this._logger = _logger;
         this._eventEmitter = _eventEmitter;
         this.shouldSendReadReceipt = _im.sendReadReceipt;
@@ -62,6 +82,19 @@ class S2SServiceEventHandler {
         this.xmppUtils = XMPPUTils.getXMPPUtils();
 
     }
+
+    INFO: any;
+    DEBUG: any;
+    INTERNAL: any;
+    WARN: any;
+    ERROR: any;
+    INTERNALERROR: any;
+    INFOAPI: any;
+    DEBUGAPI: any;
+    INTERNALAPI: any;
+    WARNAPI: any;
+    ERRORAPI: any;
+    INTERNALERRORAPI: any;
 
     setAccount(account) {
         let that = this;
@@ -85,55 +118,55 @@ class S2SServiceEventHandler {
         let originalUrl = event.originalUrl;
         let requestedPath = originalUrl;
 
-        that._logger.log("internal", LOG_ID + "(handleS2SEvent) *************************************************");
-        that._logger.log("internal", LOG_ID + "(handleS2SEvent) received an S2S EVENT : ");
-        that._logger.log("internal", LOG_ID + "(handleS2SEvent) METHOD : ", methodHttp);
-        that._logger.log("internal", LOG_ID + "(handleS2SEvent) BASELURL : ", baseUrl);
-        that._logger.log("internal", LOG_ID + "(handleS2SEvent) ORIGINALURL : ", originalUrl);
-        that._logger.log("internal", LOG_ID + "(handleS2SEvent) EVENT BODY : ", that._logger.colors.events(body));
-        that._logger.log("internal", LOG_ID + "(handleS2SEvent) *************************************************");
+        that._logger.log(that.INTERNAL, LOG_ID + "(handleS2SEvent) *************************************************");
+        that._logger.log(that.INTERNAL, LOG_ID + "(handleS2SEvent) received an S2S EVENT : ");
+        that._logger.log(that.INTERNAL, LOG_ID + "(handleS2SEvent) METHOD : ", methodHttp);
+        that._logger.log(that.INTERNAL, LOG_ID + "(handleS2SEvent) BASELURL : ", baseUrl);
+        that._logger.log(that.INTERNAL, LOG_ID + "(handleS2SEvent) ORIGINALURL : ", originalUrl);
+        that._logger.log(that.INTERNAL, LOG_ID + "(handleS2SEvent) EVENT BODY : ", that._logger.colors.events(body));
+        that._logger.log(that.INTERNAL, LOG_ID + "(handleS2SEvent) *************************************************");
 
         if (String.prototype.toUpperCase.call(methodHttp + "") != "POST") {
-            that._logger.log("error", LOG_ID + "(handleS2SEvent) Don't manage this request - Invalid HttpVerb - HttpVerb:[", methodHttp, "] - Path:[host : ", event.headers.host, ", path : ", requestedPath, "]");
+            that._logger.log(that.ERROR, LOG_ID + "(handleS2SEvent) Don't manage this request - Invalid HttpVerb - HttpVerb:[", methodHttp, "] - Path:[host : ", event.headers.host, ", path : ", requestedPath, "]");
             return false;
         }
         if (that.callbackAbsolutePath && that.callbackAbsolutePath.indexOf(event.headers.host) == -1) {
-            that._logger.log("error", LOG_ID + "(handleS2SEvent) Don't manage this request - Invalid path - HttpVerb:[", methodHttp, "] - Path:[host : ", event.headers.host, ", path : ", requestedPath, "]");
+            that._logger.log(that.ERROR, LOG_ID + "(handleS2SEvent) Don't manage this request - Invalid path - HttpVerb:[", methodHttp, "] - Path:[host : ", event.headers.host, ", path : ", requestedPath, "]");
             return false;
         }
 
         if (requestedPath === "/connection") {
-            // that.logger.log("internal", LOG_ID + "(handleS2SEvent) return ParseConnectionCallback(content)");
+            // that._logger.log(that.INTERNAL, LOG_ID + "(handleS2SEvent) return ParseConnectionCallback(content)");
             return that.ParseConnectionCallback(body);
         } else if (requestedPath === "/presence") {
-            // that.logger.log("internal", LOG_ID + "(handleS2SEvent) return ParsePresenceCallback(content)");
+            // that._logger.log(that.INTERNAL, LOG_ID + "(handleS2SEvent) return ParsePresenceCallback(content)");
             return that.ParsePresenceCallback(body);
         } else if (requestedPath === "/chat-state") {
-            // that.logger.log("internal", LOG_ID + "(handleS2SEvent) return ParseChatStateCallback(content)");
+            // that._logger.log(that.INTERNAL, LOG_ID + "(handleS2SEvent) return ParseChatStateCallback(content)");
             return that.ParseChatStateCallback(body);
         } else if (requestedPath === "/receipt") {
-            //that.logger.log("internal", LOG_ID + "(handleS2SEvent) return ParseReceiptCallback(content)");
+            //that._logger.log(that.INTERNAL, LOG_ID + "(handleS2SEvent) return ParseReceiptCallback(content)");
             return that.ParseReceiptCallback(body);
         } else if (requestedPath === "/all-receipt") {
-            //that.logger.log("internal", LOG_ID + "(handleS2SEvent) return ParseAllReceiptCallback(content)");
+            //that._logger.log(that.INTERNAL, LOG_ID + "(handleS2SEvent) return ParseAllReceiptCallback(content)");
             return that.ParseAllReceiptCallback(body);
         } else if (requestedPath === "/conversation") {
-            //that.logger.log("internal", LOG_ID + "(handleS2SEvent) TODO: return ParseConversationCallback(content)");
+            //that._logger.log(that.INTERNAL, LOG_ID + "(handleS2SEvent) TODO: return ParseConversationCallback(content)");
             return that.ParseConversationCallback(body);
         } else if (requestedPath === "/room-invite") {
-            //that.logger.log("internal", LOG_ID + "(handleS2SEvent) TODO: return ParseRoomInviteCallback(content)");
+            //that._logger.log(that.INTERNAL, LOG_ID + "(handleS2SEvent) TODO: return ParseRoomInviteCallback(content)");
             return that.ParseRoomInviteCallback(body);
         } else if (requestedPath === "/room-member") {
-            //that.logger.log("internal", LOG_ID + "(handleS2SEvent) TODO: return ParseRoomMemberCallback(content)");
+            //that._logger.log(that.INTERNAL, LOG_ID + "(handleS2SEvent) TODO: return ParseRoomMemberCallback(content)");
             return that.ParseRoomMemberCallback(body);
         } else if (requestedPath === "/room-state") {
-            // that._logger.log("internal", LOG_ID + "(handleS2SEvent) TODO: return ParseRoomStateCallback(content)");
+            // that._logger.log(that.INTERNAL, LOG_ID + "(handleS2SEvent) TODO: return ParseRoomStateCallback(content)");
             return that.ParseRoomStateCallback(body);
         } else if (requestedPath === "/message") {
-            // that.logger.log("internal", LOG_ID + "(handleS2SEvent) TODO: return ParseMessageCallback(content)");
+            // that._logger.log(that.INTERNAL, LOG_ID + "(handleS2SEvent) TODO: return ParseMessageCallback(content)");
             return that.ParseMessageCallback(body);
         } else if (requestedPath === "/all-deleted") {
-            // that._logger.log("internal", LOG_ID + "(handleS2SEvent) TODO: return ParseAlldeletedCallback(content)");
+            // that._logger.log(that.INTERNAL, LOG_ID + "(handleS2SEvent) TODO: return ParseAlldeletedCallback(content)");
             /*
             { timestamp: '2020-02-21T13:50:38.919508Z',
   id: 'ee564d90-54b0-11ea-85d9-00505628611e',
@@ -143,17 +176,17 @@ class S2SServiceEventHandler {
              */
             return that.ParseAlldeletedCallback(body);
         } else if (requestedPath === "/error") {
-            // that._logger.log("error", LOG_ID + "(handleS2SEvent) TODO: return ParseErrorCallback(content)");
+            // that._logger.log(that.ERROR, LOG_ID + "(handleS2SEvent) TODO: return ParseErrorCallback(content)");
             return that.ParseErrorCallback(body);
         }
 
-        that._logger.log("internal", LOG_ID + "(handleS2SEvent) Don't manage this request - Unknown path - HttpVerb:[", methodHttp, "] - Path:[host : ", event.headers.host, ", path : ", requestedPath, "]");
+        that._logger.log(that.INTERNAL, LOG_ID + "(handleS2SEvent) Don't manage this request - Unknown path - HttpVerb:[", methodHttp, "] - Path:[host : ", event.headers.host, ", path : ", requestedPath, "]");
         return false;
     }
 
     ParseConnectionCallback(event): boolean {
         let that = this;
-        that._logger.log("internal", LOG_ID + "(ParseConnectionCallback) Content:[", event, "]");
+        that._logger.log(that.INTERNAL, LOG_ID + "(ParseConnectionCallback) Content:[", event, "]");
 
         if (event && event.connection && event.connection.state === "ready") {
             that._eventEmitter.emit("evt_internal_ons2sready", event);
@@ -164,7 +197,7 @@ class S2SServiceEventHandler {
 
     async ParsePresenceCallback(event): Promise<boolean> {
         let that = this;
-        that._logger.log("internal", LOG_ID + "(ParsePresenceCallback) Content:[", event, "]");
+        that._logger.log(that.INTERNAL, LOG_ID + "(ParsePresenceCallback) Content:[", event, "]");
         let presence = event.presence;
         if (event && presence) {
 
@@ -183,7 +216,7 @@ class S2SServiceEventHandler {
                     presenceRainbow.presenceLevel = show;
                     presenceRainbow.presenceStatus = status;
 
-                    that._logger.log("internal", LOG_ID + "(ParsePresenceCallback) logguedin user's jid : ", that.jid_im, ", jid of the from presence : ", contact.jid_im, ", presenceRainbow : ", presenceRainbow);
+                    that._logger.log(that.INTERNAL, LOG_ID + "(ParsePresenceCallback) logguedin user's jid : ", that.jid_im, ", jid of the from presence : ", contact.jid_im, ", presenceRainbow : ", presenceRainbow);
 
                     if (that.jid_im === contact.jid_im) {
                         let eventInfo = {
@@ -233,13 +266,13 @@ class S2SServiceEventHandler {
                     }
                     return true;
                 } else {
-                    that._logger.log("internal", LOG_ID + "(ParsePresenceCallback) Impossible to get Contact using from field:[", from, "]",);
+                    that._logger.log(that.INTERNAL, LOG_ID + "(ParsePresenceCallback) Impossible to get Contact using from field:[", from, "]",);
                 }
             } else {
-                that._logger.log("warn", LOG_ID + "(ParsePresenceCallback) Impossible to get 'from' property from info provided:[", event, "]");
+                that._logger.log(that.WARN, LOG_ID + "(ParsePresenceCallback) Impossible to get 'from' property from info provided:[", event, "]");
             }
         } else {
-            that._logger.log("error", LOG_ID + "(ParsePresenceCallback) Impossible to get Presence object using from info provided:[", event, "]");
+            that._logger.log(that.ERROR, LOG_ID + "(ParsePresenceCallback) Impossible to get Presence object using from info provided:[", event, "]");
         }
 
         return false;
@@ -247,7 +280,7 @@ class S2SServiceEventHandler {
 
     async ParseChatStateCallback(content) {
         let that = this;
-        that._logger.log("internal", LOG_ID + "(ParseChatStateCallback)  Content:[", content, "]");
+        that._logger.log(that.INTERNAL, LOG_ID + "(ParseChatStateCallback)  Content:[", content, "]");
 
         let chatstate = content.chatstate;
         if (content && chatstate) {
@@ -268,7 +301,7 @@ class S2SServiceEventHandler {
                         chatstate: state,
                         conversation
                     };
-                    that._logger.log("internal", LOG_ID + "(ParseChatStateCallback) event to raise : ", chatstateEvent);
+                    that._logger.log(that.INTERNAL, LOG_ID + "(ParseChatStateCallback) event to raise : ", chatstateEvent);
                     that._eventEmitter.emit("evt_internal_chatstate", chatstateEvent);
                     // s2sClient.ChatStateReceived(new UserTypingEventArgs(conversationId, contact.Jid_im, (state == "composing")));
                 }
@@ -281,7 +314,7 @@ class S2SServiceEventHandler {
 
     async ParseReceiptCallback(content): Promise<boolean> {
         let that = this;
-        that._logger.log("internal", LOG_ID + "(ParseReceiptCallback)  Content:[", content, "]");
+        that._logger.log(that.INTERNAL, LOG_ID + "(ParseReceiptCallback)  Content:[", content, "]");
 
         let receipt = content.receipt;
         if (content && receipt) {
@@ -320,7 +353,7 @@ class S2SServiceEventHandler {
                     //resource: resource
                     conversation_id
                 };
-                that._logger.log("debug", LOG_ID + "(ParseReceiptCallback) message - receipt received");
+                that._logger.log(that.DEBUG, LOG_ID + "(ParseReceiptCallback) message - receipt received");
                 that._eventEmitter.emit("evt_internal_onreceipt", receiptEvent);
 
                 return true;
@@ -331,7 +364,7 @@ class S2SServiceEventHandler {
 
     ParseAllReceiptCallback(content): boolean {
         let that = this;
-        that._logger.log("internal", LOG_ID + "(ParseAllReceiptCallback)  Content:[", content, "]");
+        that._logger.log(that.INTERNAL, LOG_ID + "(ParseAllReceiptCallback)  Content:[", content, "]");
 
         let allreceipt = content["all-receipt"];
         if (content && allreceipt) {
@@ -351,11 +384,11 @@ class S2SServiceEventHandler {
                         // Not take into account : conversation.ackReadAllMessages();
                         break;
                     default:
-                        that._logger.log("error", LOG_ID + "(ParseAllReceiptCallback) error - unknown read type : ", typeread);
+                        that._logger.log(that.ERROR, LOG_ID + "(ParseAllReceiptCallback) error - unknown read type : ", typeread);
                         break;
                 }
 
-                that._logger.log("debug", LOG_ID + "(ParseAllReceiptCallback) message - all-receipt received");
+                that._logger.log(that.DEBUG, LOG_ID + "(ParseAllReceiptCallback) message - all-receipt received");
                 return true;
             }
             return false;
@@ -364,7 +397,7 @@ class S2SServiceEventHandler {
 
     async ParseConversationCallback(content): Promise<boolean> {
         let that = this;
-        that._logger.log("internal", LOG_ID + "(ParseConversationCallback)  Content:[", content, "]");
+        that._logger.log(that.INTERNAL, LOG_ID + "(ParseConversationCallback)  Content:[", content, "]");
         let conversationObj = content["conversation"];
         if (content && conversationObj) {
 
@@ -391,7 +424,7 @@ class S2SServiceEventHandler {
                             break;
                         case "delete":
                             if (! conversation) {
-                                that._logger.log("debug", LOG_ID + "(ParseConversationCallback) message - conversation received for delete but unknown, conversationId : ", conversationId);
+                                that._logger.log(that.DEBUG, LOG_ID + "(ParseConversationCallback) message - conversation received for delete but unknown, conversationId : ", conversationId);
                                 conversation = new Conversation(conversationId, that._logger);
                             }
                             this._conversations.removeConversation(conversation);
@@ -404,7 +437,7 @@ class S2SServiceEventHandler {
                             //$rootScope.$broadcast("ON_CONVERSATIONS_UPDATED_EVENT");
                             break;
                         default:
-                            that._logger.log("error", LOG_ID + "(ParseAllReceiptCallback) error - unknown action type : ", action);
+                            that._logger.log(that.ERROR, LOG_ID + "(ParseAllReceiptCallback) error - unknown action type : ", action);
                             break;
                     }
                 }
@@ -430,7 +463,7 @@ class S2SServiceEventHandler {
                     let bubbleId = peer;
                     let bubble = await that._bulles.getBubbleById(bubbleId) ;
                     let conversation: Conversation = await that._conversations.getBubbleConversation(bubble.jid);
-                    that._logger.log("debug", LOG_ID + "(ParseConversationCallback) message - conversation conversation : ", conversation);
+                    that._logger.log(that.DEBUG, LOG_ID + "(ParseConversationCallback) message - conversation conversation : ", conversation);
 
                     switch (action) {
                         case "create":
@@ -445,7 +478,7 @@ class S2SServiceEventHandler {
                             break;
                         case "delete":
                             if (! conversation) {
-                                that._logger.log("debug", LOG_ID + "(ParseConversationCallback) message - conversation received for delete but unknown, conversationId : ", conversationId);
+                                that._logger.log(that.DEBUG, LOG_ID + "(ParseConversationCallback) message - conversation received for delete but unknown, conversationId : ", conversationId);
                                 conversation = new Conversation(conversationId, that._logger);
                             }
                             this._conversations.removeConversation(conversation);
@@ -458,11 +491,11 @@ class S2SServiceEventHandler {
                             //$rootScope.$broadcast("ON_CONVERSATIONS_UPDATED_EVENT");
                             break;
                         default:
-                            that._logger.log("error", LOG_ID + "(ParseAllReceiptCallback) error - unknown action type : ", action);
+                            that._logger.log(that.ERROR, LOG_ID + "(ParseAllReceiptCallback) error - unknown action type : ", action);
                             break;
                     }
                 }
-                that._logger.log("debug", LOG_ID + "(ParseConversationCallback) message - conversation received");
+                that._logger.log(that.DEBUG, LOG_ID + "(ParseConversationCallback) message - conversation received");
                 return true;
             }
             return false;
@@ -471,7 +504,7 @@ class S2SServiceEventHandler {
 
     async ParseMessageCallback(content): Promise<boolean> {
         let that = this;
-        that._logger.log("internal", LOG_ID + "(ParseMessageCallback)  Content:[", content, "]");
+        that._logger.log(that.INTERNAL, LOG_ID + "(ParseMessageCallback)  Content:[", content, "]");
         let messageObj = content["message"];
         if (content && messageObj) {
 
@@ -534,7 +567,7 @@ class S2SServiceEventHandler {
                 };
 
                 /*if (!body) {
-                    that.logger.log("debug", LOG_ID + "(_onMessageReceived) with no message text, so ignore it!");
+                    that._logger.log(that.DEBUG, LOG_ID + "(_onMessageReceived) with no message text, so ignore it!");
                     return false;
                 } // */
 
@@ -549,7 +582,7 @@ class S2SServiceEventHandler {
                 that._eventEmitter.emit("evt_internal_onmessagereceived", data);
                 that._eventEmitter.emit("evt_internal_conversationupdated", conversation);
 
-                that._logger.log("debug", LOG_ID + "(ParseMessageCallback) message - conversation received");
+                that._logger.log(that.DEBUG, LOG_ID + "(ParseMessageCallback) message - conversation received");
                 return true;
             }
             return false;
@@ -558,19 +591,19 @@ class S2SServiceEventHandler {
 
     async ParseRoomInviteCallback(content): Promise<boolean> {
         let that = this;
-        that._logger.log("internal", LOG_ID + "(ParseRoomInviteCallback)  Content:", content, "");
+        that._logger.log(that.INTERNAL, LOG_ID + "(ParseRoomInviteCallback)  Content:", content, "");
 
         let roomInvite = content["room-invite"];
         if (content && roomInvite) {
 
             let roomId = roomInvite.id;
             if (roomId) {
-                that._logger.log("debug", LOG_ID + "(ParseRoomInviteCallback) roomId : ", roomId);
+                that._logger.log(that.DEBUG, LOG_ID + "(ParseRoomInviteCallback) roomId : ", roomId);
                 let date = content.timestamp;
                /* let byUserId = roomInvite.by;
-                that._logger.log("debug", LOG_ID + "(ParseRoomInviteCallback) before getBubbleById.");
+                that._logger.log(that.INFO, LOG_ID + "(ParseRoomInviteCallback) before getBubbleById.");
                 let bubble: Bubble = <Bubble> await that._bulles.getBubbleById(roomId).catch((err)=> {
-                    that._logger.log("debug", LOG_ID + "(ParseRoomInviteCallback) failed to getBubbleById : ", err);
+                    that._logger.log(that.INFO, LOG_ID + "(ParseRoomInviteCallback) failed to getBubbleById : ", err);
 
                 }); // */
                let invitation = {
@@ -581,7 +614,7 @@ class S2SServiceEventHandler {
                     bulle:bubble,
                     invitedByContact: contact
                 }; */
-                that._logger.log("debug", LOG_ID + "(ParseRoomInviteCallback) message - room-invite received");
+                that._logger.log(that.DEBUG, LOG_ID + "(ParseRoomInviteCallback) message - room-invite received");
                 //that._eventEmitter.emit("evt_internal_invitationdetailsreceived", bubble);
                 that._eventEmitter.emit("evt_internal_invitationreceived", invitation);
 
@@ -593,7 +626,7 @@ class S2SServiceEventHandler {
 
  async ParseRoomMemberCallback(content): Promise<boolean> {
         let that = this;
-        that._logger.log("internal", LOG_ID + "(ParseRoomMemberCallback)  Content:[", content, "]");
+        that._logger.log(that.INTERNAL, LOG_ID + "(ParseRoomMemberCallback)  Content:[", content, "]");
 
         let roomMember = content["room-member"];
         if (content && roomMember) {
@@ -603,7 +636,7 @@ class S2SServiceEventHandler {
                 let date = content.timestamp;
                 let status = roomMember.status;
                 let bubble: Bubble = await that._bulles.getBubbleById(roomId);
-                // that._logger.log("debug", LOG_ID + "(ParseRoomMemberCallback) message - room-member received");
+                // that._logger.log(that.INFO, LOG_ID + "(ParseRoomMemberCallback) message - room-member received");
                 // that._eventEmitter.emit("evt_internal_invitationdetailsreceived", bubble);
 
                 that._eventEmitter.emit("evt_internal_ownaffiliationchanged", {
@@ -626,10 +659,10 @@ class S2SServiceEventHandler {
                         //that._eventEmitter.emit("evt_internal_ownaffiliationdetailschanged", bubble);
                         break;
                     case "invited":
-                        that._logger.log("debug", LOG_ID + "(ParseRoomMemberCallback) message - room-member invited");
+                        that._logger.log(that.INFO, LOG_ID + "(ParseRoomMemberCallback) message - room-member invited");
                         break;
                     default:
-                        that._logger.log("error", LOG_ID + "(ParseRoomMemberCallback) error - unknown status type : ", status);
+                        that._logger.log(that.ERROR, LOG_ID + "(ParseRoomMemberCallback) error - unknown status type : ", status);
                         break;
                 } // */
 
@@ -641,7 +674,7 @@ class S2SServiceEventHandler {
 
     async ParseRoomStateCallback(content): Promise<boolean> {
         let that = this;
-        that._logger.log("internal", LOG_ID + "(ParseRoomStateCallback)  Content:[", content, "]");
+        that._logger.log(that.INTERNAL, LOG_ID + "(ParseRoomStateCallback)  Content:[", content, "]");
         /*
                { timestamp: '2020-02-25T15:29:58.976567Z',
         'room-state': { id: '5e553d747cdc6514d72ee15a', event: 'available' },
@@ -675,7 +708,7 @@ class S2SServiceEventHandler {
                         //that.eventEmitter.emit("evt_internal_ownaffiliationdetailschanged", bubble);
                         break;
                     case "deleted":
-                        that._logger.log("debug", LOG_ID + "(ParseRoomStateCallback) message - room-state deleted");
+                        that._logger.log(that.INFO, LOG_ID + "(ParseRoomStateCallback) message - room-state deleted");
 
                         that._eventEmitter.emit("evt_internal_ownaffiliationchanged", {
                             "bubbleId": bubble.id,
@@ -685,7 +718,7 @@ class S2SServiceEventHandler {
                         });
                         break;
                     default:
-                        that._logger.log("error", LOG_ID + "(ParseRoomMemberCallback) error - unknown eventType type : ", eventType);
+                        that._logger.log(that.ERROR, LOG_ID + "(ParseRoomMemberCallback) error - unknown eventType type : ", eventType);
                         break;
                 }
                 // */
@@ -697,7 +730,7 @@ class S2SServiceEventHandler {
 
     async ParseAlldeletedCallback(content): Promise<boolean> {
         let that = this;
-        that._logger.log("internal", LOG_ID + "(ParseAlldeletedCallback)  Content:[", content, "]");
+        that._logger.log(that.INTERNAL, LOG_ID + "(ParseAlldeletedCallback)  Content:[", content, "]");
         /*
         { timestamp: '2020-02-21T13:50:38.919508Z',
     id: 'ee564d90-54b0-11ea-85d9-00505628611e',
@@ -712,7 +745,7 @@ class S2SServiceEventHandler {
             if (conversationId) {
                 let withId = roomstate.with;
                 let conversation: Conversation = await that._conversations.getOrCreateOneToOneConversation(withId, conversationId);
-                that._logger.log("debug", LOG_ID + "(ParseAlldeletedCallback) message - all-deleted received");
+                that._logger.log(that.DEBUG, LOG_ID + "(ParseAlldeletedCallback) message - all-deleted received");
                 that._eventEmitter.emit("evt_internal_allmessagedremovedfromconversationreceived", conversation);
                 return true;
             }
@@ -722,7 +755,7 @@ class S2SServiceEventHandler {
 
     async ParseErrorCallback(content): Promise<boolean> {
         let that = this;
-        that._logger.log("internal", LOG_ID + "(ParseErrorCallback)  Content:[", content, "]");
+        that._logger.log(that.INTERNAL, LOG_ID + "(ParseErrorCallback)  Content:[", content, "]");
 
         let error = content["error"];
         if (content && error) {

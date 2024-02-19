@@ -35,10 +35,10 @@ const TYPE_GROUPCHAT = "groupchat";
 
 @logEntryExit(LOG_ID)
 class ConversationHistoryHandler  extends GenericHandler {
-	public MESSAGE_MAM: any;
-	public FIN_MAM: any;
-	public _conversationService: ConversationsService;
-	private _contactsService : ContactsService;
+        public MESSAGE_MAM: any;
+        public FIN_MAM: any;
+        public _conversationService: ConversationsService;
+        private _contactsService : ContactsService;
 
     static getClassName(){ return 'ConversationHistoryHandler'; }
     getClassName(){ return ConversationHistoryHandler.getClassName(); }
@@ -63,12 +63,12 @@ class ConversationHistoryHandler  extends GenericHandler {
     onMamMessageReceived (msg, stanza) {
         let that = this;
         try {
-            that.logger.log("internal", LOG_ID + "(onMamMessageReceived) _entering_ : ", msg, "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
+            that._logger.log(that.INTERNAL, LOG_ID + "(onMamMessageReceived) _entering_ : ", msg, "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
             // Get queryId and deleteId
             let queryId = stanza.getChild("result") ? stanza.getChild("result").getAttr("queryid") : null;
             if (!queryId) {
                 if ( stanza.getChild("fin")) {
-                    that.logger.log("internal", LOG_ID + "(onMamMessageReceived) no queryid found on result, and a \"fin\" found.");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(onMamMessageReceived) no queryid found on result, and a \"fin\" found.");
                     queryId = stanza.getAttr("id");
                 } else {
                     queryId = null;
@@ -97,7 +97,7 @@ class ConversationHistoryHandler  extends GenericHandler {
         // Handle response
         try {
             let conversation : Conversation = null;
-            that.logger.log("internal", LOG_ID + "(onHistoryMessageReceived) _entering_ : ", msg, "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
+            that._logger.log(that.INTERNAL, LOG_ID + "(onHistoryMessageReceived) _entering_ : ", msg, "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
 
             let queryId = stanza.getChild("result") ? stanza.getChild("result").getAttr("queryid") : null;
             if (queryId) {
@@ -133,7 +133,7 @@ class ConversationHistoryHandler  extends GenericHandler {
                     }
 
                     if (!fromJid) {
-                        that.logger.log("warn", LOG_ID + "(onHistoryMessageReceived) - Receive message without valid fromJid information");
+                        that._logger.log(that.WARN, LOG_ID + "(onHistoryMessageReceived) - Receive message without valid fromJid information");
                         return true;
                     }
 
@@ -184,19 +184,19 @@ class ConversationHistoryHandler  extends GenericHandler {
                         let mentions : Array<Object> = [];
 
 
-                        that.logger.log("debug", LOG_ID + "(onHistoryMessageReceived) message - before treat answeredMsg.");
+                        that._logger.log(that.DEBUG, LOG_ID + "(onHistoryMessageReceived) message - before treat answeredMsg.");
                         if (stanzaMessage.getChild( "answeredMsg")) {
                             answeredMsgId = stanzaMessage.getChild("answeredMsg").text();
                             answeredMsgStamp = stanzaMessage.getChild("answeredMsg").getAttr("stamp");
                             answeredMsgDate = answeredMsgStamp ? new Date(parseInt(answeredMsgStamp)).toISOString() : undefined;
 
-                            that.logger.log("debug", LOG_ID + "(onHistoryMessageReceived) message - answeredMsgId : ", answeredMsgId, ", answeredMsgStamp : ", answeredMsgStamp, ", answeredMsgDate : ", answeredMsgDate);
+                            that._logger.log(that.DEBUG, LOG_ID + "(onHistoryMessageReceived) message - answeredMsgId : ", answeredMsgId, ", answeredMsgStamp : ", answeredMsgStamp, ", answeredMsgDate : ", answeredMsgDate);
 
 /*
                             if (answeredMsgId) {
 
                                 //let conversation = that._conversationService.getConversationById(conversation.id);
-                                that.logger.log("debug", LOG_ID + "(_onMessageReceived) with answeredMsg message, answeredMsgId : ", answeredMsgId, ", conversation.id: ", conversation.id);
+                                that._logger.log(that.DEBUG, LOG_ID + "(_onMessageReceived) with answeredMsg message, answeredMsgId : ", answeredMsgId, ", conversation.id: ", conversation.id);
                                 if (conversation.historyDefered) {
                                     //answeredMsg = await that._conversationService.getOneMessageFromConversationId(conversation.id, answeredMsgId, answeredMsgStamp); //
                                     conversation.historyDefered.then(async () => {
@@ -208,13 +208,13 @@ class ConversationHistoryHandler  extends GenericHandler {
                         }
 
                         if (!from) {
-                            that.logger.log("warn", LOG_ID + "(onHistoryMessageReceived) missing contact for jid : " + fromJid + ", ignore message");
+                            that._logger.log(that.WARN, LOG_ID + "(onHistoryMessageReceived) missing contact for jid : " + fromJid + ", ignore message");
                             //create basic contact
                             from = that._contactsService.createEmptyContactContact(fromJid);
                         }
 
                         if (roomEvent) {
-                            that.logger.log("internal", LOG_ID + "(onHistoryMessageReceived) Conversation : " + conversation.id + ", add Room admin event message " + roomEvent);
+                            that._logger.log(that.INTERNAL, LOG_ID + "(onHistoryMessageReceived) Conversation : " + conversation.id + ", add Room admin event message " + roomEvent);
                             type = "admin";
 
                             // Ignore meeting events
@@ -236,7 +236,7 @@ class ConversationHistoryHandler  extends GenericHandler {
                         let message = conversation.getMessageById(messageId);
                         if (!message) { message = conversation.historyMessages.find((item) => { return item.id === messageId; }); }
                         if (message) {
-                            that.logger.log("debug", LOG_ID + "(onHistoryMessageReceived) Conversation : " + conversation.id + ", try to add an already stored message with id " + message.id);
+                            that._logger.log(that.DEBUG, LOG_ID + "(onHistoryMessageReceived) Conversation : " + conversation.id + ", try to add an already stored message with id " + message.id);
                         }
                         else {
                             // Create new message
@@ -317,7 +317,7 @@ class ConversationHistoryHandler  extends GenericHandler {
                                     if (attachTo && attachTo.length > 0 && attachTo.attrs.xmlns==="urn:xmpp:message-attaching:1") {
                                         attachedMsgId = attachTo.attrs.id;
                                     } else {
-                                        that.logger.log("warn", LOG_ID + "(onHistoryMessageReceived) message - unknown attachedMsgId : ", attachedMsgId);
+                                        that._logger.log(that.WARN, LOG_ID + "(onHistoryMessageReceived) message - unknown attachedMsgId : ", attachedMsgId);
                                     }
 
                                     resource = xu.getResourceFromFullJID(stanzaMessage.attrs.from);
@@ -330,7 +330,7 @@ class ConversationHistoryHandler  extends GenericHandler {
                                     }*/ else {
                                         lang = "en";
                                     }
-                                    that.logger.log("debug", LOG_ID + "(onHistoryMessageReceived) message - lang : ", lang);
+                                    that._logger.log(that.DEBUG, LOG_ID + "(onHistoryMessageReceived) message - lang : ", lang);
                                     let eventElmt = stanzaMessage.find("event");
                                     if (eventElmt.length > 0) {
                                         event = eventElmt.attrs.name;
@@ -347,7 +347,7 @@ class ConversationHistoryHandler  extends GenericHandler {
                                             filename: oobElmt.getChild("filename").getText(),
                                             filesize: oobElmt.getChild("size").getText()
                                         };
-                                        that.logger.log("debug", LOG_ID + "(onHistoryMessageReceived) oob received");
+                                        that._logger.log(that.DEBUG, LOG_ID + "(onHistoryMessageReceived) oob received");
                                     }
 
                                     let fromBubbleJid = "";
@@ -372,7 +372,7 @@ class ConversationHistoryHandler  extends GenericHandler {
                                             if (conversation) {
                                                 originalMessageReplaced = conversation.getMessageById(replaceMessageId);
                                             } else {
-                                                that.logger.log("warn", LOG_ID + "(onHistoryMessageReceived) This is a replace msg but no conversation found for the original msg id. So store an empty msg to avoid the lost of information.", replaceMessageId);
+                                                that._logger.log(that.WARN, LOG_ID + "(onHistoryMessageReceived) This is a replace msg but no conversation found for the original msg id. So store an empty msg to avoid the lost of information.", replaceMessageId);
                                                 originalMessageReplaced = {};
                                                 originalMessageReplaced.id = replaceMessageId;
                                             }
@@ -392,13 +392,13 @@ class ConversationHistoryHandler  extends GenericHandler {
                                             "body" : msg.getChild("body").text(),
                                             "lang" : msg.getChild("body").attrs["xml:lang"]
                                         };                                        
-                                        that.logger.log("internal", LOG_ID + "(onChatMessageReceived) message - forwardedMsg : ", forwardedMsg);
+                                        that._logger.log(that.INTERNAL, LOG_ID + "(onChatMessageReceived) message - forwardedMsg : ", forwardedMsg);
                                     }
 
                                     deletedMsg = stanzaMessage.find("delete").length > 0;
-                                    that.logger.log("internal", LOG_ID + "(onChatMessageReceived) message - deletedMsg : ", deletedMsg);
+                                    that._logger.log(that.INTERNAL, LOG_ID + "(onChatMessageReceived) message - deletedMsg : ", deletedMsg);
                                     modifiedMsg = stanzaMessage.find("modify").length > 0;
-                                    that.logger.log("internal", LOG_ID + "(onChatMessageReceived) message - modifiedMsg : ", modifiedMsg);
+                                    that._logger.log(that.INTERNAL, LOG_ID + "(onChatMessageReceived) message - modifiedMsg : ", modifiedMsg);
                                         
                                     let mentionElmt = stanzaMessage.find("mention");
                                     // stanzaData.mentions = [];
@@ -417,10 +417,10 @@ class ConversationHistoryHandler  extends GenericHandler {
                                                     mentions.push(mention);
                                                 }
                                                 if (that.jid_im == mention['jid']) {
-                                                    that.logger.log("debug", LOG_ID + "(onChatMessageReceived) message - attention found in mention.");
+                                                    that._logger.log(that.DEBUG, LOG_ID + "(onChatMessageReceived) message - attention found in mention.");
                                                     attention = true;
                                                 }
-                                                that.logger.log("debug", LOG_ID + "(onChatMessageReceived) message - mention : ", mention, ", that.jid_im  : ", that.jid_im , ", mention['jid'] : ", mention['jid']);
+                                                that._logger.log(that.DEBUG, LOG_ID + "(onChatMessageReceived) message - mention : ", mention, ", that.jid_im  : ", that.jid_im , ", mention['jid'] : ", mention['jid']);
                                             });
                                         } else {
                                             const mention = {};
@@ -432,10 +432,10 @@ class ConversationHistoryHandler  extends GenericHandler {
                                                 mentions.push(mention);
                                             }
                                             if (that.jid_im == mention['jid']) {
-                                                that.logger.log("debug", LOG_ID + "(onChatMessageReceived) message - attention found in mention.");
+                                                that._logger.log(that.DEBUG, LOG_ID + "(onChatMessageReceived) message - attention found in mention.");
                                                 attention = true;
                                             }
-                                            that.logger.log("debug", LOG_ID + "(onChatMessageReceived) message - mention : ", mention, ", that.jid_im  : ", that.jid_im , ", mention['jid'] : ", mention['jid']);
+                                            that._logger.log(that.DEBUG, LOG_ID + "(onChatMessageReceived) message - mention : ", mention, ", that.jid_im  : ", that.jid_im , ", mention['jid'] : ", mention['jid']);
                                         }
                                     }
                                     //message = Message.create(messageId, date, from, side, body, false, answeredMsg, answeredMsgId, answeredMsgDate, answeredMsgStamp, isMarkdown);
@@ -518,7 +518,7 @@ class ConversationHistoryHandler  extends GenericHandler {
                                             modifiedMsg                                            
                                     );
 
-                                    that.logger.log("internal", LOG_ID + "(onHistoryMessageReceived) with dataMessage Message : ", dataMessage);
+                                    that._logger.log(that.INTERNAL, LOG_ID + "(onHistoryMessageReceived) with dataMessage Message : ", dataMessage);
 
                                     message = dataMessage;
                                     // }
@@ -528,19 +528,19 @@ class ConversationHistoryHandler  extends GenericHandler {
                             message.receiptStatus = ack.getAttr("read") === "true" ? 5 : (ack.getAttr("received") === "true" ? 4 : 3);
 
                             // if (conversation.bubble) {
-                            // 	message.receiptStatus = 3;
+                            //  message.receiptStatus = 3;
                             // }
 
                             // message.updateMessage(message);
-                            // that.logger.log("internal", LOG_ID + "(_onMessageReceived) with dataMessage updated Message : ", message);
+                            // that._logger.log(that.INTERNAL, LOG_ID + "(_onMessageReceived) with dataMessage updated Message : ", message);
                             let hasATextMessage = false;
                             if (message.subject || message.alternativeContent || message.content ) {
                                 hasATextMessage = true;
                             }
                             if (!hasATextMessage && !isForwarded && ! (deletedMsg) && !modifiedMsg) {
-                                that.logger.log("debug", LOG_ID + "(onHistoryMessageReceived) with No message text, so ignore it! hasATextMessage : ", hasATextMessage, ", message : ", message);
+                                that._logger.log(that.DEBUG, LOG_ID + "(onHistoryMessageReceived) with No message text, so ignore it! hasATextMessage : ", hasATextMessage, ", message : ", message);
                             } else {
-                                that.logger.log("debug", LOG_ID + "(onHistoryMessageReceived) with message text, message : ", message);
+                                that._logger.log(that.DEBUG, LOG_ID + "(onHistoryMessageReceived) with message text, message : ", message);
                                 conversation.historyMessages.push(message);
                             }
                             return Promise.resolve(undefined);
@@ -552,7 +552,7 @@ class ConversationHistoryHandler  extends GenericHandler {
 
             else {
 
-                that.logger.log("debug", LOG_ID + "(onHistoryMessageReceived) queryId not defined. Treat 'fin' history xml tag.");
+                that._logger.log(that.DEBUG, LOG_ID + "(onHistoryMessageReceived) queryId not defined. Treat 'fin' history xml tag.");
 
                 // Get associated conversation
                 queryId = stanza.getChild("fin").getAttr("queryid");
@@ -570,18 +570,18 @@ class ConversationHistoryHandler  extends GenericHandler {
                             /* 
                             // Handle very particular case of historyIndex == -1
                             if (conversation.historyIndex === -1) {
-                                that.logger.log("debug", LOG_ID + "(onHistoryMessageReceived) Handle very particular case of historyIndex == -1, concat messages from history : ", conversation.historyMessages, ", to conversation id : ", conversation.id);
+                                that._logger.log(that.DEBUG, LOG_ID + "(onHistoryMessageReceived) Handle very particular case of historyIndex == -1, concat messages from history : ", conversation.historyMessages, ", to conversation id : ", conversation.id);
                                 conversation.messages.unshift.apply(conversation.messages, conversation.historyMessages);
                             }
                             // Classic case
                             else {
-                                that.logger.log("debug", LOG_ID + "(onHistoryMessageReceived) concat messages from history : ", conversation.historyMessages, ", to conversation id : ", conversation.id);
+                                that._logger.log(that.DEBUG, LOG_ID + "(onHistoryMessageReceived) concat messages from history : ", conversation.historyMessages, ", to conversation id : ", conversation.id);
                                 conversation.messages.unshift.apply(conversation.messages, conversation.historyMessages);
                             }
                             // */
                             while (conversation.historyMessages.length > 0) {
                                 const historyFirstElement = conversation.historyMessages.shift();
-                                that.logger.log("internal", LOG_ID + "(onHistoryMessageReceived) start treatment of history message : ", historyFirstElement, " for conversation.messages, conversation.id : ", conversation.id);
+                                that._logger.log(that.INTERNAL, LOG_ID + "(onHistoryMessageReceived) start treatment of history message : ", historyFirstElement, " for conversation.messages, conversation.id : ", conversation.id);
                                 let messageUpdated = false;
                                 conversation.messages.forEach((elmt : Message) => {
                                    if (elmt.id == historyFirstElement.id || elmt.historyIndex == historyFirstElement.historyIndex) {
@@ -590,21 +590,21 @@ class ConversationHistoryHandler  extends GenericHandler {
                                    }  
                                 });
                                 if (!messageUpdated) {
-                                    that.logger.log("debug", LOG_ID + "(onHistoryMessageReceived) message not updated from history, so added it to conversation.messages.");
+                                    that._logger.log(that.DEBUG, LOG_ID + "(onHistoryMessageReceived) message not updated from history, so added it to conversation.messages.");
                                     conversation.messages.unshift.apply(conversation.messages, [historyFirstElement]);
-                                    that.logger.log("internal", LOG_ID + "(onHistoryMessageReceived) message not updated from history, so added it to conversation.messages : ", conversation.messages);
+                                    that._logger.log(that.INTERNAL, LOG_ID + "(onHistoryMessageReceived) message not updated from history, so added it to conversation.messages : ", conversation.messages);
                                 }  else {
-                                    that.logger.log("debug", LOG_ID + "(onHistoryMessageReceived) message updated from history.");
+                                    that._logger.log(that.DEBUG, LOG_ID + "(onHistoryMessageReceived) message updated from history.");
                                 }
                             }
 
                             conversation.historyIndex = historyIndex;
                             conversation.historyMessages = [];
 
-                            //that.logger.log("internal", LOG_ID + "[Conversation] onHistoryMessageReceived conversation not ordered: ", conversation);
+                            //that._logger.log(that.INTERNAL, LOG_ID + "[Conversation] onHistoryMessageReceived conversation not ordered: ", conversation);
                             // @ts-ignore
                             conversation.messages.sort((msg1, msg2) => new Date(msg1.date) - new Date(msg2.date));
-                            //that.logger.log("internal", LOG_ID + "[Conversation] onHistoryMessageReceived conversation ordered by date: ", conversation);
+                            //that._logger.log(that.INTERNAL, LOG_ID + "[Conversation] onHistoryMessageReceived conversation ordered by date: ", conversation);
                             if (conversation.messages && conversation.messages.length > 0) {
                                 conversation.lastMessageText = conversation.messages[conversation.messages.length - 1].content;
                             } else {
@@ -616,7 +616,7 @@ class ConversationHistoryHandler  extends GenericHandler {
                             for (const message of conversation.messages) {
                                 if (message.answeredMsgId) {
                                     //let conversation = that._conversationService.getConversationById(conversation.id);
-                                    that.logger.log("debug", LOG_ID + "(onHistoryMessageReceived) with answeredMsg message try to search its details, answeredMsgId : ", message.answeredMsgId, ", conversation.id: ", conversation.id);
+                                    that._logger.log(that.DEBUG, LOG_ID + "(onHistoryMessageReceived) with answeredMsg message try to search its details, answeredMsgId : ", message.answeredMsgId, ", conversation.id: ", conversation.id);
                                     //answeredMsg = await that._conversationService.getOneMessageFromConversationId(conversation.id, answeredMsgId, answeredMsgStamp); //
                                     message.answeredMsg = await conversation.getMessageById(message.answeredMsgId);
                                 }
@@ -626,7 +626,7 @@ class ConversationHistoryHandler  extends GenericHandler {
                             conversation.historyDefered.resolve(conversation);
                             delete conversation.pendingPromise;
                         }).catch ((err) => {
-                            that.logger.log("error", LOG_ID + "(onHistoryMessageReceived) error in waited pending promises : ", err);
+                            that._logger.log(that.ERROR, LOG_ID + "(onHistoryMessageReceived) error in waited pending promises : ", err);
                         });
                     } else {
                         // @ts-ignore
@@ -635,7 +635,7 @@ class ConversationHistoryHandler  extends GenericHandler {
                         /* conversation.messages.forEach(async (message)=> {
                             if (message.answeredMsgId) {
                                 //let conversation = that._conversationService.getConversationById(conversation.id);
-                                that.logger.log("debug", LOG_ID + "(_onMessageReceived) with answeredMsg message try to search its details, answeredMsgId : ", message.answeredMsgId, ", conversation.id: ", conversation.id);
+                                that._logger.log(that.DEBUG, LOG_ID + "(_onMessageReceived) with answeredMsg message try to search its details, answeredMsgId : ", message.answeredMsgId, ", conversation.id: ", conversation.id);
                                 //answeredMsg = await that._conversationService.getOneMessageFromConversationId(conversation.id, answeredMsgId, answeredMsgStamp); //
                                 message.answeredMsg = await conversation.getMessageById(message.answeredMsgId);
                             }
@@ -650,8 +650,8 @@ class ConversationHistoryHandler  extends GenericHandler {
 
             return true;
         } catch (error) {
-            that.logger.log("error", LOG_ID + "(onHistoryMessageReceived) error ");
-            that.logger.log("internalerror", LOG_ID + "(onHistoryMessageReceived) error : ", error);
+            that._logger.log(that.ERROR, LOG_ID + "(onHistoryMessageReceived) error ");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(onHistoryMessageReceived) error : ", error);
             return true;
         }
     }
@@ -698,7 +698,7 @@ class ConversationHistoryHandler  extends GenericHandler {
             if (!message) { message = conversation.historyMessages.find(function(item) { return item.id === messageId; }); }
 
             if (message) {
-                that.logger.log("debug", LOG_ID + "[Conversation] (" + conversation.id + ") try to add an already stored message with id " + message.id);
+                that._logger.log(that.DEBUG, LOG_ID + "[Conversation] (" + conversation.id + ") try to add an already stored message with id " + message.id);
             }
             else {
                 if ( !conversation.pendingPromise ) {
@@ -715,7 +715,7 @@ class ConversationHistoryHandler  extends GenericHandler {
                 }).then( (from : any) => {
                     // Create new message
                     if (!from) {
-                        that.logger.log("warn", LOG_ID + "[Conversation] onWebrtcHistoryMessageReceived missing contact for jid : " + callerJid + ", ignore message");
+                        that._logger.log(that.WARN, LOG_ID + "[Conversation] onWebrtcHistoryMessageReceived missing contact for jid : " + callerJid + ", ignore message");
                         //create basic contact
                         from = that._contactsService.createEmptyContactContact(callerJid);
                     }

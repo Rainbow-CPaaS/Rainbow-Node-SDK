@@ -139,19 +139,6 @@ function CallLogsBean() : ICallLogsBean {
         this.callLogComplete = false;
         this.callLogIndex = -1;
 
-        this.INFO = {"callerObj" : this, "level" : "info", isApi:false};
-        this.DEBUG = {"callerObj" : this, "level" : "debug", isApi:false};
-        this.INTERNAL = {"callerObj" : this, "level" : "internal", isApi:false};
-        this.WARN = {"callerObj" : this, "level" : "warn", isApi:false};
-        this.ERROR = {"callerObj" : this, "level" : "error", isApi:false};
-        this.INTERNALERROR = {"callerObj" : this, "level" : "internalerror", isApi:false};
-        this.INFOAPI = {"callerObj" : this, "level" : "info", isApi:true};
-        this.DEBUGAPI = {"callerObj" : this, "level" : "debug", isApi:true};
-        this.INTERNALAPI = {"callerObj" : this, "level" : "internal", isApi:true};
-        this.WARNAPI = {"callerObj" : this, "level" : "warn", isApi:true};
-        this.ERRORAPI = {"callerObj" : this, "level" : "error", isApi:true};
-        this.INTERNALERRORAPI = {"callerObj" : this, "level" : "internalerror", isApi:true};
-
         this._eventEmitter.on("evt_internal_calllogupdated", this.onCallLogUpdated.bind(this));
         this._eventEmitter.on("evt_internal_calllogackupdated", this.onCallLogAckReceived.bind(this));
 

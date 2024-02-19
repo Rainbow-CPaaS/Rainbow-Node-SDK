@@ -44,11 +44,11 @@ class FavoritesService extends GenericService{
     static getAccessorName(){ return 'favorites'; }
     getAccessorName(){ return FavoritesService.getAccessorName(); }
 
-    constructor(_core:Core, _eventEmitter : EventEmitter, logger : Logger, _startConfig: {
+    constructor(_core:Core, _eventEmitter : EventEmitter, _logger : Logger, _startConfig: {
         start_up:boolean,
         optional:boolean
     }) {
-        super(logger, LOG_ID);
+        super(_logger, LOG_ID);
         this.setLogLevels(this);
 
         /*********************************************************/
@@ -63,7 +63,7 @@ class FavoritesService extends GenericService{
         this._options = {};
         this._useXMPP = false;
         this._useS2S = false;
-        this._logger = logger;
+        this._logger = _logger;
 
         this._core = _core;
 
@@ -84,8 +84,8 @@ class FavoritesService extends GenericService{
         that._useS2S = that._options.useS2S;
         this._favoriteHandlerToken = [];
 
-        that._logger.log("info", LOG_ID + " ");
-        that._logger.log("info", LOG_ID + "[start] === STARTING ===");
+        that._logger.log(that.INFO, LOG_ID + " ");
+        that._logger.log(that.INFO, LOG_ID + "[start] === STARTING ===");
         this.attachHandlers();
 
         //this.conversationService.favoriteService = this;
@@ -98,7 +98,7 @@ class FavoritesService extends GenericService{
     public async stop() {
         let that = this;
 
-        that._logger.log("info", LOG_ID + "[stop] Stopping");
+        that._logger.log(that.INFO, LOG_ID + "[stop] Stopping");
 
         //remove all saved call logs
         this._initialized = false;
@@ -123,7 +123,7 @@ class FavoritesService extends GenericService{
          */
 
         that.setStopped ();
-        that._logger.log("info", LOG_ID + "[stop] Stopped");
+        that._logger.log(that.INFO, LOG_ID + "[stop] Stopped");
     }
 
     public async init (useRestAtStartup : boolean) {
@@ -143,12 +143,12 @@ class FavoritesService extends GenericService{
                     // @ts-ignore
                     let duration = new Date() - startDate;
                     let startDuration = Math.round(duration);
-                    that._logger.log("debug", LOG_ID + " callLogService start duration : ",  startDuration);
-                    that._logger.log("debug", LOG_ID + "[start] === STARTED (" + startDuration + " ms) ===");
+                    that._logger.log(that.INFO, LOG_ID + " callLogService start duration : ",  startDuration);
+                    that._logger.log(that.INFO, LOG_ID + "[start] === STARTED (" + startDuration + " ms) ===");
                     that.started = true;
                 })
                 .catch(() => {
-                    that._logger.log("error", LOG_ID + "[start] === STARTING FAILURE ===");
+                    that._logger.log(that.ERROR, LOG_ID + "[start] === STARTING FAILURE ===");
                 });
         });
 
@@ -159,7 +159,7 @@ class FavoritesService extends GenericService{
     private attachHandlers() {
         let that = this;
 
-        that._logger.log("info", LOG_ID + "[attachHandlers] attachHandlers");
+        that._logger.log(that.INFO, LOG_ID + "[attachHandlers] attachHandlers");
 
         that._favoriteEventHandler = new FavoriteEventHandler(that._xmpp, that);
         that._favoriteHandlerToken = [
@@ -197,7 +197,7 @@ class FavoritesService extends GenericService{
             return new Promise(async (resolve, reject) => {
                 this._rest.getServerFavorites(peerId).then(async (favorite : []) => {
                     if (favorite) {
-                        that._logger.log("debug", LOG_ID + "(getServerFavorites) favorite tab length : ", favorite.length);
+                        that._logger.log(that.INFO, LOG_ID + "(getServerFavorites) favorite tab length : ", favorite.length);
                         let promises = favorite.map(async (data: any) => {
                             return this.createFavoriteObj(data.id, data.peerId, data.type, data.position);
                         });
@@ -205,14 +205,14 @@ class FavoritesService extends GenericService{
                         this.favorites = favorites.filter((favorite) => {
                             return favorite !== null;
                         });
-                        that._logger.log("debug", LOG_ID + `getServerFavorites -- SUCCESS -- found ${this.favorites.length} favorites`);
+                        that._logger.log(that.INFO, LOG_ID + `getServerFavorites -- SUCCESS -- found ${this.favorites.length} favorites`);
                     } else {
-                        that._logger.log("debug", LOG_ID + "(getServerFavorites) favorite return by REST service is null.");
+                        that._logger.log(that.INFO, LOG_ID + "(getServerFavorites) favorite return by REST service is null.");
                     }
                     resolve(this.favorites);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(getServerFavorites) error.");
-                    that._logger.log("internalerror", LOG_ID + "(getServerFavorites) error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(getServerFavorites) error.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getServerFavorites) error : ", err);
                     return reject(err);
                 });
 
@@ -228,9 +228,10 @@ class FavoritesService extends GenericService{
             });
         }
         catch (error) {
+            let that = this;
             let errorMessage = `getServerFavorites -- FAILURE -- ${error.message}`;
-            this._logger.log("error", LOG_ID + `[getServerFavorites] CATCH Error !!! `);
-            this._logger.log("internalerror", LOG_ID + `CATCH Error !!! : ${errorMessage}`);
+            that._logger.log(that.ERROR, LOG_ID + `[getServerFavorites] CATCH Error !!! `);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `CATCH Error !!! : ${errorMessage}`);
             throw new Error(errorMessage);
         }
     }
@@ -239,13 +240,13 @@ class FavoritesService extends GenericService{
         let that = this;
         try {
             let favorite = await that._rest.addServerFavorite(peerId, type, position);
-            that._logger.log("internal", LOG_ID +`addServerFavorite(${peerId}, ${type}) -- SUCCESS`, favorite);
+            that._logger.log(that.INTERNAL, LOG_ID +`addServerFavorite(${peerId}, ${type}) -- SUCCESS`, favorite);
             return favorite;
         }
         catch (error) {
             let errorMessage = `addServerFavorite(${peerId}, ${type}) -- FAILURE -- ${error.message}`;
-            that._logger.log("error", LOG_ID + `[addServerFavorite] Error.`);
-            that._logger.log("internalerror", LOG_ID + `${errorMessage}`);
+            that._logger.log(that.ERROR, LOG_ID + `[addServerFavorite] Error.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `${errorMessage}`);
             throw new Error(errorMessage);
         }
     }
@@ -255,12 +256,12 @@ class FavoritesService extends GenericService{
         try {
             return new Promise(async (resolve, reject) => {
                 that._rest.removeServerFavorite(favoriteId).then(async (favoriteDeleted ) => {
-                    that._logger.log("debug", LOG_ID +"(removeServerFavorite) -- SUCCESS.");
-                    that._logger.log("internal", LOG_ID +"(removeServerFavorite) -- SUCCESS : ", favoriteDeleted);
+                    that._logger.log(that.INFO, LOG_ID +"(removeServerFavorite) -- SUCCESS.");
+                    that._logger.log(that.INTERNAL, LOG_ID +"(removeServerFavorite) -- SUCCESS : ", favoriteDeleted);
                     resolve(favoriteDeleted);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(removeServerFavorite) error.");
-                    that._logger.log("internalerror", LOG_ID + "(removeServerFavorite) error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(removeServerFavorite) error.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(removeServerFavorite) error : ", err);
                     return reject(err);
                 });
 
@@ -268,8 +269,8 @@ class FavoritesService extends GenericService{
         }
         catch (error) {
             let errorMessage = `removeServerFavorite(${favoriteId}) -- FAILURE -- ${error.statusText}`;
-            that._logger.log("error", LOG_ID +`[removeServerFavorite] Error.`);
-            that._logger.log("internalerror", LOG_ID +`${errorMessage}`);
+            that._logger.log(that.ERROR, LOG_ID +`[removeServerFavorite] Error.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID +`${errorMessage}`);
             throw new Error(errorMessage);
         }
     }
@@ -312,8 +313,8 @@ class FavoritesService extends GenericService{
             return favorite;
         }
         catch (error) {
-            that._logger.log("error", LOG_ID + `[createFavorite] Error.`);
-            that._logger.log("internalerror", LOG_ID + `createFavorite(${id}, ${peerId}, ${type}) -- FAILURE -- ${error.message}`);
+            that._logger.log(that.ERROR, LOG_ID + `[createFavorite] Error.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `createFavorite(${id}, ${peerId}, ${type}) -- FAILURE -- ${error.message}`);
             return null;
         }
     }
@@ -337,17 +338,17 @@ class FavoritesService extends GenericService{
         return new Promise((resolve, reject) => {
 
             if (!id) {
-                that._logger.log("debug", LOG_ID + "[createFavorite] :: Error: parameter 'id' is missing or null");
+                that._logger.log(that.DEBUG, LOG_ID + "[createFavorite] :: Error: parameter 'id' is missing or null");
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
 
             if (!type) {
-                that._logger.log("debug", LOG_ID + "[createFavorite] :: Error: parameter 'type' is missing or null");
+                that._logger.log(that.DEBUG, LOG_ID + "[createFavorite] :: Error: parameter 'type' is missing or null");
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
 
             if (type !== "bubble" && type !== "user") {
-                that._logger.log("debug", LOG_ID + "[createFavorite] :: Error: type should be set to \"user\" or \"bubble\"");
+                that._logger.log(that.DEBUG, LOG_ID + "[createFavorite] :: Error: type should be set to \"user\" or \"bubble\"");
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
 
@@ -356,11 +357,11 @@ class FavoritesService extends GenericService{
             }
 
             that.addServerFavorite(id, type).then((favorite: any) => {
-                that._logger.log("debug", LOG_ID + `[createFavorite] :: Successfully added ${type} to favorites`);
+                that._logger.log(that.DEBUG, LOG_ID + `[createFavorite] :: Successfully added ${type} to favorites`);
                 return resolve(favorite);
             }).catch(err => {
-                that._logger.log("error", LOG_ID + "[createFavorite] :: Error.");
-                that._logger.log("internalerror", LOG_ID + "[createFavorite] :: Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "[createFavorite] :: Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "[createFavorite] :: Error : ", err);
                 return reject(err)
             })
 
@@ -383,7 +384,7 @@ class FavoritesService extends GenericService{
         let that = this;
         return new Promise((resolve, reject) => {
             if (!id) {
-                that._logger.log("debug", LOG_ID + "[deleteFavorite] :: Error: parameter 'id' is missing or null");
+                that._logger.log(that.DEBUG, LOG_ID + "[deleteFavorite] :: Error: parameter 'id' is missing or null");
                 return reject("[deleteFavorite] :: Error: parameter 'id' is missing or null");
             }
 
@@ -392,8 +393,8 @@ class FavoritesService extends GenericService{
                     return resolve(favDeleted)
                 })
                 .catch(err => {
-                    that._logger.log("error", LOG_ID + "[deleteFavorite] :: Error.");
-                    that._logger.log("internalerror", LOG_ID + "[deleteFavorite] :: Error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "[deleteFavorite] :: Error.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "[deleteFavorite] :: Error : ", err);
                     return reject(err)
                 })
         })
@@ -439,13 +440,13 @@ class FavoritesService extends GenericService{
         return new Promise((resolve, reject) => {
             that.getServerFavorites(peerId)
                     .then(function(favorites) {
-                        that._logger.log("debug", LOG_ID + `[fetchAllFavorites] :: Successfully fetched the Favorites`);
-                        that._logger.log("internal", LOG_ID + `[fetchAllFavorites] :: Successfully fetched the Favorites : `, favorites);
+                        that._logger.log(that.DEBUG, LOG_ID + `[fetchAllFavorites] :: Successfully fetched the Favorites`);
+                        that._logger.log(that.INTERNAL, LOG_ID + `[fetchAllFavorites] :: Successfully fetched the Favorites : `, favorites);
                         resolve(favorites)
                     })
                     .catch(function(err) {
-                        that._logger.log("error", LOG_ID + `[fetchAllFavorites] :: Error.`);
-                        that._logger.log("internalerror", LOG_ID + `[fetchAllFavorites] :: ERROR : `, err);
+                        that._logger.log(that.ERROR, LOG_ID + `[fetchAllFavorites] :: Error.`);
+                        that._logger.log(that.INTERNALERROR, LOG_ID + `[fetchAllFavorites] :: ERROR : `, err);
                         return reject(err)
                     })
         });
@@ -472,15 +473,15 @@ class FavoritesService extends GenericService{
     checkIsPeerSettedAsFavorite(peerId : string) {
         let that = this;
         return new Promise((resolve, reject) => {
-            that._logger.log("debug", LOG_ID + "(checkIsPeerSettedAsFavorite) peerId : ", peerId);
+            that._logger.log(that.DEBUG, LOG_ID + "(checkIsPeerSettedAsFavorite) peerId : ", peerId);
 
             if (!peerId) {
-                that._logger.log("debug", LOG_ID + "(checkIsPeerSettedAsFavorite) bad or empty 'peerId' parameter : ", peerId);
+                that._logger.log(that.DEBUG, LOG_ID + "(checkIsPeerSettedAsFavorite) bad or empty 'peerId' parameter : ", peerId);
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
 
             that._rest.checkIsPeerSettedAsFavorite(peerId).then(async (result) => {
-                that._logger.log("internal", LOG_ID + "(checkIsPeerSettedAsFavorite) result from server : ", result);
+                that._logger.log(that.INTERNAL, LOG_ID + "(checkIsPeerSettedAsFavorite) result from server : ", result);
                 resolve(result);
             }).catch((err) => {
                 return reject(err);
@@ -512,15 +513,15 @@ class FavoritesService extends GenericService{
     getFavoriteById(favoriteId : string) {
         let that = this;
         return new Promise((resolve, reject) => {
-            that._logger.log("debug", LOG_ID + "(getFavoriteById) favoriteId : ", favoriteId);
+            that._logger.log(that.DEBUG, LOG_ID + "(getFavoriteById) favoriteId : ", favoriteId);
 
             if (!favoriteId) {
-                that._logger.log("debug", LOG_ID + "(getFavoriteById) bad or empty 'favoriteId' parameter : ", favoriteId);
+                that._logger.log(that.DEBUG, LOG_ID + "(getFavoriteById) bad or empty 'favoriteId' parameter : ", favoriteId);
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
 
             that._rest.getFavoriteById(favoriteId).then(async (result) => {
-                that._logger.log("internal", LOG_ID + "(getFavoriteById) result from server : ", result);
+                that._logger.log(that.INTERNAL, LOG_ID + "(getFavoriteById) result from server : ", result);
                 resolve(result);
             }).catch((err) => {
                 return reject(err);
@@ -554,15 +555,15 @@ class FavoritesService extends GenericService{
     getAllUserFavoriteList(peerId : string) {
         let that = this;
         return new Promise((resolve, reject) => {
-            that._logger.log("debug", LOG_ID + "(getAllUserFavoriteList) peerId : ", peerId);
+            that._logger.log(that.DEBUG, LOG_ID + "(getAllUserFavoriteList) peerId : ", peerId);
 
             if (!peerId) {
-                that._logger.log("debug", LOG_ID + "(getAllUserFavoriteList) bad or empty 'peerId' parameter : ", peerId);
+                that._logger.log(that.DEBUG, LOG_ID + "(getAllUserFavoriteList) bad or empty 'peerId' parameter : ", peerId);
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
 
             that._rest.getAllUserFavoriteList(peerId).then(async (result) => {
-                that._logger.log("internal", LOG_ID + "(getAllUserFavoriteList) result from server : ", result);
+                that._logger.log(that.INTERNAL, LOG_ID + "(getAllUserFavoriteList) result from server : ", result);
                 resolve(result);
             }).catch((err) => {
                 return reject(err);
@@ -595,15 +596,15 @@ class FavoritesService extends GenericService{
     moveFavoriteToPosition (favoriteId : string, position : number = 1) {
         let that = this;
         return new Promise((resolve, reject) => {
-            that._logger.log("debug", LOG_ID + "(moveFavoriteToPosition) favoriteId : ", favoriteId);
+            that._logger.log(that.DEBUG, LOG_ID + "(moveFavoriteToPosition) favoriteId : ", favoriteId);
 
             if (!favoriteId) {
-                that._logger.log("debug", LOG_ID + "(moveFavoriteToPosition) bad or empty 'favoriteId' parameter : ", favoriteId);
+                that._logger.log(that.DEBUG, LOG_ID + "(moveFavoriteToPosition) bad or empty 'favoriteId' parameter : ", favoriteId);
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
 
             that._rest.moveFavoriteToPosition(favoriteId, position).then(async (result) => {
-                that._logger.log("internal", LOG_ID + "(moveFavoriteToPosition) result from server : ", result);
+                that._logger.log(that.INTERNAL, LOG_ID + "(moveFavoriteToPosition) result from server : ", result);
                 resolve(result);
             }).catch((err) => {
                 return reject(err);
@@ -665,7 +666,7 @@ class FavoritesService extends GenericService{
             favorite = await this.createFavoriteObj(fav.id, fav.peerId, fav.type, fav.position);
             if (favorite) {
                 this.favorites.push(favorite);
-                //that._logger.log("internal", LOG_ID + "[onFavoriteCreated] send event : ", favorite);
+                //that._logger.log(that.INTERNAL, LOG_ID + "[onFavoriteCreated] send event : ", favorite);
                 //this.sendEvent('ON_FAVORITE_CREATED', { favorite });
 
                 that._eventEmitter.emit("evt_internal_favoritecreated", favorite);

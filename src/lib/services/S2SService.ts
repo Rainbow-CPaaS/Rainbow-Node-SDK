@@ -111,7 +111,7 @@ class S2SService extends GenericService{
         this.s2sEventHandler = new S2SServiceEventHandler(_im, _application, _eventEmitter, _logger, _s2s.hostCallback);
         this._eventEmitter.on("evt_internal_ons2sready", this.onS2SReady.bind(this));
 
-        this._logger.log("internal", LOG_ID + "(S2SService) ", this._logger.colors.yellow("S2SService contructor."));
+        that._logger.log(that.INTERNAL, LOG_ID + "(S2SService) ", this._logger.colors.yellow("S2SService contructor."));
     }
 
     start(_options) {
@@ -129,16 +129,16 @@ class S2SService extends GenericService{
 
                 await that.s2sEventHandler.start(that._core);
                 if (that._useS2S) {
-                    that._logger.log("debug", LOG_ID + "(start) S2S hostCallback used : ", that.hostCallback, ", on locallistenningport : ", that.locallistenningport);
-                    //that._logger.log("info", LOG_ID + "(start) S2S URL : ", that.serverUR);
+                    that._logger.log(that.DEBUG, LOG_ID + "(start) S2S hostCallback used : ", that.hostCallback, ", on locallistenningport : ", that.locallistenningport);
+                    //that._logger.log(that.INFO, LOG_ID + "(start) S2S URL : ", that.serverUR);
                 } else {
-                    that._logger.log("info", LOG_ID + "(start) S2S connection blocked by configuration");
+                    that._logger.log(that.INFO, LOG_ID + "(start) S2S connection blocked by configuration");
                     that.setStarted ();
                     return resolve(undefined);
                 }
                 that.app.use(express.json());
                 that.app.listen(that.locallistenningport, function () {
-                    that._logger.log("debug", LOG_ID + "Server is running on " + that.locallistenningport + " port");
+                    that._logger.log(that.DEBUG, LOG_ID + "Server is running on " + that.locallistenningport + " port");
                 });
 
                /* that.app.post( "/message", (req, res ) => {
@@ -152,13 +152,13 @@ class S2SService extends GenericService{
 
                 that.app.all('*', async (req, res) => {
                     res.send('<h1>Hello World!</h1>');
-                    that._logger.log("internal", LOG_ID + "*************************************************");
-                    that._logger.log("internal", LOG_ID + "received an event: ");
-                    that._logger.log("internal", LOG_ID + "METHOD : ", req.method );
-                    that._logger.log("internal", LOG_ID + "BASELURL : ", req.baseUrl );
-                    that._logger.log("internal", LOG_ID + "ORIGINALURL : ", req.originalUrl );
-                    that._logger.log("internal", LOG_ID + "BODY : ", req.body );
-                    that._logger.log("internal", LOG_ID + "*************************************************");
+                    that._logger.log(that.INTERNAL, LOG_ID + "*************************************************");
+                    that._logger.log(that.INTERNAL, LOG_ID + "received an event: ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "METHOD : ", req.method );
+                    that._logger.log(that.INTERNAL, LOG_ID + "BASELURL : ", req.baseUrl );
+                    that._logger.log(that.INTERNAL, LOG_ID + "ORIGINALURL : ", req.originalUrl );
+                    that._logger.log(that.INTERNAL, LOG_ID + "BODY : ", req.body );
+                    that._logger.log(that.INTERNAL, LOG_ID + "*************************************************");
                     let body = req.body;
                     that.s2sEventHandler.handleS2SEvent(req);
                 });
@@ -187,7 +187,7 @@ class S2SService extends GenericService{
             that.fullJid = that.xmppUtils.generateRandomFullJidForS2SNode(that.jid_im, that.generatedRandomId);
             that.jid = account.jid_im;
 
-            that._logger.log("internal", LOG_ID + "(signin) account used, jid_im : ", that.jid_im, ", fullJid : ", that.fullJid);
+            that._logger.log(that.INTERNAL, LOG_ID + "(signin) account used, jid_im : ", that.jid_im, ", fullJid : ", that.fullJid);
             await that.deleteAllConnectionsS2S();
 
             this.s2sEventHandler.setAccount(account);
@@ -208,7 +208,7 @@ class S2SService extends GenericService{
             that.jid_password = "";
             that.fullJid = "";
             that.userId = "";
-            that._logger.log("debug", LOG_ID + "(stop)" );
+            that._logger.log(that.DEBUG, LOG_ID + "(stop)" );
             if (that._useS2S || forceStop) {
                 resolve(that.deleteAllConnectionsS2S().then(() => {
                     that.setStopped ();
@@ -242,13 +242,13 @@ class S2SService extends GenericService{
      */
     async listConnectionsS2S() {
         let that = this;
-        that._logger.log("internal", LOG_ID + "(listConnectionsS2S) will get all the cnx S2S");
+        that._logger.log(that.INTERNAL, LOG_ID + "(listConnectionsS2S) will get all the cnx S2S");
         return that._rest.listConnectionsS2S()
             .then( response => {
-                that._logger.log("debug", LOG_ID + "(listConnectionsS2S) worked." );
+                that._logger.log(that.DEBUG, LOG_ID + "(listConnectionsS2S) worked." );
                 //console.log( response.data )
                 //connectionInfo = response.data.data
-                that._logger.log("internal", LOG_ID + "(listConnectionsS2S) connexions S2S : ", response );
+                that._logger.log(that.INTERNAL, LOG_ID + "(listConnectionsS2S) connexions S2S : ", response );
                 return response;
             } );
     }
@@ -268,13 +268,13 @@ class S2SService extends GenericService{
      */
     async checkS2Sconnection() {
         let that = this;
-        that._logger.log("internal", LOG_ID + "(checkS2Sconnection) check the cnx S2S");
+        that._logger.log(that.INTERNAL, LOG_ID + "(checkS2Sconnection) check the cnx S2S");
         return that._rest.checkS2Sconnection()
             .then( response => {
-                that._logger.log("debug", LOG_ID + "(checkS2Sconnection) worked." );
+                that._logger.log(that.DEBUG, LOG_ID + "(checkS2Sconnection) worked." );
                 //console.log( response.data )
                 //connectionInfo = response.data.data
-                that._logger.log("internal", LOG_ID + "(checkS2Sconnection) connexions S2S OK : ", response );
+                that._logger.log(that.INTERNAL, LOG_ID + "(checkS2Sconnection) connexions S2S OK : ", response );
                 return response;
             } );
     }
@@ -295,21 +295,21 @@ class S2SService extends GenericService{
      */
     async deleteConnectionsS2S ( connexions ) {
         let that = this;
-        that._logger.log("debug", LOG_ID + "(deleteConnectionsS2S) will del cnx S2S.");
-        that._logger.log("info", LOG_ID + "(deleteConnectionsS2S) will del cnx S2S : ", connexions);
+        that._logger.log(that.DEBUG, LOG_ID + "(deleteConnectionsS2S) will del cnx S2S.");
+        that._logger.log(that.INFO, LOG_ID + "(deleteConnectionsS2S) will del cnx S2S : ", connexions);
         if (!connexions && !Array.isArray(connexions)) {
-            that._logger.log("warn", LOG_ID + "(deleteConnectionsS2S) bad or empty 'connexions' parameter");
-            that._logger.log("internalerror", LOG_ID + "(deleteConnectionsS2S) bad or empty 'connexions' parameter : ", connexions);
+            that._logger.log(that.WARN, LOG_ID + "(deleteConnectionsS2S) bad or empty 'connexions' parameter");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteConnectionsS2S) bad or empty 'connexions' parameter : ", connexions);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
         const requests = [];
         return that._rest.deleteConnectionsS2S(connexions)
             .then( response => {
-                that._logger.log("debug", LOG_ID + "(deleteConnectionsS2S) worked" );
+                that._logger.log(that.DEBUG, LOG_ID + "(deleteConnectionsS2S) worked" );
                 //console.log( response.data )
                 //connectionInfo = response.data.data
-                that._logger.log("internal", LOG_ID + "(deleteConnectionsS2S) connexions S2S: ", response );
+                that._logger.log(that.INTERNAL, LOG_ID + "(deleteConnectionsS2S) connexions S2S: ", response );
                 return response;
             } );
     }
@@ -330,10 +330,10 @@ class S2SService extends GenericService{
     async deleteAllConnectionsS2S(){
         let that = this;
 
-        that._logger.log("internal", LOG_ID + "(deleteAllConnectionsS2S) ");
+        that._logger.log(that.INTERNAL, LOG_ID + "(deleteAllConnectionsS2S) ");
         return that.listConnectionsS2S().then( response => {
-            that._logger.log("debug", LOG_ID + "(deleteAllConnectionsS2S) listConnectionsS2S worked." );
-            that._logger.log("internal", LOG_ID + "(deleteAllConnectionsS2S) listConnectionsS2S result : ", response );
+            that._logger.log(that.DEBUG, LOG_ID + "(deleteAllConnectionsS2S) listConnectionsS2S worked." );
+            that._logger.log(that.INTERNAL, LOG_ID + "(deleteAllConnectionsS2S) listConnectionsS2S result : ", response );
             return that.deleteConnectionsS2S(response);
         });
     }
@@ -354,14 +354,14 @@ class S2SService extends GenericService{
     async loginS2S (callback_url) {
         let that = this;
         let data = {connection: { /*resource: "s2s_machin",*/  callback_url }};
-        that._logger.log("debug", LOG_ID + "(loginS2S) will login  S2S.");
-        that._logger.log("internal", LOG_ID + "(loginS2S) will login S2S : ", data);
+        that._logger.log(that.DEBUG, LOG_ID + "(loginS2S) will login  S2S.");
+        that._logger.log(that.INTERNAL, LOG_ID + "(loginS2S) will login S2S : ", data);
         return that._rest.loginS2S(callback_url)
             .then( (response: any) => {
-                that._logger.log("debug", LOG_ID + "(loginS2S)  worked" );
+                that._logger.log(that.DEBUG, LOG_ID + "(loginS2S)  worked" );
                 //console.log( response.data )
                 //connectionInfo = response.data.data
-                that._logger.log("internal", LOG_ID + "(loginS2S) connexions S2S : ", response );
+                that._logger.log(that.INTERNAL, LOG_ID + "(loginS2S) connexions S2S : ", response );
                 return Promise.resolve(response);
             } );
     }
@@ -382,14 +382,14 @@ class S2SService extends GenericService{
      */
     async infoS2S (s2sConnectionId) {
         let that = this;
-        that._logger.log("debug", LOG_ID + "(infoS2S)  will get info S2S");
-        that._logger.log("internal", LOG_ID + "(infoS2S) will get info S2S");
+        that._logger.log(that.DEBUG, LOG_ID + "(infoS2S)  will get info S2S");
+        that._logger.log(that.INTERNAL, LOG_ID + "(infoS2S) will get info S2S");
         return that._rest.infoS2S(s2sConnectionId)
             .then( response => {
-                that._logger.log("debug", LOG_ID + "(infoS2S) worked." );
+                that._logger.log(that.DEBUG, LOG_ID + "(infoS2S) worked." );
                 //console.log( response.data )
                 //connectionInfo = response.data.data
-                that._logger.log("internal", LOG_ID + "(infoS2S) S2S: ", response );
+                that._logger.log(that.INTERNAL, LOG_ID + "(infoS2S) S2S: ", response );
                 return response;
             } );
     }
@@ -400,9 +400,9 @@ class S2SService extends GenericService{
 
     async onS2SReady(event) {
         let that = this;
-        that._logger.log("internal", LOG_ID + "(onS2SReady) S2S READY ENVENT: ", event );
+        that._logger.log(that.INTERNAL, LOG_ID + "(onS2SReady) S2S READY ENVENT: ", event );
         await this._rest.setS2SConnection(event.id).catch(err=>{
-            that._logger.log("warn", LOG_ID + "(onS2SReady) setS2SConnection error : ", err);
+            that._logger.log(that.WARN, LOG_ID + "(onS2SReady) setS2SConnection error : ", err);
         });
     }
 
@@ -430,13 +430,13 @@ class S2SService extends GenericService{
      */
     sendS2SPresence( obj ) {
         let that = this;
-        that._logger.log("internal", LOG_ID + "(sendS2SPresence) set S2S presence : ", obj);
+        that._logger.log(that.INTERNAL, LOG_ID + "(sendS2SPresence) set S2S presence : ", obj);
         return that._rest.sendS2SPresence(obj)
                 .then( response => {
-                    that._logger.log("internal", LOG_ID + "(sendS2SPresence) worked." );
+                    that._logger.log(that.INTERNAL, LOG_ID + "(sendS2SPresence) worked." );
                     //console.log( response.data )
                     //connectionInfo = response.data.data
-                    that._logger.log("internal", LOG_ID + "(sendS2SPresence) connexions S2S : ", response );
+                    that._logger.log(that.INTERNAL, LOG_ID + "(sendS2SPresence) connexions S2S : ", response );
                     return response;
                 } );
     }
@@ -471,12 +471,12 @@ class S2SService extends GenericService{
      */
     sendMessageInConversation(conversationId, msg) {
         let that = this;
-        that._logger.log("internal", LOG_ID + "(sendMessageInConversation) will send msg S2S : ", msg, " in conv id : ", conversationId);
+        that._logger.log(that.INTERNAL, LOG_ID + "(sendMessageInConversation) will send msg S2S : ", msg, " in conv id : ", conversationId);
         return that._rest.sendS2SMessageInConversation(conversationId, msg).then( response => {
-                that._logger.log("debug", LOG_ID + "(sendMessageInConversation) worked." );
+                that._logger.log(that.DEBUG, LOG_ID + "(sendMessageInConversation) worked." );
                 //console.log( response.data )
                 //connectionInfo = response.data.data
-                that._logger.log("internal", LOG_ID + "(sendMessageInConversation) S2S response : ", response );
+                that._logger.log(that.INTERNAL, LOG_ID + "(sendMessageInConversation) S2S response : ", response );
                 return response;
             } );
     }
@@ -497,12 +497,12 @@ class S2SService extends GenericService{
      */
     joinRoom(bubbleId, role : ROOMROLE) {
         let that = this;
-        that._logger.log("internal", LOG_ID + "(joinRoom) will send presence to joinRoom S2S, bubbleId : ", bubbleId);
+        that._logger.log(that.INTERNAL, LOG_ID + "(joinRoom) will send presence to joinRoom S2S, bubbleId : ", bubbleId);
         return that._rest.joinS2SRoom(bubbleId, role).then( response => {
-                that._logger.log("debug", LOG_ID + "(joinRoom) worked." );
+                that._logger.log(that.DEBUG, LOG_ID + "(joinRoom) worked." );
                 //console.log( response.data )
                 //connectionInfo = response.data.data
-                that._logger.log("internal", LOG_ID + "(joinRoom) S2S response : ", response );
+                that._logger.log(that.INTERNAL, LOG_ID + "(joinRoom) S2S response : ", response );
                 return response;
             } );
     }

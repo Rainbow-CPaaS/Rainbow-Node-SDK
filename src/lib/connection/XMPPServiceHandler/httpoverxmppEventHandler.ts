@@ -53,12 +53,12 @@ class HttpoverxmppEventHandler extends GenericHandler {
     onIqGetSetReceived (msg, stanza) {
         let that = this;
         try {
-            that.logger.log("internal", LOG_ID + "(onIqGetSetReceived) _entering_ : ", msg, stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
+            that._logger.log(that.INTERNAL, LOG_ID + "(onIqGetSetReceived) _entering_ : ", msg, stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
             let children = stanza.children;
             children.forEach((node) => {
                 switch (node.getName()) {
                     case "req":
-                        that.logger.log("internal", LOG_ID + "(onIqGetSetReceived) query : ", msg, stanza);
+                        that._logger.log(that.INTERNAL, LOG_ID + "(onIqGetSetReceived) query : ", msg, stanza);
                         that._onIqGetSetReqReceived(stanza, node);
                         break;
                     case "query":
@@ -68,19 +68,19 @@ class HttpoverxmppEventHandler extends GenericHandler {
                         // treatement in iqEventHandler
                         break;
                     /*case "default":
-                        that.logger.log("internal", LOG_ID + "(onIqGetSetReceived) default : ", msg, stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
-                        that.logger.log("warn", LOG_ID + "(onIqGetSetReceived) not managed - 'stanza'", node.getName());
+                        that._logger.log(that.INTERNAL, LOG_ID + "(onIqGetSetReceived) default : ", msg, stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
+                        that._logger.log(that.WARN, LOG_ID + "(onIqGetSetReceived) not managed - 'stanza'", node.getName());
                         break; // */
                     default:
-                        that.logger.log("internal", LOG_ID + "(onIqGetSetReceived) _entering_ : ", msg, stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
-                        that.logger.log("warn", LOG_ID + "(onIqGetSetReceived) child not managed for iq - 'stanza' name : ", node.getName());
-                        that.logger.log("internal", LOG_ID + "(onIqGetSetReceived) child not managed for iq - 'stanza' name : ", node.getName(), ",stanza : ",  "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza, " node : ", node);
+                        that._logger.log(that.INTERNAL, LOG_ID + "(onIqGetSetReceived) _entering_ : ", msg, stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
+                        that._logger.log(that.WARN, LOG_ID + "(onIqGetSetReceived) child not managed for iq - 'stanza' name : ", node.getName());
+                        that._logger.log(that.INTERNAL, LOG_ID + "(onIqGetSetReceived) child not managed for iq - 'stanza' name : ", node.getName(), ",stanza : ",  "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza, " node : ", node);
 
                 }
             });
         } catch (err) {
-            that.logger.log("error", LOG_ID + "(onIqGetSetReceived) CATCH ErrorManager !!! ");
-            that.logger.log("internalerror", LOG_ID + "(onIqGetSetReceived) CATCH ErrorManager !!! : ", err);
+            that._logger.log(that.ERROR, LOG_ID + "(onIqGetSetReceived) CATCH ErrorManager !!! ");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(onIqGetSetReceived) CATCH ErrorManager !!! : ", err);
         }
     };
 
@@ -88,7 +88,7 @@ class HttpoverxmppEventHandler extends GenericHandler {
         let that = this;
 
         try {
-            that.logger.log("internal", LOG_ID + "(onIqResultReceived) _entering_", msg, "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
+            that._logger.log(that.INTERNAL, LOG_ID + "(onIqResultReceived) _entering_", msg, "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
             let children = stanza.children;
             children.forEach((node) => {
                 switch (node.getName()) {
@@ -96,12 +96,12 @@ class HttpoverxmppEventHandler extends GenericHandler {
                         // The treatment is in iqEventHandler
                         break;
                     case "resp":
-                        that.logger.log("debug", LOG_ID + "(onIqResultReceived) - 'stanza'", node.getName());
+                        that._logger.log(that.DEBUG, LOG_ID + "(onIqResultReceived) - 'stanza'", node.getName());
                         that._onIqRespResultReceived(stanza, node);
                         break;
                     case "bind":
                         // The treatment is in iqEventHandler
-                        //that.logger.log("debug", LOG_ID + "(onIqResultReceived) - 'stanza'", node.getName());
+                        //that._logger.log(that.INFO, LOG_ID + "(onIqResultReceived) - 'stanza'", node.getName());
                         break;
                     case "pbxagentstatus":
                         // The treatment is in telephonyEventHandler
@@ -111,16 +111,16 @@ class HttpoverxmppEventHandler extends GenericHandler {
                         // One treatment is in calllogEventHandler
                         break;
                     /*case "default":
-                        that.logger.log("warn", LOG_ID + "(onIqResultReceived) - not managed - 'stanza'", node.getName());
+                        that._logger.log(that.WARN, LOG_ID + "(onIqResultReceived) - not managed - 'stanza'", node.getName());
                         break; //*/
                     default:
-                        that.logger.log("warn", LOG_ID + "(onIqResultReceived) - child not managed for iq - 'stanza'", node.getName());
-                        that.logger.log("internal", LOG_ID + "(onIqResultReceived) - child not managed for iq - 'stanza' name : ", node.getName(), ", stanza : ",  "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza, " node : ", node);
+                        that._logger.log(that.WARN, LOG_ID + "(onIqResultReceived) - child not managed for iq - 'stanza'", node.getName());
+                        that._logger.log(that.INTERNAL, LOG_ID + "(onIqResultReceived) - child not managed for iq - 'stanza' name : ", node.getName(), ", stanza : ",  "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza, " node : ", node);
                 }
             });
         } catch (err) {
-            that.logger.log("error", LOG_ID + "(onIqResultReceived) CATCH ErrorManager !!! ");
-            that.logger.log("internalerror", LOG_ID + "(onIqResultReceived) CATCH ErrorManager !!! : ", err);
+            that._logger.log(that.ERROR, LOG_ID + "(onIqResultReceived) CATCH ErrorManager !!! ");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(onIqResultReceived) CATCH ErrorManager !!! : ", err);
         }
     };
 
@@ -129,15 +129,15 @@ class HttpoverxmppEventHandler extends GenericHandler {
         // treatment of the XEP 0332.
         try {
             if ( !that.options._httpoverxmppserver) {
-                that.logger.log("internal", LOG_ID + "(_onIqGetSetReqReceived) httpoverxmppserver is desactivated, so send empty response to request : ", "\n", stanza.root ? prettydata.xml(stanza.root().toString()):stanza, "\n", node.root ? prettydata.xml(node.root().toString()):node);
+                that._logger.log(that.INTERNAL, LOG_ID + "(_onIqGetSetReqReceived) httpoverxmppserver is desactivated, so send empty response to request : ", "\n", stanza.root ? prettydata.xml(stanza.root().toString()):stanza, "\n", node.root ? prettydata.xml(node.root().toString()):node);
                 await that.xmppClient.resolvPendingRequest(stanza.attrs.id, {});
                 return (0);
             }
 
-            that.logger.log("internal", LOG_ID + "(_onIqGetSetReqReceived) _entering_ : ", "\n", stanza.root ? prettydata.xml(stanza.root().toString()):stanza, "\n", node.root ? prettydata.xml(node.root().toString()):node);
+            that._logger.log(that.INTERNAL, LOG_ID + "(_onIqGetSetReqReceived) _entering_ : ", "\n", stanza.root ? prettydata.xml(stanza.root().toString()):stanza, "\n", node.root ? prettydata.xml(node.root().toString()):node);
             let xmlNodeStr = node ? node.toString():"<xml></xml>";
             let reqObj = await getJsonFromXML(xmlNodeStr);
-            that.logger.log("debug", LOG_ID + "(_onIqGetSetReqReceived) reqObj : ", reqObj);
+            that._logger.log(that.DEBUG, LOG_ID + "(_onIqGetSetReqReceived) reqObj : ", reqObj);
             
             let host = "";
             let resourceUrl = "";
@@ -175,14 +175,14 @@ class HttpoverxmppEventHandler extends GenericHandler {
                     case "GET": {
 
                         let response = await that._rest.http.getUrlRaw(urlBuilt, headers, undefined);
-                        that.logger.log("debug", LOG_ID + "(_onIqGetSetReqReceived) get url successfull");
-                        //that.logger.log("internal", LOG_ID + "(_onIqGetSetReqReceived) get url HTTP result : ", response);
+                        that._logger.log(that.DEBUG, LOG_ID + "(_onIqGetSetReqReceived) get url successfull");
+                        //that._logger.log(that.INTERNAL, LOG_ID + "(_onIqGetSetReqReceived) get url HTTP result : ", response);
                         if (response) {
                             if (response.statusCode) {
                                 statusCodeHttp = response.statusCode;
                                 statusMessageHttp = response.statusMessage;
                                 headersHttp = response.headers;
-                                that.logger.log("debug", LOG_ID + "(_onIqGetSetReqReceived) get HTTP statusCode defined, statusCodeHttp: ", statusCodeHttp, ", statusMessageHttp : ", statusMessageHttp);
+                                that._logger.log(that.DEBUG, LOG_ID + "(_onIqGetSetReqReceived) get HTTP statusCode defined, statusCodeHttp: ", statusCodeHttp, ", statusMessageHttp : ", statusMessageHttp);
                                 resultOfHttp = response.body;
                             } else {
                                 statusCodeHttp = -1;
@@ -193,8 +193,8 @@ class HttpoverxmppEventHandler extends GenericHandler {
                     break;
                     case "TRACE": {
 
-                        that.logger.log("debug", LOG_ID + "(_onIqGetSetReqReceived) trace successfull");
-                        //that.logger.log("internal", LOG_ID + "(_onIqGetSetReqReceived) get url HTTP result : ", response);
+                        that._logger.log(that.DEBUG, LOG_ID + "(_onIqGetSetReqReceived) trace successfull");
+                        //that._logger.log(that.INTERNAL, LOG_ID + "(_onIqGetSetReqReceived) get url HTTP result : ", response);
                         statusCodeHttp = 200;
                         statusMessageHttp = "OK";
                         headersHttp = {
@@ -203,21 +203,21 @@ class HttpoverxmppEventHandler extends GenericHandler {
                             'Content-Type': "message/http",
                             'Content-Length': 100
                         }
-                        that.logger.log("debug", LOG_ID + "(_onIqGetSetReqReceived) trace HTTP statusCode defined, statusCodeHttp: ", statusCodeHttp, ", statusMessageHttp : ", statusMessageHttp);
+                        that._logger.log(that.DEBUG, LOG_ID + "(_onIqGetSetReqReceived) trace HTTP statusCode defined, statusCodeHttp: ", statusCodeHttp, ", statusMessageHttp : ", statusMessageHttp);
                         resultOfHttp = "GET " + resourceUrl + " HTTP/1.1 " + "Host: " + host;
                     }
                     break;
                     case "HEAD": {
 
                         let response = await that._rest.http.headUrlRaw(urlBuilt, headers);
-                        that.logger.log("debug", LOG_ID + "(_onIqGetSetReqReceived) head url successfull");
-                        //that.logger.log("internal", LOG_ID + "(_onIqGetSetReqReceived) get url HTTP result : ", response);
+                        that._logger.log(that.DEBUG, LOG_ID + "(_onIqGetSetReqReceived) head url successfull");
+                        //that._logger.log(that.INTERNAL, LOG_ID + "(_onIqGetSetReqReceived) get url HTTP result : ", response);
                         if (response) {
                             if (response.statusCode) {
                                 statusCodeHttp = response.statusCode;
                                 statusMessageHttp = response.statusMessage;
                                 headersHttp = response.headers;
-                                that.logger.log("debug", LOG_ID + "(_onIqGetSetReqReceived) head HTTP statusCode defined, statusCodeHttp: ", statusCodeHttp, ", statusMessageHttp : ", statusMessageHttp);
+                                that._logger.log(that.DEBUG, LOG_ID + "(_onIqGetSetReqReceived) head HTTP statusCode defined, statusCodeHttp: ", statusCodeHttp, ", statusMessageHttp : ", statusMessageHttp);
                                 resultOfHttp = response.body;
                             } else {
                                 statusCodeHttp = -1;
@@ -233,14 +233,14 @@ class HttpoverxmppEventHandler extends GenericHandler {
                         }
                         
                         let response = await that._rest.http.postUrlRaw(urlBuilt, headers, data);
-                        that.logger.log("debug", LOG_ID + "(_onIqGetSetReqReceived) post url successfull");
-                        //that.logger.log("internal", LOG_ID + "(_onIqGetSetReqReceived) get url HTTP result : ", response);
+                        that._logger.log(that.DEBUG, LOG_ID + "(_onIqGetSetReqReceived) post url successfull");
+                        //that._logger.log(that.INTERNAL, LOG_ID + "(_onIqGetSetReqReceived) get url HTTP result : ", response);
                         if (response) {
                             if (response.statusCode) {
                                 statusCodeHttp = response.statusCode;
                                 statusMessageHttp = response.statusMessage;
                                 headersHttp = response.headers;
-                                that.logger.log("debug", LOG_ID + "(_onIqGetSetReqReceived) post HTTP statusCode defined, statusCodeHttp: ", statusCodeHttp, ", statusMessageHttp : ", statusMessageHttp);
+                                that._logger.log(that.DEBUG, LOG_ID + "(_onIqGetSetReqReceived) post HTTP statusCode defined, statusCodeHttp: ", statusCodeHttp, ", statusMessageHttp : ", statusMessageHttp);
                                 resultOfHttp = response.body;
                             } else {
                                 statusCodeHttp = -1;
@@ -256,14 +256,14 @@ class HttpoverxmppEventHandler extends GenericHandler {
                         }
                         
                         let response = await that._rest.http.putUrlRaw(urlBuilt, headers, data);
-                        that.logger.log("debug", LOG_ID + "(_onIqGetSetReqReceived) put url successfull");
-                        //that.logger.log("internal", LOG_ID + "(_onIqGetSetReqReceived) get url HTTP result : ", response);
+                        that._logger.log(that.DEBUG, LOG_ID + "(_onIqGetSetReqReceived) put url successfull");
+                        //that._logger.log(that.INTERNAL, LOG_ID + "(_onIqGetSetReqReceived) get url HTTP result : ", response);
                         if (response) {
                             if (response.statusCode) {
                                 statusCodeHttp = response.statusCode;
                                 statusMessageHttp = response.statusMessage;
                                 headersHttp = response.headers;
-                                that.logger.log("debug", LOG_ID + "(_onIqGetSetReqReceived) put HTTP statusCode defined, statusCodeHttp: ", statusCodeHttp, ", statusMessageHttp : ", statusMessageHttp);
+                                that._logger.log(that.DEBUG, LOG_ID + "(_onIqGetSetReqReceived) put HTTP statusCode defined, statusCodeHttp: ", statusCodeHttp, ", statusMessageHttp : ", statusMessageHttp);
                                 resultOfHttp = response.body;                                
                             } else {
                                 statusCodeHttp = -1;
@@ -279,14 +279,14 @@ class HttpoverxmppEventHandler extends GenericHandler {
                         }
                         
                         let response = await that._rest.http.deleteUrlRaw(urlBuilt, headers, data);
-                        that.logger.log("debug", LOG_ID + "(_onIqGetSetReqReceived) delete url successfull");
-                        //that.logger.log("internal", LOG_ID + "(_onIqGetSetReqReceived) get url HTTP result : ", response);
+                        that._logger.log(that.DEBUG, LOG_ID + "(_onIqGetSetReqReceived) delete url successfull");
+                        //that._logger.log(that.INTERNAL, LOG_ID + "(_onIqGetSetReqReceived) get url HTTP result : ", response);
                         if (response) {
                             if (response.statusCode) {
                                 statusCodeHttp = response.statusCode;
                                 statusMessageHttp = response.statusMessage;
                                 headersHttp = response.headers;
-                                that.logger.log("debug", LOG_ID + "(_onIqGetSetReqReceived) delete HTTP statusCode defined, statusCodeHttp: ", statusCodeHttp, ", statusMessageHttp : ", statusMessageHttp);
+                                that._logger.log(that.DEBUG, LOG_ID + "(_onIqGetSetReqReceived) delete HTTP statusCode defined, statusCodeHttp: ", statusCodeHttp, ", statusMessageHttp : ", statusMessageHttp);
                                 resultOfHttp = response.body;                               
                             } else {
                                 statusCodeHttp = -1;
@@ -300,7 +300,7 @@ class HttpoverxmppEventHandler extends GenericHandler {
                     }
                 }
 
-                that.logger.log("debug", LOG_ID + "(_onIqGetSetReqReceived) (handleXMPPConnection) urlBuilt : ", urlBuilt);
+                that._logger.log(that.DEBUG, LOG_ID + "(_onIqGetSetReqReceived) (handleXMPPConnection) urlBuilt : ", urlBuilt);
 
                 let stanzaResp = xml("resp", {
                     "xmlns": "urn:xmpp:http",
@@ -326,15 +326,15 @@ class HttpoverxmppEventHandler extends GenericHandler {
                 stanzaResp.append(stanzaData, undefined);
                 
                 
-                that.logger.log("debug", LOG_ID + "(_onIqGetSetReqReceived) (handleXMPPConnection) send req result - 'stanza' : ", stanzaResp);
+                that._logger.log(that.DEBUG, LOG_ID + "(_onIqGetSetReqReceived) (handleXMPPConnection) send req result - 'stanza' : ", stanzaResp);
 
                 await that.xmppClient.resolvPendingRequest(stanza.attrs.id, stanzaResp);
             } else {
                 await that.xmppClient.resolvPendingRequest(stanza.attrs.id, {});
             }
         } catch (err) {
-            that.logger.log("error", LOG_ID + "(_onIqGetSetReqReceived) (handleXMPPConnection) CATCH ErrorManager !!! ");
-            that.logger.log("internalerror", LOG_ID + "(_onIqGetSetReqReceived) (handleXMPPConnection) CATCH ErrorManager !!! : ", err);
+            that._logger.log(that.ERROR, LOG_ID + "(_onIqGetSetReqReceived) (handleXMPPConnection) CATCH ErrorManager !!! ");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(_onIqGetSetReqReceived) (handleXMPPConnection) CATCH ErrorManager !!! : ", err);
         }
     };
 
@@ -366,11 +366,11 @@ class HttpoverxmppEventHandler extends GenericHandler {
    </iq>
          */
         try {
-            that.logger.log("internal", LOG_ID + "(_onIqRespResultReceived) _entering_ : ", "\n", stanza.root ? prettydata.xml(stanza.root().toString()):stanza, "\n", node.root ? prettydata.xml(node.root().toString()):node);
+            that._logger.log(that.INTERNAL, LOG_ID + "(_onIqRespResultReceived) _entering_ : ", "\n", stanza.root ? prettydata.xml(stanza.root().toString()):stanza, "\n", node.root ? prettydata.xml(node.root().toString()):node);
            /* 
             let xmlNodeStr = node ? node.toString():"<xml></xml>";
             let reqObj = await getJsonFromXML(xmlNodeStr);
-            that.logger.log("internal", LOG_ID + "(_onIqGetReqReceived) (handleXMPPConnection) reqObj : ", reqObj);
+            that._logger.log(that.INTERNAL, LOG_ID + "(_onIqGetReqReceived) (handleXMPPConnection) reqObj : ", reqObj);
             
             
             let version = reqObj["resp"]["$attrs"].version;
@@ -379,8 +379,8 @@ class HttpoverxmppEventHandler extends GenericHandler {
             // */
 
         } catch (err) {
-            that.logger.log("error", LOG_ID + "(_onIqRespResultReceived) (handleXMPPConnection) CATCH ErrorManager !!! ");
-            that.logger.log("internalerror", LOG_ID + "(_onIqRespResultReceived) (handleXMPPConnection) CATCH ErrorManager !!! : ", err);
+            that._logger.log(that.ERROR, LOG_ID + "(_onIqRespResultReceived) (handleXMPPConnection) CATCH ErrorManager !!! ");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(_onIqRespResultReceived) (handleXMPPConnection) CATCH ErrorManager !!! : ", err);
         }
     }
     

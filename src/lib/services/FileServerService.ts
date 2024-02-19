@@ -43,7 +43,7 @@ class FileServer extends GenericService{
     private _capabilities: any;
     private transferPromiseQueue: any;
     private _fileStorageService: FileStorageService;
-	public ONE_KILOBYTE: any;
+        public ONE_KILOBYTE: any;
 
     static getClassName(){ return 'FileServer'; }
     getClassName(){ return FileServer.getClassName(); }
@@ -223,12 +223,12 @@ class FileServer extends GenericService{
                         .then(
                             () => {
                                 let buffer = Buffer.concat(bufferArray);
-                                that._logger.log("debug", LOG_ID + "(getBufferFromUrlWithOptimization) success");
+                                that._logger.log(that.INFO, LOG_ID + "(getBufferFromUrlWithOptimization) success");
                                 resolve(buffer);
                             },
                             (error) => {
-                                that._logger.log("error", LOG_ID + "(getBufferFromUrlWithOptimization) Error." );
-                                that._logger.log("internalerror", LOG_ID + "(getBufferFromUrlWithOptimization) Error : ", error);
+                                that._logger.log(that.ERROR, LOG_ID + "(getBufferFromUrlWithOptimization) Error." );
+                                that._logger.log(that.INTERNALERROR, LOG_ID + "(getBufferFromUrlWithOptimization) Error : ", error);
                                 return reject(error);
                             }
                         );
@@ -300,12 +300,12 @@ class FileServer extends GenericService{
                         .then(
                             () => {
                                 let buffer = Buffer.concat(blobArray);
-                                that._logger.log("debug", LOG_ID + "(getFileFromUrlWithOptimization) success");
+                                that._logger.log(that.INFO, LOG_ID + "(getFileFromUrlWithOptimization) success");
                                 resolve(buffer);
                             },
                             (error) => {
-                                that._logger.log("error", LOG_ID + "(getFileFromUrlWithOptimization) Error.");
-                                that._logger.log("internalerror", LOG_ID + "(getFileFromUrlWithOptimization) Error : ", error);
+                                that._logger.log(that.ERROR, LOG_ID + "(getFileFromUrlWithOptimization) Error.");
+                                that._logger.log(that.INTERNALERROR, LOG_ID + "(getFileFromUrlWithOptimization) Error : ", error);
                                 return reject(error);
                             }
                         );
@@ -409,7 +409,7 @@ class FileServer extends GenericService{
                         if (newFileDescriptor) {
                             newFileDescriptor.state = "uploaded";
                         }
-                        that._logger.log("debug", LOG_ID + "(_uploadAFile) success");
+                        that._logger.log(that.INFO, LOG_ID + "(_uploadAFile) success");
                         // this.$rootScope.$broadcast("ON_FILE_TRANSFER_EVENT", {
                         //     result: "success",
                         //     type: "upload",
@@ -433,8 +433,8 @@ class FileServer extends GenericService{
                         //     filename: file.name,
                         //     filesize: file.size
                         // });
-                        that._logger.log("error", LOG_ID + "(_uploadAFile) error." );
-                        that._logger.log("internalerror", LOG_ID + "(_uploadAFile) error : ", errorResponse);
+                        that._logger.log(that.ERROR, LOG_ID + "(_uploadAFile) error." );
+                        that._logger.log(that.INTERNALERROR, LOG_ID + "(_uploadAFile) error : ", errorResponse);
                         return reject(errorResponse);
                     });
         });
@@ -457,13 +457,13 @@ class FileServer extends GenericService{
             that._rest.sendPartialDataToServer(fileId, file, index).then(
                 (response : any) => {
                     let filedescriptor = response.data;
-                    that._logger.log("debug", LOG_ID + "(_sendPartialDataToServer) sendPartialDataToServer success");
+                    that._logger.log(that.INFO, LOG_ID + "(_sendPartialDataToServer) sendPartialDataToServer success");
                     resolve(filedescriptor);
                 },
                 (errorResponse) => {
                     //let error = this.errorHelperService.handleError(errorResponse);
-                    that._logger.log("error", LOG_ID + "(_sendPartialDataToServer) Error." );
-                    that._logger.log("internalerror", LOG_ID + "(_sendPartialDataToServer) Error : ", errorResponse);
+                    that._logger.log(that.ERROR, LOG_ID + "(_sendPartialDataToServer) Error." );
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(_sendPartialDataToServer) Error : ", errorResponse);
                     return reject(errorResponse);
                 });
         });
@@ -498,7 +498,7 @@ class FileServer extends GenericService{
         if (range < fileStats.size) {
             if (fileStats.size >= 100 * range) {
                 range = (fileStats.size / 100) + this.ONE_KILOBYTE;
-                that._logger.log("debug", LOG_ID + "(uploadAFileByChunk) changing chunk size: " + range);
+                that._logger.log(that.DEBUG, LOG_ID + "(uploadAFileByChunk) changing chunk size: " + range);
             }
             let deferred = new Deferred();
             fileDescriptor.chunkTotalNumber = Math.ceil(fileStats.size / range);
@@ -520,8 +520,8 @@ class FileServer extends GenericService{
 
                     })
                     .catch((error) => {
-                        that._logger.log("error", LOG_ID + "(uploadAFileByChunk) error on chunk upload.");
-                        that._logger.log("internalerror", LOG_ID + "(uploadAFileByChunk) error on chunk upload : ", error);
+                        that._logger.log(that.ERROR, LOG_ID + "(uploadAFileByChunk) error on chunk upload.");
+                        that._logger.log(that.INTERNALERROR, LOG_ID + "(uploadAFileByChunk) error on chunk upload : ", error);
                         return promiseDeferred.reject(error);
                     });
                 return promiseDeferred.promise;
@@ -533,7 +533,7 @@ class FileServer extends GenericService{
                 let sizeToRead = max - minRange;
                 let buf = new Buffer(sizeToRead);
 
-                that._logger.log("debug", LOG_ID + "(uploadAFileByChunk) sizeToRead=", sizeToRead, ", minRange : ", minRange, ", max : ", max, ", buff.byteLength : ", buf.byteLength);
+                that._logger.log(that.DEBUG, LOG_ID + "(uploadAFileByChunk) sizeToRead=", sizeToRead, ", minRange : ", minRange, ", max : ", max, ", buff.byteLength : ", buf.byteLength);
 
                 let promiseDeferred = new Deferred();
                 //promiseArray.push(promiseDeferred.promise);
@@ -548,7 +548,7 @@ class FileServer extends GenericService{
                  this._rest.sendPartialFileCompletion(fileDescriptor.id)
                      .then(
                          (response) => {
-                             that._logger.log("debug", LOG_ID + "(uploadAFileByChunk) success");
+                             that._logger.log(that.INFO, LOG_ID + "(uploadAFileByChunk) success");
                              fileDescriptor.state = "uploaded";
                              fileDescriptor.chunkPerformed = 0;
                              fileDescriptor.chunkTotalNumber = 0;
@@ -570,7 +570,7 @@ class FileServer extends GenericService{
                 return this._rest.sendPartialFileCompletion(fileDescriptor.id)
                     .then(
                         (response) => {
-                            that._logger.log("debug", LOG_ID + "(uploadAFileByChunk) success");
+                            that._logger.log(that.INFO, LOG_ID + "(uploadAFileByChunk) success");
                             fileDescriptor.state = "uploaded";
                             fileDescriptor.chunkPerformed = 0;
                             fileDescriptor.chunkTotalNumber = 0;
@@ -590,7 +590,7 @@ class FileServer extends GenericService{
         return that._uploadAFile(fileDescriptor.id, filePath, fileDescriptor.typeMIME)
             .then(
                 (response) => {
-                    that._logger.log("debug", LOG_ID + "(uploadAFileByChunk) uploadAFile success");
+                    that._logger.log(that.INFO, LOG_ID + "(uploadAFileByChunk) uploadAFile success");
                     // progressCallback(fileDescriptor);
                     return Promise.resolve(fileDescriptor);
                 });
@@ -649,13 +649,13 @@ class FileServer extends GenericService{
                 let repetition = Math.ceil(fileSize / range);
                 let numberOfChunks = Math.ceil(fileSize / range);
                 let blobArray = new Array(repetition);
-                that._logger.log("internal", LOG_ID + "(getBlobFromUrlWithOptimization) - range : ", range, ", fileSize : ", fileSize, ", repetition : ", repetition, ", ONE_MEGABYTE : ", ONE_MEGABYTE, ", numberOfChunks : ", numberOfChunks);
-                that._logger.log("debug", LOG_ID + "(getBlobFromUrlWithOptimization) : " + repetition + " chunks to be downloaded");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getBlobFromUrlWithOptimization) - range : ", range, ", fileSize : ", fileSize, ", repetition : ", repetition, ", ONE_MEGABYTE : ", ONE_MEGABYTE, ", numberOfChunks : ", numberOfChunks);
+                that._logger.log(that.INFO, LOG_ID + "(getBlobFromUrlWithOptimization) : " + repetition + " chunks to be downloaded");
 
                 let promiseArray = [];
 
                 for (let i = 0; repetition > 0; i++ , repetition-- , minRange += range, maxRange += range) {
-                    that._logger.log("debug", LOG_ID + "(getBlobFromUrlWithOptimization) - get partial buffer, iter : ", i, ", minRange : ", minRange, ", maxRange : ", maxRange);
+                    that._logger.log(that.INFO, LOG_ID + "(getBlobFromUrlWithOptimization) - get partial buffer, iter : ", i, ", minRange : ", minRange, ", maxRange : ", maxRange);
                      promiseArray.push(
                       //let result = await that.getPartialDataFromServer(url, minRange, maxRange, i)
                       //let result = await that.getPartialBufferFromServer(url, minRange, maxRange, i)
@@ -663,20 +663,20 @@ class FileServer extends GenericService{
                        that.getPartialBufferFromServer(url, minRange, maxRange, i)
                             .then((response) => {
                                 let index = response['index'];
-                                that._logger.log("debug", LOG_ID + "(getBlobFromUrlWithOptimization) - getPartialBufferFromServer iter ", i, "/", numberOfChunks, " succeed! Store at index : ", index);
+                                that._logger.log(that.INFO, LOG_ID + "(getBlobFromUrlWithOptimization) - getPartialBufferFromServer iter ", i, "/", numberOfChunks, " succeed! Store at index : ", index);
                                 blobArray[index] = response['data'];
                                 //return (response['data']);
                                 return ( { "code":0, "label" : "OK"} );
                             }).catch((error) => {
-                                that._logger.log("error", LOG_ID + "(getBlobFromUrlWithOptimization) - Error getPartialBufferFromServer iter : ", i, "/", numberOfChunks, " error : ", error);
+                                that._logger.log(that.ERROR, LOG_ID + "(getBlobFromUrlWithOptimization) - Error getPartialBufferFromServer iter : ", i, "/", numberOfChunks, " error : ", error);
                         })
                     );
-                    //that._logger.log("debug", LOG_ID + "(getBlobFromUrlWithOptimization) - getPartialBufferFromServer iter : ", i, "/", numberOfChunks,", result : ", result);
+                    //that._logger.log(that.INFO, LOG_ID + "(getBlobFromUrlWithOptimization) - getPartialBufferFromServer iter : ", i, "/", numberOfChunks,", result : ", result);
                    // repetition =0;
                     await pause(20);
                 }
 
-                that._logger.log("debug", LOG_ID + "(getBlobFromUrlWithOptimization) - wait for the ", numberOfChunks, " chunks to be downloaded!");
+                that._logger.log(that.INFO, LOG_ID + "(getBlobFromUrlWithOptimization) - wait for the ", numberOfChunks, " chunks to be downloaded!");
                 //promiseArray.push(Promise.resolve());
                 Promise.all(promiseArray)
                     .then(
@@ -684,11 +684,11 @@ class FileServer extends GenericService{
                             /* NEED TO BE CORREDTED TO BE USED IN NODE RAINBOW SDK
                              let blob = new Blob(blobArray,
                                 { type: mime });
-                            that._logger.log("debug", LOG_ID + "getBlobFromUrlWithOptimization success");
+                            that._logger.log(that.INFO, LOG_ID + "getBlobFromUrlWithOptimization success");
 
                             resolve(blob);
                             */
-                            that._logger.log("debug", LOG_ID + "(getBlobFromUrlWithOptimization) - all the ", numberOfChunks, " chunks downloaded!");
+                            that._logger.log(that.INFO, LOG_ID + "(getBlobFromUrlWithOptimization) - all the ", numberOfChunks, " chunks downloaded!");
                             let blob = {
                                 buffer : blobArray,
                                 type: mime,
@@ -699,15 +699,15 @@ class FileServer extends GenericService{
                         },
                         (errorResponse) => {
                             let errorMessage = "(getBlobFromUrlWithOptimization) failure : " + errorResponse.message;
-                            that._logger.log("error", LOG_ID + "(getBlobFromUrlWithOptimization) Error.");
-                            that._logger.log("internalerror", LOG_ID + "(getBlobFromUrlWithOptimization) : ", errorResponse);
+                            that._logger.log(that.ERROR, LOG_ID + "(getBlobFromUrlWithOptimization) Error.");
+                            that._logger.log(that.INTERNALERROR, LOG_ID + "(getBlobFromUrlWithOptimization) : ", errorResponse);
                             return  reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage, errorMessage));
                             /*
                             let error = this.errorHelperService.handleError(errorResponse);
 
                             let errorDataObj = JSON.parse(String.fromCharCode.apply(null, new Uint8Array(errorResponse.data)));
                             let translatedErrorMessage = that.errorHelperService.getLocalizedError(errorDataObj.errorDetailsCode);
-                            that._logger.log("debug", LOG_ID + "" + translatedErrorMessage ? translatedErrorMessage : error.message);
+                            that._logger.log(that.INFO, LOG_ID + "" + translatedErrorMessage ? translatedErrorMessage : error.message);
                             */
 
                             //reject(errorMessage);
@@ -750,7 +750,7 @@ class FileServer extends GenericService{
         }
 
         let maxChunkSizeDownload = (await that.capabilities).maxChunkSizeDownload ; // / 80 to get alf of 1 Mo when server get us a 10Mo maxChunckSizeDownload;
-        that._logger.log("debug", LOG_ID + "(getBlobFromUrlWithOptimization) - maxChunkSizeDownload : " + maxChunkSizeDownload);
+        that._logger.log(that.INFO, LOG_ID + "(getBlobFromUrlWithOptimization) - maxChunkSizeDownload : " + maxChunkSizeDownload);
         // process.exit(-1);
         if (!! maxChunkSizeDownload && fileSize !== 0 && fileSize > maxChunkSizeDownload) {
             let promiseArray = [];
@@ -759,7 +759,7 @@ class FileServer extends GenericService{
                 let chunckLoaded = 0;
                 let range = maxChunkSizeDownload;
                 if (range > (ONE_MEGABYTE * 10)) {
-                    that._logger.log("debug", LOG_ID + "(getBlobFromUrlWithOptimization) : set range to 10 Mo.");
+                    that._logger.log(that.INFO, LOG_ID + "(getBlobFromUrlWithOptimization) : set range to 10 Mo.");
                     range = (ONE_MEGABYTE * 10) ;
                 } //
                 let minRange = 0;
@@ -767,22 +767,22 @@ class FileServer extends GenericService{
                 let repetition = Math.ceil(fileSize / range);
                 let numberOfChunks = Math.ceil(fileSize / range);
                 let blobArray = new Array(repetition);
-                that._logger.log("internal", LOG_ID + "(getBlobFromUrlWithOptimization) - range : ", range, ", fileSize : ", fileSize, ", repetition : ", repetition, ", ONE_MEGABYTE : ", ONE_MEGABYTE, ", numberOfChunks : ", numberOfChunks);
-                that._logger.log("debug", LOG_ID + "(getBlobFromUrlWithOptimization) : " + repetition + " chunks to be downloaded");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getBlobFromUrlWithOptimization) - range : ", range, ", fileSize : ", fileSize, ", repetition : ", repetition, ", ONE_MEGABYTE : ", ONE_MEGABYTE, ", numberOfChunks : ", numberOfChunks);
+                that._logger.log(that.INFO, LOG_ID + "(getBlobFromUrlWithOptimization) : " + repetition + " chunks to be downloaded");
 
 
                 for (let i = 0; repetition > 0; i++ , repetition-- , minRange += range, maxRange += range) {
-                    that._logger.log("debug", LOG_ID + "(getBlobFromUrlWithOptimization) - get partial buffer, iter : ", i, ", minRange : ", minRange, ", maxRange : ", maxRange);
+                    that._logger.log(that.INFO, LOG_ID + "(getBlobFromUrlWithOptimization) - get partial buffer, iter : ", i, ", minRange : ", minRange, ", maxRange : ", maxRange);
                     promiseArray.push(
                         new Promise ((resolve, reject)=> {
-                            that._logger.log("debug", LOG_ID + "(getBlobFromUrlWithOptimization) - push promise in Array iter : ", i, "/", numberOfChunks - 1 /* , ", result : ", result */ );
+                            that._logger.log(that.INFO, LOG_ID + "(getBlobFromUrlWithOptimization) - push promise in Array iter : ", i, "/", numberOfChunks - 1 /* , ", result : ", result */ );
                             //let result = await that.getPartialDataFromServer(url, minRange, maxRange, i)
                             //let result =
                             /*
                             // Start Test with out real download.
                             chunckLoaded++;
                             let index = 0;
-                            that._logger.log("debug", LOG_ID + "(getBlobFromUrlWithOptimization) - getPartialBufferFromServer Success iter ", i, "/", numberOfChunks - 1, " succeed! Store at index : ", index);
+                            that._logger.log(that.INFO, LOG_ID + "(getBlobFromUrlWithOptimization) - getPartialBufferFromServer Success iter ", i, "/", numberOfChunks - 1, " succeed! Store at index : ", index);
                             //blobArray[index] = response['data'];
                             subject.next(chunckLoaded * 100 / (numberOfChunks - 1 ) ); // Raise the percentage of loaded chunck.
                             //return (response['data']);
@@ -792,13 +792,13 @@ class FileServer extends GenericService{
                             that.getPartialBufferFromServer(url, minRange, maxRange, i).then((response) => {
                                     chunckLoaded++;
                                     let index = response['index'];
-                                    that._logger.log("debug", LOG_ID + "(getBlobFromUrlWithOptimization) - getPartialBufferFromServer Success iter ", i, "/", numberOfChunks, " succeed! Store at index : ", index);
+                                    that._logger.log(that.INFO, LOG_ID + "(getBlobFromUrlWithOptimization) - getPartialBufferFromServer Success iter ", i, "/", numberOfChunks, " succeed! Store at index : ", index);
                                     blobArray[index] = response['data'];
                                     subject.next(chunckLoaded * 100 / numberOfChunks); // Raise the percentage of loaded chunck.
                                     //return (response['data']);
                                     resolve ({"code": 0, "label": "OK"});
                                 }).catch((error) => {
-                                    that._logger.log("error", LOG_ID + "(getBlobFromUrlWithOptimization) - Error getPartialBufferFromServer iter : ", i, "/", numberOfChunks, " error : ", error);
+                                    that._logger.log(that.ERROR, LOG_ID + "(getBlobFromUrlWithOptimization) - Error getPartialBufferFromServer iter : ", i, "/", numberOfChunks, " error : ", error);
                                     reject({"code":-1, "label": "Error while retrieving the chunck " + i + "/" + numberOfChunks})
                                 })
                         // */
@@ -807,11 +807,11 @@ class FileServer extends GenericService{
                     // repetition =0;
                     await pause(20);
                 }
-                that._logger.log("debug", LOG_ID + "(getBlobFromUrlWithOptimization) - wait for the ", numberOfChunks, " chunks to be downloaded!");
+                that._logger.log(that.INFO, LOG_ID + "(getBlobFromUrlWithOptimization) - wait for the ", numberOfChunks, " chunks to be downloaded!");
                 //promiseArray.push(Promise.resolve());
                 Promise.all(promiseArray).then(
                         () => {
-                            that._logger.log("debug", LOG_ID + "(getBlobFromUrlWithOptimization) - all the ", numberOfChunks, " chunks downloaded!");
+                            that._logger.log(that.INFO, LOG_ID + "(getBlobFromUrlWithOptimization) - all the ", numberOfChunks, " chunks downloaded!");
                             let blob = {
                                 buffer : blobArray,
                                 type: mime,
@@ -823,8 +823,8 @@ class FileServer extends GenericService{
                         },
                         (errorResponse) => {
                             let errorMessage = "(getBlobFromUrlWithOptimization) failure : " + errorResponse.message;
-                            that._logger.log("error", LOG_ID + "(getBlobFromUrlWithOptimization) Error.");
-                            that._logger.log("internalerror", LOG_ID + "(getBlobFromUrlWithOptimization) : ", errorResponse);
+                            that._logger.log(that.ERROR, LOG_ID + "(getBlobFromUrlWithOptimization) Error.");
+                            that._logger.log(that.INTERNALERROR, LOG_ID + "(getBlobFromUrlWithOptimization) : ", errorResponse);
                              subject.error(ErrorManager.getErrorManager().OTHERERROR(errorMessage, errorMessage));
                         }
                     );
@@ -840,8 +840,8 @@ class FileServer extends GenericService{
                     subject.complete();//blob
                 }).catch((errorResponse)=>{
                     let errorMessage = "(getBlobFromUrlWithOptimization) failure : " + errorResponse.message;
-                    that._logger.log("error", LOG_ID + "(getBlobFromUrlWithOptimization) Error.");
-                    that._logger.log("internalerror", LOG_ID + "(getBlobFromUrlWithOptimization) : ", errorResponse);
+                    that._logger.log(that.ERROR, LOG_ID + "(getBlobFromUrlWithOptimization) Error.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getBlobFromUrlWithOptimization) : ", errorResponse);
                     subject.error(ErrorManager.getErrorManager().OTHERERROR(errorMessage, errorMessage));
                 });
             });
@@ -869,8 +869,8 @@ class FileServer extends GenericService{
      */
      getBlobFromUrl(url: string, mime: string, fileSize: number, fileName: string) {
          let that = this;
-        that._logger.log("debug", LOG_ID + "(getBlobFromUrl)" );
-        that._logger.log("internal", LOG_ID + "(getBlobFromUrl) : " + url);
+        that._logger.log(that.INFO, LOG_ID + "(getBlobFromUrl)" );
+        that._logger.log(that.INTERNAL, LOG_ID + "(getBlobFromUrl) : " + url);
 
         return new Promise((resolve, reject) => {
             /*this.$http({
@@ -895,13 +895,13 @@ class FileServer extends GenericService{
                     /*let blob = new Blob([response.data],
                         { type: mime }); // */
 
-                    that._logger.log("debug", LOG_ID + "(getBlobFromUrl) success");
+                    that._logger.log(that.DEBUG, LOG_ID + "(getBlobFromUrl) success");
                     resolve(blob);
                 },
                 (errorResponse) => {
                     let errorMessage = "(getBlobFromUrl) failure : " + errorResponse;
-                    that._logger.log("error", LOG_ID + "(getBlobFromUrl) Error." );
-                    that._logger.log("internalerror", LOG_ID + "(getBlobFromUrl) : ", errorResponse);
+                    that._logger.log(that.ERROR, LOG_ID + "(getBlobFromUrl) Error." );
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getBlobFromUrl) : ", errorResponse);
                     let err = ErrorManager.getErrorManager().ERROR;
                     err.msg = errorMessage;
                     return reject(err);

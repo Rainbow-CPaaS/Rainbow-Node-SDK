@@ -102,9 +102,9 @@ const FeaturesEnum = {
 */
 class ProfilesService extends GenericService {
     private stats: any;
-	public features: any;
-	public profiles: any;
-	public mainOffers: any;
+        public features: any;
+        public profiles: any;
+        public mainOffers: any;
     private thirdPartyApps: any = null;
     private startDate: any;
     private timer: NodeJS.Timeout;
@@ -142,8 +142,8 @@ class ProfilesService extends GenericService {
         let that = this;
         that.initStartDate();
 
-        //that._logger.log("debug", LOG_ID + "(start) ");
-        that._logger.log("info", LOG_ID + "(start) [profileService] === STARTING ===");
+        //that._logger.log(that.DEBUG, LOG_ID + "(start) ");
+        that._logger.log(that.INFO, LOG_ID + "(start) [profileService] === STARTING ===");
 
         that.stats = stats ? stats : [];
 
@@ -161,16 +161,16 @@ class ProfilesService extends GenericService {
 
     stop () {
         let that = this;
-//        that._logger.log("debug", LOG_ID + "(stop) [profileService] === STOPPING ===");
+//        that._logger.log(that.DEBUG, LOG_ID + "(stop) [profileService] === STOPPING ===");
 
-  //      that._logger.log("debug", LOG_ID + "(stop) [profileService] === STOPPED ===");
+  //      that._logger.log(that.DEBUG, LOG_ID + "(stop) [profileService] === STOPPED ===");
         that.setStopped ();
         return Promise.resolve(undefined);
     }
 
     restart () {
         let that = this;
-        that._logger.log("debug", LOG_ID + "(restart) [profileService] === RESTART ===");
+        that._logger.log(that.DEBUG, LOG_ID + "(restart) [profileService] === RESTART ===");
 
         //resend the features for the desktop client
         this.onUserUpdateNeeded();
@@ -187,7 +187,7 @@ class ProfilesService extends GenericService {
                             //that.stats.push({service: "profileService", startDuration: startDuration});
 
                             //$rootScope.$broadcast("ON_PROFILE_FEATURES_UPDATED");
-                            that._logger.log("debug", LOG_ID + "(start) send rainbow_onprofilefeatureupdated ");
+                            that._logger.log(that.DEBUG, LOG_ID + "(start) send rainbow_onprofilefeatureupdated ");
                             that._eventEmitter.emit("evt_internal_profilefeatureupdated");
 
                             // NEED TO BE PORTED !!!!!!!
@@ -197,8 +197,8 @@ class ProfilesService extends GenericService {
                             //resolve(undefined);
                         })
                         .catch(function (error) {
-                            that._logger.log("warn", LOG_ID + "([profileService] === getServerProfile FAILURE === ");
-                            that._logger.log("internalerror", LOG_ID + "([profileService] === getServerProfile FAILURE === : " + error.message);
+                            that._logger.log(that.WARN, LOG_ID + "([profileService] === getServerProfile FAILURE === ");
+                            that._logger.log(that.INTERNALERROR, LOG_ID + "([profileService] === getServerProfile FAILURE === : " + error.message);
                             that.setInitialized();
                             //resolve(undefined);
                             //return reject(error);
@@ -222,15 +222,15 @@ class ProfilesService extends GenericService {
             that.getServerProfile()
                     .then(function () {
                         // $rootScope.$broadcast("ON_PROFILE_FEATURES_UPDATED");
-                        //that._logger.log("debug", LOG_ID + "(start) send rainbow_onprofilefeatureupdated ");
+                        //that._logger.log(that.DEBUG, LOG_ID + "(start) send rainbow_onprofilefeatureupdated ");
                         that._eventEmitter.emit("evt_internal_profilefeatureupdated");
                         clearInterval(that.timer);
                         that.timer = null;
                     })
                     .catch(function (err) {
                         that.timer = null;
-                        that._logger.log("warn", LOG_ID + "(onUserUpdateNeeded) FAILURE error : ", err);
-                        //that._logger.log("internalerror", LOG_ID + "(onUserUpdateNeeded) FAILURE === ", error.message);
+                        that._logger.log(that.WARN, LOG_ID + "(onUserUpdateNeeded) FAILURE error : ", err);
+                        //that._logger.log(that.INTERNALERROR, LOG_ID + "(onUserUpdateNeeded) FAILURE === ", error.message);
                         // reject(error);
                     });
         }, 3000);
@@ -280,7 +280,7 @@ class ProfilesService extends GenericService {
                     that.profiles = [];
                     that.mainOffers = [];
                     response.forEach(function (profileData) {
-                        that._logger.log("internal", LOG_ID + "(getServerProfiles) === response ===" + profileData);
+                        that._logger.log(that.INTERNAL, LOG_ID + "(getServerProfiles) === response ===" + profileData);
                         //store profile data
                         that.profiles.push(profileData);
                         let offer = offerManager.createOfferFromProfileData(profileData);
@@ -296,8 +296,8 @@ class ProfilesService extends GenericService {
                     if (response) {
                         errorMessage = "(getServerProfiles) failure: " + JSON.stringify(response);
                     }
-                    that._logger.log("error", LOG_ID + "(getServerProfiles) Error. ");
-                    that._logger.log("internalerror", LOG_ID + "(getServerProfiles) Error : ", errorMessage);
+                    that._logger.log(that.ERROR, LOG_ID + "(getServerProfiles) Error. ");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getServerProfiles) Error : ", errorMessage);
                     return reject( ErrorManager.getErrorManager().OTHERERROR("REQUESTERROR", errorMessage));
                 });
         });
@@ -356,7 +356,7 @@ class ProfilesService extends GenericService {
             //TODO return a simplified profile object ???
             profiles = that.profiles;
         } else {
-            that._logger.log("debug", LOG_ID + "(getMyProfiles) : service not started");
+            that._logger.log(that.DEBUG, LOG_ID + "(getMyProfiles) : service not started");
         }
         return profiles;
     }
@@ -378,19 +378,19 @@ class ProfilesService extends GenericService {
             try {
                 // We've already asked the server for the list
                 if (that.thirdPartyApps!==null && !force) {
-                    that._logger.log("debug", LOG_ID + "(getThirdPartyApps) -- from cache");
+                    that._logger.log(that.DEBUG, LOG_ID + "(getThirdPartyApps) -- from cache");
                     return that.thirdPartyApps;
                 }
 
                 that.thirdPartyApps = await that._rest.getThirdPartyApps();
-                that._logger.log("debug", LOG_ID + "(getThirdPartyApps) from server -- success");
+                that._logger.log(that.DEBUG, LOG_ID + "(getThirdPartyApps) from server -- success");
                 return that.thirdPartyApps;
             } catch (error) {
                 let errorMessage = "(getThirdPartyApps) from server failed -- no answer from server";
                 if (error) {
                     errorMessage = "(getThirdPartyApps) from server failed -- " + JSON.stringify(error);
                 }
-                that._logger.log("error", LOG_ID + "(getThirdPartyApps) Error : " + errorMessage);
+                that._logger.log(that.ERROR, LOG_ID + "(getThirdPartyApps) Error : " + errorMessage);
                 throw new Error(errorMessage);
             }
         });
@@ -412,12 +412,12 @@ class ProfilesService extends GenericService {
         return new Promise(async (resolve, reject) => {
             try {
                 if (!tokenId) {
-                    that._logger.log("warn", LOG_ID + "(revokeThirdPartyAccess) missing token");
+                    that._logger.log(that.WARN, LOG_ID + "(revokeThirdPartyAccess) missing token");
                     throw new Error('No tokenId');
                 }
-                that._logger.log("debug", LOG_ID + "(revokeThirdPartyAccess) with token -- " + tokenId);
+                that._logger.log(that.DEBUG, LOG_ID + "(revokeThirdPartyAccess) with token -- " + tokenId);
                 that.thirdPartyApps = await that._rest.revokeThirdPartyAccess(tokenId);
-                that._logger.log("debug", LOG_ID + "(revokeThirdPartyAccess) -- success");
+                that._logger.log(that.DEBUG, LOG_ID + "(revokeThirdPartyAccess) -- success");
                 that.thirdPartyApps.forEach((app: any, index: number) => {
                     if (app.id===tokenId) {
                         that.thirdPartyApps.splice(index, 1);
@@ -429,7 +429,7 @@ class ProfilesService extends GenericService {
                 if (error) {
                     errorMessage = "(revokeThirdPartyAccess) from server failed -- " + JSON.stringify(error);
                 }
-                that._logger.log("error", LOG_ID + "[profileService] ", errorMessage);
+                that._logger.log(that.ERROR, LOG_ID + "[profileService] ", errorMessage);
                 throw new Error(errorMessage);
             }
         });
@@ -461,7 +461,7 @@ class ProfilesService extends GenericService {
                 function success(response : []) {
                     that.features = {};
                     response.forEach(function (featureData : any) {
-                        that._logger.log("internal", LOG_ID + "(getServerProfilesFeatures) === response === : ", featureData);
+                        that._logger.log(that.INTERNAL, LOG_ID + "(getServerProfilesFeatures) === response === : ", featureData);
                         //store feature data
                         if (featureData.hasOwnProperty("featureUniqueRef")) {
                             that.features[featureData.featureUniqueRef] = featureData;
@@ -474,8 +474,8 @@ class ProfilesService extends GenericService {
                     if (response) {
                         errorMessage = "(getServerProfilesFeatures) failure : " + JSON.stringify(response);
                     }
-                    that._logger.log("error", LOG_ID + "(getServerProfilesFeatures) Error.");
-                    that._logger.log("internalerror", LOG_ID + "(getServerProfilesFeatures) Error : ", errorMessage);
+                    that._logger.log(that.ERROR, LOG_ID + "(getServerProfilesFeatures) Error.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getServerProfilesFeatures) Error : ", errorMessage);
                     return reject(ErrorManager.getErrorManager().OTHERERROR("REQUESTERROR", errorMessage));
                 });
         });
@@ -522,10 +522,10 @@ class ProfilesService extends GenericService {
         let that = this;
         if (that._started && that.features.hasOwnProperty(featureUniqueRef) && that.features[featureUniqueRef].hasOwnProperty("featureType") && that.features[featureUniqueRef].featureType === "boolean" && that.features[featureUniqueRef].hasOwnProperty("isEnabled")) {
             let enabled = that.features[featureUniqueRef].isEnabled;
-            that._logger.log("debug", LOG_ID + "(isFeatureEnabled) : " + featureUniqueRef + " : " + enabled);
+            that._logger.log(that.DEBUG, LOG_ID + "(isFeatureEnabled) : " + featureUniqueRef + " : " + enabled);
             return enabled;
         }
-        that._logger.log("debug", LOG_ID + "(isFeatureEnabled) : " + featureUniqueRef + " : service not started or feature not enabled");
+        that._logger.log(that.DEBUG, LOG_ID + "(isFeatureEnabled) : " + featureUniqueRef + " : service not started or feature not enabled");
         return false;
     }
 
@@ -542,10 +542,10 @@ class ProfilesService extends GenericService {
         let that = this ;
         if (that._started && that.features.hasOwnProperty(featureUniqueRef) && that.features[featureUniqueRef].hasOwnProperty("featureType") && that.features[featureUniqueRef].featureType === "number" && that.features[featureUniqueRef].hasOwnProperty("limitMax")) {
             let limitMax = that.features[featureUniqueRef].limitMax;
-            that._logger.log("debug", LOG_ID + "(getFeatureLimitMax) : " + featureUniqueRef + " : " + limitMax);
+            that._logger.log(that.DEBUG, LOG_ID + "(getFeatureLimitMax) : " + featureUniqueRef + " : " + limitMax);
             return limitMax;
         }
-        that._logger.log("debug", LOG_ID + "(getFeatureLimitMax) : " + featureUniqueRef + " : service not started or feature not enabled");
+        that._logger.log(that.DEBUG, LOG_ID + "(getFeatureLimitMax) : " + featureUniqueRef + " : service not started or feature not enabled");
         return 0;
     }
 
@@ -562,10 +562,10 @@ class ProfilesService extends GenericService {
         let that = this ;
         if (that._started && that.features.hasOwnProperty(featureUniqueRef) && that.features[featureUniqueRef].hasOwnProperty("featureType") && that.features[featureUniqueRef].featureType === "number" && that.features[featureUniqueRef].hasOwnProperty("limitMin")) {
             let limitMin = that.features[featureUniqueRef].limitMin;
-            that._logger.log("debug", LOG_ID + "(getFeatureLimitMin) : " + featureUniqueRef + " : " + limitMin);
+            that._logger.log(that.DEBUG, LOG_ID + "(getFeatureLimitMin) : " + featureUniqueRef + " : " + limitMin);
             return limitMin;
         }
-        that._logger.log("debug", LOG_ID + "(getFeatureLimitMin) : " + featureUniqueRef + " : service not started or feature not enabled");
+        that._logger.log(that.DEBUG, LOG_ID + "(getFeatureLimitMin) : " + featureUniqueRef + " : service not started or feature not enabled");
         return 0;
     }
 
@@ -594,7 +594,7 @@ class ProfilesService extends GenericService {
                 profileFeatures[featureUniqueRef] = feature;
             });
         } else {
-            that._logger.log("warn", LOG_ID + "(getMyProfileFeatures) : service not started");
+            that._logger.log(that.WARN, LOG_ID + "(getMyProfileFeatures) : service not started");
         }
         return profileFeatures;
     }
