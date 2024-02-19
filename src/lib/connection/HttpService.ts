@@ -457,7 +457,8 @@ safeJsonParse(str) {
                                 //     //return retryObject;
                                 //     return timeBetweenRetry;
                                 // },
-                                calculateDelay: ({computedValue}) => computedValue,
+                                //calculateDelay: ({computedValue}) => computedValue,
+                                calculateDelay:  ({computedValue}) => computedValue / 10,
                                 methods: [
                                     'GET',
                                     'PUT',
@@ -489,7 +490,7 @@ safeJsonParse(str) {
                                     'EAI_AGAIN'
                                 ],
                                 maxRetryAfter: undefined,
-                                backoffLimit: Number.POSITIVE_INFINITY,
+                                // backoffLimit: Number.POSITIVE_INFINITY,
                                 noise: 100
                             },
                             hooks: {
@@ -712,7 +713,8 @@ safeJsonParse(str) {
                                 //     //return retryObject;
                                 //     return 1000;
                                 // },
-                                calculateDelay: ({computedValue}) => computedValue,
+                                //calculateDelay: ({computedValue}) => computedValue,
+                                calculateDelay:  ({computedValue}) => computedValue / 10,
                                 methods: [
                                     'GET',
                                     'PUT',
@@ -744,7 +746,7 @@ safeJsonParse(str) {
                                     'EAI_AGAIN'
                                 ],
                                 maxRetryAfter: undefined,
-                                backoffLimit: Number.POSITIVE_INFINITY,
+                                // backoffLimit: Number.POSITIVE_INFINITY,
                                 noise: 100
                             },
                             hooks: {
@@ -877,7 +879,7 @@ safeJsonParse(str) {
             }
         });
     }
-    
+
     postUrlRaw(url, headers: any = {}, data): Promise<any> {
         let that = this;
         let req : RequestForQueue = new RequestForQueue();
@@ -1294,7 +1296,8 @@ safeJsonParse(str) {
                                 //     //return retryObject;
                                 //     return 1000;
                                 // },
-                                calculateDelay: ({computedValue}) => computedValue,
+                                //calculateDelay: ({computedValue}) => computedValue,
+                                calculateDelay:  ({computedValue}) => computedValue / 10,
                                 methods: [
                                     'GET',
                                     'PUT',
@@ -1326,7 +1329,7 @@ safeJsonParse(str) {
                                     'EAI_AGAIN'
                                 ],
                                 maxRetryAfter: undefined,
-                                backoffLimit: Number.POSITIVE_INFINITY,
+                                // backoffLimit: Number.POSITIVE_INFINITY,
                                 noise: 100
                             },
                             hooks: {
@@ -1543,7 +1546,8 @@ safeJsonParse(str) {
                                 //     //return retryObject;
                                 //     return timeBetweenRetry;
                                 // },
-                                calculateDelay: ({computedValue}) => computedValue,
+                                // calculateDelay: ({computedValue}) => computedValue,
+                                calculateDelay:  ({computedValue}) => computedValue / 10,
                                 methods: [
                                     'GET',
                                     'PUT',
@@ -1575,7 +1579,7 @@ safeJsonParse(str) {
                                     'EAI_AGAIN'
                                 ],
                                 maxRetryAfter: undefined,
-                                backoffLimit: Number.POSITIVE_INFINITY,
+                                // backoffLimit: Number.POSITIVE_INFINITY,
                                 noise: 100
                             },
                             hooks: {
@@ -1866,7 +1870,8 @@ safeJsonParse(str) {
                                     //     //return retryObject;
                                     //     return timeBetweenRetry;
                                     // },
-                                    calculateDelay: ({computedValue}) => computedValue,
+                                    //calculateDelay: ({computedValue}) => computedValue,
+                                    calculateDelay:  ({computedValue}) => computedValue / 10,
                                     methods: [
                                         'GET',
                                         'PUT',
@@ -1898,7 +1903,7 @@ safeJsonParse(str) {
                                         'EAI_AGAIN'
                                     ],
                                     maxRetryAfter: undefined,
-                                    backoffLimit: Number.POSITIVE_INFINITY,
+                                    // backoffLimit: Number.POSITIVE_INFINITY,
                                     noise: 100
                                 },
                                 hooks: {
@@ -2168,7 +2173,7 @@ safeJsonParse(str) {
                                 }
                             });
                         });
-                        
+
                         let statusCodeHttpType = Math.floor((await responsePromRequest.catch((err) => {
                             that._logger.warn("warn", LOG_ID + "(get) catch issue during request : ", err);
                             return -100;
@@ -2184,10 +2189,10 @@ safeJsonParse(str) {
                             } else {
                                 that.httpManager._logger.log("debug", LOG_ID + "(_get) The req method call ERROR. req.url : ", req.url, ", Iter ", i + 1,"/", nbTryBeforeFailed, " nbTryBeforeFailed, Stop retry the request process and return the error. statusCodeHttpType : ", statusCodeHttpType);
                                 let res = responseRequest;
-                                return reject (res);                                
+                                return reject (res);
                             }
                         }
-                    } 
+                    }
                 } else {
                     let buff = [];
                     let err = {
@@ -2332,7 +2337,8 @@ safeJsonParse(str) {
                             //     //return retryObject;
                             //     return 1000;
                             // },
-                            calculateDelay: ({computedValue}) => computedValue,
+                            // calculateDelay: ({computedValue}) => computedValue,
+                            calculateDelay:  ({computedValue}) => computedValue / 10,
                             methods: [
                                 'GET',
                                 'PUT',
@@ -2364,7 +2370,7 @@ safeJsonParse(str) {
                                 'EAI_AGAIN'
                             ],
                             maxRetryAfter: undefined,
-                            backoffLimit: Number.POSITIVE_INFINITY,
+                            // backoffLimit: Number.POSITIVE_INFINITY,
                             noise: 100
                         },
                         hooks: {
@@ -2668,7 +2674,8 @@ safeJsonParse(str) {
                             //     //return retryObject;
                             //     return 1000;
                             // },
-                            calculateDelay: ({computedValue}) => computedValue,
+                            //calculateDelay: ({computedValue}) => computedValue,
+                            calculateDelay:  ({computedValue}) => computedValue / 10,
                             methods: [
                                 'GET',
                                 'PUT',
@@ -2700,7 +2707,7 @@ safeJsonParse(str) {
                                 'EAI_AGAIN'
                             ],
                             maxRetryAfter: undefined,
-                            backoffLimit: Number.POSITIVE_INFINITY,
+                            // backoffLimit: Number.POSITIVE_INFINITY,
                             noise: 100
                         },
                         hooks: {
@@ -3019,7 +3026,8 @@ safeJsonParse(str) {
                             //     //return retryObject;
                             //     return 1000;
                             // },
-                            calculateDelay: ({computedValue}) => computedValue,
+                            //calculateDelay: ({computedValue}) => computedValue,
+                            calculateDelay:  ({computedValue}) => computedValue / 10,
                             methods: [
                                 'GET',
                                 'PUT',
@@ -3051,7 +3059,7 @@ safeJsonParse(str) {
                                 'EAI_AGAIN'
                             ],
                             maxRetryAfter: undefined,
-                            backoffLimit: Number.POSITIVE_INFINITY,
+                            // backoffLimit: Number.POSITIVE_INFINITY,
                             noise: 100
                         },
                         hooks: {
@@ -3374,7 +3382,8 @@ safeJsonParse(str) {
                             //     //return retryObject;
                             //     return 1000;
                             // },
-                            calculateDelay: ({computedValue}) => computedValue,
+                            //calculateDelay: ({computedValue}) => computedValue,
+                            calculateDelay:  ({computedValue}) => computedValue / 10,
                             methods: [
                                 'GET',
                                 'PUT',
@@ -3406,7 +3415,7 @@ safeJsonParse(str) {
                                 'EAI_AGAIN'
                             ],
                             maxRetryAfter: undefined,
-                            backoffLimit: Number.POSITIVE_INFINITY,
+                            // backoffLimit: Number.POSITIVE_INFINITY,
                             noise: 100
                         },
                         hooks: {
@@ -3828,7 +3837,7 @@ safeJsonParse(str) {
                         //body : stream,
                         //searchParams: params,
                         retry: {
-                            limit: 0,
+                            limit: 1,
                             //limit: 1,
                             // calculateDelay: ({retryObject}) => {
                             //     // interface RetryObject {
@@ -3842,7 +3851,8 @@ safeJsonParse(str) {
                             //     //return retryObject;
                             //     return 1000;
                             // },
-                            calculateDelay: ({computedValue}) => computedValue,
+                            //calculateDelay: ({computedValue}) => computedValue,
+                            calculateDelay:  ({computedValue}) => computedValue / 10,
                             methods: [
                                 'GET',
                                 'PUT',
@@ -3874,7 +3884,7 @@ safeJsonParse(str) {
                                 'EAI_AGAIN'
                             ],
                             maxRetryAfter: undefined,
-                            backoffLimit: Number.POSITIVE_INFINITY,
+                            // backoffLimit: Number.POSITIVE_INFINITY,
                             noise: 100
                         },
                         hooks: {
@@ -4193,7 +4203,7 @@ safeJsonParse(str) {
                         // body,
                         //searchParams: params,
                         retry: {
-                            limit: 0,
+                            limit: 1,
                             //limit: 1,
                             // calculateDelay: ({retryObject}) => {
                             //     /* interface RetryObject {
@@ -4207,7 +4217,8 @@ safeJsonParse(str) {
                             //     //return retryObject;
                             //     return 1000;
                             // },
-                            calculateDelay: ({computedValue}) => computedValue,
+                            //calculateDelay: ({computedValue}) => computedValue,
+                            calculateDelay:  ({computedValue}) => computedValue / 10,
                             methods: [
                                 'GET',
                                 'PUT',
@@ -4239,7 +4250,7 @@ safeJsonParse(str) {
                                 'EAI_AGAIN'
                             ],
                             maxRetryAfter: undefined,
-                            backoffLimit: Number.POSITIVE_INFINITY,
+                            // backoffLimit: Number.POSITIVE_INFINITY,
                             noise: 100
                         },
                         hooks: {
