@@ -105,8 +105,8 @@ import {jwtDecode} from "jwt-decode";
     output: process.stdout
 }); // */
 
-let rainbowMode = "s2s" ;
-//let rainbowMode = "xmpp";
+//let rainbowMode = "s2s" ;
+let rainbowMode = "xmpp";
 
 let ngrok = require('ngrok');
 //import ngrok from 'ngrok';
@@ -297,11 +297,11 @@ let urlS2S;
                         "api": true,
                         "level": "debug"
                     },
-                    "im": {
+                    "httpoverxmpp": {
                         "api": true,
                         "level": "debug"
                     },
-                    "httpoverxmpp": {
+                    "im": {
                         "api": true,
                         "level": "debug"
                     },
@@ -350,8 +350,75 @@ let urlS2S;
                         "level": "debug"
                     }
                 },
-                "xmppin": true,
-                "xmppout": true
+                "lawlayer":{
+                    'core': {
+                        "level": "debug"
+                    },
+                    'bubblemanager': {
+                        "level": "debug"
+                    },
+                    'httpmanager': {
+                        "level": "debug"
+                    },
+                    'httpservice': {
+                        "level": "debug"
+                    },
+                    'rest': {
+                        "level": "debug"
+                    },
+                    'xmpp': {
+                        "level": "debug",
+                        "xmppin": true,
+                        "xmppout": true
+                    },
+                },
+                "eventHandlers":{
+                    's2sevent': {
+                        "level": "debug"
+                    },
+                    'rbvoiceevent': {
+                        "level": "debug"
+                    },
+                    'alertevent': {
+                        "level": "debug"
+                    },
+                    'calllogevent': {
+                        "level": "debug"
+                    },
+                    'channelevent': {
+                        "level": "debug"
+                    },
+                    'conversationevent': {
+                        "level": "debug"
+                    },
+                    'conversationhistory': {
+                        "level": "debug"
+                    },
+                    'favoriteevent': {
+                        "level": "debug"
+                    },
+                    'httpoverxmppevent': {
+                        "level": "debug"
+                    },
+                    'invitationevent': {
+                        "level": "debug"
+                    },
+                    'iqevent': {
+                        "level": "debug"
+                    },
+                    'presenceevent': {
+                        "level": "debug"
+                    },
+                    'rpcoverxmpp': {
+                        "level": "debug"
+                    },
+                    'telephonyevent': {
+                        "level": "debug"
+                    },
+                    'webinarevent': {
+                        "level": "debug"
+                    },
+                }
             },
             "file": {
                 "path": "c:/temp/",
@@ -7370,6 +7437,204 @@ let urlS2S;
     }
 
     //endregion bubbles polls
+
+    // region Pondeuse
+    testPondeuse() {
+        let timeoutMilliSeconds = 10;
+        let date;
+        let jid_BotSender;
+        let jid_BotReceiver;
+        let time1, time2, time3, time4, time5, time6;
+        let index = 0;
+        // let time= new Date();
+        let botVNA = "646e00ba0b0a4eb58136d21204dd968d@openrainbow.com";
+
+        let loginEmail = "vincent02@vbe.test.openrainbow.net";
+        let botSender = rainbowSDK;
+        rainbowSDK.contacts.getContactByLoginEmail(loginEmail).then(async (contact: any) => {
+            if (contact) {
+                botVNA = contact.jid;
+                //botSender = new NodeSDK(botS);
+                //  botSender.start().then((account) => {
+                //console.log("Rainbow Started Sent : ",account);
+                //console.log("JID Sent: ", account.loggedInUser.jid_im);
+                //jid_BotSender = account.loggedInUser.jid_im;
+                _logger.log("debug", "MAIN - (testPondeuse) :: start pondeuse.");
+                let idInterval = setInterval(function () {
+                    if (botVNA) {
+                        //console.log("-------------------------------");
+                        date = new Date() ; //Date.now();
+                        index = index + 1;
+                        botSender.im.sendMessageToJid("#ECHO " + index + " " + date.toLocaleDateString() + " " + date.toLocaleTimeString() + ":" + date.getMilliseconds() + " [" + date.valueOf() + "]", botVNA, "en", undefined, undefined, "std");
+                    }
+                }, timeoutMilliSeconds);
+
+                setTimeout (()=>{
+                    _logger.log("debug", "MAIN - (testPondeuse) :: stop pondeuse.");
+                    clearInterval(idInterval);
+                }, 10 * 1000);
+
+                botSender.events.on("rainbow_onmessagereceived", (message) => {
+                    if (!message.content.includes("#")) {
+                        let value = message.content.split(" ")[0];
+                        let timeOriginal = message.content.split(" ")[1];
+                        let timeReception = message.content.split(" ")[2];
+                        let timeR = Date.now() - timeOriginal;
+                        console.log(value + "," + timeReception + "," + timeR);
+                    }
+                });
+
+                botSender.events.on("rainbow_onmessagereceiptreceived", (receipt) => {
+                    time2 = Date.now() - date;
+                    //console.log("SENDER RECIPT RECIEVER : "+receipt.event+" "+time2);
+                });
+                botSender.events.on("rainbow_onmessagereceiptreadreceived", (receipt) => {
+                    time3 = Date.now() - date;
+                    //console.log("SENDER RECIPT RECIEVER: "+receipt.event+" "+time3);
+                });
+                //});
+            }
+        });
+    }
+    // endregion Pondeuse
+
+    //region ChatGPT
+
+    async  testpostUrlToChatGPT(urlToPost: string = "https://api.openai.com/v1/engines/gpt-3.5-turbo-instruct/completions") {
+        let alternateContent = null;
+        let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
+        let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+        let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
+
+        async function treatmentOfAdaptiveCardMessage(adaptiveResponse) {
+            // Treatment of returned data by the adptive card.
+            if (adaptiveResponse?.rainbow?.value?.response==="adaptiveCard_responseIntervention") {
+                let prompt = adaptiveResponse?.prompt;
+                _logger.log("debug", "MAIN - testpostUrlToChatGPT - ");
+                let headers = {
+                    'Content-Type': 'application/json',
+                    'user-agent': 'node/v14.17.2 (linux; x64) Rainbow Sdk/2.16.0-lts.0',
+                    'Authorization': 'Bearer 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'
+                };
+                //let body = decodeURIComponent(JSON.stringify({
+                let body = JSON.stringify({
+                    "prompt": prompt,
+                    "max_tokens": 600,
+                    "n": 1
+                });
+                try {
+                    let res = await rainbowSDK._core._http.postUrlRaw(urlToPost, headers, body);
+                    let bodyJson = JSON.parse(res?.body);
+                    let text = "/code Prompt: " + prompt + "\nChatGPT:\n" + bodyJson?.choices[0].text;
+                    _logger.log("debug", "MAIN - testpostUrlToChatGPT, text : ", text);
+                    await rainbowSDK.im.sendMessageToConversation(conversation, text, "fr", undefined, "retour de ChatGPT").then(async message => {
+                        _logger.log("debug", "MAIN - testpostUrlToChatGPT - search msgId : " + message.id);
+                        _logger.log("debug", "MAIN - testpostUrlToChatGPT - msg.origin.conversation.id : " + conversation.id)
+
+                    }, error => {
+                    });
+                } catch (err) {
+                    _logger.log("error", "MAIN - testpostUrlToChatGPT, error err : ", err);
+                }
+
+            } else {
+                // The card is not the result of an intervention.
+            }
+        }
+
+        // The Handle on the event should be only once. So in a prod program it should be outside of the initial send message of the adpative Card.
+        rainbowSDK.events.on("rainbow_onmessagereceived", (message) => {
+            _logger.log("debug", "MAIN - (rainbow_onmessagereceived) - rainbow event received. message", message);
+            let responseObjJson = "";
+            if (message.alternativeContent?.length > 0 && message.alternativeContent[0]?.message && message.alternativeContent[0]?.type) {
+
+                switch (message.alternativeContent[0].type) {
+                    case "rainbow/json":
+                        responseObjJson = JSON.parse(message.alternativeContent[0].message);
+                        treatmentOfAdaptiveCardMessage(responseObjJson);
+                    default:
+                }
+
+            }
+        });
+
+        const buildCard = (type) => {
+            let templateJson = {
+                "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+                "type": "AdaptiveCard",
+                "version": "1.4",
+                "body": [
+                    {
+                        "type": "TextBlock",
+                        "text": "${titleCard}"
+                    },
+                    {
+                        "type": "TextBlock",
+                        "size": "Medium",
+                        "weight": "Bolder",
+                        "text": "${Survey.title}",
+                        "horizontalAlignment": "Center",
+                        "wrap": true,
+                        "style": "heading"
+                    },
+                    {
+                        "type": "Input.Text",
+                        "id": "prompt",
+                        "label": "${Survey.askPrompt}"
+                    }
+                ],
+                "actions": [
+                    {
+                        "type": "Action.Submit",
+                        "title": "Valider",
+                        "data": {
+                            "rainbow": {
+                                "text": "Send Prompt.",
+                                "type": "messageBack",
+                                "value": {
+                                    "response": "adaptiveCard_responseIntervention"
+                                }
+                            }
+                        }
+                    }
+                ]
+            }; // */
+
+            let messageJson = {
+                "titleCard": "Welcome to Rainbow Bot ChatGPT.",
+                "Survey": {
+                    "title": "Saisie du prompt ChatGPT.",
+                    "askPrompt": "Votre prompt ?",
+                }
+            };
+
+            // Create a Template instance from the template payload
+            const template = new ACData.Template(templateJson);
+            const context = {
+                $root: messageJson
+            };
+            const card = template.expand(context);
+            return JSON.stringify(card);
+        }
+
+        alternateContent = {
+            type: 'form/json',
+            //message: serialize.configure(buildCard(""))
+            message: buildCard("")
+        };
+
+        _logger.log("debug", "MAIN - testpostUrlToChatGPT - alternateContent : ", alternateContent?.message);
+
+        await rainbowSDK.im.sendMessageToConversation(conversation, 'ok', "fr", alternateContent, "retour intervension").then(async message => {
+            _logger.log("debug", "MAIN - testpostUrlToChatGPT - search msgId : " + message.id);
+            _logger.log("debug", "MAIN - testpostUrlToChatGPT - msg.origin.conversation.id : " + conversation.id)
+
+        }, error => {
+        })
+
+    }
+
+    //endregion ChatGPT
 
     //region Rainbow HTTPoverXMPP
 
