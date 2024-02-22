@@ -4367,7 +4367,7 @@ safeJsonParse(str) {
                         that._logger.warn("internal", LOG_ID + "(delete) sent x-rainbow-request-node-id : ", xRainbowRequestNodeId, " error.code : ", error?.code, ", error.message : ", error?.message, ", urlEncoded : ", urlEncoded);
                     });
                     that._logger.log(that.DEBUG, LOG_ID + "(delete) done.");
-                    let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
+                    let xRainbowRequestId = response?.headers?response?.headers["x-rainbow-request-id"]: "";
                     that._logger.log(that.INFO, LOG_ID + "(delete) done statusCode : ", response?.statusCode, " for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
 
                 } catch (error) {
@@ -4376,15 +4376,12 @@ safeJsonParse(str) {
                     //Includes a `response` property. Contains a `code` property with `ERR_NON_2XX_3XX_RESPONSE` or a more specific failure code.
                     //
                     that._logger.warn("warn", LOG_ID + "(delete) HTTP error.");
-                    that._logger.warn("internal", LOG_ID + "(delete) HTTP error statusCode : ", error?.statusCode);
+                    that._logger.warn("internal", LOG_ID + "(delete) HTTP error statusCode : ", error?.statusCode, ", message : ", error?.message);
                 }
 
                 return;
             }
 // */
-
-
-
 
             let deleteOptions = {
                 url: urlEncoded,
