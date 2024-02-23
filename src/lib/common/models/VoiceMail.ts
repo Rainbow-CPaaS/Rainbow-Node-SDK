@@ -3,11 +3,9 @@ export {};
 
 
 /**
- * @ngdoc factory
- * @module rainbow
- * @private
+ * @module
+ * @public
  * @name VoiceMail
- * @restrict E
  * @description VoiceMail model
  */
 
@@ -16,8 +14,8 @@ export {};
 /*************************************************************/
 
 /**
- * @ngdoc method
  * @name VoiceMail#create
+ * @public
  * @returns {VoiceMail} VoiceMail object.
  * @description Creates new VoiceMail object
  */
