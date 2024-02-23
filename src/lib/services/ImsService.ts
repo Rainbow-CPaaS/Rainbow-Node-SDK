@@ -141,7 +141,7 @@ class ImsService extends GenericService{
         return new Promise((resolve) => {
             if (this._useXMPP) {
                 that._eventEmitter.once("rainbow_oncarbonactivated", function fn_oncarbonactivated() {
-                    that._logger.log("info", LOG_ID + "(enableCarbon) XEP-280 Message Carbon activated");
+                    that._logger.log("debug", LOG_ID + "(enableCarbon) XEP-280 Message Carbon activated");
                     that._eventEmitter.removeListener("rainbow_oncarbonactivated", fn_oncarbonactivated);
                     resolve(undefined);
                 });
@@ -172,7 +172,7 @@ class ImsService extends GenericService{
         return new Promise((resolve) => {
             if (this._useXMPP) {
                 that._eventEmitter.once("rainbow_oncarbondisabled", function fn_oncarbondesactivated() {
-                    that._logger.log("info", LOG_ID + "(disableCarbon) XEP-280 Message Carbon desactivated");
+                    that._logger.log("debug", LOG_ID + "(disableCarbon) XEP-280 Message Carbon desactivated");
                     that._eventEmitter.removeListener("rainbow_oncarbondisabled", fn_oncarbondesactivated);
                     resolve(undefined);
                 });

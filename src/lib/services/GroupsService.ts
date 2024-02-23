@@ -202,7 +202,7 @@ const LOG_ID = "GROUPS/SVCE - ";
 
                 if (foundIndex > -1) {
                     let groupDeleted = that._groups.splice(foundIndex, 1);
-                    that._logger.log("info", LOG_ID + "(deleteGroup) delete " + groupDeleted.length + " group successfully");
+                    that._logger.log("debug", LOG_ID + "(deleteGroup) delete " + groupDeleted.length + " group successfully");
                     resolve(groupDeleted[0]);
                 } else {
                     resolve(null);
@@ -247,7 +247,7 @@ const LOG_ID = "GROUPS/SVCE - ";
 
             Promise.all(promiseQueue)
                 .then(() => {
-                    that._logger.log("info", LOG_ID + "[deleteAllGroups] :: All groups deleted successfully");
+                    that._logger.log("debug", LOG_ID + "[deleteAllGroups] :: All groups deleted successfully");
                     return resolve({
                         code: 0,
                         label: 'OK'
@@ -391,7 +391,7 @@ const LOG_ID = "GROUPS/SVCE - ";
 
                 Promise.all(promises).then(groups => {
                     that._groups = groups;
-                    that._logger.log("info", LOG_ID + "(getGroups) get successfully");
+                    that._logger.log("debug", LOG_ID + "(getGroups) get successfully");
                     resolve(that._groups);
                 }, err => {
                     return reject(err);
@@ -549,7 +549,7 @@ const LOG_ID = "GROUPS/SVCE - ";
                                 }
 
                                 that._eventEmitter.emit("evt_internal_groupupdated", groupUpdated);
-                                //that._logger.log("info", LOG_ID + "(getGroupByName) retrieved infos on group found on server successfully.");
+                                //that._logger.log("debug", LOG_ID + "(getGroupByName) retrieved infos on group found on server successfully.");
                                 that._logger.log("debug", LOG_ID + "(getGroupById) retrieved infos on group found on server successfully, groupUpdated : ", groupUpdated);
                                 groupFoundOnServer = true;
                                 return resolve(groupUpdated);
@@ -609,7 +609,7 @@ const LOG_ID = "GROUPS/SVCE - ";
                                 }
 
                                 that._eventEmitter.emit("evt_internal_groupupdated", groupUpdated);
-                                //that._logger.log("info", LOG_ID + "(getGroupByName) retrieved infos on group found on server successfully.");
+                                //that._logger.log("debug", LOG_ID + "(getGroupByName) retrieved infos on group found on server successfully.");
                                 that._logger.log("debug", LOG_ID + "(getGroupByName) retrieved infos on group found on server successfully, groupUpdated : ", groupUpdated);
                                 groupFoundOnServer = true;
                                 resolve(groupUpdated);

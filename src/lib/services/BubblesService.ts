@@ -233,7 +233,7 @@ class Bubbles extends GenericService {
      */
     _onInvitationReceived(invitation) {
         let that = this;
-        that._logger.log("info", LOG_ID + "(_onInvitationReceived) received. ");
+        that._logger.log("debug", LOG_ID + "(_onInvitationReceived) received. ");
         that._logger.log("internal", LOG_ID + "(_onInvitationReceived) invitation : ", invitation);
 
         if (invitation && invitation.bubbleId) {
@@ -275,7 +275,7 @@ class Bubbles extends GenericService {
      */
     _onContactInvitationReceived(invitation) {
         let that = this;
-        that._logger.log("info", LOG_ID + "(_onContactInvitationReceived) received. ");
+        that._logger.log("debug", LOG_ID + "(_onContactInvitationReceived) received. ");
         that._logger.log("internal", LOG_ID + "(_onContactInvitationReceived) invitation : ", invitation);
 
         if (invitation && invitation.bubbleJid) {
@@ -283,7 +283,7 @@ class Bubbles extends GenericService {
                 that._logger.log("debug", LOG_ID + "(_onContactInvitationReceived) invitation received from bubble.");
                 that._logger.log("internal", LOG_ID + "(_onContactInvitationReceived) invitation received from bubble : ", bubbleUpdated);
                 let contact = await that._contacts.getContactByJid(invitation.contact_jid);
-                //that.logger.log("info", LOG_ID + "(onChatMessageReceived) id : ", id, ", conference invitation received for somebody else contact : ", contact?contact.id:"", ",\n  content (=body) : ", content, ", subject : ", subject);
+                //that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", conference invitation received for somebody else contact : ", contact?contact.id:"", ",\n  content (=body) : ", content, ", subject : ", subject);
                 let bubble = await that.addOrUpdateBubbleToCache(bubbleUpdated);
 
                 let invitationFull = {
@@ -670,7 +670,7 @@ class Bubbles extends GenericService {
             } else {
                 bubbleInMemory.initialPresence.initPresenceAck = true;
                 if (bubbleInMemory.initialPresence.initPresencePromise) {
-                    that._logger.log("info", LOG_ID + "(_onbubblepresencechanged) - initPresencePromise resolved");
+                    that._logger.log("debug", LOG_ID + "(_onbubblepresencechanged) - initPresencePromise resolved");
                     bubbleInMemory.initialPresence.initPresencePromiseResolve(bubbleInMemory);
                     if (bubbleInMemory.initialPresence.initPresenceInterval) {
                         bubbleInMemory.initialPresence.initPresenceInterval.unsubscribe();
@@ -2050,7 +2050,7 @@ class Bubbles extends GenericService {
                 } else {
                     if (userStatus!=="deleted") {
                         that._rest.deleteUserFromBubble(bubble.id).then(function (json) {
-                            that._logger.log("info", LOG_ID + "(deleteBubble) deleted successfull : ", json);
+                            that._logger.log("debug", LOG_ID + "(deleteBubble) deleted successfull : ", json);
                             //that._xmpp.sendUnavailableBubblePresence(bubble.jid);
                             resolve(json);
                         }).catch(function (err) {
@@ -2189,7 +2189,7 @@ class Bubbles extends GenericService {
                     // queue.push(that._rest.userId);
     
                     unsubscribeParticipants(queue).then(() => {
-                        that._logger.log("info", LOG_ID + "(closeBubble) all users have been unsubscribed from bubble. Bubble is closed");
+                        that._logger.log("debug", LOG_ID + "(closeBubble) all users have been unsubscribed from bubble. Bubble is closed");
     
                         that.removeContactFromBubble({id: that._rest.userId}, bubble).then(() => {
                             that._rest.getBubble(bubble.id).then(async (bubbleUpdated: any) => {
@@ -2257,7 +2257,7 @@ class Bubbles extends GenericService {
                 }
 
                 that._rest.archiveBubble(bubble.id).then(function (json) {
-                    that._logger.log("info", LOG_ID + "(archiveBubble) leave successfull");
+                    that._logger.log("debug", LOG_ID + "(archiveBubble) leave successfull");
                     that._xmpp.sendUnavailableBubblePresence(bubble.jid);
                     resolve(json);
     
@@ -2317,7 +2317,7 @@ class Bubbles extends GenericService {
                 }
 
                 that._rest.leaveBubble(bubble.id, userStatus).then(function (json) {
-                    that._logger.log("info", LOG_ID + "(leaveBubble) leave successfull");
+                    that._logger.log("debug", LOG_ID + "(leaveBubble) leave successfull");
                     that._xmpp.sendUnavailableBubblePresence(bubble.jid);
                     resolve(json);
                 }).catch(function (err) {
@@ -2351,7 +2351,7 @@ class Bubbles extends GenericService {
                         await that.addOrUpdateBubbleToCache(bubble);
                     }
                     
-                    that._logger.log("info", LOG_ID + "(getBubbles) get successfully");
+                    that._logger.log("debug", LOG_ID + "(getBubbles) get successfully");
                     let prom = [];
                     listOfBubbles.forEach(async function (bubble: any) {
                         
@@ -2658,7 +2658,7 @@ class Bubbles extends GenericService {
     
                 that._rest.promoteContactInBubble(contact.id, bubble.id, isModerator)
                         .then(function () {
-                            that._logger.log("info", LOG_ID + "(promoteContactInBubble) user privilege successfully sent");
+                            that._logger.log("debug", LOG_ID + "(promoteContactInBubble) user privilege successfully sent");
     
                             return that._rest.getBubble(bubble.id).catch((err) => {
                                 that._logger.log("error", LOG_ID + "(promoteContactInBubble) get bubble failed for bubble : ", bubble, ", : ", err);
@@ -2773,7 +2773,7 @@ class Bubbles extends GenericService {
             return new Promise((resolve, reject) => {
     
                 that._rest.acceptInvitationToJoinBubble(bubble.id).then((invitationStatus) => {
-                    that._logger.log("info", LOG_ID + "(acceptInvitationToJoinBubble) invitation accepted", invitationStatus);
+                    that._logger.log("debug", LOG_ID + "(acceptInvitationToJoinBubble) invitation accepted", invitationStatus);
     
                     that._rest.getBubble(bubble.id).then(async (bubbleUpdated: any) => {
                         // Update the existing local bubble stored
@@ -2827,7 +2827,7 @@ class Bubbles extends GenericService {
             return new Promise((resolve, reject) => {
     
                 that._rest.declineInvitationToJoinBubble(bubble.id).then((invitationStatus) => {
-                    that._logger.log("info", LOG_ID + "(declineInvitationToJoinBubble) invitation declined : ", invitationStatus);
+                    that._logger.log("debug", LOG_ID + "(declineInvitationToJoinBubble) invitation declined : ", invitationStatus);
     
                     that._rest.getBubble(bubble.id).then(async (bubbleUpdated: any) => {
                         // Update the existing local bubble stored
@@ -2919,7 +2919,7 @@ class Bubbles extends GenericService {
                 that.removeContactFromBubble(contact, bubble).then((bubbleUpdated: any) => {
                     return that._rest.inviteContactToBubble(contact.id, bubbleUpdated.id, isModerator, withInvitation, reason);
                 }).then(function () {
-                    that._logger.log("info", LOG_ID + "(inviteContactToBubble) invitation successfully sent");
+                    that._logger.log("debug", LOG_ID + "(inviteContactToBubble) invitation successfully sent");
     
                     return that._rest.getBubble(bubble.id).catch((err) => {
                         that._logger.log("error", LOG_ID + "(inviteContactToBubble) get bubble failed for bubble : ", bubble, ", : ", err);
@@ -2980,7 +2980,7 @@ class Bubbles extends GenericService {
                     return;
                 }
                 return that._rest.inviteContactsByEmailsToBubble(contactsEmails, bubble.id).then(function () {
-                    that._logger.log("info", LOG_ID + "(inviteContactsByEmailsToBubble) invitation successfully sent");
+                    that._logger.log("debug", LOG_ID + "(inviteContactsByEmailsToBubble) invitation successfully sent");
                     return that._rest.getBubble(bubble.id).catch((err) => {
                         that._logger.log("error", LOG_ID + "(inviteContactsByEmailsToBubble) get bubble failed for bubble : ", bubble, ", : ", err);
                         return reject(err);
@@ -3212,7 +3212,7 @@ class Bubbles extends GenericService {
             return new Promise((resolve, reject) => {
     
                 that._rest.setBubbleVisibility(bubble.id, status).then((bubbleData) => {
-                    that._logger.log("info", LOG_ID + "(setBubbleVisibilityStatus) visibility set ");
+                    that._logger.log("debug", LOG_ID + "(setBubbleVisibilityStatus) visibility set ");
                     that._logger.log("internal", LOG_ID + "(setBubbleVisibilityStatus) visibility set : ", bubbleData);
                     resolve(bubbleData);
                 }).catch((err) => {
@@ -3592,7 +3592,7 @@ class Bubbles extends GenericService {
     
                 that._rest.changeBubbleOwner(bubble.id, contact.id).then(async (bubbleData: any) => {
                     bubbleData = await that.addOrUpdateBubbleToCache(bubbleData);
-                    that._logger.log("info", LOG_ID + "(changeBubbleOwner) owner setted : ", bubbleData.owner);
+                    that._logger.log("debug", LOG_ID + "(changeBubbleOwner) owner setted : ", bubbleData.owner);
                     bubble.owner = bubbleData.owner;
                     resolve(bubbleData);
                 }).catch((err) => {
@@ -3646,14 +3646,14 @@ class Bubbles extends GenericService {
                     //});
                 }
     
-                that._logger.log("info", LOG_ID + "(removeContactFromBubble) remove contact with status", contactStatus);
+                that._logger.log("debug", LOG_ID + "(removeContactFromBubble) remove contact with status", contactStatus);
     
                 switch (contactStatus) {
                     case "rejected":
                     case "invited":
                     case "unsubscribed":
                         that._rest.removeInvitationOfContactToBubble(contact.id, bubble.id).then(function () {
-                            that._logger.log("info", LOG_ID + "(removeContactFromBubble) removed successfully");
+                            that._logger.log("debug", LOG_ID + "(removeContactFromBubble) removed successfully");
     
                             that._rest.getBubble(bubble.id).then(async (bubbleUpdated: any) => {
                                 // Update the existing local bubble stored
@@ -3858,7 +3858,7 @@ class Bubbles extends GenericService {
                 // */
     
                 that._rest.getRoomUsers(bubble.id, options).then(function (json) {
-                    that._logger.log("info", LOG_ID + "(getRoomUsers) retrieve successfull");
+                    that._logger.log("debug", LOG_ID + "(getRoomUsers) retrieve successfull");
                     resolve(json);
                 }).catch(function (err) {
                     that._logger.log("error", LOG_ID + "(getRoomUsers) error.");
@@ -4598,7 +4598,7 @@ class Bubbles extends GenericService {
             return new Promise((resolve, reject) => {
     
                 that._rest.setBubbleAutoRegister(bubble.id, autoRegister).then(async (bubbleData) => {
-                    that._logger.log("info", LOG_ID + "(setBubbleAutoRegister) autoRegister set ");
+                    that._logger.log("debug", LOG_ID + "(setBubbleAutoRegister) autoRegister set ");
                     that._logger.log("internal", LOG_ID + "(setBubbleAutoRegister) autoRegister set : ", bubbleData);
                     let bubbleObj: Bubble = await Bubble.BubbleFactory(that.avatarDomain, that._contacts)(bubbleData);
                     resolve(bubbleObj);

@@ -173,7 +173,7 @@ class AlertsService extends GenericService{
 
         if (!that.delayInfoLoggued) {
             that.delayInfoLoggued = true;
-            that._logger.log("info", LOG_ID + "(markAlertMessageAsReceived) DelayToSendReceipt (in ms) - Received:", that.delayToSendReceiptReceived, " - Read: ", that.delayToSendReceiptRead - that.delayToSendReceiptReceived);
+            that._logger.log("debug", LOG_ID + "(markAlertMessageAsReceived) DelayToSendReceipt (in ms) - Received:", that.delayToSendReceiptReceived, " - Read: ", that.delayToSendReceiptRead - that.delayToSendReceiptReceived);
         }
 
         return that._xmpp.markMessageAsReceived({
@@ -301,7 +301,7 @@ class AlertsService extends GenericService{
 
             if (create) {
                 that._rest.createDevice(body).then(function (json: any) {
-                    that._logger.log("info", LOG_ID + "(createOrUpdateDevice) create successfull");
+                    that._logger.log("debug", LOG_ID + "(createOrUpdateDevice) create successfull");
                     let id: string = json.id;
                     let name: string = json.name;
                     let type: string= json.type
@@ -338,7 +338,7 @@ class AlertsService extends GenericService{
                 // resource = rest.GetResource("notificationsadmin", $"devices/{device.Id}");
                 // restRequest = rest.GetRestRequest(resource, Method.PUT);
                 that._rest.updateDevice(device.id, body).then(function (json : any) {
-                    that._logger.log("info", LOG_ID + "(createOrUpdateDevice) create successfull");
+                    that._logger.log("debug", LOG_ID + "(createOrUpdateDevice) create successfull");
                     let id: string = json.id;
                     let name: string = json.name;
                     let type: string= json.type
@@ -408,7 +408,7 @@ class AlertsService extends GenericService{
             }
 
             that._rest.deleteDevice(device.id).then(function (json: any) {
-                that._logger.log("info", LOG_ID + "(deleteDevice) delete successfull");
+                that._logger.log("debug", LOG_ID + "(deleteDevice) delete successfull");
                 let id: string = json.id;
                 let name: string = json.name;
                 let type: string= json.type
@@ -479,7 +479,7 @@ class AlertsService extends GenericService{
             }
 
             that._rest.getDevice(deviceId).then(function (json : any) {
-                that._logger.log("info", LOG_ID + "(getDevice) get successfull");
+                that._logger.log("debug", LOG_ID + "(getDevice) get successfull");
                 let id: string = json.id;
                 let name: string = json.name;
                 let type: string= json.type
@@ -540,7 +540,7 @@ class AlertsService extends GenericService{
         return new Promise((resolve, reject) => {
 
             that._rest.getDevices(companyId, userId, deviceName, type, tag, offset, limit).then(async function (json) {
-                that._logger.log("info", LOG_ID + "(getDevices) get successfull");
+                that._logger.log("debug", LOG_ID + "(getDevices) get successfull");
                 let alertDevices = new AlertDevicesData(1000);
                 if (Array.isArray( json)) {
                     for (const optionsKey in json) {
@@ -599,7 +599,7 @@ class AlertsService extends GenericService{
         return new Promise((resolve, reject) => {
 
             that._rest.getDevicesTags(companyId).then(function (json) {
-                that._logger.log("info", LOG_ID + "(getDevicesTags) get successfull");
+                that._logger.log("debug", LOG_ID + "(getDevicesTags) get successfull");
 // TODO : make a Data typed with the result.
                 resolve(json);
             }).catch(function (err) {
@@ -644,7 +644,7 @@ class AlertsService extends GenericService{
             }
             
             that._rest.renameDevicesTags(newTagName, tag, companyId).then(function (json) {
-                that._logger.log("info", LOG_ID + "(renameDevicesTags) get successfull");
+                that._logger.log("debug", LOG_ID + "(renameDevicesTags) get successfull");
 // TODO : make a Data typed with the result.
                 resolve(json);
             }).catch(function (err) {
@@ -681,7 +681,7 @@ class AlertsService extends GenericService{
             }
 
             that._rest.deleteDevicesTags( tag, companyId).then(function (json) {
-                that._logger.log("info", LOG_ID + "(deleteDevicesTags) get successfull");
+                that._logger.log("debug", LOG_ID + "(deleteDevicesTags) get successfull");
 // TODO : make a Data typed with the result.
                 resolve(json);
             }).catch(function (err) {
@@ -711,7 +711,7 @@ class AlertsService extends GenericService{
         return new Promise(function (resolve, reject) {
 
             that._rest.getstatsTags( companyId).then(function (json) {
-                that._logger.log("info", LOG_ID + "(getstatsTags) get successfull");
+                that._logger.log("debug", LOG_ID + "(getstatsTags) get successfull");
 // TODO : make a Data typed with the result.
                 resolve(json);
             }).catch(function (err) {
@@ -792,7 +792,7 @@ class AlertsService extends GenericService{
 
             if (create) {
                 that._rest.createTemplate(body).then(function (json:any) {
-                    that._logger.log("info", LOG_ID + "(createOrUpdateDevice) create successfull");
+                    that._logger.log("debug", LOG_ID + "(createOrUpdateDevice) create successfull");
                     //resolve(json);
                     let id: string = json.id;
                     let name: string = json.name;
@@ -825,7 +825,7 @@ class AlertsService extends GenericService{
                 });
             } else {
                 that._rest.updateTemplate(template.id, body).then(function (json : any) {
-                    that._logger.log("info", LOG_ID + "(createOrUpdateTemplate) create successfull");
+                    that._logger.log("debug", LOG_ID + "(createOrUpdateTemplate) create successfull");
                     // resolve(json);
                     let id: string = json.id;
                     let name: string = json.name;
@@ -894,7 +894,7 @@ class AlertsService extends GenericService{
             }
 
             that._rest.deleteTemplate(template.id).then(function (json:any) {
-                that._logger.log("info", LOG_ID + "(deleteTemplate) delete successfull");
+                that._logger.log("debug", LOG_ID + "(deleteTemplate) delete successfull");
                 // resolve(json);
                 let id: string = json.id;
                 let name: string = json.name;
@@ -960,7 +960,7 @@ class AlertsService extends GenericService{
             }
 
             that._rest.getTemplate(templateId).then(function (json:any) {
-                that._logger.log("info", LOG_ID + "(getTemplate) get successfull");
+                that._logger.log("debug", LOG_ID + "(getTemplate) get successfull");
                 // resolve(json);
                 let id: string = json.id;
                 let name: string = json.name;
@@ -1014,7 +1014,7 @@ class AlertsService extends GenericService{
         return new Promise((resolve, reject) => {
 
             that._rest.getTemplates(companyId, offset, limit).then(async function (json) {
-                that._logger.log("info", LOG_ID + "(getTemplates) get successfull");
+                that._logger.log("debug", LOG_ID + "(getTemplates) get successfull");
                 // resolve(json);
                 let alertTemplatesData = new AlertTemplatesData(1000);
                 if (Array.isArray( json)) {
@@ -1112,7 +1112,7 @@ class AlertsService extends GenericService{
 
             if (create) {
                 that._rest.createFilter(body).then(function (json: any) {
-                    that._logger.log("info", LOG_ID + "(createOrUpdateFilter) create successfull");
+                    that._logger.log("debug", LOG_ID + "(createOrUpdateFilter) create successfull");
                  //   resolve(json);
                     let id: string = json.id;
                     let name: string = json.name;
@@ -1129,7 +1129,7 @@ class AlertsService extends GenericService{
                 });
             } else {
                 that._rest.updateFilter(filter.id, body).then(function (json : any) {
-                    that._logger.log("info", LOG_ID + "(createOrUpdateFilter) create successfull");
+                    that._logger.log("debug", LOG_ID + "(createOrUpdateFilter) create successfull");
                     let id: string = json.id;
                     let name: string = json.name;
                     let companyId: string = json.companyId;
@@ -1181,7 +1181,7 @@ class AlertsService extends GenericService{
             }
 
             that._rest.deleteFilter(filter.id).then(function (json:any) {
-                that._logger.log("info", LOG_ID + "(deleteFilter) delete successfull");
+                that._logger.log("debug", LOG_ID + "(deleteFilter) delete successfull");
                 // resolve(json);
                 let id: string = json.id;
                 let name: string = json.name;
@@ -1232,7 +1232,7 @@ class AlertsService extends GenericService{
             }
 
             that._rest.getFilter(filterId).then(function (json:any) {
-                that._logger.log("info", LOG_ID + "(getFilter) get successfull");
+                that._logger.log("debug", LOG_ID + "(getFilter) get successfull");
                 //resolve(json);
                 let id: string = json.id;
                 let name: string = json.name;
@@ -1270,7 +1270,7 @@ class AlertsService extends GenericService{
         return new Promise((resolve, reject) => {
 
             that._rest.getFilters(offset, limit).then(async function (json:any) {
-                that._logger.log("info", LOG_ID + "(getFilters) get successfull");
+                that._logger.log("debug", LOG_ID + "(getFilters) get successfull");
                 that._logger.log("internal", LOG_ID + "(getFilters) get successfull : ", json);
                 //resolve(json);
 
@@ -1390,11 +1390,11 @@ class AlertsService extends GenericService{
                 body.startDate = date.toISOString();
                 body.expirationDate = expirationDate.toISOString();
 
-                that._logger.log("info", LOG_ID + "(createOrUpdateAlert) body : ", body);
+                that._logger.log("debug", LOG_ID + "(createOrUpdateAlert) body : ", body);
 
                 if (create) {
                     that._rest.createAlert(body).then(function (json : any) {
-                        that._logger.log("info", LOG_ID + "(createOrUpdateAlert) create successfull");
+                        that._logger.log("debug", LOG_ID + "(createOrUpdateAlert) create successfull");
                         let  id: string = json.id;
                         let  name: string = json.name;
                         let  description: string = json.description;
@@ -1416,7 +1416,7 @@ class AlertsService extends GenericService{
                     });
                 } else {
                     that._rest.updateAlert(alert.id, body).then(function (json : any) {
-                        that._logger.log("info", LOG_ID + "(createOrUpdateAlert) create successfull");
+                        that._logger.log("debug", LOG_ID + "(createOrUpdateAlert) create successfull");
                         let  id: string = json.id;
                         let  name: string = json.name;
                         let  description: string = json.description;
@@ -1478,7 +1478,7 @@ class AlertsService extends GenericService{
             }
 
             that._rest.deleteAlert(alert.id).then(function (json : any) {
-                that._logger.log("info", LOG_ID + "(deleteAlert) delete successfull");
+                that._logger.log("debug", LOG_ID + "(deleteAlert) delete successfull");
                 let  id: string = json.id;
                 let  name: string = json.name;
                 let  description: string = json.description;
@@ -1532,7 +1532,7 @@ class AlertsService extends GenericService{
             }
 
             that._rest.getAlert(alertId).then(function (json: any) {
-                that._logger.log("info", LOG_ID + "(getAlert) get successfull");
+                that._logger.log("debug", LOG_ID + "(getAlert) get successfull");
                 let  id: string = json.id;
                 let  name: string = json.name;
                 let  description: string = json.description;
@@ -1573,7 +1573,7 @@ class AlertsService extends GenericService{
         return new Promise((resolve, reject) => {
 
             that._rest.getAlerts(offset, limit).then(async function (json : any) {
-                that._logger.log("info", LOG_ID + "(getAlerts) get successfull");
+                that._logger.log("debug", LOG_ID + "(getAlerts) get successfull");
 
                 let alerts : AlertsData = new AlertsData(json.limit);
                 alerts.offset = json.offset;
@@ -1659,7 +1659,7 @@ class AlertsService extends GenericService{
 
 
             that._rest.sendAlertFeedback(alertId, body).then(function (json) {
-                that._logger.log("info", LOG_ID + "(createOrUpdateAlert) create successfull");
+                that._logger.log("debug", LOG_ID + "(createOrUpdateAlert) create successfull");
                 resolve(json);
 // TODO : make the Alert with the result. And maybe the AlertDeviceData.
 
@@ -1706,7 +1706,7 @@ class AlertsService extends GenericService{
             }
 
             that._rest.getAlertFeedbackSentForANotificationMessage(notificationHistoryId).then(function (json) {
-                that._logger.log("info", LOG_ID + "(getAlertFeedbackSentForANotificationMessage) get successfull");
+                that._logger.log("debug", LOG_ID + "(getAlertFeedbackSentForANotificationMessage) get successfull");
                 resolve(json);
             }).catch(function (err) {
                 that._logger.log("error", LOG_ID + "(getAlertFeedbackSentForANotificationMessage) error.");
@@ -1751,7 +1751,7 @@ class AlertsService extends GenericService{
             }
 
             that._rest.getAlertFeedbackSentForAnAlert(alertId).then(function (json) {
-                that._logger.log("info", LOG_ID + "(getAlertFeedbackSentForAnAlert) get successfull");
+                that._logger.log("debug", LOG_ID + "(getAlertFeedbackSentForAnAlert) get successfull");
                 resolve(json);
             }).catch(function (err) {
                 that._logger.log("error", LOG_ID + "(getAlertFeedbackSentForAnAlert) error.");
@@ -1789,7 +1789,7 @@ class AlertsService extends GenericService{
             }
 
             that._rest.getAlertStatsFeedbackSentForANotificationMessage(notificationHistoryId).then(function (json) {
-                that._logger.log("info", LOG_ID + "(getAlertStatsFeedbackSentForANotificationMessage) get successfull");
+                that._logger.log("debug", LOG_ID + "(getAlertStatsFeedbackSentForANotificationMessage) get successfull");
                 resolve(json);
             }).catch(function (err) {
                 that._logger.log("error", LOG_ID + "(getAlertStatsFeedbackSentForANotificationMessage) error.");
@@ -1826,7 +1826,7 @@ class AlertsService extends GenericService{
             }
 
             that._rest.getReportSummary(alertId).then(function (json) {
-                that._logger.log("info", LOG_ID + "(getReportSummary) get successfull");
+                that._logger.log("debug", LOG_ID + "(getReportSummary) get successfull");
 // TODO : make a Data typed with the result.
                 resolve(json);
             }).catch(function (err) {
@@ -1860,7 +1860,7 @@ class AlertsService extends GenericService{
             }
 
             that._rest.getReportDetails(alertId).then(function (json) {
-                that._logger.log("info", LOG_ID + "(getReportDetails) get successfull");
+                that._logger.log("debug", LOG_ID + "(getReportDetails) get successfull");
 // TODO : make a Data typed with the result.
                 resolve(json);
             }).catch(function (err) {
@@ -1904,7 +1904,7 @@ class AlertsService extends GenericService{
             }
 
             that._rest.getReportComplete(alertId).then(function (json) {
-                that._logger.log("info", LOG_ID + "(getReportComplete) get successfull");
+                that._logger.log("debug", LOG_ID + "(getReportComplete) get successfull");
                 resolve(json);
             }).catch(function (err) {
                 that._logger.log("error", LOG_ID + "(getReportComplete) error.");

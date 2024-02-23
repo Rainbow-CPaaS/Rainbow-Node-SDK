@@ -550,7 +550,7 @@ class ContactsService extends GenericService {
                 }
 
                 if (contactFound) {
-                    that._logger.log("info", LOG_ID + "(getContactByJid) contact found locally with jid ", jid);
+                    that._logger.log("debug", LOG_ID + "(getContactByJid) contact found locally with jid ", jid);
                     if (contactFound.jid_im===connectedUser.jid_im) {
                         resolve(connectedUser);
                     } else {
@@ -581,7 +581,7 @@ class ContactsService extends GenericService {
                                 contact.presence = that._presenceService.getUserConnectedPresence().presenceLevel;
                             }
                         } else {
-                            that._logger.log("info", LOG_ID + "(getContactByJid) no contact found on the server with Jid", jid);
+                            that._logger.log("debug", LOG_ID + "(getContactByJid) no contact found on the server with Jid", jid);
                         }
                         resolve(contact);
                     }).catch((err) => {
@@ -638,14 +638,14 @@ class ContactsService extends GenericService {
                         let contact: Contact = null;
                         if (_contactFromServer) {
                             that._logger.log("internal", LOG_ID + "(getContactById) contact found on the server : ", _contactFromServer);
-                            that._logger.log("info", LOG_ID + "(getContactById) contact found on the server");
+                            that._logger.log("debug", LOG_ID + "(getContactById) contact found on the server");
                             let contactIndex = that._contacts.findIndex((value) => {
                                 return value.jid_im===_contactFromServer.jid_im;
                             });
 
                             if (contactIndex!== -1) {
-                                //that._logger.log("info", LOG_ID + "(getContactById) contact found on local _contacts", contact);
-                                that._logger.log("info", LOG_ID + "(getContactById) contact found on local _contacts");
+                                //that._logger.log("debug", LOG_ID + "(getContactById) contact found on local _contacts", contact);
+                                that._logger.log("debug", LOG_ID + "(getContactById) contact found on local _contacts");
                                 contact = that._contacts[contactIndex];
                             } else {
                                 contact = that.createBasicContact(_contactFromServer.jid_im, undefined);
@@ -660,7 +660,7 @@ class ContactsService extends GenericService {
                                 contact.presence = that._presenceService.getUserConnectedPresence().presenceLevel;
                             }
                         } else {
-                            that._logger.log("info", LOG_ID + "(getContactById) no contact found on server with id", id);
+                            that._logger.log("debug", LOG_ID + "(getContactById) no contact found on server with id", id);
                         }
                         return resolve(contact);
                     }).catch((err) => {
@@ -718,7 +718,7 @@ class ContactsService extends GenericService {
                     that._rest.getContactInformationByLoginEmail(loginEmail).then(async (contactsFromServeur: [any]) => {
                         if (contactsFromServeur && contactsFromServeur.length > 0) {
                             let contact: Contact = null;
-                            that._logger.log("info", LOG_ID + "(getContactByLoginEmail) contact found on server");
+                            that._logger.log("debug", LOG_ID + "(getContactByLoginEmail) contact found on server");
                             let _contactFromServer = contactsFromServeur[0];
                             if (_contactFromServer) {
                                 // The contact is not found by email in the that._contacts tab, so it need to be find on server to get or update it.
@@ -808,7 +808,7 @@ class ContactsService extends GenericService {
                         let contactId: string = undefined;
                         if (contactsFromServeur && contactsFromServeur.length > 0) {
                             //let contact: Contact = null;
-                            that._logger.log("info", LOG_ID + "(getContactByLoginEmail) contact found on server");
+                            that._logger.log("debug", LOG_ID + "(getContactByLoginEmail) contact found on server");
                             let _contactFromServer = contactsFromServeur[0];
                             
                             if (_contactFromServer) {
@@ -1015,7 +1015,7 @@ class ContactsService extends GenericService {
             that._logger.log("debug", LOG_ID + "(getCompanyInfos) companyId : ", companyId);
             
             that._rest.getCompanyInfos(companyId, format, selectedThemeObj, name, status, visibility, organisationId, isBP, hasBP, bpType ).then((result: any) => {
-                that._logger.log("info", LOG_ID + "(getCompanyInfos) company informations found on server.");
+                that._logger.log("debug", LOG_ID + "(getCompanyInfos) company informations found on server.");
                 that._logger.log("internal", LOG_ID + "(getCompanyInfos) company informations found on server : ", result);
                 resolve(result);
             }).catch((err) => {
@@ -2030,7 +2030,7 @@ class ContactsService extends GenericService {
                     //for (const contactData of listOfContacts) {
                     //await that._rest.getContactInformationByJID(contactData.jid_im).then((_contactFromServer: any) => {
                      that._rest.getContactInformationByJID(contactData.jid_im).then((_contactFromServer: any) => {
-                        that._logger.log("info", LOG_ID + "(getRosters) contact found on the server");
+                        that._logger.log("debug", LOG_ID + "(getRosters) contact found on the server");
                         //that._logger.log("internal", LOG_ID + "(getRosters) contact found on the server : ", util.inspect(_contactFromServer));
                         that._logger.log("internal", LOG_ID + "(getRosters) contact found on the server : id : ", _contactFromServer.id, ", jid_im : ", _contactFromServer.jid_im, ", displayName : ", _contactFromServer.displayName);
                         // Update or Add contact
@@ -2064,12 +2064,12 @@ class ContactsService extends GenericService {
 
 
                     }).catch((err) => {
-                        this._logger.log("info", LOG_ID + "(getRosters) no contact found with contactData.jid_im " + contactData.jid_im);
+                        this._logger.log("debug", LOG_ID + "(getRosters) no contact found with contactData.jid_im " + contactData.jid_im);
                     });
                 //};
                 });
 
-                this._logger.log("info", LOG_ID + "(getRosters) contacts retrieved, return the one from roster.");
+                this._logger.log("debug", LOG_ID + "(getRosters) contacts retrieved, return the one from roster.");
                 resolve(that._contacts.filter((contact) => { return contact.roster === true; }));
                 /*
                 
@@ -2088,7 +2088,7 @@ class ContactsService extends GenericService {
                 });
                 that._logger.log("internal", LOG_ID + "(getRosters) get rosters successfully : ", that._contacts);
 
-                that._logger.log("info", LOG_ID + "(getRosters) get rosters successfully");
+                that._logger.log("debug", LOG_ID + "(getRosters) get rosters successfully");
                 resolve(that.getAll());
                 // */
             }).catch((err) => {
@@ -2147,7 +2147,7 @@ class ContactsService extends GenericService {
                 that._logger.log("internal", LOG_ID + "(addToContactsList) contact invitation to server... : ", contact);
                 that._rest.joinContactInvitation(contact).then((_contact: any) => {
                     if (_contact && _contact.status!==undefined) {
-                        that._logger.log("info", LOG_ID + "(addToContactsList) contact invited : ", _contact.invitedUserId);
+                        that._logger.log("debug", LOG_ID + "(addToContactsList) contact invited : ", _contact.invitedUserId);
                         that.getContactById(_contact.invitedUserId, false).then((invitedUser) => {
                             resolve(invitedUser);
                         }).catch((err) => {
@@ -2188,7 +2188,7 @@ class ContactsService extends GenericService {
             }
 
             that._rest.removeContactFromRoster(contact.id).then(function () {
-                that._logger.log("info", LOG_ID + "(removeFromNetwork) contact removed from network.");
+                that._logger.log("debug", LOG_ID + "(removeFromNetwork) contact removed from network.");
                 that._logger.log("internal", LOG_ID + "(removeFromNetwork) contact removed from network : ", contact);
                 return resolve({
                     code: 1,
@@ -2387,7 +2387,7 @@ class ContactsService extends GenericService {
         return new Promise((resolve, reject) => {
 
             that._rest.searchInAlldirectories (pbxId, systemId, numberE164, shortnumber, format, limit, offset, sortField, sortOrder) .then(function (result) {
-                that._logger.log("info", LOG_ID + "(searchInAlldirectories) contact searched from server.");
+                that._logger.log("debug", LOG_ID + "(searchInAlldirectories) contact searched from server.");
                 that._logger.log("internal", LOG_ID + "(searchInAlldirectories) result : ", result);
                 return resolve(result);
             }).catch(function (err) {
@@ -2458,7 +2458,7 @@ class ContactsService extends GenericService {
         return new Promise((resolve, reject) => {
 
             that._rest.searchInPhonebook (pbxId, name, number, format, limit, offset, sortField, sortOrder ).then(function (result) {
-                that._logger.log("info", LOG_ID + "(searchInPhonebook) contact searched from server.");
+                that._logger.log("debug", LOG_ID + "(searchInPhonebook) contact searched from server.");
                 that._logger.log("internal", LOG_ID + "(searchInPhonebook) REST result : ", result);
                 return resolve(result);
             }).catch(function (err) {
@@ -2519,7 +2519,7 @@ class ContactsService extends GenericService {
         return new Promise((resolve, reject) => {
             
             that._rest.searchUserByPhonenumber(number).then(function (result) {
-                that._logger.log("info", LOG_ID + "(searchUserByPhonenumber) contact searched from server.");
+                that._logger.log("debug", LOG_ID + "(searchUserByPhonenumber) contact searched from server.");
                 that._logger.log("internal", LOG_ID + "(searchUserByPhonenumber) REST result : ", result);
                 return resolve(result);
             }).catch(function (err) {
@@ -2643,7 +2643,7 @@ class ContactsService extends GenericService {
         return new Promise((resolve, reject) => {
             
             that._rest.searchUsers(limit, displayName, search, companyId, excludeCompanyId, offset, sortField, sortOrder).then(function (result) {
-                that._logger.log("info", LOG_ID + "(searchUsers) contact searched from server.");
+                that._logger.log("debug", LOG_ID + "(searchUsers) contact searched from server.");
                 that._logger.log("internal", LOG_ID + "(searchUsers) REST result : ", result);
                 return resolve(result);
             }).catch(function (err) {
@@ -2711,7 +2711,7 @@ class ContactsService extends GenericService {
 
         return new Promise(function (resolve, reject) {
             try {
-                that._logger.log("info", LOG_ID + "(createPersonalDirectoryEntry) __ entering __ firstName :  ", firstName , ", lastName : ", lastName, ", companyName : ", companyName, ", department : ", department , ", street : ", street, " city : ", city, 
+                that._logger.log("debug", LOG_ID + "(createPersonalDirectoryEntry) __ entering __ firstName :  ", firstName , ", lastName : ", lastName, ", companyName : ", companyName, ", department : ", department , ", street : ", street, " city : ", city,
                         ",  state : ", state, " postalCode : ", postalCode, ", country : ", country, ", workPhoneNumbers : ", workPhoneNumbers, ", mobilePhoneNumbers : ", mobilePhoneNumbers, ", otherPhoneNumbers : ", otherPhoneNumbers, ", jobTitle : ", jobTitle, ", eMail : ", eMail,
                         ", tags : ", tags, ", custom1 : ", custom1, " custom2 : ", custom2);
 
@@ -3589,7 +3589,7 @@ class ContactsService extends GenericService {
         let that = this;
 
         that._rest.getContactInformationByJID(jid).then((_contactFromServer: any) => {
-            that._logger.log("info", LOG_ID + "(getContactByJid) contact found on the server");
+            that._logger.log("debug", LOG_ID + "(getContactByJid) contact found on the server");
             that._logger.log("internal", LOG_ID + "(getContactByJid) contact found on the server : ", util.inspect(_contactFromServer));
             let connectedUser = that.getConnectedUser() ? that.getConnectedUser():new Contact();
 
@@ -3617,7 +3617,7 @@ class ContactsService extends GenericService {
         let that = this;
 
         that._rest.getContactInformationByJID(jid).then((_contactFromServer: any) => {
-            that._logger.log("info", LOG_ID + "(_onRosterContactInfoChanged) contact found on the server jid : ", _contactFromServer.jid);
+            that._logger.log("debug", LOG_ID + "(_onRosterContactInfoChanged) contact found on the server jid : ", _contactFromServer.jid);
             that._logger.log("internal", LOG_ID + "(_onRosterContactInfoChanged) contact found on the server - _contactFromServer id : ", _contactFromServer.id, ", _contactFromServer.displayName : ", _contactFromServer.displayName, " for _contactFromServer.jid : ", _contactFromServer.jid);
             //that._logger.log("internal", LOG_ID + "(_onRosterContactInfoChanged) contact found on the server : ", util.inspect(_contactFromServer));
             let contactIndex = -1;

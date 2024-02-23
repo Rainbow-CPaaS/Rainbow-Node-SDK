@@ -129,7 +129,7 @@ class Settings extends GenericService {
         return new Promise((resolve, reject) => {
 
             that._rest.getUserSettings().then((settings) => {
-                that._logger.log("info", LOG_ID + "(getUserSettings) get successfully");
+                that._logger.log("debug", LOG_ID + "(getUserSettings) get successfully");
                 resolve(settings);
             }).catch(function(err) {
                 that._logger.log("error", LOG_ID + "(getUserSettings) error.");
@@ -166,7 +166,7 @@ class Settings extends GenericService {
         return new Promise( (resolve, reject) => {
             // Check validity
             that._rest.updateUserSettings(settings).then( (newSettings) => {
-                    that._logger.log("info", LOG_ID + "(updateUserSettings) update successfully");
+                    that._logger.log("debug", LOG_ID + "(updateUserSettings) update successfully");
                     resolve(newSettings);
                 })
                 .catch( (err) => {

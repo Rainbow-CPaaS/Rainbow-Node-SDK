@@ -104,12 +104,12 @@ class RpcoverxmppEventHandler extends GenericHandler {
                         // The treatment is in iqEventHandler
                         break;
                     case "resp":
-                        that.logger.log("info", LOG_ID + "(onIqResultReceived) - 'stanza'", node.getName());
+                        that.logger.log("debug", LOG_ID + "(onIqResultReceived) - 'stanza'", node.getName());
                         that._onIqRespResultReceived(stanza, node);
                         break;
                     case "bind":
                         // The treatment is in iqEventHandler
-                        //that.logger.log("info", LOG_ID + "(onIqResultReceived) - 'stanza'", node.getName());
+                        //that.logger.log("debug", LOG_ID + "(onIqResultReceived) - 'stanza'", node.getName());
                         break;
                     case "pbxagentstatus":
                         // The treatment is in telephonyEventHandler
@@ -139,7 +139,7 @@ class RpcoverxmppEventHandler extends GenericHandler {
             that.logger.log("internal", LOG_ID + "(_onIqGetSetQueryReceived) _entering_ : ", "\n", stanza.root ? prettydata.xml(stanza.root().toString()):stanza, "\n", node.root ? prettydata.xml(node.root().toString()):node);
             let xmlNodeStr = node ? node.toString():"<xml></xml>";
             let reqObj = await getJsonFromXML(xmlNodeStr);
-            that.logger.log("info", LOG_ID + "(_onIqGetSetQueryReceived) reqObj : ", reqObj);
+            that.logger.log("debug", LOG_ID + "(_onIqGetSetQueryReceived) reqObj : ", reqObj);
             
             if (reqObj.query && reqObj.query.methodCall) {
                 let methodName = reqObj.query.methodCall.methodName;
@@ -147,23 +147,23 @@ class RpcoverxmppEventHandler extends GenericHandler {
 
                 let params = reqObj.query.methodCall.params;
 
-                that.logger.log("info", LOG_ID + "(_onIqGetSetQueryReceived) methodName : ", methodName);
-                that.logger.log("info", LOG_ID + "(_onIqGetSetQueryReceived) params : ", params);
+                that.logger.log("debug", LOG_ID + "(_onIqGetSetQueryReceived) methodName : ", methodName);
+                that.logger.log("debug", LOG_ID + "(_onIqGetSetQueryReceived) params : ", params);
 
                 if (params) {
                     if (params.param && Array.isArray(params.param)) {
                         for (const param of params.param) {
                             let paramDecoded = that.xmppService.decodeRPCParam(param);
-                            that.logger.log("info", LOG_ID + "(_onIqGetSetQueryReceived) paramDecoded : ", paramDecoded);
+                            that.logger.log("debug", LOG_ID + "(_onIqGetSetQueryReceived) paramDecoded : ", paramDecoded);
                             methodParams.push(paramDecoded);
                         }
                     } else {
                         let paramDecoded = that.xmppService.decodeRPCParam(params.param);
-                        that.logger.log("info", LOG_ID + "(_onIqGetSetQueryReceived) paramDecoded : ", paramDecoded);
+                        that.logger.log("debug", LOG_ID + "(_onIqGetSetQueryReceived) paramDecoded : ", paramDecoded);
                         methodParams.push(paramDecoded);
                     }
                 }
-                that.logger.log("info", LOG_ID + "(_onIqGetSetQueryReceived) methodParams : ", methodParams);
+                that.logger.log("debug", LOG_ID + "(_onIqGetSetQueryReceived) methodParams : ", methodParams);
                 //console.log(LOG_ID + "(_onIqGetSetQueryReceived) methodParams : ", methodParams);
 
                 /*
@@ -184,7 +184,7 @@ class RpcoverxmppEventHandler extends GenericHandler {
     // */
 
                 let resulRPCMethod = that._rpcManager.treatRPCMethod(methodName, methodParams);
-                that.logger.log("info", LOG_ID + "(_onIqGetSetQueryReceived) (handleXMPPConnection) treatRPCMethod result  : ", resulRPCMethod);
+                that.logger.log("debug", LOG_ID + "(_onIqGetSetQueryReceived) (handleXMPPConnection) treatRPCMethod result  : ", resulRPCMethod);
 
                 let stanzaResp = xml("query", {
                     "xmlns": "jabber:iq:rpc",
@@ -210,7 +210,7 @@ class RpcoverxmppEventHandler extends GenericHandler {
                 stanzaResp.append(stanzaMethodResponse, undefined);
 
 
-                that.logger.log("info", LOG_ID + "(_onIqGetSetQueryReceived) (handleXMPPConnection) send req result - 'stanza' : ", stanzaResp);
+                that.logger.log("debug", LOG_ID + "(_onIqGetSetQueryReceived) (handleXMPPConnection) send req result - 'stanza' : ", stanzaResp);
 
                 await that.xmppClient.resolvPendingRequest(stanza.attrs.id, stanzaResp);
             }
@@ -233,7 +233,7 @@ class RpcoverxmppEventHandler extends GenericHandler {
             that.logger.log("internal", LOG_ID + "(_onIqGetSetReqReceived) _entering_ : ", "\n", stanza.root ? prettydata.xml(stanza.root().toString()):stanza, "\n", node.root ? prettydata.xml(node.root().toString()):node);
             let xmlNodeStr = node ? node.toString():"<xml></xml>";
             let reqObj = await getJsonFromXML(xmlNodeStr);
-            that.logger.log("info", LOG_ID + "(_onIqGetSetReqReceived) reqObj : ", reqObj);
+            that.logger.log("debug", LOG_ID + "(_onIqGetSetReqReceived) reqObj : ", reqObj);
             
             let host = "";
             let resourceUrl = "";
@@ -278,7 +278,7 @@ class RpcoverxmppEventHandler extends GenericHandler {
                                 statusCodeHttp = response.statusCode;
                                 statusMessageHttp = response.statusMessage;
                                 headersHttp = response.headers;
-                                that.logger.log("info", LOG_ID + "(_onIqGetSetReqReceived) get HTTP statusCode defined, statusCodeHttp: ", statusCodeHttp, ", statusMessageHttp : ", statusMessageHttp);
+                                that.logger.log("debug", LOG_ID + "(_onIqGetSetReqReceived) get HTTP statusCode defined, statusCodeHttp: ", statusCodeHttp, ", statusMessageHttp : ", statusMessageHttp);
                                 resultOfHttp = response.body;
                             } else {
                                 statusCodeHttp = -1;
@@ -299,7 +299,7 @@ class RpcoverxmppEventHandler extends GenericHandler {
                             'Content-Type': "message/http",
                             'Content-Length': 100
                         }
-                        that.logger.log("info", LOG_ID + "(_onIqGetSetReqReceived) trace HTTP statusCode defined, statusCodeHttp: ", statusCodeHttp, ", statusMessageHttp : ", statusMessageHttp);
+                        that.logger.log("debug", LOG_ID + "(_onIqGetSetReqReceived) trace HTTP statusCode defined, statusCodeHttp: ", statusCodeHttp, ", statusMessageHttp : ", statusMessageHttp);
                         resultOfHttp = "GET " + resourceUrl + " HTTP/1.1 " + "Host: " + host;
                     }
                     break;
@@ -313,7 +313,7 @@ class RpcoverxmppEventHandler extends GenericHandler {
                                 statusCodeHttp = response.statusCode;
                                 statusMessageHttp = response.statusMessage;
                                 headersHttp = response.headers;
-                                that.logger.log("info", LOG_ID + "(_onIqGetSetReqReceived) head HTTP statusCode defined, statusCodeHttp: ", statusCodeHttp, ", statusMessageHttp : ", statusMessageHttp);
+                                that.logger.log("debug", LOG_ID + "(_onIqGetSetReqReceived) head HTTP statusCode defined, statusCodeHttp: ", statusCodeHttp, ", statusMessageHttp : ", statusMessageHttp);
                                 resultOfHttp = response.body;
                             } else {
                                 statusCodeHttp = -1;
@@ -336,7 +336,7 @@ class RpcoverxmppEventHandler extends GenericHandler {
                                 statusCodeHttp = response.statusCode;
                                 statusMessageHttp = response.statusMessage;
                                 headersHttp = response.headers;
-                                that.logger.log("info", LOG_ID + "(_onIqGetSetReqReceived) post HTTP statusCode defined, statusCodeHttp: ", statusCodeHttp, ", statusMessageHttp : ", statusMessageHttp);
+                                that.logger.log("debug", LOG_ID + "(_onIqGetSetReqReceived) post HTTP statusCode defined, statusCodeHttp: ", statusCodeHttp, ", statusMessageHttp : ", statusMessageHttp);
                                 resultOfHttp = response.body;
                             } else {
                                 statusCodeHttp = -1;
@@ -359,7 +359,7 @@ class RpcoverxmppEventHandler extends GenericHandler {
                                 statusCodeHttp = response.statusCode;
                                 statusMessageHttp = response.statusMessage;
                                 headersHttp = response.headers;
-                                that.logger.log("info", LOG_ID + "(_onIqGetSetReqReceived) put HTTP statusCode defined, statusCodeHttp: ", statusCodeHttp, ", statusMessageHttp : ", statusMessageHttp);
+                                that.logger.log("debug", LOG_ID + "(_onIqGetSetReqReceived) put HTTP statusCode defined, statusCodeHttp: ", statusCodeHttp, ", statusMessageHttp : ", statusMessageHttp);
                                 resultOfHttp = response.body;                                
                             } else {
                                 statusCodeHttp = -1;
@@ -382,7 +382,7 @@ class RpcoverxmppEventHandler extends GenericHandler {
                                 statusCodeHttp = response.statusCode;
                                 statusMessageHttp = response.statusMessage;
                                 headersHttp = response.headers;
-                                that.logger.log("info", LOG_ID + "(_onIqGetSetReqReceived) delete HTTP statusCode defined, statusCodeHttp: ", statusCodeHttp, ", statusMessageHttp : ", statusMessageHttp);
+                                that.logger.log("debug", LOG_ID + "(_onIqGetSetReqReceived) delete HTTP statusCode defined, statusCodeHttp: ", statusCodeHttp, ", statusMessageHttp : ", statusMessageHttp);
                                 resultOfHttp = response.body;                               
                             } else {
                                 statusCodeHttp = -1;
@@ -396,7 +396,7 @@ class RpcoverxmppEventHandler extends GenericHandler {
                     }
                 }
 
-                that.logger.log("info", LOG_ID + "(_onIqGetSetReqReceived) (handleXMPPConnection) urlBuilt : ", urlBuilt);
+                that.logger.log("debug", LOG_ID + "(_onIqGetSetReqReceived) (handleXMPPConnection) urlBuilt : ", urlBuilt);
 
                 let stanzaResp = xml("resp", {
                     "xmlns": "urn:xmpp:http",
@@ -422,7 +422,7 @@ class RpcoverxmppEventHandler extends GenericHandler {
                 stanzaResp.append(stanzaData, undefined);
                 
                 
-                that.logger.log("info", LOG_ID + "(_onIqGetSetReqReceived) (handleXMPPConnection) send req result - 'stanza' : ", stanzaResp);
+                that.logger.log("debug", LOG_ID + "(_onIqGetSetReqReceived) (handleXMPPConnection) send req result - 'stanza' : ", stanzaResp);
 
                 await that.xmppClient.resolvPendingRequest(stanza.attrs.id, stanzaResp);
             } else {

@@ -263,19 +263,19 @@ class TelephonyService extends GenericService {
 
                 // Receive unavailable status
                 if (status === "unavailable" || status === "offline" || status === "") {
-                    that._logger.log("info", LOG_ID + "[onTelPresenceChange] received my telephony presence -- " + status);
+                    that._logger.log("debug", LOG_ID + "[onTelPresenceChange] received my telephony presence -- " + status);
                     that._started = false;
                     that._calls = [];
                     that._logger.log("debug", LOG_ID + "(onTelPresenceChange) send evt_internal_telephonystatuschanged ", "stopped");
                     that._eventEmitter.emit("evt_internal_telephonystatuschanged", "stopped");
                     //$rootScope.$broadcast("ON_TELEPHONY_STATUS_CHANGED_EVENT", "stopped");
 
-                    that._logger.log("info", LOG_ID + "[onTelPresenceChange] === STOPPED ===");
+                    that._logger.log("debug", LOG_ID + "[onTelPresenceChange] === STOPPED ===");
                 }
 
                 // Service is not started, try to fetch agent status
                 else if (!that._started && !that.starting) {
-                    that._logger.log("info", LOG_ID + "[onTelPresenceChange] received my telephony presence -- " + status);
+                    that._logger.log("debug", LOG_ID + "[onTelPresenceChange] received my telephony presence -- " + status);
                     that.starting = true;
                     that.getAgentStatus()
                         .then(function() {
@@ -304,7 +304,7 @@ class TelephonyService extends GenericService {
                             // @ts-ignore
                             let startDuration = Math.round(new Date() - that.startDate);
                            // that.stats.push({ service: "telephonyService", startDuration: startDuration });
-                            that._logger.log("info", LOG_ID + "[onTelPresenceChange] === STARTED (" + startDuration + " ms) ===");
+                            that._logger.log("debug", LOG_ID + "[onTelPresenceChange] === STARTED (" + startDuration + " ms) ===");
                             that._started = true;
                             that.starting = false;
                             that._logger.log("debug", LOG_ID + "(onTelPresenceChange) send evt_internal_telephonystatuschanged ", "started");
@@ -436,7 +436,7 @@ class TelephonyService extends GenericService {
         let that = this;
         //return that.agentStatus;
         return that._xmpp.getAgentStatus().then((data) => {
-            that._logger.log("info", LOG_ID + "[getAgentStatus] -- ", data);
+            that._logger.log("debug", LOG_ID + "[getAgentStatus] -- ", data);
             that.agentStatus = data;
             return data;
         }); // */
@@ -509,7 +509,7 @@ class TelephonyService extends GenericService {
             that._logger.log("debug", LOG_ID + "(getMediaPillarInfo) MediaPillar is allowed");
 
             that._rest.getMediaPillarInfo().then(function (json) {
-                that._logger.log("info", LOG_ID + "(getMediaPillarInfo) retrieve successfull");
+                that._logger.log("debug", LOG_ID + "(getMediaPillarInfo) retrieve successfull");
                 let jid_im = json["jid_im"];
                 let prefix = json["prefix"];
                 let rainbowPhoneNumber = json["rainbowPhoneNumber"];
@@ -1480,7 +1480,7 @@ class TelephonyService extends GenericService {
             }) // */
             that._rest.holdCall(call).then(
                 function success(response : any) {
-                    that._logger.log("info", LOG_ID + "(holdCall) holdCall success.");
+                    that._logger.log("debug", LOG_ID + "(holdCall) holdCall success.");
                     that._logger.log("internal", LOG_ID + "(holdCall) holdCall success : " + utils.anonymizePhoneNumber(call.contact.phone) + " Call (" + call + "), response : ", response);
                     // Update call status
                     if (response && response.data && response.data.data) {
@@ -2507,7 +2507,7 @@ that._eventEmitter.emit("evt_internal_callupdated", call);
                         function success() {
                             //service.forwardToDevice(phoneNumberReceived);
                             // TODO: subscribe somehow to ON_NOMADIC_EVENT is order to know that foward is applied
-                            that._logger.log("info", LOG_ID + "(nomadicLogin) nomadicLogin success");
+                            that._logger.log("debug", LOG_ID + "(nomadicLogin) nomadicLogin success");
                             //service.isMakeCallInitiatorIsMain = false;
                             resolve("success");
                         },
@@ -2615,7 +2615,7 @@ that._eventEmitter.emit("evt_internal_callupdated", call);
             if (that._contacts.userContact && that._contacts.userContact.phonePbx) {
                 that._rest.getNomadicStatus().then(
                     function success(response) {
-                        that._logger.log("info", LOG_ID + "(getNomadicStatus) nomadicStatus success");
+                        that._logger.log("debug", LOG_ID + "(getNomadicStatus) nomadicStatus success");
                         that.updateNomadicData(response);
                         resolve(undefined);
                     },

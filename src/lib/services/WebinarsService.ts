@@ -548,7 +548,7 @@ class WebinarsService extends GenericService {
                    
                 }
 
-                that._logger.log("info", LOG_ID + "(fetchMyChannels) hack start get channel data individually from server...");
+                that._logger.log("debug", LOG_ID + "(fetchMyChannels) hack start get channel data individually from server...");
                 Promise.all(promises).then((channels : [Channel]) => {
                     that._logger.log("internal", LOG_ID + "(fetchMyChannels) hack done : ", channels);
                     that._webinars = [];

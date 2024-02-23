@@ -156,10 +156,10 @@ class XmppClient  {
         that.logger.log("warn", LOG_ID + "(XmmpClient) onIqErrorReceived received iq result - 'stanza id '", iqId, ", msg : ", msg, ", errorMsg : ", errorMsg, ", that.iqGetEventWaiting[iqId] : ", that.iqGetEventWaiting[iqId]);
         // reject and delete the waiting iq.
         if (typeof that.iqGetEventWaiting[iqId] === "function") {
-            that.logger.log("info", LOG_ID + "(XmmpClient) onIqErrorReceived call iqGetEventWaiting function id : ", iqId);
+            that.logger.log("debug", LOG_ID + "(XmmpClient) onIqErrorReceived call iqGetEventWaiting function id : ", iqId);
             that.iqGetEventWaiting[iqId](stanza);
         } else {
-            that.logger.log("info", LOG_ID + "(XmmpClient) onIqErrorReceived delete iqGetEventWaiting function id : ", iqId);
+            that.logger.log("debug", LOG_ID + "(XmmpClient) onIqErrorReceived delete iqGetEventWaiting function id : ", iqId);
             delete that.iqGetEventWaiting[iqId];
         }
     };

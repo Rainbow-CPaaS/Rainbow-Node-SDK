@@ -418,7 +418,7 @@ class ChannelsService extends GenericService {
         return new Promise((resolve, reject) => {
 
             that._rest.findChannels(name, topic, null, null, null, null, null).then((channels : []) => {
-                that._logger.log("info", LOG_ID + "(_findChannels) findChannels channels found ");
+                that._logger.log("debug", LOG_ID + "(_findChannels) findChannels channels found ");
                 that._logger.log("internal", LOG_ID + "(_findChannels) findChannels channels found : ", channels);
 
                 let promises = [];
@@ -487,7 +487,7 @@ class ChannelsService extends GenericService {
                 let channelFound = that.getChannelFromCache(id);
 
                 if (channelFound && !force) {
-                    that._logger.log("info", LOG_ID + "(fetchChannel) channel found locally");
+                    that._logger.log("debug", LOG_ID + "(fetchChannel) channel found locally");
                     that._logger.log("internal", LOG_ID + "(fetchChannel) channel found locally : ", channelFound);
                     resolve(channelFound);
                 } else {
@@ -550,7 +550,7 @@ class ChannelsService extends GenericService {
         return new Promise((resolve, reject) => {
 
             that._rest.findChannels(filter.name, filter.topic, filter.category, filter.limit, filter.offset, filter.sortField, (filter.sortOrder && (filter.sortOrder === 1) ? "1" : "-1")).then((channels : []) => {
-                that._logger.log("info", LOG_ID + "(fetchChannelsByFilter) channels found");
+                that._logger.log("debug", LOG_ID + "(fetchChannelsByFilter) channels found");
                 that._logger.log("internal", LOG_ID + "(fetchChannelsByFilter) channels found : ", channels);
 
                 let promises = [];
@@ -648,7 +648,7 @@ class ChannelsService extends GenericService {
                     }
                 }
 
-                that._logger.log("info", LOG_ID + "(fetchMyChannels) hack start get channel data individually from server...");
+                that._logger.log("debug", LOG_ID + "(fetchMyChannels) hack start get channel data individually from server...");
                 Promise.all(promises).then((channels : [Channel]) => {
                     that._logger.log("internal", LOG_ID + "(fetchMyChannels) hack done : ", channels);
                     that._channels = [];
@@ -790,7 +790,7 @@ class ChannelsService extends GenericService {
 
         return new Promise((resolve, reject) => {
             that._rest.updateChannel(channel.id, description, null,  null , null, null, null).then((channelUpdated : any) => {
-                that._logger.log("info", LOG_ID + "(updateChannelDescription) channel updated");
+                that._logger.log("debug", LOG_ID + "(updateChannelDescription) channel updated");
                 that._logger.log("internal", LOG_ID + "(updateChannelDescription) channel updated : ", channelUpdated);
 
                 let channelObj = that.addOrUpdateChannelToCache(channelUpdated);
@@ -844,7 +844,7 @@ class ChannelsService extends GenericService {
         return new Promise((resolve, reject) => {
 
             that._rest.updateChannel(channel.id, null, null,  null , null, channelName, null).then((channelUpdated : any) => {
-                that._logger.log("info", LOG_ID + "(updateChannelName) channel updated ");
+                that._logger.log("debug", LOG_ID + "(updateChannelName) channel updated ");
                 that._logger.log("internalerror", LOG_ID + "(updateChannelName) channel updated : ", channelUpdated);
 
                 let channelObj = that.addOrUpdateChannelToCache(channelUpdated);
@@ -1128,7 +1128,7 @@ class ChannelsService extends GenericService {
         let that = this;
         return new Promise((resolve, reject) => {
             that._rest.getChannel(channelId).then((channel) => {
-                that._logger.log("info", LOG_ID + "(getChannel) channel found on the server");
+                that._logger.log("debug", LOG_ID + "(getChannel) channel found on the server");
                 that._logger.log("internal", LOG_ID + "(getChannel) channel found on the server : ", channel);
                 let channelObj : Channel = Channel.ChannelFactory()(channel, that._rest.http.serverURL);
                 resolve(channelObj);
@@ -1303,7 +1303,7 @@ class ChannelsService extends GenericService {
             type = type ? "urn:xmpp:channels:" + type : "urn:xmpp:channels:basic";
 
             that._rest.publishMessage(channel.id, message, title, url, imagesIds, type, customDatas).then((status) => {
-                that._logger.log("info", LOG_ID + "(createItem) message published");
+                that._logger.log("debug", LOG_ID + "(createItem) message published");
                 that._logger.log("internal", LOG_ID + "(createItem) message published : ", status);
                 resolve(Object.assign({"publishResult" : status}, ErrorManager.getErrorManager().OK));
             }).catch((err) => {
@@ -1363,7 +1363,7 @@ class ChannelsService extends GenericService {
             }
 
             that._rest.getChannelMessages(channel.id, maxMessages, beforeDate, afterDate).then((res : any) => {
-                that._logger.log("info", LOG_ID + "(fetchChannelItems) messages retrieved : ", res);
+                that._logger.log("debug", LOG_ID + "(fetchChannelItems) messages retrieved : ", res);
 
                 let messages = res.items;
 
@@ -1455,7 +1455,7 @@ class ChannelsService extends GenericService {
         return new Promise( (resolve, reject) => {
 
             that._rest.deleteChannelMessage(channelId, itemId).then((result) => {
-                that._logger.log("info", LOG_ID + "(deleteItemFromChannel) channel message deletion");
+                that._logger.log("debug", LOG_ID + "(deleteItemFromChannel) channel message deletion");
                 that._logger.log("internal", LOG_ID + "(deleteItemFromChannel) channel message deletion : ", result);
 
                 that._rest.getChannel(channelId).then((updatedChannel : any) => {
@@ -1516,7 +1516,7 @@ class ChannelsService extends GenericService {
 
         return new Promise((resolve, reject) => {
             that._rest.likeItem(channel.id, itemId, appreciation).then((result) => {
-                that._logger.log("info", LOG_ID + "(likeItem) done on the server");
+                that._logger.log("debug", LOG_ID + "(likeItem) done on the server");
                 that._logger.log("internal", LOG_ID + "(likeItem) done on the server : ", result);
                 //let channelObj : Channel = Channel.ChannelFactory()(channel, that._rest.http.serverURL);
                 //resolve(channelObj);
@@ -1558,7 +1558,7 @@ class ChannelsService extends GenericService {
 
         return new Promise((resolve, reject) => {
             that._rest.getDetailedAppreciations(channel.id, itemId).then((result) => {
-                that._logger.log("info", LOG_ID + "(getDetailedAppreciations) done on the server");
+                that._logger.log("debug", LOG_ID + "(getDetailedAppreciations) done on the server");
                 that._logger.log("internal", LOG_ID + "(getDetailedAppreciations) done on the server : ", result);
                 //let channelObj : Channel = Channel.ChannelFactory()(channel, that._rest.http.serverURL);
                 //resolve(channelObj);
@@ -1641,7 +1641,7 @@ class ChannelsService extends GenericService {
         return new Promise((resolve, reject) => {
 
             that._rest.subscribeToChannel(channel.id).then((status) => {
-                that._logger.log("info", LOG_ID + "(subscribeToChannel) channel subscribed : ", status);
+                that._logger.log("debug", LOG_ID + "(subscribeToChannel) channel subscribed : ", status);
 
                 that.fetchChannel(channel.id, true).then((channelUpdated) => {
                     resolve(channelUpdated);
@@ -1738,7 +1738,7 @@ class ChannelsService extends GenericService {
         return new Promise((resolve, reject) => {
 
             that._rest.unsubscribeToChannel(channel.id).then((status : string) => {
-                that._logger.log("info", LOG_ID + "(unsubscribeFromChannel) channel unsubscribed : ", status);
+                that._logger.log("debug", LOG_ID + "(unsubscribeFromChannel) channel unsubscribed : ", status);
                 resolve(status);
             }).catch((err) => {
                 that._logger.log("error", LOG_ID + "(unsubscribeFromChannel) error ");
@@ -1829,7 +1829,7 @@ class ChannelsService extends GenericService {
         return new Promise((resolve, reject) => {
 
             that._rest.getChannelUsers(channel.id, json).then((users : []) => {
-                that._logger.log("info", LOG_ID + "(fetchChannelUsers) channel has users ");
+                that._logger.log("debug", LOG_ID + "(fetchChannelUsers) channel has users ");
                 that._logger.log("internal", LOG_ID + "(fetchChannelUsers) channel has users : ", users.length);
                 resolve(users);
             }).catch((err) => {
@@ -1883,7 +1883,7 @@ class ChannelsService extends GenericService {
         return new Promise((resolve, reject) => {
 
             that._rest.deleteAllUsersFromChannel(channel.id).then((result) => {
-                that._logger.log("info", LOG_ID + "(deleteAllUsersFromChannel) channel users deletion");
+                that._logger.log("debug", LOG_ID + "(deleteAllUsersFromChannel) channel users deletion");
                 that._logger.log("internal", LOG_ID + "(deleteAllUsersFromChannel) channel users deletion : ", result);
 
                 that._rest.getChannel(channel.id).then((updatedChannel : any) => {
@@ -1937,7 +1937,7 @@ class ChannelsService extends GenericService {
         return new Promise((resolve, reject) => {
             //that._logger.log("internal", LOG_ID + "(updateChannelUsers) that._channels : ", that._channels);
             that._rest.updateChannelUsers(channelId, users).then((res) => {
-                that._logger.log("info", LOG_ID + "(updateChannelUsers) channel users updated");
+                that._logger.log("debug", LOG_ID + "(updateChannelUsers) channel users updated");
                 that._logger.log("internal", LOG_ID + "(updateChannelUsers) channel users updated : ", res);
 
                 that._rest.getChannel(channelId).then((updatedChannel : any) => {
@@ -2008,7 +2008,7 @@ class ChannelsService extends GenericService {
             
             
             that._rest.updateChannelUsers(channelId, usersId).then((res) => {
-                that._logger.log("info", LOG_ID + "(updateChannelUsersByLoginEmails) channel users updated");
+                that._logger.log("debug", LOG_ID + "(updateChannelUsersByLoginEmails) channel users updated");
                 that._logger.log("internal", LOG_ID + "(updateChannelUsersByLoginEmails) channel users updated : ", res);
 
                 that._rest.getChannel(channelId).then((updatedChannel : any) => {

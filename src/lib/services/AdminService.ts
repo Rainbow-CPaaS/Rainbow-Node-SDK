@@ -3036,7 +3036,7 @@ class AdminService extends GenericService {
         return new Promise(function (resolve, reject) {
             try {
                 that._logger.log("internal", LOG_ID + "(applyTemplates) : name : ", name, " companyId : ", companyId, " userId : ", userId);
-                that._logger.log("info", LOG_ID + "(applyTemplates) enter.");
+                that._logger.log("debug", LOG_ID + "(applyTemplates) enter.");
                 that._rest.applyCustomisationTemplates(name, companyId, userId).then(json => {
                     that._logger.log("debug", LOG_ID + "(applyTemplates) Successfully done.");
                     that._logger.log("internal", LOG_ID + "(applyTemplates) : result : ", json);
@@ -3280,7 +3280,7 @@ class AdminService extends GenericService {
         return new Promise(function (resolve, reject) {
             try {
                 that._logger.log("internal", LOG_ID + "(createCustomisationTemplate) : name : ", name);
-                that._logger.log("info", LOG_ID + "(createCustomisationTemplate) enter.");
+                that._logger.log("debug", LOG_ID + "(createCustomisationTemplate) enter.");
                 that._rest.createCustomisationTemplate(name , ownedByCompany , visibleBy , instantMessagesCustomisation , useGifCustomisation ,
                         fileSharingCustomisation , fileStorageCustomisation , phoneMeetingCustomisation , useDialOutCustomisation , useChannelCustomisation , useRoomCustomisation ,
                         useScreenSharingCustomisation , useWebRTCAudioCustomisation , useWebRTCVideoCustomisation , recordingConversationCustomisation , overridePresenceCustomisation ,
@@ -3328,7 +3328,7 @@ class AdminService extends GenericService {
         return new Promise(function (resolve, reject) {
             try {
                 that._logger.log("internal", LOG_ID + "(deleteCustomisationTemplate) : templateId : ", templateId);
-                that._logger.log("info", LOG_ID + "(deleteCustomisationTemplate) enter.");
+                that._logger.log("debug", LOG_ID + "(deleteCustomisationTemplate) enter.");
                 that._rest.deleteCustomisationTemplate(templateId).then(json => {
                     that._logger.log("debug", LOG_ID + "(deleteCustomisationTemplate) Successfully done.");
                     that._logger.log("internal", LOG_ID + "(deleteCustomisationTemplate) : result : ", json);
@@ -3378,7 +3378,7 @@ class AdminService extends GenericService {
         return new Promise(function (resolve, reject) {
             try {
                 that._logger.log("internal", LOG_ID + "(getAllAvailableCustomisationTemplates) : companyId : ", companyId, " format : ", format, " limit : ", limit);
-                that._logger.log("info", LOG_ID + "(getAllAvailableCustomisationTemplates) enter.");
+                that._logger.log("debug", LOG_ID + "(getAllAvailableCustomisationTemplates) enter.");
                 that._rest.getAllAvailableCustomisationTemplates(companyId , format , limit , offset , sortField , sortOrder).then(json => {
                     that._logger.log("debug", LOG_ID + "(getAllAvailableCustomisationTemplates) Successfully done.");
                     that._logger.log("internal", LOG_ID + "(getAllAvailableCustomisationTemplates) : result : ", json);
@@ -3416,7 +3416,7 @@ class AdminService extends GenericService {
         return new Promise(function (resolve, reject) {
             try {
                 that._logger.log("internal", LOG_ID + "(getRequestedCustomisationTemplate) : templateId : ", templateId);
-                that._logger.log("info", LOG_ID + "(getRequestedCustomisationTemplate) enter.");
+                that._logger.log("debug", LOG_ID + "(getRequestedCustomisationTemplate) enter.");
                 that._rest.getRequestedCustomisationTemplate(templateId).then(json => {
                     that._logger.log("debug", LOG_ID + "(getRequestedCustomisationTemplate) Successfully done.");
                     that._logger.log("internal", LOG_ID + "(getRequestedCustomisationTemplate) : result : ", json);
@@ -3659,7 +3659,7 @@ class AdminService extends GenericService {
         return new Promise(function (resolve, reject) {
             try {
                 that._logger.log("internal", LOG_ID + "(updateCustomisationTemplate) : templateId : ", templateId);
-                that._logger.log("info", LOG_ID + "(updateCustomisationTemplate) enter.");
+                that._logger.log("debug", LOG_ID + "(updateCustomisationTemplate) enter.");
                 that._rest.updateCustomisationTemplate(templateId, name, visibleBy ,
                         instantMessagesCustomisation , useGifCustomisation , fileSharingCustomisation , fileStorageCustomisation , phoneMeetingCustomisation ,
                         useDialOutCustomisation , useChannelCustomisation , useRoomCustomisation , useScreenSharingCustomisation , useWebRTCAudioCustomisation ,
@@ -3706,7 +3706,7 @@ class AdminService extends GenericService {
         return new Promise(function (resolve, reject) {
             try {
                 that._logger.log("internal", LOG_ID + "(askTokenOnBehalf) : loginEmail", loginEmail, " password : ", password);
-                that._logger.log("info", LOG_ID + "(askTokenOnBehalf) enter.");
+                that._logger.log("debug", LOG_ID + "(askTokenOnBehalf) enter.");
                 that._rest.askTokenOnBehalf(loginEmail, password).then(json => {
                     that._logger.log("debug", LOG_ID + "(askTokenOnBehalf) Successfully logged-in a user");
                     that._logger.log("internal", LOG_ID + "(askTokenOnBehalf) : user data : ", json);
@@ -10606,7 +10606,7 @@ class AdminService extends GenericService {
     exportDirectoryCsvFile(companyId : string, filePath : string) {
         let that = this;
         return new Promise(function (resolve, reject) {
-            that._logger.log("info", LOG_ID + "(exportDirectoryCsvFile) ===");
+            that._logger.log("debug", LOG_ID + "(exportDirectoryCsvFile) ===");
 
             const mDate = new Date().getTime(); // now
             const csvFilename = filePath + "directory_" + dateFormat(mDate, "YYYY-MM-DD_HH-mm") + ".csv"; // dateFormat(new Date(), "yyyy-mm-dd h:MM:ss");

@@ -238,7 +238,7 @@ safeJsonParse(str) {
                 headers["user-agent"] = USER_AGENT;
                 let urlEncoded = url;
 
-                that.logger.log("info", LOG_ID + "(_getUrlRaw) url : ", ( url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g));
+                that.logger.log("debug", LOG_ID + "(_getUrlRaw) url : ", ( url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g));
                 that.logger.log("internal", LOG_ID + "(_getUrlRaw) url : ", url, ", headers : ", headers, ", params : ", params);
 
                 let request = Request({
@@ -251,7 +251,7 @@ safeJsonParse(str) {
                         secureProtocol: that.proxy.secureProtocol
                     }
                 }, (error, response, body) => {
-                    that.logger.log("info", LOG_ID + "(get) successfull");
+                    that.logger.log("debug", LOG_ID + "(get) successfull");
                     if (error) {
                         return reject({
                             code: -1,
@@ -311,7 +311,7 @@ safeJsonParse(str) {
                     },
                     body: undefined
                 }, (error, response, body) => {
-                    that.logger.log("info", LOG_ID + "(_headUrlRaw) successfull");
+                    that.logger.log("debug", LOG_ID + "(_headUrlRaw) successfull");
                     if (error) {
                         return reject({
                             code: -1,
@@ -382,7 +382,7 @@ safeJsonParse(str) {
                 },
                 body: body
             }, (error, response, body) => {
-                that.logger.log("info", LOG_ID + "(_postUrlRaw) successfull");
+                that.logger.log("debug", LOG_ID + "(_postUrlRaw) successfull");
                 that.logger.log("internal", LOG_ID + "(_postUrlRaw) successfull - error : ", error, ", body : ", body);
                 if (error) {
                     return reject({
@@ -453,7 +453,7 @@ safeJsonParse(str) {
                     },
                     body: body
                 }, (error, response, body) => {
-                    that.logger.log("info", LOG_ID + "(_putUrlRaw) successfull");
+                    that.logger.log("debug", LOG_ID + "(_putUrlRaw) successfull");
                     if (error) {
                         return reject({
                             code: -1,
@@ -520,7 +520,7 @@ safeJsonParse(str) {
                 }
 
                 let request = Request.delete(deleteOptions, (error, response, body) => {
-                    that.logger.log("info", LOG_ID + "(_deleteUrlRaw) successfull");
+                    that.logger.log("debug", LOG_ID + "(_deleteUrlRaw) successfull");
                     if (error) {
                         return reject({
                             code: -1,
@@ -567,7 +567,7 @@ safeJsonParse(str) {
                 headers["user-agent"] = USER_AGENT;
                 let urlEncoded = url;
 
-                that.logger.log("info", LOG_ID + "(_getUrlJson) url : ", ( url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g));
+                that.logger.log("debug", LOG_ID + "(_getUrlJson) url : ", ( url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g));
                 that.logger.log("internal", LOG_ID + "(_getUrlJson) url : ", url, ", headers : ", headers, ", params : ", params);
 
                 let request = Request({
@@ -580,7 +580,7 @@ safeJsonParse(str) {
                         secureProtocol: that.proxy.secureProtocol
                     }
                 }, (error, response, body) => {
-                    that.logger.log("info", LOG_ID + "(_getUrlJson) successfull");
+                    that.logger.log("debug", LOG_ID + "(_getUrlJson) successfull");
                     if (error) {
                         return reject({
                             code: -1,
@@ -591,7 +591,7 @@ safeJsonParse(str) {
                     } else {
                         if (response) {
                             if (response.statusCode) {
-                                that.logger.log("info", LOG_ID + "(_getUrlJson) HTTP statusCode defined : ", response.statusCode);
+                                that.logger.log("debug", LOG_ID + "(_getUrlJson) HTTP statusCode defined : ", response.statusCode);
                                 if (response.statusCode >= 200 && response.statusCode <= 206) {
                                     if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
                                         let json = {};
@@ -666,7 +666,7 @@ safeJsonParse(str) {
 
             try {
                 headers["user-agent"] = USER_AGENT;
-                that.logger.log("info", LOG_ID + "(get) url : ", (that.serverURL + url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g));
+                that.logger.log("debug", LOG_ID + "(get) url : ", (that.serverURL + url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g));
                 that.logger.log("internal", LOG_ID + "(get) url : ", that.serverURL + url, ", headers : ", headers, ", params : ", params);
 
                 //let urlEncoded = encodeURI(that.serverURL + url); // Can not be used because the data in url are allready encodeURIComponent
@@ -692,7 +692,7 @@ safeJsonParse(str) {
                     for (let i = 0; i < nbTryBeforeFailed ; i++) {
                         let responsePromRequest : any = new Promise(function(resolve2, reject2) {
                             let request = Request(req, (error, response, body) => {
-                                that.logger.log("info", LOG_ID + "(get) done.");
+                                that.logger.log("debug", LOG_ID + "(get) done.");
                                 if (error) {
                                     responseRequest = {
                                         code: -1,
@@ -710,7 +710,7 @@ safeJsonParse(str) {
                                                 "The server didn't respond in time.\n" +
                                                 "</body></html>\n";
                                                 // */
-                                            that.logger.log("info", LOG_ID + "(get) HTTP statusCode defined : ", response.statusCode);
+                                            that.logger.log("debug", LOG_ID + "(get) HTTP statusCode defined : ", response.statusCode);
                                             if (response.statusCode >= 200 && response.statusCode <= 206) {
                                                 if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
                                                     let json = {};
@@ -831,7 +831,7 @@ safeJsonParse(str) {
                             secureProtocol: that.proxy.secureProtocol
                         }
                     }).on("response", function (response) {
-                        that.logger.log("info", LOG_ID + "(get) status code:" + response.statusCode); // 200
+                        that.logger.log("debug", LOG_ID + "(get) status code:" + response.statusCode); // 200
                         that.logger.log("debug", LOG_ID + "(get) response headers: " + response.headers["content-type"]); // 'image/png'
                         if (response.statusCode === 400) {
                             req.abort();
@@ -852,8 +852,8 @@ safeJsonParse(str) {
                             details: ""
                         });
                     }).on("end", () => {
-                        that.logger.log("info", LOG_ID + "(get) successfull");
-                        that.logger.log("info", LOG_ID + "(get) get file buffer from Url");
+                        that.logger.log("debug", LOG_ID + "(get) successfull");
+                        that.logger.log("debug", LOG_ID + "(get) get file buffer from Url");
                         that.logger.log("debug", LOG_ID + "(get) _exiting_");
                         if (!err.statusCode) {
                             let data = Buffer.concat(buff);
@@ -928,7 +928,7 @@ safeJsonParse(str) {
                 } else {
                     if (response) {
                         if (response.statusCode) {
-                            that.logger.log("info", LOG_ID + "(post) HTTP statusCode", response.statusCode);
+                            that.logger.log("debug", LOG_ID + "(post) HTTP statusCode", response.statusCode);
                             if (response.statusCode >= 200 && response.statusCode <= 206) {
                                 if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
                                     let json = {};
@@ -1051,7 +1051,7 @@ safeJsonParse(str) {
                 } else {
                     if (response) {
                         if (response.statusCode) {
-                            that.logger.log("info", LOG_ID + "(head) HTTP statusCode", response.statusCode);
+                            that.logger.log("debug", LOG_ID + "(head) HTTP statusCode", response.statusCode);
                             if (response.statusCode >= 200 && response.statusCode <= 206) {
                                 if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
                                     let json = {};
@@ -1178,7 +1178,7 @@ safeJsonParse(str) {
                 } else {
                     if (response) {
                         if (response.statusCode) {
-                            that.logger.log("info", LOG_ID + "(patch) HTTP statusCode", response.statusCode);
+                            that.logger.log("debug", LOG_ID + "(patch) HTTP statusCode", response.statusCode);
                             if (response.statusCode >= 200 && response.statusCode <= 206) {
                                 if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
                                     let json = {};
@@ -1304,7 +1304,7 @@ safeJsonParse(str) {
                 } else {
                     if (response) {
                         if (response.statusCode) {
-                            that.logger.log("info", LOG_ID + "(put) HTTP statusCode", response.statusCode);
+                            that.logger.log("debug", LOG_ID + "(put) HTTP statusCode", response.statusCode);
                             if (response.statusCode >= 200 && response.statusCode <= 206) {
                                 if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
                                     let json = {};
@@ -1396,7 +1396,7 @@ safeJsonParse(str) {
 
         return new Promise(function (resolve, reject) {
 
-            //that.logger.log("info", LOG_ID + "(putBuffer) option url", that.serverURL + url);
+            //that.logger.log("debug", LOG_ID + "(putBuffer) option url", that.serverURL + url);
             //let urlEncoded = encodeURI(that.serverURL + url); // Can not be used because the data in url are allready encodeURIComponent
             let urlEncoded = that.serverURL + url;
 
@@ -1446,8 +1446,8 @@ safeJsonParse(str) {
                     secureProtocol: that.proxy.secureProtocol
                 }
             }).on("end", () => {
-                that.logger.log("info", LOG_ID + "(get) successfull");
-                that.logger.log("info", LOG_ID + "(get) get file buffer from Url");
+                that.logger.log("debug", LOG_ID + "(get) successfull");
+                that.logger.log("debug", LOG_ID + "(get) get file buffer from Url");
                 resolve("done");
             });
 
@@ -1504,7 +1504,7 @@ safeJsonParse(str) {
                     });
                 } else {
                     if (response) {
-                        that.logger.log("info", LOG_ID + "(delete) HTTP code", response.code);
+                        that.logger.log("debug", LOG_ID + "(delete) HTTP code", response.code);
                         if (response.statusCode >= 200 && response.statusCode <= 206) {
                             let bodyjs = {};
                             if (response.body) {

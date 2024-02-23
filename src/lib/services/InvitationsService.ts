@@ -176,7 +176,7 @@ class InvitationsService extends GenericService {
 	
 	onRosterChanged(data) {
 		let that = this;
-		that._logger.log("info", LOG_ID + "onRosterChanged : ", data);
+		that._logger.log("debug", LOG_ID + "onRosterChanged : ", data);
 		that.getAllSentInvitations().catch(err=>{
 			that._logger.log("warn", LOG_ID + "(onRosterChanged) getAllSentInvitations error : ", err);
 		});
@@ -231,8 +231,8 @@ class InvitationsService extends GenericService {
 		} else {
 			that._logger.log("warn", LOG_ID + "(onInvitationsUpdate) userInvite undefined!");
 		}
-        that._logger.log("info", LOG_ID + "(onInvitationsUpdate) that.receivedInvitations : ", that.receivedInvitations);
-        that._logger.log("info", LOG_ID + "(onInvitationsUpdate) that.acceptedInvitationsArray : ", that.acceptedInvitationsArray);
+        that._logger.log("debug", LOG_ID + "(onInvitationsUpdate) that.receivedInvitations : ", that.receivedInvitations);
+        that._logger.log("debug", LOG_ID + "(onInvitationsUpdate) that.acceptedInvitationsArray : ", that.acceptedInvitationsArray);
         that._logger.log("info", LOG_ID + "(onInvitationsUpdate) that.sentInvitations : ", that.sentInvitations);
 		return true;
 	};
@@ -282,8 +282,8 @@ class InvitationsService extends GenericService {
 
 	async handleReceivedInvitation(id, action) {
 		let that = this;
-		that._logger.log("info", LOG_ID + "(handleReceivedInvitation).");
-		that._logger.log("info", LOG_ID + "(handleReceivedInvitation) : ", id, ", action : ", action);
+		that._logger.log("debug", LOG_ID + "(handleReceivedInvitation).");
+		that._logger.log("debug", LOG_ID + "(handleReceivedInvitation) : ", id, ", action : ", action);
 
 		// Handle deletion action
 		if (action === "delete") {
@@ -292,7 +292,7 @@ class InvitationsService extends GenericService {
 			// Hanle other actions
 		} else {
 			await that.getServerInvitation(id).then((invitation: any) => {
-				that._logger.log("info", LOG_ID + "(handleReceivedInvitation) invitation received from server : ", invitation);
+				that._logger.log("debug", LOG_ID + "(handleReceivedInvitation) invitation received from server : ", invitation);
 				let updateInvitation = null;
 				let status = "none";
 
@@ -317,7 +317,7 @@ class InvitationsService extends GenericService {
 							that._contacts.getContactById(invitation.invitingUserId, true).then(function (contact) {
 								// TODO : VBR $rootScope.$broadcast("ON_CONTACT_UPDATED_EVENT", contact);
 							}).catch((err)=>{
-								that._logger.log("info", LOG_ID + "(handleReceivedInvitation) getContactById failed.");
+								that._logger.log("debug", LOG_ID + "(handleReceivedInvitation) getContactById failed.");
 								that._logger.log("internal", LOG_ID + "(handleReceivedInvitation) getContactById failed : ", err);
 							});
 						}
@@ -353,7 +353,7 @@ class InvitationsService extends GenericService {
 	handleSentInvitation(id, action) {
 		let that = this;
 		return new Promise(function (resolve) {
-			that._logger.log("info", LOG_ID + "(handleSentInvitation) id : ", id, ", action : ", action);
+			that._logger.log("debug", LOG_ID + "(handleSentInvitation) id : ", id, ", action : ", action);
 
 			// Handle deletion action
 			if (action === "delete") {
@@ -365,7 +365,7 @@ class InvitationsService extends GenericService {
 			// Handle other actions
 			else {
 				that.getServerInvitation(id).then(function (invitation: any) {
-                    that._logger.log("info", LOG_ID + "(handleSentInvitation) invitation received from server : ", invitation);
+                    that._logger.log("debug", LOG_ID + "(handleSentInvitation) invitation received from server : ", invitation);
 						let contactStatus = null;
 
 						switch (invitation.status) {
@@ -383,7 +383,7 @@ class InvitationsService extends GenericService {
 										// TODO : VBR $rootScope.$broadcast("ON_CONTACT_UPDATED_EVENT", contact);
 										contact.roster = true;
 									}).catch((err)=>{
-										that._logger.log("info", LOG_ID + "(handleSentInvitation) getContactById failed.");
+										that._logger.log("debug", LOG_ID + "(handleSentInvitation) getContactById failed.");
 										that._logger.log("internal", LOG_ID + "(handleSentInvitation) getContactById failed : ", err);
 									});
 								}
@@ -483,7 +483,7 @@ class InvitationsService extends GenericService {
 			that._rest.getAllReceivedInvitations().then(
 					function success(response : any) {
 						let invitationsData : any = response.data;
-						that._logger.log("info", LOG_ID + "(getAllReceivedInvitations) success (find " + invitationsData.length + " invitations)");
+						that._logger.log("debug", LOG_ID + "(getAllReceivedInvitations) success (find " + invitationsData.length + " invitations)");
 
 						that.receivedInvitations = {};
 						that.acceptedInvitations = {};
@@ -567,7 +567,7 @@ class InvitationsService extends GenericService {
 		return new Promise(function (resolve, reject) {
 			return that._rest.getInvitationsReceived(sortField, status, format, limit, offset, sortOrder).then(
 					function success(response: any) {
-						that._logger.log("info", LOG_ID + "(searchInvitationsReceivedFromServer) success (found " + response.data.length + " invitations)");
+						that._logger.log("debug", LOG_ID + "(searchInvitationsReceivedFromServer) success (found " + response.data.length + " invitations)");
 						resolve(response);
 					},
 					function failure(err) {
@@ -627,7 +627,7 @@ class InvitationsService extends GenericService {
 		return new Promise(function (resolve, reject) {
 			that._rest.getServerInvitation(invitationId).then(
 					(response: any) => {
-						that._logger.log("info", LOG_ID + "(getServerInvitation) success");
+						that._logger.log("debug", LOG_ID + "(getServerInvitation) success");
 						that._logger.log("internal", LOG_ID + "(getServerInvitation) success : ", response);
 						let receivedInvitation = Invitation.createFromData(response.data);
 						resolve(receivedInvitation);
@@ -655,9 +655,9 @@ class InvitationsService extends GenericService {
 	 */
 	getInvitation(invitationId) {
 		let that = this;
-		that._logger.log("info", LOG_ID + "(getInvitation) that.receivedInvitations : ", that.receivedInvitations);
-		that._logger.log("info", LOG_ID + "(getInvitation) that.acceptedInvitationsArray : ", that.acceptedInvitationsArray);
-		that._logger.log("info", LOG_ID + "(getInvitation) that.sentInvitations : ", that.sentInvitations);
+		that._logger.log("debug", LOG_ID + "(getInvitation) that.receivedInvitations : ", that.receivedInvitations);
+		that._logger.log("debug", LOG_ID + "(getInvitation) that.acceptedInvitationsArray : ", that.acceptedInvitationsArray);
+		that._logger.log("debug", LOG_ID + "(getInvitation) that.sentInvitations : ", that.sentInvitations);
 
 		let invitationFound = that.receivedInvitations[invitationId];
 		if (!invitationFound) {
@@ -699,10 +699,10 @@ class InvitationsService extends GenericService {
 	async joinContactInvitation(contact) {
 		let that = this;
 		return new Promise(function (resolve, reject) {
-			that._logger.log("info", LOG_ID + "(joinContactInvitation) contact (" + contact.jid + ")");
+			that._logger.log("debug", LOG_ID + "(joinContactInvitation) contact (" + contact.jid + ")");
 			return that._rest.joinContactInvitation(contact).then(
 					async function success(data) {
-						that._logger.log("info", LOG_ID + "(joinContactInvitation) - success (" + contact.jid + ")");
+						that._logger.log("debug", LOG_ID + "(joinContactInvitation) - success (" + contact.jid + ")");
 						if (contact.status === "unknown") {
 							await that.updateContactInvitationStatus(contact.id, "wait", null);
 						}
@@ -758,7 +758,7 @@ class InvitationsService extends GenericService {
 		return new Promise(function (resolve, reject) {
 			that._rest.acceptInvitation(invitation).then(
 					function success(data) {
-						that._logger.log("info", LOG_ID + "(acceptInvitation) success");
+						that._logger.log("debug", LOG_ID + "(acceptInvitation) success");
 						that._logger.log("internal", LOG_ID + "(acceptInvitation) success : ", data);
 						resolve(data);
 					},
@@ -769,7 +769,7 @@ class InvitationsService extends GenericService {
 										// TODO : VBR $rootScope.$broadcast("ON_CONTACT_UPDATED_EVENT", contact);
 										reject(err);
 							}).catch((err)=>{
-								that._logger.log("info", LOG_ID + "(acceptInvitation) getContactById failed.");
+								that._logger.log("debug", LOG_ID + "(acceptInvitation) getContactById failed.");
 								that._logger.log("internal", LOG_ID + "(acceptInvitation) getContactById failed : ", err);
 							});
 						} else {
@@ -823,7 +823,7 @@ class InvitationsService extends GenericService {
 		return new Promise(function (resolve, reject) {
 			that._rest.declineInvitation(invitation).then(
 					function success(data) {
-						that._logger.log("info", LOG_ID + "(declineInvitation) success");
+						that._logger.log("debug", LOG_ID + "(declineInvitation) success");
 						that._logger.log("internal", LOG_ID + "(declineInvitation) success : ", data);
 						resolve(data);
 					},
@@ -848,7 +848,7 @@ class InvitationsService extends GenericService {
 			return that._rest.getAllSentInvitations().then(
 					function success(response: any) {
 						let invitationsData = response.data;
-						that._logger.log("info", LOG_ID + "(getAllSentInvitations) success (find " + invitationsData.length + " invitations)");
+						that._logger.log("debug", LOG_ID + "(getAllSentInvitations) success (find " + invitationsData.length + " invitations)");
 						that.sentInvitations = {};
 						invitationsData.forEach(async function (invitationData) {
 							if (invitationData.status === "pending" && !invitationData.inviteToJoinMeeting) {
@@ -929,7 +929,7 @@ class InvitationsService extends GenericService {
 		return new Promise(function (resolve, reject) {
 			return that._rest.getInvitationsSent(sortField, status, format, limit, offset, sortOrder).then(
 					function success(response: any) {
-						that._logger.log("info", LOG_ID + "(searchInvitationsSentFromServer) success (found " + response.data.length + " invitations)");
+						that._logger.log("debug", LOG_ID + "(searchInvitationsSentFromServer) success (found " + response.data.length + " invitations)");
 						resolve(response);
 					},
 					function failure(err) {
@@ -1072,10 +1072,10 @@ class InvitationsService extends GenericService {
 	async sendInvitationByCriteria(email: string, invitedPhoneNumber : string, invitedUserId : string, lang : string, customMessage : string) {
 		let that = this;
 		return new Promise(function (resolve, reject) {
-			that._logger.log("info", LOG_ID + "(sendInvitationByCriteria)");
+			that._logger.log("debug", LOG_ID + "(sendInvitationByCriteria)");
 			return that._rest.sendInvitationByCriteria(email, lang, customMessage, invitedPhoneNumber, invitedUserId ).then(
 					function success(data) {
-						that._logger.log("info", LOG_ID + "(sendInvitationByCriteria) - success");
+						that._logger.log("debug", LOG_ID + "(sendInvitationByCriteria) - success");
 						resolve(data);
 					},
 					function failure(err) {
@@ -1104,7 +1104,7 @@ class InvitationsService extends GenericService {
 		return new Promise(function (resolve, reject) {
 			that._rest.cancelOneSendInvitation(invitation).then(
 					function success(data) {
-						that._logger.log("info", LOG_ID + "(cancelOneSendInvitation) success");
+						that._logger.log("debug", LOG_ID + "(cancelOneSendInvitation) success");
 						that._logger.log("internal", LOG_ID + "(cancelOneSendInvitation) success : ", data);
 						resolve(data);
 					},
@@ -1159,7 +1159,7 @@ class InvitationsService extends GenericService {
 		return new Promise(function (resolve, reject) {
 			that._rest.reSendInvitation(invitationId, customMessage).then(
 					function success() {
-						that._logger.log("info", LOG_ID + "[InvitationService] reSendInvitation " + invitationId + " - success");
+						that._logger.log("debug", LOG_ID + "[InvitationService] reSendInvitation " + invitationId + " - success");
 						resolve(undefined);
 					},
 					function failure(err) {
@@ -1231,7 +1231,7 @@ class InvitationsService extends GenericService {
 		return new Promise(function (resolve, reject) {
 			that._rest.sendInvitationsByBulk(listOfMails, lang, customMessage).then(
 					function success(data) {
-						that._logger.log("info", LOG_ID + "(sendInvitationsByBulk) - success");
+						that._logger.log("debug", LOG_ID + "(sendInvitationsByBulk) - success");
 						resolve(data);
 					},
 					function failure(err) {
@@ -1301,7 +1301,7 @@ class InvitationsService extends GenericService {
 		return new Promise(function (resolve, reject) {
 			that._rest.deleteAUserInvitation(invitation).then(
 					function success(data) {
-						that._logger.log("info", LOG_ID + "(deleteAUserInvitation) success");
+						that._logger.log("debug", LOG_ID + "(deleteAUserInvitation) success");
 						that._logger.log("internal", LOG_ID + "(deleteAUserInvitation) success : ", data);
 						resolve(data);
 					},
@@ -1339,7 +1339,7 @@ class InvitationsService extends GenericService {
 				// contact.updateRichStatus();
 				resolve(undefined);
 			}).catch((err)=>{
-				that._logger.log("info", LOG_ID + "(updateContactInvitationStatus) getContactById failed.");
+				that._logger.log("debug", LOG_ID + "(updateContactInvitationStatus) getContactById failed.");
 				that._logger.log("internal", LOG_ID + "(updateContactInvitationStatus) getContactById failed : ", err);
 			});
 		});

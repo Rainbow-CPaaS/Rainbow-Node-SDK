@@ -135,8 +135,8 @@ class FavoritesService extends GenericService{
                     // @ts-ignore
                     let duration = new Date() - startDate;
                     let startDuration = Math.round(duration);
-                    that._logger.log("info", LOG_ID + " callLogService start duration : ",  startDuration);
-                    that._logger.log("info", LOG_ID + "[start] === STARTED (" + startDuration + " ms) ===");
+                    that._logger.log("debug", LOG_ID + " callLogService start duration : ",  startDuration);
+                    that._logger.log("debug", LOG_ID + "[start] === STARTED (" + startDuration + " ms) ===");
                     that.started = true;
                 })
                 .catch(() => {
@@ -189,7 +189,7 @@ class FavoritesService extends GenericService{
             return new Promise(async (resolve, reject) => {
                 this._rest.getServerFavorites(peerId).then(async (favorite : []) => {
                     if (favorite) {
-                        that._logger.log("info", LOG_ID + "(getServerFavorites) favorite tab length : ", favorite.length);
+                        that._logger.log("debug", LOG_ID + "(getServerFavorites) favorite tab length : ", favorite.length);
                         let promises = favorite.map(async (data: any) => {
                             return this.createFavoriteObj(data.id, data.peerId, data.type, data.position);
                         });
@@ -197,9 +197,9 @@ class FavoritesService extends GenericService{
                         this.favorites = favorites.filter((favorite) => {
                             return favorite !== null;
                         });
-                        that._logger.log("info", LOG_ID + `getServerFavorites -- SUCCESS -- found ${this.favorites.length} favorites`);
+                        that._logger.log("debug", LOG_ID + `getServerFavorites -- SUCCESS -- found ${this.favorites.length} favorites`);
                     } else {
-                        that._logger.log("info", LOG_ID + "(getServerFavorites) favorite return by REST service is null.");
+                        that._logger.log("debug", LOG_ID + "(getServerFavorites) favorite return by REST service is null.");
                     }
                     resolve(this.favorites);
                 }).catch((err) => {
@@ -247,7 +247,7 @@ class FavoritesService extends GenericService{
         try {
             return new Promise(async (resolve, reject) => {
                 that._rest.removeServerFavorite(favoriteId).then(async (favoriteDeleted ) => {
-                    that._logger.log("info", LOG_ID +"(removeServerFavorite) -- SUCCESS.");
+                    that._logger.log("debug", LOG_ID +"(removeServerFavorite) -- SUCCESS.");
                     that._logger.log("internal", LOG_ID +"(removeServerFavorite) -- SUCCESS : ", favoriteDeleted);
                     resolve(favoriteDeleted);
                 }).catch((err) => {

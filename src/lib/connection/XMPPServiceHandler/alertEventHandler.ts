@@ -419,7 +419,7 @@ class AlertEventHandler extends GenericHandler {
 
         try {
             that.logger.log("internal", LOG_ID + "(onHeadlineMessageReceived) _entering_ : ", msg, stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
-            that.logger.log("info", LOG_ID + "(onHeadlineMessageReceived) message received");
+            that.logger.log("debug", LOG_ID + "(onHeadlineMessageReceived) message received");
 
 
             //DateTime dateTime;
@@ -528,13 +528,13 @@ class AlertEventHandler extends GenericHandler {
                             // Check is this alert has been already Cancelled
                             if (previousMsgType == "Cancel")
                             {
-                                that.logger.log("info", LOG_ID + "(onHeadlineMessageReceived)  This alert has been already cancelled - we don't take care of this alert message - id:[{0}] - identifier[{1}]", alertMessage.id, alertMessage.identifier);
+                                that.logger.log("debug", LOG_ID + "(onHeadlineMessageReceived)  This alert has been already cancelled - we don't take care of this alert message - id:[{0}] - identifier[{1}]", alertMessage.id, alertMessage.identifier);
                                 alreadyTreated = true;
                             }
                             // Check is the previous alert is more recent than the current one
                             else if (previousSent > new Date(alertMessage.sent) )
                             {
-                                that.logger.log("info", LOG_ID + "(onHeadlineMessageReceived) This alert is older than the previous one - we don't take care of this alert message - id:[{0}] - identifier[{1}] - sent[{2}] - previous sent[{3}]", alertMessage.id, alertMessage.identifier, alertMessage.sent, previousSent);
+                                that.logger.log("debug", LOG_ID + "(onHeadlineMessageReceived) This alert is older than the previous one - we don't take care of this alert message - id:[{0}] - identifier[{1}] - sent[{2}] - previous sent[{3}]", alertMessage.id, alertMessage.identifier, alertMessage.sent, previousSent);
                                 alreadyTreated = true;
                             }
                         }
@@ -572,7 +572,7 @@ class AlertEventHandler extends GenericHandler {
                 //AlertMessageReceived.Raise(this, new AlertMessageEventArgs(alertMessage));
                 that.eventEmitter.emit("evt_internal_alertmessagereceived", alertMessage);
             } else {
-                that.logger.log("info", LOG_ID + "(onHeadlineMessageReceived) it is not an alert message received.");
+                that.logger.log("debug", LOG_ID + "(onHeadlineMessageReceived) it is not an alert message received.");
                 that.logger.log("internal", LOG_ID + "(onHeadlineMessageReceived) it is not an alert message received : ", stanza);
             }
         } catch (err) {

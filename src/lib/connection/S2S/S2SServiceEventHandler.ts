@@ -317,7 +317,7 @@ class S2SServiceEventHandler {
                     //resource: resource
                     conversation_id
                 };
-                that._logger.log("info", LOG_ID + "(ParseReceiptCallback) message - receipt received");
+                that._logger.log("debug", LOG_ID + "(ParseReceiptCallback) message - receipt received");
                 that._eventEmitter.emit("evt_internal_onreceipt", receiptEvent);
 
                 return true;
@@ -352,7 +352,7 @@ class S2SServiceEventHandler {
                         break;
                 }
 
-                that._logger.log("info", LOG_ID + "(ParseAllReceiptCallback) message - all-receipt received");
+                that._logger.log("debug", LOG_ID + "(ParseAllReceiptCallback) message - all-receipt received");
                 return true;
             }
             return false;
@@ -388,7 +388,7 @@ class S2SServiceEventHandler {
                             break;
                         case "delete":
                             if (! conversation) {
-                                that._logger.log("info", LOG_ID + "(ParseConversationCallback) message - conversation received for delete but unknown, conversationId : ", conversationId);
+                                that._logger.log("debug", LOG_ID + "(ParseConversationCallback) message - conversation received for delete but unknown, conversationId : ", conversationId);
                                 conversation = new Conversation(conversationId, that._logger);
                             }
                             this._conversations.removeConversation(conversation);
@@ -427,7 +427,7 @@ class S2SServiceEventHandler {
                     let bubbleId = peer;
                     let bubble = await that._bulles.getBubbleById(bubbleId) ;
                     let conversation: Conversation = await that._conversations.getBubbleConversation(bubble.jid);
-                    that._logger.log("info", LOG_ID + "(ParseConversationCallback) message - conversation conversation : ", conversation);
+                    that._logger.log("debug", LOG_ID + "(ParseConversationCallback) message - conversation conversation : ", conversation);
 
                     switch (action) {
                         case "create":
@@ -442,7 +442,7 @@ class S2SServiceEventHandler {
                             break;
                         case "delete":
                             if (! conversation) {
-                                that._logger.log("info", LOG_ID + "(ParseConversationCallback) message - conversation received for delete but unknown, conversationId : ", conversationId);
+                                that._logger.log("debug", LOG_ID + "(ParseConversationCallback) message - conversation received for delete but unknown, conversationId : ", conversationId);
                                 conversation = new Conversation(conversationId, that._logger);
                             }
                             this._conversations.removeConversation(conversation);
@@ -459,7 +459,7 @@ class S2SServiceEventHandler {
                             break;
                     }
                 }
-                that._logger.log("info", LOG_ID + "(ParseConversationCallback) message - conversation received");
+                that._logger.log("debug", LOG_ID + "(ParseConversationCallback) message - conversation received");
                 return true;
             }
             return false;
@@ -546,7 +546,7 @@ class S2SServiceEventHandler {
                 that._eventEmitter.emit("evt_internal_onmessagereceived", data);
                 that._eventEmitter.emit("evt_internal_conversationupdated", conversation);
 
-                that._logger.log("info", LOG_ID + "(ParseMessageCallback) message - conversation received");
+                that._logger.log("debug", LOG_ID + "(ParseMessageCallback) message - conversation received");
                 return true;
             }
             return false;
@@ -562,12 +562,12 @@ class S2SServiceEventHandler {
 
             let roomId = roomInvite.id;
             if (roomId) {
-                that._logger.log("info", LOG_ID + "(ParseRoomInviteCallback) roomId : ", roomId);
+                that._logger.log("debug", LOG_ID + "(ParseRoomInviteCallback) roomId : ", roomId);
                 let date = content.timestamp;
                /* let byUserId = roomInvite.by;
-                that._logger.log("info", LOG_ID + "(ParseRoomInviteCallback) before getBubbleById.");
+                that._logger.log("debug", LOG_ID + "(ParseRoomInviteCallback) before getBubbleById.");
                 let bubble: Bubble = <Bubble> await that._bulles.getBubbleById(roomId).catch((err)=> {
-                    that._logger.log("info", LOG_ID + "(ParseRoomInviteCallback) failed to getBubbleById : ", err);
+                    that._logger.log("debug", LOG_ID + "(ParseRoomInviteCallback) failed to getBubbleById : ", err);
 
                 }); // */
                let invitation = {
@@ -578,7 +578,7 @@ class S2SServiceEventHandler {
                     bulle:bubble,
                     invitedByContact: contact
                 }; */
-                that._logger.log("info", LOG_ID + "(ParseRoomInviteCallback) message - room-invite received");
+                that._logger.log("debug", LOG_ID + "(ParseRoomInviteCallback) message - room-invite received");
                 //that._eventEmitter.emit("evt_internal_invitationdetailsreceived", bubble);
                 that._eventEmitter.emit("evt_internal_invitationreceived", invitation);
 
@@ -600,7 +600,7 @@ class S2SServiceEventHandler {
                 let date = content.timestamp;
                 let status = roomMember.status;
                 let bubble: Bubble = await that._bulles.getBubbleById(roomId);
-                // that._logger.log("info", LOG_ID + "(ParseRoomMemberCallback) message - room-member received");
+                // that._logger.log("debug", LOG_ID + "(ParseRoomMemberCallback) message - room-member received");
                 // that._eventEmitter.emit("evt_internal_invitationdetailsreceived", bubble);
 
                 that._eventEmitter.emit("evt_internal_ownaffiliationchanged", {
@@ -623,7 +623,7 @@ class S2SServiceEventHandler {
                         //that._eventEmitter.emit("evt_internal_ownaffiliationdetailschanged", bubble);
                         break;
                     case "invited":
-                        that._logger.log("info", LOG_ID + "(ParseRoomMemberCallback) message - room-member invited");
+                        that._logger.log("debug", LOG_ID + "(ParseRoomMemberCallback) message - room-member invited");
                         break;
                     default:
                         that._logger.log("error", LOG_ID + "(ParseRoomMemberCallback) error - unknown status type : ", status);
@@ -672,7 +672,7 @@ class S2SServiceEventHandler {
                         //that.eventEmitter.emit("evt_internal_ownaffiliationdetailschanged", bubble);
                         break;
                     case "deleted":
-                        that._logger.log("info", LOG_ID + "(ParseRoomStateCallback) message - room-state deleted");
+                        that._logger.log("debug", LOG_ID + "(ParseRoomStateCallback) message - room-state deleted");
 
                         that._eventEmitter.emit("evt_internal_ownaffiliationchanged", {
                             "bubbleId": bubble.id,
@@ -709,7 +709,7 @@ class S2SServiceEventHandler {
             if (conversationId) {
                 let withId = roomstate.with;
                 let conversation: Conversation = await that._conversations.getOrCreateOneToOneConversation(withId, conversationId);
-                that._logger.log("info", LOG_ID + "(ParseAlldeletedCallback) message - all-deleted received");
+                that._logger.log("debug", LOG_ID + "(ParseAlldeletedCallback) message - all-deleted received");
                 that._eventEmitter.emit("evt_internal_allmessagedremovedfromconversationreceived", conversation);
                 return true;
             }

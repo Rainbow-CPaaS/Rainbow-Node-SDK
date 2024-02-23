@@ -699,7 +699,7 @@ class ConversationsService extends GenericService {
         }
 
         if (conversation.historyComplete == false) {
-            that._logger.log("info", LOG_ID + "(getContactsMessagesFromConversationId) 'conversation.messages' empty, load the history !");
+            that._logger.log("debug", LOG_ID + "(getContactsMessagesFromConversationId) 'conversation.messages' empty, load the history !");
             await that.loadConversationHistory(conversation);
             if (!conversation.messages) {
                 that._logger.log("warn", LOG_ID + "(getContactsMessagesFromConversationId) after load history 'conversation.messages' undefined!");
@@ -785,7 +785,7 @@ class ConversationsService extends GenericService {
         //Conversation.prototype.sendFSMessage = function(file, data) {
         let that = this;
         return new Promise((resolve, reject) => {
-            that._logger.log("info", LOG_ID + "sendFSMessage");
+            that._logger.log("debug", LOG_ID + "sendFSMessage");
 
             // Add message in messages array
             let fileExtension = file.name.split(".").pop();
@@ -1015,7 +1015,7 @@ class ConversationsService extends GenericService {
         that._logger.log("internal", LOG_ID + "(sendCorrectedChatMessage) _entering_ conversation.id : ", conversation.id, ", data : \'", data,  "\', origMsgId : ", origMsgId, " content : ", content);
 
         let originalMessage = conversation.getMessageById(origMsgId);
-        that._logger.log("info", LOG_ID + "(sendCorrectedChatMessage) originalMessage : ", originalMessage);
+        that._logger.log("debug", LOG_ID + "(sendCorrectedChatMessage) originalMessage : ", originalMessage);
         if (originalMessage) {
             let originalMessageFrom = originalMessage.fromJid || originalMessage.from;
             if (originalMessageFrom!==that._rest.loggedInUser.jid_im) {
@@ -1182,7 +1182,7 @@ class ConversationsService extends GenericService {
                 this._logger.log("internalerror", LOG_ID + "(removeAllMessages) bad or empty 'conversation' parameter : ", conversation);
                 return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
-            that._logger.log("info", LOG_ID + "(removeAllMessage) _entering_ " + conversation.id);
+            that._logger.log("debug", LOG_ID + "(removeAllMessage) _entering_ " + conversation.id);
 
             // Id must be filled by lower layer
             let mamRequest = {
@@ -1241,8 +1241,8 @@ class ConversationsService extends GenericService {
     removeMessagesFromConversation(conversation : Conversation, date : Date, number : number) {
         let that = this;
         return new Promise((resolve) => {
-            that._logger.log("info", LOG_ID + " removeMessagesFromConversation " + conversation.id);
-            that._logger.log("info", LOG_ID + " removing " + number + " messages after " + date);
+            that._logger.log("debug", LOG_ID + " removeMessagesFromConversation " + conversation.id);
+            that._logger.log("debug", LOG_ID + " removing " + number + " messages after " + date);
 
             let mamRequest = {
                 "deleteid": "remove_" + conversation.id,
@@ -1529,12 +1529,12 @@ class ConversationsService extends GenericService {
                     label: "Parameter 'contact' is missing or null"
                 });
             } else {
-                that._logger.log("info", LOG_ID + " :: Try to create of get a conversation.");
+                that._logger.log("debug", LOG_ID + " :: Try to create of get a conversation.");
                 that._logger.log("internal", LOG_ID + " :: Try to create of get a conversation with " + contact.lastName + " " + contact.firstName);
 
 
                 that.getOrCreateOneToOneConversation(contact.jid).then(async function (conversation: any) {
-                    that._logger.log("info", LOG_ID + "  :: Conversation retrieved or created " + conversation.id);
+                    that._logger.log("debug", LOG_ID + "  :: Conversation retrieved or created " + conversation.id);
                     if (!conversation.dbId) {
                         conversation = await that.createServerConversation(conversation);
                         that._logger.log("internal", LOG_ID + "(openConversationForContact) conversation : ", conversation);
@@ -1574,7 +1574,7 @@ class ConversationsService extends GenericService {
                     label: "Parameter 'bubble' is missing or null"
                 });
             } else {
-                that._logger.log("info", LOG_ID + "(openConversationForBubble), Try to create of get a conversation for bubble.");
+                that._logger.log("debug", LOG_ID + "(openConversationForBubble), Try to create of get a conversation for bubble.");
                 that._logger.log("internal", LOG_ID + "(openConversationForBubble), Try to create of get a conversation with bubble : ", bubble);
 
                 that.getBubbleConversation(bubble.jid,undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined).then(function (conversation) {
@@ -1611,12 +1611,12 @@ class ConversationsService extends GenericService {
                     label: "Parameter 'conversationId' is missing or null"
                 });
             } else {
-                that._logger.log("info", LOG_ID + "(getS2SServerConversation), Try to create of get a conversation for bubble.");
+                that._logger.log("debug", LOG_ID + "(getS2SServerConversation), Try to create of get a conversation for bubble.");
                 that._logger.log("internal", LOG_ID + "(getS2SServerConversation), Try to create of get a conversation with bubble : ", conversationId);
 
                 that.getS2SServerConversation(conversationId).then(function (conversationInfos) {
                     that._logger.log("internal", LOG_ID + "(getS2SServerConversation), Conversation retrieved or created, conversation : ", conversationInfos);
-                    /*that._logger.log("info", LOG_ID + "[Conversation] Create bubble conversation (" + bubble.jid + ")");
+                    /*that._logger.log("debug", LOG_ID + "[Conversation] Create bubble conversation (" + bubble.jid + ")");
 
                     let conversation = Conversation.createBubbleConversation(bubble);
                     conversation.dbId = conversationId;
@@ -1655,7 +1655,7 @@ class ConversationsService extends GenericService {
     deleteServerConversation(conversationId : string) {
         let that = this;
 
-        that._logger.log("info", LOG_ID + "deleteServerConversation conversationId : ", conversationId);
+        that._logger.log("debug", LOG_ID + "deleteServerConversation conversationId : ", conversationId);
 
         // Ignore conversation without dbId
         if (!conversationId) { return Promise.resolve(undefined); }
@@ -1667,7 +1667,7 @@ class ConversationsService extends GenericService {
             that._logger.log("internalerror", LOG_ID + "(deleteServerConversation) err : ", err);
             // Check particular case where we are trying to remove an already removed conversation
             if (err.errorDetailsCode === 404002 || err.error.errorDetailsCode === 404002 ) {
-                that._logger.log("info", LOG_ID + "deleteServerConversation success: " + conversationId);
+                that._logger.log("debug", LOG_ID + "deleteServerConversation success: " + conversationId);
                 return Promise.resolve(undefined);
             }
 
@@ -1735,17 +1735,17 @@ class ConversationsService extends GenericService {
             let conv = that.getConversationById(conversationId);
             if (conv) {
                 conv.preload = true;
-                that._logger.log("info", LOG_ID + "getOrCreateOneToOneConversation, getConversationById found the conversation : " + conversationId + " " + conversationDbId + " " + missedIMCounter);
+                that._logger.log("debug", LOG_ID + "getOrCreateOneToOneConversation, getConversationById found the conversation : " + conversationId + " " + conversationDbId + " " + missedIMCounter);
                 resolve(conv);
                 return;
             }
 
-            that._logger.log("info", LOG_ID + "getOrCreateOneToOneConversation " + conversationId + " " + conversationDbId + " " + missedIMCounter);
+            that._logger.log("debug", LOG_ID + "getOrCreateOneToOneConversation " + conversationId + " " + conversationDbId + " " + missedIMCounter);
 
 
             // No conversation found, then create it
             that._contactsService.getOrCreateContact(conversationId,undefined) /* Get or create the conversation*/ .then( (contact) => {
-                that._logger.log("info", LOG_ID + "[Conversation] Create one to one conversation for contact.id : (" + contact.id + ")");
+                that._logger.log("debug", LOG_ID + "[Conversation] Create one to one conversation for contact.id : (" + contact.id + ")");
 
                 let  conversation = Conversation.createOneToOneConversation(contact, that._logger);
                 conversation.lastModification = lastModification ? new Date(lastModification) : undefined;
@@ -1930,7 +1930,7 @@ class ConversationsService extends GenericService {
                     that.unlockWaitingBotConversations();
                     resolve(undefined);
                 } else {
-                    that._logger.log("info", LOG_ID + "[Conversation] Create bubble conversation (" + bubble.jid + ")");
+                    that._logger.log("debug", LOG_ID + "[Conversation] Create bubble conversation (" + bubble.jid + ")");
 
                     conversation = Conversation.createBubbleConversation(bubble, that._logger);
                     conversation.dbId = conversationDbId;
@@ -2008,7 +2008,7 @@ class ConversationsService extends GenericService {
     closeConversation(conversation : Conversation) {
         let that = this;
         return new Promise((resolve, reject) => {
-            that._logger.log("info", LOG_ID + "closeConversation " + conversation.id);
+            that._logger.log("debug", LOG_ID + "closeConversation " + conversation.id);
 
             // Remove this contact from favorite group
             that
@@ -2035,10 +2035,10 @@ class ConversationsService extends GenericService {
      */
     removeConversation(conversation : Conversation) {
         let that = this;
-        that._logger.log("info", LOG_ID + "remove conversation " + conversation.id);
+        that._logger.log("debug", LOG_ID + "remove conversation " + conversation.id);
 
         if (conversation.videoCall && conversation.videoCall.status !== Call.Status.UNKNOWN) {
-            that._logger.log("info", LOG_ID + "Ignore conversation deletion message for conversation" + conversation.id);
+            that._logger.log("debug", LOG_ID + "Ignore conversation deletion message for conversation" + conversation.id);
             return;
         }
 
@@ -2225,7 +2225,7 @@ class ConversationsService extends GenericService {
         data.mute = mute;
         
         return this._rest.createServerConversation( data ).then((result : any)=> {
-            that._logger.log("info", LOG_ID + "createServerConversation success: " + conversation.id);
+            that._logger.log("debug", LOG_ID + "createServerConversation success: " + conversation.id);
             conversation.dbId = result.id;
             conversation.lastModification = result.lastMessageDate ? new Date(result.lastMessageDate) : undefined;
             conversation.creationDate = result.creationDate ? new Date(result.creationDate) : new Date();
@@ -2319,7 +2319,7 @@ class ConversationsService extends GenericService {
      */
 /*
     onRoomAdminMessageEvent(__event, roomJid, userJid, type, msgId) {
-        this._logger.log("info", LOG_ID + " onRoomAdminMessageEvent");
+        this._logger.log("debug", LOG_ID + " onRoomAdminMessageEvent");
 
         let conversation = this.getConversationById(roomJid);
 

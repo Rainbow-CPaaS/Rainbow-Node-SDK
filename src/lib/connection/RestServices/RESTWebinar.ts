@@ -90,7 +90,7 @@ class RESTWebinar extends GenericRESTService{
             cleanEmptyMembersFromObject(data);
             that.logger.log("internal", LOG_ID + "(createWebinar) args : ", data);
             that.http.post(url, that.getPostHeader(), JSON.stringify(data), undefined).then(function (json) {
-                that.logger.log("info", LOG_ID + "(createWebinar) successfull");
+                that.logger.log("debug", LOG_ID + "(createWebinar) successfull");
                 that.logger.log("internal", LOG_ID + "(createWebinar) REST leave bubble : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
@@ -148,7 +148,7 @@ class RESTWebinar extends GenericRESTService{
             }
             that.logger.log("internal", LOG_ID + "(createWebinar) args : ", data);
             that.http.put(url, that.getPostHeader(), JSON.stringify(data), undefined).then(function (json) {
-                that.logger.log("info", LOG_ID + "(createWebinar) successfull");
+                that.logger.log("debug", LOG_ID + "(createWebinar) successfull");
                 that.logger.log("internal", LOG_ID + "(createWebinar) REST leave bubble : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
@@ -173,7 +173,7 @@ class RESTWebinar extends GenericRESTService{
             that.logger.log("internal", LOG_ID + "(getWebinarData) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(),undefined).then((json) => {
-                that.logger.log("info", LOG_ID + "(getWebinarData) successfull");
+                that.logger.log("debug", LOG_ID + "(getWebinarData) successfull");
                 that.logger.log("internal", LOG_ID + "(getWebinarData) REST result : ", json);
                 resolve(json.data);
             }).catch(function (err) {
@@ -197,7 +197,7 @@ class RESTWebinar extends GenericRESTService{
             that.logger.log("internal", LOG_ID + "(getWebinarsData) REST url : ", url);
 
             that.http.get(url, that.getRequestHeader(),undefined).then((json) => {
-                that.logger.log("info", LOG_ID + "(getWebinarsData) successfull");
+                that.logger.log("debug", LOG_ID + "(getWebinarsData) successfull");
                 that.logger.log("internal", LOG_ID + "(getWebinarsData) REST result : ", json);
                 resolve(json);
             }).catch(function (err) {
@@ -223,7 +223,7 @@ class RESTWebinar extends GenericRESTService{
             let data = undefined;
             that.logger.log("internal", LOG_ID + "(warnWebinarModerators) args : ", data);
             that.http.put(url, that.getPostHeader(), data, undefined).then(function (json) {
-                that.logger.log("info", LOG_ID + "(warnWebinarModerators) successfull");
+                that.logger.log("debug", LOG_ID + "(warnWebinarModerators) successfull");
                 that.logger.log("internal", LOG_ID + "(warnWebinarModerators) REST leave bubble : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
@@ -249,7 +249,7 @@ class RESTWebinar extends GenericRESTService{
             let data = undefined;
             that.logger.log("internal", LOG_ID + "(publishAWebinarEvent) args : ", data);
             that.http.put(url, that.getPostHeader(), data, undefined).then(function (json) {
-                that.logger.log("info", LOG_ID + "(publishAWebinarEvent) successfull");
+                that.logger.log("debug", LOG_ID + "(publishAWebinarEvent) successfull");
                 that.logger.log("internal", LOG_ID + "(publishAWebinarEvent) REST leave bubble : ", json.data);
                 resolve(json.data);
             }).catch(function (err) {
@@ -274,7 +274,7 @@ class RESTWebinar extends GenericRESTService{
 
             that.http.delete(url, that.getRequestHeader())
                     .then((response) => {
-                        that.logger.log("info", LOG_ID + "(deleteWebinar) (" + webinarId + ") -- success");
+                        that.logger.log("debug", LOG_ID + "(deleteWebinar) (" + webinarId + ") -- success");
                         resolve(response);
                     })
                     .catch((err) => {

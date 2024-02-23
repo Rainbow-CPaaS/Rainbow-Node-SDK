@@ -181,13 +181,13 @@ class ConversationHistoryHandler  extends GenericHandler {
                         let mentions : Array<Object> = [];
 
 
-                        that.logger.log("info", LOG_ID + "(onHistoryMessageReceived) message - before treat answeredMsg.");
+                        that.logger.log("debug", LOG_ID + "(onHistoryMessageReceived) message - before treat answeredMsg.");
                         if (stanzaMessage.getChild( "answeredMsg")) {
                             answeredMsgId = stanzaMessage.getChild("answeredMsg").text();
                             answeredMsgStamp = stanzaMessage.getChild("answeredMsg").getAttr("stamp");
                             answeredMsgDate = answeredMsgStamp ? new Date(parseInt(answeredMsgStamp)).toISOString() : undefined;
 
-                            that.logger.log("info", LOG_ID + "(onHistoryMessageReceived) message - answeredMsgId : ", answeredMsgId, ", answeredMsgStamp : ", answeredMsgStamp, ", answeredMsgDate : ", answeredMsgDate);
+                            that.logger.log("debug", LOG_ID + "(onHistoryMessageReceived) message - answeredMsgId : ", answeredMsgId, ", answeredMsgStamp : ", answeredMsgStamp, ", answeredMsgDate : ", answeredMsgDate);
 
 /*
                             if (answeredMsgId) {
@@ -233,7 +233,7 @@ class ConversationHistoryHandler  extends GenericHandler {
                         let message = conversation.getMessageById(messageId);
                         if (!message) { message = conversation.historyMessages.find((item) => { return item.id === messageId; }); }
                         if (message) {
-                            that.logger.log("info", LOG_ID + "(onHistoryMessageReceived) Conversation : " + conversation.id + ", try to add an already stored message with id " + message.id);
+                            that.logger.log("debug", LOG_ID + "(onHistoryMessageReceived) Conversation : " + conversation.id + ", try to add an already stored message with id " + message.id);
                         }
                         else {
                             // Create new message
@@ -327,7 +327,7 @@ class ConversationHistoryHandler  extends GenericHandler {
                                     }*/ else {
                                         lang = "en";
                                     }
-                                    that.logger.log("info", LOG_ID + "(onHistoryMessageReceived) message - lang : ", lang);
+                                    that.logger.log("debug", LOG_ID + "(onHistoryMessageReceived) message - lang : ", lang);
                                     let eventElmt = stanzaMessage.find("event");
                                     if (eventElmt.length > 0) {
                                         event = eventElmt.attrs.name;
@@ -344,7 +344,7 @@ class ConversationHistoryHandler  extends GenericHandler {
                                             filename: oobElmt.getChild("filename").getText(),
                                             filesize: oobElmt.getChild("size").getText()
                                         };
-                                        that.logger.log("info", LOG_ID + "(onHistoryMessageReceived) oob received");
+                                        that.logger.log("debug", LOG_ID + "(onHistoryMessageReceived) oob received");
                                     }
 
                                     let fromBubbleJid = "";
@@ -414,10 +414,10 @@ class ConversationHistoryHandler  extends GenericHandler {
                                                     mentions.push(mention);
                                                 }
                                                 if (that.jid_im == mention['jid']) {
-                                                    that.logger.log("info", LOG_ID + "(onChatMessageReceived) message - attention found in mention.");
+                                                    that.logger.log("debug", LOG_ID + "(onChatMessageReceived) message - attention found in mention.");
                                                     attention = true;
                                                 }
-                                                that.logger.log("info", LOG_ID + "(onChatMessageReceived) message - mention : ", mention, ", that.jid_im  : ", that.jid_im , ", mention['jid'] : ", mention['jid']);
+                                                that.logger.log("debug", LOG_ID + "(onChatMessageReceived) message - mention : ", mention, ", that.jid_im  : ", that.jid_im , ", mention['jid'] : ", mention['jid']);
                                             });
                                         } else {
                                             const mention = {};
@@ -429,10 +429,10 @@ class ConversationHistoryHandler  extends GenericHandler {
                                                 mentions.push(mention);
                                             }
                                             if (that.jid_im == mention['jid']) {
-                                                that.logger.log("info", LOG_ID + "(onChatMessageReceived) message - attention found in mention.");
+                                                that.logger.log("debug", LOG_ID + "(onChatMessageReceived) message - attention found in mention.");
                                                 attention = true;
                                             }
-                                            that.logger.log("info", LOG_ID + "(onChatMessageReceived) message - mention : ", mention, ", that.jid_im  : ", that.jid_im , ", mention['jid'] : ", mention['jid']);
+                                            that.logger.log("debug", LOG_ID + "(onChatMessageReceived) message - mention : ", mention, ", that.jid_im  : ", that.jid_im , ", mention['jid'] : ", mention['jid']);
                                         }
                                     }
                                     //message = Message.create(messageId, date, from, side, body, false, answeredMsg, answeredMsgId, answeredMsgDate, answeredMsgStamp, isMarkdown);
@@ -695,7 +695,7 @@ class ConversationHistoryHandler  extends GenericHandler {
             if (!message) { message = conversation.historyMessages.find(function(item) { return item.id === messageId; }); }
 
             if (message) {
-                that.logger.log("info", LOG_ID + "[Conversation] (" + conversation.id + ") try to add an already stored message with id " + message.id);
+                that.logger.log("debug", LOG_ID + "[Conversation] (" + conversation.id + ") try to add an already stored message with id " + message.id);
             }
             else {
                 if ( !conversation.pendingPromise ) {
