@@ -14322,6 +14322,53 @@ Request Method: PUT
 
     //endregion Customer Care
 
+    //region Tasks MANAGEMENT
+
+    async addTask(name, comment, isFavorite) {
+        let that = this;
+
+        return new Promise(function(resolve, reject) {
+
+        });
+    }
+
+    createTaskcategory() {}
+    createPropertiesTaskByCategoryId () {}
+    updatePropertiesTaskByCategoryId () {}
+    async getTaskById(taskId: string) {}
+    getTasksByCategoryId() {}
+    getTasks(category : string) {
+        // API https://api.openrainbow.org/enduser/#api-to_do_list-GetUserTodos
+        // GET /api/rainbow/enduser/v1.0/users/:userId/todos
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url: string = "/api/rainbow/enduser/v1.0/users/" + that.userId + "/todos";
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "category", category);
+            url = urlParamsTab[0];
+
+            that._logger.log(that.INTERNAL, LOG_ID + "(getTasks) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
+                that._logger.log(that.DEBUG, LOG_ID + "(getTasks) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getTasks) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(getTasks) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getTasks) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    deletePropertiesFromTasks() {}
+    deleteTask() {}
+    deleteCategoryFromTasks() {}
+    updateTask() {}
+
+    //endregion Tasks MANAGEMENT
+
+
 }
 
 export {RESTService, MEDIATYPE, GuestParams};

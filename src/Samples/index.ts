@@ -337,6 +337,10 @@ let urlS2S;
                         "api": true,
                         "level": "debug"
                     },
+                    "tasks": {
+                        "api": true,
+                        "level": "debug"
+                    },
                     "telephony": {
                         "api": true,
                         "level": "debug"
@@ -1062,7 +1066,19 @@ let urlS2S;
         
         // endregion File JSON
 
-        // region Contacts
+    // region tasks
+
+     testgetTasks() {
+        let contactInfo = {};
+        rainbowSDK.tasks.getTasks().then(result => {
+           _logger.log("debug", "MAIN - [getTasks    ] ::  result : ", result);
+        }).catch((err) => {
+           _logger.log("error", "MAIN - [getTasks    ] :: catch reject contact : ", err);
+        });
+    }
+    //endregion tasks
+
+    // region Contacts
 
      testupdateMyInformations() {
         let contactInfo = {};
