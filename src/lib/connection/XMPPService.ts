@@ -234,7 +234,7 @@ class XMPPService extends GenericService {
         return new Promise(function (resolve, reject) {
             try {
 
-                //that.logger.log("info", LOG_ID + "(start) path to require https-proxy-agent :", require.resolve('https-proxy-agent'), ", HttpsProxyAgent : ", HttpsProxyAgent);
+                //that.logger.log("debug", LOG_ID + "(start) path to require https-proxy-agent :", require.resolve('https-proxy-agent'), ", HttpsProxyAgent : ", HttpsProxyAgent);
                 
                 if (withXMPP) {
                     that.logger.log("debug", LOG_ID + "(start) XMPP host used : ", that.host);
@@ -567,16 +567,13 @@ class XMPPService extends GenericService {
          */
         
         that.xmppClient.on("input", function fn_input (stanzaStr) {
-
             //let jsonStanzaIn = getJsonFromXML(stanzaStr);
-
-            let stanzaElmt : any = parse(stanzaStr);
+                        let stanzaElmt : any = parse(stanzaStr);
             let stanzaElmtOffended = that.xmppUtils.offendXml(stanzaElmt);
             let xmlOffendedStr = prettydata.xml(stanzaElmtOffended.toString());
-            that._logger.log("info", LOG_ID + "(handleXMPPConnection) ", that._logger.colors.cyan(" raw in - ⮈ stanza : ") + that._logger.colors.cyan(xmlOffendedStr));
+            that._logger.log("debug", LOG_ID + "(handleXMPPConnection) ", that._logger.colors.cyan(" raw in - ⮈ stanza : ") + that._logger.colors.cyan(xmlOffendedStr));
 
             let xmlStr = prettydata.xml(stanzaStr);
-            }
             that.startOrResetIdleTimer(true);
             if (that.raiseLowLevelXmppInEvent ) {
                 that.eventEmitter.emit("evt_internal_xmmpeventreceived", xmlStr);
@@ -591,11 +588,10 @@ class XMPPService extends GenericService {
             let stanzaElmt : any = parse(stanzaStr);
             let stanzaElmtOffended = that.xmppUtils.offendXml(stanzaElmt);
             let xmlOffendedStr = prettydata.xml(stanzaElmtOffended.toString());
-            that._logger.log("info", LOG_ID + "(handleXMPPConnection) ", that._logger.colors.cyan(" raw out - ⮊ stanza : ") + that._logger.colors.cyan(xmlOffendedStr));
+            that._logger.log("debug", LOG_ID + "(handleXMPPConnection) ", that._logger.colors.cyan(" raw out - ⮊ stanza : ") + that._logger.colors.cyan(xmlOffendedStr));
 
             let xmlStr = prettydata.xml(stanzaStr);
-            }
-//            that.logger.log("info", LOG_ID + "(handleXMPPConnection) ", that.logger.colors.yellow(" raw out - decoded : <") + that.logger.decrypt(encodedXml) + ">");
+//            that.logger.log("debug", LOG_ID + "(handleXMPPConnection) ", that.logger.colors.yellow(" raw out - decoded : <") + that.logger.decrypt(encodedXml) + ">");
             that.startOrResetIdleTimer(false);
             if (that.raiseLowLevelXmppOutReq ) {
                 that.eventEmitter.emit("evt_internal_xmmprequestsent", xmlStr);
@@ -603,7 +599,7 @@ class XMPPService extends GenericService {
         });
 
         that.xmppClient.on(ONLINE_EVENT, function fn_ONLINE_EVENT (msg) {
-            that.logger.log("info", LOG_ID + "(handleXMPPConnection) event - ONLINE_EVENT : " + ONLINE_EVENT + " | ", msg);
+            that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - ONLINE_EVENT : " + ONLINE_EVENT + " | ", msg);
             that.logger.log("internal", LOG_ID + "(handleXMPPConnection) connected as ", msg);
             
             if (that.company && (that.company.isMonitorable == true )) {
@@ -632,7 +628,7 @@ class XMPPService extends GenericService {
         });
 
         that.xmppClient.on(STATUS_EVENT, function fn_STATUS_EVENT (status, value) {
-            that.logger.log("info", LOG_ID + "(handleXMPPConnection) event - STATUS_EVENT : " + STATUS_EVENT + " | ", status,  " | ", value ? value.toString() : "");
+            that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - STATUS_EVENT : " + STATUS_EVENT + " | ", status,  " | ", value ? value.toString() : "");
             /* if (msg === "closing") {
                  that.xmppClient.restartConnect().then((res) => {
                      that.logger.log("debug", LOG_ID + "(handleXMPPConnection) restartConnect result : ", res);
@@ -648,7 +644,7 @@ class XMPPService extends GenericService {
             that.logger.log("internal", LOG_ID + "(handleXMPPConnection) event - STANZA_EVENT : " + STANZA_EVENT + " | ", stanza.toString());
 
             let eventId = that.hash + "." + stanza.getNS() + "." + stanza.getName() + (stanza.attrs.type ? "." + stanza.attrs.type : "");
-            that.logger.log("info", LOG_ID + "(handleXMPPConnection) event - STANZA_EVENT : eventId ", eventId);
+            that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - STANZA_EVENT : eventId ", eventId);
             let delivered = PubSub.publish(eventId, stanza);
 
             stanza.children.forEach((child) => {
@@ -681,7 +677,7 @@ class XMPPService extends GenericService {
                         //that.logger.log("error", LOG_ID + "(handleXMPPConnection) something goes wrong...");
                     } else if (stanza.attrs.type === "headline") {
 
-                        // that.logger.log("info", LOG_ID + "(handleXMPPConnection) channel message received");
+                        // that.logger.log("debug", LOG_ID + "(handleXMPPConnection) channel message received");
 
                     } else {
                         let children = stanza.children;
@@ -695,7 +691,7 @@ class XMPPService extends GenericService {
                                         type: null,
                                         id: node.attrs.id
                                     };
-                                    //that.logger.log("info", LOG_ID + "(handleXMPPConnection) server receipt received");
+                                    //that.logger.log("debug", LOG_ID + "(handleXMPPConnection) server receipt received");
                                     that.eventEmitter.emit("evt_internal_onreceipt", receipt);
                                     break;
                                 default:
@@ -811,7 +807,7 @@ class XMPPService extends GenericService {
         });
 
         that.xmppClient.on(CONNECT_EVENT, function fn_CONNECT_EVENT () {
-            that.logger.log("info", LOG_ID + "(handleXMPPConnection) event - CONNECT_EVENT : " + CONNECT_EVENT);
+            that.logger.log("debug", LOG_ID + "(handleXMPPConnection) event - CONNECT_EVENT : " + CONNECT_EVENT);
         });
 
         that.xmppClient.on(RECONNECT_EVENT, function fn_RECONNECT_EVENT (msg) {
@@ -948,7 +944,7 @@ class XMPPService extends GenericService {
         }) // */
             /*
             that.xmppClient.start().then((jid) => {
-                that.logger.log("info", "started", jid.toString());
+                that.logger.log("debug", "started", jid.toString());
             })// */
             .catch(async err => {
                 // rejects for any error before online
@@ -997,7 +993,7 @@ class XMPPService extends GenericService {
             } else if (status) {
                 stanza.append(xml("status", {}, status));
             }
-            that.logger.log("info", LOG_ID + "(setPresence) send - 'stanza'");
+            that.logger.log("debug", LOG_ID + "(setPresence) send - 'stanza'");
             that.logger.log("internal", LOG_ID + "(setPresence) send - 'stanza'", stanza.toString());
             return that.xmppClient.send(stanza);
         } else {
@@ -1018,7 +1014,7 @@ class XMPPService extends GenericService {
                 to,
             "type":"subscribe"});
 
-            that.logger.log("info", LOG_ID + "(subscribePresence) send - 'stanza'");
+            that.logger.log("debug", LOG_ID + "(subscribePresence) send - 'stanza'");
             that.logger.log("internal", LOG_ID + "(subscribePresence) send - 'stanza'", stanza.toString());
             return that.xmppClient.send(stanza);
         } else {
@@ -1938,7 +1934,7 @@ class XMPPService extends GenericService {
 
     async deleteOneCallLog(id) {
         let that = this;
-        that.logger.log("info", LOG_ID + "[deleteOneCallLog] deleteOneCallLog : " + id);
+        that.logger.log("debug", LOG_ID + "[deleteOneCallLog] deleteOneCallLog : " + id);
         // Get the user contact
         //let userContact = contactService.userContact;
 
@@ -1956,7 +1952,7 @@ class XMPPService extends GenericService {
 
     async deleteCallLogsForContact(jid) {
         let that = this;
-        that.logger.log("info", LOG_ID + "[deleteCallLogsForContact] deleteCallLogsForContact : " + jid);
+        that.logger.log("debug", LOG_ID + "[deleteCallLogsForContact] deleteCallLogsForContact : " + jid);
         // Get the user contact
         //let userContact = contactService.userContact;
 
@@ -1995,7 +1991,7 @@ class XMPPService extends GenericService {
 
     async markCallLogAsRead(id) {
         let that = this;
-        that.logger.log("info", LOG_ID + "[markCallLogAsRead] markCallLogAsRead : " + id);
+        that.logger.log("debug", LOG_ID + "[markCallLogAsRead] markCallLogAsRead : " + id);
         // Get the user contact
         //let userContact = contactService.userContact;
 
@@ -2232,7 +2228,7 @@ class XMPPService extends GenericService {
 
                 that.logger.log("internal", LOG_ID + "(getTelephonyState) send - 'iq get'", stanza.root().toString());
             that.xmppClient.sendIq(stanza).then((data)=> {
-                that.logger.log("info", LOG_ID + "(getTelephonyState) received - 'iq result'");
+                that.logger.log("debug", LOG_ID + "(getTelephonyState) received - 'iq result'");
                 that.logger.log("internal", LOG_ID + "(getTelephonyState) received - 'iq result'", data);
 
 
@@ -2495,7 +2491,7 @@ class XMPPService extends GenericService {
             xml("set", { xmlns:NameSpacesLabels.RsmNameSpace }, Object.keys(options).map((key)=> xml( key, {}, options[key] /*? options[key] : null*/)))
         ));
 
-        that.logger.log("info", LOG_ID + "(handleXMPPConnection) mamQuery - 'stanza'");
+        that.logger.log("debug", LOG_ID + "(handleXMPPConnection) mamQuery - 'stanza'");
         that.logger.log("internal", LOG_ID + "(handleXMPPConnection) mamQuery - 'stanza'", stanza.toString());
         that.xmppClient.send(stanza).then(() => {
             if ( typeof onComplete === "function" ) {
@@ -2543,7 +2539,7 @@ class XMPPService extends GenericService {
             xml("set", { xmlns:NameSpacesLabels.RsmNameSpace }, Object.keys(options).map((key)=> xml( key, {}, options[key] ? options[key] : null)))
         ));
 
-        that.logger.log("info", LOG_ID + "(handleXMPPConnection) mamQueryMuc - 'stanza'");
+        that.logger.log("debug", LOG_ID + "(handleXMPPConnection) mamQueryMuc - 'stanza'");
         that.logger.log("internal", LOG_ID + "(handleXMPPConnection) mamQueryMuc - 'stanza'", stanza.toString());
         that.xmppClient.send(stanza).then(() => {
             if ( typeof onComplete === "function" ) {
@@ -2593,7 +2589,7 @@ class XMPPService extends GenericService {
             xml("set", { xmlns:NameSpacesLabels.RsmNameSpace }, Object.keys(options).map((key)=> xml( key, {}, options[key] ? options[key] : null)))
         ));
 
-        that.logger.log("info", LOG_ID + "(handleXMPPConnection) mamDelete - 'stanza'");
+        that.logger.log("debug", LOG_ID + "(handleXMPPConnection) mamDelete - 'stanza'");
         that.logger.log("internal", LOG_ID + "(handleXMPPConnection) mamDelete - 'stanza'", stanza.toString());
         that.xmppClient.send(stanza).then((result) => {
              if ( typeof onComplete === "function" ) {
@@ -2623,7 +2619,7 @@ class XMPPService extends GenericService {
         );
 
         return new Promise((resolve,reject) => {
-            that.logger.log("info", LOG_ID + "(handleXMPPConnection) voiceMessageQuery - 'stanza'");
+            that.logger.log("debug", LOG_ID + "(handleXMPPConnection) voiceMessageQuery - 'stanza'");
             that.logger.log("internal", LOG_ID + "(handleXMPPConnection) voiceMessageQuery - 'stanza'", stanza.toString());
             that.xmppClient.send(stanza).then((data) => {
                 resolve(data);
@@ -3328,12 +3324,12 @@ WHERE  { ?x dc:title ?title .
 
     valueTypeToValue(param) {
         let that = this;
-        // that.logger.log("info", LOG_ID + "(_onIqGetSetQueryReceived) valueTypeToValuev param.value : ", param);
+        // that.logger.log("debug", LOG_ID + "(_onIqGetSetQueryReceived) valueTypeToValuev param.value : ", param);
         let result = undefined;
         if (param) {
             Object.getOwnPropertyNames(param).forEach((val, idx, array) => {
                 let child = param[val];
-                // that.logger.log("info", LOG_ID + "(_onIqGetSetQueryReceived) valueTypeToValue data : ", data);
+                // that.logger.log("debug", LOG_ID + "(_onIqGetSetQueryReceived) valueTypeToValue data : ", data);
 
                 if (val==="boolean") {
                     // that.logger.log("debug", LOG_ID + "(paramToStanza) a param is boolean with number, so transform it to real boolean.");
@@ -3385,7 +3381,7 @@ WHERE  { ?x dc:title ?title .
 
     decodeRPCParam(param) {
         let that = this;
-        //that.logger.log("info", LOG_ID + "(_onIqGetSetQueryReceived) decodeRPCParam param.value : ", param.value);
+        //that.logger.log("debug", LOG_ID + "(_onIqGetSetQueryReceived) decodeRPCParam param.value : ", param.value);
         if (param && param.value) {
             return that.valueTypeToValue(param.value);
         } else {

@@ -191,12 +191,12 @@ let urlS2S;
             "enableEventsLogs": false,
             "enableEncryptedLogs": false,
             "color": true,
-            //"level": "info",
-            "level": "debug",
+            "level": "info",
+            //"level": "debug",
             "customLabel": "RainbowSample",
             "system-dev": {
-                "internals": true,
-                "http": true,
+                "internals": false,
+                "http": false,
             },
             "file": {
                 "path": "c:/temp/",
