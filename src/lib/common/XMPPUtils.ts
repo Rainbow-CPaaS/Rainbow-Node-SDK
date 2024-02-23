@@ -6,6 +6,8 @@ import {RESTTelephony} from "../connection/RestServices/RESTTelephony";
 //const uuid4 = require("uuid4");
 import { v4 as uuid4 } from 'uuid';
 
+const Element = require('ltx').Element;
+
 export class XMPPUTils {
 	public messageId: any;
 	public static xmppUtils: XMPPUTils;
@@ -184,6 +186,64 @@ export class XMPPUTils {
     getBareJidFromJid (jid)
     {
         return jid ? jid.split("/")[0] : null;
+    }
+
+    offendXml(element: any) { // const Element = require('ltx').Element;
+        if (!element || !element.children) return element;
+        // Vérifie si l'élément a des enfants
+        if (element.children.length > 0) {
+            // Parcourt tous les enfants de l'élément
+            //for (let child of element.children) {
+            for (let i = 0; i < element.children.length ; i++) {
+                //if (element.children[i] instanceof Constant) {
+                if ( typeof (element.children[i]) === "string" || typeof (element.children[i]) === "number" || typeof (element.children[i]) === "boolean" ) {
+                    //child.text="replaced";
+                    if (element.children[i] ) {
+                        let sizeOfChild = element.children[i].length;
+                        if (sizeOfChild > 0 && sizeOfChild <= 2) {
+                            /* let firstChar = element.children[i].charAt(0);
+                            let lastChar = element.children[i].charAt(sizeOfChild - 1);
+                            //console.log("Premier caractère : " + firstChar);
+                            //console.log("Dernier caractère : " + lastChar);
+                            element.children[i] = firstChar + "AAA" + lastChar;
+                            // */
+                            element.children[i] = "...";
+                        }
+                        if (sizeOfChild > 2 && sizeOfChild <= 6) {
+                            let firstChar = element.children[i].charAt(0);
+                            let lastChar = element.children[i].charAt(sizeOfChild - 1);
+                            //console.log("Premier caractère : " + firstChar);
+                            //console.log("Dernier caractère : " + lastChar);
+                            element.children[i] = firstChar + "..." + lastChar;
+                        }
+                        if (sizeOfChild > 6 && sizeOfChild <= 8) {
+                            let firstChars = element.children[i].substring(0, 2);
+                            let lastChars = element.children[i].substring(sizeOfChild - 2, sizeOfChild)
+                            //console.log("Premier caractère : " + firstChar);
+                            //console.log("Dernier caractère : " + lastChar);
+                            element.children[i] = firstChars + "..." + lastChars;
+                        }
+                        if (sizeOfChild > 8 ) {
+                            let firstChars = element.children[i].substring(0, 3);
+                            let lastChars = element.children[i].substring(sizeOfChild - 3, sizeOfChild)
+                            //console.log("Premier caractère : " + firstChar);
+                            //console.log("Dernier caractère : " + lastChar);
+                            element.children[i] = firstChars + "..." + lastChars;
+                        }
+                    }
+                } else {
+                    // Vérifie si l'enfant est un élément
+                    if (element.children[i] instanceof Element) {
+                        // Appelle récursivement la fonction pour parcourir les enfants de l'enfant
+                        this.offendXml(element.children[i]);
+                    } else {
+                        console.log("typeof  typeof (element.children[" + i + "]) : ", typeof (element.children[i]));
+                    }
+                }
+            }
+        }
+        // console.log("element offanded : ", element.toString());
+        return element;
     }
 }
 
