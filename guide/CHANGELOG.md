@@ -6,6 +6,19 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+### [2.25.2-lts.6] - 2024-02-23
+#### Removed
+-   None
+
+#### Fixed
+-   Fix reading of xmpp.timeBetweenXmppRequests SDK options.
+
+#### Added
+-   Add Offended `raw in` and `raw out` xmpp stanza in `debug` level.
+
+#### Changed
+-   Update logs by levels.
+
 ### [2.25.2-lts.5] - 2024-01-11
 #### Removed
 -   None
