@@ -391,14 +391,14 @@ class XMPPService extends GenericService {
     startOrResetIdleTimer(incomingStanza = false) {
         let that = this;
         if ((that.pingTimer && !incomingStanza) || (that.reconnect && that.reconnect.isReconnecting)) {
-            that.logger.log("warn", LOG_ID + "(startOrResetIdleTimer) ignored with that.pingTimer.triggerId : ", that.pingTimer ? that.pingTimer.triggerId : "", ", incomingStanza : ", incomingStanza, ", that.reconnect.isReconnecting : ", that.reconnect.isReconnecting );
+            that.logger.log("debug", LOG_ID + "(startOrResetIdleTimer) ignored with that.pingTimer.triggerId : ", that.pingTimer ? that.pingTimer.triggerId : "", ", incomingStanza : ", incomingStanza, ", that.reconnect.isReconnecting : ", that.reconnect.isReconnecting );
             return;
         }
         that.stopIdleTimer();
         if (!that.forceClose) {
             that.logger.log("debug", LOG_ID + "(startOrResetIdleTimer) forceClose not setted, so start setTimeout of idle Timer for ping.");
             that.idleTimer = setTimeout(() => {
-                that.logger.log("warn", LOG_ID + "(startOrResetIdleTimer) idleTimer elapsed. No message received since " + that.maxIdleTimer / 1000 + " seconds, so send a ping iq request and start setTimeout of ping Timer for waiting result.");
+                that.logger.log("debug", LOG_ID + "(startOrResetIdleTimer) idleTimer elapsed. No message received since " + that.maxIdleTimer / 1000 + " seconds, so send a ping iq request and start setTimeout of ping Timer for waiting result.");
                 // Start waiting an answer from server else reset the connection
                 that.pingTimer = setTimeout(() => {
                     that.pingTimer = null;
@@ -568,11 +568,12 @@ class XMPPService extends GenericService {
         
         that.xmppClient.on("input", function fn_input (stanzaStr) {
             //let jsonStanzaIn = getJsonFromXML(stanzaStr);
-                        let stanzaElmt : any = parse(stanzaStr);
-            let stanzaElmtOffended = that.xmppUtils.offendXml(stanzaElmt);
-            let xmlOffendedStr = prettydata.xml(stanzaElmtOffended.toString());
-            that._logger.log("debug", LOG_ID + "(handleXMPPConnection) ", that._logger.colors.cyan(" raw in - ⮈ stanza : ") + that._logger.colors.cyan(xmlOffendedStr));
-
+            let stanzaElmt : any = parse(stanzaStr);
+//            if (stanzaElmt?.name !== "ping" ) {
+                let stanzaElmtOffended = that.xmppUtils.offendXml(stanzaElmt);
+                let xmlOffendedStr = prettydata.xml(stanzaElmtOffended.toString());
+                that._logger.log("debug", LOG_ID + "(handleXMPPConnection) ", that._logger.colors.cyan(" raw in - ⮈ stanza : ") + that._logger.colors.cyan(xmlOffendedStr));
+//            }
             let xmlStr = prettydata.xml(stanzaStr);
             that.startOrResetIdleTimer(true);
             if (that.raiseLowLevelXmppInEvent ) {
@@ -586,9 +587,11 @@ class XMPPService extends GenericService {
 
         that.xmppClient.on("output", function fn_output (stanzaStr) {
             let stanzaElmt : any = parse(stanzaStr);
-            let stanzaElmtOffended = that.xmppUtils.offendXml(stanzaElmt);
-            let xmlOffendedStr = prettydata.xml(stanzaElmtOffended.toString());
-            that._logger.log("debug", LOG_ID + "(handleXMPPConnection) ", that._logger.colors.cyan(" raw out - ⮊ stanza : ") + that._logger.colors.cyan(xmlOffendedStr));
+//            if (stanzaElmt?.name !== "ping" ) {
+                let stanzaElmtOffended = that.xmppUtils.offendXml(stanzaElmt);
+                let xmlOffendedStr = prettydata.xml(stanzaElmtOffended.toString());
+                that._logger.log("debug", LOG_ID + "(handleXMPPConnection) ", that._logger.colors.cyan(" raw out - ⮊ stanza : ") + that._logger.colors.cyan(xmlOffendedStr));
+//            }
 
             let xmlStr = prettydata.xml(stanzaStr);
 //            that.logger.log("debug", LOG_ID + "(handleXMPPConnection) ", that.logger.colors.yellow(" raw out - decoded : <") + that.logger.decrypt(encodedXml) + ">");
