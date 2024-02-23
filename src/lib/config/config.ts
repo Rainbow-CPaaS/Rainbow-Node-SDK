@@ -395,6 +395,11 @@ let conf =  {
                 start_up:true,
                 optional:true,
                 logEntryParameters:false
+            }, //need services : ( )
+            tasks:  {
+                start_up:true,
+                optional:true,
+                logEntryParameters:false
             } //need services : ( )
     }
 

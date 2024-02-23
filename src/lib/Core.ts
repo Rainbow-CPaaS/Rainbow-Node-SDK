@@ -40,6 +40,7 @@ const packageVersion = require("../package.json");
 import * as Utils from "./common/Utils"
 import {RPCoverXMPPService} from "./services/RPCoverXMPPService.js";
 import {LevelInterface} from "./common/LevelInterface.js";
+import { TasksService } from "./services/TasksService";
 
 /*let _signin;
 let _retrieveInformation;
@@ -89,6 +90,7 @@ class Core implements LevelInterface{
     public _webinars: WebinarsService;
     public _rbvoice: RBVoiceService;
     public _invitations: InvitationsService;
+    public _tasks: TasksService;
     public _httpoverxmpp: HTTPoverXMPP;
     public _rpcoverxmpp: RPCoverXMPPService;
 	public _botsjid: any;
@@ -336,6 +338,7 @@ class Core implements LevelInterface{
         self._rpcoverxmpp = new RPCoverXMPPService(self, self._eventEmitter.iee, self.options.httpOptions, self._logger, self.options.servicesToStart.rpcoverxmpp);
         self._webinars = new WebinarsService(self, self._eventEmitter.iee, self.options.httpOptions, self._logger, self.options.servicesToStart.webinar);
         self._invitations = new InvitationsService(self, self._eventEmitter.iee,self._logger, self.options.servicesToStart.invitation);
+        self._tasks = new TasksService(self, self._eventEmitter.iee, self._logger, self.options.servicesToStart.tasks);
 
         self._botsjid = [];
 
@@ -634,6 +637,8 @@ class Core implements LevelInterface{
                 }).then(() => {
                     return that._settings.init(that.options._restOptions.useRestAtStartup);
                 }).then(() => {
+                    return that._tasks.init(that.options._restOptions.useRestAtStartup);
+                }).then(() => {
                     //return that.presence.sendInitialPresence();
                     return Promise.resolve(undefined);
                 }).then(() => {
@@ -748,6 +753,8 @@ class Core implements LevelInterface{
                     return that._presence.init(that.options._restOptions.useRestAtStartup);
                 }).then(() => {
                     return that._settings.init(that.options._restOptions.useRestAtStartup);
+                }).then(() => {
+                    return that._tasks.init(that.options._restOptions.useRestAtStartup);
                 }).then(() => {
                     //return that.presence.sendInitialPresence();
                     return Promise.resolve(undefined);
@@ -885,7 +892,8 @@ class Core implements LevelInterface{
             that._s2s.cleanMemoryCache();
             that._settings.cleanMemoryCache();
             that._telephony.cleanMemoryCache();
-        }        
+            that._tasks.cleanMemoryCache();
+        }
         
         that.cleanningClassIntervalID = setInterval(cleanningClass, that.options.intervalBetweenCleanMemoryCache);
     }
@@ -1015,6 +1023,8 @@ class Core implements LevelInterface{
                         return that._rpcoverxmpp.start(that.options) ;
                     }).then(() => {
                         return that._invitations.start(that.options, []) ;
+                    }).then(() => {
+                        return that._tasks.start(that.options) ;
                     }).then(() => {
                         that._logger.log(that.DEBUG, LOG_ID + "(start) all modules started successfully");
                         that._stateManager.transitTo(true, that._stateManager.STARTED).then(() => {
@@ -1188,6 +1198,9 @@ class Core implements LevelInterface{
                 return that._rpcoverxmpp.stop();
             }).then(() => {
                 that._logger.log(that.INFO, LOG_ID + "(stop) stopped rpcoverxmpp");
+                return that._tasks.stop();
+            }).then(() => {
+                that._logger.log(that.INFO, LOG_ID + "(stop) stopped tasks");
                 return that._invitations.stop();
             }).then(() => {
                 that._logger.log(that.INFO, LOG_ID + "(stop) stopped invitations");
@@ -1378,6 +1391,10 @@ class Core implements LevelInterface{
 
     get calllog() {
         return this._calllog;
+    }
+
+    get tasks() {
+        return this._tasks;
     }
 
     get Utils() {

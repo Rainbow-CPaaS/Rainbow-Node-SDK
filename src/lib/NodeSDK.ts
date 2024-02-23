@@ -1,5 +1,7 @@
 "use strict";
 
+import {TasksService} from "./services/TasksService.js";
+
 require("fix-esm").register();
 
 import {Core} from "./Core";
@@ -1023,6 +1025,20 @@ class NodeSDK {
      */
     get telephony() : TelephonyService{
         return this._core.telephony;
+    }
+
+    /**
+     * @public
+     * @property {TasksService} tasks
+     * @instance
+     * @nodered true
+     * @service true
+     * @description
+     *    Get access to the tasks module
+     * @return {TasksService}
+     */
+    get tasks() : TasksService{
+        return this._core.tasks;
     }
 
     /**
