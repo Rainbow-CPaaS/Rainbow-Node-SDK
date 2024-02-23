@@ -571,7 +571,7 @@ class XMPPService extends GenericService {
             that.logger.log("debug", LOG_ID + "(handleXMPPConnection) ", that.logger.colors.cyan(" raw in - ⮈ stanza : ") + that.logger.colors.cyan(xmlStr));
             if ( that.logger.enableEncryptedLogs == true ) {
                 let encodedXml = that.logger.encrypt(xmlStr);
-                that.logger.log("info", LOG_ID + "(handleXMPPConnection) ", " raw in - encoded : (" + encodedXml + ")");
+                that.logger.log("debug", LOG_ID + "(handleXMPPConnection) ", " raw in - encoded : (" + encodedXml + ")");
             }
             that.startOrResetIdleTimer(true);
             if (that.raiseLowLevelXmppInEvent ) {
@@ -585,7 +585,7 @@ class XMPPService extends GenericService {
             that.logger.log("debug", LOG_ID + "(handleXMPPConnection) ", that.logger.colors.yellow(" raw out - ⮊ stanza : ") + that.logger.colors.yellow(xmlStr));
             if ( that.logger.enableEncryptedLogs == true ) {
                 let encodedXml = that.logger.encrypt(xmlStr);
-                that.logger.log("info", LOG_ID + "(handleXMPPConnection) ", " raw out - encoded : (" + encodedXml + ")");
+                that.logger.log("debug", LOG_ID + "(handleXMPPConnection) ", " raw out - encoded : (" + encodedXml + ")");
             }
 //            that.logger.log("info", LOG_ID + "(handleXMPPConnection) ", that.logger.colors.yellow(" raw out - decoded : <") + that.logger.decrypt(encodedXml) + ">");
             that.startOrResetIdleTimer(false);
