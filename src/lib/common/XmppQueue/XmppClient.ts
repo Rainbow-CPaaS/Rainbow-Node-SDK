@@ -48,6 +48,7 @@ class XmppClient  {
 	public logger: any;
 	public xmppQueue: any;
 	public timeBetweenXmppRequests: any;
+    public maxPendingAsyncLockXmppQueue: any;
     public username: any;
 	public password: any;
     socketClosed: boolean = false;
@@ -85,7 +86,7 @@ class XmppClient  {
         });
     }
 
-    async init(_logger, _eventemitter, _timeBetweenXmppRequests, _storeMessages, _rateLimitPerHour, _messagesDataStore, _copyMessage, _enablesendurgentpushmessages) {
+    async init(_logger, _eventemitter, _timeBetweenXmppRequests, _storeMessages, _rateLimitPerHour, _messagesDataStore, _copyMessage, _enablesendurgentpushmessages, _maxPendingAsyncLockXmppQueue) {
         let that = this;
         that.client.getQuery('urn:xmpp:ping', 'ping', that.iqGetEventPing.bind(that));
         that.client.setQuery('jabber:iq:roster', 'query', that.iqSetEventRoster.bind(that));
@@ -94,7 +95,8 @@ class XmppClient  {
         that.logger = _logger;
         that.eventEmitter = _eventemitter;
         that.timeBetweenXmppRequests = _timeBetweenXmppRequests ? _timeBetweenXmppRequests:20;
-        that.xmppQueue = XmppQueue.getXmppQueue(_logger, that.timeBetweenXmppRequests);
+        that.maxPendingAsyncLockXmppQueue = _maxPendingAsyncLockXmppQueue ? _maxPendingAsyncLockXmppQueue:20;
+        that.xmppQueue = XmppQueue.getXmppQueue(_logger, that.timeBetweenXmppRequests, that.maxPendingAsyncLockXmppQueue );
         that.storeMessages = _storeMessages;
         that.rateLimitPerHour = _rateLimitPerHour;
         that.messagesDataStore = _messagesDataStore;
@@ -156,17 +158,17 @@ class XmppClient  {
         that.logger.log("warn", LOG_ID + "(XmmpClient) onIqErrorReceived received iq result - 'stanza id '", iqId, ", msg : ", msg, ", errorMsg : ", errorMsg, ", that.iqGetEventWaiting[iqId] : ", that.iqGetEventWaiting[iqId]);
         // reject and delete the waiting iq.
         if (typeof that.iqGetEventWaiting[iqId] === "function") {
-            that.logger.log("info", LOG_ID + "(XmmpClient) onIqErrorReceived call iqGetEventWaiting function id : ", iqId);
+            that.logger.log("debug", LOG_ID + "(XmmpClient) onIqErrorReceived call iqGetEventWaiting function id : ", iqId);
             that.iqGetEventWaiting[iqId](stanza);
         } else {
-            that.logger.log("info", LOG_ID + "(XmmpClient) onIqErrorReceived delete iqGetEventWaiting function id : ", iqId);
+            that.logger.log("debug", LOG_ID + "(XmmpClient) onIqErrorReceived delete iqGetEventWaiting function id : ", iqId);
             delete that.iqGetEventWaiting[iqId];
         }
     };
     
     iqGetEventPing (ctx) {
         let that = this;
-        //that.logger.log("info", LOG_ID + "(XmmpClient) iqGetEventPing ctx : ", ctx);
+        //that.logger.log("debug", LOG_ID + "(XmmpClient) iqGetEventPing ctx : ", ctx);
         that.logger.log("debug", LOG_ID + "(XmmpClient) iqGetEventPing ping iq request received from server.");
         return {};
     }
@@ -331,7 +333,7 @@ class XmppClient  {
 
             if (that.storeMessages==false && stanza && typeof stanza==="object" && stanza.name=="message") {
                 // if (that.storeMessages == false && stanza && typeof stanza === "object" && stanza.name == "message") {
-                // that.logger.log("info", LOG_ID + "(send) will add <no-store /> to stanza.");
+                // that.logger.log("debug", LOG_ID + "(send) will add <no-store /> to stanza.");
                 // that.logger.log("internal", LOG_ID + "(send) will add <no-store /> to stanza : ", stanza);
                 //that.logger.log("debug", LOG_ID + "(send) original stanza : ", stanza);
                 // <no-copy xmlns="urn:xmpp:hints"/>
@@ -446,7 +448,7 @@ class XmppClient  {
                     
                     if (that.storeMessages == false && stanza && typeof stanza === "object" && stanza.name == "message") {
                    // if (that.storeMessages == false && stanza && typeof stanza === "object" && stanza.name == "message") {
-                        // that.logger.log("info", LOG_ID + "(send) will add <no-store /> to stanza.");
+                        // that.logger.log("debug", LOG_ID + "(send) will add <no-store /> to stanza.");
                         // that.logger.log("internal", LOG_ID + "(send) will add <no-store /> to stanza : ", stanza);
                         //that.logger.log("debug", LOG_ID + "(send) original stanza : ", stanza);
                         // <no-copy xmlns="urn:xmpp:hints"/>

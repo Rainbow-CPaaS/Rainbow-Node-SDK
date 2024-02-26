@@ -28,7 +28,7 @@ class Emitter extends EventEmitter {
     emit(type, ...args): boolean {
         let that = this;
         try {
-        that._logger.log("info", LOG_ID + "EventEmitter(emit) event ", that._logger.colors.eventsEmitter(type));
+        that._logger.log("debug", LOG_ID + "EventEmitter(emit) event ", that._logger.colors.eventsEmitter(type));
         } catch (e) {
             that._logger.log("error", LOG_ID + "EventEmitter(emit) Catch Error !!! error : ", e);
         }
@@ -41,7 +41,7 @@ class Emitter extends EventEmitter {
         let that = this;
         let listenerWithLog = (...args: any[]) => {
             try {
-                that._logger.log("info", LOG_ID + "EventEmitter(on) event ", that._logger.colors.eventsEmitter(event));
+                that._logger.log("debug", LOG_ID + "EventEmitter(on) event ", that._logger.colors.eventsEmitter(event));
                 let iter = 0;
                 [...params] = args;
                 let data = "";
@@ -1713,7 +1713,7 @@ class Events {
          *      Fired when the SDK is connected to Rainbow and ready to be used. It is this event which allows application to start the use of SDK's APIs.
          */
 
-        //this._logger.log("info", LOG_ID + "(publish) event " + this._logger.colors.events("rainbow_on" + event) + " : ", info);
+        //this._logger.log("debug", LOG_ID + "(publish) event " + this._logger.colors.events("rainbow_on" + event) + " : ", info);
         //this._evPublisher.emit("rainbow_on" + event, info);
         this.publishEvent(event, info);
     }
@@ -1736,7 +1736,7 @@ class Events {
 
         let eventName= "rainbow_on" + event;
 
-        that._logger.log("info", LOG_ID + "(publishEvent) event " + that._logger.colors.events(eventName));
+        that._logger.log("debug", LOG_ID + "(publishEvent) event " + that._logger.colors.events(eventName));
         let iter = 0;
         let data = "";
         if (that._logger.logLevel == "debug" && params && Array.isArray(params) ){

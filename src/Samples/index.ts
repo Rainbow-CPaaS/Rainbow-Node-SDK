@@ -144,7 +144,8 @@ let urlS2S;
             "raiseLowLevelXmppOutReq": false,
             "maxIdleTimer": 16000,
             "maxPingAnswerTimer": 11000,
-            "xmppRessourceName": "vnagw"
+            "xmppRessourceName": "vnagw",
+            "maxPendingAsyncLockXmppQueue": 10000
         },
         "s2s": {
             "hostCallback": urlS2S,
@@ -234,12 +235,12 @@ let urlS2S;
             "enableEventsLogs": false,
             "enableEncryptedLogs": false,
             "color": false,
-            //"level": "info",
-            "level": "debug",
+            "level": "info",
+            //"level": "debug",
             "customLabel": "RainbowSample",
             "system-dev": {
-                "internals": true,
-                "http": true,
+                "internals": false,
+                "http": false,
             },
             "filter" : "",
             "areas" : {
