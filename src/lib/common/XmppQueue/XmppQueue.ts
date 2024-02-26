@@ -79,21 +79,23 @@ class ItemForQueue {
 class XmppQueue {
 	public logger: any;
 	private timeBetweenXmppRequests: number;
+	private maxPendingAsyncLockXmppQueue: number;
 	public requestsToSend: any;
 	//private items : List<ItemForQueue>;
     private lockEngine: any;
     private lockKey = "LOCK_XMMP_QUEUE";
 
-    constructor(_logger, timeBetweenXmppRequests) {
+    constructor(_logger, timeBetweenXmppRequests: number = 20, maxPendingAsyncLockXmppQueue: number = 10000) {
         let that = this;
         that.logger = _logger; // Temp to be changed
         that.timeBetweenXmppRequests = timeBetweenXmppRequests;
+        that.maxPendingAsyncLockXmppQueue = maxPendingAsyncLockXmppQueue;
         that.requestsToSend = Promise.resolve(undefined);
         //that.items = new List<ItemForQueue>();
         // timeout: 5000, Specify timeout - max amount of time an item can remain in the queue before acquiring the lock 
         // maxPending: 1000, Set max pending tasks - max number of tasks allowed in the queue at a time
         // maxOccupationTime : 3000 Specify max occupation time - max amount of time allowed between entering the queue and completing execution
-        that.lockEngine = new AsyncLock({timeout: 3 * 60 * 1000, maxPending: 1000, maxOccupationTime : 5 * 60 * 1000});
+        that.lockEngine = new AsyncLock({timeout: 3 * 60 * 1000, maxPending: maxPendingAsyncLockXmppQueue, maxOccupationTime : 5 * 60 * 1000});
     }
 
     addPromise(promiseFactory) {

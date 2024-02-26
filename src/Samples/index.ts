@@ -137,12 +137,13 @@ let urlS2S;
             "host": "",
             "port": "443",
             "protocol": "wss",
-            "timeBetweenXmppRequests": "20",
+            "timeBetweenXmppRequests": "1",
             "raiseLowLevelXmppInEvent": false,
             "raiseLowLevelXmppOutReq": false,
             "maxIdleTimer": 16000,
             "maxPingAnswerTimer": 11000,
-            "xmppRessourceName": "vnagw"
+            "xmppRessourceName": "vnagw",
+            "maxPendingAsyncLockXmppQueue": 10000
         },
         "s2s": {
             "hostCallback": urlS2S,

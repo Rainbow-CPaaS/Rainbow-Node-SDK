@@ -319,13 +319,32 @@ class Options {
                 this._logger.log("debug", LOG_ID + "(constructor) Use XMPP services on Rainbow " + this._options.rainbow.host + " platform");
                 break;
         }
-        if ( this._options.xmpp && this._options.xmpp.raiseLowLevelXmppInEvent) { xmppOptions.raiseLowLevelXmppInEvent = this._options.xmpp.raiseLowLevelXmppInEvent; }
-        if ( this._options.xmpp && this._options.xmpp.xmppRessourceName) { xmppOptions.xmppRessourceName = this._options.xmpp.xmppRessourceName; }
-        if ( this._options.xmpp && this._options.xmpp.xmppRessourceName) { xmppOptions.xmppRessourceName = this._options.xmpp.xmppRessourceName; }
-        if ( this._options.xmpp && this._options.xmpp.raiseLowLevelXmppOutReq) { xmppOptions.raiseLowLevelXmppOutReq = this._options.xmpp.raiseLowLevelXmppOutReq; }
-        if ( this._options.xmpp && this._options.xmpp.maxIdleTimer) { xmppOptions.maxIdleTimer = this._options.xmpp.maxIdleTimer; }
-        if ( this._options.xmpp && this._options.xmpp.timeBetweenXmppRequests) { xmppOptions.timeBetweenXmppRequests = this._options.xmpp.timeBetweenXmppRequests; }
-        if ( this._options.xmpp && this._options.xmpp.maxPingAnswerTimer) { xmppOptions.maxPingAnswerTimer = this._options.xmpp.maxPingAnswerTimer; }
+        if ( this._options.xmpp ) {
+            if (this._options.xmpp.raiseLowLevelXmppInEvent) {
+                xmppOptions.raiseLowLevelXmppInEvent = this._options.xmpp.raiseLowLevelXmppInEvent;
+            }
+            if (this._options.xmpp.xmppRessourceName) {
+                xmppOptions.xmppRessourceName = this._options.xmpp.xmppRessourceName;
+            }
+            if (this._options.xmpp.xmppRessourceName) {
+                xmppOptions.xmppRessourceName = this._options.xmpp.xmppRessourceName;
+            }
+            if (this._options.xmpp.raiseLowLevelXmppOutReq) {
+                xmppOptions.raiseLowLevelXmppOutReq = this._options.xmpp.raiseLowLevelXmppOutReq;
+            }
+            if (this._options.xmpp.maxIdleTimer) {
+                xmppOptions.maxIdleTimer = this._options.xmpp.maxIdleTimer;
+            }
+            if (this._options.xmpp.timeBetweenXmppRequests) {
+                xmppOptions.timeBetweenXmppRequests = this._options.xmpp.timeBetweenXmppRequests;
+            }
+            if (this._options.xmpp.maxPendingAsyncLockXmppQueue) {
+                xmppOptions.maxPendingAsyncLockXmppQueue = this._options.xmpp.maxPendingAsyncLockXmppQueue;
+            }
+            if (this._options.xmpp.maxPingAnswerTimer) {
+                xmppOptions.maxPingAnswerTimer = this._options.xmpp.maxPingAnswerTimer;
+            }
+        }
         return xmppOptions;
     }
 

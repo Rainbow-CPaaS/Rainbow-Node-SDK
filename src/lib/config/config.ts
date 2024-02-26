@@ -39,7 +39,8 @@ let conf =  {
             "raiseLowLevelXmppOutReq": false,
             "maxIdleTimer": 15000,
             "maxPingAnswerTimer": 10000,
-            "xmppRessourceName": undefined
+            "xmppRessourceName": undefined,
+            "maxPendingAsyncLockXmppQueue": 10000
         },
         s2s: {
             hostCallback: "nrock",
@@ -64,7 +65,8 @@ let conf =  {
             "raiseLowLevelXmppOutReq": false,
             "maxIdleTimer": 15000,
             "maxPingAnswerTimer": 10000,
-            "xmppRessourceName": undefined
+            "xmppRessourceName": undefined,
+            "maxPendingAsyncLockXmppQueue": 10000
         },
         s2s: {
             hostCallback: "nrock",
@@ -89,7 +91,8 @@ let conf =  {
             "raiseLowLevelXmppOutReq": false,
             "maxIdleTimer": 15000,
             "maxPingAnswerTimer": 10000,
-            "xmppRessourceName": undefined
+            "xmppRessourceName": undefined,
+            "maxPendingAsyncLockXmppQueue": 10000
         },
         s2s: {
             hostCallback: "nrock",

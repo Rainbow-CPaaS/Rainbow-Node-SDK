@@ -48,6 +48,7 @@ class XmppClient  {
 	public logger: any;
 	public xmppQueue: any;
 	public timeBetweenXmppRequests: any;
+    public maxPendingAsyncLockXmppQueue: any;
     public username: any;
 	public password: any;
     socketClosed: boolean = false;
@@ -85,7 +86,7 @@ class XmppClient  {
         });
     }
 
-    async init(_logger, _eventemitter, _timeBetweenXmppRequests, _storeMessages, _rateLimitPerHour, _messagesDataStore, _copyMessage, _enablesendurgentpushmessages) {
+    async init(_logger, _eventemitter, _timeBetweenXmppRequests, _storeMessages, _rateLimitPerHour, _messagesDataStore, _copyMessage, _enablesendurgentpushmessages, _maxPendingAsyncLockXmppQueue) {
         let that = this;
         that.client.getQuery('urn:xmpp:ping', 'ping', that.iqGetEventPing.bind(that));
         that.client.setQuery('jabber:iq:roster', 'query', that.iqSetEventRoster.bind(that));
@@ -94,7 +95,8 @@ class XmppClient  {
         that.logger = _logger;
         that.eventEmitter = _eventemitter;
         that.timeBetweenXmppRequests = _timeBetweenXmppRequests ? _timeBetweenXmppRequests:20;
-        that.xmppQueue = XmppQueue.getXmppQueue(_logger, that.timeBetweenXmppRequests);
+        that.maxPendingAsyncLockXmppQueue = _maxPendingAsyncLockXmppQueue ? _maxPendingAsyncLockXmppQueue:20;
+        that.xmppQueue = XmppQueue.getXmppQueue(_logger, that.timeBetweenXmppRequests, that.maxPendingAsyncLockXmppQueue );
         that.storeMessages = _storeMessages;
         that.rateLimitPerHour = _rateLimitPerHour;
         that.messagesDataStore = _messagesDataStore;

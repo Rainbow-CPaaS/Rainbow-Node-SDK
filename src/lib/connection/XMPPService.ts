@@ -138,6 +138,7 @@ class XMPPService extends GenericService {
 	public shouldSendReadReceipt: any;
 	public useXMPP: any;
 	public timeBetweenXmppRequests: any;
+	public maxPendingAsyncLockXmppQueue: any;
 	public isReconnecting: any;
 	public maxAttempts: any;
 	public idleTimer: any;
@@ -202,6 +203,8 @@ class XMPPService extends GenericService {
         that.messagesDataStore = _im.messagesDataStore;
         that.useXMPP = true;
         that.timeBetweenXmppRequests = _xmpp.timeBetweenXmppRequests;
+        that.maxPendingAsyncLockXmppQueue = _xmpp.maxPendingAsyncLockXmppQueue;
+
         that.isReconnecting = false;
         that.maxAttempts = 1;
         that.idleTimer = null;
@@ -529,7 +532,7 @@ class XMPPService extends GenericService {
         that.xmppClient = new Client(xmppLinkOptions); //"domain": domain,
 // */
 
-        await that.xmppClient.init(that.logger, that.eventEmitter, that.timeBetweenXmppRequests, that.storeMessages, that.rateLimitPerHour, that.messagesDataStore, that.copyMessage, that.enablesendurgentpushmessages);
+        await that.xmppClient.init(that.logger, that.eventEmitter, that.timeBetweenXmppRequests, that.storeMessages, that.rateLimitPerHour, that.messagesDataStore, that.copyMessage, that.enablesendurgentpushmessages, that.maxPendingAsyncLockXmppQueue);
 
         //that.reconnect = that.xmppClient.plugin(require("@xmpp/plugins/reconnect"));
         that.reconnect = that.xmppClient.reconnect;
