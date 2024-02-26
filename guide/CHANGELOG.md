@@ -6,6 +6,19 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+### [2.25.2-lts.7] - 2024-02-26
+#### Removed
+-   None
+
+#### Fixed
+-   None
+
+#### Added
+-   None
+
+#### Changed
+-   Add `options.xmpp.maxPendingAsyncLockXmppQueue` the number of xmpp requests waiting for sending.
+
 ### [2.25.2-lts.6] - 2024-02-23
 #### Removed
 -   None
