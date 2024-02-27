@@ -139,7 +139,7 @@ let urlS2S;
             "host": "",
             "port": "443",
             "protocol": "wss",
-            "timeBetweenXmppRequests": "1",
+            "timeBetweenXmppRequests": "0",
             "raiseLowLevelXmppInEvent": false,
             "raiseLowLevelXmppOutReq": false,
             "maxIdleTimer": 16000,
@@ -234,9 +234,9 @@ let urlS2S;
             "enableFileLogs": false,
             "enableEventsLogs": false,
             "enableEncryptedLogs": false,
-            "color": false,
-            "level": "info",
-            "level": "debug",
+            "color": true,
+            //"level": "info",
+            "level": "xmpp",
             "customLabel": "RainbowSample",
             "system-dev": {
                 "internals": true,
@@ -244,185 +244,225 @@ let urlS2S;
             },
             "filter" : "",
             "areas" : {
-                "services": {
-                    "admin": {
-                        "api": true,
-                        "level": "debug"
-                    },
-                    "alerts": {
-                        "api": true,
-                        "level": "debug"
-                    },
-                    "bubbles": {
-                        "api": true,
-                        "level": "debug"
-                    },
-                    "calllog": {
-                        "api": true,
-                        "level": "debug"
-                    },
-                    "channels": {
-                        "api": true,
-                        "level": "debug"
-                    },
-                    "connectedUser": {
-                        "api": true,
-                        "level": "debug"
-                    },
-                    "contacts": {
-                        "api": true,
-                        "level": "debug"
-                    },
-                    "conversations": {
-                        "api": true,
-                        "level": "debug"
-                    },
-                    "events": {
-                        "api": true,
-                        "level": "debug"
-                    },
-                    "favorites": {
-                        "api": true,
-                        "level": "debug"
-                    },
-                    "fileServer": {
-                        "api": true,
-                        "level": "debug"
-                    },
-                    "fileStorage": {
-                        "api": true,
-                        "level": "debug"
-                    },
-                    "groups": {
-                        "api": true,
-                        "level": "debug"
-                    },
-                    "httpoverxmpp": {
-                        "api": true,
-                        "level": "debug"
-                    },
-                    "im": {
-                        "api": true,
-                        "level": "debug"
-                    },
-                    "invitations": {
-                        "api": true,
-                        "level": "debug"
-                    },
-                    "presence": {
-                        "api": true,
-                        "level": "debug"
-                    },
-                    "profiles": {
-                        "api": true,
-                        "level": "debug"
-                    },
-                    "rbvoice": {
-                        "api": true,
-                        "level": "debug"
-                    },
-                    "rest": {
-                        "api": true,
-                        "level": "debug"
-                    },
-                    "rpcoverxmpp": {
-                        "api": true,
-                        "level": "debug"
-                    },
-                    "s2s": {
-                        "api": true,
-                        "level": "debug"
-                    },
-                    "settings": {
-                        "api": true,
-                        "level": "debug"
-                    },
-                    "tasks": {
-                        "api": true,
-                        "level": "debug"
-                    },
-                    "telephony": {
-                        "api": true,
-                        "level": "debug"
-                    },
-                    "version": {
-                        "api": true,
-                        "level": "debug"
-                    },
-                    "webinars": {
-                        "api": true,
-                        "level": "debug"
-                    }
+                "admin": {
+                    "category": "services",
+                    "api": true,
+                    "level": "debug"
                 },
-                "lawlayer":{
-                    'core': {
-                        "level": "debug"
-                    },
-                    'bubblemanager': {
-                        "level": "debug"
-                    },
-                    'httpmanager': {
-                        "level": "debug"
-                    },
-                    'httpservice': {
-                        "level": "debug"
-                    },
-                    'rest': {
-                        "level": "debug"
-                    },
-                    'xmpp': {
-                        "level": "debug",
-                        "xmppin": true,
-                        "xmppout": true
-                    },
+                "alerts": {
+                    "category": "services",
+                    "api": true,
+                    "level": "debug"
                 },
-                "eventHandlers":{
-                    's2sevent': {
-                        "level": "debug"
-                    },
-                    'rbvoiceevent': {
-                        "level": "debug"
-                    },
-                    'alertevent': {
-                        "level": "debug"
-                    },
-                    'calllogevent': {
-                        "level": "debug"
-                    },
-                    'channelevent': {
-                        "level": "debug"
-                    },
-                    'conversationevent': {
-                        "level": "debug"
-                    },
-                    'conversationhistory': {
-                        "level": "debug"
-                    },
-                    'favoriteevent': {
-                        "level": "debug"
-                    },
-                    'httpoverxmppevent': {
-                        "level": "debug"
-                    },
-                    'invitationevent': {
-                        "level": "debug"
-                    },
-                    'iqevent': {
-                        "level": "debug"
-                    },
-                    'presenceevent': {
-                        "level": "debug"
-                    },
-                    'rpcoverxmpp': {
-                        "level": "debug"
-                    },
-                    'telephonyevent': {
-                        "level": "debug"
-                    },
-                    'webinarevent': {
-                        "level": "debug"
-                    },
-                }
+                "bubbles": {
+                    "category": "services",
+                    "api": true,
+                    "level": "debug"
+                },
+                "calllog": {
+                    "category": "services",
+                    "api": true,
+                    "level": "debug"
+                },
+                "channels": {
+                    "category": "services",
+                    "api": true,
+                    "level": "debug"
+                },
+                "connectedUser": {
+                    "category": "services",
+                    "api": true,
+                    "level": "debug"
+                },
+                "contacts": {
+                    "category": "services",
+                    "api": true,
+                    "level": "debug"
+                },
+                "conversations": {
+                    "category": "services",
+                    "api": true,
+                    "level": "debug"
+                },
+                "events": {
+                    "category": "services",
+                    "api": true,
+                    "level": "debug"
+                },
+                "favorites": {
+                    "category": "services",
+                    "api": true,
+                    "level": "debug"
+                },
+                "fileServer": {
+                    "category": "services",
+                    "api": true,
+                    "level": "debug"
+                },
+                "fileStorage": {
+                    "category": "services",
+                    "api": true,
+                    "level": "debug"
+                },
+                "groups": {
+                    "category": "services",
+                    "api": true,
+                    "level": "debug"
+                },
+                "httpoverxmpp": {
+                    "category": "services",
+                    "api": true,
+                    "level": "debug"
+                },
+                "im": {
+                    "category": "services",
+                    "api": true,
+                    "level": "debug"
+                },
+                "invitations": {
+                    "category": "services",
+                    "api": true,
+                    "level": "debug"
+                },
+                "presence": {
+                    "category": "services",
+                    "api": true,
+                    "level": "debug"
+                },
+                "profiles": {
+                    "category": "services",
+                    "api": true,
+                    "level": "debug"
+                },
+                "rbvoice": {
+                    "category": "services",
+                    "api": true,
+                    "level": "debug"
+                },
+                "rpcoverxmpp": {
+                    "category": "services",
+                    "api": true,
+                    "level": "debug"
+                },
+                "s2s": {
+                    "category": "services",
+                    "api": true,
+                    "level": "debug"
+                },
+                "settings": {
+                    "category": "services",
+                    "api": true,
+                    "level": "debug"
+                },
+                "tasks": {
+                    "category": "services",
+                    "api": true,
+                    "level": "debug"
+                },
+                "telephony": {
+                    "category": "services",
+                    "api": true,
+                    "level": "debug"
+                },
+                "version": {
+                    "category": "services",
+                    "api": true,
+                    "level": "debug"
+                },
+                "webinars": {
+                    "category": "services",
+                    "api": true,
+                    "level": "debug"
+                },
+                'core': {
+                    "category": "lawlayer",
+                    "level": "debug"
+                },
+                'bubblemanager': {
+                    "category": "lawlayer",
+                    "level": "debug"
+                },
+                'httpmanager': {
+                    "category": "lawlayer",
+                    "level": "debug"
+                },
+                'httpservice': {
+                    "category": "lawlayer",
+                    "level": "debug"
+                },
+                'rest': {
+                    "category": "lawlayer",
+                    "level": "debug"
+                },
+                'resttelephony': {
+                    "category": "lawlayer",
+                    "level": "debug"
+                },
+                'xmpp': {
+                    "category": "lawlayer",
+                    "level": "debug",
+                    "xmppin": true,
+                    "xmppout": true
+                },
+                's2sevent': {
+                    "category": "eventHandlers",
+                    "level": "debug"
+                },
+                'rbvoiceevent': {
+                    "category": "eventHandlers",
+                    "level": "debug"
+                },
+                'alertevent': {
+                    "category": "eventHandlers",
+                    "level": "debug"
+                },
+                'calllogevent': {
+                    "category": "eventHandlers",
+                    "level": "debug"
+                },
+                'channelevent': {
+                    "category": "eventHandlers",
+                    "level": "debug"
+                },
+                'conversationevent': {
+                    "category": "eventHandlers",
+                    "level": "debug"
+                },
+                'conversationhistory': {
+                    "category": "eventHandlers",
+                    "level": "debug"
+                },
+                'favoriteevent': {
+                    "category": "eventHandlers",
+                    "level": "debug"
+                },
+                'httpoverxmppevent': {
+                    "category": "eventHandlers",
+                    "level": "debug"
+                },
+                'invitationevent': {
+                    "category": "eventHandlers",
+                    "level": "debug"
+                },
+                'iqevent': {
+                    "category": "eventHandlers",
+                    "level": "debug"
+                },
+                'presenceevent': {
+                    "category": "eventHandlers",
+                    "level": "debug"
+                },
+                'rpcoverxmppevent': {
+                    "category": "eventHandlers",
+                    "level": "debug"
+                },
+                'telephonyevent': {
+                    "category": "eventHandlers",
+                    "level": "debug"
+                },
+                'webinarevent': {
+                    "level": "debug"
+                },
             },
             "file": {
                 "path": "c:/temp/",

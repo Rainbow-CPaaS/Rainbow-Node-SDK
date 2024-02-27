@@ -344,7 +344,7 @@ class Core implements LevelInterface{
 
         self.startCleanningInterval();
 
-        self._logger.log(self.DEBUG, LOG_ID + `=== CONSTRUCTED at (${new Date()} ===`);
+        self._logger.log(self.INFO, LOG_ID + `=== CONSTRUCTED at (${new Date()} ===`);
         //self._logger.log(self.DEBUG, LOG_ID + "(constructor) _exiting_");
     }
 
