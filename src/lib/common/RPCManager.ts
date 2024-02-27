@@ -156,7 +156,7 @@ class RPCManager{
     async reset(): Promise<any> {
         let that = this;
         return new Promise((resolve, reject) => {
-            that.logger.log("debug", LOG_ID + "(reset) We clear the Bubbles from poolBubbleAlreadyJoined, poolBubbleJoinInProgress, poolBubbleToJoin.");
+            that.logger.log("debug", LOG_ID + "(reset) We clear the RPC Methods.");
             that.lock(() => {
                 // Treatment in the lock
                 that.rpcMethods.clear();

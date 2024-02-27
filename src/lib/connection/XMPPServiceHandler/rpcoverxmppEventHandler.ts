@@ -36,7 +36,7 @@ class RpcoverxmppEventHandler extends GenericHandler {
     static getClassName(){ return 'RpcoverxmppEventHandler'; }
     getClassName(){ return RpcoverxmppEventHandler.getClassName(); }
 
-    static getAccessorName(){ return 'rpcoverxmpp'; }
+    static getAccessorName(){ return 'rpcoverxmppevent'; }
     getAccessorName(){ return RpcoverxmppEventHandler.getAccessorName(); }
 
     constructor(xmppService: XMPPService, restService: RESTService, options: any, rpcoverxmpp : RPCoverXMPPService) {
