@@ -22,8 +22,12 @@ class RESTWebinar extends GenericRESTService {
         return RESTWebinar.getClassName();
     }
 
+    static getAccessorName(){ return 'restwebinar'; }
+    getAccessorName(){ return RESTWebinar.getAccessorName(); }
+
     constructor(evtEmitter, _logger) {
         super(_logger, LOG_ID);
+        this.setLogLevels(this);
         let that = this;
 
         that.evtEmitter = evtEmitter;
