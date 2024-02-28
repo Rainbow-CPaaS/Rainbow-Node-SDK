@@ -8,7 +8,7 @@ import {ErrorManager} from "../common/ErrorManager";
 import {Conversation} from "../common/models/Conversation";
 import {shortnameToUnicode,} from "../common/Emoji";
 import {XMPPUTils} from "../common/XMPPUtils";
-import {logEntryExit, until} from "../common/Utils";
+import {isDefined, isNullOrEmpty, logEntryExit, until} from "../common/Utils";
 import {isStarted} from "../common/Utils";
 import {Logger} from "../common/Logger";
 import {EventEmitter} from "events";
@@ -23,6 +23,7 @@ import {Message} from "../common/models/Message";
 import {HTTPoverXMPP} from "./HTTPoverXMPPService.js";
 
 const LOG_ID = "IM/SVCE - ";
+const API_ID = "API_CALL - ";
 
 @logEntryExit(LOG_ID)
 @isStarted([])
@@ -215,7 +216,9 @@ class ImsService extends GenericService{
      * @fulfil {Conversation, ErrorManager} Return the conversation updated with the list of messages requested or an error (reject) if there is no more messages to retrieve
     
      */
-    async getMessagesFromConversation(conversation, intNbMessage : number = 30) {
+    async getMessagesFromConversation(conversation: Conversation, intNbMessage: number = 30): Promise<any> {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getMessagesFromConversation) is conversation defined : ", isDefined(conversation));
         if (!conversation) {
             return Promise.reject(Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'conversation' is missing or null"}));
         }
@@ -245,6 +248,7 @@ class ImsService extends GenericService{
      */
     async getMessageFromConversationById(conversation, strMessageId) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getMessageFromConversationById) is conversation defined : ", isDefined(conversation));
 
         if (!conversation) {
             return Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'conversation' is missing or null"});
@@ -281,6 +285,7 @@ class ImsService extends GenericService{
      */
     async getMessageFromBubbleById(bubble, strMessageId) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getMessageFromBubbleById) is conversation defined : ", isDefined(bubble));
 
         if (!bubble) {
             return Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'bubble' is missing or null"});
@@ -329,6 +334,7 @@ class ImsService extends GenericService{
      */
     async markMessageAsRead(messageReceived) {
         let that =this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(markMessageAsRead) is messageReceived defined : ", isDefined(messageReceived));
         if (!messageReceived) {
             that._logger.log(that.WARN, LOG_ID + "(markMessageAsRead) bad or empty 'messageReceived' parameter");
             return Promise.reject(Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'messageReceived' parameter"}));
@@ -380,6 +386,7 @@ class ImsService extends GenericService{
      */
     async sendMessageToConversation(conversation, message, lang, content, subject, urgency: string = null) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendMessageToConversation) is conversation defined : ", isDefined(conversation), " is message defined : ", isDefined(message));
         if (!conversation) {
             that._logger.log(that.WARN, LOG_ID + "(sendMessageToConversation) bad or empty 'conversation' parameter.");
             that._logger.log(that.INTERNALERROR, LOG_ID + "(sendMessageToConversation) bad or empty 'conversation' parameter : ", conversation);
@@ -473,6 +480,7 @@ class ImsService extends GenericService{
      */
     async sendMessageToContact(message, contact, lang, content, subject, urgency: string = null) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendMessageToContact) is contact defined : ", isDefined(contact), " is message defined : ", isDefined(message));
         if (!contact || !contact.jid_im) {
             that._logger.log(that.WARN, LOG_ID + "(sendMessageToContact) bad or empty 'contact' parameter.");
             that._logger.log(that.INTERNALERROR, LOG_ID + "(sendMessageToContact) bad or empty 'contact' parameter : ", contact);
@@ -534,6 +542,7 @@ class ImsService extends GenericService{
      */
     async sendMessageToJid(message, jid, lang, content, subject, urgency: string = null) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendMessageToContact) is jid defined : ", isDefined(jid), " is message defined : ", isDefined(message));
         if (!lang) {
             lang = "en";
         }
@@ -608,6 +617,7 @@ class ImsService extends GenericService{
      */
     async sendMessageToJidAnswer(message, jid, lang, content, subject, answeredMsg, urgency: string = null) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendMessageToJidAnswer) is jid defined : ", isDefined(jid), " is message defined : ", isDefined(message));
         if (!lang) {
             lang = "en";
         }
@@ -675,6 +685,7 @@ class ImsService extends GenericService{
      */
     async sendMessageToJidAcknowledged(message : Message, lang : string = "EN", ackLabel : string = "Acknowledged") {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendMessageToJidAcknowledged) is lang defined : ", isDefined(lang), " is message defined : ", isDefined(message));
         if ( message && message.urgency === "high" ) {
             if (message.fromBubbleJid ) {
                 return that.sendMessageToBubbleJidAnswer(ackLabel, message.fromJid, lang, null, ackLabel, message,undefined,"std").then((result) => {
@@ -705,6 +716,7 @@ class ImsService extends GenericService{
      */
     async sendMessageToJidIgnored(message : Message, lang : string = "EN", ignLabel : string = "Ignored") {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendMessageToJidIgnored) is lang defined : ", isDefined(lang), " is message defined : ", isDefined(message));
         if ( message && message.urgency === "high" ) {
             if (message.fromBubbleJid ) {
                 return that.sendMessageToBubbleJidAnswer(ignLabel, message.fromJid, lang, null, ignLabel, message,undefined,"std").then((result) => {
@@ -741,6 +753,7 @@ class ImsService extends GenericService{
      */
     async sendMessageToBubble(message, bubble, lang, content, subject, mentions, urgency: string = null) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendMessageToBubble) is bubble defined : ", isDefined(bubble), " is message defined : ", isDefined(message));
         if (!bubble || !bubble.jid) {
             that._logger.log(that.WARN, LOG_ID + "(sendMessageToBubble) bad or empty 'bubble' parameter.");
             that._logger.log(that.INTERNALERROR, LOG_ID + "(sendMessageToBubble) bad or empty 'bubble' parameter : ", bubble);
@@ -773,6 +786,7 @@ class ImsService extends GenericService{
      */
     async sendMessageToBubbleJid(message, jid, lang, content, subject, mentions = null, urgency: string = null) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendMessageToBubbleJid) is jid defined : ", isDefined(jid), " is message defined : ", isDefined(message));
         if (!lang) {
             lang = "en";
         }
@@ -850,6 +864,7 @@ class ImsService extends GenericService{
      */
     async sendMessageToBubbleJidAnswer(message, jid, lang, content, subject, answeredMsg, mentions, urgency: string = null) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendMessageToBubbleJidAnswer) is jid defined : ", isDefined(jid), " is message defined : ", isDefined(message));
         if (!lang) {
             lang = "en";
         }
@@ -947,6 +962,7 @@ class ImsService extends GenericService{
      */
     retrieveXMPPMessagesByListOfMessageIds(ims : Array<any>) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(retrieveXMPPMessagesByListOfMessageIds) is ims defined : ", isDefined(ims));
         return new Promise((resolve, reject) => {
             that._logger.log(that.INTERNAL, LOG_ID + "(retrieveXMPPMessagesByListOfMessageIds) ims : ", ims);
 
@@ -999,6 +1015,7 @@ class ImsService extends GenericService{
      */
     async sendIsTypingStateInBubble(bubble, status) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendIsTypingStateInBubble) is bubble defined : ", isDefined(bubble), " is status defined : ", isDefined(status));
         return new Promise(async (resolve,reject) => {
             if (!bubble) {
                 return reject(Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'bubble' is missing or null"}));
@@ -1045,6 +1062,7 @@ class ImsService extends GenericService{
      */
     async sendIsTypingStateInConversation(conversation, status) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendIsTypingStateInConversation) is conversation defined : ", isDefined(conversation), " is status defined : ", isDefined(status));
         return new Promise(async (resolve, reject) => {
             if (!conversation) {
                 return reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'conversation' is missing or null"}));

@@ -164,7 +164,7 @@ class CallLogEventHandler extends GenericHandler {
             }
 
         } catch (error) {
-            that._logger.log(that.ERROR, LOG_ID + "(onCallLogAckReceived) ");
+            that._logger.log(that.ERROR, LOG_ID + "(onCallLogAckReceived) .");
             that._logger.log(that.INTERNALERROR, LOG_ID + "(onCallLogAckReceived) : " + error);
             return true;
         }

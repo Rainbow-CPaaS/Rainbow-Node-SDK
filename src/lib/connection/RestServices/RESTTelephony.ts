@@ -156,7 +156,7 @@ class RESTTelephony extends GenericRESTService {
                 });
             } else {
                 let error = ErrorCase.OTHERERROR('can not answerCall call', 'answerCall for call ' + util.inspect(call));// errorHelperService.handleError(response);
-                that._logger.log(that.ERROR, LOG_ID + "(answerCall) ");
+                that._logger.log(that.ERROR, LOG_ID + "(answerCall) .");
                 that._logger.log(that.INTERNALERROR, LOG_ID + "(answerCall) : ", error);
                 return reject(error);
             }
@@ -179,7 +179,7 @@ class RESTTelephony extends GenericRESTService {
                 });
             } else {
                 let error = ErrorCase.OTHERERROR('can not holdCall call', 'holdCall for call ' + util.inspect(call));// errorHelperService.handleError(response);
-                that._logger.log(that.ERROR, LOG_ID + "(answerCall) ");
+                that._logger.log(that.ERROR, LOG_ID + "(answerCall) .");
                 that._logger.log(that.INTERNALERROR, LOG_ID + "(answerCall) ", error);
                 return reject(error);
             }
@@ -202,7 +202,7 @@ class RESTTelephony extends GenericRESTService {
                 });
             } else {
                 let error = ErrorCase.OTHERERROR('can not retrieveCall call', 'retrieveCall for call ' + util.inspect(call));// errorHelperService.handleError(response);
-                that._logger.log(that.ERROR, LOG_ID + "(retrieveCall) ");
+                that._logger.log(that.ERROR, LOG_ID + "(retrieveCall) .");
                 that._logger.log(that.INTERNALERROR, LOG_ID + "(retrieveCall) : ", error);
                 return reject(error);
             }
@@ -225,7 +225,7 @@ class RESTTelephony extends GenericRESTService {
                 });
             } else {
                 let error = ErrorCase.OTHERERROR('can not deflectCallToVM call', 'deflectCallToVM for call ' + util.inspect(call));// errorHelperService.handleError(response);
-                that._logger.log(that.ERROR, LOG_ID + "(deflectCallToVM) ");
+                that._logger.log(that.ERROR, LOG_ID + "(deflectCallToVM) .");
                 that._logger.log(that.INTERNALERROR, LOG_ID + "(deflectCallToVM) : ", error);
                 return reject(error);
             }
@@ -248,7 +248,7 @@ class RESTTelephony extends GenericRESTService {
                 });
             } else {
                 let error = ErrorCase.OTHERERROR('can not deflectCall call', 'deflectCall for call ' + util.inspect(call));// errorHelperService.handleError(response);
-                that._logger.log(that.ERROR, LOG_ID + "(deflectCall) ");
+                that._logger.log(that.ERROR, LOG_ID + "(deflectCall) .");
                 that._logger.log(that.INTERNALERROR, LOG_ID + "(deflectCall) : ", error);
                 return reject(error);
             }
@@ -271,7 +271,7 @@ class RESTTelephony extends GenericRESTService {
                 });
             } else {
                 let error = ErrorCase.OTHERERROR('can not transfertCall call', 'transfertCall for call ' + util.inspect(activeCall) + util.inspect(heldCall));// errorHelperService.handleError(response);
-                that._logger.log(that.ERROR, LOG_ID + "(transfertCall) ");
+                that._logger.log(that.ERROR, LOG_ID + "(transfertCall) .");
                 that._logger.log(that.INTERNALERROR, LOG_ID + "(transfertCall) : ", error);
                 return reject(error);
             }
@@ -294,7 +294,7 @@ class RESTTelephony extends GenericRESTService {
                 });
             } else {
                 let error = ErrorCase.OTHERERROR('can not conferenceCall call', 'conferenceCall for call ' + util.inspect(activeCall) + util.inspect(heldCall));// errorHelperService.handleError(response);
-                that._logger.log(that.ERROR, LOG_ID + "(conferenceCall) ");
+                that._logger.log(that.ERROR, LOG_ID + "(conferenceCall) .");
                 that._logger.log(that.INTERNALERROR, LOG_ID + "(conferenceCall) : ", error);
                 return reject(error);
             }

@@ -176,7 +176,7 @@ class AdminService extends GenericService {
      */
     getRainbowSupportBotService() : Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getRainbowSupportBotService) ");
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getRainbowSupportBotService) .");
         //that._logger.log(that.INTERNAL, LOG_ID + "(getRainbowSupportBotService) __ entering __");
 
         return new Promise(function (resolve, reject) {
@@ -228,7 +228,7 @@ class AdminService extends GenericService {
      */
     getABotServiceData(botId : string) : Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getABotServiceData) botId : ", that._logger.stripStringForLogs(botId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getABotServiceData) botId : ", that._logger.stripStringForLogs(botId));
 
     //    that._logger.log(that.INTERNAL, LOG_ID + "(getABotServiceData) __ entering __");
 
@@ -289,7 +289,7 @@ class AdminService extends GenericService {
       */
      getAllBotServices(format : string = "small", limit : number = 100, offset : number = 0, sortField : string = "name", sortOrder : number = 1) : any {
         let that = this;
-         that._logger.log(that.INFO, LOG_ID + API_ID + "(getAllBotServices) ");
+         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getAllBotServices) .");
 
        // that._logger.log(that.INTERNAL, LOG_ID + "(getAllBotServices) __ entering __");
 
@@ -360,7 +360,7 @@ class AdminService extends GenericService {
     createAJoinCompanyLink(companyId : string = undefined, description : string = undefined, isEnabled : boolean = true,
                            expirationDate : string = undefined, maxNumberUsers : number= undefined ) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(createAJoinCompanyLink) companyId : ", that._logger.stripStringForLogs(companyId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(createAJoinCompanyLink) companyId : ", that._logger.stripStringForLogs(companyId));
 
 //        that._logger.log(that.INTERNAL, LOG_ID + "(createAJoinCompanyLink) parameters : companyId : ", companyId);
 
@@ -420,7 +420,7 @@ class AdminService extends GenericService {
      */
     deleteAJoinCompanyLink(companyId : string, joinCompanyLinkId : string ) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(deleteAJoinCompanyLink) companyId : ", that._logger.stripStringForLogs(companyId), ", joinCompanyLinkId : ", that._logger.stripStringForLogs(joinCompanyLinkId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteAJoinCompanyLink) companyId : ", that._logger.stripStringForLogs(companyId), ", joinCompanyLinkId : ", that._logger.stripStringForLogs(joinCompanyLinkId));
 
        // that._logger.log(that.INTERNAL, LOG_ID + "(deleteAJoinCompanyLink) parameters : companyId : ", companyId,", joinCompanyLinkId : ", joinCompanyLinkId);
 
@@ -484,7 +484,7 @@ class AdminService extends GenericService {
      */
     getAJoinCompanyLink(companyId : string, joinCompanyLinkId : string) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getAJoinCompanyLink) companyId : ", that._logger.stripStringForLogs(companyId), ", joinCompanyLinkId : ", that._logger.stripStringForLogs(joinCompanyLinkId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getAJoinCompanyLink) companyId : ", that._logger.stripStringForLogs(companyId), ", joinCompanyLinkId : ", that._logger.stripStringForLogs(joinCompanyLinkId));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -565,7 +565,7 @@ class AdminService extends GenericService {
     getAllJoinCompanyLinks(companyId, format : string = "small", createdByAdminId : string = undefined, isEnabled : boolean = undefined, fromExpirationDate : string = undefined, toExpirationDate : string = undefined,
                            fromNbUsersRegistered : string = undefined, toNbUsersRegistered : string = undefined, limit : number = 100, offset : number = 0, sortField : string = undefined, sortOrder : number = 1 ) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getAllJoinCompanyLinks) companyId : ", that._logger.stripStringForLogs(companyId), ", format : ", format);
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getAllJoinCompanyLinks) companyId : ", that._logger.stripStringForLogs(companyId), ", format : ", format);
 
         return new Promise(function (resolve, reject) {
             try {
@@ -642,7 +642,7 @@ class AdminService extends GenericService {
     updateAJoinCompanyLink(companyId : string, joinCompanyLinkId : string, description : string, isEnabled : boolean = true,
                            expirationDate : string, maxNumberUsers : number ) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(updateAJoinCompanyLink) companyId : ", that._logger.stripStringForLogs(companyId), ", joinCompanyLinkId : ", that._logger.stripStringForLogs(joinCompanyLinkId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateAJoinCompanyLink) companyId : ", that._logger.stripStringForLogs(companyId), ", joinCompanyLinkId : ", that._logger.stripStringForLogs(joinCompanyLinkId));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -816,7 +816,7 @@ class AdminService extends GenericService {
      */
     createCompanyFromDefault(name : string, visibility : string = "public", country? : string, state? : string, slogan? : string, description? : string, size? : string, economicActivityClassification ? : string, website ? : string, avatarShape ? : string, giphyEnabled? : boolean ) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(createCompanyFromDefault) ");
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(createCompanyFromDefault) .");
         //that._logger.log(that.INTERNAL, LOG_ID + "(createCompanyFromDefault) parameters : strName : ", name,", country : ", country);
 
         return new Promise(function (resolve, reject) {
@@ -898,7 +898,7 @@ class AdminService extends GenericService {
      */
     getAllCompaniesVisibleByUser ( format : string = "small", sortField : string = "name", limit  : number = 100, offset  : number = 0, sortOrder : number = 1, name ? : string, status ? : string, visibility ? : string, organisationId ? : string, isBP ? : boolean, hasBP ? : boolean, bpType ? : string) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getAllCompaniesVisibleByUser) name : ", that._logger.stripStringForLogs(name), ", joinCompanyLinkId : ", format);
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getAllCompaniesVisibleByUser) name : ", that._logger.stripStringForLogs(name), ", joinCompanyLinkId : ", format);
 
         //that._logger.log(that.INTERNAL, LOG_ID + "(getAllCompaniesVisibleByUser) parameters : strName : ", name);
 
@@ -964,7 +964,7 @@ class AdminService extends GenericService {
      */
     getCompanyAdministrators (companyId? : string, format : string = "small", limit : number = 100, offset : number = 0) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getCompanyAdministrators) companyId : ", that._logger.stripStringForLogs(companyId), ", format : ", format);
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getCompanyAdministrators) companyId : ", that._logger.stripStringForLogs(companyId), ", format : ", format);
 
         //that._logger.log(that.INTERNAL, LOG_ID + "(getCompanyAdministrators) parameters : companyId : ", companyId);
 
@@ -1007,7 +1007,7 @@ class AdminService extends GenericService {
      */
     createCompany(strName :string, country : string, state : string, offerType? : OFFERTYPES) : Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(createCompany) strName : ", that._logger.stripStringForLogs(strName), ", country : ", country);
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(createCompany) strName : ", that._logger.stripStringForLogs(strName), ", country : ", country);
 
       //  that._logger.log(that.INTERNAL, LOG_ID + "(createCompany) parameters : strName : ", strName,", country : ", country);
 
@@ -1110,7 +1110,7 @@ class AdminService extends GenericService {
      */
     createUserInCompany(email: string, password : string, firstname : string, lastname : string, companyId : string, language : string, isCompanyAdmin: boolean = false, roles: Array<string> = ["user"])  : Promise<Contact> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(createUserInCompany) email : ", that._logger.stripStringForLogs(email), ", lastname : ", that._logger.stripStringForLogs(lastname));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(createUserInCompany) email : ", that._logger.stripStringForLogs(email), ", lastname : ", that._logger.stripStringForLogs(lastname));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -1436,7 +1436,7 @@ class AdminService extends GenericService {
                selectedTheme: string = undefined, userInfo2: string = undefined, isAdmin: boolean = false): Promise<Contact> {
 
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(createUser) ");
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(createUser) .");
 
         return new Promise(function (resolve, reject) {
             try {
@@ -1485,7 +1485,7 @@ class AdminService extends GenericService {
      */
     createGuestUser(firstname, lastname, language, timeToLive) : Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(createGuestUser) lastname : ", that._logger.stripStringForLogs(lastname), ", firstname : ", that._logger.stripStringForLogs(firstname));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(createGuestUser) lastname : ", that._logger.stripStringForLogs(lastname), ", firstname : ", that._logger.stripStringForLogs(firstname));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -1544,7 +1544,7 @@ class AdminService extends GenericService {
      */
     createAnonymousGuestUser(timeToLive) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(createAnonymousGuestUser) ");
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(createAnonymousGuestUser) .");
 
         return new Promise(function (resolve, reject) {
             try {
@@ -1589,7 +1589,7 @@ class AdminService extends GenericService {
      */
     inviteUserInCompany(email, companyId, language, message) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(inviteUserInCompany) companyId : ", that._logger.stripStringForLogs(companyId), ", email : ", that._logger.stripStringForLogs(email));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(inviteUserInCompany) companyId : ", that._logger.stripStringForLogs(companyId), ", email : ", that._logger.stripStringForLogs(email));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -1643,7 +1643,7 @@ class AdminService extends GenericService {
      */
     changePasswordForUser(password, userId) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(changePasswordForUser) userId : ", that._logger.stripStringForLogs(userId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(changePasswordForUser) userId : ", that._logger.stripStringForLogs(userId));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -1693,7 +1693,7 @@ class AdminService extends GenericService {
      */
     updateInformationForUser(objData, userId) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(updateInformationForUser) userId : ", that._logger.stripStringForLogs(userId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateInformationForUser) userId : ", that._logger.stripStringForLogs(userId));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -1748,7 +1748,7 @@ class AdminService extends GenericService {
      */
     deleteUser(userId) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(deleteUser) userId : ", that._logger.stripStringForLogs(userId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteUser) userId : ", that._logger.stripStringForLogs(userId));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -1874,7 +1874,7 @@ class AdminService extends GenericService {
      */
     getAllCompanies(format  : string = "small", sortField : string = "name" , bpId : string = undefined, catalogId : string = undefined, offerId : string = undefined, offerCanBeSold : boolean = undefined, externalReference : string = undefined, externalReference2 : string = undefined, salesforceAccountId : string = undefined, selectedAppCustomisationTemplate : string = undefined, selectedThemeObj: boolean = undefined, offerGroupName : string = undefined, limit : number = 100, offset : number = 0, sortOrder : number = 1, name : string = undefined, status : string = undefined, visibility : string = undefined, organisationId : string = undefined, isBP : boolean = undefined, hasBP : boolean = undefined, bpType : string = undefined ) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getAllCompanies) format : ", that._logger.stripStringForLogs(format));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getAllCompanies) format : ", that._logger.stripStringForLogs(format));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -1974,7 +1974,7 @@ class AdminService extends GenericService {
      */
     getAllUsers(format = "small", offset = 0, limit = 100, sortField="loginEmail") {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getAllUsers) sortField : ", sortField, ", format : ", format);
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getAllUsers) sortField : ", sortField, ", format : ", format);
 
         return new Promise(function (resolve, reject) {
             try {
@@ -2076,7 +2076,7 @@ class AdminService extends GenericService {
                         selectedAppCustomisationTemplate : string, format : string = "small", limit : string = "100",
                         offset : string, sortField : string = "displayName", sortOrder : string, displayName : string, useEmails : boolean, companyName : string, loginEmail : string, email : string, visibility : string, organisationId : string, siteId : string, jid_im : string, jid_tel : string ): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getAllUsersByFilter) ");
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getAllUsersByFilter) .");
 
         return new Promise((resolve, reject) => {
             that._logger.log(that.DEBUG, LOG_ID + "(getAllUsersByFilter) contact, Ask the server...");
@@ -2119,7 +2119,7 @@ class AdminService extends GenericService {
      */
     getAllUsersByCompanyId(format = "small", offset = 0, limit = 100, sortField="loginEmail", companyId: string) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getAllUsersByCompanyId) companyId : ", that._logger.stripStringForLogs(companyId), ", sortField : ", sortField);
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getAllUsersByCompanyId) companyId : ", that._logger.stripStringForLogs(companyId), ", sortField : ", sortField);
 
         return new Promise(function (resolve, reject) {
             try {
@@ -2166,7 +2166,7 @@ class AdminService extends GenericService {
      */
     getAllUsersBySearchEmailByCompanyId(format = "small", offset = 0, limit = 100, sortField="loginEmail", companyId: string, searchEmail: string) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getAllUsersBySearchEmailByCompanyId) companyId : ", that._logger.stripStringForLogs(companyId), ", format : ", format);
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getAllUsersBySearchEmailByCompanyId) companyId : ", that._logger.stripStringForLogs(companyId), ", format : ", format);
 
         return new Promise(function (resolve, reject) {
             try {
@@ -2205,7 +2205,7 @@ class AdminService extends GenericService {
      */
     getContactInfos(userId) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getContactInfos) userId : ", that._logger.stripStringForLogs(userId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getContactInfos) userId : ", that._logger.stripStringForLogs(userId));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -2403,7 +2403,7 @@ class AdminService extends GenericService {
      */
     updateContactInfos(userId, infos) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(updateContactInfos) userId : ", that._logger.stripStringForLogs(userId), ", infos : ", that._logger.stripStringForLogs(infos));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateContactInfos) userId : ", that._logger.stripStringForLogs(userId), ", infos : ", that._logger.stripStringForLogs(infos));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -2514,7 +2514,7 @@ class AdminService extends GenericService {
      */
     acceptJoinCompanyInvitation (invitationId : string) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(acceptJoinCompanyInvitation) invitationId : ", invitationId);
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(acceptJoinCompanyInvitation) invitationId : ", invitationId);
 
         return new Promise((resolve, reject) => {
           //  that._logger.log(that.DEBUG, LOG_ID + "(acceptJoinCompanyInvitation) invitationId : " + invitationId);
@@ -2567,7 +2567,7 @@ class AdminService extends GenericService {
      */
     declineJoinCompanyInvitation (invitationId : string) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(declineJoinCompanyInvitation) invitationId : ", invitationId);
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(declineJoinCompanyInvitation) invitationId : ", invitationId);
 
         return new Promise((resolve, reject) => {
           //  that._logger.log(that.DEBUG, LOG_ID + "(declineJoinCompanyInvitation) invitationId : " + invitationId);
@@ -2619,7 +2619,7 @@ class AdminService extends GenericService {
      */
     getJoinCompanyInvitation (invitationId : string) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getJoinCompanyInvitation) invitationId : ", invitationId);
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getJoinCompanyInvitation) invitationId : ", invitationId);
 
         return new Promise((resolve, reject) => {
             // that._logger.log(that.DEBUG, LOG_ID + "(getJoinCompanyInvitation) invitationId : " + invitationId);
@@ -2684,7 +2684,7 @@ class AdminService extends GenericService {
      */
     getAllJoinCompanyInvitations (sortField : string = "lastNotificationDate", status : string, format : string = "small", limit : number = 100, offset : number = 0, sortOrder : number = 1) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getAllJoinCompanyInvitations) format : ", format);
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getAllJoinCompanyInvitations) format : ", format);
 
         return new Promise((resolve, reject) => {
             //that._logger.log(that.DEBUG, LOG_ID + "(getAllJoinCompanyInvitations) . ");
@@ -2737,7 +2737,7 @@ class AdminService extends GenericService {
      */
     cancelJoinCompanyRequest (joinCompanyRequestId : string) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(cancelJoinCompanyRequest) joinCompanyRequestId : ", that._logger.stripStringForLogs(joinCompanyRequestId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(cancelJoinCompanyRequest) joinCompanyRequestId : ", that._logger.stripStringForLogs(joinCompanyRequestId));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -2795,7 +2795,7 @@ class AdminService extends GenericService {
      */
     getJoinCompanyRequest (joinCompanyRequestId : string) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getJoinCompanyRequest) joinCompanyRequestId : ", that._logger.stripStringForLogs(joinCompanyRequestId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getJoinCompanyRequest) joinCompanyRequestId : ", that._logger.stripStringForLogs(joinCompanyRequestId));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -2861,7 +2861,7 @@ class AdminService extends GenericService {
      */
     getAllJoinCompanyRequests (sortField : string = "lastNotificationDate", status : string, format : string = "small", limit : number = 100, offset : number = 0, sortOrder : number = 1) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getAllJoinCompanyRequests) sortField : ", sortField, ", format : ", format);
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getAllJoinCompanyRequests) sortField : ", sortField, ", format : ", format);
 
         return new Promise(function (resolve, reject) {
             try {
@@ -2921,7 +2921,7 @@ class AdminService extends GenericService {
      */
     resendJoinCompanyRequest (joinCompanyRequestId : string) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(resendJoinCompanyRequest) joinCompanyRequestId : ", that._logger.stripStringForLogs(joinCompanyRequestId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(resendJoinCompanyRequest) joinCompanyRequestId : ", that._logger.stripStringForLogs(joinCompanyRequestId));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -2991,7 +2991,7 @@ class AdminService extends GenericService {
      */
     requestToJoinCompany (requestedCompanyId? : string, requestedCompanyAdminId? : string, requestedCompanyLinkId? : string, lang : string = "en" ) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(requestToJoinCompany) ");
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(requestToJoinCompany) .");
 
         return new Promise(function (resolve, reject) {
             try {
@@ -3075,7 +3075,7 @@ class AdminService extends GenericService {
      */
     applyCustomisationTemplates(name : string, companyId : string, userId : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(applyCustomisationTemplates) name : ", that._logger.stripStringForLogs(name), ", companyId : ", that._logger.stripStringForLogs(companyId), ", userId : ", that._logger.stripStringForLogs(userId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(applyCustomisationTemplates) name : ", that._logger.stripStringForLogs(name), ", companyId : ", that._logger.stripStringForLogs(companyId), ", userId : ", that._logger.stripStringForLogs(userId));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -3320,7 +3320,7 @@ class AdminService extends GenericService {
                                  userProfileCustomisation : string, userTitleNameCustomisation : string, changeTelephonyCustomisation : string, changeSettingsCustomisation : string, fileCopyCustomisation : string,
                                  fileTransferCustomisation : string, forbidFileOwnerChangeCustomisation : string, readReceiptsCustomisation : string, useSpeakingTimeStatistics : string ): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(createCustomisationTemplate) name : ", that._logger.stripStringForLogs(name));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(createCustomisationTemplate) name : ", that._logger.stripStringForLogs(name));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -3369,7 +3369,7 @@ class AdminService extends GenericService {
      */
      deleteCustomisationTemplate(templateId : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(deleteCustomisationTemplate) templateId : ", that._logger.stripStringForLogs(templateId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteCustomisationTemplate) templateId : ", that._logger.stripStringForLogs(templateId));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -3420,7 +3420,7 @@ class AdminService extends GenericService {
      */
     getAllAvailableCustomisationTemplates (companyId : string = undefined, format : string = "small", limit : number = 100, offset : number = 0, sortField : string = "name", sortOrder : number = 1): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getAllAvailableCustomisationTemplates) companyId : ", that._logger.stripStringForLogs(companyId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getAllAvailableCustomisationTemplates) companyId : ", that._logger.stripStringForLogs(companyId));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -3459,7 +3459,7 @@ class AdminService extends GenericService {
      */
     getRequestedCustomisationTemplate (templateId : string = undefined): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getRequestedCustomisationTemplate) templateId : ", that._logger.stripStringForLogs(templateId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getRequestedCustomisationTemplate) templateId : ", that._logger.stripStringForLogs(templateId));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -3703,7 +3703,7 @@ class AdminService extends GenericService {
                                  userTitleNameCustomisation : string = "enabled", changeTelephonyCustomisation : string = "enabled", changeSettingsCustomisation : string = "enabled", fileCopyCustomisation : string = "enabled",
                                  fileTransferCustomisation : string = "enabled", forbidFileOwnerChangeCustomisation : string = "enabled", readReceiptsCustomisation : string = "enabled", useSpeakingTimeStatistics : string  = "enabled"): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(updateCustomisationTemplate) templateId : ", that._logger.stripStringForLogs(templateId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateCustomisationTemplate) templateId : ", that._logger.stripStringForLogs(templateId));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -3751,7 +3751,7 @@ class AdminService extends GenericService {
      */
     askTokenOnBehalf(loginEmail: string, password: string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(askTokenOnBehalf) loginEmail : ", that._logger.stripStringForLogs(loginEmail));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(askTokenOnBehalf) loginEmail : ", that._logger.stripStringForLogs(loginEmail));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -3794,7 +3794,7 @@ class AdminService extends GenericService {
      */
     getUserPresenceInformation(userId?:undefined) : Promise <any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getUserPresenceInformation) userId : ", that._logger.stripStringForLogs(userId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getUserPresenceInformation) userId : ", that._logger.stripStringForLogs(userId));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -3833,7 +3833,7 @@ class AdminService extends GenericService {
      */
     retrieveAllOffersOfCompanyById(companyId?: string) : Promise<Array<any>> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(retrieveAllOffersOfCompanyById) companyId : ", that._logger.stripStringForLogs(companyId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(retrieveAllOffersOfCompanyById) companyId : ", that._logger.stripStringForLogs(companyId));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -3872,7 +3872,7 @@ class AdminService extends GenericService {
      */
     retrieveAllSubscriptionsOfCompanyById(companyId?: string, format : string = "small") : Promise<Array<any>> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(retrieveAllSubscriptionsOfCompanyById) companyId : ", that._logger.stripStringForLogs(companyId), ", format : ", that._logger.stripStringForLogs(format));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(retrieveAllSubscriptionsOfCompanyById) companyId : ", that._logger.stripStringForLogs(companyId), ", format : ", that._logger.stripStringForLogs(format));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -3908,7 +3908,7 @@ class AdminService extends GenericService {
      */
     async getSubscriptionsOfCompanyByOfferId(offerId: string, companyId: string) : Promise<any>{
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getSubscriptionsOfCompanyByOfferId) companyId : ", that._logger.stripStringForLogs(companyId), ", offerId : ", that._logger.stripStringForLogs(offerId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getSubscriptionsOfCompanyByOfferId) companyId : ", that._logger.stripStringForLogs(companyId), ", offerId : ", that._logger.stripStringForLogs(offerId));
 
         return new Promise(async function (resolve, reject) {
             try {        //let Offers =  await that.retrieveAllOffersOfCompanyById(companyId);
@@ -3945,7 +3945,7 @@ class AdminService extends GenericService {
      */
     subscribeCompanyToOfferById(offerId: string, companyId? : string, maxNumberUsers? : number, autoRenew? : boolean ): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(subscribeCompanyToOfferById) companyId : ", that._logger.stripStringForLogs(companyId), ", offerId : ", that._logger.stripStringForLogs(offerId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(subscribeCompanyToOfferById) companyId : ", that._logger.stripStringForLogs(companyId), ", offerId : ", that._logger.stripStringForLogs(offerId));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -3987,7 +3987,7 @@ class AdminService extends GenericService {
      */
     subscribeCompanyToDemoOffer(companyId? : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(subscribeCompanyToDemoOffer) companyId : ", that._logger.stripStringForLogs(companyId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(subscribeCompanyToDemoOffer) companyId : ", that._logger.stripStringForLogs(companyId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -4027,7 +4027,7 @@ class AdminService extends GenericService {
      */
     unSubscribeCompanyToDemoOffer(companyId? : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(unSubscribeCompanyToDemoOffer) companyId : ", that._logger.stripStringForLogs(companyId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(unSubscribeCompanyToDemoOffer) companyId : ", that._logger.stripStringForLogs(companyId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -4068,7 +4068,7 @@ class AdminService extends GenericService {
      */
     subscribeCompanyToAlertOffer(companyId? : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(subscribeCompanyToAlertOffer) companyId : ", that._logger.stripStringForLogs(companyId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(subscribeCompanyToAlertOffer) companyId : ", that._logger.stripStringForLogs(companyId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -4105,7 +4105,7 @@ class AdminService extends GenericService {
      */
     unSubscribeCompanyToAlertOffer(companyId? : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(unSubscribeCompanyToAlertOffer) companyId : ", that._logger.stripStringForLogs(companyId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(unSubscribeCompanyToAlertOffer) companyId : ", that._logger.stripStringForLogs(companyId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -4141,7 +4141,7 @@ class AdminService extends GenericService {
      */
     subscribeCompanyToVoiceEnterpriseOffer(companyId? : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(subscribeCompanyToVoiceEnterpriseOffer) companyId : ", that._logger.stripStringForLogs(companyId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(subscribeCompanyToVoiceEnterpriseOffer) companyId : ", that._logger.stripStringForLogs(companyId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -4178,7 +4178,7 @@ class AdminService extends GenericService {
      */
     unSubscribeCompanyToVoiceEnterpriseOffer(companyId? : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(unSubscribeCompanyToVoiceEnterpriseOffer) companyId : ", that._logger.stripStringForLogs(companyId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(unSubscribeCompanyToVoiceEnterpriseOffer) companyId : ", that._logger.stripStringForLogs(companyId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -4214,7 +4214,7 @@ class AdminService extends GenericService {
      */
     unSubscribeCompanyToOfferById(offerId: string, companyId? : string ): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(unSubscribeCompanyToOfferById) companyId : ", that._logger.stripStringForLogs(companyId), ", offerId : ", that._logger.stripStringForLogs(offerId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(unSubscribeCompanyToOfferById) companyId : ", that._logger.stripStringForLogs(companyId), ", offerId : ", that._logger.stripStringForLogs(offerId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -4262,7 +4262,7 @@ class AdminService extends GenericService {
      */
     subscribeUserToSubscription(userId? : string, subscriptionId? : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(subscribeUserToSubscription) userId : ", that._logger.stripStringForLogs(userId), ", subscriptionId : ", that._logger.stripStringForLogs(subscriptionId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(subscribeUserToSubscription) userId : ", that._logger.stripStringForLogs(userId), ", subscriptionId : ", that._logger.stripStringForLogs(subscriptionId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -4294,7 +4294,7 @@ class AdminService extends GenericService {
      */
     unSubscribeUserToSubscription(userId? : string, subscriptionId? : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(unSubscribeUserToSubscription) userId : ", that._logger.stripStringForLogs(userId), ", subscriptionId : ", that._logger.stripStringForLogs(subscriptionId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(unSubscribeUserToSubscription) userId : ", that._logger.stripStringForLogs(userId), ", subscriptionId : ", that._logger.stripStringForLogs(subscriptionId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -4350,7 +4350,7 @@ class AdminService extends GenericService {
      */
     getAUserProfilesByUserId(userId? : string): Promise<any>{
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getAUserProfilesByUserId) userId : ", that._logger.stripStringForLogs(userId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getAUserProfilesByUserId) userId : ", that._logger.stripStringForLogs(userId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -4411,7 +4411,7 @@ class AdminService extends GenericService {
      */
     getAUserProfilesByUserEmail(email? : string): Promise<any>{
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getAUserProfilesByUserEmail) email : ", that._logger.stripStringForLogs(email));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getAUserProfilesByUserEmail) email : ", that._logger.stripStringForLogs(email));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -4462,7 +4462,7 @@ class AdminService extends GenericService {
      */
      getAUserProfilesFeaturesByUserId(userId? : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getAUserProfilesFeaturesByUserId) userId : ", that._logger.stripStringForLogs(userId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getAUserProfilesFeaturesByUserId) userId : ", that._logger.stripStringForLogs(userId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -4513,7 +4513,7 @@ class AdminService extends GenericService {
      */
      getAUserProfilesFeaturesByUserEmail(email? : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getAUserProfilesFeaturesByUserEmail) email : ", that._logger.stripStringForLogs(email));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getAUserProfilesFeaturesByUserEmail) email : ", that._logger.stripStringForLogs(email));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -4581,7 +4581,7 @@ class AdminService extends GenericService {
      */
     checkCSVdata( data?: any, companyId? : string, delimiter? : string, comment : string = "%"): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(checkCSVdata) companyId : ", that._logger.stripStringForLogs(companyId), ", comment : ", that._logger.stripStringForLogs(comment));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(checkCSVdata) companyId : ", that._logger.stripStringForLogs(companyId), ", comment : ", that._logger.stripStringForLogs(comment));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -4620,7 +4620,7 @@ class AdminService extends GenericService {
      */
     deleteAnImportStatusReport(reqId? : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(deleteAnImportStatusReport) ");
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteAnImportStatusReport) .");
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -4685,7 +4685,7 @@ class AdminService extends GenericService {
      */
     getAnImportStatusReport(reqId? : string, format : string= "full"): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getAnImportStatusReport) ");
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getAnImportStatusReport) .");
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -4736,7 +4736,7 @@ class AdminService extends GenericService {
      */
     getAnImportStatus(companyId? : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getAnImportStatus) companyId : ", that._logger.stripStringForLogs(companyId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getAnImportStatus) companyId : ", that._logger.stripStringForLogs(companyId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -4788,7 +4788,7 @@ class AdminService extends GenericService {
      */
     getInformationOnImports(companyId? : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getInformationOnImports) companyId : ", that._logger.stripStringForLogs(companyId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getInformationOnImports) companyId : ", that._logger.stripStringForLogs(companyId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -4833,7 +4833,7 @@ class AdminService extends GenericService {
      */
     getResultOfStartedOffice365TenantSynchronizationTask(tenant? : string, format : string = "json") : Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getResultOfStartedOffice365TenantSynchronizationTask) ");
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getResultOfStartedOffice365TenantSynchronizationTask) .");
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -4886,7 +4886,7 @@ class AdminService extends GenericService {
      */
     importCSVData(data?: any, companyId? : string, label : string = "none", noemails : boolean = true, nostrict : boolean = false, delimiter? : string, comment : string = "%"): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(importCSVData) ");
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(importCSVData) .");
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -4923,7 +4923,7 @@ class AdminService extends GenericService {
      */
     startsAsynchronousGenerationOfOffice365TenantUserListSynchronization(tenant? : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(startsAsynchronousGenerationOfOffice365TenantUserListSynchronization) ");
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(startsAsynchronousGenerationOfOffice365TenantUserListSynchronization) .");
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -4966,7 +4966,7 @@ class AdminService extends GenericService {
      */
     synchronizeOffice365TenantUserList(tenant? : string, format  : string = "json") : Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(synchronizeOffice365TenantUserList) ");
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(synchronizeOffice365TenantUserList) .");
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -5020,7 +5020,7 @@ class AdminService extends GenericService {
      */
     checkCSVDataOfSynchronizationUsingRainbowvoiceMode(data?: any, companyId? : string, delimiter? : string, comment : string = "%"): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(checkCSVDataOfSynchronizationUsingRainbowvoiceMode) companyId : ", that._logger.stripStringForLogs(companyId), ", comment : ", that._logger.stripStringForLogs(comment));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(checkCSVDataOfSynchronizationUsingRainbowvoiceMode) companyId : ", that._logger.stripStringForLogs(companyId), ", comment : ", that._logger.stripStringForLogs(comment));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -5057,7 +5057,7 @@ class AdminService extends GenericService {
      */
     updateCommandIdStatus(data? : any, commandId? : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(updateCommandIdStatus) commandId : ", that._logger.stripStringForLogs(commandId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateCommandIdStatus) commandId : ", that._logger.stripStringForLogs(commandId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -5144,7 +5144,7 @@ class AdminService extends GenericService {
         startTime : string
     }>{
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(synchronizeUsersAndDeviceswithCSV) ");
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(synchronizeUsersAndDeviceswithCSV) .");
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -5213,7 +5213,7 @@ class AdminService extends GenericService {
      */
     getCSVTemplate(companyId? : string, mode : string = "useranddevice", comment? : string ): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getCSVTemplate) companyId : ", that._logger.stripStringForLogs(companyId), ", comment : ", that._logger.stripStringForLogs(comment));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getCSVTemplate) companyId : ", that._logger.stripStringForLogs(companyId), ", comment : ", that._logger.stripStringForLogs(comment));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -5266,7 +5266,7 @@ class AdminService extends GenericService {
      */
     checkCSVforSynchronization(CSVTxt: string, companyId? : string, delimiter?  : string, comment : string  = "%", commandId? : string) : Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(checkCSVforSynchronization) companyId : ", that._logger.stripStringForLogs(companyId), ", commandId : ", that._logger.stripStringForLogs(commandId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(checkCSVforSynchronization) companyId : ", that._logger.stripStringForLogs(companyId), ", commandId : ", that._logger.stripStringForLogs(commandId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -5319,7 +5319,7 @@ class AdminService extends GenericService {
      */
     getCheckCSVReport(commandId : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getCheckCSVReport) commandId : ", that._logger.stripStringForLogs(commandId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getCheckCSVReport) commandId : ", that._logger.stripStringForLogs(commandId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -5451,7 +5451,7 @@ class AdminService extends GenericService {
      */
     importRainbowVoiceUsersWithCSVdata(companyId : string, label : string = null, noemails: boolean = true, nostrict : boolean = false, delimiter : string = null, comment : string = "%", csvData : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(importRainbowVoiceUsersWithCSVdata) companyId : ", that._logger.stripStringForLogs(companyId), ", comment : ", that._logger.stripStringForLogs(comment));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(importRainbowVoiceUsersWithCSVdata) companyId : ", that._logger.stripStringForLogs(companyId), ", comment : ", that._logger.stripStringForLogs(comment));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -5485,7 +5485,7 @@ class AdminService extends GenericService {
      */
     retrieveRainbowUserList(companyId? : string, format : string = "csv", ldap_id : boolean = true): Promise<any> {
         let that = this;
-         that._logger.log(that.INFO, LOG_ID + API_ID + "(retrieveRainbowUserList) companyId : ", that._logger.stripStringForLogs(companyId), ", ldap_id : ", ldap_id);
+         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(retrieveRainbowUserList) companyId : ", that._logger.stripStringForLogs(companyId), ", ldap_id : ", ldap_id);
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -5550,7 +5550,7 @@ class AdminService extends GenericService {
      */
     checkCSVdataForSynchronizeDirectory (delimiter : string = "%", comment : string, commandId : string, csvData: string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(checkCSVdataForSynchronizeDirectory) commandId : ", that._logger.stripStringForLogs(commandId), ", comment : ", that._logger.stripStringForLogs(comment));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(checkCSVdataForSynchronizeDirectory) commandId : ", that._logger.stripStringForLogs(commandId), ", comment : ", that._logger.stripStringForLogs(comment));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -5623,7 +5623,7 @@ class AdminService extends GenericService {
      */
     importCSVdataForSynchronizeDirectory(delimiter : string = "%", comment : string, commandId : string, label : string = "none", csvData: string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(importCSVdataForSynchronizeDirectory) commandId : ", that._logger.stripStringForLogs(commandId), ", comment : ", that._logger.stripStringForLogs(comment));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(importCSVdataForSynchronizeDirectory) commandId : ", that._logger.stripStringForLogs(commandId), ", comment : ", that._logger.stripStringForLogs(comment));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -5678,7 +5678,7 @@ class AdminService extends GenericService {
      */
     getCSVReportByCommandId(commandId : string ): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getCSVReportByCommandId) commandId : ", that._logger.stripStringForLogs(commandId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getCSVReportByCommandId) commandId : ", that._logger.stripStringForLogs(commandId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -5728,7 +5728,7 @@ class AdminService extends GenericService {
      */
     createCSVReportByCommandId(commandId : string, data : any): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(createCSVReportByCommandId) commandId : ", that._logger.stripStringForLogs(commandId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(createCSVReportByCommandId) commandId : ", that._logger.stripStringForLogs(commandId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -5776,7 +5776,7 @@ class AdminService extends GenericService {
      */
     retrieveRainbowEntriesList(companyId? : string, format : string = "json", ldap_id : boolean = true) : Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(retrieveRainbowEntriesList) companyId : ", that._logger.stripStringForLogs(companyId), ", ldap_id : ", ldap_id);
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(retrieveRainbowEntriesList) companyId : ", that._logger.stripStringForLogs(companyId), ", ldap_id : ", ldap_id);
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -5825,7 +5825,7 @@ class AdminService extends GenericService {
      */
     ActivateALdapConnectorUser() : Promise<{ id : string, companyId : string, loginEmail : string, password : string  }> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(ActivateALdapConnectorUser) ");
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(ActivateALdapConnectorUser) .");
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -5861,7 +5861,7 @@ class AdminService extends GenericService {
      */
     deleteLdapConnector(ldapId : string) : Promise<{ status : string }> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(deleteLdapConnector) ldapId : ", that._logger.stripStringForLogs(ldapId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteLdapConnector) ldapId : ", that._logger.stripStringForLogs(ldapId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -6099,7 +6099,7 @@ class AdminService extends GenericService {
      */
     retrieveAllLdapConnectorUsersData (companyId? : string, format : string = "small", limit : number = 100, offset : number = undefined, sortField : string = "displayName", sortOrder : number = 1) : Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(retrieveAllLdapConnectorUsersData) companyId : ", that._logger.stripStringForLogs(companyId), ", format : ", format);
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(retrieveAllLdapConnectorUsersData) companyId : ", that._logger.stripStringForLogs(companyId), ", format : ", format);
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -6142,7 +6142,7 @@ class AdminService extends GenericService {
      */
     sendCommandToLdapConnectorUser(ldapId : string, command : string) : Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(sendCommandToLdapConnectorUser) ldapId : ", that._logger.stripStringForLogs(ldapId), ", command : ", command);
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendCommandToLdapConnectorUser) ldapId : ", that._logger.stripStringForLogs(ldapId), ", command : ", command);
 
         return new Promise(async (resolve, reject) => {
             if (!ldapId) {
@@ -6232,7 +6232,7 @@ class AdminService extends GenericService {
      */
     createConfigurationForLdapConnector (companyId: string, settings: object, name: string, type: string = "ldap_config"): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(createConfigurationForLdapConnector) companyId : ", that._logger.stripStringForLogs(companyId), ", name : ", that._logger.stripStringForLogs(name));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(createConfigurationForLdapConnector) companyId : ", that._logger.stripStringForLogs(companyId), ", name : ", that._logger.stripStringForLogs(name));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -6274,7 +6274,7 @@ class AdminService extends GenericService {
      */
     deleteLdapConnectorConfig(ldapConfigId : string) : Promise<{ status : string }> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(deleteLdapConnectorConfig) ldapConfigId : ", ldapConfigId);
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteLdapConnectorConfig) ldapConfigId : ", ldapConfigId);
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -6324,7 +6324,7 @@ class AdminService extends GenericService {
      */
     retrieveLdapConnectorConfig (companyId : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(retrieveLdapConnectorConfig) companyId : ", that._logger.stripStringForLogs(companyId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(retrieveLdapConnectorConfig) companyId : ", that._logger.stripStringForLogs(companyId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -6376,7 +6376,7 @@ class AdminService extends GenericService {
      */
     retrieveLdapConnectorConfigTemplate(type: string = "ldap_template"): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(retrieveLdapConnectorConfigTemplate) type : ", type);
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(retrieveLdapConnectorConfigTemplate) type : ", type);
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -6421,7 +6421,7 @@ class AdminService extends GenericService {
      */
     retrieveLdapConnectorAllConfigTemplates(): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(retrieveLdapConnectorAllConfigTemplates) ");
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(retrieveLdapConnectorAllConfigTemplates) .");
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -6478,7 +6478,7 @@ class AdminService extends GenericService {
      */
     retrieveLdapConnectorAllConfigs (companyId : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(retrieveLdapConnectorAllConfigs) companyId : ", that._logger.stripStringForLogs(companyId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(retrieveLdapConnectorAllConfigs) companyId : ", that._logger.stripStringForLogs(companyId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -6543,7 +6543,7 @@ class AdminService extends GenericService {
      */
     retrieveLDAPConnectorConfigByLdapConfigId (ldapConfigId : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(retrieveLDAPConnectorConfigByLdapConfigId) ldapConfigId : ", that._logger.stripStringForLogs(ldapConfigId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(retrieveLDAPConnectorConfigByLdapConfigId) ldapConfigId : ", that._logger.stripStringForLogs(ldapConfigId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -6648,7 +6648,7 @@ class AdminService extends GenericService {
      */
     updateConfigurationForLdapConnector (ldapConfigId : string, settings : any, strict  : boolean = false, name : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(updateConfigurationForLdapConnector) name : ", that._logger.stripStringForLogs(name), ", ldapConfigId : ", that._logger.stripStringForLogs(ldapConfigId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateConfigurationForLdapConnector) name : ", that._logger.stripStringForLogs(name), ", ldapConfigId : ", that._logger.stripStringForLogs(ldapConfigId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -6727,7 +6727,7 @@ class AdminService extends GenericService {
      */
     uploadLdapAvatar(binaryImgFile : any, contentType: string, ldapId : string = null): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(uploadLdapAvatar) ldapId : ", that._logger.stripStringForLogs(ldapId), ", contentType : ", that._logger.stripStringForLogs(contentType));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(uploadLdapAvatar) ldapId : ", that._logger.stripStringForLogs(ldapId), ", contentType : ", that._logger.stripStringForLogs(contentType));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -6779,7 +6779,7 @@ class AdminService extends GenericService {
      */
     deleteLdapAvatar( ldapId : string = null): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(deleteLdapAvatar) ldapId : ", that._logger.stripStringForLogs(ldapId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteLdapAvatar) ldapId : ", that._logger.stripStringForLogs(ldapId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -6849,7 +6849,7 @@ class AdminService extends GenericService {
      */
     createListOfEventsForConnector(events : Array<{ eventId : string, level : string, category : string, operation : string, description : string, date : string}>): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(createListOfEventsForConnector) events.length : ", that._logger.stripStringForLogs( "" + events?.length ));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(createListOfEventsForConnector) events.length : ", that._logger.stripStringForLogs( "" + events?.length ));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -6894,7 +6894,7 @@ class AdminService extends GenericService {
      */
     getCloudPbxById (systemId : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getCloudPbxById) systemId : ", that._logger.stripStringForLogs(systemId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getCloudPbxById) systemId : ", that._logger.stripStringForLogs(systemId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -6949,7 +6949,7 @@ class AdminService extends GenericService {
      */
     updateCloudPBX (systemId: string, barringOptions_permissions: string, barringOptions_restrictions: string, callForwardOptions_externalCallForward: string, customSipHeader_1: string, customSipHeader_2: string, emergencyOptions_callAuthorizationWithSoftPhone: boolean, emergencyOptions_emergencyGroupActivated: boolean, externalTrunkId: string, language: string, name: string, numberingDigits: number, numberingPrefix: number, outgoingPrefix: number, routeInternalCallsToPeer: boolean): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(updateCloudPBX) systemId : ", that._logger.stripStringForLogs(systemId), ", name : ", that._logger.stripStringForLogs(name));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateCloudPBX) systemId : ", that._logger.stripStringForLogs(systemId), ", name : ", that._logger.stripStringForLogs(name));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -6989,7 +6989,7 @@ class AdminService extends GenericService {
      */
     deleteCloudPBX (systemId : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(deleteCloudPBX) systemId : ", that._logger.stripStringForLogs(systemId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteCloudPBX) systemId : ", that._logger.stripStringForLogs(systemId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -7032,7 +7032,7 @@ class AdminService extends GenericService {
      */
     getCloudPbxs ( limit : number = 100, offset : number = 0, sortField : string = "companyId", sortOrder : number = 1, companyId : string, bpId : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getCloudPbxs) companyId : ", that._logger.stripStringForLogs(companyId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getCloudPbxs) companyId : ", that._logger.stripStringForLogs(companyId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -7077,7 +7077,7 @@ class AdminService extends GenericService {
      */
     async createACloudPBX (bpId : string, companyId : string, customSipHeader_1 : string, customSipHeader_2 : string, externalTrunkId : string, language : string, name : string, noReplyDelay : number, numberingDigits : number, numberingPrefix : number, outgoingPrefix : number, routeInternalCallsToPeer : boolean, siteId : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(createACloudPBX) companyId : ", that._logger.stripStringForLogs(companyId), ", name : ", that._logger.stripStringForLogs(name));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(createACloudPBX) companyId : ", that._logger.stripStringForLogs(companyId), ", name : ", that._logger.stripStringForLogs(name));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -7111,7 +7111,7 @@ class AdminService extends GenericService {
      */
     getCloudPBXCLIPolicyForOutboundCalls (systemId : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getCloudPBXCLIPolicyForOutboundCalls) systemId : ", that._logger.stripStringForLogs(systemId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getCloudPBXCLIPolicyForOutboundCalls) systemId : ", that._logger.stripStringForLogs(systemId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -7151,7 +7151,7 @@ class AdminService extends GenericService {
      */
     updateCloudPBXCLIOptionsConfiguration (systemId : string, policy: CLOUDPBXCLIOPTIONPOLICY): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(updateCloudPBXCLIOptionsConfiguration) systemId : ", that._logger.stripStringForLogs(systemId), ", policy : ", that._logger.stripStringForLogs(policy));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateCloudPBXCLIOptionsConfiguration) systemId : ", that._logger.stripStringForLogs(systemId), ", policy : ", that._logger.stripStringForLogs(policy));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -7196,7 +7196,7 @@ class AdminService extends GenericService {
      */
     getCloudPBXlanguages(systemId : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getCloudPBXlanguages) systemId : ", that._logger.stripStringForLogs(systemId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getCloudPBXlanguages) systemId : ", that._logger.stripStringForLogs(systemId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -7234,7 +7234,7 @@ class AdminService extends GenericService {
      */
     getCloudPBXDeviceModels(systemId : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getCloudPBXDeviceModels) systemId : ", that._logger.stripStringForLogs(systemId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getCloudPBXDeviceModels) systemId : ", that._logger.stripStringForLogs(systemId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -7272,7 +7272,7 @@ class AdminService extends GenericService {
      */
     getCloudPBXTrafficBarringOptions(systemId : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getCloudPBXTrafficBarringOptions) systemId : ", that._logger.stripStringForLogs(systemId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getCloudPBXTrafficBarringOptions) systemId : ", that._logger.stripStringForLogs(systemId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -7310,7 +7310,7 @@ class AdminService extends GenericService {
      */
     getCloudPBXEmergencyNumbersAndEmergencyOptions(systemId : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getCloudPBXEmergencyNumbersAndEmergencyOptions) systemId : ", that._logger.stripStringForLogs(systemId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getCloudPBXEmergencyNumbersAndEmergencyOptions) systemId : ", that._logger.stripStringForLogs(systemId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -7354,7 +7354,7 @@ class AdminService extends GenericService {
      */
     CreateCloudPBXSIPDevice (systemId : string,   description : string,  deviceTypeId  : string,  macAddress  : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(CreateCloudPBXSIPDevice) systemId : ", that._logger.stripStringForLogs(systemId), ", deviceTypeId : ", that._logger.stripStringForLogs(deviceTypeId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(CreateCloudPBXSIPDevice) systemId : ", that._logger.stripStringForLogs(systemId), ", deviceTypeId : ", that._logger.stripStringForLogs(deviceTypeId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -7407,7 +7407,7 @@ class AdminService extends GenericService {
      */
     factoryResetCloudPBXSIPDevice (systemId : string, deviceId : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(factoryResetCloudPBXSIPDevice) systemId : ", that._logger.stripStringForLogs(systemId), ", deviceId : ", that._logger.stripStringForLogs(deviceId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(factoryResetCloudPBXSIPDevice) systemId : ", that._logger.stripStringForLogs(systemId), ", deviceId : ", that._logger.stripStringForLogs(deviceId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -7453,7 +7453,7 @@ class AdminService extends GenericService {
      */
     getCloudPBXSIPDeviceById (systemId : string, deviceId : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getCloudPBXSIPDeviceById) systemId : ", that._logger.stripStringForLogs(systemId), ", deviceId : ", that._logger.stripStringForLogs(deviceId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getCloudPBXSIPDeviceById) systemId : ", that._logger.stripStringForLogs(systemId), ", deviceId : ", that._logger.stripStringForLogs(deviceId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -7499,7 +7499,7 @@ class AdminService extends GenericService {
      */
     deleteCloudPBXSIPDevice (systemId : string, deviceId : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(deleteCloudPBXSIPDevice) systemId : ", that._logger.stripStringForLogs(systemId), ", deviceId : ", that._logger.stripStringForLogs(deviceId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteCloudPBXSIPDevice) systemId : ", that._logger.stripStringForLogs(systemId), ", deviceId : ", that._logger.stripStringForLogs(deviceId));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -7551,7 +7551,7 @@ class AdminService extends GenericService {
      */
     updateCloudPBXSIPDevice (systemId : string,   description : string,  deviceId  : string,  macAddress  : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(updateCloudPBXSIPDevice) systemId : ", that._logger.stripStringForLogs(systemId), ", deviceId : ", that._logger.stripStringForLogs(deviceId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateCloudPBXSIPDevice) systemId : ", that._logger.stripStringForLogs(systemId), ", deviceId : ", that._logger.stripStringForLogs(deviceId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -7606,7 +7606,7 @@ class AdminService extends GenericService {
      */
     getAllCloudPBXSIPDevice (systemId : string, limit : number = 100, offset : number, sortField : string, sortOrder : number = 1, assigned : boolean, phoneNumberId : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getAllCloudPBXSIPDevice) systemId : ", that._logger.stripStringForLogs(systemId), ", phoneNumberId : ", that._logger.stripStringForLogs(phoneNumberId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getAllCloudPBXSIPDevice) systemId : ", that._logger.stripStringForLogs(systemId), ", phoneNumberId : ", that._logger.stripStringForLogs(phoneNumberId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -7645,7 +7645,7 @@ class AdminService extends GenericService {
      */
     getCloudPBXSIPRegistrationsInformationDevice (systemId : string, deviceId : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getCloudPBXSIPRegistrationsInformationDevice) systemId : ", that._logger.stripStringForLogs(systemId), ", deviceId : ", that._logger.stripStringForLogs(deviceId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getCloudPBXSIPRegistrationsInformationDevice) systemId : ", that._logger.stripStringForLogs(systemId), ", deviceId : ", that._logger.stripStringForLogs(deviceId));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -7703,7 +7703,7 @@ class AdminService extends GenericService {
      */
     grantCloudPBXAccessToDebugSession (systemId : string, deviceId : string,  duration : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(grantCloudPBXAccessToDebugSession) systemId : ", that._logger.stripStringForLogs(systemId), ", deviceId : ", that._logger.stripStringForLogs(deviceId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(grantCloudPBXAccessToDebugSession) systemId : ", that._logger.stripStringForLogs(systemId), ", deviceId : ", that._logger.stripStringForLogs(deviceId));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -7754,7 +7754,7 @@ class AdminService extends GenericService {
      */
     revokeCloudPBXAccessFromDebugSession (systemId : string, deviceId : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(revokeCloudPBXAccessFromDebugSession) systemId : ", that._logger.stripStringForLogs(systemId), ", deviceId : ", that._logger.stripStringForLogs(deviceId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(revokeCloudPBXAccessFromDebugSession) systemId : ", that._logger.stripStringForLogs(systemId), ", deviceId : ", that._logger.stripStringForLogs(deviceId));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -7803,7 +7803,7 @@ class AdminService extends GenericService {
      */
     rebootCloudPBXSIPDevice  (systemId : string, deviceId : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(rebootCloudPBXSIPDevice) systemId : ", that._logger.stripStringForLogs(systemId), ", deviceId : ", that._logger.stripStringForLogs(deviceId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(rebootCloudPBXSIPDevice) systemId : ", that._logger.stripStringForLogs(systemId), ", deviceId : ", that._logger.stripStringForLogs(deviceId));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -7858,7 +7858,7 @@ class AdminService extends GenericService {
      */
     getCloudPBXSubscriber (systemId : string, phoneNumberId : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getCloudPBXSubscriber) systemId : ", that._logger.stripStringForLogs(systemId), ", phoneNumberId : ", that._logger.stripStringForLogs(phoneNumberId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getCloudPBXSubscriber) systemId : ", that._logger.stripStringForLogs(systemId), ", phoneNumberId : ", that._logger.stripStringForLogs(phoneNumberId));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -7907,7 +7907,7 @@ class AdminService extends GenericService {
      */
     deleteCloudPBXSubscriber (systemId : string, phoneNumberId : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(deleteCloudPBXSubscriber) systemId : ", that._logger.stripStringForLogs(systemId), ", phoneNumberId : ", that._logger.stripStringForLogs(phoneNumberId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteCloudPBXSubscriber) systemId : ", that._logger.stripStringForLogs(systemId), ", phoneNumberId : ", that._logger.stripStringForLogs(phoneNumberId));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -7961,7 +7961,7 @@ class AdminService extends GenericService {
      */
     createCloudPBXSubscriberRainbowUser (systemId : string, login : string, password : string, shortNumber : string, userId : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(createCloudPBXSubscriberRainbowUser) systemId : ", that._logger.stripStringForLogs(systemId), ", login : ", that._logger.stripStringForLogs(login), ", userId : ", that._logger.stripStringForLogs(userId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(createCloudPBXSubscriberRainbowUser) systemId : ", that._logger.stripStringForLogs(systemId), ", login : ", that._logger.stripStringForLogs(login), ", userId : ", that._logger.stripStringForLogs(userId));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -8017,7 +8017,7 @@ class AdminService extends GenericService {
      */
     getCloudPBXSIPdeviceAssignedSubscriber (systemId : string, phoneNumberId : string, deviceId : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getCloudPBXSIPdeviceAssignedSubscriber) systemId : ", that._logger.stripStringForLogs(systemId), ", phoneNumberId : ", that._logger.stripStringForLogs(phoneNumberId), ", deviceId : ", that._logger.stripStringForLogs(deviceId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getCloudPBXSIPdeviceAssignedSubscriber) systemId : ", that._logger.stripStringForLogs(systemId), ", phoneNumberId : ", that._logger.stripStringForLogs(phoneNumberId), ", deviceId : ", that._logger.stripStringForLogs(deviceId));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -8074,7 +8074,7 @@ class AdminService extends GenericService {
      */
     removeCloudPBXAssociationSubscriberAndSIPdevice (systemId : string, phoneNumberId : string, deviceId : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(removeCloudPBXAssociationSubscriberAndSIPdevice) systemId : ", that._logger.stripStringForLogs(systemId), ", phoneNumberId : ", that._logger.stripStringForLogs(phoneNumberId), ", deviceId : ", that._logger.stripStringForLogs(deviceId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(removeCloudPBXAssociationSubscriberAndSIPdevice) systemId : ", that._logger.stripStringForLogs(systemId), ", phoneNumberId : ", that._logger.stripStringForLogs(phoneNumberId), ", deviceId : ", that._logger.stripStringForLogs(deviceId));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -8133,7 +8133,7 @@ class AdminService extends GenericService {
      */
     getCloudPBXAllSIPdevicesAssignedSubscriber ( systemId : string, limit : number = 100, offset : number, sortField : string, sortOrder : number = 1, phoneNumberId : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getCloudPBXAllSIPdevicesAssignedSubscriber) systemId : ", that._logger.stripStringForLogs(systemId), ", phoneNumberId : ", that._logger.stripStringForLogs(phoneNumberId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getCloudPBXAllSIPdevicesAssignedSubscriber) systemId : ", that._logger.stripStringForLogs(systemId), ", phoneNumberId : ", that._logger.stripStringForLogs(phoneNumberId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -8172,7 +8172,7 @@ class AdminService extends GenericService {
      */
     getCloudPBXInfoAllRegisteredSIPdevicesSubscriber (systemId : string, phoneNumberId : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getCloudPBXInfoAllRegisteredSIPdevicesSubscriber) systemId : ", that._logger.stripStringForLogs(systemId), ", phoneNumberId : ", that._logger.stripStringForLogs(phoneNumberId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getCloudPBXInfoAllRegisteredSIPdevicesSubscriber) systemId : ", that._logger.stripStringForLogs(systemId), ", phoneNumberId : ", that._logger.stripStringForLogs(phoneNumberId));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -8226,7 +8226,7 @@ class AdminService extends GenericService {
      */
     assignCloudPBXSIPDeviceToSubscriber (systemId : string,   phoneNumberId : string,  deviceId  : string,  macAddress  : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(assignCloudPBXSIPDeviceToSubscriber) systemId : ", that._logger.stripStringForLogs(systemId), ", phoneNumberId : ", that._logger.stripStringForLogs(phoneNumberId), ", deviceId : ", that._logger.stripStringForLogs(deviceId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(assignCloudPBXSIPDeviceToSubscriber) systemId : ", that._logger.stripStringForLogs(systemId), ", phoneNumberId : ", that._logger.stripStringForLogs(phoneNumberId), ", deviceId : ", that._logger.stripStringForLogs(deviceId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -8272,7 +8272,7 @@ class AdminService extends GenericService {
      */
     getCloudPBXSubscriberCLIOptions (systemId : string, phoneNumberId : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getCloudPBXSubscriberCLIOptions) systemId : ", that._logger.stripStringForLogs(systemId), ", systemId : ", that._logger.stripStringForLogs(systemId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getCloudPBXSubscriberCLIOptions) systemId : ", that._logger.stripStringForLogs(systemId), ", systemId : ", that._logger.stripStringForLogs(systemId));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -8324,7 +8324,7 @@ class AdminService extends GenericService {
      */
     getCloudPBXUnassignedInternalPhonenumbers(systemId : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getCloudPBXUnassignedInternalPhonenumbers) systemId : ", that._logger.stripStringForLogs(systemId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getCloudPBXUnassignedInternalPhonenumbers) systemId : ", that._logger.stripStringForLogs(systemId));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -8376,7 +8376,7 @@ class AdminService extends GenericService {
      */
     listCloudPBXDDINumbersAssociated (systemId : string, limit : number = 100, offset : number, sortField : string = "number", sortOrder : number = 1, isAssignedToUser : boolean, isAssignedToGroup : boolean, isAssignedToIVR : boolean, isAssignedToAutoAttendant : boolean, isAssigned : boolean ): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(listCloudPBXDDINumbersAssociated) systemId : ", that._logger.stripStringForLogs(systemId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(listCloudPBXDDINumbersAssociated) systemId : ", that._logger.stripStringForLogs(systemId));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -8419,7 +8419,7 @@ class AdminService extends GenericService {
      */
     createCloudPBXDDINumber (systemId : string, number : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(createCloudPBXDDINumber) systemId : ", that._logger.stripStringForLogs(systemId), ", number : ", that._logger.stripStringForLogs(number));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(createCloudPBXDDINumber) systemId : ", that._logger.stripStringForLogs(systemId), ", number : ", that._logger.stripStringForLogs(number));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -8469,7 +8469,7 @@ class AdminService extends GenericService {
      */
     deleteCloudPBXDDINumber (systemId : string, phoneNumberId : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(deleteCloudPBXDDINumber) systemId : ", that._logger.stripStringForLogs(systemId), ", phoneNumberId : ", that._logger.stripStringForLogs(phoneNumberId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteCloudPBXDDINumber) systemId : ", that._logger.stripStringForLogs(systemId), ", phoneNumberId : ", that._logger.stripStringForLogs(phoneNumberId));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -8519,7 +8519,7 @@ class AdminService extends GenericService {
      */
     associateCloudPBXDDINumber (systemId : string, phoneNumberId : string, userId : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(associateCloudPBXDDINumber) systemId : ", that._logger.stripStringForLogs(systemId), ", phoneNumberId : ", that._logger.stripStringForLogs(phoneNumberId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(associateCloudPBXDDINumber) systemId : ", that._logger.stripStringForLogs(systemId), ", phoneNumberId : ", that._logger.stripStringForLogs(phoneNumberId));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -8576,7 +8576,7 @@ class AdminService extends GenericService {
      */
     disassociateCloudPBXDDINumber (systemId : string, phoneNumberId : string, userId : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(disassociateCloudPBXDDINumber) systemId : ", that._logger.stripStringForLogs(systemId), ", phoneNumberId : ", that._logger.stripStringForLogs(phoneNumberId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(disassociateCloudPBXDDINumber) systemId : ", that._logger.stripStringForLogs(systemId), ", phoneNumberId : ", that._logger.stripStringForLogs(phoneNumberId));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -8631,7 +8631,7 @@ class AdminService extends GenericService {
      */
     setCloudPBXDDIAsdefault (systemId : string, phoneNumberId : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(setCloudPBXDDIAsdefault) systemId : ", that._logger.stripStringForLogs(systemId), ", phoneNumberId : ", that._logger.stripStringForLogs(phoneNumberId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(setCloudPBXDDIAsdefault) systemId : ", that._logger.stripStringForLogs(systemId), ", phoneNumberId : ", that._logger.stripStringForLogs(phoneNumberId));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -8683,7 +8683,7 @@ class AdminService extends GenericService {
      */
     retrieveExternalSIPTrunkById (externalTrunkId : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(retrieveExternalSIPTrunkById) ");
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(retrieveExternalSIPTrunkById) .");
 
         return new Promise(function (resolve, reject) {
             try {
@@ -8731,7 +8731,7 @@ class AdminService extends GenericService {
      */
     retrievelistExternalSIPTrunks (rvcpInstanceId : string, status : string, trunkType : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(retrievelistExternalSIPTrunks) ");
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(retrievelistExternalSIPTrunks) .");
 
         return new Promise(function (resolve, reject) {
             try {
@@ -8777,7 +8777,7 @@ class AdminService extends GenericService {
      */
     createASite(name : string, status : string, companyId : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(createASite) companyId : ", that._logger.stripStringForLogs(companyId), ", name : ", that._logger.stripStringForLogs(name));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(createASite) companyId : ", that._logger.stripStringForLogs(companyId), ", name : ", that._logger.stripStringForLogs(name));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -8825,7 +8825,7 @@ class AdminService extends GenericService {
      */
     deleteSite (siteId : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(deleteSite) siteId : ", that._logger.stripStringForLogs(siteId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteSite) siteId : ", that._logger.stripStringForLogs(siteId));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -8866,7 +8866,7 @@ class AdminService extends GenericService {
      */
     getSiteData (siteId : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getSiteData) siteId : ", that._logger.stripStringForLogs(siteId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getSiteData) siteId : ", that._logger.stripStringForLogs(siteId));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -8920,7 +8920,7 @@ class AdminService extends GenericService {
      */
     getAllSites (format: string = "small", limit: number = 100, offset: number = 0, sortField: string = "name", sortOrder: number, name: string, companyId: string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getAllSites) companyId : ", that._logger.stripStringForLogs(companyId), ", format : ", format);
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getAllSites) companyId : ", that._logger.stripStringForLogs(companyId), ", format : ", format);
 
         return new Promise(function (resolve, reject) {
             try {
@@ -8959,7 +8959,7 @@ class AdminService extends GenericService {
      */
     updateSite (siteId : string, name : string, status : string, companyId : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(updateSite) companyId : ", that._logger.stripStringForLogs(companyId), ", siteId : ", that._logger.stripStringForLogs(siteId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateSite) companyId : ", that._logger.stripStringForLogs(companyId), ", siteId : ", that._logger.stripStringForLogs(siteId));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -9093,7 +9093,7 @@ class AdminService extends GenericService {
                   pbxNationalPrefix ? : string, pbxInternationalPrefix ? : string, searchResultOrder ? : Array<string>, activationCode ? : string, isCentrex ? : boolean,
                   isShared ? : boolean, bpId ? : string, isOxoManaged ? : boolean ): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(createSystem) pbxId : ", that._logger.stripStringForLogs(pbxId), ", name : ", that._logger.stripStringForLogs(name));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(createSystem) pbxId : ", that._logger.stripStringForLogs(pbxId), ", name : ", that._logger.stripStringForLogs(name));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -9154,7 +9154,7 @@ class AdminService extends GenericService {
      */
     deleteSystem (systemId : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(deleteSystem) systemId : ", that._logger.stripStringForLogs(systemId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteSystem) systemId : ", that._logger.stripStringForLogs(systemId));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -9224,7 +9224,7 @@ class AdminService extends GenericService {
      */
     getSystemConnectionState (systemId : string, format : string = "small", connectionHistory? : boolean): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getSystemConnectionState) systemId : ", that._logger.stripStringForLogs(systemId), ", connectionHistory : ", connectionHistory);
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getSystemConnectionState) systemId : ", that._logger.stripStringForLogs(systemId), ", connectionHistory : ", connectionHistory);
 
         return new Promise(function (resolve, reject) {
             try {
@@ -9312,7 +9312,7 @@ class AdminService extends GenericService {
      */
     getSystemDataByPbxId (pbxId : string, connectionHistory? :boolean ): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getSystemDataByPbxId) pbxId : ", that._logger.stripStringForLogs(pbxId), ", connectionHistory : ", connectionHistory);
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getSystemDataByPbxId) pbxId : ", that._logger.stripStringForLogs(pbxId), ", connectionHistory : ", connectionHistory);
 
         return new Promise(function (resolve, reject) {
             try {
@@ -9400,7 +9400,7 @@ class AdminService extends GenericService {
      */
     getSystemData (systemId : string, connectionHistory? :boolean ): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getSystemData) systemId : ", that._logger.stripStringForLogs(systemId), ", connectionHistory : ", connectionHistory);
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getSystemData) systemId : ", that._logger.stripStringForLogs(systemId), ", connectionHistory : ", connectionHistory);
 
         return new Promise(function (resolve, reject) {
             try {
@@ -9516,7 +9516,7 @@ class AdminService extends GenericService {
                    name ? : string, type ? : string, status ? : string, siteId ? : string, companyId ? : string, bpId ? : string, isShared ? : boolean, isCentrex ? : boolean,
                    isSharedOrCentrex ? : boolean, isOxoManaged ? : boolean, fromCreationDate ? : string, toCreationDate ? : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getAllSystems) format : ", format, ", companyId : ", that._logger.stripStringForLogs(companyId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getAllSystems) format : ", format, ", companyId : ", that._logger.stripStringForLogs(companyId));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -9556,7 +9556,7 @@ class AdminService extends GenericService {
      */
     getListOfCountriesAllowedForSystems (): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getListOfCountriesAllowedForSystems) ");
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getListOfCountriesAllowedForSystems) .");
 
         return new Promise(function (resolve, reject) {
             try {
@@ -9677,7 +9677,7 @@ class AdminService extends GenericService {
     serverPingTimeout : number = 100, pbxMainBundlePrefix ? : string, usePbxMainBundlePrefix ? : boolean, pbxNumberingTranslator ? : Array<any>, pbxNationalPrefix ? : string, pbxInternationalPrefix ? : string, searchResultOrder ? : Array<string>,
     isShared ? : boolean, bpId ? : string ): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(updateSystem) systemId : ", that._logger.stripStringForLogs(systemId), ", name : ", that._logger.stripStringForLogs(name));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateSystem) systemId : ", that._logger.stripStringForLogs(systemId), ", name : ", that._logger.stripStringForLogs(name));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -9707,7 +9707,7 @@ class AdminService extends GenericService {
     // API Private because the PCG role is need.
     getPbxData(pbxId : string) {
         let that = this;
-        //that._logger.log(that.INFO, LOG_ID + API_ID + "(getPbxData) pbxId : ", that._logger.stripStringForLogs(pbxId));
+        //that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getPbxData) pbxId : ", that._logger.stripStringForLogs(pbxId));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -9730,7 +9730,7 @@ class AdminService extends GenericService {
     getAllPbxs(format : string = "small", sortField : string = "id", limit : number =  100, offset : number = 0, sortOrder : number = 1, name : string = undefined, type : string = undefined, status: string = undefined, siteId : string = undefined, companyId : string = undefined,
                bpId : string = undefined, isShared : boolean = undefined, isCentrex : boolean = undefined, isSharedOrCentrex : boolean = undefined, isOxoManaged : boolean = undefined, fromCreationDate : string = undefined, toCreationDate : string = undefined) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getAllPbxs) format : ", format);
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getAllPbxs) format : ", format);
 
         return new Promise(function (resolve, reject) {
             try {
@@ -9756,7 +9756,7 @@ class AdminService extends GenericService {
 
     createPbxPhoneNumber( pbxId : string, shortNumber : string, voiceMailNumber : string, pbxUserId : string, companyPrefix : string, internalNumber : string, type : string, deviceType : string, firstName : string, lastName : string, deviceName : string){
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(createPbxPhoneNumber) pbxId : ", that._logger.stripStringForLogs(pbxId), ", shortNumber : ", that._logger.stripStringForLogs(shortNumber));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(createPbxPhoneNumber) pbxId : ", that._logger.stripStringForLogs(pbxId), ", shortNumber : ", that._logger.stripStringForLogs(shortNumber));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -9777,7 +9777,7 @@ class AdminService extends GenericService {
 
     deletePbxPhoneNumber(pbxId : string, shortNumber : string) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(deletePbxPhoneNumber) pbxId : ", that._logger.stripStringForLogs(pbxId), ", shortNumber : ", that._logger.stripStringForLogs(shortNumber));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deletePbxPhoneNumber) pbxId : ", that._logger.stripStringForLogs(pbxId), ", shortNumber : ", that._logger.stripStringForLogs(shortNumber));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -9798,7 +9798,7 @@ class AdminService extends GenericService {
 
     getPbxPhoneNumber(pbxId : string, shortNumber : string) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getAllPbxPhoneNumbers) pbxId : ", that._logger.stripStringForLogs(pbxId), ", shortNumber : ", that._logger.stripStringForLogs(shortNumber));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getAllPbxPhoneNumbers) pbxId : ", that._logger.stripStringForLogs(pbxId), ", shortNumber : ", that._logger.stripStringForLogs(shortNumber));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -9821,7 +9821,7 @@ class AdminService extends GenericService {
                           companyPrefix : string, isMonitored : boolean, name : string, nameOrShortNumber : string, deviceName : string,
                           isAssignedToUser : boolean, limit : number = 100, offset : number, sortField : string = "shortNumber", sortOrder : number = 1) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getAllPbxPhoneNumbers) pbxId : ", that._logger.stripStringForLogs(pbxId), ", shortNumber : ", that._logger.stripStringForLogs(shortNumber));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getAllPbxPhoneNumbers) pbxId : ", that._logger.stripStringForLogs(pbxId), ", shortNumber : ", that._logger.stripStringForLogs(shortNumber));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -9844,7 +9844,7 @@ class AdminService extends GenericService {
 
     updatepbxPhoneNumber(pbxId: string, shortNumber : string, voiceMailNumber : string, pbxUserId : string, companyPrefix : string, companyName : string, internalNumber : string, type : string, deviceType : string, firstName : string, lastName : string, deviceName : string ) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(updatepbxPhoneNumber) pbxId : ", that._logger.stripStringForLogs(pbxId), ", shortNumber : ", that._logger.stripStringForLogs(shortNumber));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updatepbxPhoneNumber) pbxId : ", that._logger.stripStringForLogs(pbxId), ", shortNumber : ", that._logger.stripStringForLogs(shortNumber));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -9920,7 +9920,7 @@ class AdminService extends GenericService {
      */
     getASystemPhoneNumber (systemId : string, phoneNumberId : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getASystemPhoneNumber) systemId : ", that._logger.stripStringForLogs(systemId), ", phoneNumberId : ", that._logger.stripStringForLogs(phoneNumberId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getASystemPhoneNumber) systemId : ", that._logger.stripStringForLogs(systemId), ", phoneNumberId : ", that._logger.stripStringForLogs(phoneNumberId));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -10013,7 +10013,7 @@ class AdminService extends GenericService {
      */
     getAllSystemPhoneNumbers (systemId: string, shortNumber? : string, internalNumber ? :string, pbxUserId ? :string, companyPrefix? :string, isMonitored ? :boolean, name ? : string, deviceName ? : string, isAssignedToUser ? :boolean, format : string = "small", limit : number = 100, offset ? : number, sortField : string ="shortNumber", sortOrder : number = 1): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getAllSystemPhoneNumbers) systemId : ", that._logger.stripStringForLogs(systemId), ", pbxUserId : ", that._logger.stripStringForLogs(pbxUserId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getAllSystemPhoneNumbers) systemId : ", that._logger.stripStringForLogs(systemId), ", pbxUserId : ", that._logger.stripStringForLogs(pbxUserId));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -10105,7 +10105,7 @@ class AdminService extends GenericService {
     updateASystemPhoneNumber(systemId : string, phoneNumberId : string, isMonitored ? : boolean, userId ? : string, internalNumber ? : string,
                              number ? : string, type ? : string, deviceType ? : string, firstName ? : string, lastName ? : string, deviceName ? : string, isVisibleByOthers ? : boolean ): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(updateASystemPhoneNumber) systemId : ", that._logger.stripStringForLogs(systemId), ", phoneNumberId : ", that._logger.stripStringForLogs(phoneNumberId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateASystemPhoneNumber) systemId : ", that._logger.stripStringForLogs(systemId), ", phoneNumberId : ", that._logger.stripStringForLogs(phoneNumberId));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -10196,7 +10196,7 @@ class AdminService extends GenericService {
                            custom2 : string
     ) : Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(createDirectoryEntry) companyId : ", that._logger.stripStringForLogs(companyId), ", lastName : ", that._logger.stripStringForLogs(lastName));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(createDirectoryEntry) companyId : ", that._logger.stripStringForLogs(companyId), ", lastName : ", that._logger.stripStringForLogs(lastName));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -10254,7 +10254,7 @@ class AdminService extends GenericService {
      */
     deleteCompanyDirectoryAllEntry (companyId : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(deleteCompanyDirectoryAllEntry) companyId : ", that._logger.stripStringForLogs(companyId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteCompanyDirectoryAllEntry) companyId : ", that._logger.stripStringForLogs(companyId));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -10295,7 +10295,7 @@ class AdminService extends GenericService {
      */
     deleteDirectoryEntry (entryId : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(deleteDirectoryEntry) entryId : ", that._logger.stripStringForLogs(entryId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteDirectoryEntry) entryId : ", that._logger.stripStringForLogs(entryId));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -10342,7 +10342,7 @@ class AdminService extends GenericService {
      */
     getDirectoryEntryData (entryId : string, format : string = "small"): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getDirectoryEntryData) entryId : ", that._logger.stripStringForLogs(entryId), ", format : ", format);
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getDirectoryEntryData) entryId : ", that._logger.stripStringForLogs(entryId), ", format : ", format);
 
         return new Promise(function (resolve, reject) {
             try {
@@ -10473,7 +10473,7 @@ class AdminService extends GenericService {
                                  sortOrder : number = 1,
                                  view  : string = "all"): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getListDirectoryEntriesData) companyId : ", that._logger.stripStringForLogs(companyId), ", name : ", that._logger.stripStringForLogs(name));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getListDirectoryEntriesData) companyId : ", that._logger.stripStringForLogs(companyId), ", name : ", that._logger.stripStringForLogs(name));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -10545,7 +10545,7 @@ class AdminService extends GenericService {
                            custom1 : string,
                            custom2 : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(updateDirectoryEntry) entryId : ", that._logger.stripStringForLogs(entryId), ", lastName : ", that._logger.stripStringForLogs(lastName));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateDirectoryEntry) entryId : ", that._logger.stripStringForLogs(entryId), ", lastName : ", that._logger.stripStringForLogs(lastName));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -10594,7 +10594,7 @@ class AdminService extends GenericService {
     // Private
     getAllDirectoryContacts(companyId) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getAllDirectoryContacts) companyId : ", that._logger.stripStringForLogs(companyId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getAllDirectoryContacts) companyId : ", that._logger.stripStringForLogs(companyId));
 
         const limit = 1000; // maximum of entries that can be requested to the server
         return new Promise(function (resolve, reject) {
@@ -10647,7 +10647,7 @@ class AdminService extends GenericService {
     // Private
     buildDirectoryCsvBlob(companyId) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(buildDirectoryCsvBlob) companyId : ", that._logger.stripStringForLogs(companyId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(buildDirectoryCsvBlob) companyId : ", that._logger.stripStringForLogs(companyId));
 
         return new Promise(function (resolve, reject) {
             //that._logger.log(that.INTERNAL, LOG_ID + "[companyDirectoryService] === buildDirectoryCsvBlob ===");
@@ -10783,7 +10783,7 @@ class AdminService extends GenericService {
      */
     exportDirectoryCsvFile(companyId : string, filePath : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(exportDirectoryCsvFile) companyId : ", that._logger.stripStringForLogs(companyId), ", filePath : ", that._logger.stripStringForLogs(filePath));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(exportDirectoryCsvFile) companyId : ", that._logger.stripStringForLogs(companyId), ", filePath : ", that._logger.stripStringForLogs(filePath));
 
         return new Promise(function (resolve, reject) {
             // that._logger.log(that.INFO, LOG_ID + "(exportDirectoryCsvFile) ===");
@@ -10824,7 +10824,7 @@ class AdminService extends GenericService {
      */
     ImportDirectoryCsvFile(companyId : string, fileFullPath : string, label : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(ImportDirectoryCsvFile) companyId : ", that._logger.stripStringForLogs(companyId), ", fileFullPath : ", that._logger.stripStringForLogs(fileFullPath));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(ImportDirectoryCsvFile) companyId : ", that._logger.stripStringForLogs(companyId), ", fileFullPath : ", that._logger.stripStringForLogs(fileFullPath));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -10878,7 +10878,7 @@ class AdminService extends GenericService {
      */
     getAllTagsAssignedToDirectoryEntries (companyId : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getAllTagsAssignedToDirectoryEntries) companyId : ", that._logger.stripStringForLogs(companyId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getAllTagsAssignedToDirectoryEntries) companyId : ", that._logger.stripStringForLogs(companyId));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -10916,7 +10916,7 @@ class AdminService extends GenericService {
      */
     removeTagFromAllDirectoryEntries (companyId : string, tag  : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(removeTagFromAllDirectoryEntries) companyId : ", that._logger.stripStringForLogs(companyId), ", tag : ", that._logger.stripStringForLogs(tag));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(removeTagFromAllDirectoryEntries) companyId : ", that._logger.stripStringForLogs(companyId), ", tag : ", that._logger.stripStringForLogs(tag));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -10956,7 +10956,7 @@ class AdminService extends GenericService {
      */
     renameTagForAllAssignedDirectoryEntries ( tag  : string, companyId : string, newTagName : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(renameTagForAllAssignedDirectoryEntries) companyId : ", that._logger.stripStringForLogs(companyId), ", newTagName : ", that._logger.stripStringForLogs(newTagName));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(renameTagForAllAssignedDirectoryEntries) companyId : ", that._logger.stripStringForLogs(companyId), ", newTagName : ", that._logger.stripStringForLogs(newTagName));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -10997,7 +10997,7 @@ class AdminService extends GenericService {
      */
     getStatsRegardingTagsOfDirectoryEntries ( companyId : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getStatsRegardingTagsOfDirectoryEntries) companyId : ", that._logger.stripStringForLogs(companyId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getStatsRegardingTagsOfDirectoryEntries) companyId : ", that._logger.stripStringForLogs(companyId));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -11044,7 +11044,7 @@ class AdminService extends GenericService {
      */
     createAClientVersion (id : string, version: string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(createAClientVersion) id : ", that._logger.stripStringForLogs(id), ", version : ", version);
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(createAClientVersion) id : ", that._logger.stripStringForLogs(id), ", version : ", version);
 
         return new Promise(function (resolve, reject) {
             try {
@@ -11094,7 +11094,7 @@ class AdminService extends GenericService {
      */
     deleteAClientVersion (clientId : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(deleteAClientVersion) clientId : ", that._logger.stripStringForLogs(clientId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteAClientVersion) clientId : ", that._logger.stripStringForLogs(clientId));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -11131,7 +11131,7 @@ class AdminService extends GenericService {
      */
     getAClientVersionData (clientId : string) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getAClientVersionData) clientId : ", that._logger.stripStringForLogs(clientId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getAClientVersionData) clientId : ", that._logger.stripStringForLogs(clientId));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -11173,7 +11173,7 @@ class AdminService extends GenericService {
      */
     getAllClientsVersions (name? : string, typeClient? : string, limit :number = 100, offset : number = 0, sortField : string = "name", sortOrder : number = 1): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getAllClientsVersions) name : ", that._logger.stripStringForLogs(name), ", typeClient : ", typeClient);
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getAllClientsVersions) name : ", that._logger.stripStringForLogs(name), ", typeClient : ", typeClient);
 
         return new Promise(function (resolve, reject) {
             try {
@@ -11211,7 +11211,7 @@ class AdminService extends GenericService {
      */
     updateAClientVersion (clientId : string, version   : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(updateAClientVersion) clientId : ", that._logger.stripStringForLogs(clientId), ", version : ", version);
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateAClientVersion) clientId : ", that._logger.stripStringForLogs(clientId), ", version : ", version);
 
         return new Promise(function (resolve, reject) {
             try {
@@ -11263,7 +11263,7 @@ class AdminService extends GenericService {
      */
     getListOfCountries(): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getListOfCountries) ");
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getListOfCountries) .");
 
         return new Promise(function (resolve, reject) {
             try {
@@ -11308,7 +11308,7 @@ class AdminService extends GenericService {
      */
     deleteTrustedApplication (appId : string ): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(deleteTrustedApplication) appId : ", that._logger.stripStringForLogs(appId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteTrustedApplication) appId : ", that._logger.stripStringForLogs(appId));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -11349,7 +11349,7 @@ class AdminService extends GenericService {
      */
     deleteAllTrustedApplications (): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(deleteAllTrustedApplications) ");
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteAllTrustedApplications) .");
 
         return new Promise(function (resolve, reject) {
             try {
@@ -11390,7 +11390,7 @@ class AdminService extends GenericService {
      */
     disableMultifactorAuthentication (): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(disableMultifactorAuthentication) ");
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(disableMultifactorAuthentication) .");
 
         return new Promise(function (resolve, reject) {
             try {
@@ -11426,7 +11426,7 @@ class AdminService extends GenericService {
      */
     enableMultifactorAuthentication (): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(enableMultifactorAuthentication) ");
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(enableMultifactorAuthentication) .");
 
         return new Promise(function (resolve, reject) {
             try {
@@ -11470,7 +11470,7 @@ class AdminService extends GenericService {
      */
     getMultifactorInformation (): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getMultifactorInformation) ");
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getMultifactorInformation) .");
 
         return new Promise(function (resolve, reject) {
             try {
@@ -11513,7 +11513,7 @@ class AdminService extends GenericService {
      */
     verifyMultifactorInformation (token : string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(verifyMultifactorInformation) token : ", that._logger.stripStringForLogs(token));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(verifyMultifactorInformation) token : ", that._logger.stripStringForLogs(token));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -11555,7 +11555,7 @@ class AdminService extends GenericService {
      */
     resetRecoveryCodeForMultifactorAuthentication (): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(resetRecoveryCodeForMultifactorAuthentication) ");
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(resetRecoveryCodeForMultifactorAuthentication) .");
 
         return new Promise(function (resolve, reject) {
             try {
@@ -11607,7 +11607,7 @@ class AdminService extends GenericService {
      */
     getCustomerCareAdministratorsGroup(): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getCustomerCareAdministratorsGroup) ");
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getCustomerCareAdministratorsGroup) .");
 
         return new Promise(function (resolve, reject) {
             try {
@@ -11649,7 +11649,7 @@ class AdminService extends GenericService {
      */
     addAdministratorToGroup(userId : string) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(addAdministratorToGroup) userId : ", that._logger.stripStringForLogs(userId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(addAdministratorToGroup) userId : ", that._logger.stripStringForLogs(userId));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -11690,7 +11690,7 @@ class AdminService extends GenericService {
      */
     removeAdministratorFromGroup(userId : string) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(removeAdministratorFromGroup) userId : ", that._logger.stripStringForLogs(userId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(removeAdministratorFromGroup) userId : ", that._logger.stripStringForLogs(userId));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -11763,7 +11763,7 @@ class AdminService extends GenericService {
      */
     getIssue(logId : string) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getIssue) logId : ", that._logger.stripStringForLogs(logId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getIssue) logId : ", that._logger.stripStringForLogs(logId));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -11943,7 +11943,7 @@ class AdminService extends GenericService {
                     version : string, device : string, fromCreationDate : string, toCreationDate : string,
                     fromOccurrenceDate : string, toOccurrenceDate : string, format : string = "small") {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getListOfIssues) format : ", format);
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getListOfIssues) format : ", format);
 
         return new Promise(function (resolve, reject) {
             try {
@@ -12023,7 +12023,7 @@ class AdminService extends GenericService {
      */
     getListOfIssuesForUser(userId : string, format : string = "small") {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getListOfIssuesForUser) userId : ", that._logger.stripStringForLogs(userId), ", format : ", format);
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getListOfIssuesForUser) userId : ", that._logger.stripStringForLogs(userId), ", format : ", format);
 
         return new Promise(function (resolve, reject) {
             try {
@@ -12093,7 +12093,7 @@ class AdminService extends GenericService {
      */
     getIssueForUser(userId : string, logId : string ): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getIssueForUser) userId : ", that._logger.stripStringForLogs(userId), ", logId : ", that._logger.stripStringForLogs(logId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getIssueForUser) userId : ", that._logger.stripStringForLogs(userId), ", logId : ", that._logger.stripStringForLogs(logId));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -12204,7 +12204,7 @@ class AdminService extends GenericService {
     initiateLogsContext(userId : string, occurrenceDate : string, occurrenceDateTimezone : string, type : string,
                         description : string, resourceId : string, externalRef : string, device : string, attachments : Array<string>, version : string, deviceDetails : any) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(initiateLogsContext) userId : ", that._logger.stripStringForLogs(userId), ", description : ", that._logger.stripStringForLogs(description));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(initiateLogsContext) userId : ", that._logger.stripStringForLogs(userId), ", description : ", that._logger.stripStringForLogs(description));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -12332,7 +12332,7 @@ class AdminService extends GenericService {
     completeLogsContext(userId : string, logId : string, occurrenceDate : string, occurrenceDateTimezone : string,
                         description : string, externalRef : string, device : string, attachments : Array<string>, version : string, deviceDetails : any) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(completeLogsContext) userId : ", that._logger.stripStringForLogs(userId), ", logId : ", that._logger.stripStringForLogs(logId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(completeLogsContext) userId : ", that._logger.stripStringForLogs(userId), ", logId : ", that._logger.stripStringForLogs(logId));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -12376,7 +12376,7 @@ class AdminService extends GenericService {
      */
     cancelOrCloseLogsSubmission(userId : string, logId : string) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(cancelOrCloseLogsSubmission) userId : ", that._logger.stripStringForLogs(userId), ", logId : ", that._logger.stripStringForLogs(logId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(cancelOrCloseLogsSubmission) userId : ", that._logger.stripStringForLogs(userId), ", logId : ", that._logger.stripStringForLogs(logId));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -12451,7 +12451,7 @@ class AdminService extends GenericService {
      */
     acknowledgeLogsRequest(userId : string, logId : string) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(acknowledgeLogsRequest) userId : ", that._logger.stripStringForLogs(userId), ", logId : ", that._logger.stripStringForLogs(logId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(acknowledgeLogsRequest) userId : ", that._logger.stripStringForLogs(userId), ", logId : ", that._logger.stripStringForLogs(logId));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -12529,7 +12529,7 @@ class AdminService extends GenericService {
      */
     rejectLogsRequest(userId : string, logId : string) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(rejectLogsRequest) userId : ", that._logger.stripStringForLogs(userId), ", logId : ", that._logger.stripStringForLogs(logId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(rejectLogsRequest) userId : ", that._logger.stripStringForLogs(userId), ", logId : ", that._logger.stripStringForLogs(logId));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -12592,7 +12592,7 @@ class AdminService extends GenericService {
     sendCustomerCareReport(logId : string, filesPath : Array<string> = [], occurrenceDate : string, occurrenceDateTimezone : string,
                            description : string, externalRef : string, device : string, version : string, deviceDetails : any, typeOfLog : string = "feedback") {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(sendCustomerCareReport) logId : ", that._logger.stripStringForLogs(logId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendCustomerCareReport) logId : ", that._logger.stripStringForLogs(logId));
 
         let proms = [];
         let attachments = [];
@@ -12711,7 +12711,7 @@ class AdminService extends GenericService {
      */
     adminOrBotAddAdditionalFiles(userId : string, logId : string, attachments : Array<string>, conversationId : string, fileName : string ) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(adminOrBotAddAdditionalFiles) userId : ", that._logger.stripStringForLogs(userId), ", logId : ", that._logger.stripStringForLogs(logId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(adminOrBotAddAdditionalFiles) userId : ", that._logger.stripStringForLogs(userId), ", logId : ", that._logger.stripStringForLogs(logId));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -12767,7 +12767,7 @@ class AdminService extends GenericService {
      */
     getListOfResourcesForUser( userId : string) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getListOfResourcesForUser) userId : ", that._logger.stripStringForLogs(userId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getListOfResourcesForUser) userId : ", that._logger.stripStringForLogs(userId));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -12832,7 +12832,7 @@ class AdminService extends GenericService {
      */
     createAnAtriumTicket(userId : string, subject : string, description : string, additionalDescription : string, resource : string, externalRef : string, logs : Array<string> ) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(createAnAtriumTicket) userId : ", that._logger.stripStringForLogs(userId), ", subject : ", that._logger.stripStringForLogs(subject));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(createAnAtriumTicket) userId : ", that._logger.stripStringForLogs(userId), ", subject : ", that._logger.stripStringForLogs(subject));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -12894,7 +12894,7 @@ class AdminService extends GenericService {
      */
     updateAnAtriumTicket(userId : string, ticketId : string, subject : string, description : string, additionalDescription : string, resource : string, externalRef : string, logs : Array<string> ) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(updateAnAtriumTicket) userId : ", that._logger.stripStringForLogs(userId), ", ticketId : ", that._logger.stripStringForLogs(ticketId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateAnAtriumTicket) userId : ", that._logger.stripStringForLogs(userId), ", ticketId : ", that._logger.stripStringForLogs(ticketId));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -12943,7 +12943,7 @@ class AdminService extends GenericService {
      */
     deleteAnAtriumTicketInformation(userId : string, ticketId : string) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(deleteAnAtriumTicketInformation) userId : ", that._logger.stripStringForLogs(userId), ", ticketId : ", that._logger.stripStringForLogs(ticketId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteAnAtriumTicketInformation) userId : ", that._logger.stripStringForLogs(userId), ", ticketId : ", that._logger.stripStringForLogs(ticketId));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -12998,7 +12998,7 @@ class AdminService extends GenericService {
      */
     readAnAtriumTicketInformation( userId : string, ticketId : string) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(readAnAtriumTicketInformation) userId : ", that._logger.stripStringForLogs(userId), ", ticketId : ", that._logger.stripStringForLogs(ticketId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(readAnAtriumTicketInformation) userId : ", that._logger.stripStringForLogs(userId), ", ticketId : ", that._logger.stripStringForLogs(ticketId));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -13055,7 +13055,7 @@ class AdminService extends GenericService {
      */
     readAllTicketsOnASameCompany(userId : string) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(readAllTicketsOnASameCompany) userId : ", that._logger.stripStringForLogs(userId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(readAllTicketsOnASameCompany) userId : ", that._logger.stripStringForLogs(userId));
 
         return new Promise(function (resolve, reject) {
             try {

@@ -7,6 +7,7 @@ export {};
 import {ErrorManager} from "../common/ErrorManager";
 
 const LOG_ID = "TRFPROMISEQUEUE - ";
+const API_ID = "API_CALL - ";
 
 class TransferPromiseQueue {
 	public fileQueue: any;

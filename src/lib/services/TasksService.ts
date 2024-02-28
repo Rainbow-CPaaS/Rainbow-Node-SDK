@@ -6,13 +6,14 @@ export {};
 import {XMPPService} from "../connection/XMPPService";
 import {RESTService} from "../connection/RESTService";
 import {ErrorManager} from "../common/ErrorManager";
-import {isStarted, logEntryExit} from "../common/Utils";
+import {isDefined, isStarted, logEntryExit} from "../common/Utils";
 import {Logger} from "../common/Logger";
 import {EventEmitter} from "events";
 import {S2SService} from "./S2SService";
 import {Core} from "../Core";
 
 const LOG_ID = "TASKS/SVCE - ";
+const API_ID = "API_CALL - ";
 
 @logEntryExit(LOG_ID)
 @isStarted([])
@@ -129,6 +130,7 @@ const LOG_ID = "TASKS/SVCE - ";
      */
      async addTask(name, comment, isFavorite) {
          let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(addTask) is name defined : ", isDefined(name));
 
          return new Promise(function(resolve, reject) {
              if (typeof isFavorite === "undefined") {
@@ -175,6 +177,7 @@ const LOG_ID = "TASKS/SVCE - ";
      */
     async getTasks(category : string = undefined) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getTasks) is category defined : ", isDefined(category));
 
         return new Promise(function(resolve, reject) {
 

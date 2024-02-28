@@ -7,12 +7,13 @@ import {XMPPService} from "../connection/XMPPService";
 import {RESTService} from "../connection/RESTService";
 import {ErrorManager} from "../common/ErrorManager";
 import {EventEmitter} from "events";
-import {isStarted, logEntryExit} from "../common/Utils";
+import {isDefined, isStarted, logEntryExit} from "../common/Utils";
 import {Logger} from "../common/Logger";
 import {S2SService} from "./S2SService";
 import {Core} from "../Core";
 
 const LOG_ID = "SETT/SVCE - ";
+const API_ID = "API_CALL - ";
 
 @logEntryExit(LOG_ID)
 @isStarted([])
@@ -133,6 +134,7 @@ class Settings extends GenericService {
      */
     getUserSettings() {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getUserSettings) .");
         return new Promise((resolve, reject) => {
 
             that._rest.getUserSettings().then((settings) => {
@@ -170,6 +172,7 @@ class Settings extends GenericService {
      */
     updateUserSettings(settings) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateUserSettings) is settings defined : ", isDefined(settings));
         return new Promise( (resolve, reject) => {
             // Check validity
             that._rest.updateUserSettings(settings).then( (newSettings) => {

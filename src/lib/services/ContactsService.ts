@@ -8,7 +8,7 @@ import {Contact, NameUpdatePrio} from "../common/models/Contact";
 import * as util from 'util';
 import * as md5 from 'md5';
 import * as path from 'path';
-import {addParamToUrl, isStarted, logEntryExit} from "../common/Utils";
+import {addParamToUrl, isDefined, isStarted, logEntryExit} from "../common/Utils";
 import {PresenceService} from "./PresenceService";
 import {EventEmitter} from "events";
 import {Logger} from "../common/Logger";
@@ -503,7 +503,7 @@ class ContactsService extends GenericService {
      */
     getAll() : Array<Contact>{
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getAll) ");
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getAll) .");
         return this._contacts?this._contacts.filter(contact => contact.roster):[];
     }
 
@@ -521,7 +521,7 @@ class ContactsService extends GenericService {
      */
     getAllContactsInCache() : Array<Contact>{
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getAllContactsInCache) ");
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getAllContactsInCache) .");
         return this._contacts;
     }
 
@@ -542,7 +542,7 @@ class ContactsService extends GenericService {
      */
     getContactByJid(jid : string, forceServerSearch : boolean = false): Promise<Contact> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getContactByJid) jid : ", that._logger.stripStringForLogs(jid), ", forceServerSearch : ", forceServerSearch);
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getContactByJid) jid : ", that._logger.stripStringForLogs(jid), ", forceServerSearch : ", forceServerSearch);
 
         return new Promise((resolve, reject) => {
             if (!jid) {
@@ -618,7 +618,7 @@ class ContactsService extends GenericService {
      */
     getContactById(id : string, forceServerSearch: boolean = false): Promise<Contact> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getContactById) id : ", that._logger.stripStringForLogs(id), ", forceServerSearch : ", forceServerSearch);
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getContactById) id : ", that._logger.stripStringForLogs(id), ", forceServerSearch : ", forceServerSearch);
         return new Promise((resolve, reject) => {
             if (!id) {
                 that._logger.log(that.WARN, LOG_ID + "(getContactById) bad or empty 'id' parameter", id);
@@ -698,7 +698,7 @@ class ContactsService extends GenericService {
      */
     async getContactByLoginEmail(loginEmail : string, forceServerSearch: boolean = false): Promise<Contact> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getContactByLoginEmail) loginEmail : ", that._logger.stripStringForLogs(loginEmail), ", forceServerSearch : ", forceServerSearch);
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getContactByLoginEmail) loginEmail : ", that._logger.stripStringForLogs(loginEmail), ", forceServerSearch : ", forceServerSearch);
 
         return new Promise((resolve, reject) => {
             if (!loginEmail) {
@@ -791,7 +791,7 @@ class ContactsService extends GenericService {
      */
     async getContactIdByLoginEmail(loginEmail : string, forceServerSearch: boolean = false): Promise<String> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getContactIdByLoginEmail) loginEmail : ", that._logger.stripStringForLogs(loginEmail), ", forceServerSearch : ", forceServerSearch);
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getContactIdByLoginEmail) loginEmail : ", that._logger.stripStringForLogs(loginEmail), ", forceServerSearch : ", forceServerSearch);
 
         return new Promise((resolve, reject) => {
             if (!loginEmail) {
@@ -853,7 +853,7 @@ class ContactsService extends GenericService {
      */
     getMyInformations(): Promise<Contact> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getContactByJid) ");
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getContactByJid) .");
 
         return new Promise((resolve, reject) => {
                     that._logger.log(that.DEBUG, LOG_ID + "(getMyInformations) Ask the server...");
@@ -1018,7 +1018,7 @@ class ContactsService extends GenericService {
      */
     getCompanyInfos(companyId? : string, format : string = "small", selectedThemeObj : boolean = false, name? : string, status? : string, visibility? : string, organisationId? : string, isBP? : boolean, hasBP? : boolean, bpType? : string) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getCompanyInfos) companyId : ", that._logger.stripStringForLogs(companyId), ", format : ", format);
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getCompanyInfos) companyId : ", that._logger.stripStringForLogs(companyId), ", format : ", format);
 
         return new Promise((resolve, reject) => {
             if (!companyId) {
@@ -1053,7 +1053,7 @@ class ContactsService extends GenericService {
      */
     getAvatarByContactId(id : string, lastAvatarUpdateDate : string) : string {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getAvatarByContactId) id : ", that._logger.stripStringForLogs(id), ", lastAvatarUpdateDate : ", lastAvatarUpdateDate);
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getAvatarByContactId) id : ", that._logger.stripStringForLogs(id), ", lastAvatarUpdateDate : ", lastAvatarUpdateDate);
 
         if (lastAvatarUpdateDate) {
             return this.avatarDomain + "/api/avatar/" + id + "?update=" + md5(lastAvatarUpdateDate);
@@ -1073,7 +1073,7 @@ class ContactsService extends GenericService {
      */
     getConnectedUser(): Contact {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getConnectedUser) ");
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getConnectedUser) .");
 
         if (!that._rest.account) {
             return null;
@@ -1110,7 +1110,7 @@ class ContactsService extends GenericService {
      */
     getDisplayName(contact : Contact) : string {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getDisplayName) contact.id : ", that._logger.stripStringForLogs(contact?.id), ", contact.name : ", that._logger.stripStringForLogs(contact?.name));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getDisplayName) contact.id : ", that._logger.stripStringForLogs(contact?.id), ", contact.name : ", that._logger.stripStringForLogs(contact?.name));
 
         return contact.firstName + " " + contact.lastName;
     }
@@ -1157,7 +1157,7 @@ class ContactsService extends GenericService {
      */
     updateMyInformations(dataToUpdate: any) : Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(updateMyInformations) ");
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateMyInformations) .");
 
 //        that._logger.log(that.INTERNAL, LOG_ID + "(updateMyInformations) parameters : dataToUpdate : ", dataToUpdate);
 
@@ -1220,7 +1220,7 @@ class ContactsService extends GenericService {
      */
     async createSource (userId : string, sourceId : string, os : string ) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(createSource) userId : ", that._logger.stripStringForLogs(userId), ", sourceId : ",  that._logger.stripStringForLogs(sourceId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(createSource) userId : ", that._logger.stripStringForLogs(userId), ", sourceId : ",  that._logger.stripStringForLogs(sourceId));
 
 //        that._logger.log(that.INTERNAL, LOG_ID + "(createSource) parameters : userId : ", userId);
 
@@ -1278,7 +1278,7 @@ class ContactsService extends GenericService {
      */
     async deleteSource (userId : string, sourceId : string) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(deleteSource) userId : ", that._logger.stripStringForLogs(userId), ", sourceId : ",  that._logger.stripStringForLogs(sourceId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteSource) userId : ", that._logger.stripStringForLogs(userId), ", sourceId : ",  that._logger.stripStringForLogs(sourceId));
 
 //        that._logger.log(that.INTERNAL, LOG_ID + "(deleteSource) parameters : userId : ", userId);
 
@@ -1331,7 +1331,7 @@ class ContactsService extends GenericService {
      */
     async getSourceData(userId : string, sourceId : string) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getSourceData) userId : ", that._logger.stripStringForLogs(userId), ", sourceId : ",  that._logger.stripStringForLogs(sourceId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getSourceData) userId : ", that._logger.stripStringForLogs(userId), ", sourceId : ",  that._logger.stripStringForLogs(sourceId));
 
        // that._logger.log(that.INTERNAL, LOG_ID + "(getSourceData) parameters : userId : ", userId);
 
@@ -1394,7 +1394,7 @@ class ContactsService extends GenericService {
      */
     async getAllSourcesByUserId (userId? : string, format : string = "small", sortField : string = "name", limit : number = 100, offset : number = 0, sortOrder : number = 1) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getAllSourcesByUserId) userId : ", that._logger.stripStringForLogs(userId), ", format : ",  that._logger.stripStringForLogs(format));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getAllSourcesByUserId) userId : ", that._logger.stripStringForLogs(userId), ", format : ",  that._logger.stripStringForLogs(format));
 
         //that._logger.log(that.INTERNAL, LOG_ID + "(getAllSourcesByUserId) parameters : userId : ", userId);
 
@@ -1444,7 +1444,7 @@ class ContactsService extends GenericService {
      */
     async updateSourceData (userId : string, sourceId : string, os : string ) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(updateSourceData) userId : ", that._logger.stripStringForLogs(userId), ", sourceId : ",  that._logger.stripStringForLogs(sourceId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateSourceData) userId : ", that._logger.stripStringForLogs(userId), ", sourceId : ",  that._logger.stripStringForLogs(sourceId));
 
        // that._logger.log(that.INTERNAL, LOG_ID + "(updateSourceData) parameters : userId : ", userId);
 
@@ -1550,7 +1550,7 @@ class ContactsService extends GenericService {
      */
     async updateContactData (userId  : string, sourceId  : string, contactIddb  : string, contactId  : string = undefined, firstName  : string = undefined, lastName : string = undefined, displayName : string = undefined, company  : string = undefined, jobTitle  : string = undefined, phoneNumbers : Array<any> = undefined, emails : Array<any> = undefined,addresses : Array<any> = undefined, groups : Array<string> = undefined, otherData : Array<any> = undefined) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(updateContactData) userId : ", that._logger.stripStringForLogs(userId), ", sourceId : ",  that._logger.stripStringForLogs(sourceId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateContactData) userId : ", that._logger.stripStringForLogs(userId), ", sourceId : ",  that._logger.stripStringForLogs(sourceId));
 
         //that._logger.log(that.INTERNAL, LOG_ID + "(updateContactData) parameters : userId : ", userId);
 
@@ -1651,7 +1651,7 @@ class ContactsService extends GenericService {
      */
     async createContact (userId : string, sourceId : string, contactId : string, firstName : string, lastName : string, displayName : string, company : string, jobTitle : string, phoneNumbers : Array<any>= [], emails : Array<any>= [], addresses : Array<any>= [], groups : Array<string>= [], otherData : Array<any> = []) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(createContact) userId : ", that._logger.stripStringForLogs(userId), ", sourceId : ",  that._logger.stripStringForLogs(sourceId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(createContact) userId : ", that._logger.stripStringForLogs(userId), ", sourceId : ",  that._logger.stripStringForLogs(sourceId));
 
         //that._logger.log(that.INTERNAL, LOG_ID + "(createContact) parameters : userId : ", userId);
 
@@ -1782,7 +1782,7 @@ class ContactsService extends GenericService {
      */
     async getContactData (userId : string, sourceId : string, contactId : string ) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getContactData) userId : ", that._logger.stripStringForLogs(userId), ", sourceId : ",  that._logger.stripStringForLogs(sourceId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getContactData) userId : ", that._logger.stripStringForLogs(userId), ", sourceId : ",  that._logger.stripStringForLogs(sourceId));
 
         //that._logger.log(that.INTERNAL, LOG_ID + "(getContactData) parameters : userId : ", userId);
 
@@ -1869,7 +1869,7 @@ class ContactsService extends GenericService {
      */
     async getContactsList (userId : string, sourceId : string, format : string = "small" ) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getContactsList) userId : ", that._logger.stripStringForLogs(userId), ", sourceId : ",  that._logger.stripStringForLogs(sourceId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getContactsList) userId : ", that._logger.stripStringForLogs(userId), ", sourceId : ",  that._logger.stripStringForLogs(sourceId));
 
        // that._logger.log(that.INTERNAL, LOG_ID + "(getContactsList) parameters : userId : ", userId);
 
@@ -1922,7 +1922,7 @@ class ContactsService extends GenericService {
      */
     deleteContact (userId : string, sourceId : string, contactId: string) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(deleteContact) userId : ", that._logger.stripStringForLogs(userId), ", sourceId : ",  that._logger.stripStringForLogs(sourceId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteContact) userId : ", that._logger.stripStringForLogs(userId), ", sourceId : ",  that._logger.stripStringForLogs(sourceId));
 
       //  that._logger.log(that.INTERNAL, LOG_ID + "(deleteContact) parameters : userId : ", userId);
 
@@ -2027,7 +2027,7 @@ class ContactsService extends GenericService {
      */
     getRosters() : Promise<Array<Contact>> {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getRosters) ");
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getRosters) .");
 
         return new Promise((resolve, reject) => {
             that._rest.getContacts().then(async (listOfContacts: any) => {
@@ -2159,7 +2159,7 @@ class ContactsService extends GenericService {
      */
     addToNetwork(contact: Contact) : Promise<Contact>{
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(addToNetwork) contact.id : ", that._logger.stripStringForLogs(contact?.id), ", contact.name : ", that._logger.stripStringForLogs(contact?.name));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(addToNetwork) contact.id : ", that._logger.stripStringForLogs(contact?.id), ", contact.name : ", that._logger.stripStringForLogs(contact?.name));
 
         return this.addToContactsList(contact);
     }
@@ -2182,7 +2182,7 @@ class ContactsService extends GenericService {
      */
     addToContactsList(contact: Contact) : Promise<Contact>{
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(addToContactsList) contact.id : ", that._logger.stripStringForLogs(contact?.id), ", contact.name : ", that._logger.stripStringForLogs(contact?.name));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(addToContactsList) contact.id : ", that._logger.stripStringForLogs(contact?.id), ", contact.name : ", that._logger.stripStringForLogs(contact?.name));
 
         return new Promise((resolve, reject) => {
             if (!contact) {
@@ -2226,7 +2226,7 @@ class ContactsService extends GenericService {
      */
     removeFromNetwork(contact) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(removeFromNetwork) contact.id : ", that._logger.stripStringForLogs(contact?.id), ", contact.name : ", that._logger.stripStringForLogs(contact?.name));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(removeFromNetwork) contact.id : ", that._logger.stripStringForLogs(contact?.id), ", contact.name : ", that._logger.stripStringForLogs(contact?.name));
 
         return new Promise((resolve, reject) => {
             if (!contact) {
@@ -2264,7 +2264,7 @@ class ContactsService extends GenericService {
      */
     async getInvitationById(strInvitationId : string) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getInvitationById) strInvitationId : ", that._logger.stripStringForLogs(strInvitationId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getInvitationById) strInvitationId : ", that._logger.stripStringForLogs(strInvitationId));
 
         if (!strInvitationId) {
             that._logger.log(that.WARN, LOG_ID + "(getInvitationById) bad or empty 'strInvitationId' parameter");
@@ -2293,7 +2293,7 @@ class ContactsService extends GenericService {
      */
     async acceptInvitation(invitation : Invitation) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(acceptInvitation) invitation.id : ", invitation?.id);
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(acceptInvitation) invitation.id : ", invitation?.id);
 
       //  that._logger.log(that.INTERNAL, LOG_ID + "(acceptInvitation) invitation : ", invitation);
         if (!invitation) {
@@ -2322,7 +2322,7 @@ class ContactsService extends GenericService {
      */
     declineInvitation(invitation : Invitation) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(declineInvitation) invitation.id : ", invitation?.id);
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(declineInvitation) invitation.id : ", invitation?.id);
 
     //    that._logger.log(that.INTERNAL, LOG_ID + "(declineInvitation) intivation : ", invitation);
         if (!invitation) {
@@ -2354,7 +2354,7 @@ class ContactsService extends GenericService {
      */
     joinContacts(contact: Contact, contactIds : Array<string>) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(joinContacts) contact.id : ", that._logger.stripStringForLogs(contact?.id), ", contact.name : ", that._logger.stripStringForLogs(contact?.name));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(joinContacts) contact.id : ", that._logger.stripStringForLogs(contact?.id), ", contact.name : ", that._logger.stripStringForLogs(contact?.name));
 
         return new Promise((resolve, reject) => {
             if (!contact) {
@@ -2439,7 +2439,7 @@ class ContactsService extends GenericService {
      */
     searchInAlldirectories (pbxId? : string, systemId? : string, numberE164? : string, shortnumber? : string, format : string = "small", limit : number = 100, offset? : number, sortField : string = "reverseDisplayName", sortOrder : number = 1) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(searchInAlldirectories) pbxId : ",  that._logger.stripStringForLogs(pbxId));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(searchInAlldirectories) pbxId : ",  that._logger.stripStringForLogs(pbxId));
 
         return new Promise((resolve, reject) => {
 
@@ -2511,7 +2511,7 @@ class ContactsService extends GenericService {
      */
     searchInPhonebook (pbxId : string, name : string, number : string, format : string, limit : number = 100, offset : number, sortField : string, sortOrder : number = 1) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(searchInPhonebook) pbxId : ", that._logger.stripStringForLogs(pbxId), ", name : ", that._logger.stripStringForLogs(name));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(searchInPhonebook) pbxId : ", that._logger.stripStringForLogs(pbxId), ", name : ", that._logger.stripStringForLogs(name));
 
         return new Promise((resolve, reject) => {
 
@@ -2573,7 +2573,7 @@ class ContactsService extends GenericService {
      */
     searchUserByPhonenumber(number : string ){
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(searchUserByPhonenumber)number : ",  that._logger.stripStringForLogs(number));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(searchUserByPhonenumber)number : ",  that._logger.stripStringForLogs(number));
 
         return new Promise((resolve, reject) => {
 
@@ -2698,7 +2698,7 @@ class ContactsService extends GenericService {
      */
     searchUsers(limit : number = 20, displayName? : string, search? : string, companyId? : string, excludeCompanyId? : string, offset? : number, sortField? : string, sortOrder : number = 1){
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(searchUsers) ");
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(searchUsers) .");
 
         return new Promise((resolve, reject) => {
 
@@ -2768,7 +2768,7 @@ class ContactsService extends GenericService {
                            custom2 : string
     ) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(createPersonalDirectoryEntry) ");
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(createPersonalDirectoryEntry) .");
 
         return new Promise(function (resolve, reject) {
             try {
@@ -2830,7 +2830,7 @@ class ContactsService extends GenericService {
      */
     getDirectoryEntryData (entryId : string, format : string = "small") {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getDirectoryEntryData) entryId : ", that._logger.stripStringForLogs(entryId), ", format : ", that._logger.stripStringForLogs(format));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getDirectoryEntryData) entryId : ", that._logger.stripStringForLogs(entryId), ", format : ", that._logger.stripStringForLogs(format));
 
         return new Promise(function (resolve, reject) {
             try {
@@ -2954,7 +2954,7 @@ class ContactsService extends GenericService {
                                  sortOrder : number = 1,
                                  view  : string = "all") {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(getListPersonalDirectoryEntriesData) ");
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getListPersonalDirectoryEntriesData) .");
 
         return new Promise(function (resolve, reject) {
             try {
@@ -3026,7 +3026,7 @@ class ContactsService extends GenericService {
                            custom1 : string = undefined,
                            custom2 : string = undefined) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(updatePersonalDirectoryEntry) ");
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updatePersonalDirectoryEntry) .");
 
         return new Promise(function (resolve, reject) {
             try {
@@ -3084,7 +3084,7 @@ class ContactsService extends GenericService {
      */
     deletePersonalDirectoryEntry (entryId : string) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID + API_ID + "(deletePersonalDirectoryEntry) ");
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deletePersonalDirectoryEntry) .");
 
         return new Promise(function (resolve, reject) {
             try {

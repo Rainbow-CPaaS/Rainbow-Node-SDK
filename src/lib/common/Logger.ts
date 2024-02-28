@@ -23,6 +23,7 @@ const Cryptr = require('cryptr');
 //let defaultConfig = require("../config/config");
 import {config as defaultConfig} from "../config/config";
 import {from} from "rxjs";
+import {stackTrace} from "./Utils.js";
 
 const LOG_ID = "LOGS - ";
 
@@ -69,34 +70,36 @@ class Logger {
         "ERROR": "error",
         "WARN": "warn",
         "INFO": "info",
+        "TRACE": "trace",
         "HTTP": "http",
         "XMPP": "xmpp",
+        "DEBUG": "debug",
         "INTERNAL": "internal",
-        "INTERNALERROR": "internalerror",
-        "DEBUG": "debug"
+        "INTERNALERROR": "internalerror"
     };
+    // order : "error", "warn", "info", "trace", "http", "xmpp", "debug", "internal", "internalerror"
     static LEVELS = {
         "error":  0,
         "warn": 1,
         "info": 2,
-        "http": 3,
-        "trace": 4,
+        "trace": 3,
+        "http": 4,
         "xmpp": 5,
-        "internal": 6,
-        "internalerror": 7,
-        "debug": 8
+        "debug": 6,
+        "internal": 7,
+        "internalerror": 8
     };
     // Set up logger
     static LEVELSCOLORS = {
         "error":  "red",
         "warn": "yellow",
         "info": "green",
-        "http": "cyan",
         "trace": "white",
+        "http": "cyan",
         "xmpp": "cyan",
+        "debug": "green",
         "internal": "blue",
-        "internalerror": "red",
-        "debug": "green"
+        "internalerror": "red"
     };
 
     constructor(config) {
@@ -356,15 +359,15 @@ class Logger {
             return that._winston.end();
         }
 
-        this._logger.log = function (options : {"callerObj" : any, "level" : string} | string, isApi:boolean) {
+        this._logger.log = function (options : {"callerObj" : any, "level" : string, isApi : boolean} | string) {
             try {
-
-                let caller;
-                let levelOfLog ;
+                let levelOfLog: string ;
                 // Level of the SDK logs.
                 let levelOfSdk = self.logLevel;
                 let levelOfSdkValue = Logger.LEVELS[self.logLevel];
-                let levelLimit = levelOfSdkValue;
+                let levelLimit = Logger.LEVELS.error;
+                let isApi : boolean = false;
+                let showAreaApi : boolean = false;
                 if (typeof options==="object") {
                     let callerObj = options?.callerObj;
                     let callerName = "unknown";
@@ -373,14 +376,16 @@ class Logger {
                     }
                     // Current log's config.
                     let paramsOfClassLogs = config?.logs?.areas ? config?.logs?.areas[callerName] : {};
-                    levelOfLog=options?.level;
+                    levelOfLog=options?.level?options.level:"info";
+                    isApi=options?.isApi;
+                    showAreaApi = config?.logs?.areas ? config?.logs?.areas["api"] : {};
                     // Level of the current log.
                     //let levelOfLog = options?.level;
                     // let levelOfLogNumber = winston.config.syslog.levels[levelOfLog];
                     // let levelOfLogNumber = self.levels[levelOfLog];
                     // Level of the aera in the SDK config options.
                     let levelOfArea = paramsOfClassLogs?.level;
-                    levelLimit = levelOfArea;
+                    levelLimit = levelOfArea?Logger.LEVELS[levelOfArea]:levelOfSdkValue;
                     // console.log("paramOfClassLogs", paramsOfClassLogs);
                     //let levelOfAreaNumber = self.levels[paramsOfClassLogs?.level];
                     //let levelOfSdkNumber = self.levels[levelOfLog];
@@ -401,13 +406,20 @@ class Logger {
                         level = "info";
                     }
                     // */
-                    console.log("callerName : ", callerName, ", level : ", levelOfLog, ", levelOfLog : ", levelOfLog, ", levelOfArea : ", levelOfArea, ", levelOfSdk : ", levelOfSdk);
+                    //console.log("callerName : ", callerName, ", levelOfLog : ", levelOfLog, ", levelOfArea : ", levelOfArea, ", levelOfSdk : ", levelOfSdk);
                 } else {
                     levelOfLog = options;
+                    levelLimit = levelOfSdkValue;
                 }
-                let levelValue = Logger.LEVELS[levelOfLog];
-                if (levelValue > levelOfSdkValue) {
+                let levelOfLogValue = Logger.LEVELS[levelOfLog];
+                //console.log("levelOfLog : ", levelOfLog, ", levelOfLogValue : ", levelOfLogValue, ", levelLimit : ", levelLimit);
+                if (levelOfLogValue > levelLimit || (isApi && !showAreaApi)) {
+                    //console.log("levelOfLogValue : ", levelOfLogValue, "is supperior to levelLimit : ", levelLimit, " so ignore log.");
                     return;
+                }
+
+                if (!levelOfLog) {
+                    console.log("levelOfLog : ", levelOfLog, ", arguments : ", ...arguments);
                 }
 
                 if (levelOfLog==="internal" || levelOfLog==="internalerror") {
@@ -456,7 +468,6 @@ class Logger {
                 console.error("CATCH Error !!! while logging : " + err);
             }
         };
-
 
         if (enableConsoleLog && enableFileLog) {
 

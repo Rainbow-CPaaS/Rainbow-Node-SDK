@@ -4,7 +4,7 @@ import {XMPPService} from "../connection/XMPPService";
 import {ErrorManager} from "../common/ErrorManager";
 import * as PubSub from "pubsub-js";
 import {PresenceEventHandler} from "../connection/XMPPServiceHandler/presenceEventHandler";
-import {isStarted, logEntryExit, until} from "../common/Utils";
+import {isDefined, isStarted, logEntryExit, until} from "../common/Utils";
 import {SettingsService} from "./SettingsService";
 import {EventEmitter} from "events";
 import {RESTService} from "../connection/RESTService";
@@ -19,6 +19,7 @@ import {Bubble} from "../common/models/Bubble";
 export {};
 
 const LOG_ID = "PRES/SVCE - ";
+const API_ID = "API_CALL - ";
 
 @logEntryExit(LOG_ID)
 @isStarted([])
@@ -157,7 +158,6 @@ class PresenceService extends GenericService{
      * @return {Promise<ErrorManager.Ok>} A promise containing the result
      */
     async sendInitialPresence() {
-
         let that = this;
         return new Promise((resolve) => {
             that._eventEmitter.once("evt_internal_presencechanged", function fn_onpresencechanged(presence) {
@@ -190,6 +190,7 @@ class PresenceService extends GenericService{
      */
     async setPresenceTo(presence) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(setPresenceTo) is presence defined : ", isDefined(presence));
         let presenceRainbow = new PresenceRainbow(presence);
        // let show = "online";
         //let status = "";
@@ -250,6 +251,8 @@ class PresenceService extends GenericService{
      *      Get user presence status calculated from events. <br>
      */
     getUserConnectedPresence() : PresenceRainbow {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getUserConnectedPresence) .");
         return this._currentPresence ;
     }
    
@@ -346,10 +349,11 @@ class PresenceService extends GenericService{
      * @instance
      * @category Presence CONNECTED USER
      * @description
-     *      Get user's resources presences informations from server. <br>
+     *      Get user's resources presences information from server. <br>
      */
     getMyPresenceInformation() {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getMyPresenceInformation) .");
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -380,6 +384,8 @@ class PresenceService extends GenericService{
      */
     async setApplyMsTeamsPresenceSettings(connectTeams : boolean= false) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(setApplyMsTeamsPresenceSettings) is connectTeams defined : ", isDefined(connectTeams));
+
         return new Promise(async (resolve, reject) => {
             that._logger.log(that.INTERNAL, LOG_ID + "(setApplyMsTeamsPresenceSettings) connectTeams : ", connectTeams);
 
@@ -404,6 +410,8 @@ class PresenceService extends GenericService{
      */
     async sendInitialBubblePresenceSync(bubble: Bubble, intervalDelay: number = 7500): Promise<any> {
         let that = this;
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(sendInitialBubblePresenceSync) is bubble defined : ", isDefined(bubble));
+
         return new Promise(async function (resolve, reject) {
             let initialPresenceSent = that.sendInitialBubblePresenceSyncFn(bubble, intervalDelay).catch((errOfSent) => {
                 that._logger.log(that.WARN, LOG_ID + "(sendInitialBubblePresenceSync) Error while sendInitialBubblePresenceSyncFn : ", errOfSent);
@@ -439,7 +447,7 @@ class PresenceService extends GenericService{
     }
     
 
-        /**
+    /**
      * @private
      * @method sendInitialBubblePresence
      * @instance
@@ -449,36 +457,38 @@ class PresenceService extends GenericService{
      * @param {number} attempt To log a number of attempt of sending presence to the Bubble. default value is 0.
      * @description
      *      Method called when receiving an invitation to join a bubble <br>
-     */
+    */
     async sendInitialBubblePresence(bubble : Bubble,  attempt : number = 0) {
-        let that = this;
-        return new Promise(async function(resolve, reject) {
-            if (!bubble || !bubble.jid) {
-                that._logger.log(that.DEBUG, LOG_ID + "(sendInitialBubblePresence) failed");
-                that._logger.log(that.INFO, LOG_ID + "(sendInitialBubblePresence) No Bubble id provided");
-                reject({code:-1, label:"Bubble id is not defined!!!"});
-            } else {
-                const attemptInfo = attempt ? " -- attempt " + attempt : "";
-                that._logger.log(that.INFO, LOG_ID + "(sendInitialBubblePresence) " + attemptInfo + " -- " + bubble.getNameForLogs + " -- " + bubble?.id);
-                if (that._useXMPP) {
-                    let result = that._xmpp.sendInitialBubblePresence(bubble.jid)
-                    that._logger.log(that.INTERNAL, LOG_ID + "(sendInitialBubblePresence) begin wait for the bubble to be active : ", bubble?.jid);
-                    // Wait for the bubble to be active
-                    await until(() => {
-                        return bubble.isActive === true;
-                    }, "Wait for the Bubble " + bubble.jid + " to be active").catch((err)=>{
-                        that._logger.log(that.INTERNAL, LOG_ID + "(sendInitialBubblePresence) FAILED wait for the bubble to be active : ", bubble?.jid , " : ", err);
-                    });
-                    that._logger.log(that.INTERNAL, LOG_ID + "(sendInitialBubblePresence) end wait for the bubble to be active : ", bubble?.jid);
-                    resolve(result);
-                }
-                if (that._useS2S) {
-                    let bubbleInfos = await that._bubbles.getBubbleByJid(bubble.jid);
+            let that = this;
+            that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendInitialBubblePresence) is bubble defined : ", isDefined(bubble));
+
+            return new Promise(async function (resolve, reject) {
+                if (!bubble || !bubble.jid) {
+                    that._logger.log(that.DEBUG, LOG_ID + "(sendInitialBubblePresence) failed");
+                    that._logger.log(that.INFO, LOG_ID + "(sendInitialBubblePresence) No Bubble id provided");
+                    reject({code: -1, label: "Bubble id is not defined!!!"});
+                } else {
+                    const attemptInfo = attempt ? " -- attempt " + attempt:"";
+                    that._logger.log(that.INFO, LOG_ID + "(sendInitialBubblePresence) " + attemptInfo + " -- " + bubble.getNameForLogs + " -- " + bubble?.id);
+                    if (that._useXMPP) {
+                        let result = that._xmpp.sendInitialBubblePresence(bubble.jid)
+                        that._logger.log(that.INTERNAL, LOG_ID + "(sendInitialBubblePresence) begin wait for the bubble to be active : ", bubble?.jid);
+                        // Wait for the bubble to be active
+                        await until(() => {
+                            return bubble.isActive===true;
+                        }, "Wait for the Bubble " + bubble.jid + " to be active").catch((err) => {
+                            that._logger.log(that.INTERNAL, LOG_ID + "(sendInitialBubblePresence) FAILED wait for the bubble to be active : ", bubble?.jid, " : ", err);
+                        });
+                        that._logger.log(that.INTERNAL, LOG_ID + "(sendInitialBubblePresence) end wait for the bubble to be active : ", bubble?.jid);
+                        resolve(result);
+                    }
+                    if (that._useS2S) {
+                        let bubbleInfos = await that._bubbles.getBubbleByJid(bubble.jid);
                         resolve(that._s2s.joinRoom(bubbleInfos.id, ROOMROLE.MEMBER));
+                    }
                 }
-            }
-        });
-    }
+            });
+        }
 
     /**
      * @private
@@ -493,6 +503,8 @@ class PresenceService extends GenericService{
      */
     public sendInitialBubblePresenceSyncFn(bubble: Bubble, intervalDelay: number = 7500): Promise<any> {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendInitialBubblePresenceSyncFn) is bubble defined : ", isDefined(bubble));
+
         if (!bubble) {
             that._logger.log(that.WARN, LOG_ID + "(sendInitialBubblePresenceSyncFn) bad or empty 'bubble' parameter.");
             //that._logger.log(that.INTERNALERROR, LOG_ID + "(sendInitialBubblePresenceSyncFn) bad or empty 'bubble' parameter : ", bubble);
@@ -616,6 +628,7 @@ class PresenceService extends GenericService{
      */
     async getCalendarState() {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getCalendarState) .");
 
         return new Promise((resolve, reject) => {
 
@@ -666,6 +679,7 @@ class PresenceService extends GenericService{
      */
     async getCalendarStates(users : Array<string> = [undefined]) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getCalendarStates) is users defined : ", isDefined(users));
 
         return new Promise((resolve, reject) => {
 
@@ -706,6 +720,7 @@ class PresenceService extends GenericService{
      */
     async setCalendarRegister(type? : string, redirect? : boolean, callbackUrl? : string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(setCalendarRegister) is type defined : ", isDefined(type));
 
         return new Promise((resolve, reject) => {
 
@@ -753,6 +768,7 @@ class PresenceService extends GenericService{
      */
     async getCalendarAutomaticReplyStatus(userId? : string ) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getCalendarAutomaticReplyStatus) is userId defined : ", isDefined(userId));
 
         return new Promise((resolve, reject) => {
 
@@ -870,6 +886,7 @@ class PresenceService extends GenericService{
      */
     controlCalendarOrIgnoreAnEntry (disable? : boolean, ignore? : string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(controlCalendarOrIgnoreAnEntry) is disable defined : ", isDefined(disable));
 
         return new Promise((resolve, reject) => {
 
@@ -908,6 +925,7 @@ class PresenceService extends GenericService{
      */
     async unregisterCalendar ( ) {
         let that = this;
+         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(unregisterCalendar) .");
 
         return new Promise((resolve, reject) => {
 
@@ -948,6 +966,7 @@ class PresenceService extends GenericService{
      */
     async controlMsteamsPresence (disable? : boolean, ignore? : string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(controlMsteamsPresence) is disable defined : ", isDefined(disable));
         return that._rest.controlMsteamsPresence(disable, ignore);
     }
 
@@ -997,6 +1016,7 @@ class PresenceService extends GenericService{
      *  */
     async getMsteamsPresenceState(userId?  : string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getMsteamsPresenceState) is userId defined : ", isDefined(userId));
         if (!userId) {
             userId = that._rest.account.id;
         }
@@ -1036,6 +1056,7 @@ class PresenceService extends GenericService{
      */
     async getMsteamsPresenceStates( users : Array<string> = []) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getMsteamsPresenceStates) is users defined : ", isDefined(users));
         if (users.length == 0) {
             users.push(that._rest.account.id);
         }
@@ -1063,6 +1084,7 @@ class PresenceService extends GenericService{
      * */
     async registerMsteamsPresenceSharing( redirect? : boolean, callback? : string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(registerMsteamsPresenceSharing) is redirect defined : ", isDefined(redirect));
         return that._rest.registerMsteamsPresenceSharing(redirect, callback);
     }
 
@@ -1086,6 +1108,7 @@ class PresenceService extends GenericService{
      * */
     async unregisterMsteamsPresenceSharing() {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(unregisterMsteamsPresenceSharing) .");
         return that._rest.unregisterMsteamsPresenceSharing();
     }
 
@@ -1109,6 +1132,7 @@ class PresenceService extends GenericService{
      * */
     async activateMsteamsPresence() {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(activateMsteamsPresence) .");
         return that._rest.activateMsteamsPresence();
     }
 
@@ -1132,6 +1156,7 @@ class PresenceService extends GenericService{
      * */
     async deactivateMsteamsPresence() {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deactivateMsteamsPresence) .");
         return that._rest.deactivateMsteamsPresence();
     }
 
@@ -1155,7 +1180,8 @@ class PresenceService extends GenericService{
         <presence to="user@otherhost.com" type="subscribe" />
          */
         let that = this ;
-        
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(subscribePresence) is to defined : ", isDefined(to));
+
         if (that._useXMPP) {
             let result = that._xmpp.subscribePresence(to);
             that._logger.log(that.INFO, LOG_ID + "(subscribePresence) begin wait for the bubble to be active : ", to);

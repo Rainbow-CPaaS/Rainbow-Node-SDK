@@ -23,7 +23,6 @@ import {domainToASCII} from "url";
 import { HttpoverxmppEventHandler } from "./XMPPServiceHandler/httpoverxmppEventHandler";
 import { RpcoverxmppEventHandler } from "./XMPPServiceHandler/rpcoverxmppEventHandler";
 import {Core} from "../Core.js";
-import {LevelInterface} from "../common/LevelInterface.js";
 
 const packageVersion = require("../../package");
 const url = require('url');
@@ -579,14 +578,14 @@ class XMPPService extends GenericService {
             let stanzaElmt : any = parse(stanzaStr);
             let stanzaElmtOffended = that.xmppUtils.offendXml(stanzaElmt);
             let xmlOffendedStr = prettydata.xml(stanzaElmtOffended.toString());
-            that._logger.log(that.INFO, LOG_ID + "(handleXMPPConnection) ", that._logger.colors.cyan(" raw in - ⮈ stanza : ") + that._logger.colors.cyan(xmlOffendedStr));
+            that._logger.log(that.XMPP, LOG_ID + "(handleXMPPConnection) ", that._logger.colors.cyan(" raw in - ⮈ stanza : ") + that._logger.colors.cyan(xmlOffendedStr));
 
             let xmlStr = prettydata.xml(stanzaStr);
             //that._logger.log(that.INTERNAL, LOG_ID + "(handleXMPPConnection) ", that._logger.colors.cyan(" raw in - ⮈ stanza : ") + that._logger.colors.cyan(xmlStr));
-            that._logger.log(that.DEBUG, LOG_ID + "(handleXMPPConnection) ", that._logger.colors.cyan(" raw in - ⮈ stanza : ") + that._logger.colors.cyan(xmlStr));
+            that._logger.log(that.INTERNAL, LOG_ID + "(handleXMPPConnection) ", that._logger.colors.cyan(" raw in - ⮈ stanza : ") + that._logger.colors.cyan(xmlStr));
             if ( that._logger.enableEncryptedLogs == true ) {
                 let encodedXml = that._logger.encrypt(xmlStr);
-                that._logger.log(that.INFO, LOG_ID + "(handleXMPPConnection) ", " raw in - encoded : (" + encodedXml + ")");
+                that._logger.log(that.XMPP, LOG_ID + "(handleXMPPConnection) ", " raw in - encoded : (" + encodedXml + ")");
             }
             that.startOrResetIdleTimer(true);
             if (that.raiseLowLevelXmppInEvent ) {
@@ -602,14 +601,14 @@ class XMPPService extends GenericService {
             let stanzaElmt : any = parse(stanzaStr);
             let stanzaElmtOffended = that.xmppUtils.offendXml(stanzaElmt);
             let xmlOffendedStr = prettydata.xml(stanzaElmtOffended.toString());
-            that._logger.log(that.INFO, LOG_ID + "(handleXMPPConnection) ", that._logger.colors.cyan(" raw out - ⮊ stanza : ") + that._logger.colors.cyan(xmlOffendedStr));
+            that._logger.log(that.XMPP, LOG_ID + "(handleXMPPConnection) ", that._logger.colors.cyan(" raw out - ⮊ stanza : ") + that._logger.colors.cyan(xmlOffendedStr));
 
             let xmlStr = prettydata.xml(stanzaStr);
             //that._logger.log(that.INTERNAL, LOG_ID + "(handleXMPPConnection) ", that._logger.colors.yellow(" raw out - ⮊ stanza : ") + that._logger.colors.yellow(xmlStr));
-            that._logger.log(that.DEBUG, LOG_ID + "(handleXMPPConnection) ", that._logger.colors.yellow(" raw out - ⮊ stanza : ") + that._logger.colors.yellow(xmlStr));
+            that._logger.log(that.INTERNAL, LOG_ID + "(handleXMPPConnection) ", that._logger.colors.yellow(" raw out - ⮊ stanza : ") + that._logger.colors.yellow(xmlStr));
             if ( that._logger.enableEncryptedLogs == true ) {
                 let encodedXml = that._logger.encrypt(xmlStr);
-                that._logger.log(that.INFO, LOG_ID + "(handleXMPPConnection) ", " raw out - encoded : (" + encodedXml + ")");
+                that._logger.log(that.XMPP, LOG_ID + "(handleXMPPConnection) ", " raw out - encoded : (" + encodedXml + ")");
             }
 //            that._logger.log(that.INFO, LOG_ID + "(handleXMPPConnection) ", that._logger.colors.yellow(" raw out - decoded : <") + that._logger.decrypt(encodedXml) + ">");
             that.startOrResetIdleTimer(false);
