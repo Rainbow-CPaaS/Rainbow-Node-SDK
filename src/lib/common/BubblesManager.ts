@@ -16,7 +16,7 @@ import {ConferenceSession} from "./models/ConferenceSession";
 import {BubblesService} from "../services/BubblesService";
 let AsyncLock = require('async-lock');
 import {FibonacciStrategy} from "backoff";
-import { LevelInterface } from "./LevelInterface";
+import { LevelLogs } from "./LevelLogs.js";
 //let backoff = require("backoff");
 
 export{};
@@ -30,7 +30,7 @@ const RECONNECT_MAX_DELAY = 120000;
 /**
  *
  */
-class BubblesManager implements LevelInterface {
+class BubblesManager extends LevelLogs {
     private _xmpp: XMPPService;
     private _logger: Logger;
     private _eventEmitter: EventEmitter;
@@ -72,7 +72,9 @@ class BubblesManager implements LevelInterface {
     getAccessorName(){ return BubblesManager.getAccessorName(); }
 
     constructor(_eventEmitter: EventEmitter, _logger: Logger) {
+        super();
         let that = this;
+        that.setLogLevels(that);
         that._xmpp = null;
         that._rest = null;
         that._s2s = null;
@@ -81,24 +83,6 @@ class BubblesManager implements LevelInterface {
         that._useS2S = false;
         that._logger = _logger;
         that._eventEmitter = _eventEmitter;
-
-        let obj = that;
-        if (obj) {
-            obj.INFO = {"callerObj": obj, "level": "info", isApi: false};
-            obj.DEBUG = {"callerObj": obj, "level": "debug", isApi: false};
-            obj.INTERNAL = {"callerObj": obj, "level": "internal", isApi: false};
-            obj.WARN = {"callerObj": obj, "level": "warn", isApi: false};
-            obj.ERROR = {"callerObj": obj, "level": "error", isApi: false};
-            obj.INTERNALERROR = {"callerObj": obj, "level": "internalerror", isApi: false};
-            obj.INFOAPI = {"callerObj": obj, "level": "info", isApi: true};
-            obj.DEBUGAPI = {"callerObj": obj, "level": "debug", isApi: true};
-            obj.INTERNALAPI = {"callerObj": obj, "level": "internal", isApi: true};
-            obj.WARNAPI = {"callerObj": obj, "level": "warn", isApi: true};
-            obj.ERRORAPI = {"callerObj": obj, "level": "error", isApi: true};
-            obj.INTERNALERRORAPI = {"callerObj": obj, "level": "internalerror", isApi: true}; // */
-        } else {
-            console.log("Can not set Logs Levels : ", stackTrace());
-        }
 
         //this._imOptions = _imOptions;
         that.lockEngine = new AsyncLock({timeout: 5000, maxPending: 1000});
@@ -109,22 +93,9 @@ class BubblesManager implements LevelInterface {
         this._eventEmitter.on("evt_internal_onbubblepresencechanged", this._onbubblepresencechanged.bind(this));
 
         // that._logger.log(that.DEBUG, LOG_ID + "(constructor) BubblesManager created successfull");
-        that._logger.log(that.DEBUG, LOG_ID + `=== CONSTRUCTED at (${new Date()} ===`);
+        that._logger.log(that.INFO, LOG_ID + `=== CONSTRUCTED at (${new Date()} ===`);
         that._logger.log(that.INTERNAL, LOG_ID + "(constructor) BubblesManager created successfull nbBubbleAdded : ", that.nbBubbleAdded);
     }
-
-    INFO: any;
-    DEBUG: any;
-    INTERNAL: any;
-    WARN: any;
-    ERROR: any;
-    INTERNALERROR: any;
-    INFOAPI: any;
-    DEBUGAPI: any;
-    INTERNALAPI: any;
-    WARNAPI: any;
-    ERRORAPI: any;
-    INTERNALERRORAPI: any;
 
     init(_options, _core: Core) {
         let that = this;

@@ -20,7 +20,7 @@ import {Bubble} from "../../common/models/Bubble";
 import {BubblesService} from "../../services/BubblesService";
 import {Core} from "../../Core";
 import {PresenceRainbow} from "../../common/models/PresenceRainbow";
-import {LevelInterface} from "../../common/LevelInterface.js";
+import {LevelLogs} from "../../common/LevelLogs.js";
 
 const util = require('util');
 
@@ -32,7 +32,7 @@ const TYPE_CHAT = "chat";
 const TYPE_GROUPCHAT = "groupchat";
 
 @logEntryExit(LOG_ID)
-class S2SServiceEventHandler implements LevelInterface{
+class S2SServiceEventHandler extends LevelLogs{
     private _logger: Logger;
     private _eventEmitter: EventEmitter;
     private _rest: RESTService;
@@ -56,24 +56,10 @@ class S2SServiceEventHandler implements LevelInterface{
     getAccessorName(){ return S2SServiceEventHandler.getAccessorName(); }
 
     constructor(_im, _application, _eventEmitter, _logger, _hostCallback) {
+        super();
+        this.setLogLevels(this);
+
         let that = this;
-        let obj = that;
-        if (obj) {
-            obj.INFO = {"callerObj": obj, "level": "info", isApi: false};
-            obj.DEBUG = {"callerObj": obj, "level": "debug", isApi: false};
-            obj.INTERNAL = {"callerObj": obj, "level": "internal", isApi: false};
-            obj.WARN = {"callerObj": obj, "level": "warn", isApi: false};
-            obj.ERROR = {"callerObj": obj, "level": "error", isApi: false};
-            obj.INTERNALERROR = {"callerObj": obj, "level": "internalerror", isApi: false};
-            obj.INFOAPI = {"callerObj": obj, "level": "info", isApi: true};
-            obj.DEBUGAPI = {"callerObj": obj, "level": "debug", isApi: true};
-            obj.INTERNALAPI = {"callerObj": obj, "level": "internal", isApi: true};
-            obj.WARNAPI = {"callerObj": obj, "level": "warn", isApi: true};
-            obj.ERRORAPI = {"callerObj": obj, "level": "error", isApi: true};
-            obj.INTERNALERRORAPI = {"callerObj": obj, "level": "internalerror", isApi: true}; // */
-        } else {
-            console.log("Can not set Logs Levels : ", stackTrace());
-        }
 
         this._logger = _logger;
         this._eventEmitter = _eventEmitter;
@@ -82,19 +68,6 @@ class S2SServiceEventHandler implements LevelInterface{
         this.xmppUtils = XMPPUTils.getXMPPUtils();
 
     }
-
-    INFO: any;
-    DEBUG: any;
-    INTERNAL: any;
-    WARN: any;
-    ERROR: any;
-    INTERNALERROR: any;
-    INFOAPI: any;
-    DEBUGAPI: any;
-    INTERNALAPI: any;
-    WARNAPI: any;
-    ERRORAPI: any;
-    INTERNALERRORAPI: any;
 
     setAccount(account) {
         let that = this;

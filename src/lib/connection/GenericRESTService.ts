@@ -4,10 +4,10 @@ import * as btoa from "btoa";
 import * as CryptoJS from "crypto-js";
 import {makeId, stackTrace} from "../common/Utils.js";
 import {Logger} from "../common/Logger.js";
-import {LevelInterface} from "../common/LevelInterface.js";
+import {LevelLogs} from "../common/LevelLogs.js";
 let packageVersion = require("../../package.json");
 
-class GenericRESTService implements LevelInterface{
+class GenericRESTService extends LevelLogs{
     protected _token: any;
     protected _decodedtokenRest: any;
     protected _credentials: any;
@@ -15,19 +15,6 @@ class GenericRESTService implements LevelInterface{
     protected _auth: any;
     protected _logger: Logger;
     protected _logId: string;
-
-    public INFO: any;
-    public DEBUG: any;
-    public INTERNAL: any;
-    public WARN: any;
-    public ERROR: any;
-    public INTERNALERROR: any;
-    public INFOAPI: any;
-    public DEBUGAPI: any;
-    public INTERNALAPI: any;
-    public WARNAPI: any;
-    public ERRORAPI: any;
-    public INTERNALERRORAPI: any;
 
     protected startingInfos : {
         constructorDate: Date,
@@ -44,35 +31,16 @@ class GenericRESTService implements LevelInterface{
     };
 
     constructor( _logger : Logger, logId : string = "UNDF/SVCE - ") {
+        super();
+        this.setLogLevels(this);
         let that = this;
         that._logger = _logger;
         if (logId) {
             that._logId = logId;
         }
 
-        that.setLogLevels(this);
-
         // that._logger.log("debug", that._logId + "(GenericService::constructor) " );
         that.setConstructed();
-    }
-
-    setLogLevels (obj) {
-        if (obj) {
-            obj.INFO = {"callerObj": obj, "level": "info", isApi: false};
-            obj.DEBUG = {"callerObj": obj, "level": "debug", isApi: false};
-            obj.INTERNAL = {"callerObj": obj, "level": "internal", isApi: false};
-            obj.WARN = {"callerObj": obj, "level": "warn", isApi: false};
-            obj.ERROR = {"callerObj": obj, "level": "error", isApi: false};
-            obj.INTERNALERROR = {"callerObj": obj, "level": "internalerror", isApi: false};
-            obj.INFOAPI = {"callerObj": obj, "level": "info", isApi: true};
-            obj.DEBUGAPI = {"callerObj": obj, "level": "debug", isApi: true};
-            obj.INTERNALAPI = {"callerObj": obj, "level": "internal", isApi: true};
-            obj.WARNAPI = {"callerObj": obj, "level": "warn", isApi: true};
-            obj.ERRORAPI = {"callerObj": obj, "level": "error", isApi: true};
-            obj.INTERNALERRORAPI = {"callerObj": obj, "level": "internalerror", isApi: true}; // */
-        } else {
-            console.log("Can not set Logs Levels : ", stackTrace());
-        }
     }
 
     setConstructed () {

@@ -252,77 +252,77 @@ let urlS2S;
                 "alerts": {
                     "category": "services",
                     "api": true,
-                    "level": "debug"
+                    "level": "error"
                 },
                 "bubbles": {
                     "category": "services",
-                    "api": true,
+                    "api": false,
                     "level": "debug"
                 },
                 "calllog": {
                     "category": "services",
                     "api": true,
-                    "level": "debug"
+                    "level": "error"
                 },
                 "channels": {
                     "category": "services",
                     "api": true,
-                    "level": "debug"
+                    "level": "error"
                 },
                 "connectedUser": {
                     "category": "services",
                     "api": true,
-                    "level": "debug"
+                    "level": "error"
                 },
                 "contacts": {
                     "category": "services",
-                    "api": true,
-                    "level": "debug"
+                    "api": false,
+                    "level": "error"
                 },
                 "conversations": {
                     "category": "services",
                     "api": true,
-                    "level": "debug"
+                    "level": "error"
                 },
                 "events": {
                     "category": "services",
                     "api": true,
-                    "level": "debug"
+                    "level": "error"
                 },
                 "favorites": {
                     "category": "services",
                     "api": true,
-                    "level": "debug"
+                    "level": "error"
                 },
                 "fileServer": {
                     "category": "services",
                     "api": true,
-                    "level": "debug"
+                    "level": "error"
                 },
                 "fileStorage": {
                     "category": "services",
                     "api": true,
-                    "level": "debug"
+                    "level": "error"
                 },
                 "groups": {
                     "category": "services",
                     "api": true,
-                    "level": "debug"
+                    "level": "error"
                 },
                 "httpoverxmpp": {
                     "category": "services",
                     "api": true,
-                    "level": "debug"
+                    "level": "error"
                 },
                 "im": {
                     "category": "services",
                     "api": true,
-                    "level": "debug"
+                    "level": "error"
                 },
                 "invitations": {
                     "category": "services",
                     "api": true,
-                    "level": "debug"
+                    "level": "error"
                 },
                 "presence": {
                     "category": "services",
@@ -332,27 +332,27 @@ let urlS2S;
                 "profiles": {
                     "category": "services",
                     "api": true,
-                    "level": "debug"
+                    "level": "error"
                 },
                 "rbvoice": {
                     "category": "services",
                     "api": true,
-                    "level": "debug"
+                    "level": "error"
                 },
                 "rpcoverxmpp": {
                     "category": "services",
                     "api": true,
-                    "level": "debug"
+                    "level": "error"
                 },
                 "s2s": {
                     "category": "services",
                     "api": true,
-                    "level": "debug"
+                    "level": "error"
                 },
                 "settings": {
                     "category": "services",
                     "api": true,
-                    "level": "debug"
+                    "level": "error"
                 },
                 "tasks": {
                     "category": "services",
@@ -362,17 +362,17 @@ let urlS2S;
                 "telephony": {
                     "category": "services",
                     "api": true,
-                    "level": "debug"
+                    "level": "error"
                 },
                 "version": {
                     "category": "services",
                     "api": true,
-                    "level": "debug"
+                    "level": "error"
                 },
                 "webinars": {
                     "category": "services",
                     "api": true,
-                    "level": "debug"
+                    "level": "error"
                 },
                 'core': {
                     "category": "lawlayer",
@@ -380,15 +380,15 @@ let urlS2S;
                 },
                 'bubblemanager': {
                     "category": "lawlayer",
-                    "level": "debug"
+                    "level": "error"
                 },
                 'httpmanager': {
                     "category": "lawlayer",
-                    "level": "debug"
+                    "level": "error"
                 },
                 'httpservice': {
                     "category": "lawlayer",
-                    "level": "debug"
+                    "level": "http"
                 },
                 'rest': {
                     "category": "lawlayer",
@@ -396,33 +396,41 @@ let urlS2S;
                 },
                 'resttelephony': {
                     "category": "lawlayer",
-                    "level": "debug"
+                    "level": "error"
+                },
+                'restconferencev2': {
+                    "category": "lawlayer",
+                    "level": "error"
+                },
+                'restwebinar': {
+                    "category": "lawlayer",
+                    "level": "error"
                 },
                 'xmpp': {
                     "category": "lawlayer",
-                    "level": "debug",
+                    "level": "error",
                     "xmppin": true,
                     "xmppout": true
                 },
                 's2sevent': {
                     "category": "eventHandlers",
-                    "level": "debug"
+                    "level": "error"
                 },
                 'rbvoiceevent': {
                     "category": "eventHandlers",
-                    "level": "debug"
+                    "level": "error"
                 },
                 'alertevent': {
                     "category": "eventHandlers",
-                    "level": "debug"
+                    "level": "error"
                 },
                 'calllogevent': {
                     "category": "eventHandlers",
-                    "level": "debug"
+                    "level": "error"
                 },
                 'channelevent': {
                     "category": "eventHandlers",
-                    "level": "debug"
+                    "level": "error"
                 },
                 'conversationevent': {
                     "category": "eventHandlers",
@@ -434,15 +442,15 @@ let urlS2S;
                 },
                 'favoriteevent': {
                     "category": "eventHandlers",
-                    "level": "debug"
+                    "level": "error"
                 },
                 'httpoverxmppevent': {
                     "category": "eventHandlers",
-                    "level": "debug"
+                    "level": "error"
                 },
                 'invitationevent': {
                     "category": "eventHandlers",
-                    "level": "debug"
+                    "level": "error"
                 },
                 'iqevent': {
                     "category": "eventHandlers",
@@ -450,18 +458,18 @@ let urlS2S;
                 },
                 'presenceevent': {
                     "category": "eventHandlers",
-                    "level": "debug"
+                    "level": "error"
                 },
                 'rpcoverxmppevent': {
                     "category": "eventHandlers",
-                    "level": "debug"
+                    "level": "error"
                 },
                 'telephonyevent': {
                     "category": "eventHandlers",
-                    "level": "debug"
+                    "level": "error"
                 },
                 'webinarevent': {
-                    "level": "debug"
+                    "level": "error"
                 },
             },
             "file": {

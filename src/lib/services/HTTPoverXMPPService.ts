@@ -6,7 +6,7 @@ import {GuestParams, MEDIATYPE, RESTService} from "../connection/RESTService";
 import {ErrorManager} from "../common/ErrorManager";
 import {XMPPService} from "../connection/XMPPService";
 import {EventEmitter} from "events";
-import {getBinaryData, getJsonFromXML, isStarted, logEntryExit, resizeImage, until} from "../common/Utils";
+import {getBinaryData, getJsonFromXML, isDefined, isStarted, logEntryExit, resizeImage, until} from "../common/Utils";
 import {Logger} from "../common/Logger";
 import {ContactsService} from "./ContactsService";
 import {ProfilesService} from "./ProfilesService";
@@ -23,6 +23,7 @@ import {GroupsService} from "./GroupsService.js";
 export {};
 
 const LOG_ID = "HTTPoverXMPP/SVCE - ";
+const API_ID = "API_CALL - ";
 
 @logEntryExit(LOG_ID)
 @isStarted([])
@@ -154,6 +155,7 @@ class HTTPoverXMPP extends GenericService {
      */
     get(urlToGet : string, headers: any = {}, httpoverxmppserver_jid? : string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(get) is urlToGet defined : ", isDefined(urlToGet));
 
         return new Promise(async (resolve, reject) => {
             if (!urlToGet) {
@@ -198,6 +200,7 @@ class HTTPoverXMPP extends GenericService {
      */
     discoverHTTPoverXMPP(headers: any = {}, httpoverxmppserver_jid? : string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(discoverHTTPoverXMPP) is headers defined : ", isDefined(headers));
 
         return new Promise(async (resolve, reject) => {
             if (!httpoverxmppserver_jid) {
@@ -238,6 +241,7 @@ class HTTPoverXMPP extends GenericService {
      */
     trace(urlToTrace : string, headers: any = {}, httpoverxmppserver_jid? : string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(trace) is urlToTrace defined : ", isDefined(urlToTrace));
 
         return new Promise(async (resolve, reject) => {
             if (!urlToTrace) {
@@ -284,6 +288,7 @@ class HTTPoverXMPP extends GenericService {
      */
     head(urlToHead : string, headers: any = {}, httpoverxmppserver_jid? : string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(head) is urlToHead defined : ", isDefined(urlToHead));
 
         return new Promise(async (resolve, reject) => {
             if (!urlToHead) {
@@ -330,6 +335,7 @@ class HTTPoverXMPP extends GenericService {
      */    
     post(urlToPost : string, headers: any = {}, data : any, httpoverxmppserver_jid? : string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(post) is urlToPost defined : ", isDefined(urlToPost));
 
         return new Promise(async (resolve, reject) => {
             if (!urlToPost) {
@@ -376,6 +382,7 @@ class HTTPoverXMPP extends GenericService {
      */
     put(urlToPost : string, headers: any = {}, data : any, httpoverxmppserver_jid? : string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(put) is urlToPost defined : ", isDefined(urlToPost));
 
         return new Promise(async (resolve, reject) => {
             if (!urlToPost) {
@@ -422,6 +429,7 @@ class HTTPoverXMPP extends GenericService {
      */
     delete(urlToPost : string, headers: any = {}, data : any, httpoverxmppserver_jid? : string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(delete) is urlToPost defined : ", isDefined(urlToPost));
 
         return new Promise(async (resolve, reject) => {
             if (!urlToPost) {

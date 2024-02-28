@@ -2,7 +2,6 @@
 
 import {addParamToUrl, cleanEmptyMembersFromObject, logEntryExit, stackTrace} from "../../common/Utils";
 import {GenericRESTService} from "../GenericRESTService";
-import {LevelInterface} from "../../common/LevelInterface.js";
 
 const ErrorCase = require('../../common/ErrorManager');
 const util = require('util');

@@ -6,7 +6,7 @@ import {GuestParams, MEDIATYPE, RESTService} from "../connection/RESTService";
 import {ErrorManager} from "../common/ErrorManager";
 import {XMPPService} from "../connection/XMPPService";
 import {EventEmitter} from "events";
-import {getBinaryData, isStarted, logEntryExit, resizeImage, until} from "../common/Utils";
+import {getBinaryData, isDefined, isStarted, logEntryExit, resizeImage, until} from "../common/Utils";
 import {Logger} from "../common/Logger";
 import {ContactsService} from "./ContactsService";
 import {ProfilesService} from "./ProfilesService";
@@ -22,6 +22,7 @@ import {TelephonyService} from "./TelephonyService.js";
 export {};
 
 const LOG_ID = "WEBINAR/SVCE - ";
+const API_ID = "API_CALL - ";
 
 @logEntryExit(LOG_ID)
 @isStarted([])
@@ -322,6 +323,7 @@ class WebinarsService extends GenericService {
                         chatOption : string = "participant") {
 
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(createWebinar) is name defined : ", isDefined(name));
 
         return new Promise((resolve, reject) => {
 
@@ -413,6 +415,7 @@ class WebinarsService extends GenericService {
                   chatOption : string ) {
 
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateWebinar) is name defined : ", isDefined(name));
 
         return new Promise((resolve, reject) => {
 
@@ -466,6 +469,7 @@ class WebinarsService extends GenericService {
      */
     async getWebinarData(webinarId : string ) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getWebinarData) is webinarId defined : ", isDefined(webinarId));
 
         return new Promise((resolve, reject) => {
             if (!webinarId) {
@@ -502,9 +506,8 @@ class WebinarsService extends GenericService {
      * @return {Promise<any, ErrorManager>}
      */
     async getWebinarsData(  role  : string ) {
-
         let that = this;
-        
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getWebinarsData) is role defined : ", isDefined(role));
 
         return new Promise((resolve, reject) => {
             that._rest.getWebinarsData(role).then((webinarsInfo: any) => {
@@ -542,6 +545,7 @@ class WebinarsService extends GenericService {
      */
     async fetchMyWebinars(force? : boolean) : Promise<Webinar[]>{
        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(fetchMyWebinars) is force defined : ", isDefined(force));
 
        return new Promise((resolve) => {
             that.getWebinarsData(undefined).then((webinarsResult : any) => {
@@ -601,6 +605,7 @@ class WebinarsService extends GenericService {
      */
     async warnWebinarModerators(webinarId : string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(warnWebinarModerators) is webinarId defined : ", isDefined(webinarId));
 
         return new Promise((resolve, reject) => {
             if (!webinarId) {
@@ -643,6 +648,7 @@ class WebinarsService extends GenericService {
      */
     async publishAWebinarEvent(webinarId : string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(publishAWebinarEvent) is webinarId defined : ", isDefined(webinarId));
 
         return new Promise((resolve, reject) => {
             if (!webinarId) {
@@ -680,6 +686,7 @@ class WebinarsService extends GenericService {
      */
     async deleteWebinar(webinarId : string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteWebinar) is webinarId defined : ", isDefined(webinarId));
 
         return new Promise((resolve, reject) => {
             if (!webinarId) {

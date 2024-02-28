@@ -5,7 +5,7 @@ export {};
 
 import {XMPPService} from "../connection/XMPPService";
 import {RESTService} from "../connection/RESTService";
-import {logEntryExit} from "../common/Utils";
+import {isDefined, logEntryExit} from "../common/Utils";
 import * as PubSub from "pubsub-js";
 import {FavoriteEventHandler} from '../connection/XMPPServiceHandler/favoriteEventHandler';
 import { Favorite } from '../common/models/Favorite';
@@ -18,6 +18,7 @@ import {GenericService} from "./GenericService";
 import {ConversationsService} from "./ConversationsService.js";
 
 const LOG_ID = "FAVTE/SVCE - ";
+const API_ID = "API_CALL - ";
 
 @logEntryExit(LOG_ID)
 @isStarted([])
@@ -334,6 +335,7 @@ class FavoritesService extends GenericService{
      */
     public async createFavorite(id : string, type : string) : Promise<Favorite> {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(createFavorite) is id defined : ", isDefined(id));
 
         return new Promise((resolve, reject) => {
 
@@ -382,6 +384,7 @@ class FavoritesService extends GenericService{
      */
     async deleteFavorite(id : string) : Promise<any>{
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteFavorite) is id defined : ", isDefined(id));
         return new Promise((resolve, reject) => {
             if (!id) {
                 that._logger.log(that.DEBUG, LOG_ID + "[deleteFavorite] :: Error: parameter 'id' is missing or null");
@@ -416,6 +419,8 @@ class FavoritesService extends GenericService{
      * @return {Promise<Favorite>} The favorite corresponding to the peerId
      */
     public async getFavorite(peerId: string) : Promise<Favorite> {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getFavorite) is peerId defined : ", isDefined(peerId));
         let favorite = this.favorites.find((favoriteConv: any) => { return favoriteConv.peerId === peerId; });
         //let convGetter = favorite.contact ? this.conversationService.getOrCreateOneToOneConversation(favorite.contact.jid) : this.conversationService.getRoomConversation(favorite.room.jid);
         //return await convGetter;
@@ -436,6 +441,7 @@ class FavoritesService extends GenericService{
      */
     public async fetchAllFavorites(peerId: string = undefined) : Promise<Array<Favorite>> {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getFavorite) is peerId defined : ", isDefined(peerId));
 
         return new Promise((resolve, reject) => {
             that.getServerFavorites(peerId)
@@ -472,6 +478,8 @@ class FavoritesService extends GenericService{
      */
     checkIsPeerSettedAsFavorite(peerId : string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(checkIsPeerSettedAsFavorite) is peerId defined : ", isDefined(peerId));
+
         return new Promise((resolve, reject) => {
             that._logger.log(that.DEBUG, LOG_ID + "(checkIsPeerSettedAsFavorite) peerId : ", peerId);
 
@@ -512,6 +520,8 @@ class FavoritesService extends GenericService{
      */
     getFavoriteById(favoriteId : string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getFavoriteById) is favoriteId defined : ", isDefined(favoriteId));
+
         return new Promise((resolve, reject) => {
             that._logger.log(that.DEBUG, LOG_ID + "(getFavoriteById) favoriteId : ", favoriteId);
 
@@ -554,6 +564,8 @@ class FavoritesService extends GenericService{
      */
     getAllUserFavoriteList(peerId : string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getAllUserFavoriteList) is peerId defined : ", isDefined(peerId));
+
         return new Promise((resolve, reject) => {
             that._logger.log(that.DEBUG, LOG_ID + "(getAllUserFavoriteList) peerId : ", peerId);
 
@@ -595,6 +607,8 @@ class FavoritesService extends GenericService{
      */
     moveFavoriteToPosition (favoriteId : string, position : number = 1) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(moveFavoriteToPosition) is favoriteId defined : ", isDefined(favoriteId));
+
         return new Promise((resolve, reject) => {
             that._logger.log(that.DEBUG, LOG_ID + "(moveFavoriteToPosition) favoriteId : ", favoriteId);
 

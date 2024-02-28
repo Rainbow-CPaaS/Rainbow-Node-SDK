@@ -1,5 +1,5 @@
 "use strict";
-import {logEntryExit} from "../common/Utils";
+import {isDefined, logEntryExit} from "../common/Utils";
 
 export {};
 
@@ -24,6 +24,7 @@ import {Core} from "../Core";
 import {GenericService} from "./GenericService";
 
 const LOG_ID = "TELEPHONY/SVCE - ";
+const API_ID = "API_CALL - ";
 
 @logEntryExit(LOG_ID)
 @isStarted([])
@@ -391,6 +392,8 @@ class TelephonyService extends GenericService {
      * @return {boolean} Return true if the telephony service is configured
      */
     isTelephonyAvailable() {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(isTelephonyAvailable) .");
         return this._started;
     }
 
@@ -406,6 +409,7 @@ class TelephonyService extends GenericService {
      */
     getAgentVersion() {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getAgentVersion) .");
         return that.agentStatus.agentVersion || "unknown";
     }
 
@@ -421,6 +425,7 @@ class TelephonyService extends GenericService {
      */
     getXMPPAgentStatus() {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getXMPPAgentStatus) .");
         return that.agentStatus.xmppAgent || "unknown";
     }
 
@@ -436,11 +441,13 @@ class TelephonyService extends GenericService {
      */
     getPhoneAPIStatus() {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getPhoneAPIStatus) .");
         return that.agentStatus.phoneApi || "unknown";
     }
 
     getAgentStatus() {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getAgentStatus) .");
         //return that.agentStatus;
         return that._xmpp.getAgentStatus().then((data) => {
             that._logger.log(that.INFO, LOG_ID + "[getAgentStatus] -- ", data);
@@ -458,6 +465,7 @@ class TelephonyService extends GenericService {
      */
     getTelephonyState(second) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getTelephonyState) .");
 
         return new Promise((resolve, reject) => {
             that._xmpp.getTelephonyState(second).then((data : any) => {
@@ -504,6 +512,7 @@ class TelephonyService extends GenericService {
      */
      public getMediaPillarInfo() : Promise<any>{
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getMediaPillarInfo) .");
 
         return new Promise(function (resolve, reject) {
 
@@ -692,6 +701,7 @@ class TelephonyService extends GenericService {
      */
     async getVoiceMessageCounter() {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getVoiceMessageCounter) .");
         return new Promise((resolve, reject) => {
 
             //reject not allowed operations
@@ -734,6 +744,7 @@ class TelephonyService extends GenericService {
      */
     getCallToHangOut() {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getCallToHangOut) .");
         let calls = that.getActiveCalls();
         if (!calls || that.getTabSize(calls) === 0) {
             return null;
@@ -757,6 +768,7 @@ class TelephonyService extends GenericService {
      */
     getActiveCall() {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getActiveCall) .");
         let activeCall = null;
         Object.keys(that._calls || []).forEach(function (key) {
             let call = that._calls[key];
@@ -779,6 +791,7 @@ class TelephonyService extends GenericService {
      */
     getActiveCalls() {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getActiveCalls) .");
         let calls = [];
         Object.keys(that._calls || []).forEach(function (key) {
             if (
@@ -807,6 +820,7 @@ class TelephonyService extends GenericService {
      */
     getCalls() {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getCalls) .");
         let calls = [];
         Object.keys(that._calls || []).forEach(function (key) {
                 calls.push(that._calls[key]);
@@ -825,6 +839,8 @@ class TelephonyService extends GenericService {
      * @return {Call} The calls tab size
      */
     getCallsSize() {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getCallsSize) .");
         return this.getTabSize(this.getCalls());
     }
 
@@ -851,6 +867,7 @@ class TelephonyService extends GenericService {
      */
     getActiveCallsForContact(contact) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getActiveCallsForContact) is contact defined : ", isDefined(contact));
         let calls = [];
         if (contact && contact.jid) {
             Object.keys(that._calls || []).forEach(function (key) {
@@ -890,6 +907,7 @@ class TelephonyService extends GenericService {
      */
     async makeCall(contact, phoneNumber, correlatorData) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(makeCall) is contact defined : ", isDefined(contact));
         let activeCall = that.getActiveCall();
 
         if (that.makingCall && !that.isSecondCallAllowed) {
@@ -1144,6 +1162,7 @@ class TelephonyService extends GenericService {
      */
     async makeCallByPhoneNumber(phoneNumber, correlatorData) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(makeCallByPhoneNumber) is phoneNumber defined : ", isDefined(phoneNumber));
         return new Promise((resolve, reject) => {
             that._logger.log(that.INTERNAL, LOG_ID + "(makeCallByPhoneNumber) calling : " + utils.anonymizePhoneNumber(phoneNumber));
             if (that._contacts.userContact.phonePro === phoneNumber || that._contacts.userContact.phoneProCan === phoneNumber || that._contacts.userContact.phonePbx === phoneNumber) {
@@ -1308,6 +1327,7 @@ class TelephonyService extends GenericService {
      */
     async releaseCall(call) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(releaseCall) is call defined : ", isDefined(call));
         return new Promise(function (resolve, reject) {
             that._logger.log(that.INTERNAL, LOG_ID + "(releaseCall) call : ", call);
             that._logger.log(that.DEBUG, LOG_ID + "(releaseCall) call id : ", call.id);
@@ -1377,6 +1397,7 @@ class TelephonyService extends GenericService {
      */
      async answerCall(call) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(answerCall) is call defined : ", isDefined(call));
         return new Promise((resolve, reject) => {
             if (call.contact) {
                 that._logger.log(that.INTERNAL, LOG_ID + "(answerCall) : " + utils.anonymizePhoneNumber(call.contact.phone) + "(" + call.contact.displayNameForLog() + ")");
@@ -1463,6 +1484,7 @@ class TelephonyService extends GenericService {
      */
     async holdCall(call) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(holdCall) is call defined : ", isDefined(call));
         return new Promise(function (resolve, reject) {
             // Ignore call already hold
             if (!call || call.status === Call.Status.HOLD) {
@@ -1535,6 +1557,7 @@ class TelephonyService extends GenericService {
      */
     async retrieveCall(call) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(retrieveCall) is call defined : ", isDefined(call));
         return new Promise(function (resolve, reject) {
             that._logger.log(that.INTERNAL, LOG_ID + "(retrieveCall) retrieveCall : " + call.contact.displayNameForLog());
 
@@ -1624,6 +1647,7 @@ class TelephonyService extends GenericService {
      */
     async deflectCallToVM(call) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deflectCallToVM) is call defined : ", isDefined(call));
         return new Promise((resolve, reject) => {
             // Ignore wrong request
             if (!call) {
@@ -1704,6 +1728,7 @@ class TelephonyService extends GenericService {
      */
     async deflectCall(call, callee) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deflectCall) is call defined : ", isDefined(call));
         return new Promise((resolve, reject) => {
             // Ignore wrong request
             if (!call || !callee) {
@@ -1756,6 +1781,7 @@ class TelephonyService extends GenericService {
      */
     async transfertCall(activeCall, heldCall) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(transfertCall) is activeCall defined : ", isDefined(activeCall));
         return new Promise((resolve, reject) => {
             // Ignore wrong request
             if (!activeCall || !heldCall) {
@@ -1819,6 +1845,7 @@ class TelephonyService extends GenericService {
      */
     async conferenceCall(activeCall, heldCall) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(conferenceCall) is activeCall defined : ", isDefined(activeCall));
 
         return new Promise((resolve, reject) => {
             // Ignore wrong request
@@ -1880,6 +1907,7 @@ class TelephonyService extends GenericService {
     */
     async forwardToDevice(phoneNumber) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(forwardToDevice) is phoneNumber defined : ", isDefined(phoneNumber));
         return new Promise(function (resolve, reject) {
             that._logger.log(that.INTERNAL, LOG_ID + "(forwardToDevice) forwardToDevice : " + phoneNumber);
 
@@ -1933,6 +1961,7 @@ class TelephonyService extends GenericService {
      */
     async forwardToVoicemail() {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(forwardToVoicemail) .");
         return new Promise((resolve, reject) => {
 
             if (!that.voiceMailFeatureEnabled) {
@@ -1989,6 +2018,7 @@ class TelephonyService extends GenericService {
      */
     async cancelForward() {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(cancelForward) .");
         return new Promise(function (resolve, reject) {
             if (that._contacts.userContact.phonePbx) {
                 /* $http({
@@ -2026,6 +2056,7 @@ class TelephonyService extends GenericService {
 
     getForwardStatus() {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getForwardStatus) .");
         return new Promise(function (resolve, reject) {
             if (that._contacts.userContact && that._contacts.userContact.phonePbx) {
                 /*$http({
@@ -2069,6 +2100,7 @@ class TelephonyService extends GenericService {
      */
     sendDtmf(connectionId, dtmf) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendDtmf) is connectionId defined : ", isDefined(connectionId));
         return new Promise((resolve, reject) => {
 
             let callId = Call.getIdFromConnectionId(connectionId);
@@ -2286,6 +2318,7 @@ that._eventEmitter.emit("evt_internal_callupdated", call);
      */
     logon(endpointTel, agentId, password, groupId) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(logon) is agentId defined : ", isDefined(agentId));
         return new Promise((resolve, reject) => {
             if (!endpointTel) {
                 that._logger.log(that.WARN, LOG_ID + "(logon) bad or empty 'endpointTel' parameter");
@@ -2323,6 +2356,7 @@ that._eventEmitter.emit("evt_internal_callupdated", call);
      */
     logoff(endpointTel, agentId, password, groupId) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(logoff) is agentId defined : ", isDefined(agentId));
         return new Promise((resolve, reject) => {
             if (!endpointTel) {
                 that._logger.log(that.WARN, LOG_ID + "(logoff) bad or empty 'endpointTel' parameter");
@@ -2359,6 +2393,7 @@ that._eventEmitter.emit("evt_internal_callupdated", call);
      */
     withdrawal(agentId, groupId, status) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(withdrawal) is agentId defined : ", isDefined(agentId));
         return new Promise((resolve, reject) => {
             if (!agentId) {
                 that._logger.log(that.WARN, LOG_ID + "(withdrawal) bad or empty 'agentId' parameter");
@@ -2402,6 +2437,7 @@ that._eventEmitter.emit("evt_internal_callupdated", call);
      */
     wrapup(agentId, groupId, password, status) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(wrapup) is agentId defined : ", isDefined(agentId));
         return new Promise((resolve, reject) => {
             if (!agentId) {
                 that._logger.log(that.WARN, LOG_ID + "(wrapup) bad or empty 'agentId' parameter");
@@ -2463,6 +2499,7 @@ that._eventEmitter.emit("evt_internal_callupdated", call);
 
     async nomadicLogin (phoneNumber, NotTakeIntoAccount?) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(nomadicLogin) is phoneNumber defined : ", isDefined(phoneNumber));
         return new Promise(function(resolve, reject) {
 
             //reject not allowed operations
@@ -2610,6 +2647,7 @@ that._eventEmitter.emit("evt_internal_callupdated", call);
      */
     async getNomadicStatus () {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getNomadicStatus) .");
         return new Promise(function(resolve, reject) {
 
             //reject not allowed operations
@@ -2741,6 +2779,7 @@ that._eventEmitter.emit("evt_internal_callupdated", call);
         // DELETE /api/rainbow/telephony/v1.0/voicemessages/all
         // API https://api.openrainbow.org/telephony/#api-telephony-Voice_all_user's_messages_delete
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteAllMyVoiceMessagesFromPbx) .");
         return that._rest.deleteAllMyVoiceMessagesFromPbx();
     }
 
@@ -2769,6 +2808,7 @@ that._eventEmitter.emit("evt_internal_callupdated", call);
         // DELETE /api/rainbow/telephony/v1.0/voicemessages/:messageId
         // API https://api.openrainbow.org/telephony/#api-telephony-Voice_message_delete
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteAVoiceMessageFromPbx) is messageId defined : ", isDefined(messageId));
         return that._rest.deleteAVoiceMessageFromPbx(messageId);
     }
 
@@ -2805,6 +2845,7 @@ that._eventEmitter.emit("evt_internal_callupdated", call);
         // API https://api.openrainbow.org/telephony/#api-telephony-Voice_message_read 
         // GET /api/rainbow/telephony/v1.0/voicemessages/:messageId
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getAVoiceMessageFromPbx) is messageId defined : ", isDefined(messageId));
         return that._rest.getAVoiceMessageFromPbx( messageId , messageDate, messageFrom);
     }
 
@@ -2848,6 +2889,7 @@ that._eventEmitter.emit("evt_internal_callupdated", call);
         // API https://api.openrainbow.org/telephony/#api-telephony-Voice_messages_list 
         // GET /api/rainbow/telephony/v1.0/voicemessages
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getDetailedListOfVoiceMessages) .");
         return that._rest.getDetailedListOfVoiceMessages();
     }
 
@@ -2882,6 +2924,7 @@ that._eventEmitter.emit("evt_internal_callupdated", call);
         // API https://api.openrainbow.org/telephony/#api-telephony-Voice_messages_counters
         // GET /api/rainbow/telephony/v1.0/voicemessages/counters
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getNumbersOfVoiceMessages) .");
         return that._rest.getNumbersOfVoiceMessages();
     }
 

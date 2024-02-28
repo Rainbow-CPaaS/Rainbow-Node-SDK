@@ -6266,7 +6266,7 @@ Request Method: PUT
         // GET /api/rainbow/enduser/v1.0/countries
         let that = this;
         return new Promise((resolve, reject) => {
-            that._logger.log(that.INTERNAL, LOG_ID + "(getListOfCountries) ");
+            that._logger.log(that.INTERNAL, LOG_ID + "(getListOfCountries) .");
 
             let url: string = "/api/rainbow/enduser/v1.0/countries";
             let urlParamsTab: string[] = [];
@@ -6348,7 +6348,7 @@ Request Method: PUT
 
     async checkEveryPortals() {
         let that = this;
-        //that._logger.log(that.DEBUG, LOG_ID + "(checkEveryPortals) ");
+        //that._logger.log(that.DEBUG, LOG_ID + "(checkEveryPortals) .");
 
         if (this._isOfficialRainbow) {
             let authenticationAbout = that.http.get("/api/rainbow/authentication/v1.0/about", that.getDefaultHeader(), undefined).then((portalAbout) => {
@@ -6406,7 +6406,7 @@ Request Method: PUT
 
     async checkRESTAuthentication(): Promise<boolean> {
         let that = this;
-        //that._logger.log(that.DEBUG, LOG_ID + "(checkEveryPortals) ");
+        //that._logger.log(that.DEBUG, LOG_ID + "(checkEveryPortals) .");
         let authStatus = false;
 
         try {
@@ -6722,7 +6722,7 @@ Request Method: PUT
 
     async checkS2SAuthentication(): Promise<boolean> {
         let that = this;
-        //that._logger.log(that.DEBUG, LOG_ID + "(checkEveryPortals) ");
+        //that._logger.log(that.DEBUG, LOG_ID + "(checkEveryPortals) .");
         let authStatus = false;
 
         try {
@@ -10776,7 +10776,7 @@ Request Method: PUT
         // API https://api.openrainbow.org/voice/#api-Cloud_PBX_group-Join_all_groups
         let that = this;
         return new Promise(function (resolve, reject) {
-            that._logger.log(that.INTERNAL, LOG_ID + "(joinAllGroups) ");
+            that._logger.log(that.INTERNAL, LOG_ID + "(joinAllGroups) .");
             let data = {};
             that.http.post("/api/rainbow/voice/v1.0/groups/join", that.getRequestHeader(), data, undefined).then(function (json) {
                 that._logger.log(that.DEBUG, LOG_ID + "(joinAllGroups) successfull");
@@ -10814,7 +10814,7 @@ Request Method: PUT
         // API https://api.openrainbow.org/voice/#api-Cloud_PBX_group-leave_all_groups
         let that = this;
         return new Promise(function (resolve, reject) {
-            that._logger.log(that.INTERNAL, LOG_ID + "(leaveAllGroups) ");
+            that._logger.log(that.INTERNAL, LOG_ID + "(leaveAllGroups) .");
             let data = {};
             that.http.post("/api/rainbow/voice/v1.0/groups/leave", that.getRequestHeader(), data, undefined).then(function (json) {
                 that._logger.log(that.DEBUG, LOG_ID + "(leaveAllGroups) successfull");

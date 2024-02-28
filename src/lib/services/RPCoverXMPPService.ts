@@ -6,7 +6,7 @@ import {GuestParams, MEDIATYPE, RESTService} from "../connection/RESTService";
 import {ErrorManager} from "../common/ErrorManager";
 import {XMPPService} from "../connection/XMPPService";
 import {EventEmitter} from "events";
-import {getBinaryData, getJsonFromXML, isStarted, logEntryExit, resizeImage, until} from "../common/Utils";
+import {getBinaryData, getJsonFromXML, isDefined, isStarted, logEntryExit, resizeImage, until} from "../common/Utils";
 import {Logger} from "../common/Logger";
 import {ContactsService} from "./ContactsService";
 import {ProfilesService} from "./ProfilesService";
@@ -24,6 +24,7 @@ import {RBVoiceService} from "./RBVoiceService.js";
 export {};
 
 const LOG_ID = "RPCoverXMPP/SVCE - ";
+const API_ID = "API_CALL - ";
 
 @logEntryExit(LOG_ID)
 @isStarted([])
@@ -226,6 +227,7 @@ class RPCoverXMPPService extends GenericService {
      */    
     addRPCMethod(methodName : string = undefined, methodCallback : any = undefined, methodDescription : string = undefined, methodHelp : string = undefined ) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(addRPCMethod) is methodName defined : ", isDefined(methodName));
 
         return new Promise(async (resolve, reject) => {
             if (!methodName) {
@@ -266,6 +268,7 @@ class RPCoverXMPPService extends GenericService {
      */    
     removeRPCMethod(methodName : string = undefined ) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(removeRPCMethod) is methodName defined : ", isDefined(methodName));
 
         return new Promise(async (resolve, reject) => {
             if (!methodName) {
@@ -305,6 +308,7 @@ class RPCoverXMPPService extends GenericService {
      */
     discoverRPCoverXMPP(headers: any = {}, rpcoverxmppserver_jid? : string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(discoverRPCoverXMPP) is rpcoverxmppserver_jid defined : ", isDefined(rpcoverxmppserver_jid));
 
         return new Promise(async (resolve, reject) => {
             if (!rpcoverxmppserver_jid) {
@@ -345,6 +349,7 @@ class RPCoverXMPPService extends GenericService {
      */
     callRPCMethod( rpcoverxmppserver_jid? : string, methodName : string = "system.listMethods", params : Array<any> = []) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(callRPCMethod) is rpcoverxmppserver_jid defined : ", isDefined(rpcoverxmppserver_jid));
 
         return new Promise(async (resolve, reject) => {
             if (!rpcoverxmppserver_jid) {

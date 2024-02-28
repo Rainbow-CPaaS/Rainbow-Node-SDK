@@ -103,7 +103,7 @@ let LOG_ID = "NodeSDK/IDX";
  * @property {boolean} options.logs.enableEventsLogs: false, Activate the logs to be raised from the events service (with `onLog` listener). Used for logs in connection node in red node contrib.
  * @property {boolean} options.logs.enableEncryptedLogs: true, Activate the logs of stanza exchange to be encrypted and loggued.
  * @property {boolean} options.logs.color true, Activate the ansii color in the log (more humain readable, but need a term console or reader compatible (ex : vim + AnsiEsc module, or notepad++ + python + error_list_lexer_support (https://github.com/Ekopalypse/NppPythonScripts/blob/master/npp/error_list_lexer_support.py) )).
- * @property {string} options.logs.level "info", The level of logs.  The value can be "error", "warn", "info", "http", "trace", "xmpp", "internal", "internalerror", "debug". These Severities of levels are shown in an inclusive order, so "error" level only show "error" logs, "warn" level only show "error" and "warn" levels, and so on.
+ * @property {string} options.logs.level "info", The level of logs.  The value can be "error", "warn", "info", "trace", "http", "xmpp", "debug", "internal", "internalerror". These Severities of levels are shown in an inclusive order, so "error" level only show "error" logs, "warn" level only show "error" and "warn" levels, and so on.
  * @property {string} options.logs.customLabel "MyRBProject", A label inserted in every lines of the logs. It is usefull if you use multiple SDK instances at a same time. It allows to separate logs in console.
  * @property {string} options.logs.file.path "c:/temp/", Path to the log file.
  * @property {string} options.logs.file.customFileName "R-SDK-Node-MyRBProject", A label inserted in the name of the log file.
@@ -448,7 +448,7 @@ class NodeSDK {
      * @param {string} options.logs.enableEventsLogs: false, Activate the logs to be raised from the events service (with `onLog` listener). Used for logs in connection node in red node contrib.
      * @param {string} options.logs.enableEncryptedLogs: true, Activate the encryption of stanza in logs.
      * @param {string} options.logs.color true, Activate the ansii color in the log (more humain readable, but need a term console or reader compatible (ex : vim + AnsiEsc module)). 
-     * @param {string} options.logs.level "info", The level of logs. The value can be "error", "warn", "info", "http", "trace", "xmpp", "internal", "internalerror", "debug". These Severities of levels are shown in an inclusive order, so "error" level only show "error" logs, "warn" level only show "error" and "warn" levels, and so on.
+     * @param {string} options.logs.level "info", The level of logs. The value can be "error", "warn", "info", "trace", "http", "xmpp", "debug", "internal", "internalerror". These Severities of levels are shown in an inclusive order, so "error" level only show "error" logs, "warn" level only show "error" and "warn" levels, and so on.
      * @param {string} options.logs.customLabel "MyRBProject", A label inserted in every lines of the logs. It is usefull if you use multiple SDK instances at a same time. It allows to separate logs in console.
      * @param {string} options.logs.file.path "c:/temp/", Path to the log file.
      * @param {string} options.logs.file.customFileName "R-SDK-Node-MyRBProject", A label inserted in the name of the log file.

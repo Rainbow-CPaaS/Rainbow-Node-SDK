@@ -10,7 +10,7 @@ import {EventEmitter} from "events";
 import * as PubSub from "pubsub-js";
 import * as fs from "fs";
 import * as mimetypes from "mime-types";
-import {isStarted, logEntryExit} from "../common/Utils";
+import {isDefined, isStarted, logEntryExit} from "../common/Utils";
 import {Logger} from "../common/Logger";
 import {S2SService} from "./S2SService";
 import {Core} from "../Core";
@@ -20,6 +20,7 @@ import {ContactsService} from "./ContactsService.js";
 export {};
 
 const LOG_ID = "CHANNELS/SVCE - ";
+const API_ID = "API_CALL - ";
 
 @logEntryExit(LOG_ID)
 @isStarted([])
@@ -225,7 +226,8 @@ class ChannelsService extends GenericService {
      */
     createPublicChannel(name: string, channelTopic: string, category : string) : Promise<Channel>{
         let that = this;
-        
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(createPublicChannel) is name defined : ", isDefined(name), " is channelTopic defined : ", isDefined(channelTopic));
+
         return new Promise((resolve, reject) => {
 
             if (!name) {
@@ -286,6 +288,7 @@ class ChannelsService extends GenericService {
      */
     createClosedChannel(name: string, description : string, category : string) : Promise<Channel> {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(createClosedChannel) is name defined : ", isDefined(name), " is description defined : ", isDefined(description));
 
         return new Promise((resolve, reject) => {
 
@@ -322,6 +325,7 @@ class ChannelsService extends GenericService {
      */
     deleteChannel(channel: Channel) : Promise<Channel> {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteChannel) is channel defined : ", isDefined(channel));
 
         return new Promise((resolve, reject) => {
             if (!channel || !channel.id) {
@@ -368,6 +372,7 @@ class ChannelsService extends GenericService {
      */
     findChannelsByName(name : string) : Promise<[Channel]> {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(findChannelsByName) is name defined : ", isDefined(name));
 
         if (!name) {
             that._logger.log(that.WARN, LOG_ID + "(findChannelsByName) bad or empty 'name' parameter ");
@@ -392,6 +397,7 @@ class ChannelsService extends GenericService {
      */
     findChannelsByTopic(topic : string) : Promise<[Channel]> {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(findChannelsByTopic) is topic defined : ", isDefined(topic));
 
         if (!topic) {
             that._logger.log(that.WARN, LOG_ID + "(findChannelsByTopic) bad or empty 'topic' parameter ");
@@ -483,7 +489,8 @@ class ChannelsService extends GenericService {
      */
     async fetchChannel(id : string, force? : boolean) : Promise<Channel>{
         let that = this;
-        
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(fetchChannel) is id defined : ", isDefined(id));
+
         return new Promise(async (resolve, reject) => {
             if (!id) {
                 that._logger.log(that.WARN, LOG_ID + "(fetchChannel) bad or empty 'jid' parameter");
@@ -535,7 +542,8 @@ class ChannelsService extends GenericService {
      */
     fetchChannelsByFilter (filter:any) : Promise<[Channel]> {
         let that = this;
-        
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(fetchChannelsByFilter) is filter defined : ", isDefined(filter));
+
         let getChannel = (id) : Promise<Channel> => {
             return new Promise((resolve) => {
                 that.fetchChannel(id).then((channel : Channel) => {
@@ -614,7 +622,8 @@ class ChannelsService extends GenericService {
      */
     fetchMyChannels(force? : boolean) : Promise<[Channel]>{
         let that = this;
-        
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(fetchMyChannels) is force defined : ", isDefined(force));
+
         let getChannel = (id) : Promise<Channel> => {
             return new Promise((resolve) => {
                 that.fetchChannel(id, force).then((channel) => {
@@ -689,6 +698,7 @@ class ChannelsService extends GenericService {
      */
     getAllChannels() : [Channel] {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getAllChannels) .");
         return that._channels;
     }
 
@@ -722,6 +732,7 @@ class ChannelsService extends GenericService {
      */
     getAllOwnedChannels() : [Channel] {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getAllOwnedChannels) .");
         return that._channels.filter((channel) => {
             return channel.creatorId === that._rest.userId;
         });
@@ -739,6 +750,7 @@ class ChannelsService extends GenericService {
      */
     getAllPendingChannels() : [Channel] {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getAllPendingChannels) .");
         return that._channels.filter((channel) => {
             return channel.invited;
         });
@@ -759,6 +771,7 @@ class ChannelsService extends GenericService {
      */
     updateChannelTopic (channel : Channel, description : string) : Promise <Channel> {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateChannelTopic) is channel defined : ", isDefined(channel));
         return that.updateChannelDescription(channel, description);
     }
 
@@ -777,6 +790,7 @@ class ChannelsService extends GenericService {
      */
     updateChannelDescription(channel: Channel, description : string) : Promise <Channel> {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateChannelDescription) is channel defined : ", isDefined(channel));
         if (!channel || !channel.id) {
             that._logger.log(that.WARN, LOG_ID + "(updateChannelDescription) bad or empty 'channel' parameter ");
             that._logger.log(that.INTERNALERROR, LOG_ID + "(updateChannelDescription) bad or empty 'channel' parameter : ", channel);
@@ -830,6 +844,7 @@ class ChannelsService extends GenericService {
      */
     updateChannelName(channel : Channel, channelName : string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateChannelName) is channel defined : ", isDefined(channel));
         if (!channel || !channel.id) {
             that._logger.log(that.WARN, LOG_ID + "(updateChannelName) bad or empty 'channel' parameter ");
             that._logger.log(that.INTERNALERROR, LOG_ID + "(updateChannelName) bad or empty 'channel' parameter : ", channel);
@@ -892,6 +907,7 @@ class ChannelsService extends GenericService {
      */
     updateChannel( id : string, channelTopic : string, visibility : string, max_items : Number, max_payload_size : Number, channelName : string, category : string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateChannel) is id defined : ", isDefined(id));
 
         if (!id) {
             that._logger.log(that.WARN, LOG_ID + "(updateChannel) bad or empty 'id' parameter ");
@@ -952,6 +968,7 @@ class ChannelsService extends GenericService {
      */
     updateChannelVisibility(channel : Channel, visibility : string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateChannelVisibility) is channel defined : ", isDefined(channel));
         if (!channel || !channel.id) {
             that._logger.log(that.WARN, LOG_ID + "(updateChannelVisibility) bad or empty 'channel' parameter ");
             that._logger.log(that.INTERNALERROR, LOG_ID + "(updateChannelVisibility) bad or empty 'channel' parameter : ", channel);
@@ -1010,6 +1027,7 @@ class ChannelsService extends GenericService {
      */
     public updateChannelVisibilityToPublic(channel: Channel) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateChannelVisibilityToPublic) is channel defined : ", isDefined(channel));
         return that.updateChannelVisibility(channel, "company");
     }
 
@@ -1028,6 +1046,7 @@ class ChannelsService extends GenericService {
      */
     public updateChannelVisibilityToClosed(channel: Channel) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateChannelVisibilityToClosed) is channel defined : ", isDefined(channel));
         //channel.name = channel.name + "_updateToClosed";
         return that.updateChannelVisibility(channel, "closed");
     }
@@ -1048,6 +1067,7 @@ class ChannelsService extends GenericService {
      */
     updateChannelAvatar (channel : Channel, urlAvatar : string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateChannelAvatar) is channel defined : ", isDefined(channel));
         if (!channel || !channel.id) {
             that._logger.log(that.WARN, LOG_ID + "(updateChannelAvatar) bad or empty 'channel' parameter ");
             that._logger.log(that.INTERNALERROR, LOG_ID + "(updateChannelAvatar) bad or empty 'channel' parameter : ", channel);
@@ -1102,6 +1122,7 @@ class ChannelsService extends GenericService {
      */
     deleteChannelAvatar(channel : Channel) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteChannelAvatar) is channel defined : ", isDefined(channel));
         if (!channel || !channel.id) {
             that._logger.log(that.WARN, LOG_ID + "(updateChannelAvatar) bad or empty 'channel' parameter ");
             that._logger.log(that.INTERNALERROR, LOG_ID + "(updateChannelAvatar) bad or empty 'channel' parameter : ", channel);
@@ -1261,6 +1282,7 @@ class ChannelsService extends GenericService {
      */
     publishMessageToChannel(channel : Channel, message : string, title : string, url : string, imagesIds : any, type : string, customDatas : any = {}) : Promise<{}> {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(publishMessageToChannel) is channel defined : ", isDefined(channel));
         return that.createItem(channel, message, title, url, imagesIds, type, customDatas);
     }
 
@@ -1283,6 +1305,7 @@ class ChannelsService extends GenericService {
      */
     createItem(channel : Channel, message : string, title : string, url : string, imagesIds : any, type : string, customDatas : any = {}) : Promise <{}> {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(createItem) is channel defined : ", isDefined(channel));
         if (!channel || !channel.id) {
             that._logger.log(that.WARN, LOG_ID + "(createItem) bad or empty 'channel' parameter ");
             that._logger.log(that.INTERNALERROR, LOG_ID + "(createItem) bad or empty 'channel' parameter : ", channel);
@@ -1358,6 +1381,7 @@ class ChannelsService extends GenericService {
      */
     public fetchChannelItems (channel : Channel, maxMessages: number = 100, beforeDate?: Date, afterDate?: Date) : Promise<Array<any>>{
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(fetchChannelItems) is channel defined : ", isDefined(channel));
         if (!channel || !channel.id) {
             that._logger.log(that.WARN, LOG_ID + "(fetchChannelItems) bad or empty 'channel' parameter");
             that._logger.log(that.INTERNALERROR, LOG_ID + "(fetchChannelItems) bad or empty 'channel' parameter : ", channel);
@@ -1447,6 +1471,7 @@ class ChannelsService extends GenericService {
      */
     public deleteItemFromChannel (channelId : string, itemId : string) : Promise<Channel> {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteItemFromChannel) is channelId defined : ", isDefined(channelId));
         if (!channelId ) {
             that._logger.log(that.ERROR, LOG_ID + "(deleteItemFromChannel) bad or empty 'channelId' parameter");
             that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteItemFromChannel) bad or empty 'channelId' parameter : ", channelId);
@@ -1503,6 +1528,7 @@ class ChannelsService extends GenericService {
      */
     public likeItem( channel : Channel, itemId : string, appreciation : Appreciation): Promise<any> {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(likeItem) is channel defined : ", isDefined(channel));
         if (!channel || !channel.id) {
             that._logger.log(that.WARN, LOG_ID + "(likeItem) bad or empty 'channel' parameter ");
             that._logger.log(that.INTERNALERROR, LOG_ID + "(likeItem) bad or empty 'channel' parameter : ", channel);
@@ -1551,6 +1577,7 @@ class ChannelsService extends GenericService {
      */
     public getDetailedAppreciations( channel : Channel, itemId : string): Promise<any> {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getDetailedAppreciations) is channel defined : ", isDefined(channel));
         if (!channel || !channel.id) {
             that._logger.log(that.WARN, LOG_ID + "(getDetailedAppreciations) bad or empty 'channel' parameter ");
             that._logger.log(that.INTERNALERROR, LOG_ID + "(getDetailedAppreciations) bad or empty 'channel' parameter : ", channel);
@@ -1620,6 +1647,7 @@ class ChannelsService extends GenericService {
      */
     getAllSubscribedChannels() : [Channel] {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getAllSubscribedChannels) .");
         return that._channels.filter((channel) => {
             return channel.creatorId !== that._rest.userId;
         });
@@ -1639,6 +1667,7 @@ class ChannelsService extends GenericService {
      */
     subscribeToChannel(channel : Channel) : Promise<Channel> {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(subscribeToChannel) is channel defined : ", isDefined(channel));
         if (!channel || !channel.id) {
             that._logger.log(that.WARN, LOG_ID + "(subscribeToChannel) bad or empty 'channel' parameter ");
             that._logger.log(that.INTERNALERROR, LOG_ID + "(subscribeToChannel) bad or empty 'channel' parameter : ", channel);
@@ -1676,6 +1705,7 @@ class ChannelsService extends GenericService {
      */
     subscribeToChannelById (id : string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(subscribeToChannelById) is id defined : ", isDefined(id));
         if (!id) {
             that._logger.log(that.WARN, LOG_ID + "(subscribeToChannel) bad or empty 'id' parameter ");
             that._logger.log(that.INTERNALERROR, LOG_ID + "(subscribeToChannel) bad or empty 'id' parameter : ", id);
@@ -1736,6 +1766,7 @@ class ChannelsService extends GenericService {
      */
     unsubscribeFromChannel(channel : Channel) : Promise<string> {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(unsubscribeFromChannel) is channel defined : ", isDefined(channel));
         if (!channel || !channel.id) {
             that._logger.log(that.WARN, LOG_ID + "(unsubscribeFromChannel) bad or empty 'channel' parameter ");
             that._logger.log(that.INTERNALERROR, LOG_ID + "(unsubscribeFromChannel) bad or empty 'channel' parameter : ", channel);
@@ -1803,6 +1834,7 @@ class ChannelsService extends GenericService {
      */
     public fetchChannelUsers(channel : Channel, options : any) : Promise<Array<{}>> {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(fetchChannelUsers) is channel defined : ", isDefined(channel));
         if (!channel || !channel.id) {
             that._logger.log(that.WARN, LOG_ID + "(fetchChannelUsers) bad or empty 'channel' parameter");
             that._logger.log(that.INTERNALERROR, LOG_ID + "(fetchChannelUsers) bad or empty 'channel' parameter : ", channel);
@@ -1881,6 +1913,7 @@ class ChannelsService extends GenericService {
      */
     public deleteAllUsersFromChannel(channel : Channel) : Promise<Channel> {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteAllUsersFromChannel) is channel defined : ", isDefined(channel));
         if (!channel || !channel.id) {
             that._logger.log(that.WARN, LOG_ID + "(deleteAllUsersFromChannel) bad or empty 'channel' parameter");
             that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteAllUsersFromChannel) bad or empty 'channel' parameter : ", channel);
@@ -1934,6 +1967,7 @@ class ChannelsService extends GenericService {
      */
     public updateChannelUsers(channel : Channel, users: Array<any>) : Promise<Channel> {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateChannelUsers) is channel defined : ", isDefined(channel));
         if (!channel || !channel.id) {
             that._logger.log(that.WARN, LOG_ID + "(updateChannelUsers) bad or empty 'channel' parameter");
             that._logger.log(that.INTERNALERROR, LOG_ID + "(updateChannelUsers) bad or empty 'channel' parameter : ", channel);
@@ -1991,6 +2025,7 @@ class ChannelsService extends GenericService {
      */
     public updateChannelUsersByLoginEmails(channel : Channel, users: Array<any>) : Promise<Channel> {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateChannelUsersByLoginEmails) is channel defined : ", isDefined(channel));
         if (!channel || !channel.id) {
             that._logger.log(that.WARN, LOG_ID + "(updateChannelUsersByLoginEmails) bad or empty 'channel' parameter");
             that._logger.log(that.INTERNALERROR, LOG_ID + "(updateChannelUsersByLoginEmails) bad or empty 'channel' parameter : ", channel);
@@ -2052,6 +2087,7 @@ class ChannelsService extends GenericService {
      */
     public addOwnersToChannel(channel : Channel, owners: any[]) : Promise<Channel>  {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(addOwnersToChannel) is channel defined : ", isDefined(channel));
         if (!channel || !channel.id) {
             that._logger.log(that.WARN, LOG_ID + "(addOwnersToChannel) bad or empty 'channel' parameter");
             that._logger.log(that.INTERNALERROR, LOG_ID + "(addOwnersToChannel) bad or empty 'channel' parameter : ", channel);
@@ -2096,6 +2132,7 @@ class ChannelsService extends GenericService {
      */
     public addOwnersToChannelByLoginEmails(channel : Channel, owners: any[]) : Promise<Channel>  {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(addOwnersToChannelByLoginEmails) is channel defined : ", isDefined(channel));
         if (!channel || !channel.id) {
             that._logger.log(that.WARN, LOG_ID + "(addOwnersToChannelByLoginEmails) bad or empty 'channel' parameter");
             that._logger.log(that.INTERNALERROR, LOG_ID + "(addOwnersToChannelByLoginEmails) bad or empty 'channel' parameter : ", channel);
@@ -2148,6 +2185,7 @@ class ChannelsService extends GenericService {
      */
     public addPublishersToChannel(channel : Channel, publishers : Array<Contact>) : Promise<Channel> {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(addPublishersToChannel) is channel defined : ", isDefined(channel));
         if (!channel || !channel.id ) {
             that._logger.log(that.WARN, LOG_ID + "(addPublishersToChannel) bad or empty 'channel' parameter");
             that._logger.log(that.INTERNALERROR, LOG_ID + "(addPublishersToChannel) bad or empty 'channel' parameter : ", channel);
@@ -2192,6 +2230,7 @@ class ChannelsService extends GenericService {
      */
     public addPublishersToChannelByLoginEmails(channel : Channel, publishers : Array<any>) : Promise<Channel> {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(addPublishersToChannelByLoginEmails) is channel defined : ", isDefined(channel));
         if (!channel || !channel.id ) {
             that._logger.log(that.WARN, LOG_ID + "(addPublishersToChannelByLoginEmails) bad or empty 'channel' parameter");
             that._logger.log(that.INTERNALERROR, LOG_ID + "(addPublishersToChannelByLoginEmails) bad or empty 'channel' parameter : ", channel);
@@ -2242,6 +2281,7 @@ class ChannelsService extends GenericService {
      */
     public async addMembersToChannel(channel : Channel, members : Array<Contact>) : Promise<Channel> {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(addMembersToChannel) is channel defined : ", isDefined(channel));
         //that._logger.log(that.INTERNAL, LOG_ID + "(addMembersToChannel) that._channels : ", that._channels);
         if (!channel || !channel.id) {
             that._logger.log(that.WARN, LOG_ID + "(addMembersToChannel) bad or empty 'channel' parameter");
@@ -2295,6 +2335,7 @@ class ChannelsService extends GenericService {
      */
     public async addMembersToChannelByLoginEmails(channel : Channel, members : Array<any>) : Promise<Channel> {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(addMembersToChannelByLoginEmails) is channel defined : ", isDefined(channel));
         //that._logger.log(that.INTERNAL, LOG_ID + "(addMembersToChannel) that._channels : ", that._channels);
         if (!channel || !channel.id) {
             that._logger.log(that.WARN, LOG_ID + "(addMembersToChannelByLoginEmails) bad or empty 'channel' parameter");
@@ -2376,6 +2417,7 @@ class ChannelsService extends GenericService {
      */
     public deleteUsersFromChannel(channel : Channel, users : Array<Contact>) : Promise<Channel> {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteUsersFromChannel) is channel defined : ", isDefined(channel));
         if (!channel || !channel.id) {
             that._logger.log(that.WARN, LOG_ID + "(deleteUsersFromChannel) bad or empty 'channel' parameter");
             that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteUsersFromChannel) bad or empty 'channel' parameter : ", channel);
@@ -2421,6 +2463,7 @@ class ChannelsService extends GenericService {
      */
     public deleteUsersFromChannelByLoginEmails(channel : Channel, users : Array<any>) : Promise<Channel> {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteUsersFromChannelByLoginEmails) is channel defined : ", isDefined(channel));
         if (!channel || !channel.id) {
             that._logger.log(that.WARN, LOG_ID + "(deleteUsersFromChannelByLoginEmails) bad or empty 'channel' parameter");
             that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteUsersFromChannelByLoginEmails) bad or empty 'channel' parameter : ", channel);

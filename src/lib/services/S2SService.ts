@@ -1,7 +1,7 @@
 "use strict";
 
 import * as util from "util";
-import {isStarted, logEntryExit, makeId, setTimeoutPromised} from "../common/Utils";
+import {isDefined, isStarted, logEntryExit, makeId, setTimeoutPromised} from "../common/Utils";
 import * as PubSub from "pubsub-js";
 import {Conversation} from "../common/models/Conversation";
 import {XMPPUTils} from "../common/XMPPUtils";
@@ -19,6 +19,7 @@ import {RPCoverXMPPService} from "./RPCoverXMPPService.js";
 const express = require( "express" );
 
 const LOG_ID = "S2S - ";
+const API_ID = "API_CALL - ";
 
 @logEntryExit(LOG_ID)
 @isStarted([])
@@ -243,7 +244,7 @@ class S2SService extends GenericService{
      */
     async listConnectionsS2S() {
         let that = this;
-        that._logger.log(that.INTERNAL, LOG_ID + "(listConnectionsS2S) will get all the cnx S2S");
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(listConnectionsS2S) will get all the cnx S2S.");
         return that._rest.listConnectionsS2S()
             .then( response => {
                 that._logger.log(that.DEBUG, LOG_ID + "(listConnectionsS2S) worked." );
@@ -269,7 +270,7 @@ class S2SService extends GenericService{
      */
     async checkS2Sconnection() {
         let that = this;
-        that._logger.log(that.INTERNAL, LOG_ID + "(checkS2Sconnection) check the cnx S2S");
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(checkS2Sconnection) check the cnx S2S.");
         return that._rest.checkS2Sconnection()
             .then( response => {
                 that._logger.log(that.DEBUG, LOG_ID + "(checkS2Sconnection) worked." );
@@ -330,8 +331,8 @@ class S2SService extends GenericService{
      */
     async deleteAllConnectionsS2S(){
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteAllConnectionsS2S) .");
 
-        that._logger.log(that.INTERNAL, LOG_ID + "(deleteAllConnectionsS2S) ");
         return that.listConnectionsS2S().then( response => {
             that._logger.log(that.DEBUG, LOG_ID + "(deleteAllConnectionsS2S) listConnectionsS2S worked." );
             that._logger.log(that.INTERNAL, LOG_ID + "(deleteAllConnectionsS2S) listConnectionsS2S result : ", response );
@@ -383,8 +384,7 @@ class S2SService extends GenericService{
      */
     async infoS2S (s2sConnectionId) {
         let that = this;
-        that._logger.log(that.DEBUG, LOG_ID + "(infoS2S)  will get info S2S");
-        that._logger.log(that.INTERNAL, LOG_ID + "(infoS2S) will get info S2S");
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(infoS2S) is s2sConnectionId defined : ", isDefined(s2sConnectionId));
         return that._rest.infoS2S(s2sConnectionId)
             .then( response => {
                 that._logger.log(that.DEBUG, LOG_ID + "(infoS2S) worked." );
@@ -431,6 +431,7 @@ class S2SService extends GenericService{
      */
     sendS2SPresence( obj ) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendS2SPresence) is s2sConnectionId defined : ", isDefined(obj));
         that._logger.log(that.INTERNAL, LOG_ID + "(sendS2SPresence) set S2S presence : ", obj);
         return that._rest.sendS2SPresence(obj)
                 .then( response => {
@@ -472,6 +473,7 @@ class S2SService extends GenericService{
      */
     sendMessageInConversation(conversationId, msg) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendMessageInConversation) is s2sConnectionId defined : ", isDefined(conversationId));
         that._logger.log(that.INTERNAL, LOG_ID + "(sendMessageInConversation) will send msg S2S : ", msg, " in conv id : ", conversationId);
         return that._rest.sendS2SMessageInConversation(conversationId, msg).then( response => {
                 that._logger.log(that.DEBUG, LOG_ID + "(sendMessageInConversation) worked." );
@@ -498,6 +500,7 @@ class S2SService extends GenericService{
      */
     joinRoom(bubbleId, role : ROOMROLE) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(joinRoom) is bubbleId defined : ", isDefined(bubbleId));
         that._logger.log(that.INTERNAL, LOG_ID + "(joinRoom) will send presence to joinRoom S2S, bubbleId : ", bubbleId);
         return that._rest.joinS2SRoom(bubbleId, role).then( response => {
                 that._logger.log(that.DEBUG, LOG_ID + "(joinRoom) worked." );

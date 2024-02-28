@@ -8,12 +8,13 @@ import {RESTService} from "../connection/RESTService";
 import {ErrorManager} from "../common/ErrorManager";
 import {Offer, offerManager} from '../common/models/Offer' ;
 import {EventEmitter} from "events";
-import {isStarted, logEntryExit} from "../common/Utils";
+import {isDefined, isStarted, logEntryExit} from "../common/Utils";
 import {Logger} from "../common/Logger";
 import {S2SService} from "./S2SService";
 import {Core} from "../Core.js";
 
 const LOG_ID = "PROFILES/SVCE - ";
+const API_ID = "API_CALL - ";
 
 const FeaturesEnum = {
     COMPANY_ADMIN_COUNT : "COMPANY_ADMIN_COUNT",
@@ -142,7 +143,7 @@ class ProfilesService extends GenericService {
         let that = this;
         that.initStartDate();
 
-        //that._logger.log(that.DEBUG, LOG_ID + "(start) ");
+        //that._logger.log(that.DEBUG, LOG_ID + "(start) .");
         that._logger.log(that.INFO, LOG_ID + "(start) [profileService] === STARTING ===");
 
         that.stats = stats ? stats : [];
@@ -253,6 +254,7 @@ class ProfilesService extends GenericService {
      */
     async getServerProfile () {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getServerProfile) .");
         return Promise.all([that.getServerProfiles(), that.getServerProfilesFeatures()]);
     }
 
@@ -269,6 +271,7 @@ class ProfilesService extends GenericService {
      */
     async getServerProfiles () {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getServerProfiles) .");
         return new Promise( (resolve, reject) => {
             that._rest.getServerProfiles()
             /* $http({
@@ -315,6 +318,7 @@ class ProfilesService extends GenericService {
      */
     getMyProfileOffer () {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getMyProfileOffer) .");
         if (that.mainOffers.length > 0) {
             return that.mainOffers.slice(-1)[0];
         }
@@ -333,6 +337,7 @@ class ProfilesService extends GenericService {
      */
     getMyProfileName () {
         let that = this ;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getMyProfileName) .");
         let profile = that.getMyProfileOffer();
         if (profile) {
             return profile.name;
@@ -351,6 +356,7 @@ class ProfilesService extends GenericService {
      */
     getMyProfiles () {
         let that = this ;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getMyProfiles) .");
         let profiles = [];
         if (that._started) {
             //TODO return a simplified profile object ???
@@ -374,6 +380,7 @@ class ProfilesService extends GenericService {
      */
     public async getThirdPartyApps(force: boolean = false) {
         let that = this ;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getThirdPartyApps) is force defined : ", isDefined(force));
         return new Promise(async (resolve, reject) => {
             try {
                 // We've already asked the server for the list
@@ -409,6 +416,7 @@ class ProfilesService extends GenericService {
      */
     public async revokeThirdPartyAccess(tokenId: string) {
         let that = this ;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(revokeThirdPartyAccess) is tokenId defined : ", isDefined(tokenId));
         return new Promise(async (resolve, reject) => {
             try {
                 if (!tokenId) {
@@ -451,6 +459,7 @@ class ProfilesService extends GenericService {
      */
     async getServerProfilesFeatures () {
         let that = this ;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getServerProfilesFeatures) .");
         return new Promise((resolve, reject) => {
             /* $http({
                 method: "GET",
@@ -520,6 +529,7 @@ class ProfilesService extends GenericService {
      */
     isFeatureEnabled (featureUniqueRef) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(isFeatureEnabled) is featureUniqueRef defined : ", isDefined(featureUniqueRef));
         if (that._started && that.features.hasOwnProperty(featureUniqueRef) && that.features[featureUniqueRef].hasOwnProperty("featureType") && that.features[featureUniqueRef].featureType === "boolean" && that.features[featureUniqueRef].hasOwnProperty("isEnabled")) {
             let enabled = that.features[featureUniqueRef].isEnabled;
             that._logger.log(that.DEBUG, LOG_ID + "(isFeatureEnabled) : " + featureUniqueRef + " : " + enabled);
@@ -540,6 +550,7 @@ class ProfilesService extends GenericService {
      */
     getFeatureLimitMax (featureUniqueRef) {
         let that = this ;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getFeatureLimitMax) is featureUniqueRef defined : ", isDefined(featureUniqueRef));
         if (that._started && that.features.hasOwnProperty(featureUniqueRef) && that.features[featureUniqueRef].hasOwnProperty("featureType") && that.features[featureUniqueRef].featureType === "number" && that.features[featureUniqueRef].hasOwnProperty("limitMax")) {
             let limitMax = that.features[featureUniqueRef].limitMax;
             that._logger.log(that.DEBUG, LOG_ID + "(getFeatureLimitMax) : " + featureUniqueRef + " : " + limitMax);
@@ -560,6 +571,7 @@ class ProfilesService extends GenericService {
      */
     getFeatureLimitMin (featureUniqueRef) {
         let that = this ;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getFeatureLimitMin) is featureUniqueRef defined : ", isDefined(featureUniqueRef));
         if (that._started && that.features.hasOwnProperty(featureUniqueRef) && that.features[featureUniqueRef].hasOwnProperty("featureType") && that.features[featureUniqueRef].featureType === "number" && that.features[featureUniqueRef].hasOwnProperty("limitMin")) {
             let limitMin = that.features[featureUniqueRef].limitMin;
             that._logger.log(that.DEBUG, LOG_ID + "(getFeatureLimitMin) : " + featureUniqueRef + " : " + limitMin);
@@ -580,6 +592,7 @@ class ProfilesService extends GenericService {
      */
     getMyProfileFeatures () {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getMyProfileFeatures) .");
         let profileFeatures = {};
         if (that._started) {
             //return a simplified feature object with featureType, limitMin, limitMax and isEnabled properties only

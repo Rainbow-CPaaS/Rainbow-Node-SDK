@@ -24,6 +24,7 @@ import {FileDescriptor} from "../common/models/FileDescriptor";
 import {GenericService} from "./GenericService";
 
 const LOG_ID = "FileServer/SVCE - ";
+const API_ID = "API_CALL - ";
 
 const ONE_KILOBYTE = 1024;
 const ONE_MEGABYTE = 1024 * 1024;

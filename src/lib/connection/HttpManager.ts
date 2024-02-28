@@ -18,7 +18,7 @@ import {Logger} from "../common/Logger";
 // @ ts-ignore
  import RequestRateLimiter, {BackoffError} from "./request-rate-limiter/index";
 import {TimeOutManager} from "../common/TimeOutManager.js";
-import {LevelInterface} from "../common/LevelInterface.js";
+import {LevelLogs} from "../common/LevelLogs.js";
 // const RequestRateLimiter = require("request-rate-limiter").RequestRateLimiter;  
 // const BackoffError = require("request-rate-limiter").BackoffError; 
         
@@ -90,7 +90,7 @@ class MyRequestHandler {
 /**
  *
  */
-class HttpManager implements LevelInterface{
+class HttpManager extends LevelLogs{
     public _logger: Logger;
     private _eventEmitter: EventEmitter;
     private _imOptions: any;
@@ -115,47 +115,19 @@ class HttpManager implements LevelInterface{
     getAccessorName(){ return HttpManager.getAccessorName(); }
 
     constructor(_eventEmitter: EventEmitter, _logger: Logger) {
+        super();
+        this.setLogLevels(this);
         let that = this;
         that._options = {};
         that._logger = _logger;
         that._eventEmitter = _eventEmitter;
         let obj = that;
 
-        if (obj) {
-            obj.INFO = {"callerObj": obj, "level": "info", isApi: false};
-            obj.DEBUG = {"callerObj": obj, "level": "debug", isApi: false};
-            obj.INTERNAL = {"callerObj": obj, "level": "internal", isApi: false};
-            obj.WARN = {"callerObj": obj, "level": "warn", isApi: false};
-            obj.ERROR = {"callerObj": obj, "level": "error", isApi: false};
-            obj.INTERNALERROR = {"callerObj": obj, "level": "internalerror", isApi: false};
-            obj.INFOAPI = {"callerObj": obj, "level": "info", isApi: true};
-            obj.DEBUGAPI = {"callerObj": obj, "level": "debug", isApi: true};
-            obj.INTERNALAPI = {"callerObj": obj, "level": "internal", isApi: true};
-            obj.WARNAPI = {"callerObj": obj, "level": "warn", isApi: true};
-            obj.ERRORAPI = {"callerObj": obj, "level": "error", isApi: true};
-            obj.INTERNALERRORAPI = {"callerObj": obj, "level": "internalerror", isApi: true}; // */
-        } else {
-            console.log("Can not set Logs Levels : ", stackTrace());
-        }
-
         that.lockEngine = new AsyncLock({timeout: 5000, maxPending: 1000});
 
         that._logger.log(that.DEBUG, LOG_ID + `=== CONSTRUCTED at (${new Date()} ===`);
         that._logger.log(that.INTERNAL, LOG_ID + "(constructor) HttpManager created successfull nbHttpAdded : ", that.nbHttpAdded);
     }
-
-    INFO: any;
-    DEBUG: any;
-    INTERNAL: any;
-    WARN: any;
-    ERROR: any;
-    INTERNALERROR: any;
-    INFOAPI: any;
-    DEBUGAPI: any;
-    INTERNALAPI: any;
-    WARNAPI: any;
-    ERRORAPI: any;
-    INTERNALERRORAPI: any;
 
     init(_options, _core: Core) {
         let that = this;
@@ -196,7 +168,7 @@ class HttpManager implements LevelInterface{
         retryAfterStartTime : number
     }> {
         let that = this;
-        //that._logger.log(that.DEBUG, LOG_ID + "(checkEveryPortals) ");
+        //that._logger.log(that.DEBUG, LOG_ID + "(checkEveryPortals) .");
         let httpStatus : {
             nbHttpAdded: number,
             httpQueueSize: number,

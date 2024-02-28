@@ -39,7 +39,7 @@ export {};
 const packageVersion = require("../package.json");
 import * as Utils from "./common/Utils"
 import {RPCoverXMPPService} from "./services/RPCoverXMPPService.js";
-import {LevelInterface} from "./common/LevelInterface.js";
+import {LevelLogs} from "./common/LevelLogs.js";
 import { TasksService } from "./services/TasksService";
 
 /*let _signin;
@@ -54,7 +54,7 @@ enum SIGNINMETHODNAME {
 }
 
 @logEntryExit(LOG_ID)
-class Core implements LevelInterface{
+class Core extends LevelLogs{
 
     get timeOutManager(): TimeOutManager {
         return this._timeOutManager;
@@ -109,30 +109,13 @@ class Core implements LevelInterface{
     getAccessorName(){ return Core.getAccessorName(); }
 
     constructor(options) {
-
+        super();
+        this.setLogLevels(this);
         let self = this;
         
         // Initialize the logger
         let loggerModule = new Logger(options);
         self._logger = loggerModule.log;
-
-        let obj = self;
-        if (obj) {
-            obj.INFO = {"callerObj": obj, "level": "info", isApi: false};
-            obj.DEBUG = {"callerObj": obj, "level": "debug", isApi: false};
-            obj.INTERNAL = {"callerObj": obj, "level": "internal", isApi: false};
-            obj.WARN = {"callerObj": obj, "level": "warn", isApi: false};
-            obj.ERROR = {"callerObj": obj, "level": "error", isApi: false};
-            obj.INTERNALERROR = {"callerObj": obj, "level": "internalerror", isApi: false};
-            obj.INFOAPI = {"callerObj": obj, "level": "info", isApi: true};
-            obj.DEBUGAPI = {"callerObj": obj, "level": "debug", isApi: true};
-            obj.INTERNALAPI = {"callerObj": obj, "level": "internal", isApi: true};
-            obj.WARNAPI = {"callerObj": obj, "level": "warn", isApi: true};
-            obj.ERRORAPI = {"callerObj": obj, "level": "error", isApi: true};
-            obj.INTERNALERRORAPI = {"callerObj": obj, "level": "internalerror", isApi: true}; // */
-        } else {
-            console.log("Can not set Logs Levels : ", stackTrace());
-        }
 
         self._Utils = Utils;
 
@@ -149,10 +132,10 @@ class Core implements LevelInterface{
 
         self._timeOutManager = new TimeOutManager(self._logger);
         //{"callerObj" : this, "level" : "debug"};
-        self._logger.log(self.DEBUG, LOG_ID + "(constructor) _entering_");
-        self._logger.log(self.DEBUG, LOG_ID + "(constructor) ------- SDK INFORMATION -------");
+        self._logger.log(self.INFO, LOG_ID + "(constructor) _entering_");
+        self._logger.log(self.INFO, LOG_ID + "(constructor) ------- SDK INFORMATION -------");
 
-        self._logger.log(self.DEBUG, LOG_ID + " (constructor) SDK version: " + packageVersion.version);
+        self._logger.log(self.INFO, LOG_ID + " (constructor) SDK version: " + packageVersion.version);
         self._logger.log(self.INFO, LOG_ID + " (constructor) Node version: " + process.version);
         for (let key in process.versions) {
             self._logger.log(self.INFO, LOG_ID + " (constructor) " + key + " version: " + process.versions[key]);
@@ -347,19 +330,6 @@ class Core implements LevelInterface{
         self._logger.log(self.INFO, LOG_ID + `=== CONSTRUCTED at (${new Date()} ===`);
         //self._logger.log(self.DEBUG, LOG_ID + "(constructor) _exiting_");
     }
-
-    INFO: any;
-    DEBUG: any;
-    INTERNAL: any;
-    WARN: any;
-    ERROR: any;
-    INTERNALERROR: any;
-    INFOAPI: any;
-    DEBUGAPI: any;
-    INTERNALAPI: any;
-    WARNAPI: any;
-    ERRORAPI: any;
-    INTERNALERRORAPI: any;
 
     getDurationSinceStart(label:string) {
         let that = this;

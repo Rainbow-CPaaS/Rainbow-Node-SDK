@@ -6,7 +6,7 @@ import {GuestParams, MEDIATYPE, RESTService} from "../connection/RESTService";
 import {ErrorManager} from "../common/ErrorManager";
 import {XMPPService} from "../connection/XMPPService";
 import {EventEmitter} from "events";
-import {getBinaryData, isStarted, logEntryExit, resizeImage, until} from "../common/Utils";
+import {getBinaryData, isDefined, isStarted, logEntryExit, resizeImage, until} from "../common/Utils";
 import {Logger} from "../common/Logger";
 import {ContactsService} from "./ContactsService";
 import {ProfilesService} from "./ProfilesService";
@@ -22,6 +22,7 @@ import {RBVoiceEventHandler} from "../connection/XMPPServiceHandler/RBVoiceEvent
 export {};
 
 const LOG_ID = "RBVOICE/SVCE - ";
+const API_ID = "API_CALL - ";
 
 @logEntryExit(LOG_ID)
 @isStarted([])
@@ -175,6 +176,7 @@ class RBVoiceService extends GenericService {
      */
     retrieveAllAvailableCallLineIdentifications() {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(retrieveAllAvailableCallLineIdentifications) .");
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -204,6 +206,7 @@ class RBVoiceService extends GenericService {
      */
     retrieveCurrentCallLineIdentification() {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(retrieveCurrentCallLineIdentification) .");
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -246,6 +249,7 @@ class RBVoiceService extends GenericService {
      */
     setCurrentActiveCallLineIdentification(policy: string, phoneNumberId?: string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(setCurrentActiveCallLineIdentification) is phoneNumberId defined : ", isDefined(phoneNumberId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -309,6 +313,7 @@ class RBVoiceService extends GenericService {
      */
     addMemberToGroup(groupId: string, memberId: string, position: number, roles: [], status: string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(addMemberToGroup) is groupId defined : ", isDefined(groupId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -341,6 +346,7 @@ class RBVoiceService extends GenericService {
      */
     deleteVoiceMessageAssociatedToAGroup(groupId: string, messageId: string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteVoiceMessageAssociatedToAGroup) is groupId defined : ", isDefined(groupId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -398,6 +404,7 @@ class RBVoiceService extends GenericService {
      */
     getVoiceMessagesAssociatedToGroup(groupId: string, limit: number = 100, offset: number = 0, sortField: string = "name", sortOrder: number, fromDate: string, toDate: string, callerName: string, callerNumber: string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getVoiceMessagesAssociatedToGroup) is groupId defined : ", isDefined(groupId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -436,6 +443,7 @@ class RBVoiceService extends GenericService {
      */
     getGroupForwards(groupId: string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getGroupForwards) is groupId defined : ", isDefined(groupId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -483,6 +491,7 @@ class RBVoiceService extends GenericService {
      */
     getTheUserGroup(type: string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getTheUserGroup) is type defined : ", isDefined(type));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -530,6 +539,7 @@ class RBVoiceService extends GenericService {
      */
     joinAGroup(groupId: string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(joinAGroup) is groupId defined : ", isDefined(groupId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -562,6 +572,7 @@ class RBVoiceService extends GenericService {
      */
     joinAllGroups() {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(joinAllGroups) .");
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -609,6 +620,7 @@ class RBVoiceService extends GenericService {
      */
     leaveAGroup(groupId: string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(leaveAGroup) is groupId defined : ", isDefined(groupId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -654,6 +666,7 @@ class RBVoiceService extends GenericService {
      */
     leaveAllGroups() {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(leaveAllGroups) .");
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -686,6 +699,7 @@ class RBVoiceService extends GenericService {
      */
     removeMemberFromGroup(groupId: string, memberId: string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(removeMemberFromGroup) is groupId defined : ", isDefined(groupId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -730,6 +744,7 @@ class RBVoiceService extends GenericService {
      */
     retrieveNumberReadUnreadMessagesForHuntingGroupsOfLoggedUser() {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(retrieveNumberReadUnreadMessagesForHuntingGroupsOfLoggedUser) .");
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -763,6 +778,7 @@ class RBVoiceService extends GenericService {
      */
     updateAVoiceMessageAssociatedToAGroup(groupId: string, messageId: string, read: boolean) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateAVoiceMessageAssociatedToAGroup) is groupId defined : ", isDefined(groupId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -817,6 +833,7 @@ class RBVoiceService extends GenericService {
      */
     updateAGroup(groupId: string, externalNumberId: string, isEmptyAllowed: boolean) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateAGroup) is groupId defined : ", isDefined(groupId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -878,6 +895,7 @@ class RBVoiceService extends GenericService {
      */
     updateGroupForward(groupId: string, callForwardType: string, destinationType: string, numberToForward: number, activate: boolean, noReplyDelay: number, managerIds: Array<string>, rvcpAutoAttendantId: string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateGroupForward) is groupId defined : ", isDefined(groupId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -929,6 +947,7 @@ class RBVoiceService extends GenericService {
      */
     updateGroupMember(groupId: string, memberId: string, position: number, roles: Array<string>, status: string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateGroupMember) is groupId defined : ", isDefined(groupId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -963,6 +982,7 @@ class RBVoiceService extends GenericService {
      */
     activateDeactivateDND(activate: boolean) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(activateDeactivateDND) is activate defined : ", isDefined(activate));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -1005,6 +1025,7 @@ class RBVoiceService extends GenericService {
      */
     configureAndActivateDeactivateForward(callForwardType: string, type: string, number: string, timeout: number = 20, activated: boolean) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(configureAndActivateDeactivateForward) is callForwardType defined : ", isDefined(callForwardType));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -1035,6 +1056,7 @@ class RBVoiceService extends GenericService {
      */
     retrieveActiveForwards() {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(retrieveActiveForwards) .");
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -1065,6 +1087,7 @@ class RBVoiceService extends GenericService {
      */
     retrieveDNDState() {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(retrieveDNDState) .");
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -1124,6 +1147,7 @@ class RBVoiceService extends GenericService {
      */
     searchUsersGroupsContactsByName(displayName: string, limit: number) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(searchUsersGroupsContactsByName) is displayName defined : ", isDefined(displayName));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -1180,6 +1204,7 @@ class RBVoiceService extends GenericService {
      */
     activatePersonalRoutine(routineId: string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(activatePersonalRoutine) is routineId defined : ", isDefined(routineId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -1255,6 +1280,7 @@ class RBVoiceService extends GenericService {
      */
     createCustomPersonalRoutine(name: string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(createCustomPersonalRoutine) is name defined : ", isDefined(name));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -1286,6 +1312,7 @@ class RBVoiceService extends GenericService {
      */
     deleteCustomPersonalRoutine(routineId: string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteCustomPersonalRoutine) is routineId defined : ", isDefined(routineId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -1361,6 +1388,7 @@ class RBVoiceService extends GenericService {
      */
     getPersonalRoutineData(routineId: string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getPersonalRoutineData) is routineId defined : ", isDefined(routineId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -1414,6 +1442,7 @@ class RBVoiceService extends GenericService {
      */
     getAllPersonalRoutines(userId) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getAllPersonalRoutines) is userId defined : ", isDefined(userId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -1522,6 +1551,7 @@ class RBVoiceService extends GenericService {
      */
     updatePersonalRoutineData(routineId: string, dndPresence: boolean, name: string, presence: { manage: boolean, value: string }, deviceMode: { manage: boolean, mode: string }, immediateCallForward: { manage: boolean, activate: boolean, number: string, destinationType: string }, busyCallForward: { manage: boolean, activate: boolean, number: string, destinationType: string }, noreplyCallForward: { manage: boolean, activate: boolean, number: string, destinationType: string, noReplyDelay: number }, huntingGroups: { withdrawAll: boolean }) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updatePersonalRoutineData) is routineId defined : ", isDefined(routineId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -1566,6 +1596,7 @@ class RBVoiceService extends GenericService {
      */
     manageUserRoutingData(destinations: Array<string>, currentDeviceId: string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(manageUserRoutingData) is currentDeviceId defined : ", isDefined(currentDeviceId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -1604,6 +1635,7 @@ class RBVoiceService extends GenericService {
      */
     retrievetransferRoutingData(calleeId: string, addresseeId ?: string, addresseePhoneNumber ?: string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(retrievetransferRoutingData) is calleeId defined : ", isDefined(calleeId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -1642,6 +1674,7 @@ class RBVoiceService extends GenericService {
      */
     retrieveUserRoutingData() {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(retrieveUserRoutingData) .");
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -1681,6 +1714,7 @@ class RBVoiceService extends GenericService {
      */
     retrieveVoiceUserSettings() {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(retrieveVoiceUserSettings) .");
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -1718,6 +1752,7 @@ class RBVoiceService extends GenericService {
      */
     addParticipant3PCC(callId: string, callData: { callee: string }) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(addParticipant3PCC) is callId defined : ", isDefined(callId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -1751,6 +1786,7 @@ class RBVoiceService extends GenericService {
      */
     answerCall3PCC(callId: string, callData: { legId: string }) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(answerCall3PCC) is callId defined : ", isDefined(callId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -1786,6 +1822,7 @@ class RBVoiceService extends GenericService {
      */
     blindTransferCall3PCC(callId: string, callData: { destination: { userId: string, resource: string } }) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(blindTransferCall3PCC) is callId defined : ", isDefined(callId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -1819,6 +1856,7 @@ class RBVoiceService extends GenericService {
      */
     deflectCall3PCC(callId: string, callData: { destination: string }) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deflectCall3PCC) is callId defined : ", isDefined(callId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -1852,6 +1890,7 @@ class RBVoiceService extends GenericService {
      */
     holdCall3PCC(callId: string, callData: { legId: string }) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(holdCall3PCC) is callId defined : ", isDefined(callId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -1901,6 +1940,7 @@ class RBVoiceService extends GenericService {
      */
     makeCall3PCC(callData: { deviceId: string, callerAutoAnswer: boolean, anonymous: boolean, calleeExtNumber: string, calleePbxId: string, calleeShortNumber: string, calleeCountry: string, dialPadCalleeNumber: string }) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(makeCall3PCC) is callData defined : ", isDefined(callData));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -1934,6 +1974,7 @@ class RBVoiceService extends GenericService {
      */
     mergeCall3PCC(activeCallId: string, callData: { heldCallId: string }) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(mergeCall3PCC) is activeCallId defined : ", isDefined(activeCallId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -1970,6 +2011,7 @@ class RBVoiceService extends GenericService {
      */
     pickupCall3PCC(callData: { deviceId: string, callerAutoAnswer: boolean, calleeShortNumber: string }) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(pickupCall3PCC) is callData defined : ", isDefined(callData));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -2004,6 +2046,7 @@ class RBVoiceService extends GenericService {
      */
     releaseCall3PCC(callId: string, legId: string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(releaseCall3PCC) is callId defined : ", isDefined(callId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -2037,6 +2080,7 @@ class RBVoiceService extends GenericService {
      */
     retrieveCall3PCC(callId: string, callData: { legId: string }) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(retrieveCall3PCC) is callId defined : ", isDefined(callId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -2071,6 +2115,7 @@ class RBVoiceService extends GenericService {
      */
     sendDTMF3PCC(callId: string, callData: { legId: string, digits: string }) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendDTMF3PCC) is callId defined : ", isDefined(callId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -2111,6 +2156,7 @@ class RBVoiceService extends GenericService {
      */
     snapshot3PCC(callId: string, deviceId: string, seqNum: number) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(snapshot3PCC) is callId defined : ", isDefined(callId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -2144,6 +2190,7 @@ class RBVoiceService extends GenericService {
      */
     transferCall3PCC(activeCallId: string, callData: { heldCallId: string }) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(transferCall3PCC) is activeCallId defined : ", isDefined(activeCallId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -2176,6 +2223,7 @@ class RBVoiceService extends GenericService {
      */
     deleteAVoiceMessage(messageId: string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteAVoiceMessage) is messageId defined : ", isDefined(messageId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -2208,6 +2256,7 @@ class RBVoiceService extends GenericService {
      */
     deleteAllVoiceMessages(messageId: string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteAllVoiceMessages) is messageId defined : ", isDefined(messageId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -2247,6 +2296,7 @@ class RBVoiceService extends GenericService {
      */
     getEmergencyNumbersAndEmergencyOptions() {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getEmergencyNumbersAndEmergencyOptions) .");
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -2309,6 +2359,7 @@ class RBVoiceService extends GenericService {
                      callerName: string,
                      callerNumber: string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getVoiceMessages) is callerName defined : ", isDefined(callerName));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -2348,6 +2399,7 @@ class RBVoiceService extends GenericService {
      */
     getUserDevices() {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getUserDevices) .");
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -2386,6 +2438,7 @@ class RBVoiceService extends GenericService {
      */
     updateVoiceMessage(messageId: string, urlData: { read: boolean }) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateVoiceMessage) is messageId defined : ", isDefined(messageId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -2432,6 +2485,7 @@ class RBVoiceService extends GenericService {
      */
     forwardCall(callForwardType: string, userId: string, urlData: { destinationType: string, number: string, activate: boolean, noReplyDelay: number }) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(forwardCall) is userId defined : ", isDefined(userId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -2468,6 +2522,7 @@ class RBVoiceService extends GenericService {
      */
     getASubscriberForwards(userId: string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getASubscriberForwards) is userId defined : ", isDefined(userId));
 
         return new Promise(async (resolve, reject) => {
             try {
@@ -2504,6 +2559,7 @@ class RBVoiceService extends GenericService {
      */
     searchCloudPBXhuntingGroups(name: string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(searchCloudPBXhuntingGroups) is name defined : ", isDefined(name));
 
         return new Promise(async (resolve, reject) => {
             try {

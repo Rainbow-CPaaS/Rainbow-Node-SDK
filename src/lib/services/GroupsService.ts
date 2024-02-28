@@ -6,13 +6,14 @@ export {};
 import {XMPPService} from "../connection/XMPPService";
 import {RESTService} from "../connection/RESTService";
 import {ErrorManager} from "../common/ErrorManager";
-import {isStarted, logEntryExit} from "../common/Utils";
+import {isDefined, isStarted, logEntryExit} from "../common/Utils";
 import {Logger} from "../common/Logger";
 import {EventEmitter} from "events";
 import {S2SService} from "./S2SService";
 import {Core} from "../Core";
 
 const LOG_ID = "GROUPS/SVCE - ";
+const API_ID = "API_CALL - ";
 
 @logEntryExit(LOG_ID)
 @isStarted([])
@@ -154,6 +155,7 @@ const LOG_ID = "GROUPS/SVCE - ";
      */
      async createGroup(name, comment, isFavorite) {
          let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(createGroup) is name defined : ", isDefined(name));
 
          return new Promise(function(resolve, reject) {
              if (typeof isFavorite === "undefined") {
@@ -195,6 +197,7 @@ const LOG_ID = "GROUPS/SVCE - ";
       */
      async deleteGroup(group) {
          let that = this;
+         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteGroup) is name defined : ", isDefined(group));
 
          return new Promise(function(resolve, reject) {
              if (!group) {
@@ -235,6 +238,7 @@ const LOG_ID = "GROUPS/SVCE - ";
      */
     async deleteAllGroups() {
          let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteAllGroups) .");
 
         return new Promise((resolve, reject) => {
             const promiseQueue = [];
@@ -284,6 +288,7 @@ const LOG_ID = "GROUPS/SVCE - ";
      */
      async updateGroupName(group, name) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateGroupName) is name defined : ", isDefined(group));
 
         return new Promise(function(resolve, reject) {
             if (!group || !name) {
@@ -337,6 +342,7 @@ const LOG_ID = "GROUPS/SVCE - ";
      */
      async updateGroupComment(group, comment) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateGroupComment) is name defined : ", isDefined(group));
 
         return new Promise(function(resolve, reject) {
             if (!group || !comment) {
@@ -429,6 +435,8 @@ const LOG_ID = "GROUPS/SVCE - ";
      */
      async setGroupAsFavorite( group) {
          let that = this;
+         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(setGroupAsFavorite) is name defined : ", isDefined(group));
+
          return new Promise(function (resolve, reject) {
              if (!group) {
                  that._logger.log(that.WARN, LOG_ID + "(setGroupAsFavorite) bad or empty 'group' parameter.");
@@ -466,6 +474,8 @@ const LOG_ID = "GROUPS/SVCE - ";
      */
     async unsetGroupAsFavorite(group) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(unsetGroupAsFavorite) is name defined : ", isDefined(group));
+
         return new Promise(function (resolve, reject) {
             if (!group) {
                 that._logger.log(that.WARN, LOG_ID + "(unsetGroupAsFavorite) bad or empty 'group' parameter.");
@@ -497,6 +507,8 @@ const LOG_ID = "GROUPS/SVCE - ";
      *  Return the list of existing groups <br>
      */
     getAll() {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(unsetGroupAsFavorite) .");
         return this._groups;
     }
 
@@ -511,6 +523,8 @@ const LOG_ID = "GROUPS/SVCE - ";
      *  Return the list of favorite groups <br>
      */
     getFavoriteGroups() {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(unsetGroupAsFavorite) .");
         return this._groups.filter((group) => {
             return group.isFavorite;
         });
@@ -529,6 +543,9 @@ const LOG_ID = "GROUPS/SVCE - ";
      *  Return a group by its id <br>
      */
     getGroupById(id: string, forceServerSearch : boolean = false) : Promise<any>{
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(unsetGroupAsFavorite) is id defined : ", isDefined(id));
+
         return new Promise((resolve, reject) => {
             let that = this;
             let groupFound = this._groups.find((group) => {
@@ -589,6 +606,9 @@ const LOG_ID = "GROUPS/SVCE - ";
      *  Return a group by its id <br>
      */
     async getGroupByName(name : string, forceServerSearch : boolean = false) : Promise<any>{
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getGroupByName) is name defined : ", isDefined(name));
+
         return new Promise((resolve, reject) => {
             let that = this;
             let groupFound = this._groups.find((group) => {
@@ -669,6 +689,8 @@ const LOG_ID = "GROUPS/SVCE - ";
      */
     async addUserInGroup(contact, group) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(addUserInGroup) is contact defined : ", isDefined(contact));
+
         return new Promise(async function(resolve, reject) {
             if (!contact) {
                 that._logger.log(that.WARN, LOG_ID + "(addUserInGroup) bad or empty 'contact' parameter.");
@@ -722,6 +744,8 @@ const LOG_ID = "GROUPS/SVCE - ";
      */
     async removeUserFromGroup(contact, group) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(removeUserFromGroup) is contact defined : ", isDefined(contact));
+
         return new Promise(async function(resolve, reject) {
             if (!contact) {
                 that._logger.log(that.WARN, LOG_ID + "(removeUserFromGroup) bad or empty 'contact' parameter.");

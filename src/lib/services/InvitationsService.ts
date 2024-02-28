@@ -9,7 +9,7 @@ import {RESTService} from "../connection/RESTService";
 import {ErrorManager} from "../common/ErrorManager";
 import {EventEmitter} from "events";
 import {InvitationEventHandler} from "../connection/XMPPServiceHandler/invitationEventHandler";
-import {isStarted, logEntryExit} from "../common/Utils";
+import {isDefined, isStarted, logEntryExit} from "../common/Utils";
 import {Invitation} from "../common/models/Invitation";
 import * as moment from 'moment';
 import {Logger} from "../common/Logger";
@@ -22,6 +22,7 @@ import {GenericService} from "./GenericService";
 import {Contact} from "../common/models/Contact";
 
 const LOG_ID = "INVITATION/SVCE - ";
+const API_ID = "API_CALL - ";
 
 /**
  * @module
@@ -528,8 +529,10 @@ class InvitationsService extends GenericService {
          * @return {Invitation[]} The list of invitations received
          */
         getReceivedInvitations() {
-                let that = this;
-                return that.receivedInvitationsArray;
+            let that = this;
+            that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getReceivedInvitations) .");
+
+            return that.receivedInvitationsArray;
         };
 
         /**
@@ -571,17 +574,18 @@ class InvitationsService extends GenericService {
          */
         searchInvitationsReceivedFromServer(sortField : string = "lastNotificationDate", status : string = "pending", format : string="small", limit : number = 500, offset : number, sortOrder : number) {
                 let that = this;
+                that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(searchInvitationsReceivedFromServer) is sortField defined : ", isDefined(sortField), " is status defined : ", isDefined(status));
                 return new Promise(function (resolve, reject) {
                         return that._rest.getInvitationsReceived(sortField, status, format, limit, offset, sortOrder).then(
-                                        function success(response: any) {
-                                                that._logger.log(that.INFO, LOG_ID + "(searchInvitationsReceivedFromServer) success (found " + response.data.length + " invitations)");
-                                                resolve(response);
-                                        },
-                                        function failure(err) {
-                                                that._logger.log(that.ERROR, LOG_ID + "(searchInvitationsReceivedFromServer) error ");
-                                                that._logger.log(that.INTERNALERROR, LOG_ID + "(searchInvitationsReceivedFromServer) error : ", err);
-                                                reject(err);
-                                        });
+                                function success(response: any) {
+                                        that._logger.log(that.INFO, LOG_ID + "(searchInvitationsReceivedFromServer) success (found " + response.data.length + " invitations)");
+                                        resolve(response);
+                                },
+                                function failure(err) {
+                                        that._logger.log(that.ERROR, LOG_ID + "(searchInvitationsReceivedFromServer) error ");
+                                        that._logger.log(that.INTERNALERROR, LOG_ID + "(searchInvitationsReceivedFromServer) error : ", err);
+                                        reject(err);
+                                });
                 });
         }
         
@@ -598,6 +602,7 @@ class InvitationsService extends GenericService {
          */
         getAcceptedInvitations() {
                 let that = this;
+                that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getAcceptedInvitations) .");
                 return that.acceptedInvitationsArray;
         };
 
@@ -614,6 +619,7 @@ class InvitationsService extends GenericService {
          */
         getInvitationsNumberForCounter() {
                 let that = this;
+                that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getInvitationsNumberForCounter) .");
                 return that.receivedInvitationsArray.length;
         };
 
@@ -631,6 +637,7 @@ class InvitationsService extends GenericService {
          */
         getServerInvitation(invitationId) {
                 let that = this;
+                that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getServerInvitation) is invitationId defined : ", isDefined(invitationId));
                 return new Promise(function (resolve, reject) {
                         that._rest.getServerInvitation(invitationId).then(
                                         (response: any) => {
@@ -662,6 +669,7 @@ class InvitationsService extends GenericService {
          */
         getInvitation(invitationId) {
                 let that = this;
+                that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getInvitation) is invitationId defined : ", isDefined(invitationId));
                 that._logger.log(that.INFO, LOG_ID + "(getInvitation) that.receivedInvitations : ", that.receivedInvitations);
                 that._logger.log(that.INFO, LOG_ID + "(getInvitation) that.acceptedInvitationsArray : ", that.acceptedInvitationsArray);
                 that._logger.log(that.INFO, LOG_ID + "(getInvitation) that.sentInvitations : ", that.sentInvitations);
@@ -705,6 +713,7 @@ class InvitationsService extends GenericService {
          */
         async joinContactInvitation(contact) {
                 let that = this;
+                that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(joinContactInvitation) is contact defined : ", isDefined(contact));
                 return new Promise(function (resolve, reject) {
                         that._logger.log(that.INFO, LOG_ID + "(joinContactInvitation) contact (" + contact.jid + ")");
                         return that._rest.joinContactInvitation(contact).then(
@@ -757,6 +766,7 @@ class InvitationsService extends GenericService {
          */
         async acceptInvitation(invitation) {
                 let that = this;
+                that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(acceptInvitation) is invitation defined : ", isDefined(invitation));
                 if (!invitation) {
                         let error = ErrorManager.getErrorManager().BAD_REQUEST;
                         error.msg += ", invitation not defined, can not acceptInvitation";
@@ -822,6 +832,7 @@ class InvitationsService extends GenericService {
          */
         async declineInvitation(invitation) {
                 let that = this;
+                that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(declineInvitation) is invitation defined : ", isDefined(invitation));
                 if (!invitation) {
                         let error = ErrorManager.getErrorManager().BAD_REQUEST;
                         error.msg += ", invitation not defined, can not declineInvitation";
@@ -890,6 +901,7 @@ class InvitationsService extends GenericService {
          */
         getSentInvitations() {
                 let that = this;
+                that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getSentInvitations) .");
                 return that.sentInvitationsArray;
         };
 
@@ -933,6 +945,7 @@ class InvitationsService extends GenericService {
          */
         searchInvitationsSentFromServer(sortField : string = "lastNotificationDate", status : string = "pending", format : string="small", limit : number = 500, offset : number = 0, sortOrder : number = 1) {
                 let that = this;
+                that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(searchInvitationsSentFromServer) is sortField defined : ", isDefined(sortField));
                 return new Promise(function (resolve, reject) {
                         return that._rest.getInvitationsSent(sortField, status, format, limit, offset, sortOrder).then(
                                         function success(response: any) {
@@ -984,6 +997,7 @@ class InvitationsService extends GenericService {
          */
         async sendInvitationByEmail(email : string, lang : string, customMessage : string) {
                 let that = this;
+                that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendInvitationByEmail) is email defined : ", isDefined(email));
                 return that.sendInvitationByCriteria(email, null,null, lang, customMessage );
         };
 
@@ -1078,6 +1092,7 @@ class InvitationsService extends GenericService {
          */
         async sendInvitationByCriteria(email: string, invitedPhoneNumber : string, invitedUserId : string, lang : string, customMessage : string) {
                 let that = this;
+                that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendInvitationByCriteria) is email defined : ", isDefined(email));
                 return new Promise(function (resolve, reject) {
                         that._logger.log(that.INFO, LOG_ID + "(sendInvitationByCriteria)");
                         return that._rest.sendInvitationByCriteria(email, lang, customMessage, invitedPhoneNumber, invitedUserId ).then(
@@ -1108,6 +1123,7 @@ class InvitationsService extends GenericService {
          */
         async cancelOneSendInvitation(invitation) {
                 let that = this;
+                that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(cancelOneSendInvitation) is invitation defined : ", isDefined(invitation));
                 return new Promise(function (resolve, reject) {
                         that._rest.cancelOneSendInvitation(invitation).then(
                                         function success(data) {
@@ -1163,6 +1179,7 @@ class InvitationsService extends GenericService {
          */
         async reSendInvitation(invitationId: string, customMessage  : string) {
                 let that = this;
+                that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(reSendInvitation) is invitationId defined : ", isDefined(invitationId));
                 return new Promise(function (resolve, reject) {
                         that._rest.reSendInvitation(invitationId, customMessage).then(
                                         function success() {
@@ -1229,6 +1246,7 @@ class InvitationsService extends GenericService {
          */
         async sendInvitationsByBulk(listOfMails, lang? : string, customMessage? : string) {
                 let that = this;
+                that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendInvitationsByBulk) is listOfMails defined : ", isDefined(listOfMails));
 
                 if (!listOfMails.length || listOfMails.length > 100) {
                         that._logger.log(that.ERROR, LOG_ID + "(sendInvitationsByBulk) mail list length not correct");
@@ -1270,6 +1288,7 @@ class InvitationsService extends GenericService {
          */
         getAllInvitationsNumber = function () {
                 let that = this;
+                that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getAllInvitationsNumber) .");
                 return that.receivedInvitationsArray.length + that.sentInvitationsArray.length + that.acceptedInvitationsArray.length;
         };
 
@@ -1305,6 +1324,7 @@ class InvitationsService extends GenericService {
          */
         async deleteAUserInvitation(invitation) {
                 let that = this;
+                that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteAUserInvitation) is invitation defined : ", isDefined(invitation));
                 return new Promise(function (resolve, reject) {
                         that._rest.deleteAUserInvitation(invitation).then(
                                         function success(data) {
