@@ -1110,7 +1110,7 @@ class ContactsService extends GenericService {
      */
     getDisplayName(contact : Contact) : string {
         let that = this;
-        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getDisplayName) contact.id : ", that._logger.stripStringForLogs(contact?.id), ", contact.name : ", that._logger.stripStringForLogs(contact?.name));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getDisplayName) contact.id : ", that._logger.stripStringForLogs(contact?.id), ", contact.name : ", that._logger.stripStringForLogs(contact?.name?.value));
 
         return contact.firstName + " " + contact.lastName;
     }
@@ -2159,7 +2159,7 @@ class ContactsService extends GenericService {
      */
     addToNetwork(contact: Contact) : Promise<Contact>{
         let that = this;
-        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(addToNetwork) contact.id : ", that._logger.stripStringForLogs(contact?.id), ", contact.name : ", that._logger.stripStringForLogs(contact?.name));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(addToNetwork) contact.id : ", that._logger.stripStringForLogs(contact?.id), ", contact.name : ", that._logger.stripStringForLogs(contact?.name?.value));
 
         return this.addToContactsList(contact);
     }
@@ -2182,7 +2182,7 @@ class ContactsService extends GenericService {
      */
     addToContactsList(contact: Contact) : Promise<Contact>{
         let that = this;
-        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(addToContactsList) contact.id : ", that._logger.stripStringForLogs(contact?.id), ", contact.name : ", that._logger.stripStringForLogs(contact?.name));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(addToContactsList) contact.id : ", that._logger.stripStringForLogs(contact?.id), ", contact.name : ", that._logger.stripStringForLogs(contact?.name?.value));
 
         return new Promise((resolve, reject) => {
             if (!contact) {
@@ -2226,7 +2226,7 @@ class ContactsService extends GenericService {
      */
     removeFromNetwork(contact) {
         let that = this;
-        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(removeFromNetwork) contact.id : ", that._logger.stripStringForLogs(contact?.id), ", contact.name : ", that._logger.stripStringForLogs(contact?.name));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(removeFromNetwork) contact.id : ", that._logger.stripStringForLogs(contact?.id), ", contact.name : ", that._logger.stripStringForLogs(contact?.name?.value));
 
         return new Promise((resolve, reject) => {
             if (!contact) {
@@ -2354,7 +2354,7 @@ class ContactsService extends GenericService {
      */
     joinContacts(contact: Contact, contactIds : Array<string>) {
         let that = this;
-        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(joinContacts) contact.id : ", that._logger.stripStringForLogs(contact?.id), ", contact.name : ", that._logger.stripStringForLogs(contact?.name));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(joinContacts) contact.id : ", that._logger.stripStringForLogs(contact?.id), ", contact.name : ", that._logger.stripStringForLogs(contact?.name?.value));
 
         return new Promise((resolve, reject) => {
             if (!contact) {
