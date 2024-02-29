@@ -323,7 +323,18 @@ class Logger {
         };
 
         this._logger.stripStringForLogs = function (value : string) {
-            return self.logLevel !== Logger.LEVELSNAMES.INFO ? value : (!value ? value : value?.charAt(0) + value?.replace(/[^\s](?=.{1,}$)/g, "*")?.substr(1));
+            let result = "";
+            if (self.logLevel !== Logger.LEVELSNAMES.INFO ) {
+                result = value;
+            } else {
+                if (!value ) {
+                    result = value;
+                } else {
+                    value += "";
+                    result = value.charAt(0) + value.replace(/[^\s](?=.{1,}$)/g, "*")?.substr(1);
+                }
+            }
+            return result;
         }
 
         this.hideId = function (url) {

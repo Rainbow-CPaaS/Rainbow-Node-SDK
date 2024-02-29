@@ -574,16 +574,14 @@ class Core extends LevelLogs{
                 } catch (e) {
                     that._logger.log(that.INFO, LOG_ID + "(_retrieveInformation) load of getRosters Failed : ", e);
                 }
-                return that._presence._sendPresenceFromConfiguration().then(() => {
-                    return Promise.resolve(undefined)
-                }).then(() => {
-                    return that._s2s.init(that.options._restOptions.useRestAtStartup);
-                }).then(() => {
+                return that._s2s.init(that.options._restOptions.useRestAtStartup).then(() => {
                     return that._profiles.init(that.options._restOptions.useRestAtStartup);
                 }).then(() => {
                     return that._contacts.init(that.options._restOptions.useRestAtStartup);
                 }).then(() => {
-                    return that._telephony.init(that.options._restOptions.useRestAtStartup);
+                    return that._presence._sendPresenceFromConfiguration();
+                }).then(() => {
+                        return that._telephony.init(that.options._restOptions.useRestAtStartup);
                 }).then(() => {
                     return that._fileStorage.init(that.options._restOptions.useRestAtStartup);
                 }).then(() => {
@@ -689,17 +687,19 @@ class Core extends LevelLogs{
                     that._logger.log(that.INFO, LOG_ID + "(_retrieveInformation) load of getRosters Failed : ", e);
                 }
                 //return Utils.traceExecutionTime(that,"_sendPresenceFromConfiguration", that.presence._sendPresenceFromConfiguration).then(() => {
-                return that._presence._sendPresenceFromConfiguration().then(() => {
+                /* return that._presence._sendPresenceFromConfiguration().then(() => {
                     return Promise.resolve(undefined)
-                }).then(() => {
-                    return that._s2s.init(that.options._restOptions.useRestAtStartup);
-                }).then(() => {
+                }).then(() => { // */
+                return that._s2s.init(that.options._restOptions.useRestAtStartup).then(() => {
                     return that._profiles.init(that.options._restOptions.useRestAtStartup);
                 }).then(() => {
                     //return Utils.traceExecutionTime(that,"_contacts.init", that._contacts.init, [that.options._restOptions.useRestAtStartup]);
                     return that._contacts.init(that.options._restOptions.useRestAtStartup);
                 }).then(() => {
-                    return that._telephony.init(that.options._restOptions.useRestAtStartup);
+                    return that._presence._sendPresenceFromConfiguration();
+                    //    return Promise.resolve(undefined)
+                }).then(() => {
+                        return that._telephony.init(that.options._restOptions.useRestAtStartup);
                 }).then(() => {
                     return that._fileStorage.init(that.options._restOptions.useRestAtStartup);
                 }).then(() => {

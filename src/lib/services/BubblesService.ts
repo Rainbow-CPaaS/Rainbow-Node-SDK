@@ -2663,7 +2663,7 @@ class Bubbles extends GenericService {
          */
         promoteContactInBubble(contact, bubble, isModerator) {
             let that = this;
-            that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(promoteContactInBubble) contact.id : ", that._logger.stripStringForLogs(contact?.id), ", contact.name : ", that._logger.stripStringForLogs(contact?.name), ", bubble.id : ", that._logger.stripStringForLogs(bubble?.id), ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
+            that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(promoteContactInBubble) contact.id : ", that._logger.stripStringForLogs(contact?.id), ", contact.name : ", that._logger.stripStringForLogs(contact?.name?.value), ", bubble.id : ", that._logger.stripStringForLogs(bubble?.id), ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
 
             return new Promise(function (resolve, reject) {
     
@@ -2749,7 +2749,7 @@ class Bubbles extends GenericService {
          */
         promoteContactToModerator(contact, bubble) {
             let that = this;
-            that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(promoteContactToModerator) contact.id : ", that._logger.stripStringForLogs(contact?.id), ", contact.name : ", that._logger.stripStringForLogs(contact?.name), ", bubble.id : ", that._logger.stripStringForLogs(bubble?.id), ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
+            that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(promoteContactToModerator) contact.id : ", that._logger.stripStringForLogs(contact?.id), ", contact.name : ", that._logger.stripStringForLogs(contact?.name?.value), ", bubble.id : ", that._logger.stripStringForLogs(bubble?.id), ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
             if (!contact) {
                 that._logger.log(that.WARN, LOG_ID + "(promoteContactToModerator) bad or empty 'contact' parameter.");
                 that._logger.log(that.INTERNALERROR, LOG_ID + "(promoteContactToModerator) bad or empty 'contact' parameter : ", contact);
@@ -2778,7 +2778,7 @@ class Bubbles extends GenericService {
          */
         demoteContactFromModerator(contact, bubble) {
             let that = this;
-            that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(demoteContactFromModerator) contact.id : ", that._logger.stripStringForLogs(contact?.id), ", contact.name : ", that._logger.stripStringForLogs(contact?.name), ", bubble.id : ", that._logger.stripStringForLogs(bubble?.id), ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
+            that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(demoteContactFromModerator) contact.id : ", that._logger.stripStringForLogs(contact?.id), ", contact.name : ", that._logger.stripStringForLogs(contact?.name?.value), ", bubble.id : ", that._logger.stripStringForLogs(bubble?.id), ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
             if (!contact) {
                 that._logger.log(that.WARN, LOG_ID + "(demoteContactFromModerator) bad or empty 'contact' parameter.");
                 that._logger.log(that.INTERNALERROR, LOG_ID + "(demoteContactFromModerator) bad or empty 'contact' parameter : ", contact);
@@ -2923,7 +2923,7 @@ class Bubbles extends GenericService {
          */
         inviteContactToBubble(contact, bubble, isModerator, withInvitation, reason = null) {
             let that = this;
-            that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(inviteContactToBubble) contact.id : ", that._logger.stripStringForLogs(contact?.id), ", contact.name : ", that._logger.stripStringForLogs(contact?.name), ", bubble.id : ", that._logger.stripStringForLogs(bubble?.id), ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
+            that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(inviteContactToBubble) contact.id : ", that._logger.stripStringForLogs(contact?.id), ", contact.name : ", that._logger.stripStringForLogs(contact?.name?.value), ", bubble.id : ", that._logger.stripStringForLogs(bubble?.id), ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
 
             return new Promise(function (resolve, reject) {
                 that._logger.log(that.INTERNAL, LOG_ID + "(inviteContactToBubble) arguments : ", ...arguments);
@@ -3014,7 +3014,7 @@ class Bubbles extends GenericService {
          */
         inviteContactsByEmailsToBubble(contactsEmails, bubble) {
             let that = this;
-            that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(inviteContactsByEmailsToBubble) contactsEmails : ", that._logger.stripStringForLogs(contactsEmails), ", bubble.id : ", that._logger.stripStringForLogs(bubble?.id), ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
+            that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(inviteContactsByEmailsToBubble) contactsEmails : ", that._logger.stripStringForLogs(contactsEmails), ", bubble.id : ", that._logger.stripStringForLogs(bubble?.id), ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name?.value));
 
             return new Promise(function (resolve, reject) {
                 that._logger.log(that.INTERNAL, LOG_ID + "(inviteContactsByEmailToBubble) arguments : ", ...arguments);
@@ -3684,7 +3684,7 @@ class Bubbles extends GenericService {
          */
         removeContactFromBubble(contact, bubble) {
             let that = this;
-            that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(removeContactFromBubble) bubble.id : ", that._logger.stripStringForLogs(bubble?.id), ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name), ", contact.id : ", that._logger.stripStringForLogs(contact?.id), ", contact.name : ", that._logger.stripStringForLogs(contact?.name));
+            that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(removeContactFromBubble) bubble.id : ", that._logger.stripStringForLogs(bubble?.id), ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name), ", contact.id : ", that._logger.stripStringForLogs(contact?.id), ", contact.name : ", that._logger.stripStringForLogs(contact?.name?.value));
     
             return new Promise(function (resolve, reject) {
     

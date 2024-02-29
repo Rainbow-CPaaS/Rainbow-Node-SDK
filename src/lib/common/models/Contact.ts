@@ -1,5 +1,5 @@
 "use strict";
-import {addDaysToDate} from "../Utils";
+import {addDaysToDate, isDefined} from "../Utils";
 
 export {};
 
@@ -210,6 +210,8 @@ class Contact {
     public useExternalStorage : boolean;
     public useRainbowStorage : boolean;
     public mainStorage : string;
+    public nextRosterAutoCleanup : string;
+    public mfaRainbowAuth : any;
 
     constructor() {
 
@@ -1446,6 +1448,9 @@ class Contact {
          * @readonly
          */
         this.mainStorage = null;
+
+        this.nextRosterAutoCleanup = null;
+        this.mfaRainbowAuth={};
     }
 
     updateLastContactCacheUpdate() {
@@ -1940,6 +1945,13 @@ class Contact {
         }
         this.mainStorage = userData.mainStorage;
 
+        if (isDefined(userData.nextRosterAutoCleanup) ) {
+            this.nextRosterAutoCleanup = userData.nextRosterAutoCleanup;
+        }
+        if (userData.mfaRainbowAuth ) {
+            this.mfaRainbowAuth = userData.mfaRainbowAuth;
+        }
+
         // Compute display name
         that.computeDisplayName();
 
@@ -1961,8 +1973,8 @@ class Contact {
                         return (val == el || val == "displayName");
                     })) {
                         // dev-code-console //
-                        //console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class : ", val, " -> ", data[val]);
-                        console.log("WARNING : One property of the parameter of obj method is not present in the Contact class : ", val);
+                        console.log("WARNING : One property of the parameter of obj method is not present in the Contact class : ", val, " -> ", obj[val]);
+                        //console.log("WARNING : One property of the parameter of obj method is not present in the Contact class : ", val);
                         // end-dev-code-console //
                     }
                 });
