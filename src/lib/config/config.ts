@@ -2,6 +2,8 @@
 // DataStoreType.NoStoreBotSide The messages are not stored on  loggued-in Bot's history, but are stored on the other side. So the contact kept the messages exchanged with bot in his history.
 // NoStoreBotSide = "nostorebotside",
 
+import {LEVELSNAMES} from "../common/LevelLogs.js";
+
 /**
  *  used in SDK parameter "messagesDataStore": DataStoreType.NoStore, Parameter to override the storeMessages parameter of the SDK to define the behaviour of the storage of the messages (Enum DataStoreType in lib/config/config , default value "DataStoreType.UsestoreMessagesField" so it follows the storeMessages behaviour)
  *                          DataStoreType.NoStore Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.
@@ -225,7 +227,7 @@ let conf =  {
     },
     logs: {
         path: "/var/tmp/rainbowsdk/",
-        level: "info",
+        level: LEVELSNAMES.INFO,
         color: false,
         enableConsoleLog: true,
         enableEventsLogs: false,

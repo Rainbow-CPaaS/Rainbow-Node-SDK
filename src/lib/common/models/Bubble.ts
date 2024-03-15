@@ -146,6 +146,7 @@ class Bubble {
     public processId : any
     public confEndpoints : string
     public allNames: Array<string>;
+    public participantNames: Array<string>;
 
 
     public static RoomUserStatus = {
@@ -206,7 +207,7 @@ class Bubble {
 
     constructor(_id: any = "", _name: any = "", _topic: any = "", _jid: any = "", _creator: any = "", _history: any = "none", _users: any = [], _creationDate: any = "", _visibility: any = "private", _customData: any = {}, _isActive: any = false, _conference: any,
                 _disableNotifications: boolean = false, _lastAvatarUpdateDate: any = null, _guestEmails: [] = [], _activeUsersCounter: number = 0, _autoRegister: boolean = false, _lastActivityDate, _autoAcceptInvitation: boolean = false, _tags: Array<any> = [], _avatarDomain: string = "", _containerId: string = null, _containerName: string = null,
-                _isAlertNotificationEnabled : boolean = null, _isOwnedByGroup : boolean = null, _isActiveLastChange : boolean = null, _processId : any = null, _confEndpoints : string = null, _allNames:Array<string>) {
+                _isAlertNotificationEnabled : boolean = null, _isOwnedByGroup : boolean = null, _isActiveLastChange : boolean = null, _processId : any = null, _confEndpoints : string = null, _allNames:Array<string>, _participantNames:Array<string>) {
 
         /**
          * @public
@@ -461,6 +462,13 @@ class Bubble {
          */
         this.allNames = _allNames;
 
+        /**
+         * @public
+         * @property {Array<string>} participantNames The name of contacts in the bubble.
+         * @readonly
+         */
+        this.participantNames = _participantNames;
+
     }
 
     /**
@@ -593,7 +601,8 @@ class Bubble {
                 data.isActiveLastChange,
                 data.processId,
                 data.confEndpoints,
-                data.allNames
+                data.allNames,
+                data.participantNames
             );
             if (data) {
                 let bubbleproperties = Object.getOwnPropertyNames(bubble);

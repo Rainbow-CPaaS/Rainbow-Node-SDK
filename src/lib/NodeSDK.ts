@@ -36,6 +36,7 @@ import {Logger} from "./common/Logger";
 import {inspect} from "util";
 import {HTTPoverXMPP} from "./services/HTTPoverXMPPService";
 import {RPCoverXMPPService} from "./services/RPCoverXMPPService.js";
+import {LogLevelAreas} from "./common/LevelLogs.js";
 
 let LOG_ID = "NodeSDK/IDX";
 
@@ -782,6 +783,14 @@ class NodeSDK {
             }
             process.exit(0);
         };
+    }
+
+    setAreasLogs(areasLogs : LogLevelAreas) {
+        this._logger.areasLogs = areasLogs;
+    }
+
+    getAreasLogs() {
+        return this._logger.areasLogs;
     }
 
     /**

@@ -276,7 +276,7 @@ class HttpManager extends LevelLogs{
             that.nbHttpAdded++;
         }
         req.id = new Date().getTime() + "_" + that.nbHttpAdded;
-        that._logger.log(that.DEBUG, LOG_ID + "(add) The req will be add to queue. that.nbRunningReq : ", that.nbRunningReq, ", nbHttpAdded : ", that.nbHttpAdded, ", req.id : ", req.id, ", req.label : ", req.label);
+        that._logger.log(that.HTTP, LOG_ID + "(add) The req will be add to queue. that.nbRunningReq : ", that.nbRunningReq, ", nbHttpAdded : ", that.nbHttpAdded, ", req.id : ", req.id, ", req.label : ", req.label);
         if (that.retryAfterEndTime > Date.now()) {
             that._logger.log(that.DEBUG, LOG_ID + "(add) The req will failed because an retryAfter is Activated. that.retryAfterStartTime : ", new Date(that.retryAfterStartTime).toLocaleString('en-GB', { timeZone: 'UTC' }), ", that.retryAfterEndTime : ", new Date(that.retryAfterEndTime).toLocaleString('en-GB', { timeZone: 'UTC' }) + ", that.nbRunningReq : ", that.nbRunningReq, ", nbHttpAdded : ", that.nbHttpAdded, ", req.id : ", req.id, ", req.label : ", req.label);
             let error = {

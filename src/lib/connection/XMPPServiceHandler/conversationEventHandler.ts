@@ -2193,6 +2193,9 @@ class ConversationEventHandler extends GenericHandler {
                     case "logs":
                         that.onLogsMessageReceived(node);
                         break;
+                    case "todo":
+                        // treated in tasksEventHandler
+                        break;
                     default:
                         that._logger.log(that.ERROR, LOG_ID + "(onManagementMessageReceived) unmanaged management message node " + node.getName());
                         break;
