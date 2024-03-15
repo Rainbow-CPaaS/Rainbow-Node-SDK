@@ -212,6 +212,7 @@ class Contact {
     public mainStorage : string;
     public nextRosterAutoCleanup : string;
     public mfaRainbowAuth : any;
+    public searchTagsOnly : Array<string>;
 
     constructor() {
 
@@ -1451,6 +1452,7 @@ class Contact {
 
         this.nextRosterAutoCleanup = null;
         this.mfaRainbowAuth={};
+        this.searchTagsOnly=[];
     }
 
     updateLastContactCacheUpdate() {
@@ -1950,6 +1952,10 @@ class Contact {
         }
         if (userData.mfaRainbowAuth ) {
             this.mfaRainbowAuth = userData.mfaRainbowAuth;
+        }
+
+        if (userData.searchTagsOnly ) {
+            this.searchTagsOnly = userData.searchTagsOnly;
         }
 
         // Compute display name

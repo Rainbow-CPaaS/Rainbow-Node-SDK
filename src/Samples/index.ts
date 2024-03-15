@@ -1,5 +1,5 @@
 "use strict";
-import {NodeSDK as RainbowSDK} from "../index";
+import {NodeSDK as RainbowSDK, LogLevelAreas} from "../index";
 /*
  * @name index.ts
  *
@@ -13,7 +13,7 @@ import {
     until,
     getRandomInt,
     addPropertyToObj,
-    generateRamdomEmail, functionName, makeId, Deferred, msToTime
+    generateRamdomEmail, functionName, makeId, Deferred, msToTime, flattenObject, getJsonFromXML
 } from "../lib/common/Utils";
 import {TimeOutManager} from "../lib/common/TimeOutManager";
 import set = Reflect.set;
@@ -100,6 +100,9 @@ import {Message} from "../lib/common/models/Message.js";
 import {catchError} from "rxjs";
 import {NameSpacesLabels} from "../lib/connection/XMPPService.js";
 import {jwtDecode} from "jwt-decode";
+import {LEVELSNAMES} from "../lib/common/LevelLogs.js";
+import {TaskInput} from "../lib/services/TasksService.js";
+import {Task} from "../lib/common/models/Task.js";
 /*const readline = require('readline').createInterface({
     input: process.stdin,
     output: process.stdout
@@ -124,6 +127,103 @@ let urlS2S;
     } else {
         console.log("MAIN - XMPP Mode.");
     }
+
+    let logLevelAreas = new LogLevelAreas();
+    /*
+    logLevelAreas.showAllLogs();
+    logLevelAreas.showServicesApiLogs();
+    logLevelAreas.showRESTLogs();
+    logLevelAreas.showEventsLogs();
+    logLevelAreas.showServicesLogs();
+    logLevelAreas.showBubblesLogs();
+    // */
+    logLevelAreas.admin.api = true;
+    logLevelAreas.admin.level = LEVELSNAMES.ERROR;
+    logLevelAreas.alerts.api = true;
+    logLevelAreas.alerts.level = LEVELSNAMES.ERROR;
+    logLevelAreas.bubbles.api = true;
+    logLevelAreas.bubbles.level = LEVELSNAMES.ERROR;
+    logLevelAreas.calllog.api = true;
+    logLevelAreas.calllog.level = LEVELSNAMES.ERROR;
+    logLevelAreas.channels.api = true;
+    logLevelAreas.channels.level = LEVELSNAMES.ERROR;
+    logLevelAreas.connectedUser.api = true;
+    logLevelAreas.connectedUser.level = LEVELSNAMES.ERROR;
+    logLevelAreas.contacts.api = true;
+    logLevelAreas.contacts.level = LEVELSNAMES.ERROR;
+    logLevelAreas.conversations.api = true;
+    logLevelAreas.conversations.level = LEVELSNAMES.ERROR;
+    logLevelAreas.events.api = true;
+    logLevelAreas.events.level = LEVELSNAMES.ERROR;
+    logLevelAreas.favorites.api = true;
+    logLevelAreas.favorites.level = LEVELSNAMES.ERROR;
+    logLevelAreas.fileServer.api = true;
+    logLevelAreas.fileServer.level = LEVELSNAMES.ERROR;
+    logLevelAreas.fileStorage.api = true;
+    logLevelAreas.fileStorage.level = LEVELSNAMES.ERROR;
+    logLevelAreas.groups.api = true;
+    logLevelAreas.groups.level = LEVELSNAMES.ERROR;
+    logLevelAreas.httpoverxmpp.api = true;
+    logLevelAreas.httpoverxmpp.level = LEVELSNAMES.ERROR;
+    logLevelAreas.ims.api = true;
+    logLevelAreas.ims.level = LEVELSNAMES.ERROR;
+    logLevelAreas.invitations.api = true;
+    logLevelAreas.invitations.level = LEVELSNAMES.ERROR;
+    logLevelAreas.presence.api = true;
+    logLevelAreas.presence.level = LEVELSNAMES.ERROR;
+    logLevelAreas.profiles.api = true;
+    logLevelAreas.profiles.level = LEVELSNAMES.ERROR;
+    logLevelAreas.rbvoice.api = true;
+    logLevelAreas.rbvoice.level = LEVELSNAMES.ERROR;
+    logLevelAreas.rpcoverxmpp.api = true;
+    logLevelAreas.rpcoverxmpp.level = LEVELSNAMES.ERROR;
+    logLevelAreas.s2s.api = true;
+    logLevelAreas.s2s.level = LEVELSNAMES.ERROR;
+    logLevelAreas.settings.api = true;
+    logLevelAreas.settings.level = LEVELSNAMES.ERROR;
+    logLevelAreas.tasks.api = true;
+    logLevelAreas.tasks.level = LEVELSNAMES.ERROR;
+    logLevelAreas.telephony.api = true;
+    logLevelAreas.telephony.level = LEVELSNAMES.ERROR;
+    logLevelAreas.version.api = true;
+    logLevelAreas.version.level = LEVELSNAMES.ERROR;
+    logLevelAreas.webinars.api = true;
+    logLevelAreas.webinars.level = LEVELSNAMES.ERROR;
+    logLevelAreas.core.level = LEVELSNAMES.ERROR;
+    logLevelAreas.bubblemanager.level = LEVELSNAMES.ERROR;
+    logLevelAreas.httpmanager.level = LEVELSNAMES.ERROR;
+    logLevelAreas.httpservice.level = LEVELSNAMES.ERROR;
+    logLevelAreas.rest.level = LEVELSNAMES.ERROR;
+    logLevelAreas.resttelephony.level = LEVELSNAMES.ERROR;
+    logLevelAreas.restconferencev2.level = LEVELSNAMES.ERROR;
+    logLevelAreas.restwebinar.level = LEVELSNAMES.ERROR;
+    logLevelAreas.xmpp.level = LEVELSNAMES.ERROR;
+    logLevelAreas.xmpp.xmppin
+    logLevelAreas.xmpp.xmppout
+    logLevelAreas.s2sevent.level = LEVELSNAMES.ERROR;
+    logLevelAreas.rbvoiceevent.level = LEVELSNAMES.ERROR;
+    logLevelAreas.alertevent.level = LEVELSNAMES.ERROR;
+    logLevelAreas.calllogevent.level = LEVELSNAMES.ERROR;
+    logLevelAreas.channelevent.level = LEVELSNAMES.ERROR;
+    logLevelAreas.conversationevent.level = LEVELSNAMES.ERROR;
+    logLevelAreas.conversationhistory.level = LEVELSNAMES.ERROR;
+    logLevelAreas.favoriteevent.level = LEVELSNAMES.ERROR;
+    logLevelAreas.httpoverxmppevent.level = LEVELSNAMES.ERROR;
+    logLevelAreas.invitationevent.level = LEVELSNAMES.ERROR;
+    logLevelAreas.iqevent.level = LEVELSNAMES.ERROR;
+    logLevelAreas.presenceevent.level = LEVELSNAMES.ERROR;
+    logLevelAreas.rpcoverxmppevent.level = LEVELSNAMES.ERROR;
+    logLevelAreas.tasksevent.level = LEVELSNAMES.ERROR;
+    logLevelAreas.telephonyevent.level = LEVELSNAMES.ERROR;
+    logLevelAreas.webinarevent.level = LEVELSNAMES.ERROR;
+
+    logLevelAreas.showRESTLogs(LEVELSNAMES.INTERNAL);
+    logLevelAreas.showEventsLogs();
+   // logLevelAreas.showServicesLogs();
+    logLevelAreas.hideServicesApiLogs();
+    logLevelAreas.tasks.api = true;
+    logLevelAreas.tasks.level = LEVELSNAMES.INTERNAL;
+    logLevelAreas.tasksevent.level = LEVELSNAMES.INTERNAL;
 
 // Define your configuration
     let options: any = {
@@ -236,13 +336,15 @@ let urlS2S;
             "enableEncryptedLogs": false,
             "color": true,
             //"level": "info",
-            "level": "xmpp",
+            "level": "internal",
             "customLabel": "RainbowSample",
             "system-dev": {
-                "internals": false,
+                "internals": true,
                 "http": false,
             },
             "filter" : "",
+            "areas":logLevelAreas,
+                /*,
             "areas" : {
                 "admin": {
                     "category": "services",
@@ -471,7 +573,7 @@ let urlS2S;
                 'webinarevent': {
                     "level": "error"
                 },
-            },
+            },// */
             "file": {
                 "path": "c:/temp/",
                 "customFileName": "R-SDK-Node-Sample-"+ Math.floor(Math.random() * 1000),
@@ -1007,7 +1109,19 @@ let urlS2S;
     rainbowSDK.events.on("rainbow_onrbvoicerawevent", async function (data) {
        _logger.log("debug", "MAIN - (rainbow_onrbvoicerawevent) data : ", data);
     });
-    
+
+    rainbowSDK.events.on("rainbow_ontaskcreated", async function (data : any) {
+        _logger.log("debug", "MAIN - (rainbow_ontaskcreated) data : ", data);
+    });
+
+    rainbowSDK.events.on("rainbow_ontaskupdated", async function (data : any) {
+        _logger.log("debug", "MAIN - (rainbow_ontaskupdated) data : ", data);
+    });
+
+    rainbowSDK.events.on("rainbow_ontaskdeleted", async function (data : any) {
+        _logger.log("debug", "MAIN - (rainbow_ontaskdeleted) data : ", data);
+    });
+
     class Tests {
 
         testEventsRainbow_tokenexpired() {
@@ -1112,19 +1226,163 @@ let urlS2S;
             console.log("SDK Services : ", sdkPublic);
         }
         
-        // endregion File JSON
+        //endregion File JSON
 
-    // region tasks
+    //region tasks
 
-     testgetTasks() {
+    testflattenObject() {
+        let jsonObj : TaskInput = {
+            "category": "high",
+            "position":0,
+            "content": {
+               "done": false,
+               "personalNote": true,
+               "text": "My task Text",
+               "title": "My Task Title",
+               "creationDate": 1709572666128
+            },
+            "id": "65e6023ae750d9fc381bbeeb",
+            "categoryId": "65e5f30dc2d848f8d45ad356"
+        };
+        _logger.log("debug", "MAIN - jsonObj : ", jsonObj, ", flattenObject : ", flattenObject(jsonObj,'XXX', false));
+    }
+
+    async testXml2jsParse() {
+            let xmlNodeStr= " <message " +
+                    "  xmlns=\"jabber:client\" xml:lang=\"en\" to=\"adcf613d42984a79a7bebccc80c2b65e@openrainbow.net\" from=\"pcloud_enduser_1@openrainbow.net/7746302125005952675597380\" type=\"management\" id=\"bd7a468b-3c18-4929-bfa6-4841b509c70d_0\">" +
+                    "  <todo xmlns=\"jabber:iq:configuration\" id=\"65f1dfc59ad1c27b47d0ed46\" action=\"create\" position=\"0\" type=\"item\" category=\"middle\">" +
+                    "    <content  xmlns=\"urn:xmpp:json:0\">"+
+                    "{\"done\":false,\"personalNote\":true,\"text\":\"My task Text\",\"title\":\"My Task Title\",\"creationDate\":1710350292187}" +
+                    "    </content>" +
+                    "  </todo>" +
+                    "</message>";
+
+        let reqObj = await getJsonFromXML(xmlNodeStr);
+        _logger.log("debug","MAIN - (testXml2jsParse) reqObj : ", reqObj);
+    }
+
+    testaddTask() {
+        let task : TaskInput = {
+            category: "middle",
+            position: 1, // Todo's position in this category.
+            content: { //  Todo's content.
+                done: false,// Todo's status.
+                personalNote: true,// true when todo is a personal note, false when to do is related to a message in a conversation.
+                title: "My Task Title", // personal note title, field mandatory when personalNote is true.
+                text: "My task Text", // To do's text
+                creationDate: new Date().getTime() //Creation date in ms since Unix epoch*
+            }
+
+        };
+        rainbowSDK.tasks.addTask(task).then(result => {
+           _logger.log("debug", "MAIN - [addTask    ] ::  result : ", result);
+        }).catch((err) => {
+           _logger.log("error", "MAIN - [addTask    ] :: catch reject contact : ", err);
+        });
+    }
+
+    testTask() {
+        let task: TaskInput = {
+            category: "middle",
+            position: 0, // Todo's position in this category.
+            content: { //  Todo's content.
+                done: false,// Todo's status.
+                personalNote: true,// true when todo is a personal note, false when to do is related to a message in a conversation.
+                title: "My Task Title", // personal note title, field mandatory when personalNote is true.
+                text: "My task Text", // To do's text
+                creationDate: new Date().getTime() //Creation date in ms since Unix epoch*
+            }
+
+        };
+        rainbowSDK.tasks.addTask(task).then(resultTask => {
+            _logger.log("debug", "MAIN - [addTask    ] ::  result : ", resultTask);
+
+            rainbowSDK.tasks.getTasks().then(result => {
+                _logger.log("debug", "MAIN - [getTasks    ] ::  result : ", result);
+                for (let i = 0; i < result.length; i++) {
+                    _logger.log("debug", "MAIN - [getTasks    ] ::  result[",i,"] : ", result[i]);
+                }
+                let taskToUpdate: TaskInput = {
+                    category: "low", position: 0, content: {
+                        done: true,// Todo's status.
+                        personalNote: true,// true when todo is a personal note, false when to do is related to a message in a conversation.
+                        title: "My Task Title Updated", // personal note title, field mandatory when personalNote is true.
+                        text: "My task Text Updated", // To do's text
+                    }
+                };
+                rainbowSDK.tasks.updateTask(resultTask.id, taskToUpdate).then((updatedTask: any) => {
+                    _logger.log("debug", "MAIN - [getTasks    ] ::  updatedTask : ", updatedTask);
+                    rainbowSDK.tasks.getTasks().then(result2 => {
+                        _logger.log("debug", "MAIN - [getTasks    ] ::  result2 : ", result2);
+                        for (let i = 0; i < result2.length; i++) {
+                            _logger.log("debug", "MAIN - [getTasks    ] ::  result2[",i,"] : ", result2[i]);
+                        }
+                    });
+
+                        /*rainbowSDK.tasks.deleteTask(updatedTask.id).then((deleteresult) => {
+                            _logger.log("debug", "MAIN - [deleteTask    ] ::  deleteresult : ", deleteresult);
+
+                        }).catch((err) => {
+                            _logger.log("error", "MAIN - [deleteTask    ] :: catch error  : ", err);
+                        });
+                        // */
+                }).catch((err) => {
+                    _logger.log("error", "MAIN - [updateTask    ] :: catch error  : ", err);
+                });
+
+            }).catch((err) => {
+                _logger.log("error", "MAIN - [getTasks    ] :: catch error : ", err);
+            });
+
+        }).catch((err) => {
+            _logger.log("error", "MAIN - [addTask    ] :: catch reject contact : ", err);
+        });
+    }
+
+    testgetTasks() {
+        let contactInfo = {};
+        rainbowSDK.tasks.getTasks().then((result:any) => {
+           _logger.log("debug", "MAIN - [getTasks    ] ::  result.length : ", result.length);
+            for (let i = 0; i < result.length; i++) {
+                _logger.log("debug", "MAIN - [getTasks    ] ::  result[",i,"] : ", result[i]);
+            }
+        }).catch((err) => {
+           _logger.log("error", "MAIN - [getTasks    ] :: catch reject contact : ", err);
+        });
+    }
+
+    testgetTasksAndDeleteAll() {
         let contactInfo = {};
         rainbowSDK.tasks.getTasks().then(result => {
            _logger.log("debug", "MAIN - [getTasks    ] ::  result : ", result);
+            for (let i = 0; i < result.length; i++) {
+                rainbowSDK.tasks.deleteTask(result[i].id).then((res) => {
+                    _logger.log("debug", "MAIN - [deleteTask    ] ::  res : ", res);
+                })
+            }
         }).catch((err) => {
            _logger.log("error", "MAIN - [getTasks    ] :: catch reject contact : ", err);
         });
     }
     //endregion tasks
+
+    //region Config
+
+        testAreasLevels() {
+            let logLevelAreas = new LogLevelAreas();
+            _logger.log("info", "MAIN - construct logLevelAreas : ", logLevelAreas);
+            _logger.log("info", "MAIN - logLevelAreas to json : ", logLevelAreas.toJSON());
+            _logger.log("info", "MAIN - construct logLevelAreas : ", logLevelAreas.toString());
+        }
+
+        testgetAreasLogs() {
+            let areaslogs = rainbowSDK.getAreasLogs()
+            _logger.log("info", "MAIN - construct logLevelAreas : ", logLevelAreas);
+            _logger.log("info", "MAIN - logLevelAreas to json : ", logLevelAreas.toJSON());
+            _logger.log("info", "MAIN - construct logLevelAreas : ", logLevelAreas.toString());
+        }
+
+        //endregion Config
 
     // region Contacts
 

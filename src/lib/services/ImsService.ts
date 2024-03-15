@@ -51,7 +51,7 @@ class ImsService extends GenericService{
     static getClassName(){ return 'ImsService'; }
     getClassName(){ return ImsService.getClassName(); }
 
-    static getAccessorName(){ return 'im'; }
+    static getAccessorName(){ return 'ims'; }
     getAccessorName(){ return ImsService.getAccessorName(); }
 
     constructor(_core:Core, _eventEmitter : EventEmitter, _logger : Logger, _imOptions : any, _startConfig: {

@@ -31,8 +31,8 @@ export {};
  * @param _messageTimestamp message's Timestamp of a message Task.
  * @param _text of the Task. (Used for personnal Note)
  */
-const createTask = (_id:string, _title: string, _creationDate: number, _done: boolean, _personalNote: boolean, _peerId: string, _peerJid: string, _conversationJid: string, _messageId: string, _messageTimestamp: number, _text: string): Task => {
-    return new Task(_id, _title, _creationDate, _done, _personalNote, _peerId, _peerJid, _conversationJid, _messageId, _messageTimestamp, _text);
+const createTask = (_id:string, _title: string, _creationDate: number, _done: boolean, _personalNote: boolean, _peerId: string, _peerJid: string, _conversationJid: string, _messageId: string, _messageTimestamp: number, _text: string, _position : number, _category : string, _categoryId : string, _type:string): Task => {
+    return new Task(_id, _title, _creationDate, _done, _personalNote, _peerId, _peerJid, _conversationJid, _messageId, _messageTimestamp, _text, _position, _category, _categoryId, _type);
 };
 
 /**
@@ -43,20 +43,25 @@ const createTask = (_id:string, _title: string, _creationDate: number, _done: bo
  *      This class is used to represent a Task <br>
  */
 class Task {
-    private _id:string;
+    public id:string;
 
-    private _title: string;
-    private _creationDate: number;
+    public title: string;
+    public creationDate: number;
 
-    private _done: boolean;
-    private _personalNote: boolean;
-    private _peerId: string;
-    private _peerJid: string;
-    private _conversationJid: string;
-    private _messageId: string;
-    private _messageTimestamp: number;
-    private _text: string
-    constructor(_id:string, _title: string, _creationDate: number, _done: boolean, _personalNote: boolean, _peerId: string, _peerJid: string, _conversationJid: string, _messageId: string, _messageTimestamp: number, _text: string) {
+    public done: boolean;
+    public personalNote: boolean;
+    public peerId: string;
+    public peerJid: string;
+    public conversationJid: string;
+    public messageId: string;
+    public messageTimestamp: number;
+    public text: string
+    public position: number;
+    public category: string;
+    public categoryId: string
+    public type: string
+
+    constructor(_id:string, _title: string, _creationDate: number, _done: boolean, _personalNote: boolean, _peerId: string, _peerJid: string, _conversationJid: string, _messageId: string, _messageTimestamp: number, _text: string, _position : number, _category : string, _categoryId : string, _type:string) {
 
         /**
          * @public
@@ -64,7 +69,7 @@ class Task {
          * @property {string} id Task's Id.
          * @instance
          */
-        this._id = _id;
+        this.id = _id;
 
         /**
          * @public
@@ -72,7 +77,7 @@ class Task {
          * @property {string} title Task's title.
          * @instance
          */
-        this._title = _title;
+        this.title = _title;
 
         /**
          * @public
@@ -80,7 +85,7 @@ class Task {
          * @property {number} creationDate Task's creation date (to be used for personnalNote) If message then use messageTimestamp.
          * @instance
          */
-        this._creationDate = _creationDate;
+        this.creationDate = _creationDate;
 
         /**
          * @public
@@ -88,7 +93,7 @@ class Task {
          * @property {boolean} done does the Task is done
          * @instance
          */
-        this._done = _done;
+        this.done = _done;
 
         /**
          * @public
@@ -96,7 +101,7 @@ class Task {
          * @property {boolean} personalNote does the Task is a personnal Note (created by the connected user)
          * @instance
          */
-        this._personalNote = _personalNote;
+        this.personalNote = _personalNote;
 
         /**
          * @public
@@ -104,7 +109,7 @@ class Task {
          * @property {string} peerId peed's Id of a message Task.
          * @instance
          */
-        this._peerId = _peerId;
+        this.peerId = _peerId;
 
         /**
          * @public
@@ -112,7 +117,7 @@ class Task {
          * @property {string} peerJid peer's Jid of a message Task.
          * @instance
          */
-        this._peerJid = _peerJid;
+        this.peerJid = _peerJid;
 
         /**
          * @public
@@ -120,7 +125,7 @@ class Task {
          * @property {string} conversationJid conversation's Jid of a message Task.
          * @instance
          */
-        this._conversationJid = _conversationJid;
+        this.conversationJid = _conversationJid;
 
         /**
          * @public
@@ -128,7 +133,7 @@ class Task {
          * @property {number} messageId message's Id of a message Task.
          * @instance
          */
-        this._messageId = _messageId;
+        this.messageId = _messageId;
 
         /**
          * @public
@@ -136,7 +141,7 @@ class Task {
          * @property {string} messageTimestamp message's Timestamp of a message Task.
          * @instance
          */
-        this._messageTimestamp = _messageTimestamp;
+        this.messageTimestamp = _messageTimestamp;
 
         /**
          * @public
@@ -144,96 +149,119 @@ class Task {
          * @property {string} text of the Task. (Used for personnal Note)
          * @instance
          */
-        this._text = _text;
+        this.text = _text;
+
+        /**
+         * @public
+         * @readonly
+         * @property {string} position of the Task.
+         * @instance
+         */
+        this.position = _position;
+
+        /**
+         * @public
+         * @readonly
+         * @property {string} category of the Task.
+         * @instance
+         */
+        this.category = _category;
+
+        /**
+         * @public
+         * @readonly
+         * @property {string} categoryId of the Task.
+         * @instance
+         */
+        this.categoryId = _categoryId;
+
+        /**
+         * @public
+         * @readonly
+         * @property {string} type of the Task.
+         * @instance
+         */
+        this.type = _type;
     }
 
-    get id(): string {
-        return this._id;
+    /**
+     * @function
+     * @public
+     * @name ChannelFactory
+     * @description
+     * This method is used to create a channel from data object
+     */
+    public static TaskFactory() {
+        return (data: any): Task => {
+            let task: Task = new Task(
+                    data.id,
+                    data.title,
+                    data.creationDate,
+                    data.done,
+                    data.personalNote,
+                    data.peerId,
+                    data.peerJid,
+                    data.conversationJid,
+                    data.messageId,
+                    data.messageTimestamp,
+                    data.text,
+                    data.position,
+                    data.category,
+                    data.categoryId,
+                    data.type
+            );
+
+            if (data) {
+                // Get every properties of the new Task
+                let objproperties = Object.getOwnPropertyNames(task);
+                // Try to find these properties from the object passed in parameter (data) in this new Task to trace unknow values.
+                Object.getOwnPropertyNames(data).forEach(
+                        (val, idx, array) => {
+                            //console.log(val + " -> " + data[val]);
+                            if (!objproperties.find((el) => { return val == el ;})) {
+                                // dev-code-console //
+                                console.log("WARNING : One property of the parameter of TaskFactory method is not present in the Task class : ", val, " -> ", data[val]);
+                                //console.log("WARNING : One property of the parameter of TaskFactory method is not present in the Task class : ", val);
+                                // end-dev-code-console //
+                            }
+                        });
+            }
+
+            return task;
+        };
     }
 
-    set id(value: string) {
-        this._id = value;
+    /**
+     * @function
+     * @public
+     * @name updateChannel
+     * @description
+     * This method is used to update a channel from data object
+     */
+    updateTask (data) {
+        let that = this;
+        if (data) {
+
+            let channelproperties = Object.getOwnPropertyNames(that);
+            //console.log("updateChannel update Channel with : ", data["id"]);
+            Object.getOwnPropertyNames(data).forEach(
+                    (val, idx, array) => {
+                        //console.log(val + " -> " + data[val]);
+                        if (channelproperties.find((el) => { return val == el ;})) {
+                            //console.log("WARNING : One property of the parameter of updateChannel method is not present in the Bubble class : ", val, " -> ", data[val]);
+                            that[val] = data[val];
+                        } else {
+                            console.log("WARNING : One property of the parameter of updateTask method is not present in the Task class can not update Task with : ", val, " -> ", data[val]);
+                            // dev-code-console //
+                            //console.log("WARNING : One property of the parameter of updateTask method is not present in the Task class can not update Task with : ");
+                            // end-dev-code-console //
+                        }
+                    });
+        }
+
+        return this;
     }
 
-    get title(): string {
-        return this._title;
-    }
-
-    set title(value: string) {
-        this._title = value;
-    }
-
-    get creationDate(): number {
-        return this._creationDate;
-    }
-
-    set creationDate(value: number) {
-        this._creationDate = value;
-    }
-
-    get done(): boolean {
-        return this._done;
-    }
-
-    set done(value: boolean) {
-        this._done = value;
-    }
-
-    get personalNote(): boolean {
-        return this._personalNote;
-    }
-
-    set personalNote(value: boolean) {
-        this._personalNote = value;
-    }
-
-    get peerId(): string {
-        return this._peerId;
-    }
-
-    set peerId(value: string) {
-        this._peerId = value;
-    }
-
-    get peerJid(): string {
-        return this._peerJid;
-    }
-
-    set peerJid(value: string) {
-        this._peerJid = value;
-    }
-
-    get conversationJid(): string {
-        return this._conversationJid;
-    }
-
-    set conversationJid(value: string) {
-        this._conversationJid = value;
-    }
-
-    get messageId(): string {
-        return this._messageId;
-    }
-
-    set messageId(value: string) {
-        this._messageId = value;
-    }
-
-    get messageTimestamp(): number {
-        return this._messageTimestamp;
-    }
-
-    set messageTimestamp(value: number) {
-        this._messageTimestamp = value;
-    }
-
-    get text(): string {
-        return this._text;
-    }
-
-    set text(value: string) {
-        this._text = value;
-    }
 }
 
 module.exports = {createTask: createTask, Task: Task};

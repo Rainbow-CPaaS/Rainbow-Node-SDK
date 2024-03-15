@@ -175,6 +175,9 @@ class WebinarEventHandler extends GenericHandler {
                     case "logs":
                         // treated in conversationEventHandler
                         break;
+                    case "todo":
+                        // treated in tasksEventHandler
+                        break;
                     default:
                         that._logger.log(that.ERROR, LOG_ID + "(onManagementMessageReceived) unmanaged management message node " + node.getName());
                         break;

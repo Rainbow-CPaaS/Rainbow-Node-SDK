@@ -676,9 +676,32 @@ const resolveDns = (cname) => {
     });
 }
 
+function castStrToTypes(value, name) {
+    let result = value;
+    try {
+        // Try to cast to Object the value
+        result = JSON.parse(value);
+        return result;
+    } catch (err) {
+        try {
+            // Try to cast to Number the value
+            result = +value;
+            if (Number.isNaN(result)) {
+                result = value;
+            } else {
+                return result;
+            }
+        } catch (err) {
+            result = value;
+        }
+    }
+    return result;
+}
+
 async function getJsonFromXML(xml : string) {
     try {
-        const result = await xml2js.parseStringPromise(xml, {mergeAttrs: false, explicitArray : false, attrkey : "$attrs", emptyTag  : undefined});
+
+        const result = await xml2js.parseStringPromise(xml, {mergeAttrs: false, explicitArray : false, attrkey : "$attrs", emptyTag  : undefined, valueProcessors:[castStrToTypes], attrValueProcessors:[castStrToTypes]});
 
         // convert it to a JSON string
         return result;
@@ -704,19 +727,18 @@ function generateRamdomEmail(email){
 }
 
 function callerName() {
-    try {
+    /*try {
         throw new Error();
     }
-    catch (e) {
+    catch (e) { //*/
         try {
-            let callerNameStr = e.stack.split('at ')[6].split(' ')[0];
+            let callerNameStr = (new Error()).stack.split('at ')[6].split(' ')[0];
             return callerNameStr?callerNameStr.substring("descriptor.value.".length):'';
             //return e;
         } catch (e) {
             return '';
         }
-    }
-
+    //}
 }
 
 function currentFunction(){
@@ -794,6 +816,25 @@ function msToTime(duration: number): string {
     return (days + " Jrs " + hours + ":" + minutes + ":" + seconds + "." + milliseconds);
 }
 
+/**
+ * @description
+ * Voici une fonction TypeScript qui transforme un objet JSON avec une arborescence en un objet JSON plat :
+ * Cette fonction prend en paramètre un objet JSON obj et une chaîne parentKey (optionnelle, par défaut vide) qui est utilisée pour conserver le chemin dans l'objet JSON plat résultant.
+ * Elle parcourt récursivement l'objet JSON d'entrée et construit l'objet JSON plat en combinant les clés parentes avec les clés enfants séparées par des points.
+*/
+function flattenObject(obj: any, parentKey : string = '', withparentKey : boolean= true): any {
+    return Object.keys(obj).reduce((acc: any, key: string) => {
+        const prefixedKey = (parentKey && withparentKey) ? `${parentKey}.${key}` : key;
+        if (typeof obj[key] === 'object' && obj[key] !== null) {
+            const flattenedChild = flattenObject(obj[key], prefixedKey, withparentKey);
+            return { ...acc, ...flattenedChild };
+        } else {
+            return { ...acc, [prefixedKey]: obj[key] };
+        }
+    }, {});
+}
+
+
 export let objToExport = {
     makeId,
     createPassword,
@@ -830,7 +871,8 @@ export let objToExport = {
     functionName,
     functionSignature,
     traceExecutionTime,
-    msToTime
+    msToTime,
+    flattenObject
 };
 
 module.exports = objToExport;
@@ -870,7 +912,8 @@ export {
     functionName,
     functionSignature,
     traceExecutionTime,
-    msToTime
+    msToTime,
+    flattenObject
 };
 
 export default {
@@ -909,5 +952,6 @@ export default {
     functionName,
     functionSignature,
     traceExecutionTime,
-    msToTime
+    msToTime,
+    flattenObject
 };

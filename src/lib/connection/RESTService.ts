@@ -35,6 +35,8 @@ import {GenericService} from "../services/GenericService";
 import {GenericRESTService} from "./GenericRESTService";
 import {TimeOutManager} from "../common/TimeOutManager";
 import {Group} from "ts-generic-collections-linq";
+import {Task} from "../common/models/Task.js";
+import {TaskInput} from "../services/TasksService.js";
 
 let packageVersion = require("../../package.json");
 
@@ -14324,15 +14326,51 @@ Request Method: PUT
 
     //region Tasks MANAGEMENT
 
-    async addTask(name, comment, isFavorite) {
+    async addTask(task:any) {
+        // API https://api.openrainbow.org/enduser/#api-to_do_list-createTodo
+        // URL POST /api/rainbow/enduser/v1.0/users/:userId/todos
         let that = this;
+        return new Promise(function (resolve, reject) {
+            let userId = that.userId ;
+            let url = "/api/rainbow/enduser/v1.0/users/" + userId + "/todos";
+            let data: any = task;
+            /*addPropertyToObj(data, "subject", subject, false);
+            addPropertyToObj(data, "description", description, false);
+            // */
 
-        return new Promise(function(resolve, reject) {
-
+            that.http.post(url, that.getRequestHeader(), data, undefined).then(function (json) {
+                that._logger.log(that.DEBUG, LOG_ID + "(addTask) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(addTask) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(addTask) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(addTask) error : ", err);
+                return reject(err);
+            });
         });
     }
 
-    createTaskcategory() {}
+    createTaskcategory(category:string) {
+        // API https://api.openrainbow.org/enduser/#api-to_do_list-createTodoCategory
+        // URL POST /api/rainbow/enduser/v1.0/users/:userId/todos/category
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let userId = that.userId ;
+            let url = "/api/rainbow/enduser/v1.0/users/" + userId + "/todos/category";
+            let data: any = {};
+            addPropertyToObj(data, "category", category, false);
+
+            that.http.post(url, that.getRequestHeader(), data, undefined).then(function (json) {
+                that._logger.log(that.DEBUG, LOG_ID + "(createTaskcategory) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(createTaskcategory) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(createTaskcategory) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(createTaskcategory) error : ", err);
+                return reject(err);
+            });
+        });
+    }
     createPropertiesTaskByCategoryId () {}
     updatePropertiesTaskByCategoryId () {}
     async getTaskById(taskId: string) {}
@@ -14362,9 +14400,48 @@ Request Method: PUT
         });
     }
     deletePropertiesFromTasks() {}
-    deleteTask() {}
+    deleteTask(taskId : string) {
+        // API https://api.openrainbow.org/enduser/#api-to_do_list-removeTodo
+        // DELETE /api/rainbow/enduser/v1.0/users/:userId/todos/:todoId
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url: string = "/api/rainbow/enduser/v1.0/users/" + that.userId + "/todos/" + taskId;
+            that.http.delete(url, that.getRequestHeader()).then(function (json) {
+                that._logger.log(that.DEBUG, LOG_ID + "(deleteTask) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(deleteTask) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(deleteTask) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteTask) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
     deleteCategoryFromTasks() {}
-    updateTask() {}
+    updateTask(taskId:string, task : TaskInput) {
+        // API https://api.openrainbow.org/enduser/#api-to_do_list-updateTodo
+        // URL PUT /api/rainbow/enduser/v1.0/users/:userId/todos/:todoId
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url = "/api/rainbow/enduser/v1.0/users/" + that.userId + "/todos/" + taskId;
+            let data: any = {};
+            addPropertyToObj(data, "category", task.category, false);
+            addPropertyToObj(data, "position", task.position, false);
+            addPropertyToObj(data, "content", task.content, false);
+
+            that.http.put(url, that.getRequestHeader(), data, undefined).then(function (json) {
+                that._logger.log(that.DEBUG, LOG_ID + "(updateTask) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(updateTask) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(updateTask) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateTask) error : ", err);
+                return reject(err);
+            });
+        });
+    }
 
     //endregion Tasks MANAGEMENT
 

@@ -183,7 +183,10 @@ class Emitter extends EventEmitterClass{
  * @fires Events#rainbow_onjoincompanyinvitereceived <br>
  * @fires Events#rainbow_onjoincompanyrequestreceived <br>
  * @fires Events#rainbow_onlogsconfig <br>
-*/
+ * @fires Events#rainbow_ontaskcreated <br>
+ * @fires Events#rainbow_ontaskupdated <br>
+ * @fires Events#rainbow_ontaskdeleted <br>
+ */
 class Events {
     get logEmitter(): EventEmitter {
         return this._logEmitter;
@@ -296,8 +299,11 @@ class Events {
         "rainbow_onrbvoicerawevent",
         "rainbow_onjoincompanyinvitereceived",
         "rainbow_onjoincompanyrequestreceived",
-        "rainbow_onlogsconfig"
-    ];
+        "rainbow_onlogsconfig",
+        "rainbow_ontaskcreated",
+        "rainbow_ontaskupdated",
+        "rainbow_ontaskdeleted"
+ ];
     public  waitBeforeBubblePresenceSend = false;
 
     constructor( _logger : Logger, _filterCallback : Function) {
@@ -1521,6 +1527,40 @@ class Events {
              */
             that.publishEvent("logsconfig", data);
         });
+
+        this._evReceiver.on("evt_internal_taskcreated", function (data) {
+            /**
+             * @event Events#rainbow_ontaskcreated
+             * @public
+             * @param { Favorite } task The task created
+             * @description
+             *      Fired when a task is added to the loggued in user.
+             */
+            that.publishEvent("taskcreated", data);
+        });
+
+        this._evReceiver.on("evt_internal_taskupdated", function (data) {
+            /**
+             * @event Events#rainbow_ontaskupdated
+             * @public
+             * @param { Favorite } task The task updated
+             * @description
+             *      Fired when a task is updated to the loggued in user.
+             */
+            that.publishEvent("taskupdated", data);
+        });
+
+        this._evReceiver.on("evt_internal_taskdeleted", function (data) {
+            /**
+             * @event Events#rainbow_ontaskdeleted
+             * @public
+             * @param { Favorite } task The task deleted
+             * @description
+             *      Fired when a task is suppressed to the loggued in user.
+             */
+            that.publishEvent("taskdeleted", data);
+        });
+
 
     }
 
