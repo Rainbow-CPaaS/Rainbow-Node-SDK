@@ -1,8 +1,8 @@
 "use strict";
 
-import {TasksService} from "./services/TasksService.js";
-
 require("fix-esm").register();
+
+import {TasksService} from "./services/TasksService.js";
 
 import {Core} from "./Core";
 import {Appreciation} from "./common/models/Channel";
