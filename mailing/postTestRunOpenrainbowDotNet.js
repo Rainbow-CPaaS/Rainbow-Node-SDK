@@ -185,7 +185,7 @@ options.logs.customLabel = options.credentials.login;
 // Instantiate the SDK
 let rainbowSDK = new RainbowSDK(options);
 
-let logger = rainbowSDK._core.logger;
+let logger = rainbowSDK._core._logger;
 
 // logger.log("internal", "MAIN - options : ", options);
 
