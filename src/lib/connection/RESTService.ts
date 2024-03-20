@@ -14350,6 +14350,32 @@ Request Method: PUT
         });
     }
 
+    getAllCategories() {
+        // API
+        // GET /api/rainbow/enduser/v1.0/users/:userId/todos/category
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url: string = "/api/rainbow/enduser/v1.0/users/" + that.userId + "/todos/category";
+            /*
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "category", category);
+            url = urlParamsTab[0]; // */
+
+            that._logger.log(that.INTERNAL, LOG_ID + "(getCategories) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
+                that._logger.log(that.DEBUG, LOG_ID + "(getCategories) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getCategories) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(getCategories) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getCategories) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
     createTaskcategory(category:string) {
         // API https://api.openrainbow.org/enduser/#api-to_do_list-createTodoCategory
         // URL POST /api/rainbow/enduser/v1.0/users/:userId/todos/category
@@ -14371,10 +14397,86 @@ Request Method: PUT
             });
         });
     }
-    createPropertiesTaskByCategoryId () {}
-    updatePropertiesTaskByCategoryId () {}
-    async getTaskById(taskId: string) {}
-    getTasksByCategoryId() {}
+
+    createOrUpdatePropertiesTaskByCategoryId(categoryId:string, properties: any) {
+        // API https://api.openrainbow.org/enduser/#api-to_do_list-createTodoProperties
+        // URL POST /api/rainbow/enduser/v1.0/users/:userId/todos/properties/:categoryId
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let userId = that.userId ;
+            let url = "/api/rainbow/enduser/v1.0/users/" + userId + "/todos/properties/" + categoryId;
+            let data: any = {};
+            addPropertyToObj(data, "properties", properties, false);
+
+            that.http.post(url, that.getRequestHeader(), data, undefined).then(function (json) {
+                that._logger.log(that.DEBUG, LOG_ID + "(createOrUpdatePropertiesTaskByCategoryId) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(createOrUpdatePropertiesTaskByCategoryId) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(createOrUpdatePropertiesTaskByCategoryId) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(createOrUpdatePropertiesTaskByCategoryId) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    //updatePropertiesTaskByCategoryId () {}
+
+    async getTaskById(taskId: string) {
+        // API https://api.openrainbow.org/enduser/#api-to_do_list-GetUserTodos
+        // GET /api/rainbow/enduser/v1.0/users/:userId/todos
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url: string = "/api/rainbow/enduser/v1.0/users/" + that.userId + "/todos/" + taskId;
+            /*let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "taskId", taskId);
+            url = urlParamsTab[0];
+            // */
+
+            that._logger.log(that.INTERNAL, LOG_ID + "(getTaskById) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
+                that._logger.log(that.DEBUG, LOG_ID + "(getTaskById) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getTaskById) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(getTaskById) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getTaskById) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    getTasksByCategoryId(category : string) {
+        // API https://api.openrainbow.org/enduser/#api-to_do_list-getTodoCategory
+        // GET /api/rainbow/enduser/v1.0/users/:userId/todos/category/:categoryId
+        let that = this;
+
+        return new Promise(
+            function (resolve, reject) {
+                let url: string = "/api/rainbow/enduser/v1.0/users/" + that.userId + "/todos/category/" + category;
+                /* let urlParamsTab: string[] = [];
+                urlParamsTab.push(url);
+                addParamToUrl(urlParamsTab, "category", category);
+                url = urlParamsTab[0];
+                // */
+
+                that._logger.log(that.INTERNAL, LOG_ID + "(getTasksByCategoryId) REST url : ", url);
+
+                that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
+                    that._logger.log(that.DEBUG, LOG_ID + "(getTasksByCategoryId) successfull");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getTasksByCategoryId) REST result : ", json);
+                    resolve(json.data);
+                }).catch(function (err) {
+                    that._logger.log(that.ERROR, LOG_ID, "(getTasksByCategoryId) error");
+                    that._logger.log(that.INTERNALERROR, LOG_ID, "(getTasksByCategoryId) error : ", err);
+                    return reject(err);
+                });
+            }
+        );
+    }
+
     getTasks(category : string) {
         // API https://api.openrainbow.org/enduser/#api-to_do_list-GetUserTodos
         // GET /api/rainbow/enduser/v1.0/users/:userId/todos
@@ -14399,7 +14501,26 @@ Request Method: PUT
             });
         });
     }
-    deletePropertiesFromTasks() {}
+
+    deletePropertiesFromCategoriesTasks(categoryId : string) {
+        // API https://api.openrainbow.org/enduser/#api-to_do_list-removeTodoCategories
+        // DELETE /api/rainbow/enduser/v1.0/users/:userId/todos/properties/:categoryId
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url: string = "/api/rainbow/enduser/v1.0/users/" + that.userId + "/todos/properties/" + categoryId;
+            that.http.delete(url, that.getRequestHeader()).then(function (json) {
+                that._logger.log(that.DEBUG, LOG_ID + "(deletePropertiesFromCategoriesTasks) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(deletePropertiesFromCategoriesTasks) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(deletePropertiesFromCategoriesTasks) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(deletePropertiesFromCategoriesTasks) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
     deleteTask(taskId : string) {
         // API https://api.openrainbow.org/enduser/#api-to_do_list-removeTodo
         // DELETE /api/rainbow/enduser/v1.0/users/:userId/todos/:todoId
@@ -14419,7 +14540,25 @@ Request Method: PUT
         });
     }
 
-    deleteCategoryFromTasks() {}
+    deleteCategoryFromTasks(categoryId : string) {
+        // API https://api.openrainbow.org/enduser/#api-to_do_list-removeTodoCategory
+        // DELETE /api/rainbow/enduser/v1.0/users/:userId/todos/category/:categoryId
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url: string = "/api/rainbow/enduser/v1.0/users/" + that.userId + "/todos/category/" + categoryId;
+            that.http.delete(url, that.getRequestHeader()).then(function (json) {
+                that._logger.log(that.DEBUG, LOG_ID + "(deleteCategoryFromTasks) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(deleteCategoryFromTasks) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(deleteCategoryFromTasks) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteCategoryFromTasks) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
     updateTask(taskId:string, task : TaskInput) {
         // API https://api.openrainbow.org/enduser/#api-to_do_list-updateTodo
         // URL PUT /api/rainbow/enduser/v1.0/users/:userId/todos/:todoId

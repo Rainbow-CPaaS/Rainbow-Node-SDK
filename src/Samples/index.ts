@@ -244,7 +244,7 @@ let urlS2S;
             "raiseLowLevelXmppOutReq": false,
             "maxIdleTimer": 16000,
             "maxPingAnswerTimer": 11000,
-            "xmppRessourceName": "vnagw",
+//            "xmppRessourceName": "vnagw",
             "maxPendingAsyncLockXmppQueue": 10000
         },
         "s2s": {
@@ -1341,13 +1341,45 @@ let urlS2S;
 
     testgetTasks() {
         let contactInfo = {};
-        rainbowSDK.tasks.getTasks().then((result:any) => {
-           _logger.log("debug", "MAIN - [getTasks    ] ::  result.length : ", result.length);
+        rainbowSDK.tasks.getTasks(undefined, true).then((result:any) => {
+           _logger.log("debug", "MAIN - [testgetTasks    ] ::  result.length : ", result.length);
             for (let i = 0; i < result.length; i++) {
-                _logger.log("debug", "MAIN - [getTasks    ] ::  result[",i,"] : ", result[i]);
+                _logger.log("debug", "MAIN - [testgetTasks    ] ::  result[",i,"] : ", result[i]);
             }
         }).catch((err) => {
-           _logger.log("error", "MAIN - [getTasks    ] :: catch reject contact : ", err);
+           _logger.log("error", "MAIN - [testgetTasks    ] :: catch reject contact : ", err);
+        });
+    }
+
+    testgetAllCategories() {
+        let contactInfo = {};
+        rainbowSDK.tasks.getAllCategories().then((result:any) => {
+           _logger.log("debug", "MAIN - [testgetAllCategories    ] ::  result.length : ", result.length);
+            for (let i = 0; i < result.length; i++) {
+                _logger.log("debug", "MAIN - [testgetAllCategories    ] ::  result[",i,"] : ", result[i]);
+            }
+        }).catch((err) => {
+           _logger.log("error", "MAIN - [testgetAllCategories    ] :: catch reject contact : ", err);
+        });
+    }
+
+    testgetTasksByCategories() {
+        let contactInfo = {};
+        rainbowSDK.tasks.getAllCategories().then((result:any) => {
+           _logger.log("debug", "MAIN - [testgetTasksByCategories    ] ::  result.length : ", result.length);
+            rainbowSDK.tasks.getTasksByCategoryId(result[0].categoryId, true).then((tasks:any) => {
+                _logger.log("debug", "MAIN - [testgetTasksByCategories    ] ::  tasks : ", tasks);
+                rainbowSDK.tasks.getTasks(undefined, false).then((result:any) => {
+                    _logger.log("debug", "MAIN - [testgetTasksByCategories    ] ::  result.length : ", result.length);
+                    for (let i = 0; i < result.length; i++) {
+                        _logger.log("debug", "MAIN - [testgetTasksByCategories    ] ::  result[",i,"] : ", result[i]);
+                    }
+                }).catch((err) => {
+                    _logger.log("error", "MAIN - [testgetTasksByCategories    ] :: catch reject contact : ", err);
+                });
+            });
+        }).catch((err) => {
+           _logger.log("error", "MAIN - [testgetAllCategories    ] :: catch reject contact : ", err);
         });
     }
 
@@ -9011,7 +9043,7 @@ let urlS2S;
             rainbowSDK4 = undefined;
         });
 // */
-        /*
+
         await rainbowSDK.start(token).then(async (result2) => {
             // Do something when the SDK is started
            _logger.log("debug", "MAIN - (test5Start) rainbow SDK started : ",_logger.colors.green(result2)); //logger.colors.green(JSON.stringify(result)));
@@ -9021,7 +9053,7 @@ let urlS2S;
            _logger.log("debug", "MAIN - (test5Start) rainbow SDK 1 started : ",_logger.colors.green(result2)); //logger.colors.green(JSON.stringify(result)));
         });
         // */
-        /*
+
         await rainbowSDK2.start(token).then(async (result2) => {
             // Do something when the SDK is started
            _logger.log("debug", "MAIN - (test5Start) rainbow SDK 2 started : ",_logger.colors.green(result2)); //logger.colors.green(JSON.stringify(result)));
@@ -9034,7 +9066,7 @@ let urlS2S;
             // Do something when the SDK is started
            _logger.log("debug", "MAIN - (test5Start) rainbow SDK 4 started : ",_logger.colors.green(result2)); //logger.colors.green(JSON.stringify(result)));
         });
-        */
+        // */
         // await rainbowSDK.stop();
     }
 
