@@ -12,7 +12,7 @@ import {EventEmitter} from "events";
 import {S2SService} from "./S2SService";
 import {Core} from "../Core";
 import {RBVoiceEventHandler} from "../connection/XMPPServiceHandler/RBVoiceEventHandler.js";
-import {TasksEventHandler} from "../connection/XMPPServiceHandler/TasksEventHandler.js";
+import {TasksEventHandler} from "../connection/XMPPServiceHandler/TasksEventHandler";
 import * as PubSub from "pubsub-js";
 import {Task} from "../common/models/Task.js";
 

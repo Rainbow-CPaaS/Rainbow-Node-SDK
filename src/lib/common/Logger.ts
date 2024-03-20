@@ -24,7 +24,7 @@ const Cryptr = require('cryptr');
 import {config as defaultConfig} from "../config/config";
 import {from} from "rxjs";
 import {isDefined, stackTrace} from "./Utils.js";
-import {LEVELS, LEVELSCOLORS, LEVELSNAMES, LogLevelAreas} from './LevelLogs';
+import {LEVELS, LEVELSCOLORS, LEVELSNAMES, LogLevelAreas} from './LevelLogs.js';
 
 const LOG_ID = "LOGS - ";
 
@@ -116,12 +116,12 @@ class Logger {
             this._logger.log("info", LOG_ID + this.colors[LEVELSCOLORS.error]("error level color : " + LEVELSCOLORS.error));
             this._logger.log("info", LOG_ID + this.colors[LEVELSCOLORS.warn]("warn level color : " + LEVELSCOLORS.warn));
             this._logger.log("info", LOG_ID + this.colors[LEVELSCOLORS.info]("info level color : " + LEVELSCOLORS.info));
-            this._logger.log("info", LOG_ID + this.colors[LEVELSCOLORS.http]("http level color : " + LEVELSCOLORS.http));
             this._logger.log("info", LOG_ID + this.colors[LEVELSCOLORS.trace]("trace level color : " + LEVELSCOLORS.trace));
+            this._logger.log("info", LOG_ID + this.colors[LEVELSCOLORS.http]("http level color : " + LEVELSCOLORS.http));
             this._logger.log("info", LOG_ID + this.colors[LEVELSCOLORS.xmpp]("xmpp level color : " + LEVELSCOLORS.xmpp));
-            this._logger.log("info", LOG_ID + this.colors[LEVELSCOLORS.internal]("internal level color : " + LEVELSCOLORS.internal));
-            this._logger.log("info", LOG_ID + this.colors[LEVELSCOLORS.internalerror]("internalerror level color : " + LEVELSCOLORS.internalerror));
             this._logger.log("info", LOG_ID + this.colors[LEVELSCOLORS.debug]("debug level color : " + LEVELSCOLORS.debug));
+            this._logger.log("info", LOG_ID + this.colors[LEVELSCOLORS.internalerror]("internalerror level color : " + LEVELSCOLORS.internalerror));
+            this._logger.log("info", LOG_ID + this.colors[LEVELSCOLORS.internal]("internal level color : " + LEVELSCOLORS.internal));
         };
 
         let logs = defaultConfig.logs;
