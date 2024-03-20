@@ -59,7 +59,7 @@ class RESTConferenceV2 extends GenericRESTService {
         };
 
         return new Promise(function (resolve, reject) {
-            that.http.post("/api/rainbow/conference/v1.0/rooms/" + roomId + "/add", that.getPostHeader(), data, undefined).then(function (json) {
+            that.http.post("/api/rainbow/conference/v1.0/rooms/" + roomId + "/add", that.getRequestHeader(), data, undefined).then(function (json) {
                 that._logger.log(that.DEBUG, LOG_ID + "(addPSTNParticipantToConference) successfull");
                 that._logger.log(that.INTERNAL, LOG_ID + "(addPSTNParticipantToConference) REST result : ", json.data);
                 resolve(json.data);

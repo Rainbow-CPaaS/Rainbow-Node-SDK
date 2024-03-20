@@ -798,6 +798,8 @@ class XMPPService extends GenericService {
                                 that._logger.log(that.WARN, LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : Not Fatal for condition : ", err.condition, " because text is different than \"Max sessions reached\", error : ", err);
                                 that.eventEmitter.emit("evt_internal_xmpperror", err);
                                 break;
+                            } else {
+                                that._logger.log(that.ERROR, LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : Fatal for condition : ", err.condition, " text is \"Max sessions reached\", so the maximum of different XMPP ressources connected to server is reached (A user can only be connected simultaneously 5 times to XMPP Server). ", err);
                             }
                         case "unsupported-version":
                             that.stopIdleTimer();
