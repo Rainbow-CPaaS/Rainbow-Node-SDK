@@ -12,14 +12,28 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   None
 
 #### Fixed
--   None.
+-   Fix S2S presence in bubble event evt_internal_ownaffiliationchanged event.
+-   Fix typo "LOCK_TIMEOUT_QUEUE"
+-   Fix HttpService::_delete of logs after request.
+-   Fix reading of xmpp.timeBetweenXmppRequests SDK options.
+-   Fix Contact.name.value for display. 
+-   Fix to sendPresenceFromConfiguration after having ContactsService.init. To have already get the informations about connected user.
+-   Fix RESTConferenceV2::addPSTNParticipantToConference request Headers.
 
 #### Added
--   None.
+-   Add Offended 'raw in' and 'raw out' xmpp stanza.
+-   Add options.xmpp.maxPendingAsyncLockXmppQueue the number of xmpp requests waiting for sending.
+-   Add TasksService to manage Tasks (todos on server side).
+-   Add  "rainbow_ontaskcreated", "rainbow_ontaskupdated", "rainbow_ontaskdeleted" events about tasks.
+-   Add TasksService API : addTask, createTaskcategory, createOrUpdatePropertiesTaskByCategoryId, getTaskById, getTasksByCategoryId, getTasks, getAllCategories, deletePropertiesFromCategoriesTasks, deleteTask, deleteCategoryFromTasks, updateTask
+-   Add an error trace when a fatal XMPP event "resource-constraint" with text "Max sessions reached" is received. This happens when the maximum of different XMPP ressources connected to server is reached (A user can only be connected simultaneously 5 times to XMPP Server).
 
 #### Changed
--   Update 
-
+-   Update Logger to add milliseconds.
+-   Update timeouts of got default requests.
+-   Update HttpService for log error.message when requests failed.
+-   Update maxPending of AsyncLock to 5000 and update logs in XmppQueue.
+-   Refactor Logger to use customs levels areas.
 
 ### [2.27.1] - 2024-01-22
 #### Removed
