@@ -53,6 +53,120 @@ logs: {
 
 When using the console logger, all logs are displayed. There is no way to filter messages.
 
+##### Areas
+---
+
+It is possible to use Logger with customs levels areas. Areas allow to override the log level for specifics limited area of code.
+
+```js
+
+...
+
+// Manually set each area to a specific Level.
+let logLevelAreas = new LogLevelAreas("error", true, false, false);
+logLevelAreas.admin.api = true;
+logLevelAreas.admin.level = LEVELSNAMES.ERROR;
+logLevelAreas.alerts.api = true;
+logLevelAreas.alerts.level = LEVELSNAMES.ERROR;
+logLevelAreas.bubbles.api = true;
+logLevelAreas.bubbles.level = LEVELSNAMES.ERROR;
+logLevelAreas.calllog.api = true;
+logLevelAreas.calllog.level = LEVELSNAMES.ERROR;
+logLevelAreas.channels.api = true;
+logLevelAreas.channels.level = LEVELSNAMES.ERROR;
+logLevelAreas.connectedUser.api = true;
+logLevelAreas.connectedUser.level = LEVELSNAMES.ERROR;
+logLevelAreas.contacts.api = true;
+logLevelAreas.contacts.level = LEVELSNAMES.ERROR;
+logLevelAreas.conversations.api = true;
+logLevelAreas.conversations.level = LEVELSNAMES.ERROR;
+logLevelAreas.events.api = true;
+logLevelAreas.events.level = LEVELSNAMES.ERROR;
+logLevelAreas.favorites.api = true;
+logLevelAreas.favorites.level = LEVELSNAMES.ERROR;
+logLevelAreas.fileServer.api = true;
+logLevelAreas.fileServer.level = LEVELSNAMES.ERROR;
+logLevelAreas.fileStorage.api = true;
+logLevelAreas.fileStorage.level = LEVELSNAMES.ERROR;
+logLevelAreas.groups.api = true;
+logLevelAreas.groups.level = LEVELSNAMES.ERROR;
+logLevelAreas.httpoverxmpp.api = true;
+logLevelAreas.httpoverxmpp.level = LEVELSNAMES.ERROR;
+logLevelAreas.ims.api = true;
+logLevelAreas.ims.level = LEVELSNAMES.ERROR;
+logLevelAreas.invitations.api = true;
+logLevelAreas.invitations.level = LEVELSNAMES.ERROR;
+logLevelAreas.presence.api = true;
+logLevelAreas.presence.level = LEVELSNAMES.ERROR;
+logLevelAreas.profiles.api = true;
+logLevelAreas.profiles.level = LEVELSNAMES.ERROR;
+logLevelAreas.rbvoice.api = true;
+logLevelAreas.rbvoice.level = LEVELSNAMES.ERROR;
+logLevelAreas.rpcoverxmpp.api = true;
+logLevelAreas.rpcoverxmpp.level = LEVELSNAMES.ERROR;
+logLevelAreas.s2s.api = true;
+logLevelAreas.s2s.level = LEVELSNAMES.ERROR;
+logLevelAreas.settings.api = true;
+logLevelAreas.settings.level = LEVELSNAMES.ERROR;
+logLevelAreas.tasks.api = true;
+logLevelAreas.tasks.level = LEVELSNAMES.ERROR;
+logLevelAreas.telephony.api = true;
+logLevelAreas.telephony.level = LEVELSNAMES.ERROR;
+logLevelAreas.version.api = true;
+logLevelAreas.version.level = LEVELSNAMES.ERROR;
+logLevelAreas.webinars.api = true;
+logLevelAreas.webinars.level = LEVELSNAMES.ERROR;
+logLevelAreas.core.level = LEVELSNAMES.ERROR;
+logLevelAreas.bubblemanager.level = LEVELSNAMES.ERROR;
+logLevelAreas.httpmanager.level = LEVELSNAMES.ERROR;
+logLevelAreas.httpservice.level = LEVELSNAMES.ERROR;
+logLevelAreas.rest.level = LEVELSNAMES.ERROR;
+logLevelAreas.resttelephony.level = LEVELSNAMES.ERROR;
+logLevelAreas.restconferencev2.level = LEVELSNAMES.ERROR;
+logLevelAreas.restwebinar.level = LEVELSNAMES.ERROR;
+logLevelAreas.xmpp.level = LEVELSNAMES.ERROR;
+//logLevelAreas.xmpp.xmppin
+//logLevelAreas.xmpp.xmppout
+logLevelAreas.s2sevent.level = LEVELSNAMES.ERROR;
+logLevelAreas.rbvoiceevent.level = LEVELSNAMES.ERROR;
+logLevelAreas.alertevent.level = LEVELSNAMES.ERROR;
+logLevelAreas.calllogevent.level = LEVELSNAMES.ERROR;
+logLevelAreas.channelevent.level = LEVELSNAMES.ERROR;
+logLevelAreas.conversationevent.level = LEVELSNAMES.ERROR;
+logLevelAreas.conversationhistory.level = LEVELSNAMES.ERROR;
+logLevelAreas.favoriteevent.level = LEVELSNAMES.ERROR;
+logLevelAreas.httpoverxmppevent.level = LEVELSNAMES.ERROR;
+logLevelAreas.invitationevent.level = LEVELSNAMES.ERROR;
+logLevelAreas.iqevent.level = LEVELSNAMES.ERROR;
+logLevelAreas.presenceevent.level = LEVELSNAMES.ERROR;
+logLevelAreas.rpcoverxmppevent.level = LEVELSNAMES.ERROR;
+logLevelAreas.tasksevent.level = LEVELSNAMES.ERROR;
+logLevelAreas.telephonyevent.level = LEVELSNAMES.ERROR;
+logLevelAreas.webinarevent.level = LEVELSNAMES.ERROR;
+logLevelAreas.tasks.api = true;
+logLevelAreas.tasks.level = LEVELSNAMES.ERROR;
+logLevelAreas.tasksevent.level = LEVELSNAMES.ERROR;
+
+// Set some areas to a specific level to have informations 
+logLevelAreas.showRESTLogs(LEVELSNAMES.DEBUG); // Logs about request to API server
+logLevelAreas.showEventsLogs(); // Logs about XMPP events
+// logLevelAreas.showServicesLogs(); // Show api entry.
+logLevelAreas.hideServicesApiLogs(); 
+
+let option = {
+    ...,
+    logs: {
+        ...
+        "areas": logLevelAreas,
+        ...
+    },
+    ...
+};
+...
+
+```
+
+By default if the "areas" property is not provided in SDK "log" section options, then the "level" option of the log section is used.
 
 ##### Colors
 ---

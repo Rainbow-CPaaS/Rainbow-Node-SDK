@@ -33,7 +33,8 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Update timeouts of got default requests.
 -   Update HttpService for log error.message when requests failed.
 -   Update maxPending of AsyncLock to 5000 and update logs in XmppQueue.
--   Refactor Logger to use customs levels areas.
+-   Refactor Logger to use new levels with following order : "error", "warn", "info", "trace", "http", "xmpp", "debug", "internalerror", "internal". Each level contains previous one. 
+-   Refactor Logger to use customs levels areas. Areas allow to override the log level for specifics limited area of code.
 
 ### [2.27.1] - 2024-01-22
 #### Removed

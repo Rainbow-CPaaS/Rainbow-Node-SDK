@@ -20,7 +20,7 @@ const humanize = require("humanize-number");
 //const chalk = require("chalk");
 import chalk from 'chalk';
 import {HTTPoverXMPP} from "../services/HTTPoverXMPPService.js";
-import {LevelLogs} from "../common/LevelLogs.js";
+import {LevelLogs} from "../common/LevelLogs";
 
 const debugHttp = require("debug-http");
 
