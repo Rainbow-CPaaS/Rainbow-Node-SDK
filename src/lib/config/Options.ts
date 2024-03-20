@@ -390,39 +390,6 @@ class Options {
             restArray.push(restOptions);
 
             updateObjectPropertiesFromAnOtherObject(restArray, this._options.rest);
-/*
-            Object.getOwnPropertyNames(this._options.rest).forEach(
-                    (val, idx, array) => {
-                        //console.log(val + " -> " + data[val]);
-                        if (restOptions.hasOwnProperty(val)) {
-                            // dev-code //
-                            // console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class : ", val, " -> ", data[val]);
-                            // end-dev-code //
-
-                            Object.getOwnPropertyNames(restOptions[val]).forEach(
-                                    (val2, idx, array) => {
-                                        //console.log(val + " -> " + data[val]);
-                                        if (restOptions[val].hasOwnProperty(val2)) {
-                                            // dev-code //
-                                            console.log("One property of the SDK's parameter options is found : ", val2, " -> ", restOptions[val][val2]);
-                                            // end-dev-code //
-                                        } else {
-                                            //console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class can not update Bubble with : ", val, " -> ", data[val]);
-                                            // dev-code-console //
-                                            console.log("WARNING : One property of the SDK's parameter is not present in default values");
-                                            // end-dev-code-console //
-                                        }
-                                    });
-
-
-                        } else {
-                            //console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class can not update Bubble with : ", val, " -> ", data[val]);
-                            // dev-code-console //
-                            console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class can not update Bubble property : ", val);
-                            // end-dev-code-console //
-                        }
-                    });
-*/
 
             //restOptions = this._options.rest;
         }
