@@ -428,7 +428,7 @@ pipeline {
                                     #cd "${workspace}/Documentation"
                                     # apt-key adv --keyserver dl.google.com/linux/chrome/deb --recv-keys E88979FB9B30ACF2 2> /dev/null
                                     # apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 78BD65473CB3BD13 2> /dev/null
-                                    apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E88979FB9B30ACF2
+                                    sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E88979FB9B30ACF2
                                 """
                                 
                                 debianBuild(
