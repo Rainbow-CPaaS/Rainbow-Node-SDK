@@ -426,6 +426,7 @@ pipeline {
                                 sh script: """
                                     #find Documentation/
                                     #cd "${workspace}/Documentation"
+                                    apt-key adv --keyserver https://dl.google.com/linux/chrome/deb --recv-keys E88979FB9B30ACF2
                                 """
                                 
                                 debianBuild(
