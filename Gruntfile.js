@@ -65,6 +65,7 @@ module.exports = function(grunt) {
             { src: "lib/common/models/Message.js", dest: "build/message.md" },
             { src: "lib/common/models/PresenceRainbow.js", dest: "build/presencerainbow.md" },
             { src: "lib/common/models/Settings.js", dest: "build/settings.md" },
+            { src: "lib/common/models/RainbowVoiceCloudPBX.js", dest: "build/rainbowvoicecloudpbx.md" },
             { src: "lib/common/models/Task.js", dest: "build/task.md" }
         ]
       },
@@ -287,6 +288,7 @@ module.exports = function(grunt) {
                 "lib/common/models/Invitation.js",
                 "lib/common/models/Message.js",
                 "lib/common/models/PresenceRainbow.js",
+                "lib/common/models/RainbowVoiceCloudPBX.js",
                 "lib/common/models/Settings.js",
                 "lib/common/models/Task.js",
             ],
@@ -294,7 +296,65 @@ module.exports = function(grunt) {
             options: {
                 template: "node_modules/rainbow_hub_sheets_generation/mermaidtemplate"
             }
-        }        
+        },
+        dist : {
+            src: [
+            /*    "lib/services/AdminService.js",
+                "lib/services/AlertsService.js",
+                "lib/services/BubblesService.js",
+                "lib/services/CallLogService.js",
+                "lib/services/ChannelsService.js",
+                "lib/services/ContactsService.js",
+                "lib/services/ConversationsService.js",
+                "lib/services/FavoritesService.js",
+                "lib/services/FileStorageService.js",
+                "lib/services/GroupsService.js",
+                "lib/services/HTTPoverXMPPService.js",
+                "lib/services/ImsService.js",
+                "lib/services/InvitationsService.js",
+                "lib/services/PresenceService.js",
+                "lib/services/RPCoverXMPPService.js",
+                "lib/services/S2SService.js",
+                "lib/services/SettingsService.js",
+                "lib/services/TelephonyService.js",
+                "lib/services/TasksService.js",
+                "lib/NodeSDK.js",
+                "lib/common/Events.js",*/
+                "lib/common/models/Alert.js",/*
+                "lib/common/models/AlertDevice.js",
+                "lib/common/models/AlertFilter.js",
+                "lib/common/models/AlertMessage.js",
+                "lib/common/models/AlertTemplate.js",
+                "lib/common/models/Bubble.js",
+                "lib/common/models/Call.js",
+                "lib/common/models/CallLog.js",
+                "lib/common/models/Channel.js",
+                "lib/common/models/Contact.js",
+                "lib/common/models/Conversation.js",
+                "lib/common/ErrorManager.js",
+                "lib/common/models/Favorite.js",
+                "lib/common/models/FileDescriptor.js",
+                "lib/common/models/FileViewer.js",
+                "lib/common/models/GeoLoc.js",
+                "lib/common/models/Invitation.js",
+                "lib/common/models/Message.js",
+                "lib/common/models/PresenceRainbow.js",  */
+                "lib/common/models/RainbowVoiceCloudPBX.js",
+                /*"lib/common/models/Settings.js",
+                "lib/common/models/Task.js", */
+            ],
+            options: {
+                destination: 'build/jsdoc_html',
+                ignoreWarnings: false,
+                "no-gfm": false,
+                "no-cache": true,
+                "separators": true,
+                "param-list-format": "table", // "table" (default) or "list"
+                "example-lang": "js",
+                // "plugin": ["jsdoc-mermaid"],
+                "partial": "jsdoc/Template/body.hbs"
+            }
+        }
     },
 
     "copy-part-of-file": {

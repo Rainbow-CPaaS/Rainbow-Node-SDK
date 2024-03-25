@@ -168,6 +168,7 @@ class TasksService extends GenericService {
      * @public
      * @nodered true
      * @method addTask
+     * @since 2.28.0
      * @instance
      * @param {TaskInput} task The task to create.
      * @description
@@ -203,6 +204,7 @@ class TasksService extends GenericService {
      * @public
      * @nodered true
      * @method createTaskcategory
+     * @since 2.28.0
      * @instance
      * @param {string} category The category to create.
      * @description
@@ -237,6 +239,7 @@ class TasksService extends GenericService {
     /**
      * @public
      * @nodered true
+     * @since 2.28.0
      * @method createOrUpdatePropertiesTaskByCategoryId
      * @instance
      * @param {string} categoryId The id of the category where the property must be added.
@@ -274,6 +277,7 @@ class TasksService extends GenericService {
      * @public
      * @nodered true
      * @method getTaskById
+     * @since 2.28.0
      * @instance
      * @param {string} taskId The id of the task to search.
      * @description
@@ -330,6 +334,7 @@ class TasksService extends GenericService {
      * @public
      * @nodered true
      * @method getTasksByCategoryId
+     * @since 2.28.0
      * @instance
      * @param {string} categoryId allows to retrieve only todos in that category by Id.
      * @param {boolean} [force=false] True to force a request to the server
@@ -404,6 +409,7 @@ class TasksService extends GenericService {
      * @public
      * @nodered true
      * @method getTasks
+     * @since 2.28.0
      * @instance
      * @param {string} categoryId allows to retrieve only todos in that category by Id.
      * @param {boolean} [force=false] True to force a request to the server
@@ -478,6 +484,7 @@ class TasksService extends GenericService {
      * @public
      * @nodered true
      * @method getAllCategories
+     * @since 2.28.0
      * @param {boolean} [force=false] True to force a request to the server
      * @instance
      * @description
@@ -523,6 +530,7 @@ class TasksService extends GenericService {
      * @public
      * @nodered true
      * @method deletePropertiesFromCategoriesTasks
+     * @since 2.28.0
      * @param {string} categoriId category unique identifier of the properties to delete.
      * @instance
      * @description
@@ -551,6 +559,7 @@ class TasksService extends GenericService {
      * @public
      * @nodered true
      * @method deleteTask
+     * @since 2.28.0
      * @param {string} taskId the id of the task to delete from server and cache.
      * @instance
      * @description
@@ -582,6 +591,7 @@ class TasksService extends GenericService {
      * @public
      * @nodered true
      * @method deleteCategoryFromTasks
+     * @since 2.28.0
      * @param {string} categoryId the id of the category to delete from server and cache.
      * @instance
      * @description
@@ -611,6 +621,7 @@ class TasksService extends GenericService {
      * @public
      * @nodered true
      * @method updateTask
+     * @since 2.28.0
      * @instance
      * @param  {string} category The category to create.
      * @param {TaskInput} task The properties to be updated.
