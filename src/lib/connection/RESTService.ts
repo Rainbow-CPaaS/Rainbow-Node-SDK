@@ -37,6 +37,7 @@ import {TimeOutManager} from "../common/TimeOutManager";
 import {Group} from "ts-generic-collections-linq";
 import {Task} from "../common/models/Task.js";
 import {TaskInput} from "../services/TasksService.js";
+import {HuntingGroup} from "../common/models/RainbowVoiceCloudPBX.js";
 
 let packageVersion = require("../../package.json");
 
@@ -9920,6 +9921,229 @@ Request Method: PUT
     }
 
     //endregion CloudPBX
+
+    //region Companies Cloudpbx Groups (Rainbow Voice)
+
+    createCloudPBXGroup(_companyId: string, huntingGroup: HuntingGroup) {
+        // API https://api.openrainbow.org/admin/#api-companies_cloudpbx_groups-PostCloudPbxGroup
+        // URL POST /api/rainbow/admin/v1.0/companies/:companyId/groups
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let companyId = _companyId?_companyId : that.account.companyId;
+            let url = "/api/rainbow/admin/v1.0/companies/" + companyId + "/groups";
+            let data: any = huntingGroup;
+            /*addPropertyToObj(data, "subject", subject, false);
+            addPropertyToObj(data, "description", description, false);
+            // */
+
+            that.http.post(url, that.getRequestHeader(), data, undefined).then(function (json) {
+                that._logger.log(that.DEBUG, LOG_ID + "(addTask) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(addTask) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(addTask) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(addTask) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    deleteCloudPBXGroup (_companyId : string, groupId : string) {
+        // API https://api.openrainbow.org/admin/#api-companies_cloudpbx_groups-DeleteCloudPbxGroup
+        // DELETE /api/rainbow/admin/v1.0/companies/:companyId/groups/:groupId
+        let that = this;
+        return new Promise((resolve, reject) => {
+            let companyId = _companyId ? _companyId:that.account.companyId;
+            let url = "/api/rainbow/admin/v1.0/companies/" + companyId + "/groups/" + groupId;
+            that.http.delete(url, that.getRequestHeader()).then((response) => {
+                that._logger.log(that.DEBUG, LOG_ID + "(deleteCloudPBXGroup) (" + companyId + ", " + groupId + ") -- success");
+                resolve(response);
+            }).catch((err) => {
+                that._logger.log(that.ERROR, LOG_ID, "(deleteCloudPBXGroup) (" + companyId + ", " + groupId + ") -- failure -- ");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteCloudPBXGroup) (" + companyId + ", " + groupId + ") -- failure -- ", err.message);
+                return reject(err);
+            });
+        });
+    }
+
+    getCloudPBXGroup (_companyId : string, groupId : string) {
+        // API https://api.openrainbow.org/admin/#api-companies_cloudpbx_groups-GetCloudPbxGroup
+        // GET /api/rainbow/admin/v1.0/companies/:companyId/groups/:groupId
+        let that = this;
+        return new Promise((resolve, reject) => {
+            let companyId = _companyId ? _companyId:that.account.companyId;
+            let url = "/api/rainbow/admin/v1.0/companies/" + companyId + "/groups/" + groupId;
+            /* let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "category", category);
+            url = urlParamsTab[0];
+            // */
+
+            that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPBXGroup) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
+                that._logger.log(that.DEBUG, LOG_ID + "(getCloudPBXGroup) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPBXGroup) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(getCloudPBXGroup) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getCloudPBXGroup) error : ", err);
+                return reject(err);
+            });
+
+        });
+    }
+
+    getAllCloudPBXGroups (_companyId?: string, sortField?: string, name?: string, shortNumber?: string, externalNumber?: string, memberId?: string, type?: string, limit?: number, offset?: number, sortOrder?: number) {
+        // API https://api.openrainbow.org/admin/#api-companies_cloudpbx_groups-GetAllCloudPbxGroup
+        // GET /api/rainbow/admin/v1.0/companies/:companyId/groups
+        let that = this;
+        return new Promise((resolve, reject) => {
+            let companyId = _companyId ? _companyId:that.account.companyId;
+            let url = "/api/rainbow/admin/v1.0/companies/" + companyId + "/groups" ;
+             let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            // ?: string, ?: string, ?: string, ?: string, ?: string, ?: string, ?: number, ?: number,
+            addParamToUrl(urlParamsTab, "sortField", sortField);
+            addParamToUrl(urlParamsTab, "name", name);
+            addParamToUrl(urlParamsTab, "shortNumber", shortNumber);
+            addParamToUrl(urlParamsTab, "externalNumber", externalNumber);
+            addParamToUrl(urlParamsTab, "memberId", memberId);
+            addParamToUrl(urlParamsTab, "type", type);
+            addParamToUrl(urlParamsTab, "limit", limit);
+            addParamToUrl(urlParamsTab, "offset", offset);
+            addParamToUrl(urlParamsTab, "sortOrder", sortOrder);
+            url = urlParamsTab[0];
+            // */
+
+            that._logger.log(that.INTERNAL, LOG_ID + "(getAllCloudPBXGroups) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
+                that._logger.log(that.DEBUG, LOG_ID + "(getAllCloudPBXGroups) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getAllCloudPBXGroups) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(getAllCloudPBXGroups) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getAllCloudPBXGroups) error : ", err);
+                return reject(err);
+            });
+
+        });
+    }
+
+    getMembersOfCloudPBXGroups (_companyId?: string, limit?: number, offset?: number, sortField?: string, sortOrder?: number, displayName?: string, internalNumber?: string) {
+        // API https://api.openrainbow.org/admin/#api-companies_cloudpbx_groups-GetAllCloudPbxGroupMembers
+        // GET /api/rainbow/admin/v1.0/companies/:companyId/group-members
+        let that = this;
+        return new Promise((resolve, reject) => {
+            let companyId = _companyId ? _companyId:that.account.companyId;
+            let url = "/api/rainbow/admin/v1.0/companies/" + companyId + "/groups-members" ;
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            // ?: string, ?: string, ?: string, ?: string, ?: string, ?: string, ?: number, ?: number,
+            addParamToUrl(urlParamsTab, "limit", limit);
+            addParamToUrl(urlParamsTab, "offset", offset);
+            addParamToUrl(urlParamsTab, "sortField", sortField);
+            addParamToUrl(urlParamsTab, "sortOrder", sortOrder);
+            addParamToUrl(urlParamsTab, "displayName", displayName);
+            addParamToUrl(urlParamsTab, "internalNumber", internalNumber);
+            url = urlParamsTab[0];
+            // */
+
+            that._logger.log(that.INTERNAL, LOG_ID + "(getMembersOfCloudPBXGroups) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
+                that._logger.log(that.DEBUG, LOG_ID + "(getMembersOfCloudPBXGroups) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getMembersOfCloudPBXGroups) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(getMembersOfCloudPBXGroups) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getMembersOfCloudPBXGroups) error : ", err);
+                return reject(err);
+            });
+
+        });
+    }
+
+    updateCloudPBXGroup(_companyId?: string, groupId?: string, name?: string, policy?: "serial" | "parallel" | "circular", timeout?: number, externalNumberId?: string, isEmptyAllowed?: boolean, isDDIUpdateByManagerAllowed?: boolean,
+                        members?: {
+                            memberId: string,
+                            roles?: ("manager" | "agent" | "leader" | "assistant")[],
+                            status?: "active" | "idle"
+                        }[]) {
+        // API https://api.openrainbow.org/admin/#api-companies_cloudpbx_groups-PutCloudPbxGroup
+        // URL PUT /api/rainbow/admin/v1.0/companies/:companyId/groups/:groupId
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let companyId = _companyId ? _companyId:that.account.companyId;
+            let url = "/api/rainbow/admin/v1.0/companies/" + companyId + "/groups/" + groupId;
+            let data: any = {};
+            addPropertyToObj(data, "name", name, false);
+            addPropertyToObj(data, "policy", policy, false);
+            addPropertyToObj(data, "timeout", timeout, false);
+            addPropertyToObj(data, "externalNumberId", externalNumberId, false);
+            addPropertyToObj(data, "isEmptyAllowed", isEmptyAllowed, false);
+            addPropertyToObj(data, "isDDIUpdateByManagerAllowed", isDDIUpdateByManagerAllowed, false);
+            addPropertyToObj(data, "members", members, false);
+
+            that.http.put(url, that.getRequestHeader(), data, undefined).then(function (json) {
+                that._logger.log(that.DEBUG, LOG_ID + "(updateCloudPBXGroup) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(updateCloudPBXGroup) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(updateCloudPBXGroup) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateCloudPBXGroup) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    updateCloudPBXHuntingGroupAnalyticsConfiguration (_companyId?: string, groupId?: string, isManagersAllowedToSeeMembersAnalytics?: boolean) {
+        // API https://api.openrainbow.org/admin/#api-companies_cloudpbx_groups-PutAnalyticsCloudPbxGroup
+        // URL PUT /api/rainbow/admin/v1.0/companies/:companyId/groups/:groupId/analytic-settings
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let companyId = _companyId ? _companyId:that.account.companyId;
+            let url = "/api/rainbow/admin/v1.0/companies/" + companyId + "/groups/" + groupId;
+            let data: any = {};
+            addPropertyToObj(data, "isManagersAllowedToSeeMembersAnalytics", isManagersAllowedToSeeMembersAnalytics, false);
+
+            that.http.put(url, that.getRequestHeader(), data, undefined).then(function (json) {
+                that._logger.log(that.DEBUG, LOG_ID + "(updateCloudPBXHuntingGroupAnalyticsConfiguration) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(updateCloudPBXHuntingGroupAnalyticsConfiguration) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(updateCloudPBXHuntingGroupAnalyticsConfiguration) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateCloudPBXHuntingGroupAnalyticsConfiguration) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    updateCloudPBXHuntingGroupRecordingConfiguration (_companyId?: string, groupId?: string, recordingProfile?: string) {
+        // API https://api.openrainbow.org/admin/#api-companies_cloudpbx_groups-PutRecordingCloudPbxGroup
+        // URL PUT /api/rainbow/admin/v1.0/companies/:companyId/groups/:groupId/recordings
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let companyId = _companyId ? _companyId:that.account.companyId;
+            let url = "/api/rainbow/admin/v1.0/companies/" + companyId + "/groups/" + groupId + "/recordings";
+            let data: any = {};
+            addPropertyToObj(data, "recordingProfile", recordingProfile, false);
+
+            that.http.put(url, that.getRequestHeader(), data, undefined).then(function (json) {
+                that._logger.log(that.DEBUG, LOG_ID + "(updateCloudPBXHuntingGroupRecordingConfiguration) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(updateCloudPBXHuntingGroupRecordingConfiguration) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(updateCloudPBXHuntingGroupRecordingConfiguration) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateCloudPBXHuntingGroupRecordingConfiguration) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    //endregion Companies Cloudpbx Groups (Rainbow Voice)
+
     //region Cloudpbx Devices
 
     CreateCloudPBXSIPDevice(systemId: string, description: string, deviceTypeId: string, macAddress: string) {

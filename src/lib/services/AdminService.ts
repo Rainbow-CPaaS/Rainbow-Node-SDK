@@ -6,7 +6,7 @@ export {};
 
 import {ErrorManager} from "../common/ErrorManager";
 import  {RESTService} from "../connection/RESTService";
-import {addParamToUrl, addPropertyToObj, Deferred, isStarted, logEntryExit} from "../common/Utils";
+import {addParamToUrl, addPropertyToObj, Deferred, isDefined, isStarted, logEntryExit} from "../common/Utils";
 import {EventEmitter} from "events";
 import {Logger} from "../common/Logger";
 import {S2SService} from "./S2SService";
@@ -17,6 +17,7 @@ import {GenericService} from "./GenericService";
 import {dateFormat} from "dateformat";
 import { FileStorageService } from "./FileStorageService";
 import {Core} from "../Core.js";
+import {HuntingGroup} from "../common/models/RainbowVoiceCloudPBX.js";
 
 let fs = require('fs');
 
@@ -13079,6 +13080,845 @@ class AdminService extends GenericService {
     //endregion Customer Care - Users ticket
     
     //endregion Customer Care
+
+    //region Companies Cloudpbx Groups (Rainbow Voice)
+
+    /**
+     * @public
+     * @method createCloudPBXGroup
+     * @since 2.28.2
+     * @instance
+     * @async
+     * @category Companies Cloudpbx Groups (Rainbow Voice)
+     * @param {string} companyId company id unique identifier. Default value is the connected user's company.
+     * @param {HuntingGroup} huntingGroup (in RainbowVoiceCloudPBX type's file ) informations for the creation of the Hunting Group.
+     * @description
+     * This API allows to create a new cloud PBX Group.
+     * <br/> A group is a container for some Rainbow Users (e.g. 'Hunting Group'). Only company admin or superadmin can create a group.
+     * <br/>Inside a group, members can have the following possible roles:
+     * <ul>
+     *      <li><b>manager</b>: User has been given control on the group (can add / remove members, or change order in serial group)</li>
+     *      <li><b>agent</b>: User is a member of a 'default' or 'hg_attendant' hunting group, and will participate in the call distribution (if status is 'active')</li>
+     *      <li><b>leader</b>: User is a member of a 'manager_assistant' hunting group, and can receive calls as the <b><i>first</i></b> member in that group (if its status is 'active')</li>
+     *      <li><b>assistant</b>: User is a member of a 'manager_assistant' hunting group, and can receive calls after the leader (if its status is 'active'). Assistant has the right to control its leader filtering status</li>
+     * </ul>
+     * <br/>Members can cumulate roles: <br/>
+     * <ul>
+     *     <li>In 'default' or 'hg_attendant' members can be at the same time manager (i.e. managing members) and agent (participate in call distribution)</li>
+     *     <li>In 'manager_assistant' group, members can't cumulate 'leader' and 'assistant' roles. Only one member can have the 'leader' role in a group (and not in other groups !). Manager role can be added to any member</li>
+     * </ul>
+     * <br/>When a hunting group is created, members are set as active by default and eligible to call distribution. This behavior can be overridden by setting member status to 'idle'.
+     * <br/>Some checks are performed while requesting a group creation:
+     * <ul>
+     *     <li>Phone number (shortNumber) must be unique</li>
+     *     <li>External Number is the public phone of the group. If used, It must be retrieved from the cloud PBX provisioned DDI numbers</li>
+     *     <li>Creator of the hunting group must be superadmin or a company admin</li>
+     *     <li>Members must have an associated Cloud PBX subscriber (except manager of the hunting group)</li>
+     *     <li>Name of the group must contain only letters, digits or '-', '_'</li>
+     * </ul>
+     * <br/><br/>The status of the member can take the following possible values for a 'default' or 'hg_attendant' hunting_group:
+     * <ul>
+     *     <li><b>active</b>: An <b>active</b> agent will participate in call distribution. <b>active</b> manager is meaningless (except if roles also include agent).</li>
+     *     <li><b>idle</b>: An <b>idle</b> agent does not participate in call distribution, but is 'declared' as a member of the group. He can then join the group to participate in call distribution
+     *     (his status will be updated to <b>active</b> after joining the group). Leaving a group is also supported (status then changed from <b>active</b> to <b>idle</b>). See Voice portal for join/leave.
+     * </ul>
+     * <br/>In 'manager_assistant' hunting group, some specificities:
+     * <ul>
+     *     <li>The <b>active</b> status set on an assistant means this one is ready to receive manager's call, if this one has set filtering on, or has not replied to the call</li>
+     *     <li>The <b>active</b> status set on a leader (i.e. filtering status activated) means the leader has delegated the call processing to the assistant(s) declared in the group</li>
+     *     <li>A 'manager_assistant' hunting group is not allowed to be empty (must have at least one member with 'active' status)</li>
+     *     <li>A 'manager_assistant' hunting group can only have a serial policy, with the extra constraint to have the leader in first position></li>
+     * </ul>
+     * <br/><br/> The order of the members inside the group can be important, as for the serial or circular hunting group type this reflects the order of ringing of the members.
+     * <br/> Once a hunting group has been created, it is then possible to associate a public number to it, so that it can be called from public network. Refer to the group update operation.
+     * <br/>
+     * <br/> A specific and Unique (for a Cloud PBX) hunting group for managing Emergency Calls can be created by setting the attribute <b>isEmergencyGroup</b>.
+     * <br/> This emergency group is Unique for a cloud PBX; its policy is <b>parallel</b> and no public number can be associated
+     * <br/> Once activated (see rvcpprovisioning documentation - section "<i>Cloud PBX / Update a Cloud PBX</i>") ; emergency calls (done without outgoing prefix) will be redirected first to this Emergency Group
+     * <br/> Forwards (busy ; no-reply ; unavailable) are automatically managed onto the first emergency number (main emergency number in the list)
+     * <br/> Note that this attribute <b>isEmergencyGroup</b> cannot be updated
+     *
+     *
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Field                                      | Type                                             | Description                                                               |
+     * |--------------------------------------------|--------------------------------------------------|---------------------------------------------------------------------------|
+     * | id                                    | String                                       | Group unique identifier                                                   |
+     * | name                                  | String                                       | Group name - displayed on the caller phone set for hunting group type     |
+     * | shortNumber                           | String                                       | Short phone number of the hunting group                                   |
+     * | externalNumber                        | String                                       | Public phone number on which the hunting group can be joined              |
+     * | externalNumberId                      | String                                       | Identifier of the public phone number of the hunting group                 |
+     * | roomId                                | String                                       | Identifier of the hunting group associated room                           |
+     * | phoneNumberId                         | String                                       | Identifier of the hunting group phone number                              |
+     * | createdBy                             | String                                       | Group creator identifier                                                  |
+     * | policy                                | HuntingGroupPolicy                          | Group policy of the hunting group.                                        |
+     * | timeout                               | 5-30                                         | Group timeout in seconds - specific to serial or circular group policy    |
+     * | type                                  | HuntingGroupType                            | Group type. DEPRECATED manager_assistant - see subType 'manager_assistant' |
+     * | subType                               | HuntingGroupSubType                         | Hunting group sub type.                                                   |
+     * | isRecordingActivated                  | Boolean                                     | Indicates if the recording is activated on the hunting group              |
+     * | recordingProfile                     | HuntingGroupProfiles                        | Recording profile of the hunting group.                                   |
+     * | isEmergencyGroup                      | Boolean                                     | Indicates if this hunting group is the emergency group for the associated Cloud PBX |
+     * | isEmptyAllowed                       | Boolean                                     | Indicates if the last active member can leave the hunting group or not   |
+     * | isDDIUpdateByManagerAllowed          | Boolean                                     | Indicates if changing the DDI of this hunting group by a manager is allowed or not |
+     * | companyId                            | String                                       | Identifier of the company owning the hunting group                        |
+     * | subscriberId                         | String                                       | Associated subscriber Id of the hunting group                             |
+     * | systemId                             | String                                       | Cloud PBX System unique identifier                                        |
+     * | members                              | Array                                        | List of group members                                                     |
+     * | members.memberId                     | String                                       | Member (user) unique identifier                                           |
+     * | members.displayName                  | String                                       | Member display name                                                       |
+     * | members.roles                        | HuntingGroupMemberRole                      | Member role inside the group. Possible values: manager, agent, leader, assistant |
+     * | members.status                       | HuntingGroupMemberStatus                    | Member status inside the group.                                           |
+     * | members.connected                    | HuntingGroupMemberConnection                | Hunting group member connected status inside the group. If status active and connected or deskphone, member could answer a group call |
+     * | analyticSettings                     | Object                                      | Group analytic settings                                                   |
+     * | analyticSettings.isManagersAllowedToSeeMembersAnalytics | Boolean                     | Are group managers allowed to see members analytics                      |
+     *
+     *  </br>example of result :
+     * </br> {
+     * </br>         "id": "5cd545b3a07de465fbc3fcda",
+     * </br>         "name": "Group_1",
+     * </br>         "type": "hunting_group",
+     * </br>         "subType": "default",
+     * </br>         "createdBy": "5cd5443fd9736d8431b5c185",
+     * </br>         "policy": "serial",
+     * </br>         "shortNumber": "81002",
+     * </br>         "externalNumberId": "5cd5443fd9736d8431b5c987",
+     * </br>         "externalNumber": "+33298564112",
+     * </br>         "phoneNumberId": "5cd5443fd9736d8431b5c988",
+     * </br>         "timeout": 10,
+     * </br>         "isEmergencyGroup": false,
+     * </br>         "isEmptyAllowed": true,
+     * </br>         "isDDIUpdateByManagerAllowed": true,
+     * </br>         "companyId": "5dcd8dcec7e1620643a2045e",
+     * </br>         "subscriberId": 147,
+     * </br>         "systemId": "5de6a632c21aa17bab337347",
+     * </br>         "members": [
+     * </br>             {"memberId": "5cd545b3a07de465fb123456", "displayName": "Alice Donner", "roles": ["agent"], "status": "active", "connected": "connected"},
+     * </br>             {"memberId": "5cd545b3a07de465fb123457", "displayName": "Bob the DIY man", "roles": ["agent"], "status": "active", "connected": "disconnected"},
+     * </br>             {"memberId": "5cd545b3a07de465fb123458", "displayName": "Carole Bouquet", "roles": ["manager", "agent"], "status": "active", "connected": "deskphone"}
+     * </br>         ],
+     * </br>         "isRecordingActivated": false,
+     * </br>         "recordingProfile": "none",
+     * </br>         "analyticSettings": {
+     * </br>             "isManagersAllowedToSeeMembersAnalytics": true
+     * </br>         }
+     * </br> }
+     * </br>
+     */
+    createCloudPBXGroup(companyId : string, huntingGroup : HuntingGroup ): Promise<any> {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(createCloudPBXGroup) companyId : ", that._logger.stripStringForLogs(companyId), ", huntingGroup : ", isDefined(huntingGroup));
+
+        return new Promise(function (resolve, reject) {
+            try {
+                if (!huntingGroup) {
+                    that._logger.log(that.WARN, LOG_ID + "(createCloudPBXGroup) bad or empty 'huntingGroup' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(createCloudPBXGroup) bad or empty 'huntingGroup' parameter : ", huntingGroup);
+                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                that._rest.createCloudPBXGroup(companyId, huntingGroup).then((result) => {
+                    that._logger.log(that.DEBUG, LOG_ID + "(createCloudPBXGroup) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(createCloudPBXGroup) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log(that.ERROR, LOG_ID + "(createCloudPBXGroup) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log(that.ERROR, LOG_ID + "(createCloudPBXGroup) CATCH error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(createCloudPBXGroup) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method deleteCloudPBXGroup
+     * @since 2.28.2
+     * @instance
+     * @async
+     * @category Companies Cloudpbx Groups (Rainbow Voice)
+     * @param {string} companyId company id unique identifier. Default value is the connected user's company.
+     * @param {string} groupId Unique identifier of the Cloud PBX group to delete.
+     * @description
+     *      This API allows to delete a cloud PBX Group.
+     *
+     * @return {Promise<any>} - result
+     *
+     *
+     * </br> example of result :
+     * </br> {
+     * </br>    "status": "Cloud PBX group 56c5c19f94141765119f896c successfully deleted",
+     * </br>    "data":[]
+     * </br> }
+     * </br>
+     */
+    deleteCloudPBXGroup (companyId : string, groupId : string) :Promise<any> {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(createCloudPBXGroup) companyId : ", that._logger.stripStringForLogs(companyId), ", groupId : ", groupId);
+
+        return new Promise(function (resolve, reject) {
+            try {
+                if (!groupId) {
+                    that._logger.log(that.WARN, LOG_ID + "(deleteCloudPBXGroup) bad or empty 'groupId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteCloudPBXGroup) bad or empty 'groupId' parameter : ", groupId);
+                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                that._rest.deleteCloudPBXGroup(companyId, groupId).then((result) => {
+                    that._logger.log(that.DEBUG, LOG_ID + "(deleteCloudPBXGroup) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(deleteCloudPBXGroup) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log(that.ERROR, LOG_ID + "(deleteCloudPBXGroup) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log(that.ERROR, LOG_ID + "(deleteCloudPBXGroup) CATCH error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteCloudPBXGroup) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method getCloudPBXGroup
+     * @since 2.28.2
+     * @instance
+     * @async
+     * @category Companies Cloudpbx Groups (Rainbow Voice)
+     * @param {string} companyId company id unique identifier. Default value is the connected user's company.
+     * @param {string} groupId Unique identifier of the Cloud PBX group to retrieve.
+     * @description
+     *      This API allows to get data of a Cloud PBX group
+     *
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Field                                      | Type                                             | Description                                                               |
+     * |--------------------------------------------|--------------------------------------------------|---------------------------------------------------------------------------|
+     * | id                                    | String                                       | Group unique identifier                                                   |
+     * | name                                  | String                                       | Group name - displayed on the caller phone set for hunting group type     |
+     * | shortNumber                           | String                                       | Short phone number of the hunting group                                   |
+     * | externalNumber                        | String                                       | Public phone number on which the hunting group can be joined              |
+     * | externalNumberId                      | String                                       | Identifier of the public phone number of the hunting group                 |
+     * | roomId                                | String                                       | Identifier of the hunting group associated room                           |
+     * | phoneNumberId                         | String                                       | Identifier of the hunting group phone number                              |
+     * | createdBy                             | String                                       | Group creator identifier                                                  |
+     * | policy                                | HuntingGroupPolicy                          | Group policy of the hunting group.                                        |
+     * | timeout                               | 5-30                                         | Group timeout in seconds - specific to serial or circular group policy    |
+     * | type                                  | HuntingGroupType                            | Group type. DEPRECATED manager_assistant - see subType 'manager_assistant' |
+     * | subType                               | HuntingGroupSubType                         | Hunting group sub type.                                                   |
+     * | isRecordingActivated                  | Boolean                                     | Indicates if the recording is activated on the hunting group              |
+     * | recordingProfile                     | HuntingGroupProfiles                        | Recording profile of the hunting group.                                   |
+     * | isEmergencyGroup                      | Boolean                                     | Indicates if this hunting group is the emergency group for the associated Cloud PBX |
+     * | isEmptyAllowed                       | Boolean                                     | Indicates if the last active member can leave the hunting group or not   |
+     * | isDDIUpdateByManagerAllowed          | Boolean                                     | Indicates if changing the DDI of this hunting group by a manager is allowed or not |
+     * | companyId                            | String                                       | Identifier of the company owning the hunting group                        |
+     * | subscriberId                         | String                                       | Associated subscriber Id of the hunting group                             |
+     * | systemId                             | String                                       | Cloud PBX System unique identifier                                        |
+     * | members                              | Array                                        | List of group members                                                     |
+     * | members.memberId                     | String                                       | Member (user) unique identifier                                           |
+     * | members.displayName                  | String                                       | Member display name                                                       |
+     * | members.roles                        | HuntingGroupMemberRole                      | Member role inside the group. Possible values: manager, agent, leader, assistant |
+     * | members.status                       | HuntingGroupMemberStatus                    | Member status inside the group.                                           |
+     * | members.connected                    | HuntingGroupMemberConnection                | Hunting group member connected status inside the group. If status active and connected or deskphone, member could answer a group call |
+     * | analyticSettings                     | Object                                      | Group analytic settings                                                   |
+     * | analyticSettings.isManagersAllowedToSeeMembersAnalytics | Boolean                     | Are group managers allowed to see members analytics                      |
+     *
+     *  </br>example of result :
+     * </br> {
+     * </br>         "id": "5cd545b3a07de465fbc3fcda",
+     * </br>         "name": "Group_1",
+     * </br>         "type": "hunting_group",
+     * </br>         "subType": "default",
+     * </br>         "createdBy": "5cd5443fd9736d8431b5c185",
+     * </br>         "policy": "serial",
+     * </br>         "shortNumber": "81002",
+     * </br>         "externalNumberId": "5cd5443fd9736d8431b5c987",
+     * </br>         "externalNumber": "+33298564112",
+     * </br>         "phoneNumberId": "5cd5443fd9736d8431b5c988",
+     * </br>         "timeout": 10,
+     * </br>         "isEmergencyGroup": false,
+     * </br>         "isEmptyAllowed": true,
+     * </br>         "isDDIUpdateByManagerAllowed": true,
+     * </br>         "companyId": "5dcd8dcec7e1620643a2045e",
+     * </br>         "subscriberId": 147,
+     * </br>         "systemId": "5de6a632c21aa17bab337347",
+     * </br>         "members": [
+     * </br>             {"memberId": "5cd545b3a07de465fb123456", "displayName": "Alice Donner", "roles": ["agent"], "status": "active", "connected": "connected"},
+     * </br>             {"memberId": "5cd545b3a07de465fb123457", "displayName": "Bob the DIY man", "roles": ["agent"], "status": "active", "connected": "disconnected"},
+     * </br>             {"memberId": "5cd545b3a07de465fb123458", "displayName": "Carole Bouquet", "roles": ["manager", "agent"], "status": "active", "connected": "deskphone"}
+     * </br>         ],
+     * </br>         "isRecordingActivated": false,
+     * </br>         "recordingProfile": "none",
+     * </br>         "analyticSettings": {
+     * </br>             "isManagersAllowedToSeeMembersAnalytics": true
+     * </br>         }
+     * </br> }
+     * </br>
+     */
+    getCloudPBXGroup (companyId : string, groupId : string) :Promise<any> {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getCloudPBXGroup) companyId : ", that._logger.stripStringForLogs(companyId), ", groupId : ", groupId);
+
+        return new Promise(function (resolve, reject) {
+            try {
+                if (!groupId) {
+                    that._logger.log(that.WARN, LOG_ID + "(getCloudPBXGroup) bad or empty 'groupId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getCloudPBXGroup) bad or empty 'groupId' parameter : ", groupId);
+                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                that._rest.getCloudPBXGroup(companyId, groupId).then((result) => {
+                    that._logger.log(that.DEBUG, LOG_ID + "(getCloudPBXGroup) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPBXGroup) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log(that.ERROR, LOG_ID + "(getCloudPBXGroup) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log(that.ERROR, LOG_ID + "(getCloudPBXGroup) CATCH error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getCloudPBXGroup) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method getAllCloudPBXGroups
+     * @since 2.28.2
+     * @instance
+     * @async
+     * @category Companies Cloudpbx Groups (Rainbow Voice)
+     * @param {string} companyId Company unique identifier (like 569ce8c8f9336c471b98eda1).
+     * @param {string} [sortField=name] - Sort items list based on the given field.
+     * @param {string} [name] - Filter groups whose name contains the given filter.
+     * @param {string} [shortNumber] - Filter groups whose short phone number contains the given filter.
+     * @param {string} [externalNumber] - Filter groups whose external number contains the given filter.
+     * @param {string} [memberId] - Filter groups containing the given member.
+     * @param {string} [type] - Filter groups according to its type.
+     *                                   Can be one of the following values: call_queue, hunting_group, manager_assistant,
+     *                                   or a comma-separated list of these values.
+     * @param {number} limit Allow to specify the number of items to retrieve. Default value : 100.
+     * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Default value : 0 .
+     * @param {number} sortOrder Specify order when sorting items list. Default value : 1. Possibles values : -1, 1  .
+     * @description
+     *      This API allows to get all the groups of a Cloud PBX for a given company.
+     *
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Field                                      | Type                                             | Description                                                               |
+     * |--------------------------------------------|--------------------------------------------------|---------------------------------------------------------------------------|
+     *      | data                           | Object[]                                                  | List of groups                                                                                   |
+     *      | data.id                        | String                                                    | Hunting group unique identifier                                                                  |
+     *      | data.name                      | String                                                    | Hunting group name - displayed on the caller phone set                                           |
+     *      | data.type                      | HuntingGroupType             | Group type. DEPRECATED manager_assistant - see subType 'manager_assistant'                        |
+     *      | data.subType                   | HuntingGroupSubType         | Hunting group sub type                                                                           |
+     *      | data.policy                    | HuntingGroupPolicy                       | Hunting group policy                                                                             |
+     *      | data.shortNumber               | String                                                    | Hunting group short phone number                                                                 |
+     *      | data.externalNumber            | String                                                    | Hunting group public phone number                                                                |
+     *      | data.nbMembers                 | String                                                    | Number of members in the hunting group                                                          |
+     *      | data.isRecordingActivated     | Boolean                                                   | Indicates if the recording activated in the hunting group                                       |
+     *      | data.recordingProfile          | HuntingGroupProfiles          | Recording profile of the hunting group                                                           |
+     *      | data.isEmergencyGroup         | Boolean                                                   | Indicates if this hunting group is the emergency group for the associated Cloud PBX              |
+     *      | data.isEmptyAllowed           | Boolean                                                   | Indicates if the last active member can leave the hunting group or not                           |
+     *      | data.isDDIUpdateByManagerAllowed | Boolean                                                  | Indicates if changing the DDI of this hunting group by a manager is allowed or not               |
+     *      | data.phoneNumberId            | String                                                    | Hunting group phone number unique identifier                                                     |
+     *      | data.analyticSettings         | Object                                                    | Hunting group analytic settings                                                                  |
+     *      | data.analyticSettings.isManagersAllowedToSeeMembersAnalytics | Boolean                                        | Are group managers allowed to see members analytics                                              |
+     *
+     *  </br>example of result :
+     * </br> {
+     * </br>    "data": [
+     * </br>        {
+     * </br>            "id": "5cd545b3a07de465fbc3fcda",
+     * </br>            "name": "Group_1",
+     * </br>            "type": "hunting_group",
+     * </br>            "subType": "hg_attendant",
+     * </br>            "policy": "serial",
+     * </br>            "shortNumber": 81002,
+     * </br>            "externalNumber": "+33298564112",
+     * </br>            "isRecordingActivated": false,
+     * </br>            "recordingProfile": "none",
+     * </br>            "isEmergencyGroup": false,
+     * </br>            "isEmptyAllowed": false,
+     * </br>            "isDDIUpdateByManagerAllowed": true
+     * </br>       },
+     * </br>       {
+     * </br>            "type": "hunting_group",
+     * </br>            "subType": "manager_assistant",
+     * </br>            "isEmergencyGroup": false,
+     * </br>            "isRecordingActivated": false,
+     * </br>            "recordingProfile": "none",
+     * </br>            "isEmptyAllowed": true,
+     * </br>            "isDDIUpdateByManagerAllowed": true,
+     * </br>            "name": "POL_GP6_HG",
+     * </br>            "policy": "serial",
+     * </br>            "phoneNumberId": "6311b6e9fec56c1edc7f6086",
+     * </br>            "roomId": "6311babcfec56c1edc7f608a",
+     * </br>            "id": "6311b808fec56c1edc7f6089",
+     * </br>            "shortNumber": "90026",
+     * </br>            "externalNumber": null,
+     * </br>            "nbMembers": 3
+     * </br>       },
+     * </br>       {
+     * </br>            "type": "manager_assistant",
+     * </br>            "isEmergencyGroup": false,
+     * </br>            "isRecordingActivated": false,
+     * </br>            "recordingProfile": "none",
+     * </br>            "isEmptyAllowed": true,
+     * </br>            "name": "POL_MA1",
+     * </br>            "id": "631200038bbd9b06452167c1",
+     * </br>            "nbMembers": 2
+     * </br>       }
+     * </br>   ],
+     * </br>   "limit": 100,
+     * </br>   "offset": 0,
+     * </br>   "total": 3
+     * </br> }
+     * </br>
+     */
+    getAllCloudPBXGroups (companyId?: string, sortField?: string, name?: string, shortNumber?: string, externalNumber?: string, memberId?: string, type?: string, limit?: number, offset?: number, sortOrder?: number) {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getAllCloudPBXGroups) companyId : ", that._logger.stripStringForLogs(companyId));
+
+        return new Promise(function (resolve, reject) {
+            try {
+                /* if (!groupId) {
+                    that._logger.log(that.WARN, LOG_ID + "(getAllCloudPBXGroups) bad or empty 'groupId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getAllCloudPBXGroups) bad or empty 'groupId' parameter : ", groupId);
+                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+                // */
+
+                that._rest.getAllCloudPBXGroups (companyId, sortField, name, shortNumber, externalNumber, memberId, type, limit, offset, sortOrder).then((result) => {
+                    that._logger.log(that.DEBUG, LOG_ID + "(getAllCloudPBXGroups) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getAllCloudPBXGroups) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log(that.ERROR, LOG_ID + "(getAllCloudPBXGroups) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log(that.ERROR, LOG_ID + "(getAllCloudPBXGroups) CATCH error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getAllCloudPBXGroups) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method getMembersOfCloudPBXGroups
+     * @since 2.28.2
+     * @instance
+     * @async
+     * @category Companies Cloudpbx Groups (Rainbow Voice)
+     * @param {string} companyId Company unique identifier (like 569ce8c8f9336c471b98eda1).
+     * @param {number} limit Allow to specify the number of items to retrieve. Default value : 100.
+     * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Default value : 0 .
+     * @param {string} [sortField] - Sort items list based on the given field. Default value : displayName. Possibles values : displayName, lastName, firstName
+     * @param {number} sortOrder Specify order when sorting items list. Default value : 1. Possibles values : -1, 1  .
+     * @param {string} [displayName] - Filter groups whose display name contains the given filter.
+     * @param {string} [internalNumber] - Filter members whose internal phone number contain the given filter.
+     * @description
+     *      This API allows to get all the group members of a Cloud PBX for a given company.
+     *
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Field                  | Type        | Description                                     |
+     * |------------------------|-------------|-------------------------------------------------|
+     * | data                   | Object[]    | List of group members                          |
+     * | data.id                | String      | Member identifier                              |
+     * | data.firstName         | String      | Member firstName                               |
+     * | data.lastName          | String      | Member lastName                                |
+     * | data.internalNumber    | String      | Member internal number (cloud PBX extension)   |
+     * | data.lastAvatarUpdateDate | String   | Member last avatar update date                 |
+     * | data.groups            | Object[]    | List of groups the member belong to            |
+     * | data.groups.id         | String      | Group identifier                               |
+     * | data.groups.name       | String      | Group name                                     |
+     *
+     *  </br>example of result :
+     * </br> {
+     * </br>    "data": [
+     * </br>         { "id": "63a075137a218ec55b19a99f", "firstName": "Bob", "lastName": "Patol", "internalNumber": "90002", "lastAvatarUpdateDate": null,
+     * </br>             "groups": [
+     * </br>                 {"id": "63bbe773343b506650ca5258", "name": "POL_CQ1" }
+     * </br>              ]
+     * </br>         },
+     * </br>         { "id": "63a0752d7a218ec55b19a9c0", "firstName": "Carol", "lastName": "Patol", "internalNumber": "90003", "lastAvatarUpdateDate": null,
+     * </br>             "groups": [
+     * </br>                 { "id": "63bbe773343b506650ca5258", "name": "POL_CQ1" }
+     * </br>             ]
+     * </br>          },
+     * </br>          { "id": "63a0754a7a218ec55b19a9e1", "firstName": "Dave", "lastName": "Patol", "internalNumber": "90004", "lastAvatarUpdateDate": "2023-02-16T14:00:52.564Z",
+     * </br>             "groups": [
+     * </br>                 { "id": "63bd7df89c9f5b1191d84df1", "name": "POL_GP2" }
+     * </br>             ]
+     * </br>          },
+     * </br>          { "id": "63a075d17a218ec55b19aaad", "firstName": "Fiona", "lastName": "Patol", "internalNumber": "90006", "lastAvatarUpdateDate": null,
+     * </br>             "groups": [
+     * </br>                 { "id": "63bd7df89c9f5b1191d84df1", "name": "POL_GP2" },
+     * </br>                 { "id": "63ebbe028f09ed5503274e63", "name": "POL_GP3" }
+     * </br>             ]
+     * </br>          }
+     * </br>    ]
+     * </br> }
+     * </br>
+     */
+    getMembersOfCloudPBXGroups (companyId?: string, limit?: number, offset?: number, sortField?: string, sortOrder?: number, displayName?: string, internalNumber?: string) {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getMembersOfCloudPBXGroups) companyId : ", that._logger.stripStringForLogs(companyId));
+
+        return new Promise(function (resolve, reject) {
+            try {
+                /* if (!groupId) {
+                    that._logger.log(that.WARN, LOG_ID + "(getMembersOfCloudPBXGroups) bad or empty 'groupId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getMembersOfCloudPBXGroups) bad or empty 'groupId' parameter : ", groupId);
+                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+                // */
+
+                that._rest.getMembersOfCloudPBXGroups (companyId, limit, offset, sortField, sortOrder, displayName, internalNumber).then((result: any) => {
+                    that._logger.log(that.DEBUG, LOG_ID + "(getMembersOfCloudPBXGroups) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getMembersOfCloudPBXGroups) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log(that.ERROR, LOG_ID + "(getMembersOfCloudPBXGroups) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log(that.ERROR, LOG_ID + "(getMembersOfCloudPBXGroups) CATCH error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getMembersOfCloudPBXGroups) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method updateCloudPBXGroup
+     * @since 2.28.2
+     * @instance
+     * @async
+     * @category Companies Cloudpbx Groups (Rainbow Voice)
+     * @param {string} companyId Company unique identifier (like 569ce8c8f9336c471b98eda1).
+     * @param {string} groupId Unique identifier of the Cloud PBX group to update.
+     * @param {String} [name] - Hunting group name - displayed on the caller phone set.
+     * @param {HuntingGroupPolicy} [policy="parallel"] - Hunting group policy - parallel only for hg_attendant subType, serial only for manager_assistant subType.
+     * @param {Number} [timeout=10] - Timeout after which the next member of the hunting group will be selected (ringing) - applicable to group with serial or circular policy.
+     * @param {String} [externalNumberId] - Identifier of the public phone number assigned to the hunting group.
+     * @param {Boolean} [isEmptyAllowed=true] - Indicates if the last active member can leave the hunting group or not.
+     * @param {Boolean} [isDDIUpdateByManagerAllowed=true] - Indicates if changing the DDI of this hunting group by a manager is allowed or not.
+     * @param {Object[]} members - List of group members. In case of serial hunting group policy, the order is the ringing order, for hg_attendant hunting group only Voice Attendant users.
+     * @param {String} members.memberId - Member (user) unique identifier.
+     * @param {HuntingGroupMemberRole[]} [members.roles=['agent']] - Member roles inside the group.
+     * @param {(HuntingGroupMemberStatus)} [members.status="active"] - Member status inside the group.
+     * @description
+     *      This API allows to modify settings of a PBX group.
+     * </br> Modification can be done on the following settings of a group:
+     * </br>
+     * </br>     Hunting group name
+     * </br>     Hunting group policy: parallel, serial or circular. Only 'default' hunting group can change its policy
+     * </br>     Hunting group timeout (for serial or circular group, in seconds)
+     * </br>     Members of the group (list of members, ordered in case of serial or circular hunting group or assistants of manager_assistant group)
+     * </br>     Empty group allowed (or not)
+     * </br>     Manager allowed or not to change the DDI of the group
+     * </br>
+     * </br>
+     * </br> Company admin, or superadmin can modify the whole parameters of a group, while a manager of a group can only manage the members of a group (add / remove members, change members order for a hunting group with policy set to serial).
+     * </br>
+     * </br>
+     * </br> An external phone number can also be assigned to a hunting group, so that it can be joined from public network.
+     * </br> To assign such a number, the following steps should be performed:
+     * </br>
+     * </br>     Retrieve the list of available phone numbers: (list DDI numbers from RVCP Provisioning portal)
+     * </br>     Provide the externalNumberId of the selected phone number in the body of this update request
+     * </br>
+     * </br>
+     * </br>
+     * </br> Please note that attributes group type and isEmergencyGroup cannot be changed.
+     * </br>
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Field                  | Type                                          | Description                                                                                         |
+     * |------------------------|-----------------------------------------------|-----------------------------------------------------------------------------------------------------|
+     * | id                | String                                        | Hunting group unique identifier                                                                    |
+     * | name              | String                                        | Hunting group name - displayed on the caller phone set                                             |
+     * | shortNumber       | String                                        | Hunting group short phone number                                                                   |
+     * | externalNumber    | String                                        | Public phone number of the hunting group                                                           |
+     * | externalNumberId  | String                                        | Identifier of the hunting group public phone number                                                 |
+     * | roomId            | String                                        | Identifier of the hunting group associated room                                                     |
+     * | phoneNumberId     | String                                        | Identifier of the hunting group phone number                                                        |
+     * | createdBy         | String                                        | Hunting group creator identifier                                                                   |
+     * | policy            | HuntingGroupPolicy           | Group policy                                                                                       |
+     * | timeout           | Number (5-30)                                 | Hunting group timeout in seconds - for serial or circular hunting group policy                       |
+     * | isRecordingActivated | Boolean                                    | Indicate if the recording activated on the hunting group                                           |
+     * | recordingProfile  | HuntingGroupProfiles | Recording profile of the hunting group                                                          |
+     * | isEmergencyGroup  | Boolean                                       | Indicates if this group is the emergency group for the associated Cloud PBX                         |
+     * | isEmptyAllowed    | Boolean                                       | Indicates if the last active member can leave the group or not                                      |
+     * | isDDIUpdateByManagerAllowed | Boolean                                | Indicates if changing the DDI of this hunting group by a manager is allowed or not                   |
+     * | type              | HuntingGroupType    | Group type -- DEPRECATED manager_assistant - see subType manager_assistant                          |
+     * | subType           | HuntingGroupSubType | Hunting group sub type                                                                       |
+     * | companyId         | String                                        | Identifier of the company owning the hunting group                                                 |
+     * | subscriberId      | String                                        | Associated subscriber Id of the hunting group                                                       |
+     * | systemId          | String                                        | Cloud PBX System unique identifier (like 569ce8c8f9336c471b98eda1)                                  |
+     * | members           | Object[]                                      | List of group members.                                                                            |
+     * | members.memberId  | String                                        | Member (user) unique identifier                                                                   |
+     * | members.displayName | String                                      | Member display name                                                                               |
+     * | members.roles     | String[]                                      | Member role inside the group (default: '["agent"]')                                                |
+     * | members.status    | HuntingGroupMemberStatus                        | Member status inside the group (default: active)                                                   |
+     * | members.connected | HuntingGroupMemberConnection | Hunting group member connected status inside the group                                        |
+     * | analyticSettings  | Object                                        | Group analytic settings                                                                            |
+     * | analyticSettings.isManagersAllowedToSeeMembersAnalytics | Boolean | Are group managers allowed to see members analytics                                                |
+     *
+     *  </br>example of result :
+     * </br> {
+     * </br>          "id": "5cd545b3a07de465fbc3fcda",
+     * </br>          "name": "Group_1",
+     * </br>          "type": "hunting_group",
+     * </br>          "subType": "default",
+     * </br>          "createdBy": "5cd5443fd9736d8431b5c185",
+     * </br>          "policy": "serial",
+     * </br>          "shortNumber": "81002",
+     * </br>          "externalNumberId": "5cd5443fd9736d8431b5c987",
+     * </br>          "externalNumber": "+33298564112",
+     * </br>          "phoneNumberId": "5cd5443fd9736d8431b5c988",
+     * </br>          "timeout": 10,
+     * </br>          "isEmergencyGroup": false,
+     * </br>          "isEmptyAllowed": false,
+     * </br>          "isDDIUpdateByManagerAllowed": true,
+     * </br>          "companyId": "5dcd8dcec7e1620643a2045e",
+     * </br>          "subscriberId": 147,
+     * </br>          "systemId": "5de6a632c21aa17bab337347",
+     * </br>          "members": [
+     * </br>              {"memberId": "5cd545b3a07de465fb123456", "displayName": "Alice Donner", "roles": ["agent"], "status": "active", "connected": "connected"},
+     * </br>              {"memberId": "5cd545b3a07de465fb123457", "displayName": "Bob the DIY man", "roles": ["agent"], "status": "active", "connected": "connected"},
+     * </br>              {"memberId": "5cd545b3a07de465fb123458", "displayName": "Carole Bouquet", "roles": ["manager", "agent"], "status": "active", "connected": "connected"}
+     * </br>          ],
+     * </br>          "roomId": "5de6a632c21aa10987456321a",
+     * </br>          "isRecordingActivated": false,
+     * </br>          "recordingProfile": "none",
+     * </br>          "analyticSettings": {
+     * </br>              "isManagersAllowedToSeeMembersAnalytics": true
+     * </br>          }
+     * </br> }
+     * </br>
+     */
+    updateCloudPBXGroup(companyId?: string, groupId?: string, name?: string, policy?: "serial" | "parallel" | "circular", timeout?: number, externalNumberId?: string, isEmptyAllowed?: boolean, isDDIUpdateByManagerAllowed?: boolean,
+                        members?: {
+            memberId: string,
+            roles?: ("manager" | "agent" | "leader" | "assistant")[],
+            status?: "active" | "idle"
+        }[]) : Promise<any> {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateCloudPBXGroup) companyId : ", that._logger.stripStringForLogs(companyId));
+
+        return new Promise(function (resolve, reject) {
+            try {
+                /* if (!groupId) {
+                    that._logger.log(that.WARN, LOG_ID + "(getMembersOfCloudPBXGroups) bad or empty 'groupId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getMembersOfCloudPBXGroups) bad or empty 'groupId' parameter : ", groupId);
+                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+                // */
+
+                that._rest.updateCloudPBXGroup(companyId, groupId, name, policy, timeout, externalNumberId, isEmptyAllowed, isDDIUpdateByManagerAllowed, members).then((result: any) => {
+                    that._logger.log(that.DEBUG, LOG_ID + "(updateCloudPBXGroup) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(updateCloudPBXGroup) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log(that.ERROR, LOG_ID + "(updateCloudPBXGroup) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log(that.ERROR, LOG_ID + "(updateCloudPBXGroup) CATCH error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(updateCloudPBXGroup) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method updateCloudPBXGroup
+     * @since 2.28.2
+     * @instance
+     * @async
+     * @category Companies Cloudpbx Groups (Rainbow Voice)
+     * @param {string} companyId Company unique identifier (like 569ce8c8f9336c471b98eda1).
+     * @param {string} groupId Unique identifier of the Cloud PBX group to update.
+     * @param {Boolean} [isManagersAllowedToSeeMembersAnalytics=true] - Set if a group manager is allowed to see members analytics.
+     * @description
+     *      This API allows to modify analytics settings of a PBX hunting group.
+     * @return {Promise<any>} - result
+     *
+     *
+     *
+     *  </br>example of result :
+     * </br> {
+
+     * </br> }
+     * </br>
+     */
+    updateCloudPBXHuntingGroupAnalyticsConfiguration (companyId?: string, groupId?: string, isManagersAllowedToSeeMembersAnalytics?: boolean) {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateCloudPBXHuntingGroupAnalyticsConfiguration) companyId : ", that._logger.stripStringForLogs(companyId));
+
+        return new Promise(function (resolve, reject) {
+            try {
+                /*
+                if (!groupId) {
+                    that._logger.log(that.WARN, LOG_ID + "(getMembersOfCloudPBXGroups) bad or empty 'groupId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getMembersOfCloudPBXGroups) bad or empty 'groupId' parameter : ", groupId);
+                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+                // */
+
+                that._rest.updateCloudPBXHuntingGroupAnalyticsConfiguration(companyId, groupId, isManagersAllowedToSeeMembersAnalytics).then((result: any) => {
+                    that._logger.log(that.DEBUG, LOG_ID + "(updateCloudPBXHuntingGroupAnalyticsConfiguration) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(updateCloudPBXHuntingGroupAnalyticsConfiguration) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log(that.ERROR, LOG_ID + "(updateCloudPBXHuntingGroupAnalyticsConfiguration) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log(that.ERROR, LOG_ID + "(updateCloudPBXHuntingGroupAnalyticsConfiguration) CATCH error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(updateCloudPBXHuntingGroupAnalyticsConfiguration) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method updateCloudPBXHuntingGroupRecordingConfiguration
+     * @since 2.28.2
+     * @instance
+     * @async
+     * @category Companies Cloudpbx Groups (Rainbow Voice)
+     * @param {string} companyId Company unique identifier (like 569ce8c8f9336c471b98eda1).
+     * @param {string} groupId Unique identifier of the Cloud PBX group to update.
+     * @param {string} recordingProfile Selection of the hunting group recording profile. Possibles values : all, external_only, internal_only, none
+     * @description
+     *      This API allows to modify recording settings of a PBX hunting group.
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Field                  | Type                                          | Description                                                                                         |
+     * |------------------------|-----------------------------------------------|-----------------------------------------------------------------------------------------------------|
+     * | id                | String                                        | Hunting group unique identifier                                                                    |
+     * | name              | String                                        | Hunting group name - displayed on the caller phone set                                             |
+     * | shortNumber       | String                                        | Hunting group short phone number                                                                   |
+     * | externalNumber    | String                                        | Public phone number of the hunting group                                                           |
+     * | externalNumberId  | String                                        | Identifier of the hunting group public phone number                                                 |
+     * | roomId            | String                                        | Identifier of the hunting group associated room                                                     |
+     * | phoneNumberId     | String                                        | Identifier of the hunting group phone number                                                        |
+     * | createdBy         | String                                        | Hunting group creator identifier                                                                   |
+     * | policy            | HuntingGroupPolicy           | Group policy                                                                                       |
+     * | timeout           | Number (5-30)                                 | Hunting group timeout in seconds - for serial or circular hunting group policy                       |
+     * | isRecordingActivated | Boolean                                    | Indicate if the recording activated on the hunting group                                           |
+     * | recordingProfile  | HuntingGroupProfiles | Recording profile of the hunting group                                                          |
+     * | isEmergencyGroup  | Boolean                                       | Indicates if this group is the emergency group for the associated Cloud PBX                         |
+     * | isEmptyAllowed    | Boolean                                       | Indicates if the last active member can leave the group or not                                      |
+     * | isDDIUpdateByManagerAllowed | Boolean                                | Indicates if changing the DDI of this hunting group by a manager is allowed or not                   |
+     * | type              | HuntingGroupType    | Group type -- DEPRECATED manager_assistant - see subType manager_assistant                          |
+     * | subType           | HuntingGroupSubType | Hunting group sub type                                                                       |
+     * | companyId         | String                                        | Identifier of the company owning the hunting group                                                 |
+     * | subscriberId      | String                                        | Associated subscriber Id of the hunting group                                                       |
+     * | systemId          | String                                        | Cloud PBX System unique identifier (like 569ce8c8f9336c471b98eda1)                                  |
+     * | members           | Object[]                                      | List of group members.                                                                            |
+     * | members.memberId  | String                                        | Member (user) unique identifier                                                                   |
+     * | members.displayName | String                                      | Member display name                                                                               |
+     * | members.roles     | String[]                                      | Member role inside the group (default: '["agent"]')                                                |
+     * | members.status    | HuntingGroupMemberStatus                        | Member status inside the group (default: active)                                                   |
+     * | members.connected | HuntingGroupMemberConnection | Hunting group member connected status inside the group                                        |
+     * | analyticSettings  | Object                                        | Group analytic settings                                                                            |
+     * | analyticSettings.isManagersAllowedToSeeMembersAnalytics | Boolean | Are group managers allowed to see members analytics                                                |
+     *
+     *  </br>example of result :
+     * </br>  {
+     * </br>         "id": "5cd545b3a07de465fbc3fcda",
+     * </br>         "name": "Group_1",
+     * </br>         "type": "hunting_group",
+     * </br>         "subType": "default",
+     * </br>         "createdBy": "5cd5443fd9736d8431b5c185",
+     * </br>         "policy": "serial",
+     * </br>         "shortNumber": "81002",
+     * </br>         "externalNumberId": "5cd5443fd9736d8431b5c987",
+     * </br>         "externalNumber": "+33298564112",
+     * </br>         "phoneNumberId": "5cd5443fd9736d8431b5c988",
+     * </br>         "timeout": 10,
+     * </br>         "isEmergencyGroup": false,
+     * </br>         "isEmptyAllowed": false,
+     * </br>         "isDDIUpdateByManagerAllowed": true,
+     * </br>         "companyId": "5dcd8dcec7e1620643a2045e",
+     * </br>         "subscriberId": 147,
+     * </br>         "systemId": "5de6a632c21aa17bab337347",
+     * </br>         "members": [
+     * </br>             {"memberId": "5cd545b3a07de465fb123456", "displayName": "Alice Donner", "roles": ["agent"], "status": "active", "connected": "connected"},
+     * </br>             {"memberId": "5cd545b3a07de465fb123457", "displayName": "Bob the DIY man", "roles": ["agent"], "status": "active", "connected": "connected"},
+     * </br>             {"memberId": "5cd545b3a07de465fb123458", "displayName": "Carole Bouquet", "roles": ["manager", "agent"], "status": "active", "connected": "connected"}
+     * </br>         ],
+     * </br>         "roomId": "5de6a632c21aa10987456321a",
+     * </br>         "isRecordingActivated": false,
+     * </br>         "recordingProfile": "none",
+     * </br>         "analyticSettings": {
+     * </br>             "isManagersAllowedToSeeMembersAnalytics": true
+     * </br>         }
+     * </br>  }
+     * </br>
+     */
+    updateCloudPBXHuntingGroupRecordingConfiguration(companyId?: string, groupId?: string, recordingProfile? : string) {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateCloudPBXHuntingGroupRecordingConfiguration) companyId : ", that._logger.stripStringForLogs(companyId));
+
+        return new Promise(function (resolve, reject) {
+            try {
+                /*
+                if (!groupId) {
+                    that._logger.log(that.WARN, LOG_ID + "(getMembersOfCloudPBXGroups) bad or empty 'groupId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getMembersOfCloudPBXGroups) bad or empty 'groupId' parameter : ", groupId);
+                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+                // */
+
+                that._rest.updateCloudPBXHuntingGroupRecordingConfiguration(companyId, groupId, recordingProfile).then((result: any) => {
+                    that._logger.log(that.DEBUG, LOG_ID + "(updateCloudPBXHuntingGroupRecordingConfiguration) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(updateCloudPBXHuntingGroupRecordingConfiguration) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log(that.ERROR, LOG_ID + "(updateCloudPBXHuntingGroupRecordingConfiguration) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log(that.ERROR, LOG_ID + "(updateCloudPBXHuntingGroupRecordingConfiguration) CATCH error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(updateCloudPBXHuntingGroupRecordingConfiguration) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    //endregion Companies Cloudpbx Groups (Rainbow Voice)
+
     }
 
 module.exports.AdminService = AdminService;

@@ -44,6 +44,7 @@
   - Invitation: 'ref:doc/sdk/node/api/invitation.md'
   - Message: 'ref:doc/sdk/node/api/message.md'
   - PresenceRainbow: 'ref:doc/sdk/node/api/presencerainbow.md'
+  - RainbowVoiceCloudPBX: 'ref:doc/sdk/node/api/rainbowvoicecloudpbx.md'
   - Settings: 'ref:doc/sdk/node/api/settings.md'
   - Task: 'ref:doc/sdk/node/api/task.md'
 - APIs - Services :
