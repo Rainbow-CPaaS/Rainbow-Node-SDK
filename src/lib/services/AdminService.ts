@@ -12752,8 +12752,9 @@ class AdminService extends GenericService {
      *
      *
      * example of result :
+     * ```json
      * {
-     * "jid_im": \[
+     * "jid_im": [
      * {
      * "resource": "web\_win\_1.67.2_P0EnyMvN",
      * "date": "2020-02-11T17:45:18.231395Z"
@@ -12762,8 +12763,9 @@ class AdminService extends GenericService {
      * "resource": "web\_win\_1.67.2_ajqyiThi",
      * "date": "2020-02-11T17:31:31.409537Z",
      * "show": "xa", "status": "away"
-     * } \]
+     * } ]
      * }
+     * ```
      *
      */
     getListOfResourcesForUser( userId : string) {
@@ -12820,6 +12822,7 @@ class AdminService extends GenericService {
      *
      *
      * example of result :
+     * ```json
      * {
      * "externalRef": "xxxxxxx",
      * "internalRef": "xxxxxxx",
@@ -12827,8 +12830,9 @@ class AdminService extends GenericService {
      * "description": "Hello Houston, we've got a problem.",
      * "additionalDescription": "my phone neither",
      * "resource": "web\_win\_xxxxx",
-     * "logs": \[\]
+     * "logs": []
      * }
+     * ```
      *
      */
     createAnAtriumTicket(userId : string, subject : string, description : string, additionalDescription : string, resource : string, externalRef : string, logs : Array<string> ) {
@@ -12882,6 +12886,7 @@ class AdminService extends GenericService {
      *
      *
      * example of result :
+     * ```json
      * {
      * "externalRef": "xxxxxxx",
      * "internalRef": "xxxxxxx",
@@ -12889,8 +12894,9 @@ class AdminService extends GenericService {
      * "description": "Hello Houston, we've got a problem.",
      * "additionalDescription": "my phone neither",
      * "resource": "web\_win\_xxxxx",
-     * "logs": \[\]
+     * "logs": []
      * }
+     * ```
      *
      */
     updateAnAtriumTicket(userId : string, ticketId : string, subject : string, description : string, additionalDescription : string, resource : string, externalRef : string, logs : Array<string> ) {
@@ -12931,6 +12937,7 @@ class AdminService extends GenericService {
      *
      *
      * example of result :
+     * ```json
      * {
      * "externalRef": "xxxxxxx",
      * "internalRef": "xxxxxxx",
@@ -12938,8 +12945,9 @@ class AdminService extends GenericService {
      * "description": "Hello Houston, we've got a problem.",
      * "additionalDescription": "my phone neither",
      * "resource": "web\_win\_xxxxx",
-     * "logs": \[\]
+     * "logs": []
      * }
+     * ```
      *
      */
     deleteAnAtriumTicketInformation(userId : string, ticketId : string) {
@@ -12986,6 +12994,7 @@ class AdminService extends GenericService {
      *
      *
      * example of result :
+     * ```json
      * {
      * "externalRef": "xxxxxxx",
      * "internalRef": "xxxxxxx",
@@ -12993,8 +13002,9 @@ class AdminService extends GenericService {
      * "description": "Hello Houston, we've got a problem.",
      * "additionalDescription": "my phone neither",
      * "resource": "web\_win\_xxxxx",
-     * "logs": \[\]
+     * "logs": []
      * }
+     * ```
      *
      */
     readAnAtriumTicketInformation( userId : string, ticketId : string) {
@@ -13034,7 +13044,8 @@ class AdminService extends GenericService {
      *
      *
      * example of result :
-     * \[
+     * ```json
+     * [
      * {
      * "externalRef": "xxxxxxx",
      * "internalRef": "xxxxxxx",
@@ -13042,7 +13053,7 @@ class AdminService extends GenericService {
      * "description": "Where is the volume button of my iphone?",
      * "additionalDescription": "Where is my rainbow icon on my mac? ",
      * "resource": "web\_win\_xxxxx",
-     * "logs": \[\]
+     * "logs": []
      * },
      * {
      * "externalRef": "xxxxxxx",
@@ -13051,7 +13062,8 @@ class AdminService extends GenericService {
      * "description": "I forgot to turn on my iphone, the screen stay in black, I disappointed to not receive any Rainbow notification.",
      * "resource": "web\_win\_xxxxx"
      * }
-     * \]
+     * ]
+     * ```
      *
      */
     readAllTicketsOnASameCompany(userId : string) {
@@ -13173,36 +13185,39 @@ class AdminService extends GenericService {
      * | analyticSettings                     | Object                                      | Group analytic settings                                                   |
      * | analyticSettings.isManagersAllowedToSeeMembersAnalytics | Boolean                     | Are group managers allowed to see members analytics                      |
      *
-     *  </br>example of result :
-     * </br> {
-     * </br>         "id": "5cd545b3a07de465fbc3fcda",
-     * </br>         "name": "Group_1",
-     * </br>         "type": "hunting_group",
-     * </br>         "subType": "default",
-     * </br>         "createdBy": "5cd5443fd9736d8431b5c185",
-     * </br>         "policy": "serial",
-     * </br>         "shortNumber": "81002",
-     * </br>         "externalNumberId": "5cd5443fd9736d8431b5c987",
-     * </br>         "externalNumber": "+33298564112",
-     * </br>         "phoneNumberId": "5cd5443fd9736d8431b5c988",
-     * </br>         "timeout": 10,
-     * </br>         "isEmergencyGroup": false,
-     * </br>         "isEmptyAllowed": true,
-     * </br>         "isDDIUpdateByManagerAllowed": true,
-     * </br>         "companyId": "5dcd8dcec7e1620643a2045e",
-     * </br>         "subscriberId": 147,
-     * </br>         "systemId": "5de6a632c21aa17bab337347",
-     * </br>         "members": [
-     * </br>             {"memberId": "5cd545b3a07de465fb123456", "displayName": "Alice Donner", "roles": ["agent"], "status": "active", "connected": "connected"},
-     * </br>             {"memberId": "5cd545b3a07de465fb123457", "displayName": "Bob the DIY man", "roles": ["agent"], "status": "active", "connected": "disconnected"},
-     * </br>             {"memberId": "5cd545b3a07de465fb123458", "displayName": "Carole Bouquet", "roles": ["manager", "agent"], "status": "active", "connected": "deskphone"}
-     * </br>         ],
-     * </br>         "isRecordingActivated": false,
-     * </br>         "recordingProfile": "none",
-     * </br>         "analyticSettings": {
-     * </br>             "isManagersAllowedToSeeMembersAnalytics": true
-     * </br>         }
-     * </br> }
+     *  example of result :
+     *  ```json
+     *  {
+     *          "id": "5cd545b3a07de465fbc3fcda",
+     *          "name": "Group_1",
+     *          "type": "hunting_group",
+     *          "subType": "default",
+     *          "createdBy": "5cd5443fd9736d8431b5c185",
+     *          "policy": "serial",
+     *          "shortNumber": "81002",
+     *          "externalNumberId": "5cd5443fd9736d8431b5c987",
+     *          "externalNumber": "+33298564112",
+     *          "phoneNumberId": "5cd5443fd9736d8431b5c988",
+     *          "timeout": 10,
+     *          "isEmergencyGroup": false,
+     *          "isEmptyAllowed": true,
+     *          "isDDIUpdateByManagerAllowed": true,
+     *          "companyId": "5dcd8dcec7e1620643a2045e",
+     *          "subscriberId": 147,
+     *          "systemId": "5de6a632c21aa17bab337347",
+     *          "members": [
+     *              {"memberId": "5cd545b3a07de465fb123456", "displayName": "Alice Donner", "roles": ["agent"], "status": "active", "connected": "connected"},
+     *              {"memberId": "5cd545b3a07de465fb123457", "displayName": "Bob the DIY man", "roles": ["agent"], "status": "active", "connected": "disconnected"},
+     *              {"memberId": "5cd545b3a07de465fb123458", "displayName": "Carole Bouquet", "roles": ["manager", "agent"], "status": "active", "connected": "deskphone"}
+     *          ],
+     *          "isRecordingActivated": false,
+     *          "recordingProfile": "none",
+     *          "analyticSettings": {
+     *              "isManagersAllowedToSeeMembersAnalytics": true
+     *          }
+     *  }
+     * ```
+     *
      * </br>
      */
     createCloudPBXGroup(companyId : string, huntingGroup : HuntingGroup ): Promise<any> {
@@ -13250,11 +13265,14 @@ class AdminService extends GenericService {
      *
      *
      * </br> example of result :
-     * </br> {
-     * </br>    "status": "Cloud PBX group 56c5c19f94141765119f896c successfully deleted",
-     * </br>    "data":[]
-     * </br> }
+     * ```json
+     *  {
+     *     "status": "Cloud PBX group 56c5c19f94141765119f896c successfully deleted",
+     *     "data":[]
+     *  }
+     *  ```
      * </br>
+     *
      */
     deleteCloudPBXGroup (companyId : string, groupId : string) :Promise<any> {
         let that = this;
@@ -13332,35 +13350,37 @@ class AdminService extends GenericService {
      * | analyticSettings.isManagersAllowedToSeeMembersAnalytics | Boolean                     | Are group managers allowed to see members analytics                      |
      *
      *  </br>example of result :
-     * </br> {
-     * </br>         "id": "5cd545b3a07de465fbc3fcda",
-     * </br>         "name": "Group_1",
-     * </br>         "type": "hunting_group",
-     * </br>         "subType": "default",
-     * </br>         "createdBy": "5cd5443fd9736d8431b5c185",
-     * </br>         "policy": "serial",
-     * </br>         "shortNumber": "81002",
-     * </br>         "externalNumberId": "5cd5443fd9736d8431b5c987",
-     * </br>         "externalNumber": "+33298564112",
-     * </br>         "phoneNumberId": "5cd5443fd9736d8431b5c988",
-     * </br>         "timeout": 10,
-     * </br>         "isEmergencyGroup": false,
-     * </br>         "isEmptyAllowed": true,
-     * </br>         "isDDIUpdateByManagerAllowed": true,
-     * </br>         "companyId": "5dcd8dcec7e1620643a2045e",
-     * </br>         "subscriberId": 147,
-     * </br>         "systemId": "5de6a632c21aa17bab337347",
-     * </br>         "members": [
-     * </br>             {"memberId": "5cd545b3a07de465fb123456", "displayName": "Alice Donner", "roles": ["agent"], "status": "active", "connected": "connected"},
-     * </br>             {"memberId": "5cd545b3a07de465fb123457", "displayName": "Bob the DIY man", "roles": ["agent"], "status": "active", "connected": "disconnected"},
-     * </br>             {"memberId": "5cd545b3a07de465fb123458", "displayName": "Carole Bouquet", "roles": ["manager", "agent"], "status": "active", "connected": "deskphone"}
-     * </br>         ],
-     * </br>         "isRecordingActivated": false,
-     * </br>         "recordingProfile": "none",
-     * </br>         "analyticSettings": {
-     * </br>             "isManagersAllowedToSeeMembersAnalytics": true
-     * </br>         }
-     * </br> }
+     *  ```json
+     *  {
+     *          "id": "5cd545b3a07de465fbc3fcda",
+     *          "name": "Group_1",
+     *          "type": "hunting_group",
+     *          "subType": "default",
+     *          "createdBy": "5cd5443fd9736d8431b5c185",
+     *          "policy": "serial",
+     *          "shortNumber": "81002",
+     *          "externalNumberId": "5cd5443fd9736d8431b5c987",
+     *          "externalNumber": "+33298564112",
+     *          "phoneNumberId": "5cd5443fd9736d8431b5c988",
+     *          "timeout": 10,
+     *          "isEmergencyGroup": false,
+     *          "isEmptyAllowed": true,
+     *          "isDDIUpdateByManagerAllowed": true,
+     *          "companyId": "5dcd8dcec7e1620643a2045e",
+     *          "subscriberId": 147,
+     *          "systemId": "5de6a632c21aa17bab337347",
+     *          "members": [
+     *              {"memberId": "5cd545b3a07de465fb123456", "displayName": "Alice Donner", "roles": ["agent"], "status": "active", "connected": "connected"},
+     *              {"memberId": "5cd545b3a07de465fb123457", "displayName": "Bob the DIY man", "roles": ["agent"], "status": "active", "connected": "disconnected"},
+     *              {"memberId": "5cd545b3a07de465fb123458", "displayName": "Carole Bouquet", "roles": ["manager", "agent"], "status": "active", "connected": "deskphone"}
+     *          ],
+     *          "isRecordingActivated": false,
+     *          "recordingProfile": "none",
+     *          "analyticSettings": {
+     *              "isManagersAllowedToSeeMembersAnalytics": true
+     *          }
+     *  }
+     *  ```
      * </br>
      */
     getCloudPBXGroup (companyId : string, groupId : string) :Promise<any> {
@@ -13438,54 +13458,56 @@ class AdminService extends GenericService {
      *      | data.analyticSettings.isManagersAllowedToSeeMembersAnalytics | Boolean                                        | Are group managers allowed to see members analytics                                              |
      *
      *  </br>example of result :
-     * </br> {
-     * </br>    "data": [
-     * </br>        {
-     * </br>            "id": "5cd545b3a07de465fbc3fcda",
-     * </br>            "name": "Group_1",
-     * </br>            "type": "hunting_group",
-     * </br>            "subType": "hg_attendant",
-     * </br>            "policy": "serial",
-     * </br>            "shortNumber": 81002,
-     * </br>            "externalNumber": "+33298564112",
-     * </br>            "isRecordingActivated": false,
-     * </br>            "recordingProfile": "none",
-     * </br>            "isEmergencyGroup": false,
-     * </br>            "isEmptyAllowed": false,
-     * </br>            "isDDIUpdateByManagerAllowed": true
-     * </br>       },
-     * </br>       {
-     * </br>            "type": "hunting_group",
-     * </br>            "subType": "manager_assistant",
-     * </br>            "isEmergencyGroup": false,
-     * </br>            "isRecordingActivated": false,
-     * </br>            "recordingProfile": "none",
-     * </br>            "isEmptyAllowed": true,
-     * </br>            "isDDIUpdateByManagerAllowed": true,
-     * </br>            "name": "POL_GP6_HG",
-     * </br>            "policy": "serial",
-     * </br>            "phoneNumberId": "6311b6e9fec56c1edc7f6086",
-     * </br>            "roomId": "6311babcfec56c1edc7f608a",
-     * </br>            "id": "6311b808fec56c1edc7f6089",
-     * </br>            "shortNumber": "90026",
-     * </br>            "externalNumber": null,
-     * </br>            "nbMembers": 3
-     * </br>       },
-     * </br>       {
-     * </br>            "type": "manager_assistant",
-     * </br>            "isEmergencyGroup": false,
-     * </br>            "isRecordingActivated": false,
-     * </br>            "recordingProfile": "none",
-     * </br>            "isEmptyAllowed": true,
-     * </br>            "name": "POL_MA1",
-     * </br>            "id": "631200038bbd9b06452167c1",
-     * </br>            "nbMembers": 2
-     * </br>       }
-     * </br>   ],
-     * </br>   "limit": 100,
-     * </br>   "offset": 0,
-     * </br>   "total": 3
-     * </br> }
+     *  ```json
+     *  {
+     *     "data": [
+     *         {
+     *             "id": "5cd545b3a07de465fbc3fcda",
+     *             "name": "Group_1",
+     *             "type": "hunting_group",
+     *             "subType": "hg_attendant",
+     *             "policy": "serial",
+     *             "shortNumber": 81002,
+     *             "externalNumber": "+33298564112",
+     *             "isRecordingActivated": false,
+     *             "recordingProfile": "none",
+     *             "isEmergencyGroup": false,
+     *             "isEmptyAllowed": false,
+     *             "isDDIUpdateByManagerAllowed": true
+     *        },
+     *        {
+     *             "type": "hunting_group",
+     *             "subType": "manager_assistant",
+     *             "isEmergencyGroup": false,
+     *             "isRecordingActivated": false,
+     *             "recordingProfile": "none",
+     *             "isEmptyAllowed": true,
+     *             "isDDIUpdateByManagerAllowed": true,
+     *             "name": "POL_GP6_HG",
+     *             "policy": "serial",
+     *             "phoneNumberId": "6311b6e9fec56c1edc7f6086",
+     *             "roomId": "6311babcfec56c1edc7f608a",
+     *             "id": "6311b808fec56c1edc7f6089",
+     *             "shortNumber": "90026",
+     *             "externalNumber": null,
+     *             "nbMembers": 3
+     *        },
+     *        {
+     *             "type": "manager_assistant",
+     *             "isEmergencyGroup": false,
+     *             "isRecordingActivated": false,
+     *             "recordingProfile": "none",
+     *             "isEmptyAllowed": true,
+     *             "name": "POL_MA1",
+     *             "id": "631200038bbd9b06452167c1",
+     *             "nbMembers": 2
+     *        }
+     *    ],
+     *    "limit": 100,
+     *    "offset": 0,
+     *    "total": 3
+     *  }
+     *  ```
      * </br>
      */
     getAllCloudPBXGroups (companyId?: string, sortField?: string, name?: string, shortNumber?: string, externalNumber?: string, memberId?: string, type?: string, limit?: number, offset?: number, sortOrder?: number) {
@@ -13551,31 +13573,33 @@ class AdminService extends GenericService {
      * | data.groups.name       | String      | Group name                                     |
      *
      *  </br>example of result :
-     * </br> {
-     * </br>    "data": [
-     * </br>         { "id": "63a075137a218ec55b19a99f", "firstName": "Bob", "lastName": "Patol", "internalNumber": "90002", "lastAvatarUpdateDate": null,
-     * </br>             "groups": [
-     * </br>                 {"id": "63bbe773343b506650ca5258", "name": "POL_CQ1" }
-     * </br>              ]
-     * </br>         },
-     * </br>         { "id": "63a0752d7a218ec55b19a9c0", "firstName": "Carol", "lastName": "Patol", "internalNumber": "90003", "lastAvatarUpdateDate": null,
-     * </br>             "groups": [
-     * </br>                 { "id": "63bbe773343b506650ca5258", "name": "POL_CQ1" }
-     * </br>             ]
-     * </br>          },
-     * </br>          { "id": "63a0754a7a218ec55b19a9e1", "firstName": "Dave", "lastName": "Patol", "internalNumber": "90004", "lastAvatarUpdateDate": "2023-02-16T14:00:52.564Z",
-     * </br>             "groups": [
-     * </br>                 { "id": "63bd7df89c9f5b1191d84df1", "name": "POL_GP2" }
-     * </br>             ]
-     * </br>          },
-     * </br>          { "id": "63a075d17a218ec55b19aaad", "firstName": "Fiona", "lastName": "Patol", "internalNumber": "90006", "lastAvatarUpdateDate": null,
-     * </br>             "groups": [
-     * </br>                 { "id": "63bd7df89c9f5b1191d84df1", "name": "POL_GP2" },
-     * </br>                 { "id": "63ebbe028f09ed5503274e63", "name": "POL_GP3" }
-     * </br>             ]
-     * </br>          }
-     * </br>    ]
-     * </br> }
+     *  ```json
+     *  {
+     *     "data": [
+     *          { "id": "63a075137a218ec55b19a99f", "firstName": "Bob", "lastName": "Patol", "internalNumber": "90002", "lastAvatarUpdateDate": null,
+     *              "groups": [
+     *                  {"id": "63bbe773343b506650ca5258", "name": "POL_CQ1" }
+     *               ]
+     *          },
+     *          { "id": "63a0752d7a218ec55b19a9c0", "firstName": "Carol", "lastName": "Patol", "internalNumber": "90003", "lastAvatarUpdateDate": null,
+     *              "groups": [
+     *                  { "id": "63bbe773343b506650ca5258", "name": "POL_CQ1" }
+     *              ]
+     *           },
+     *           { "id": "63a0754a7a218ec55b19a9e1", "firstName": "Dave", "lastName": "Patol", "internalNumber": "90004", "lastAvatarUpdateDate": "2023-02-16T14:00:52.564Z",
+     *              "groups": [
+     *                  { "id": "63bd7df89c9f5b1191d84df1", "name": "POL_GP2" }
+     *              ]
+     *           },
+     *           { "id": "63a075d17a218ec55b19aaad", "firstName": "Fiona", "lastName": "Patol", "internalNumber": "90006", "lastAvatarUpdateDate": null,
+     *              "groups": [
+     *                  { "id": "63bd7df89c9f5b1191d84df1", "name": "POL_GP2" },
+     *                  { "id": "63ebbe028f09ed5503274e63", "name": "POL_GP3" }
+     *              ]
+     *           }
+     *     ]
+     *  }
+     *  ```
      * </br>
      */
     getMembersOfCloudPBXGroups (companyId?: string, limit?: number, offset?: number, sortField?: string, sortOrder?: number, displayName?: string, internalNumber?: string) {
@@ -13687,36 +13711,38 @@ class AdminService extends GenericService {
      * | analyticSettings.isManagersAllowedToSeeMembersAnalytics | Boolean | Are group managers allowed to see members analytics                                                |
      *
      *  </br>example of result :
-     * </br> {
-     * </br>          "id": "5cd545b3a07de465fbc3fcda",
-     * </br>          "name": "Group_1",
-     * </br>          "type": "hunting_group",
-     * </br>          "subType": "default",
-     * </br>          "createdBy": "5cd5443fd9736d8431b5c185",
-     * </br>          "policy": "serial",
-     * </br>          "shortNumber": "81002",
-     * </br>          "externalNumberId": "5cd5443fd9736d8431b5c987",
-     * </br>          "externalNumber": "+33298564112",
-     * </br>          "phoneNumberId": "5cd5443fd9736d8431b5c988",
-     * </br>          "timeout": 10,
-     * </br>          "isEmergencyGroup": false,
-     * </br>          "isEmptyAllowed": false,
-     * </br>          "isDDIUpdateByManagerAllowed": true,
-     * </br>          "companyId": "5dcd8dcec7e1620643a2045e",
-     * </br>          "subscriberId": 147,
-     * </br>          "systemId": "5de6a632c21aa17bab337347",
-     * </br>          "members": [
-     * </br>              {"memberId": "5cd545b3a07de465fb123456", "displayName": "Alice Donner", "roles": ["agent"], "status": "active", "connected": "connected"},
-     * </br>              {"memberId": "5cd545b3a07de465fb123457", "displayName": "Bob the DIY man", "roles": ["agent"], "status": "active", "connected": "connected"},
-     * </br>              {"memberId": "5cd545b3a07de465fb123458", "displayName": "Carole Bouquet", "roles": ["manager", "agent"], "status": "active", "connected": "connected"}
-     * </br>          ],
-     * </br>          "roomId": "5de6a632c21aa10987456321a",
-     * </br>          "isRecordingActivated": false,
-     * </br>          "recordingProfile": "none",
-     * </br>          "analyticSettings": {
-     * </br>              "isManagersAllowedToSeeMembersAnalytics": true
-     * </br>          }
-     * </br> }
+     *  ```json
+     *  {
+     *           "id": "5cd545b3a07de465fbc3fcda",
+     *           "name": "Group_1",
+     *           "type": "hunting_group",
+     *           "subType": "default",
+     *           "createdBy": "5cd5443fd9736d8431b5c185",
+     *           "policy": "serial",
+     *           "shortNumber": "81002",
+     *           "externalNumberId": "5cd5443fd9736d8431b5c987",
+     *           "externalNumber": "+33298564112",
+     *           "phoneNumberId": "5cd5443fd9736d8431b5c988",
+     *           "timeout": 10,
+     *           "isEmergencyGroup": false,
+     *           "isEmptyAllowed": false,
+     *           "isDDIUpdateByManagerAllowed": true,
+     *           "companyId": "5dcd8dcec7e1620643a2045e",
+     *           "subscriberId": 147,
+     *           "systemId": "5de6a632c21aa17bab337347",
+     *           "members": [
+     *               {"memberId": "5cd545b3a07de465fb123456", "displayName": "Alice Donner", "roles": ["agent"], "status": "active", "connected": "connected"},
+     *               {"memberId": "5cd545b3a07de465fb123457", "displayName": "Bob the DIY man", "roles": ["agent"], "status": "active", "connected": "connected"},
+     *               {"memberId": "5cd545b3a07de465fb123458", "displayName": "Carole Bouquet", "roles": ["manager", "agent"], "status": "active", "connected": "connected"}
+     *           ],
+     *           "roomId": "5de6a632c21aa10987456321a",
+     *           "isRecordingActivated": false,
+     *           "recordingProfile": "none",
+     *           "analyticSettings": {
+     *               "isManagersAllowedToSeeMembersAnalytics": true
+     *           }
+     *  }
+     *  ```
      * </br>
      */
     updateCloudPBXGroup(companyId?: string, groupId?: string, name?: string, policy?: "serial" | "parallel" | "circular", timeout?: number, externalNumberId?: string, isEmptyAllowed?: boolean, isDDIUpdateByManagerAllowed?: boolean,
@@ -13771,9 +13797,10 @@ class AdminService extends GenericService {
      *
      *
      *  </br>example of result :
-     * </br> {
-
-     * </br> }
+     *  ```json
+     *  {
+     *  }
+     * ```
      * </br>
      */
     updateCloudPBXHuntingGroupAnalyticsConfiguration (companyId?: string, groupId?: string, isManagersAllowedToSeeMembersAnalytics?: boolean) {
@@ -13854,36 +13881,38 @@ class AdminService extends GenericService {
      * | analyticSettings.isManagersAllowedToSeeMembersAnalytics | Boolean | Are group managers allowed to see members analytics                                                |
      *
      *  </br>example of result :
-     * </br>  {
-     * </br>         "id": "5cd545b3a07de465fbc3fcda",
-     * </br>         "name": "Group_1",
-     * </br>         "type": "hunting_group",
-     * </br>         "subType": "default",
-     * </br>         "createdBy": "5cd5443fd9736d8431b5c185",
-     * </br>         "policy": "serial",
-     * </br>         "shortNumber": "81002",
-     * </br>         "externalNumberId": "5cd5443fd9736d8431b5c987",
-     * </br>         "externalNumber": "+33298564112",
-     * </br>         "phoneNumberId": "5cd5443fd9736d8431b5c988",
-     * </br>         "timeout": 10,
-     * </br>         "isEmergencyGroup": false,
-     * </br>         "isEmptyAllowed": false,
-     * </br>         "isDDIUpdateByManagerAllowed": true,
-     * </br>         "companyId": "5dcd8dcec7e1620643a2045e",
-     * </br>         "subscriberId": 147,
-     * </br>         "systemId": "5de6a632c21aa17bab337347",
-     * </br>         "members": [
-     * </br>             {"memberId": "5cd545b3a07de465fb123456", "displayName": "Alice Donner", "roles": ["agent"], "status": "active", "connected": "connected"},
-     * </br>             {"memberId": "5cd545b3a07de465fb123457", "displayName": "Bob the DIY man", "roles": ["agent"], "status": "active", "connected": "connected"},
-     * </br>             {"memberId": "5cd545b3a07de465fb123458", "displayName": "Carole Bouquet", "roles": ["manager", "agent"], "status": "active", "connected": "connected"}
-     * </br>         ],
-     * </br>         "roomId": "5de6a632c21aa10987456321a",
-     * </br>         "isRecordingActivated": false,
-     * </br>         "recordingProfile": "none",
-     * </br>         "analyticSettings": {
-     * </br>             "isManagersAllowedToSeeMembersAnalytics": true
-     * </br>         }
-     * </br>  }
+     * ```json
+     *   {
+     *          "id": "5cd545b3a07de465fbc3fcda",
+     *          "name": "Group_1",
+     *          "type": "hunting_group",
+     *          "subType": "default",
+     *          "createdBy": "5cd5443fd9736d8431b5c185",
+     *          "policy": "serial",
+     *          "shortNumber": "81002",
+     *          "externalNumberId": "5cd5443fd9736d8431b5c987",
+     *          "externalNumber": "+33298564112",
+     *          "phoneNumberId": "5cd5443fd9736d8431b5c988",
+     *          "timeout": 10,
+     *          "isEmergencyGroup": false,
+     *          "isEmptyAllowed": false,
+     *          "isDDIUpdateByManagerAllowed": true,
+     *          "companyId": "5dcd8dcec7e1620643a2045e",
+     *          "subscriberId": 147,
+     *          "systemId": "5de6a632c21aa17bab337347",
+     *          "members": [
+     *              {"memberId": "5cd545b3a07de465fb123456", "displayName": "Alice Donner", "roles": ["agent"], "status": "active", "connected": "connected"},
+     *              {"memberId": "5cd545b3a07de465fb123457", "displayName": "Bob the DIY man", "roles": ["agent"], "status": "active", "connected": "connected"},
+     *              {"memberId": "5cd545b3a07de465fb123458", "displayName": "Carole Bouquet", "roles": ["manager", "agent"], "status": "active", "connected": "connected"}
+     *          ],
+     *          "roomId": "5de6a632c21aa10987456321a",
+     *          "isRecordingActivated": false,
+     *          "recordingProfile": "none",
+     *          "analyticSettings": {
+     *              "isManagersAllowedToSeeMembersAnalytics": true
+     *          }
+     *   }
+     * ```
      * </br>
      */
     updateCloudPBXHuntingGroupRecordingConfiguration(companyId?: string, groupId?: string, recordingProfile? : string) {
