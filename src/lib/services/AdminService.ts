@@ -14299,7 +14299,7 @@ class AdminService extends GenericService {
 
     /**
      * @public
-     * @method updateCloudPBXGroup
+     * @method updateCloudPBXHuntingGroupAnalyticsConfiguration
      * @since 2.28.2
      * @instance
      * @async
