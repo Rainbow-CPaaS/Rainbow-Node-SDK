@@ -3017,6 +3017,523 @@ class AdminService extends GenericService {
 
     //endregion Company join company requests
 
+    //region Companies Customization Emails
+
+    /**
+     * @public
+     * @method getEmailTemplatesDocumentation
+     * @since 2.28.2
+     * @instance
+     * @async
+     * @category Companies Customization Emails
+     * @param {string} format Allows to retrieve only the list of templateName in the response.
+     * </br>    small : Allows to retrieve only the list of templateName in the response.
+     * </br>    full : A documentation for each allowed templates following the pattern
+     * </br> Default value : full. Possibles values : small, full
+     *
+     * @description
+     *      This API allows to get the list of public emails allowed to be customized. This is a short description of templates allowed to be customized by a customer.
+     *
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | templates | Object\[\] |     |
+     * | templateName | String | The name of the template |
+     * | relatedAPI | Object\[\] | Which Rainbow API may lead to send an email based on this template. |
+     * | verb | String | The REST API verb (POST / PUT). |
+     * | url | String | The REST API url |
+     * | allowedParameters | String\[\] | The list of parameters Rainbow currently use in it's template. ( ex: {{enduser_displayname}} ) |
+     *
+     *  </br>example of result :
+     *  ```json
+     *  {
+     *         "templates": [
+     *           {
+     *             "templateName": "enduser_invite_somebody",
+     *             "relatedAPI": [
+     *               {
+     *                 "verb": "POST",
+     *                 "url": "/api/rainbow/enduser/v1.0/users/:userId/invitations"
+     *               }
+     *             ],
+     *             "allowedParameters": [
+     *               "enduser_login",
+     *               "enduser_displayname",
+     *               "enduser_company_name",
+     *               "custom_message",
+     *               "invitationURL",
+     *               "invitationId",
+     *               "WebsiteURL",
+     *               "publicWebsiteURL"
+     *             ]
+     *           },
+     *           {
+     *             "templateName": "enduser_account_terminated",
+     *             "relatedAPI": [
+     *               {
+     *                 "verb": "DELETE",
+     *                 "url": "/api/rainbow/admin/v1.0/users/:userId"
+     *               }
+     *             ],
+     *             "allowedParameters": [
+     *               "by_displayName",
+     *               "from_companyName",
+     *               "WebsiteURL",
+     *               "publicWebsiteURL"
+     *             ]
+     *           }
+     *         ]
+     *  }
+     * ```
+     * </br>
+     */
+    getEmailTemplatesDocumentation (format : string) {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getEmailTemplatesDocumentation) format : ", that._logger.stripStringForLogs(format));
+
+        return new Promise(function (resolve, reject) {
+            try {
+                /*
+                if (!groupId) {
+                    that._logger.log(that.WARN, LOG_ID + "(getMembersOfCloudPBXGroups) bad or empty 'groupId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getMembersOfCloudPBXGroups) bad or empty 'groupId' parameter : ", groupId);
+                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+                // */
+
+                that._rest.getEmailTemplatesDocumentation(format).then((result: any) => {
+                    that._logger.log(that.DEBUG, LOG_ID + "(getEmailTemplatesDocumentation) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getEmailTemplatesDocumentation) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log(that.ERROR, LOG_ID + "(getEmailTemplatesDocumentation) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log(that.ERROR, LOG_ID + "(getEmailTemplatesDocumentation) CATCH error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getEmailTemplatesDocumentation) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method initiateEmailTemplate
+     * @since 2.28.2
+     * @instance
+     * @async
+     * @category Companies Customization Emails
+     * @param {string} companyId Company unique identifier
+     * @param {string} templateName One of the email template allowed to be customized. **For the entire list of allowed template names, use getEmailTemplatesDocumentation API with parameter format=small**
+     * </br> Possibles values : `admin_cancel_invite_user_join_company`, `admin_invite_user_join_company`, `admin_invite_user_join_company_as_admin`, `admin_invite_user_register_and_join_company`, `admin_invite_user_register_and_join_company_as_admin`, `admin_request_company_visibility`, `bp_admin_invite_ec_admin_link_his_company_to_bp`, `ec_admin_request_bp_admin_link_his_company_to_bp`, `bp_admin_invite_ec_admin_link_his_company_to_bp_as_bp_ir`, `ec_admin_request_bp_admin_link_his_company_to_bp_as_bp_ir`, `enduser_account_creation_completed`, `enduser_account_terminated`, `enduser_account_terminated_by_himself`, `enduser_conversation_download`, `enduser_invite_somebody`, `enduser_chat_room_invite_guest`, `enduser_conference_invite_somebody`, `enduser_scheduled_conference_cancel_invite`, `enduser_scheduled_conference_invite_somebody`, `enduser_scheduled_conference_ical`, `enduser_scheduled_conference_cancel_ical`, `enduser_request_join_company`, `enduser_request_user_visibility`, `enduser_temporary_token_reset_password`, `enduser_temporary_token_self_register`, `enduser_offline_im_invite`, `enduser_guest_account_time_to_live`, `enduser_oauth_authentication_notification`
+     * @description
+     *      This API allows to create basis for the template to customize. This skeleton is linked with the company. But is not yet activated
+     * An error occurs when the template name is not allowed or when it was already created for this company.
+     *
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | templateName | String | The name of the template |
+     * | companyId | String | The companyId for which the template is dedicated. |
+     * | subject | String | The email subject content. |
+     * | mjmlFormat | String | The email content in MJML markup language.  <br>MJML is a markup language designed to reduce the pain of coding a responsive email. Refer to https://mjml.io/documentation/#mjml-guides |
+     * | textFormat | String | The email content in text format. |
+     * | isActive | Boolean | When true the custom email template is used instead of Rainbow template |
+     * | tested | Boolean | When the rendering API is used to check the custom email rendering, this boolean is set to true. Any change about template content will reset the flag. |
+     *
+     *  </br>example of result :
+     *  ```json
+     *   {
+     *          "companyId": "598857f360c749e5890ff2f9",
+     *          "templateName": "enduser_account_terminated",
+     *          "mjmlFormat": "<mjml><mj-body></mj-body></mjml>",
+     *          "subject": "{{ __({phrase: \"Your Rainbow account has been closed\", locale: locale}) | safe }}",
+     *          "textFormat": "{{ __({phrase: \"Your administrator {{by_displayName}} (from company {{from_companyName}}) has closed your Rainbow account.\", locale: locale}, {by_displayName: by_displayName, from_companyName: from_companyName}) }}\n\n{{ __({phrase: \"This operation cannot be undone, and from now on, you will no longer have access to the Rainbow service.\", locale: locale}) }}\n\n{{ __({phrase: \"Learn more\", locale: locale}) }} {{ __({phrase: \"about Rainbow\", locale: locale}) }}:\n{{ publicWebsiteURL }}\n\nCopyright © 2018 Alcatel-Lucent Enterprise",
+     *          "isActive": false,
+     *          "tested" : false
+     *  }
+     * ```
+     * </br>
+     */
+    initiateEmailTemplate(companyId: string, templateName : string) {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(initiateEmailTemplate) templateName : ", that._logger.stripStringForLogs(templateName));
+
+        return new Promise(function (resolve, reject) {
+            try {
+                /*
+                if (!groupId) {
+                    that._logger.log(that.WARN, LOG_ID + "(initiateEmailTemplate) bad or empty 'groupId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(initiateEmailTemplate) bad or empty 'groupId' parameter : ", groupId);
+                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+                // */
+
+                that._rest.initiateEmailTemplate(companyId, templateName ).then((result: any) => {
+                    that._logger.log(that.DEBUG, LOG_ID + "(initiateEmailTemplate) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(initiateEmailTemplate) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log(that.ERROR, LOG_ID + "(initiateEmailTemplate) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log(that.ERROR, LOG_ID + "(initiateEmailTemplate) CATCH error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(initiateEmailTemplate) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method updateSubjectPartTemplate
+     * @since 2.28.2
+     * @instance
+     * @async
+     * @category Companies Customization Emails
+     * @param {string} companyId Company unique identifier
+     * @param {string} templateName One of the email template allowed to be customized. **For the entire list of allowed template names, use getEmailTemplatesDocumentation API with parameter format=small**
+     * </br> `enduser_invite_somebody`: User can be searched by external users / can search external users. User can invite external users / can be invited by external users
+     * </br> Possibles values : `admin_cancel_invite_user_join_company`, `admin_invite_user_join_company`, `admin_invite_user_join_company_as_admin`, `admin_invite_user_register_and_join_company`, `admin_invite_user_register_and_join_company_as_admin`, `admin_request_company_visibility`, `bp_admin_invite_ec_admin_link_his_company_to_bp`, `ec_admin_request_bp_admin_link_his_company_to_bp`, `bp_admin_invite_ec_admin_link_his_company_to_bp_as_bp_ir`, `ec_admin_request_bp_admin_link_his_company_to_bp_as_bp_ir`, `enduser_account_creation_completed`, `enduser_account_terminated`, `enduser_account_terminated_by_himself`, `enduser_conversation_download`, `enduser_invite_somebody`, `enduser_chat_room_invite_guest`, `enduser_conference_invite_somebody`, `enduser_scheduled_conference_cancel_invite`, `enduser_scheduled_conference_invite_somebody`, `enduser_scheduled_conference_ical`, `enduser_scheduled_conference_cancel_ical`, `enduser_request_join_company`, `enduser_request_user_visibility`, `enduser_temporary_token_reset_password`, `enduser_temporary_token_self_register`, `enduser_offline_im_invite`, `enduser_guest_account_time_to_live`, `enduser_oauth_authentication_notification`
+     * @param {any} body information about template. exemple : {{ __({phrase: "{{enduser_displayname}} has invited you to Alcatel-Lucent Rainbow", locale: locale}, {enduser_displayname: enduser_displayname}) | safe }}
+     * @description
+     *     This API allows to update an email template for a given company, and more precisely the subject part. An error occurs when the template name is not yet allowed or when it is not found for this company.
+     * </br> Templates needs to be scanned by an anti-virus. An error may occurs in this step.
+     * </br> A template can't be modified when is status is isActive = true (error detail 409011)
+     * </br> Users with superadmin role can handle all available email templates of any company.
+     * </br> Users with bp_admin role can only handle email templates for a company they manage (i.e. End Customer company for which bp_admin's company if the BP company).
+     * </br> Users with organization_admin role can only handle email templates for a company they manage (i.e. company linked to organization_admin's organization).
+     * </br> Users with company_admin users can only handle all available email templates of their own company.
+     *
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | templateName | String | The name of the template |
+     * | companyId | String | The companyId for which the template is dedicated. |
+     * | isActive | Boolean | When true the custom email template is used instead of Rainbow template |
+     * | tested | Boolean | When the rendering API is used to check the custom email rendering, this boolean is set to true. Any change about template content will reset the flag. |
+     * | subject | String | The email subject content. |
+     * | mjmlFormat | String | The email content in MJML markup language.  <br>MJML is a markup language designed to reduce the pain of coding a responsive email. Refer to https://mjml.io/documentation/#mjml-guides |
+     * | textFormat | String | The email content in text format. |
+     *
+     *  </br>example of result :
+     *  ```json
+     *   {
+     *      "companyId": "598857f360c749e5890ff2f9",
+     *      "templateName": "enduser_account_terminated",
+     *      "isActive": false,
+     *      "tested": false,
+     *      "mjmlFormat": "<mjml>\n\t<mj-body>\n\t\t<mj-section background-color=\"#f0f0f0\">\n\t\t\t<mj-column>\n\t\t\t\t<mj-text  font-style=\"italic\" font-size=\"20px\" color=\"#626262\">My Company<br><a href={{publicWebsiteURL }}>{{ __({phrase: \"about My Company\", locale: locale}) }}</a>\n\t\t\t\t</mj-text>\n\t\t\t</mj-column>\n\t\t</mj-section>\n\t</mj-body>\n</mjml>",
+     *      "subject": "{{ __({phrase: \"{{enduser_displayname}} has invited you to Alcatel-Lucent Rainbow\", locale: locale}, {enduser_displayname: enduser_displayname}) | safe }}",
+     *      "textFormat": "{{ __({phrase: \"You have been invited to Rainbow by {{enduser_displayname}} from {{enduser_companyName}}.\", locale: locale}, {enduser_displayname: enduser_displayname, enduser_companyName: enduser_companyName}) }}\n\n{% if custom_message %}\n    {{ custom_message }}\n{% endif %}\n\n{{ __({phrase: \"Start the discussion\", locale: locale}) }}:\n{{ invitationURL }}"
+     *  }
+     * ```
+     * </br>
+     */
+    updateSubjectPartTemplate (companyId: string, templateName : string, body : any) {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateSubjectPartTemplate) templateName : ", that._logger.stripStringForLogs(templateName));
+
+        return new Promise(function (resolve, reject) {
+            try {
+                /*
+                if (!groupId) {
+                    that._logger.log(that.WARN, LOG_ID + "(initiateEmailTemplate) bad or empty 'groupId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(initiateEmailTemplate) bad or empty 'groupId' parameter : ", groupId);
+                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+                // */
+
+                that._rest.updateSubjectPartTemplate(companyId, templateName, body ).then((result: any) => {
+                    that._logger.log(that.DEBUG, LOG_ID + "(updateSubjectPartTemplate) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(updateSubjectPartTemplate) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log(that.ERROR, LOG_ID + "(updateSubjectPartTemplate) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log(that.ERROR, LOG_ID + "(updateSubjectPartTemplate) CATCH error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(updateSubjectPartTemplate) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method updateMjmlFormatPartTemplate
+     * @since 2.28.2
+     * @instance
+     * @async
+     * @category Companies Customization Emails
+     * @param {string} companyId Company unique identifier
+     * @param {string} templateName One of the email template allowed to be customized. **For the entire list of allowed template names, use getEmailTemplatesDocumentation API with parameter format=small**
+     * </br> `enduser_invite_somebody`: User can be searched by external users / can search external users. User can invite external users / can be invited by external users
+     * </br> Possibles values : `admin_cancel_invite_user_join_company`, `admin_invite_user_join_company`, `admin_invite_user_join_company_as_admin`, `admin_invite_user_register_and_join_company`, `admin_invite_user_register_and_join_company_as_admin`, `admin_request_company_visibility`, `bp_admin_invite_ec_admin_link_his_company_to_bp`, `ec_admin_request_bp_admin_link_his_company_to_bp`, `bp_admin_invite_ec_admin_link_his_company_to_bp_as_bp_ir`, `ec_admin_request_bp_admin_link_his_company_to_bp_as_bp_ir`, `enduser_account_creation_completed`, `enduser_account_terminated`, `enduser_account_terminated_by_himself`, `enduser_conversation_download`, `enduser_invite_somebody`, `enduser_chat_room_invite_guest`, `enduser_conference_invite_somebody`, `enduser_scheduled_conference_cancel_invite`, `enduser_scheduled_conference_invite_somebody`, `enduser_scheduled_conference_ical`, `enduser_scheduled_conference_cancel_ical`, `enduser_request_join_company`, `enduser_request_user_visibility`, `enduser_temporary_token_reset_password`, `enduser_temporary_token_self_register`, `enduser_offline_im_invite`, `enduser_guest_account_time_to_live`, `enduser_oauth_authentication_notification`
+     * @param {any} body information about template. exemple :
+     * <mjml>
+     *    <mj-body>
+     *       <mj-section background-color="#f0f0f0">
+     *          <mj-column>
+     *              <mj-text  font-style="italic" font-size="20px" color="#626262">My Company<br><a href="{{publicWebsiteURL }}">{{ __({phrase: "Learn more", locale: locale}) }}</a>
+     *              </mj-text>
+     *          </mj-column>
+     *       </mj-section>
+     *    </mj-body>
+     * </mjml>
+     * @description
+     *    This API allows to update an email template for a given company, and more precisely the text format part. An error occurs when the template name is not yet allowed or when it is not found for this company.
+     * </br> Templates needs to be scanned by an anti-virus. An error may occurs in this step.
+     * </br> The template in .mjml format has to be validated. An error may occurs when the template is not compliant with the syntax.
+     * </br> A template can't be modified when is status is isActive = true (error detail 409011)
+     * </br>
+     * </br> Users with superadmin role can handle all available email templates of any company.
+     * </br> Users with bp_admin role can only handle email templates for a company they manage (i.e. End Customer company for which bp_admin's company if the BP company).
+     * </br> Users with organization_admin role can only handle email templates for a company they manage (i.e. company linked to organization_admin's organization).
+     * </br> Users with company_admin users can only handle all available email templates of their own company.
+     *
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | templateName | String | The name of the template |
+     * | companyId | String | The companyId for which the template is dedicated. |
+     * | isActive | Boolean | When true the custom email template is used instead of Rainbow template |
+     * | tested | Boolean | When the rendering API is used to check the custom email rendering, this boolean is set to true. Any change about template content will reset the flag. |
+     * | subject | String | The email subject content. |
+     * | mjmlFormat | String | The email content in MJML markup language.  <br>MJML is a markup language designed to reduce the pain of coding a responsive email. Refer to https://mjml.io/documentation/#mjml-guides |
+     * | textFormat | String | The email content in text format. |
+     *
+     *  </br>example of result :
+     *  ```json
+     *   {
+     *      "companyId": "598857f360c749e5890ff2f9",
+     *      "templateName": "enduser_account_terminated",
+     *      "isActive": false,
+     *      "tested": false,
+     *      "mjmlFormat": "<mjml>\n\t<mj-body>\n\t\t<mj-section background-color=\"#f0f0f0\">\n\t\t\t<mj-column>\n\t\t\t\t<mj-text  font-style=\"italic\" font-size=\"20px\" color=\"#626262\">My Company<br><a href={{publicWebsiteURL }}>{{ __({phrase: \"about My Company\", locale: locale}) }}</a>\n\t\t\t\t</mj-text>\n\t\t\t</mj-column>\n\t\t</mj-section>\n\t</mj-body>\n</mjml>",
+     *      "subject": "{{ __({phrase: \"{{enduser_displayname}} has invited you to Alcatel-Lucent Rainbow\", locale: locale}, {enduser_displayname: enduser_displayname}) | safe }}",
+     *      "textFormat": "{{ __({phrase: \"You have been invited to Rainbow by {{enduser_displayname}} from {{enduser_companyName}}.\", locale: locale}, {enduser_displayname: enduser_displayname, enduser_companyName: enduser_companyName}) }}\n\n{% if custom_message %}\n    {{ custom_message }}\n{% endif %}\n\n{{ __({phrase: \"Start the discussion\", locale: locale}) }}:\n{{ invitationURL }}"
+     *  }
+     * ```
+     * </br>
+     */
+    updateMjmlFormatPartTemplate  (companyId: string, templateName : string, body : any) {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateMjmlFormatPartTemplate) templateName : ", that._logger.stripStringForLogs(templateName));
+
+        return new Promise(function (resolve, reject) {
+            try {
+                /*
+                if (!groupId) {
+                    that._logger.log(that.WARN, LOG_ID + "(initiateEmailTemplate) bad or empty 'groupId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(initiateEmailTemplate) bad or empty 'groupId' parameter : ", groupId);
+                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+                // */
+
+                that._rest.updateMjmlFormatPartTemplate(companyId, templateName, body ).then((result: any) => {
+                    that._logger.log(that.DEBUG, LOG_ID + "(updateMjmlFormatPartTemplate) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(updateMjmlFormatPartTemplate) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log(that.ERROR, LOG_ID + "(updateMjmlFormatPartTemplate) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log(that.ERROR, LOG_ID + "(updateMjmlFormatPartTemplate) CATCH error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(updateMjmlFormatPartTemplate) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method updateTextFormatFormatPartTemplate
+     * @since 2.28.2
+     * @instance
+     * @async
+     * @category Companies Customization Emails
+     * @param {string} companyId Company unique identifier
+     * @param {string} templateName One of the email template allowed to be customized. **For the entire list of allowed template names, use getEmailTemplatesDocumentation API with parameter format=small**
+     * </br> `enduser_invite_somebody`: User can be searched by external users / can search external users. User can invite external users / can be invited by external users
+     * </br> Possibles values : `admin_cancel_invite_user_join_company`, `admin_invite_user_join_company`, `admin_invite_user_join_company_as_admin`, `admin_invite_user_register_and_join_company`, `admin_invite_user_register_and_join_company_as_admin`, `admin_request_company_visibility`, `bp_admin_invite_ec_admin_link_his_company_to_bp`, `ec_admin_request_bp_admin_link_his_company_to_bp`, `bp_admin_invite_ec_admin_link_his_company_to_bp_as_bp_ir`, `ec_admin_request_bp_admin_link_his_company_to_bp_as_bp_ir`, `enduser_account_creation_completed`, `enduser_account_terminated`, `enduser_account_terminated_by_himself`, `enduser_conversation_download`, `enduser_invite_somebody`, `enduser_chat_room_invite_guest`, `enduser_conference_invite_somebody`, `enduser_scheduled_conference_cancel_invite`, `enduser_scheduled_conference_invite_somebody`, `enduser_scheduled_conference_ical`, `enduser_scheduled_conference_cancel_ical`, `enduser_request_join_company`, `enduser_request_user_visibility`, `enduser_temporary_token_reset_password`, `enduser_temporary_token_self_register`, `enduser_offline_im_invite`, `enduser_guest_account_time_to_live`, `enduser_oauth_authentication_notification`
+     * @param {any} body information about template. exemple :
+     *   {{ __({phrase: "You have been invited to Rainbow by {{enduser_displayname}} from {{enduser_companyName}}.", locale: locale}, {enduser_displayname: enduser_displayname, enduser_companyName: enduser_companyName}) }}
+     *
+     * {% if custom_message %}
+     * {{ custom_message }}
+     * {% endif %}
+     *
+     * {{ __({phrase: "Start the discussion", locale: locale}) }}:
+     * {{ invitationURL }}
+     * @description
+     *    This API allows to update an email template for a given company, and more precisely the text format part. An error occurs when the template name is not yet allowed or when it is not found for this company.
+     * </br> Templates needs to be scanned by an anti-virus. An error may occurs in this step.
+     * </br> The template in .mjml format has to be validated. An error may occurs when the template is not compliant with the syntax.
+     * </br> A template can't be modified when is status is isActive = true (error detail 409011)
+     * </br>
+     * </br> Users with superadmin role can handle all available email templates of any company.
+     * </br> Users with bp_admin role can only handle email templates for a company they manage (i.e. End Customer company for which bp_admin's company if the BP company).
+     * </br> Users with organization_admin role can only handle email templates for a company they manage (i.e. company linked to organization_admin's organization).
+     * </br> Users with company_admin users can only handle all available email templates of their own company.
+     *
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | templateName | String | The name of the template |
+     * | companyId | String | The companyId for which the template is dedicated. |
+     * | isActive | Boolean | When true the custom email template is used instead of Rainbow template |
+     * | tested | Boolean | When the rendering API is used to check the custom email rendering, this boolean is set to true. Any change about template content will reset the flag. |
+     * | subject | String | The email subject content. |
+     * | mjmlFormat | String | The email content in MJML markup language.  <br>MJML is a markup language designed to reduce the pain of coding a responsive email. Refer to https://mjml.io/documentation/#mjml-guides |
+     * | textFormat | String | The email content in text format. |
+     *
+     *  </br>example of result :
+     *  ```json
+     *   {
+     *      "companyId": "598857f360c749e5890ff2f9",
+     *      "templateName": "enduser_account_terminated",
+     *      "isActive": false,
+     *      "tested": false,
+     *      "mjmlFormat": "<mjml>\n\t<mj-body>\n\t\t<mj-section background-color=\"#f0f0f0\">\n\t\t\t<mj-column>\n\t\t\t\t<mj-text  font-style=\"italic\" font-size=\"20px\" color=\"#626262\">My Company<br><a href={{publicWebsiteURL }}>{{ __({phrase: \"about My Company\", locale: locale}) }}</a>\n\t\t\t\t</mj-text>\n\t\t\t</mj-column>\n\t\t</mj-section>\n\t</mj-body>\n</mjml>",
+     *      "subject": "{{ __({phrase: \"{{enduser_displayname}} has invited you to Alcatel-Lucent Rainbow\", locale: locale}, {enduser_displayname: enduser_displayname}) | safe }}",
+     *      "textFormat": "{{ __({phrase: \"You have been invited to Rainbow by {{enduser_displayname}} from {{enduser_companyName}}.\", locale: locale}, {enduser_displayname: enduser_displayname, enduser_companyName: enduser_companyName}) }}\n\n{% if custom_message %}\n    {{ custom_message }}\n{% endif %}\n\n{{ __({phrase: \"Start the discussion\", locale: locale}) }}:\n{{ invitationURL }}"
+     *  }
+     * ```
+     * </br>
+     */
+    updateTextFormatFormatPartTemplate  (companyId: string, templateName : string, body : any) {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateTextFormatFormatPartTemplate) templateName : ", that._logger.stripStringForLogs(templateName));
+
+        return new Promise(function (resolve, reject) {
+            try {
+                /*
+                if (!groupId) {
+                    that._logger.log(that.WARN, LOG_ID + "(initiateEmailTemplate) bad or empty 'groupId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(initiateEmailTemplate) bad or empty 'groupId' parameter : ", groupId);
+                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+                // */
+
+                that._rest.updateTextFormatFormatPartTemplate(companyId, templateName, body ).then((result: any) => {
+                    that._logger.log(that.DEBUG, LOG_ID + "(updateTextFormatFormatPartTemplate) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(updateTextFormatFormatPartTemplate) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log(that.ERROR, LOG_ID + "(updateTextFormatFormatPartTemplate) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log(that.ERROR, LOG_ID + "(updateTextFormatFormatPartTemplate) CATCH error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(updateTextFormatFormatPartTemplate) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+    /**
+     * @public
+     * @method getEmailTemplatesByCompanyId
+     * @since 2.28.2
+     * @instance
+     * @async
+     * @category Companies Customization Emails
+     * @param {string} companyId Company unique identifier
+     * @param {string} templateName Allows to get only one template by its name.
+     * @param {string} format Allows to retrieve more or less feature details in response.
+     * - small: templateName isActive
+     * - medium: templateName companyId isActive
+     * - full: all template fields (except id)
+     *
+     * </br> Default value : small, Possibles values : small, medium, full
+     * @description
+     *    This API allows to get all available email templates for a given company.
+     *
+     * </br> Users with superadmin role can get all available email templates of any company.
+     * </br> Users with bp_admin role can only get email templates for a company they manage (i.e. End Customer company for which bp_admin's company if the BP company).
+     * </br> Users with organization_admin role can only get email templates for a company they manage (i.e. company linked to organization_admin's organization).
+     * </br> Users with company_admin users can only get all available email templates of their own company.
+     *
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | - | Object | - |
+     * | templateName | String | The name of the template |
+     * | companyId | String | The companyId for which the template is dedicated. |
+     * | isActive | Boolean | When true the custom email template is used instead of Rainbow template |
+     * | tested | Boolean | When the rendering API is used to check the custom email rendering, this boolean is set to true. Any change about template content will reset the flag. |
+     * | subject | String | The email subject content. |
+     * | mjmlFormat | String | The email content in MJML markup language.  <br>MJML is a markup language designed to reduce the pain of coding a responsive email. Refer to https://mjml.io/documentation/#mjml-guides |
+     * | textFormat | String | The email content in text format. |
+     *
+     *  </br>example of result :
+     *  ```json
+     *   [{
+     *      "companyId": "598857f360c749e5890ff2f9",
+     *      "templateName": "enduser_account_terminated",
+     *      "isActive": false,
+     *      "tested": false,
+     *      "mjmlFormat": "<mjml>\n\t<mj-body>\n\t\t<mj-section background-color=\"#f0f0f0\">\n\t\t\t<mj-column>\n\t\t\t\t<mj-text  font-style=\"italic\" font-size=\"20px\" color=\"#626262\">My Company<br><a href={{publicWebsiteURL }}>{{ __({phrase: \"about My Company\", locale: locale}) }}</a>\n\t\t\t\t</mj-text>\n\t\t\t</mj-column>\n\t\t</mj-section>\n\t</mj-body>\n</mjml>",
+     *      "subject": "{{ __({phrase: \"{{enduser_displayname}} has invited you to Alcatel-Lucent Rainbow\", locale: locale}, {enduser_displayname: enduser_displayname}) | safe }}",
+     *      "textFormat": "{{ __({phrase: \"You have been invited to Rainbow by {{enduser_displayname}} from {{enduser_companyName}}.\", locale: locale}, {enduser_displayname: enduser_displayname, enduser_companyName: enduser_companyName}) }}\n\n{% if custom_message %}\n    {{ custom_message }}\n{% endif %}\n\n{{ __({phrase: \"Start the discussion\", locale: locale}) }}:\n{{ invitationURL }}"
+     *  }]
+     * ```
+     * </br>
+     */
+    getEmailTemplatesByCompanyId (companyId: string, templateName : string, format : string = "small") {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getEmailTemplatesByCompanyId) templateName : ", that._logger.stripStringForLogs(templateName));
+
+        return new Promise(function (resolve, reject) {
+            try {
+                /*
+                if (!groupId) {
+                    that._logger.log(that.WARN, LOG_ID + "(initiateEmailTemplate) bad or empty 'groupId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(initiateEmailTemplate) bad or empty 'groupId' parameter : ", groupId);
+                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+                // */
+
+                that._rest.getEmailTemplatesByCompanyId(companyId, templateName, format ).then((result: any) => {
+                    that._logger.log(that.DEBUG, LOG_ID + "(getEmailTemplatesByCompanyId) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getEmailTemplatesByCompanyId) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log(that.ERROR, LOG_ID + "(getEmailTemplatesByCompanyId) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log(that.ERROR, LOG_ID + "(getEmailTemplatesByCompanyId) CATCH error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getEmailTemplatesByCompanyId) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    //endregion Companies Customization Emails
+
     //endregion Companies and users management
 
     //region Customisation Template

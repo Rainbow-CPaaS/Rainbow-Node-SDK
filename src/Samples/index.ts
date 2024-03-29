@@ -5630,9 +5630,9 @@ let urlS2S;
             });
         }
 
-        async testloadConversationHistory() {
+        async testloadConversationHistory(contactEmailToSearch : string = "vincent01@vbe.test.openrainbow.net") {
             let that = this;
-            let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
+            //let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
             let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
             rainbowSDK.conversations.openConversationForContact(contact).then(async function (conversation) {
                 //logger.log("debug", "MAIN - testloadConversationHistory - openConversationForContact, conversation : ", conversation);
@@ -5656,6 +5656,22 @@ let urlS2S;
                     }
                 });
             });
+        }
+
+        async testGetHistoryPageBubbleOpenrainbowNet() {
+            let that = this;
+            let bubbles = rainbowSDK.bubbles.getAllBubbles();
+            if (bubbles.length > 0) {
+                //let bubble = bubbles[0];
+                //let jid = "room_61aee9e9d7e94cacbce7234e3fca93f2@muc.openrainbow.com/a9b77288b939470b8da4611cc2af1ed1@openrainbow.com" // jid of the bubble "openrainbow.net" on .COM platform
+                let jid = "room_61aee9e9d7e94cacbce7234e3fca93f2@muc.openrainbow.com" // jid of the bubble "openrainbow.net" on .COM platform
+                rainbowSDK.conversations.getBubbleConversation(jid).then(async function (conversation) {
+                    _logger.log("debug", "MAIN - testGetHistoryPageBubble - openConversationForContact, conversation : ", conversation);
+                    that.getConversationHistoryMaxime(conversation).then(() => {
+                        _logger.log("debug", "MAIN - testGetHistoryPageBubble - getConversationHistoryMaxime, conversation : ", conversation, ", status : ", conversation.status);
+                    });
+                });
+            }
         }
 
         async testGetHistoryPageBubble() {

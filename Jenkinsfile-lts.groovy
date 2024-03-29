@@ -1,6 +1,7 @@
 // Jenkinsfile-lts file for the production of lts delivery version with the jenkins job : "CPaaS-SDK-Node-SDK-lts"
 
-@Library('rainbow-shared-library@hubSearchIndex') _
+@Library('rainbow-shared-library') _
+//@Library('rainbow-shared-library@hubSearchIndex') _
 import groovy.transform.Field
 
 // Map with the default values
@@ -284,6 +285,9 @@ pipeline {
                       
                     cp -R build/JSONDOCS guide/JSONDOCS
 
+                    echo ---------- Generate the Cyclone DX file :
+                    cyclonedx-npm --ignore-npm-errors --output-file build/rainbownodesdk.cdx
+
                     echo ---------- STEP publish :
                     ${PUBLISHTONPMANDSETTAGINGIT} && npm publish
                         
@@ -390,7 +394,18 @@ pipeline {
                                  # pwd 
                                  # ls 
                                 """
-                                 generateHubV2DocumentationSearchIndex("Documentation/doc/sdk/node/lts", "DocumentationFolder")
+
+                                // unstash "withBuildDir"
+
+                                echo "installation npm"
+                                sh "npm install developers_searchindex"
+                                sh "npm list developers_searchindex"
+
+                                echo "build hub doc"
+                                sh "npm exec -- developers_searchindex --docPath Documentation/doc/sdk/node/lts"
+                                // sh "npx developers_searchindex --docPath build/doc/hub"
+                                sh "ls -la build/doc/hub"
+                              //   generateHubV2DocumentationSearchIndex("Documentation/doc/sdk/node/lts", "DocumentationFolder")
                             } catch (Exception e) {
                                 echo "Failure: ${currentBuild.result}: ${e}"
                             }

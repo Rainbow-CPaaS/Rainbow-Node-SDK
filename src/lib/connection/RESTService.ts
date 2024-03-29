@@ -5155,6 +5155,152 @@ Request Method: PUT
 
     //endregion Company join company requests
 
+    //region Companies Customization Emails
+
+    getEmailTemplatesDocumentation (format : string) {
+        // API https://api.openrainbow.org/admin/#api-companies_customization_emails-GetCompanyCustomizationEmailsDocumentation
+        // URL GET /api/rainbow/admin/v1.0/companies/customizations/emails
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url: string = "/api/rainbow/admin/v1.0/companies/customizations/emails";
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "format", format);
+            url = urlParamsTab[0];
+
+            that._logger.log(that.INTERNAL, LOG_ID + "(getEmailTemplatesDocumentation) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
+
+                that._logger.log(that.DEBUG, LOG_ID + "(getEmailTemplatesDocumentation) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getEmailTemplatesDocumentation) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(getEmailTemplatesDocumentation) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getEmailTemplatesDocumentation) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    initiateEmailTemplate(_companyId: string, templateName : string) {
+        // API https://api.openrainbow.org/admin/#api-companies_customization_emails-CreateCompanyCustomizationEmails
+        // URL POST /api/rainbow/admin/v1.0/companies/:companyId/customizations/emails
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let companyId = _companyId ? _companyId:that.account.companyId;
+            let url = "/api/rainbow/admin/v1.0/companies/" + companyId + "/customizations/emails";
+            let data: any = {};
+            addPropertyToObj(data, "templateName", templateName, false);
+
+            that.http.post(url, that.getRequestHeader(), data, undefined).then(function (json) {
+                that._logger.log(that.DEBUG, LOG_ID + "(initiateEmailTemplate) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(initiateEmailTemplate) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(initiateEmailTemplate) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(initiateEmailTemplate) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    updateSubjectPartTemplate (_companyId: string, templateName : string, body : any) {
+        // API https://api.openrainbow.org/admin/#api-companies_customization_emails-UpdateCompanyCustomizationEmailsSubject
+        // URL PUT /api/rainbow/admin/v1.0/companies/:companyId/customizations/emails/:templateName/subject
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let companyId = _companyId ? _companyId:that.account.companyId;
+            let url = "/api/rainbow/admin/v1.0/companies/" + companyId + "/customizations/emails/" + templateName + "/subject";
+            let data: any = body;
+            //addPropertyToObj(data, "templateName", templateName, false);
+
+            that.http.put(url, that.getRequestHeader(), data, 'text/plain; charset=utf-8').then(function (json) {
+                that._logger.log(that.DEBUG, LOG_ID + "(updateSubjectPartTemplate) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(updateSubjectPartTemplate) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(updateSubjectPartTemplate) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateSubjectPartTemplate) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    updateMjmlFormatPartTemplate (_companyId: string, templateName : string, body : any) {
+        // API https://api.openrainbow.org/admin/#api-companies_customization_emails-UpdateCompanyCustomizationEmailsMjml
+        // URL PUT /api/rainbow/admin/v1.0/companies/:companyId/customizations/emails/:templateName/mjml-format
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let companyId = _companyId ? _companyId:that.account.companyId;
+            let url = "/api/rainbow/admin/v1.0/companies/" + companyId + "/customizations/emails/" + templateName + "/mjml-format";
+            let data: any = body;
+            //addPropertyToObj(data, "templateName", templateName, false);
+
+            that.http.put(url, that.getRequestHeader(), data, 'text/plain; charset=utf-8').then(function (json) {
+                that._logger.log(that.DEBUG, LOG_ID + "(updateMjmlFormatPartTemplate) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(updateMjmlFormatPartTemplate) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(updateMjmlFormatPartTemplate) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateMjmlFormatPartTemplate) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    updateTextFormatFormatPartTemplate (_companyId: string, templateName : string, body : any) {
+        // API https://api.openrainbow.org/admin/#api-companies_customization_emails-UpdateCompanyCustomizationEmailsText
+        // URL PUT /api/rainbow/admin/v1.0/companies/:companyId/customizations/emails/:templateName/text-format
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let companyId = _companyId ? _companyId:that.account.companyId;
+            let url = "/api/rainbow/admin/v1.0/companies/" + companyId + "/customizations/emails/" + templateName + "/text-format";
+            let data: any = body;
+            //addPropertyToObj(data, "templateName", templateName, false);
+
+            that.http.put(url, that.getRequestHeader(), data, 'text/plain; charset=utf-8').then(function (json) {
+                that._logger.log(that.DEBUG, LOG_ID + "(updateTextFormatFormatPartTemplate) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(updateTextFormatFormatPartTemplate) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(updateTextFormatFormatPartTemplate) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateTextFormatFormatPartTemplate) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    getEmailTemplatesByCompanyId  (_companyId: string, templateName : string, format : any) {
+        // API https://api.openrainbow.org/admin/#api-companies_customization_emails-GetCompanyCustomizationEmails
+        // URL get /api/rainbow/admin/v1.0/companies/:companyId/customizations/emails
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let companyId = _companyId ? _companyId:that.account.companyId;
+            let url: string = "/api/rainbow/admin/v1.0/companies/" + companyId + "/customizations/emails";
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "templateName", templateName);
+            addParamToUrl(urlParamsTab, "format", format);
+            url = urlParamsTab[0];
+
+            that._logger.log(that.INTERNAL, LOG_ID + "(getEmailTemplatesByCompanyId) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
+
+                that._logger.log(that.DEBUG, LOG_ID + "(getEmailTemplatesByCompanyId) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getEmailTemplatesByCompanyId) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(getEmailTemplatesByCompanyId) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getEmailTemplatesByCompanyId) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    //endregion Companies Customization Emails
+
     //endregion Company
 
     //region Customisation Template 
