@@ -299,7 +299,7 @@ pipeline {
                     npm token list
 
                     echo ---------- Generate the Cyclone DX file :
-                    cyclonedx-npm --ignore-npm-errors --output-file build/rainbownodesdk.cdx
+                    node ./node_modules/@cyclonedx/cyclonedx-npm/bin/cyclonedx-npm-cli.js --ignore-npm-errors --output-file build/rainbownodesdk.cdx
 
                     cp -R build/JSONDOCS guide/JSONDOCS
 
