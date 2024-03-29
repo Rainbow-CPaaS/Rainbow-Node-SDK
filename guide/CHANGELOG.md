@@ -7,7 +7,7 @@ Warning: Before deploying in production a bot that can generate heavy traffic, p
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 
-### [2.28.1] - 2024-03-20
+### [2.28.0.1] - 2024-03-20
 #### Removed
 -   None
 
@@ -15,8 +15,12 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Fix build.
 
 #### Added
-
+-   Cyclone DX informations
+-   Add Companies Cloudpbx Groups (Rainbow Voice) API createCloudPBXGroup, deleteCloudPBXGroup, getCloudPBXGroup, getAllCloudPBXGroups, getMembersOfCloudPBXGroups, updateCloudPBXGroup, updateCloudPBXHuntingGroupAnalyticsConfiguration, updateCloudPBXHuntingGroupRecordingConfiguration, 
+-   Add region Companies Customization Emails API getEmailTemplatesDocumentation, initiateEmailTemplate, updateSubjectPartTemplate, updateMjmlFormatPartTemplate, updateTextFormatFormatPartTemplate, getEmailTemplatesByCompanyId. (Some APi are still missing)
+ 
 #### Changed
+-   Update Jenkinsfile-lts.groovy Jenkinsfile-sts.groovy file with new hubSearchIndex
 
 ### [2.28.0] - 2024-03-20
 #### Removed
