@@ -20,7 +20,6 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add region Companies Customization Emails API getEmailTemplatesDocumentation, initiateEmailTemplate, updateSubjectPartTemplate, updateMjmlFormatPartTemplate, updateTextFormatFormatPartTemplate, getEmailTemplatesByCompanyId. (Some APi are still missing)
  
 #### Changed
--   Temp version to test delivery the real one will be 2.28.1.
 -   Update Jenkinsfile-lts.groovy Jenkinsfile-sts.groovy file with new hubSearchIndex
 
 ### [2.28.0] - 2024-03-20
