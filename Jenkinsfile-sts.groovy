@@ -425,9 +425,12 @@ pipeline {
                                 sh "npm list developers_searchindex"
 
                                 echo "build hub doc"
-                                sh "npm exec -- developers_searchindex --docPath Documentation/doc/sdk/node/sts"
-                                // sh "npx developers_searchindex --docPath build/doc/hub"
-                                sh "ls -la build/doc/hub"
+                                sh script: """
+                                cd DocumentationFolder
+                                npm exec -- developers_searchindex --docPath Documentation/doc/sdk/node/sts"
+                                # sh "npx developers_searchindex --docPath build/doc/hub"
+                                ls -la build/doc/hub
+                                """
 
                                 // generateHubV2DocumentationSearchIndex("Documentation/doc/sdk/node/sts", "DocumentationFolder")
                             } catch (Exception e) {
