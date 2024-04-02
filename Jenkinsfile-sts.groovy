@@ -428,7 +428,7 @@ pipeline {
 
                                 echo "build hub doc"
                                 sh script: """
-                                cd DocumentationFolder
+                                cd "${workspace}/Documentation"
                                 npm exec -- developers_searchindex --docPath Documentation/doc/sdk/node/sts"
                                 # sh "npx developers_searchindex --docPath build/doc/hub"
                                 ls -la build/doc/hub
