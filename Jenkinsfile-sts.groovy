@@ -412,17 +412,19 @@ pipeline {
                         stage("Generate documentation search index") {
                             try {
                                 echo "Build Hub V2 search index : "
-                                unstash 'DocumentationFolder'
+                                // unstash 'DocumentationFolder'
                                 sh script: """
-                                 echo "folder where run the Build Hub V2 search index."
-                                 pwd
-                                 ls
+                                 # echo "folder where run the Build Hub V2 search index."
+                                 # pwd
+                                 # ls
+                                 # echo "registry=https://nexus.openrainbow.io/repository" |tee ./.npmrc
+                                 # https://nexus.openrainbow.io/repository/npm-dev/developers_searchindex/-/developers_searchindex-1.2.1.tgz
                                 """
                                 // unstash "withBuildDir"
 
                                 echo "installation npm"
-                                sh "npm install developers_searchindex"
-                                sh "npm list developers_searchindex"
+                                sh "npm install developers_searchindex --registry https://nexus.openrainbow.io/repository"
+                                sh "npm list developers_searchindex  --registry https://nexus.openrainbow.io/repository"
 
                                 echo "build hub doc"
                                 sh script: """
@@ -449,9 +451,8 @@ pipeline {
                                     sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E88979FB9B30ACF2
                                 """
 
-                                // debianPath: 'Documentation',
                                 debianBuild(
-                                    debianPath: '.',
+                                    debianPath: 'Documentation',
                                     nextVersion: "${params.RAINBOWNODESDKVERSION}" ,
                                     language: 'other'
                                 )
