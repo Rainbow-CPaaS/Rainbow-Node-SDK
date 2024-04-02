@@ -426,14 +426,14 @@ pipeline {
                                 sh """
                                 cd "${workspace}/Documentation"
                                 npm install developers_searchindex --registry https://nexus.openrainbow.io/repository/npm-dev
-                                npm list developers_searchindex 
+                                npm list developers_searchindex
                                 # npm list developers_searchindex  --registry https://nexus.openrainbow.io/repository/npm-dev
                                 """
 
                                 echo "build hub doc"
                                 sh script: """
                                 # cd "${workspace}/Documentation"
-                                npm exec -- developers_searchindex --docPath Documentation/doc/sdk/node/sts"
+                                npm exec -- developers_searchindex --docPath doc/sdk/node/sts
                                 # sh "npx developers_searchindex --docPath build/doc/hub"
                                 ls -la build/doc/hub
                                 """
