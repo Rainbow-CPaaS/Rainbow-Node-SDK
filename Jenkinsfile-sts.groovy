@@ -417,8 +417,6 @@ pipeline {
                                  # echo "folder where run the Build Hub V2 search index."
                                  # pwd
                                  # ls
-                                 # echo "registry=https://nexus.openrainbow.io/repository" |tee ./.npmrc
-                                 # https://nexus.openrainbow.io/repository/npm-dev/developers_searchindex/-/developers_searchindex-1.2.1.tgz
                                 """
                                 // unstash "withBuildDir"
 
@@ -427,16 +425,12 @@ pipeline {
                                 cd "${workspace}/Documentation"
                                 npm install developers_searchindex --registry https://nexus.openrainbow.io/repository/npm-dev
                                 npm list developers_searchindex
-                                # npm list developers_searchindex  --registry https://nexus.openrainbow.io/repository/npm-dev
                                 """
 
                                 echo "build hub doc"
                                 sh script: """
                                 # cd "${workspace}/Documentation"
-                                # cd "${workspace}/Documentation"
                                 sudo npm install npm -g
-                                # npm install npm
-                                # node_modules/npm/bin/npm exec -- developers_searchindex --docPath doc/sdk/node/sts
                                 npm exec -- developers_searchindex --docPath Documentation/doc/sdk/node/sts
                                 # sh "npx developers_searchindex --docPath build/doc/hub"
                                 # ls -la build/doc/hub
