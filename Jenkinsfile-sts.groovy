@@ -423,8 +423,8 @@ pipeline {
                                 // unstash "withBuildDir"
 
                                 echo "installation npm"
-                                sh "npm install developers_searchindex --registry https://nexus.openrainbow.io/repository"
-                                sh "npm list developers_searchindex  --registry https://nexus.openrainbow.io/repository"
+                                sh "npm install developers_searchindex --registry https://nexus.openrainbow.io/repository/npm-dev"
+                                sh "npm list developers_searchindex  --registry https://nexus.openrainbow.io/repository/npm-dev"
 
                                 echo "build hub doc"
                                 sh script: """
