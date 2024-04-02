@@ -433,12 +433,13 @@ pipeline {
                                 echo "build hub doc"
                                 sh script: """
                                 # cd "${workspace}/Documentation"
+                                # cd "${workspace}/Documentation"
                                 sudo npm install npm -g
                                 # npm install npm
                                 # node_modules/npm/bin/npm exec -- developers_searchindex --docPath doc/sdk/node/sts
-                                npm exec -- developers_searchindex --docPath doc/sdk/node/sts
+                                npm exec -- developers_searchindex --docPath Documentation/doc/sdk/node/sts
                                 # sh "npx developers_searchindex --docPath build/doc/hub"
-                                ls -la build/doc/hub
+                                # ls -la build/doc/hub
                                 """
 
                                 // generateHubV2DocumentationSearchIndex("Documentation/doc/sdk/node/sts", "DocumentationFolder")
