@@ -435,7 +435,7 @@ pipeline {
                                 # cd "${workspace}/Documentation"
                                 #sudo npm install npm -g
                                 npm install npm
-                                npm exec -- developers_searchindex --docPath doc/sdk/node/sts
+                                node_modules/npm/bin/npm exec -- developers_searchindex --docPath doc/sdk/node/sts
                                 # sh "npx developers_searchindex --docPath build/doc/hub"
                                 ls -la build/doc/hub
                                 """
