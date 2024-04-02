@@ -426,7 +426,8 @@ pipeline {
                                 sh """
                                 cd "${workspace}/Documentation"
                                 npm install developers_searchindex --registry https://nexus.openrainbow.io/repository/npm-dev
-                                npm list developers_searchindex  --registry https://nexus.openrainbow.io/repository/npm-dev
+                                npm list developers_searchindex 
+                                # npm list developers_searchindex  --registry https://nexus.openrainbow.io/repository/npm-dev
                                 """
 
                                 echo "build hub doc"
