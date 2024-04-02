@@ -390,21 +390,27 @@ pipeline {
                                 echo "Build Hub V2 search index : "
                                    // unstash 'DocumentationFolder'
                                    sh script: """
-                                 # echo "folder where run the Build Hub V2 search index."
-                                 # pwd 
-                                 # ls 
-                                """
+                                                                 # echo "folder where run the Build Hub V2 search index."
+                                                                 # pwd
+                                                                 # ls
+                                                                """
+                                                                // unstash "withBuildDir"
 
-                                // unstash "withBuildDir"
+                                                                echo "Installation of developers_searchindex HUB V2 search library."
+                                                                sh """
+                                                                cd "${workspace}/Documentation"
+                                                                npm install developers_searchindex --registry https://nexus.openrainbow.io/repository/npm-dev
+                                                                npm list developers_searchindex
+                                                                """
 
-                                echo "installation npm"
-                                sh "npm install developers_searchindex"
-                                sh "npm list developers_searchindex"
-
-                                echo "build hub doc"
-                                sh "npm exec -- developers_searchindex --docPath Documentation/doc/sdk/node/lts"
-                                // sh "npx developers_searchindex --docPath build/doc/hub"
-                                sh "ls -la build/doc/hub"
+                                                                echo "build hub doc"
+                                                                sh script: """
+                                                                # cd "${workspace}/Documentation"
+                                                                sudo npm install npm -g
+                                                                npm exec -- developers_searchindex --docPath Documentation/doc/sdk/node/lts
+                                                                # sh "npx developers_searchindex --docPath build/doc/hub"
+                                                                # ls -la build/doc/hub
+                                   """
                               //   generateHubV2DocumentationSearchIndex("Documentation/doc/sdk/node/lts", "DocumentationFolder")
                             } catch (Exception e) {
                                 echo "Failure: ${currentBuild.result}: ${e}"
