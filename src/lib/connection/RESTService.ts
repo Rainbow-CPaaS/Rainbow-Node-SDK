@@ -5299,6 +5299,97 @@ Request Method: PUT
         });
     }
 
+    deleteEmailTemplate(_companyId: string, templateName : string) {
+        // API https://api.openrainbow.org/admin/#api-companies_customization_emails-DeleteOneCompanyCustomizationEmail
+        // URL delete /api/rainbow/admin/v1.0/companies/:companyId/customizations/emails/:templateName
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let companyId = _companyId?_companyId : that.account.companyId;
+            let url = "/api/rainbow/admin/v1.0/companies/" + companyId + "/customizations/emails/" + templateName;
+            that._logger.log(that.DEBUG, LOG_ID + "(deleteEmailTemplate) url", url);
+
+            that.http.delete(url, that.getRequestHeader()).then(function (json) {
+                that._logger.log(that.DEBUG, LOG_ID + "(deleteEmailTemplate) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(deleteEmailTemplate) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(deleteEmailTemplate) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteEmailTemplate) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    deleteAvailableEmailTemplatesBycompanyId(_companyId: string, templateName : string) {
+        // API https://api.openrainbow.org/admin/#api-companies_customization_emails-DeleteCompanyCustomizationEmails
+        // URL delete /api/rainbow/admin/v1.0/companies/:companyId/customizations/emails/all
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let companyId = _companyId?_companyId : that.account.companyId;
+            let url = "/api/rainbow/admin/v1.0/companies/" + companyId + "/customizations/emails/all";
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "templateName", templateName);
+            url = urlParamsTab[0];
+            that._logger.log(that.DEBUG, LOG_ID + "(deleteAvailableEmailTemplatesBycompanyId) url", url);
+
+            that.http.delete(url, that.getRequestHeader()).then(function (json) {
+                that._logger.log(that.DEBUG, LOG_ID + "(deleteAvailableEmailTemplatesBycompanyId) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(deleteAvailableEmailTemplatesBycompanyId) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(deleteAvailableEmailTemplatesBycompanyId) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteAvailableEmailTemplatesBycompanyId) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    testEmailTemplateRendering(_companyId: string, body : any): Promise<any> {
+        // API https://api.openrainbow.org/admin/#api-companies_customization_emails-PostCompanyCustomizationEmailsRendering
+        // URL POST /api/rainbow/admin/v1.0/companies/:companyId/customizations/emails/rendering
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let companyId = _companyId ? _companyId:that.account.companyId;
+            let url = "/api/rainbow/admin/v1.0/companies/" + companyId + "/customizations/emails/rendering";
+            let data: any = body;
+            // addPropertyToObj(data, "templateName", templateName, false);
+
+            that.http.post(url, that.getRequestHeader(), data, undefined).then(function (json) {
+                that._logger.log(that.DEBUG, LOG_ID + "(testEmailTemplateRendering) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(testEmailTemplateRendering) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(testEmailTemplateRendering) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(testEmailTemplateRendering) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    activateDesactivateEmailTemplate (_companyId : string, templateName : string, isActive) {
+        // API https://api.openrainbow.org/admin/#api-companies_customization_emails-ActivateOneCompanyCustomizationEmail
+        // URL PUT /api/rainbow/admin/v1.0/companies/:companyId/customizations/emails/activation
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let companyId = _companyId ? _companyId:that.account.companyId;
+            let url = "/api/rainbow/admin/v1.0/companies/" + companyId + "/customizations/emails/activation";
+            let data: any = {};
+            addPropertyToObj(data, "isActive", isActive, false);
+            addPropertyToObj(data, "templateName", templateName, false);
+
+            that.http.put(url, that.getRequestHeader(), data, 'text/plain; charset=utf-8').then(function (json) {
+                that._logger.log(that.DEBUG, LOG_ID + "(activateDesactivateEmailTemplate) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(activateDesactivateEmailTemplate) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(activateDesactivateEmailTemplate) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(activateDesactivateEmailTemplate) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
     //endregion Companies Customization Emails
 
     //endregion Company
