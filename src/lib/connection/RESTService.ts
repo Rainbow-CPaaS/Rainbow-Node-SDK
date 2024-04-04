@@ -4488,6 +4488,302 @@ Request Method: PUT
 
     //region Company
 
+    //region Company Management
+
+    getAllCompanies(format: string = "small", sortField: string = "name", bpId: string = undefined, catalogId: string = undefined, offerId: string = undefined, offerCanBeSold: boolean = undefined, externalReference: string = undefined, externalReference2: string = undefined, salesforceAccountId: string = undefined, selectedAppCustomisationTemplate: string = undefined, selectedThemeObj: boolean = undefined, offerGroupName: string = undefined, limit: number = 100, offset: number = 0, sortOrder: number = 1, name: string = undefined, status: string = undefined, visibility: string = undefined, organisationId: string = undefined, isBP: boolean = undefined, hasBP: boolean = undefined, bpType: string = undefined) {
+        // API https://api.openrainbow.org/admin/#api-companies-GetCompanies
+        // URL get /api/rainbow/admin/v1.0/companies
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that._logger.log(that.DEBUG, LOG_ID + "(getAllCompanies) that.account.roles : ", that.account.roles);
+
+            let url: string = "/api/rainbow/admin/v1.0/companies";
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "format", format);
+            addParamToUrl(urlParamsTab, "sortField", sortField);
+            addParamToUrl(urlParamsTab, "bpId", bpId);
+            addParamToUrl(urlParamsTab, "catalogId", catalogId);
+            addParamToUrl(urlParamsTab, "offerId", offerId);
+            addParamToUrl(urlParamsTab, "offerCanBeSold", offerCanBeSold);
+            addParamToUrl(urlParamsTab, "externalReference", externalReference);
+            addParamToUrl(urlParamsTab, "externalReference2", externalReference2);
+            addParamToUrl(urlParamsTab, "salesforceAccountId", salesforceAccountId);
+            addParamToUrl(urlParamsTab, "selectedAppCustomisationTemplate", selectedAppCustomisationTemplate);
+            addParamToUrl(urlParamsTab, "selectedThemeObj", selectedThemeObj);
+            addParamToUrl(urlParamsTab, "offerGroupName", offerGroupName);
+            addParamToUrl(urlParamsTab, "limit", limit);
+            addParamToUrl(urlParamsTab, "offset", offset);
+            addParamToUrl(urlParamsTab, "name", name);
+            addParamToUrl(urlParamsTab, "status", status);
+            addParamToUrl(urlParamsTab, "visibility", visibility);
+            addParamToUrl(urlParamsTab, "organisationId", organisationId);
+            addParamToUrl(urlParamsTab, "isBP", isBP);
+            addParamToUrl(urlParamsTab, "hasBP", hasBP);
+            addParamToUrl(urlParamsTab, "bpType", bpType);
+            url = urlParamsTab[0];
+
+            that._logger.log(that.INTERNAL, LOG_ID + "(getAllCompanies) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
+                that._logger.log(that.DEBUG, LOG_ID + "(getAllCompanies) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getAllCompanies) REST result : ", json.data);
+                resolve(json);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(getAllCompanies) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getAllCompanies) error : ", err);
+                return reject(err);
+            });
+            that._logger.log(that.DEBUG, LOG_ID + "(getAllCompanies) after sending the request");
+        });
+    }
+
+    createCompany(name, country, state, offerType) {
+        // API https://api.openrainbow.org/admin/#api-companies-PostCompanies
+        // URL post /api/rainbow/admin/v1.0/companies
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let countryObj = {
+                name: name,
+                country: "Fr",
+                state: null,
+                offerType: "freemium"
+            };
+
+            if (country) {
+                countryObj.country = country;
+            }
+            if (state) {
+                countryObj.state = state;
+            }
+            if (offerType) {
+                //offerType: "premium"
+                countryObj.offerType = offerType
+            }
+
+            that.http.post('/api/rainbow/admin/v1.0/companies', that.getRequestHeader(), countryObj, undefined).then(function (json) {
+                that._logger.log(that.DEBUG, LOG_ID + "(createCompany) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(createCompany) REST result : ", json);
+                if (json && json.data) {
+                    resolve(json.data);
+                } else {
+                    resolve(json);
+                }
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(createCompany) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(createCompany) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    getCompany(companyId) {
+        // API https://api.openrainbow.org/admin/#api-companies-GetCompaniesId
+        // URL get /api/rainbow/admin/v1.0/companies/:companyId
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.http.get('/api/rainbow/admin/v1.0/companies/' + companyId, that.getRequestHeader(), undefined).then(function (json) {
+                that._logger.log(that.DEBUG, LOG_ID + "(getCompany) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getCompany) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(getCompany) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getCompany) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    deleteCompany(companyId) {
+        // API https://api.openrainbow.org/admin/#api-companies-DeleteCompanies
+        // URL delete /api/rainbow/admin/v1.0/companies/:companyId
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that._logger.log(that.DEBUG, LOG_ID + "(deleteCompany) companyId", companyId);
+            that.http.delete('/api/rainbow/admin/v1.0/companies/' + companyId, that.getRequestHeader()).then(function (json) {
+                that._logger.log(that.DEBUG, LOG_ID + "(deleteCompany) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(deleteCompany) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(deleteCompany) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteCompany) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    getCompanyInfos(companyId, format: string = "full", selectedThemeObj: boolean = false, name: string, status: string, visibility: string, organisationId: string, isBP: boolean, hasBP: boolean, bpType: string) {
+        // API https://api.openrainbow.org/enduser/#api-companies-getCompanyById
+        // URL get /api/rainbow/enduser/v1.0/companies/:companyId
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url: string = '/api/rainbow/enduser/v1.0/companies/' + companyId;
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            //addParamToUrl(urlParamsTab, "companyId", companyId);
+            addParamToUrl(urlParamsTab, "format", format);
+            addParamToUrl(urlParamsTab, "selectedThemeObj", selectedThemeObj);
+            addParamToUrl(urlParamsTab, "name", name);
+            addParamToUrl(urlParamsTab, "status", status);
+            addParamToUrl(urlParamsTab, "visibility", visibility);
+            addParamToUrl(urlParamsTab, "organisationId", organisationId);
+            addParamToUrl(urlParamsTab, "isBP", isBP);
+            addParamToUrl(urlParamsTab, "hasBP", hasBP);
+            addParamToUrl(urlParamsTab, "bpType", bpType);
+            url = urlParamsTab[0];
+
+            that._logger.log(that.INTERNAL, LOG_ID + "(getCompanyInfos) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
+                that._logger.log(that.DEBUG, LOG_ID + "(getCompanyInfos) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getCompanyInfos) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(getCompanyInfos) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getCompanyInfos) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    //endregion Company Management
+
+    //region Companies RainbowMFA Settings
+
+    createRainbowMultifactorAuthenticationServerConfiguration (_companyId : string, enabledForAllCompanyUsers : boolean, mfaName : string, mfaType : string, mfaPolicy : string, rememberDaysApplication : string, mfaCanBeDisabled : boolean) {
+        // API https://api.openrainbow.org/admin/#api-companies_RainbowMFA_settings-PostCompanyRainbowMFASettings
+        // URL POST /api/rainbow/admin/v1.0/companies/:companyId/settings/rainbowmfa
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let companyId = _companyId ? _companyId:that.account.companyId;
+            let url = "/api/rainbow/admin/v1.0/companies/" + companyId + "/settings/rainbowmfa";
+            let data: any = {};
+            addPropertyToObj(data, "enabledForAllCompanyUsers", enabledForAllCompanyUsers, false);
+            addPropertyToObj(data, "mfaName", mfaName, false);
+            addPropertyToObj(data, "mfaType", mfaType, false);
+            addPropertyToObj(data, "mfaPolicy", mfaPolicy, false);
+            addPropertyToObj(data, "rememberDaysApplication", rememberDaysApplication, false);
+            addPropertyToObj(data, "mfaCanBeDisabled", mfaCanBeDisabled, false);
+
+            that.http.post(url, that.getRequestHeader(), data, undefined).then(function (json) {
+                that._logger.log(that.DEBUG, LOG_ID + "(createRainbowMultifactorAuthenticationServerConfiguration) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(createRainbowMultifactorAuthenticationServerConfiguration) REST result : ", json);
+                resolve(json.data);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(createRainbowMultifactorAuthenticationServerConfiguration) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(createRainbowMultifactorAuthenticationServerConfiguration) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    deleteRainbowMultifactorConfiguration (_companyId : string, mfaId : string) {
+        // API https://api.openrainbow.org/admin/#api-companies_RainbowMFA_settings-DeleteCompanyRainbowMFASettings
+        // URL delete /api/rainbow/admin/v1.0/companies/:companyId/settings/rainbowmfa/:mfaId
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let companyId = _companyId ? _companyId:that.account.companyId;
+            let url = "/api/rainbow/admin/v1.0/companies/" + companyId + "/settings/rainbowmfa/" + mfaId;
+            that._logger.log(that.DEBUG, LOG_ID + "(deleteRainbowMultifactorConfiguration) companyId", companyId);
+            that.http.delete(url, that.getRequestHeader()).then(function (json) {
+                that._logger.log(that.DEBUG, LOG_ID + "(deleteRainbowMultifactorConfiguration) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(deleteRainbowMultifactorConfiguration) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(deleteRainbowMultifactorConfiguration) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteRainbowMultifactorConfiguration) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    getRainbowMultifactorConfiguration (_companyId : string, mfaId : string) {
+        // API https://api.openrainbow.org/admin/#api-companies_RainbowMFA_settings-GetCompanyRainbowMFASettings
+        // URL get /api/rainbow/admin/v1.0/companies/:companyId/settings/rainbowmfa/:mfaId
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let companyId = _companyId ? _companyId:that.account.companyId;
+            let url = "/api/rainbow/admin/v1.0/companies/" + companyId + "/settings/rainbowmfa/" + mfaId;
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            //addParamToUrl(urlParamsTab, "companyId", companyId);
+            //addParamToUrl(urlParamsTab, "companyId", companyId);
+            //addParamToUrl(urlParamsTab, "joinCompanyLinkId", joinCompanyLinkId);
+            url = urlParamsTab[0];
+
+            that._logger.log(that.INTERNAL, LOG_ID + "(getRainbowMultifactorConfiguration) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
+                that._logger.log(that.DEBUG, LOG_ID + "(getRainbowMultifactorConfiguration) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getRainbowMultifactorConfiguration) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(getRainbowMultifactorConfiguration) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getRainbowMultifactorConfiguration) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    getAllRainbowMultifactorConfiguration (_companyId : string, format : string = "medium") {
+        // API https://api.openrainbow.org/admin/#api-companies_RainbowMFA_settings-GetAllCompanyRainbowMFASettings
+        // URL get /api/rainbow/admin/v1.0/companies/:companyId/settings/rainbowmfa
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let companyId = _companyId ? _companyId:that.account.companyId;
+            let url = "/api/rainbow/admin/v1.0/companies/" + companyId + "/settings/rainbowmfa" ;
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "format", format);
+            //addParamToUrl(urlParamsTab, "companyId", companyId);
+            //addParamToUrl(urlParamsTab, "joinCompanyLinkId", joinCompanyLinkId);
+            url = urlParamsTab[0];
+
+            that._logger.log(that.INTERNAL, LOG_ID + "(getAllRainbowMultifactorConfiguration) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
+                that._logger.log(that.DEBUG, LOG_ID + "(getAllRainbowMultifactorConfiguration) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getAllRainbowMultifactorConfiguration) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(getAllRainbowMultifactorConfiguration) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getAllRainbowMultifactorConfiguration) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    updateRainbowMultifactorAuthenticationConfiguration (_companyId : string, mfaId : string, enabledForAllCompanyUsers : boolean, mfaName : string, mfaType : string, mfaPolicy : string, rememberDaysApplication : string, mfaCanBeDisabled : boolean) {
+        // API https://api.openrainbow.org/admin/#api-companies_RainbowMFA_settings-PutCompanyRainbowMFASettings
+        // URL PUT /api/rainbow/admin/v1.0/companies/:companyId/settings/rainbowmfa/:mfaId
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let companyId = _companyId ? _companyId:that.account.companyId;
+            let url = "/api/rainbow/admin/v1.0/companies/" + companyId + "/settings/rainbowmfa/" + mfaId;
+            let data: any = {};
+            addPropertyToObj(data, "enabledForAllCompanyUsers", enabledForAllCompanyUsers, false);
+            addPropertyToObj(data, "mfaName", mfaName, false);
+            addPropertyToObj(data, "mfaType", mfaType, false);
+            addPropertyToObj(data, "mfaPolicy", mfaPolicy, false);
+            addPropertyToObj(data, "rememberDaysApplication", rememberDaysApplication, false);
+            addPropertyToObj(data, "mfaCanBeDisabled", mfaCanBeDisabled, false);
+
+            that.http.put(url, that.getRequestHeader(), data, undefined).then(function (json) {
+                that._logger.log(that.DEBUG, LOG_ID + "(updateAJoinCompanyLink) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(updateAJoinCompanyLink) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(updateAJoinCompanyLink) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateAJoinCompanyLink) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    //endregion Companies RainbowMFA Settings
+
     //region Company join companies links
 
     createAJoinCompanyLink(companyId: string, description: string = undefined, isEnabled: boolean = true, expirationDate: string = undefined, maxNumberUsers: number = undefined) {
@@ -4750,163 +5046,6 @@ Request Method: PUT
     }
 
     //endregion Company from end user portal
-
-    getAllCompanies(format: string = "small", sortField: string = "name", bpId: string = undefined, catalogId: string = undefined, offerId: string = undefined, offerCanBeSold: boolean = undefined, externalReference: string = undefined, externalReference2: string = undefined, salesforceAccountId: string = undefined, selectedAppCustomisationTemplate: string = undefined, selectedThemeObj: boolean = undefined, offerGroupName: string = undefined, limit: number = 100, offset: number = 0, sortOrder: number = 1, name: string = undefined, status: string = undefined, visibility: string = undefined, organisationId: string = undefined, isBP: boolean = undefined, hasBP: boolean = undefined, bpType: string = undefined) {
-        // API https://api.openrainbow.org/admin/#api-companies-GetCompanies
-        // URL get /api/rainbow/admin/v1.0/companies
-
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            that._logger.log(that.DEBUG, LOG_ID + "(getAllCompanies) that.account.roles : ", that.account.roles);
-
-            let url: string = "/api/rainbow/admin/v1.0/companies";
-            let urlParamsTab: string[] = [];
-            urlParamsTab.push(url);
-            addParamToUrl(urlParamsTab, "format", format);
-            addParamToUrl(urlParamsTab, "sortField", sortField);
-            addParamToUrl(urlParamsTab, "bpId", bpId);
-            addParamToUrl(urlParamsTab, "catalogId", catalogId);
-            addParamToUrl(urlParamsTab, "offerId", offerId);
-            addParamToUrl(urlParamsTab, "offerCanBeSold", offerCanBeSold);
-            addParamToUrl(urlParamsTab, "externalReference", externalReference);
-            addParamToUrl(urlParamsTab, "externalReference2", externalReference2);
-            addParamToUrl(urlParamsTab, "salesforceAccountId", salesforceAccountId);
-            addParamToUrl(urlParamsTab, "selectedAppCustomisationTemplate", selectedAppCustomisationTemplate);
-            addParamToUrl(urlParamsTab, "selectedThemeObj", selectedThemeObj);
-            addParamToUrl(urlParamsTab, "offerGroupName", offerGroupName);
-            addParamToUrl(urlParamsTab, "limit", limit);
-            addParamToUrl(urlParamsTab, "offset", offset);
-            addParamToUrl(urlParamsTab, "name", name);
-            addParamToUrl(urlParamsTab, "status", status);
-            addParamToUrl(urlParamsTab, "visibility", visibility);
-            addParamToUrl(urlParamsTab, "organisationId", organisationId);
-            addParamToUrl(urlParamsTab, "isBP", isBP);
-            addParamToUrl(urlParamsTab, "hasBP", hasBP);
-            addParamToUrl(urlParamsTab, "bpType", bpType);
-            url = urlParamsTab[0];
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getAllCompanies) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(getAllCompanies) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getAllCompanies) REST result : ", json.data);
-                resolve(json);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getAllCompanies) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getAllCompanies) error : ", err);
-                return reject(err);
-            });
-            that._logger.log(that.DEBUG, LOG_ID + "(getAllCompanies) after sending the request");
-        });
-    }
-
-    createCompany(name, country, state, offerType) {
-        // API https://api.openrainbow.org/admin/#api-companies-PostCompanies
-        // URL post /api/rainbow/admin/v1.0/companies
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let countryObj = {
-                name: name,
-                country: "Fr",
-                state: null,
-                offerType: "freemium"
-            };
-
-            if (country) {
-                countryObj.country = country;
-            }
-            if (state) {
-                countryObj.state = state;
-            }
-            if (offerType) {
-                //offerType: "premium"
-                countryObj.offerType = offerType
-            }
-
-            that.http.post('/api/rainbow/admin/v1.0/companies', that.getRequestHeader(), countryObj, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(createCompany) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(createCompany) REST result : ", json);
-                if (json && json.data) {
-                    resolve(json.data);
-                } else {
-                    resolve(json);
-                }
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(createCompany) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(createCompany) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    getCompany(companyId) {
-        // API https://api.openrainbow.org/admin/#api-companies-GetCompaniesId
-        // URL get /api/rainbow/admin/v1.0/companies/:companyId
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            that.http.get('/api/rainbow/admin/v1.0/companies/' + companyId, that.getRequestHeader(), undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(getCompany) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getCompany) REST result : ", json);
-                resolve(json);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getCompany) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getCompany) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    deleteCompany(companyId) {
-        // API https://api.openrainbow.org/admin/#api-companies-DeleteCompanies
-        // URL delete /api/rainbow/admin/v1.0/companies/:companyId
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            that._logger.log(that.DEBUG, LOG_ID + "(deleteCompany) companyId", companyId);
-            that.http.delete('/api/rainbow/admin/v1.0/companies/' + companyId, that.getRequestHeader()).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(deleteCompany) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(deleteCompany) REST result : ", json);
-                resolve(json);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(deleteCompany) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteCompany) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    getCompanyInfos(companyId, format: string = "full", selectedThemeObj: boolean = false, name: string, status: string, visibility: string, organisationId: string, isBP: boolean, hasBP: boolean, bpType: string) {
-        // API https://api.openrainbow.org/enduser/#api-companies-getCompanyById
-        // URL get /api/rainbow/enduser/v1.0/companies/:companyId
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url: string = '/api/rainbow/enduser/v1.0/companies/' + companyId;
-            let urlParamsTab: string[] = [];
-            urlParamsTab.push(url);
-            //addParamToUrl(urlParamsTab, "companyId", companyId);
-            addParamToUrl(urlParamsTab, "format", format);
-            addParamToUrl(urlParamsTab, "selectedThemeObj", selectedThemeObj);
-            addParamToUrl(urlParamsTab, "name", name);
-            addParamToUrl(urlParamsTab, "status", status);
-            addParamToUrl(urlParamsTab, "visibility", visibility);
-            addParamToUrl(urlParamsTab, "organisationId", organisationId);
-            addParamToUrl(urlParamsTab, "isBP", isBP);
-            addParamToUrl(urlParamsTab, "hasBP", hasBP);
-            addParamToUrl(urlParamsTab, "bpType", bpType);
-            url = urlParamsTab[0];
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getCompanyInfos) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(getCompanyInfos) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getCompanyInfos) REST result : ", json);
-                resolve(json.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getCompanyInfos) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getCompanyInfos) error : ", err);
-                return reject(err);
-            });
-        });
-    }
 
     //region Company visibility
 
@@ -15044,7 +15183,6 @@ Request Method: PUT
     }
 
     //endregion Tasks MANAGEMENT
-
 
 }
 

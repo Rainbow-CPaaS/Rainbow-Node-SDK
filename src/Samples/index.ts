@@ -6936,6 +6936,24 @@ let urlS2S;
 
         //endregion Company From enduser
 
+        //region compagnies
+
+        async testcreateRainbowMultifactorAuthenticationServerConfiguration() {
+           // let results: any = await rainbowSDK.admin.createRainbowMultifactorAuthenticationServerConfiguration();
+            //_logger.log("debug", "MAIN - testcreateRainbowMultifactorAuthenticationServerConfiguration - results : ", results);
+        }
+
+        async testgetAllRainbowMultifactorConfiguration () {
+            try {
+                let results: any = await rainbowSDK.admin.getAllRainbowMultifactorConfiguration(undefined, "small");
+                _logger.log("debug", "MAIN - testgetAllRainbowMultifactorConfiguration - results : ", results);
+            } catch (err) {
+                _logger.log("debug", "MAIN - testgetAllRainbowMultifactorConfiguration - CATCH Error !!! error : ", err);
+            }
+        }
+
+        //endregion compagnies
+
         async testgetAllCompanies() {
             // to be used with vincentbp@vbe.test.openrainbow.net on vberder AIO.
             _logger.log("debug", "MAIN - testgetAllCompanies. ");
