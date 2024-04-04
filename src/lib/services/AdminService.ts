@@ -3089,7 +3089,7 @@ class AdminService extends GenericService {
      * ```
      * </br>
      */
-    getEmailTemplatesDocumentation (format : string) {
+    getEmailTemplatesDocumentation (format : string = "small") {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getEmailTemplatesDocumentation) format : ", that._logger.stripStringForLogs(format));
 
@@ -3167,10 +3167,9 @@ class AdminService extends GenericService {
 
         return new Promise(function (resolve, reject) {
             try {
-                /*
-                if (!groupId) {
-                    that._logger.log(that.WARN, LOG_ID + "(initiateEmailTemplate) bad or empty 'groupId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(initiateEmailTemplate) bad or empty 'groupId' parameter : ", groupId);
+                if (!templateName) {
+                    that._logger.log(that.WARN, LOG_ID + "(initiateEmailTemplate) bad or empty 'templateName' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(initiateEmailTemplate) bad or empty 'templateName' parameter : ", templateName);
                     return reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
                 // */
@@ -3246,10 +3245,14 @@ class AdminService extends GenericService {
 
         return new Promise(function (resolve, reject) {
             try {
-                /*
-                if (!groupId) {
-                    that._logger.log(that.WARN, LOG_ID + "(initiateEmailTemplate) bad or empty 'groupId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(initiateEmailTemplate) bad or empty 'groupId' parameter : ", groupId);
+                if (!templateName) {
+                    that._logger.log(that.WARN, LOG_ID + "(updateSubjectPartTemplate) bad or empty 'templateName' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(updateSubjectPartTemplate) bad or empty 'templateName' parameter : ", templateName);
+                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+                if (!body) {
+                    that._logger.log(that.WARN, LOG_ID + "(updateSubjectPartTemplate) bad or empty 'body' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(updateSubjectPartTemplate) bad or empty 'body' parameter : ", body);
                     return reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
                 // */
@@ -3337,10 +3340,14 @@ class AdminService extends GenericService {
 
         return new Promise(function (resolve, reject) {
             try {
-                /*
-                if (!groupId) {
-                    that._logger.log(that.WARN, LOG_ID + "(initiateEmailTemplate) bad or empty 'groupId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(initiateEmailTemplate) bad or empty 'groupId' parameter : ", groupId);
+                if (!templateName) {
+                    that._logger.log(that.WARN, LOG_ID + "(updateMjmlFormatPartTemplate) bad or empty 'templateName' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(updateMjmlFormatPartTemplate) bad or empty 'templateName' parameter : ", templateName);
+                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+                if (!body) {
+                    that._logger.log(that.WARN, LOG_ID + "(updateMjmlFormatPartTemplate) bad or empty 'body' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(updateMjmlFormatPartTemplate) bad or empty 'body' parameter : ", body);
                     return reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
                 // */
@@ -3426,10 +3433,9 @@ class AdminService extends GenericService {
 
         return new Promise(function (resolve, reject) {
             try {
-                /*
-                if (!groupId) {
-                    that._logger.log(that.WARN, LOG_ID + "(initiateEmailTemplate) bad or empty 'groupId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(initiateEmailTemplate) bad or empty 'groupId' parameter : ", groupId);
+                if (!templateName) {
+                    that._logger.log(that.WARN, LOG_ID + "(updateTextFormatFormatPartTemplate) bad or empty 'templateName' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(updateTextFormatFormatPartTemplate) bad or empty 'templateName' parameter : ", templateName);
                     return reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
                 // */
@@ -3450,6 +3456,7 @@ class AdminService extends GenericService {
             }
         });
     }
+
     /**
      * @public
      * @method getEmailTemplatesByCompanyId
@@ -3507,10 +3514,9 @@ class AdminService extends GenericService {
 
         return new Promise(function (resolve, reject) {
             try {
-                /*
-                if (!groupId) {
-                    that._logger.log(that.WARN, LOG_ID + "(initiateEmailTemplate) bad or empty 'groupId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(initiateEmailTemplate) bad or empty 'groupId' parameter : ", groupId);
+                if (!templateName) {
+                    that._logger.log(that.WARN, LOG_ID + "(getEmailTemplatesByCompanyId) bad or empty 'templateName' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getEmailTemplatesByCompanyId) bad or empty 'templateName' parameter : ", templateName);
                     return reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
                 // */
@@ -3527,6 +3533,436 @@ class AdminService extends GenericService {
             } catch (err) {
                 that._logger.log(that.ERROR, LOG_ID + "(getEmailTemplatesByCompanyId) CATCH error.");
                 that._logger.log(that.INTERNALERROR, LOG_ID + "(getEmailTemplatesByCompanyId) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method deleteEmailTemplate
+     * @since 2.28.3
+     * @instance
+     * @async
+     * @category Companies Customization Emails
+     * @param {string} companyId Company unique identifier
+     * @param {string} templateName One of the email template allowed to be customized. **For the entire list of allowed template names, use getEmailTemplatesDocumentation(format=small)**
+     *
+     * * `enduser_invite_somebody`: User can be searched by external users / can search external users. User can invite external users / can be invited by external users
+     *
+     * Possibles values : `admin_cancel_invite_user_join_company`, `admin_invite_user_join_company`, `admin_invite_user_join_company_as_admin`, `admin_invite_user_register_and_join_company`,
+     * </br> `admin_invite_user_register_and_join_company_as_admin`, `admin_request_company_visibility`, `bp_admin_invite_ec_admin_link_his_company_to_bp`, `ec_admin_request_bp_admin_link_his_company_to_bp`,
+     * </br> `bp_admin_invite_ec_admin_link_his_company_to_bp_as_bp_ir`, `ec_admin_request_bp_admin_link_his_company_to_bp_as_bp_ir`, `enduser_account_creation_completed`, `enduser_account_terminated`,
+     * </br> `enduser_account_terminated_by_himself`, `enduser_conversation_download`, `enduser_invite_somebody`, `enduser_chat_room_invite_guest`, `enduser_conference_invite_somebody`,
+     * </br> `enduser_scheduled_conference_cancel_invite`, `enduser_scheduled_conference_invite_somebody`, `enduser_scheduled_conference_ical`, `enduser_scheduled_conference_cancel_ical`,
+     * </br> `enduser_request_join_company`, `enduser_request_user_visibility`, `enduser_temporary_token_reset_password`, `enduser_temporary_token_self_register`, `enduser_offline_im_invite`,
+     * </br> `enduser_guest_account_time_to_live`, `enduser_oauth_authentication_notification`
+     * @description
+     *  This API allows to delete an email template for a given company. An error occurs when the template name is not yet allowed or when it is not found for this company.
+     *
+     * </br> Users with superadmin role can delete all available email templates of any company.
+     * </br> Users with bp_admin role can only delete email templates for a company they manage (i.e. End Customer company for which bp_admin's company if the BP company).
+     * </br> Users with organization_admin role can only delete email templates for a company they manage (i.e. company linked to organization_admin's organization).
+     * </br> Users with company_admin users can only delete all available email templates of their own company.
+     *
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | status | String | Delete operation status message. |
+     *
+     *  </br>example of result :
+     *  ```json
+     *  {
+     *   "status":"Email Template enduser_invite_somebody of company 5734a186070f38215854b61f successfully deleted",
+     *   "data":[]
+     *  }
+     * ```
+     * </br>
+     */
+    deleteEmailTemplate(companyId: string, templateName : string) {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteEmailTemplate) templateName : ", that._logger.stripStringForLogs(templateName));
+
+        return new Promise(function (resolve, reject) {
+            try {
+                if (!templateName) {
+                    that._logger.log(that.WARN, LOG_ID + "(deleteEmailTemplate) bad or empty 'templateName' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteEmailTemplate) bad or empty 'templateName' parameter : ", templateName);
+                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+                // */
+
+                that._rest.deleteEmailTemplate(companyId, templateName ).then((result: any) => {
+                    that._logger.log(that.DEBUG, LOG_ID + "(deleteEmailTemplate) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(deleteEmailTemplate) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log(that.ERROR, LOG_ID + "(deleteEmailTemplate) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log(that.ERROR, LOG_ID + "(deleteEmailTemplate) CATCH error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteEmailTemplate) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method deleteAvailableEmailTemplatesBycompanyId
+     * @since 2.28.3
+     * @instance
+     * @async
+     * @category Companies Customization Emails
+     * @param {string} companyId Company unique identifier
+     * @param {string} templateName One of the email template allowed to be customized. **For the entire list of allowed template names, use getEmailTemplatesDocumentation(format=small)**
+     *
+     * * `enduser_invite_somebody`: User can be searched by external users / can search external users. User can invite external users / can be invited by external users
+     *
+     * Possibles values : `admin_cancel_invite_user_join_company`, `admin_invite_user_join_company`, `admin_invite_user_join_company_as_admin`, `admin_invite_user_register_and_join_company`,
+     * </br> `admin_invite_user_register_and_join_company_as_admin`, `admin_request_company_visibility`, `bp_admin_invite_ec_admin_link_his_company_to_bp`, `ec_admin_request_bp_admin_link_his_company_to_bp`,
+     * </br> `bp_admin_invite_ec_admin_link_his_company_to_bp_as_bp_ir`, `ec_admin_request_bp_admin_link_his_company_to_bp_as_bp_ir`, `enduser_account_creation_completed`, `enduser_account_terminated`,
+     * </br> `enduser_account_terminated_by_himself`, `enduser_conversation_download`, `enduser_invite_somebody`, `enduser_chat_room_invite_guest`, `enduser_conference_invite_somebody`,
+     * </br> `enduser_scheduled_conference_cancel_invite`, `enduser_scheduled_conference_invite_somebody`, `enduser_scheduled_conference_ical`, `enduser_scheduled_conference_cancel_ical`,
+     * </br> `enduser_request_join_company`, `enduser_request_user_visibility`, `enduser_temporary_token_reset_password`, `enduser_temporary_token_self_register`, `enduser_offline_im_invite`,
+     * </br> `enduser_guest_account_time_to_live`, `enduser_oauth_authentication_notification`
+     * @description
+     *  This API allows to delete all available email templates for a given company.
+     *
+     * </br> Users with superadmin role can delete all available email templates of any company.
+     * </br> Users with bp_admin role can only delete email templates for a company they manage (i.e. End Customer company for which bp_admin's company if the BP company).
+     * </br> Users with organization_admin role can only delete email templates for a company they manage (i.e. company linked to organization_admin's organization).
+     * </br> Users with company_admin users can only delete all available email templates of their own company.
+     *
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | status | String | Delete operation status message. |
+     *
+     *  </br>example of result :
+     *  ```json
+     *  {
+     *   "status":"Email Templates of company 5734a186070f38215854b61f successfully deleted",
+     *   "data":[]
+     *  }
+     * ```
+     * </br>
+     */
+    deleteAvailableEmailTemplatesBycompanyId(companyId: string, templateName : string) {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteAvailableEmailTemplatesBycompanyId) templateName : ", that._logger.stripStringForLogs(templateName));
+
+        return new Promise(function (resolve, reject) {
+            try {
+                if (!templateName) {
+                    that._logger.log(that.WARN, LOG_ID + "(deleteAvailableEmailTemplatesBycompanyId) bad or empty 'templateName' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteAvailableEmailTemplatesBycompanyId) bad or empty 'templateName' parameter : ", templateName);
+                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+                // */
+
+                that._rest.deleteAvailableEmailTemplatesBycompanyId(companyId, templateName ).then((result: any) => {
+                    that._logger.log(that.DEBUG, LOG_ID + "(deleteAvailableEmailTemplatesBycompanyId) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(deleteAvailableEmailTemplatesBycompanyId) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log(that.ERROR, LOG_ID + "(deleteAvailableEmailTemplatesBycompanyId) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log(that.ERROR, LOG_ID + "(deleteAvailableEmailTemplatesBycompanyId) CATCH error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteAvailableEmailTemplatesBycompanyId) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method testEmailTemplateRendering
+     * @since 2.28.3
+     * @instance
+     * @async
+     * @category Companies Customization Emails
+     * @param {string} companyId Company unique identifier
+     * @param {any} body object of the template :
+     * <div style="text-align : left">
+     * </br> {
+     * </br>   // A valid mail address.
+     * </br>   // Valeur par défaut : loginEmail
+     * </br>   emailTo?: string,
+     *
+     * </br>   // A list of key/value . Data required by the template for rendering (depends of the template)
+     * </br>   inputs: object,
+     *
+     * </br>   // User language
+     * </br>   // Language format is composed of locale using format ISO 639-1, with optionally the regional variation using ISO 3166‑1 alpha-2 (separated by hyphen).
+     * </br>   // Locale part is in lowercase, regional part is in uppercase. Examples: en, en-US, fr, fr-FR, fr-CA, es-ES, es-MX, ...
+     * </br>   // More information about the format can be found on this link: https://en.wikipedia.org/wiki/Language_localisation#Language_tags_and_codes
+     * </br>   // Valeur par défaut : en
+     * </br>   // Possibles values: /^([a-z]{2})(?:(?:(-)[A-Z]{2}))?$/
+     * </br>   language?: string,
+     *
+     * </br>   // One of the email template allowed to be customized.
+     * </br>   // For the entire list of allowed template names, use getEmailTemplatesDocumentation(format=small)
+     * </br>   // Possibles values :
+     * </br>   // admin_cancel_invite_user_join_company
+     * </br>   // admin_invite_user_join_company
+     * </br>   // admin_invite_user_join_company_as_admin
+     * </br>   // admin_invite_user_register_and_join_company
+     * </br>   // admin_invite_user_register_and_join_company_as_admin
+     * </br>   // admin_request_company_visibility
+     * </br>   // bp_admin_invite_ec_admin_link_his_company_to_bp
+     * </br>   // ec_admin_request_bp_admin_link_his_company_to_bp
+     * </br>   // bp_admin_invite_ec_admin_link_his_company_to_bp_as_bp_ir
+     * </br>   // ec_admin_request_bp_admin_link_his_company_to_bp_as_bp_ir
+     * </br>   // enduser_account_creation_completed
+     * </br>   // enduser_account_terminated
+     * </br>   // enduser_account_terminated_by_himself
+     * </br>   // enduser_conversation_download
+     * </br>   // enduser_invite_somebody
+     * </br>   // enduser_chat_room_invite_guest
+     * </br>   // enduser_conference_invite_somebody
+     * </br>   // enduser_scheduled_conference_cancel_invite
+     * </br>   // enduser_scheduled_conference_invite_somebody
+     * </br>   // enduser_scheduled_conference_ical
+     * </br>   // enduser_scheduled_conference_cancel_ical
+     * </br>   // enduser_request_join_company
+     * </br>   // enduser_request_user_visibility
+     * </br>   // enduser_temporary_token_reset_password
+     * </br>   // enduser_temporary_token_self_register
+     * </br>   // enduser_offline_im_invite
+     * </br>   // enduser_guest_account_time_to_live
+     * </br>   // enduser_oauth_authentication_notification
+     * </br>   templateName: string
+     * </br> }
+     * </div>
+     * @description
+     *  This API allows to check the rendering of a given email template. When a template is rendered with success (we look for Nunjucks issues), the flag 'tested' is set.
+     * tested flag is a prerequisite to be allowed to activate the template.
+     *
+     * </br> Users with superadmin role can get all available email templates of any company.
+     * </br> Users with bp_admin role can only get email templates for a company they manage (i.e. End Customer company for which bp_admin's company if the BP company).
+     * </br> Users with organization_admin role can only get email templates for a company they manage (i.e. company linked to organization_admin's organization).
+     * </br> Users with company_admin users can only get all available email templates of their own company.
+     * An specific error (500001 - Impossible to render the custom email template [templateName]. (detail : [err]) is thrown when there is some Nunjuck issue
+     *
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | status | String | operation status message. |
+     *
+     *  </br>example of result :
+     *  ```json
+     *  {
+     *  "status":"Email Template enduser_invite_somebody of company 5734a186070f38215854b61f successfully sent",
+     *  "data":[]
+     * }
+     * ```
+     * </br>
+     */
+    testEmailTemplateRendering(companyId: string, body : any): Promise<any>{
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(testEmailTemplateRendering) body : ", that._logger.stripStringForLogs(body));
+
+        return new Promise(function (resolve, reject) {
+            try {
+                if (!body) {
+                    that._logger.log(that.WARN, LOG_ID + "(testEmailTemplateRendering) bad or empty 'body' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(testEmailTemplateRendering) bad or empty 'body' parameter : ", body);
+                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+                // */
+
+                that._rest.testEmailTemplateRendering(companyId, body ).then((result: any) => {
+                    that._logger.log(that.DEBUG, LOG_ID + "(testEmailTemplateRendering) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(testEmailTemplateRendering) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log(that.ERROR, LOG_ID + "(testEmailTemplateRendering) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log(that.ERROR, LOG_ID + "(testEmailTemplateRendering) CATCH error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(testEmailTemplateRendering) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method activateEmailTemplate
+     * @since 2.28.3
+     * @instance
+     * @async
+     * @category Companies Customization Emails
+     * @param {string} companyId Company unique identifier
+     * @param {string} templateName One of the email template allowed to be customized. For the entire list of allowed template names, use GET /api/rainbow/admin/v1.0/companies/customizations/emails?format=small
+     * <div style="text-align : left">
+     * </br>   Valeurs autorisées : admin_cancel_invite_user_join_company, admin_invite_user_join_company,
+     * </br>   admin_invite_user_join_company_as_admin, admin_invite_user_register_and_join_company,
+     * </br>   admin_invite_user_register_and_join_company_as_admin, admin_request_company_visibility,
+     * </br>   bp_admin_invite_ec_admin_link_his_company_to_bp, ec_admin_request_bp_admin_link_his_company_to_bp,
+     * </br>   bp_admin_invite_ec_admin_link_his_company_to_bp_as_bp_ir, ec_admin_request_bp_admin_link_his_company_to_bp_as_bp_ir,
+     * </br>   enduser_account_creation_completed, enduser_account_terminated, enduser_account_terminated_by_himself,
+     * </br>   enduser_conversation_download, enduser_invite_somebody, enduser_chat_room_invite_guest, enduser_conference_invite_somebody,
+     * </br>   enduser_scheduled_conference_cancel_invite, enduser_scheduled_conference_invite_somebody, enduser_scheduled_conference_ical,
+     * </br>   enduser_scheduled_conference_cancel_ical, enduser_request_join_company, enduser_request_user_visibility,
+     * </br>   enduser_temporary_token_reset_password, enduser_temporary_token_self_register, enduser_offline_im_invite,
+     * </br>   enduser_guest_account_time_to_live, enduser_oauth_authentication_notification
+     * </div>
+     * @description
+     * This API allows to activate an email template for a given company. An error occurs when the template name is not yet allowed or when it is not found for this company.
+     * As tested flag is a prerequisite to be allowed to activate the template, an error detail 409012 can be raised.
+     * Users with superadmin role can manage all available email templates of any company.
+     * Users with bp_admin role can only handle email templates for a company they manage (i.e. End Customer company for which bp_admin's company if the BP company).
+     * Users with organization_admin role can only handle email templates for a company they manage (i.e. company linked to organization_admin's organization).
+     * Users with company_admin users can only handle all available email templates of their own company.
+     *
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | status | String | operation status message. |
+     *
+     *  </br>example of result :
+     *  ```json
+     * {
+     *  "data": {
+     *    "companyId": "598857f360c749e5890ff2f9",
+     *    "templateName": "enduser_conversation_download",
+     *    "isActive": true,
+     *    "mjmlFormat": "<mjml>\n  <mj-body>\n    <mj-section>\n      <mj-column>\n        <mj-text font-size=\"20px\" align=\"left\" color=\"#000\">\n          {{ __({phrase: \"Please find attached messages exchanged in your conversation.\", locale: locale}) }}\n          <br/><br/> {{ __({phrase: \"Learn more\", locale: locale}) }} {{ __({phrase: \"about Rainbow\", locale: locale}) }}  \n        </mj-text>\n        <mj-text font-size=\"10px\" align=\"left\" color=\"#000\">\n          Copyright © 2018 Alcatel-Lucent Enterprise\n        </mj-text>\n      </mj-column>\n    </mj-section>\n  </mj-body>\n</mjml>",
+     *    "subject": "{{ __({phrase: \"Conversation with {{userOrRoomDisplayName}}\", locale: locale}, {userOrRoomDisplayName: userOrRoomDisplayName}) | safe }}",
+     *    "textFormat": "{{ __({phrase: \"Please find attached messages exchanged in your conversation.\", locale: locale}) }}\n\n{{ __({phrase: \"Learn more\", locale: locale}) }} {{ __({phrase: \"about Rainbow\", locale: locale}) }}:\n{{ publicWebsiteURL }}\n\nCopyright © 2018 Alcatel-Lucent Enterprise",
+     *    "tested": true
+     *  }
+     * }
+     * ```
+     * </br>
+     */
+    activateEmailTemplate (companyId : string, templateName : string) {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(activateEmailTemplate) templateName : ", that._logger.stripStringForLogs(templateName));
+
+        return new Promise(function (resolve, reject) {
+            try {
+                if (!templateName) {
+                    that._logger.log(that.WARN, LOG_ID + "(activateEmailTemplate) bad or empty 'templateName' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(activateEmailTemplate) bad or empty 'templateName' parameter : ", templateName);
+                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+                // */
+
+                let isActive : boolean = true;
+                that._rest.activateDesactivateEmailTemplate(companyId, templateName, isActive ).then((result: any) => {
+                    that._logger.log(that.DEBUG, LOG_ID + "(activateEmailTemplate) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(activateEmailTemplate) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log(that.ERROR, LOG_ID + "(activateEmailTemplate) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log(that.ERROR, LOG_ID + "(activateEmailTemplate) CATCH error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(activateEmailTemplate) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method deactivateEmailTemplate
+     * @since 2.28.3
+     * @instance
+     * @async
+     * @category Companies Customization Emails
+     * @param {string} companyId Company unique identifier
+     * @param {string} templateName One of the email template allowed to be customized. For the entire list of allowed template names, use GET /api/rainbow/admin/v1.0/companies/customizations/emails?format=small
+     * <div style="text-align : left">
+     * </br>   Valeurs autorisées : admin_cancel_invite_user_join_company, admin_invite_user_join_company,
+     * </br>   admin_invite_user_join_company_as_admin, admin_invite_user_register_and_join_company,
+     * </br>   admin_invite_user_register_and_join_company_as_admin, admin_request_company_visibility,
+     * </br>   bp_admin_invite_ec_admin_link_his_company_to_bp, ec_admin_request_bp_admin_link_his_company_to_bp,
+     * </br>   bp_admin_invite_ec_admin_link_his_company_to_bp_as_bp_ir, ec_admin_request_bp_admin_link_his_company_to_bp_as_bp_ir,
+     * </br>   enduser_account_creation_completed, enduser_account_terminated, enduser_account_terminated_by_himself,
+     * </br>   enduser_conversation_download, enduser_invite_somebody, enduser_chat_room_invite_guest, enduser_conference_invite_somebody,
+     * </br>   enduser_scheduled_conference_cancel_invite, enduser_scheduled_conference_invite_somebody, enduser_scheduled_conference_ical,
+     * </br>   enduser_scheduled_conference_cancel_ical, enduser_request_join_company, enduser_request_user_visibility,
+     * </br>   enduser_temporary_token_reset_password, enduser_temporary_token_self_register, enduser_offline_im_invite,
+     * </br>   enduser_guest_account_time_to_live, enduser_oauth_authentication_notification
+     * </div>
+     * @description
+     * This API allows to desactivate an email template for a given company. An error occurs when the template name is not yet allowed or when it is not found for this company.
+     * As tested flag is a prerequisite to be allowed to activate the template, an error detail 409012 can be raised.
+     * Users with superadmin role can manage all available email templates of any company.
+     * Users with bp_admin role can only handle email templates for a company they manage (i.e. End Customer company for which bp_admin's company if the BP company).
+     * Users with organization_admin role can only handle email templates for a company they manage (i.e. company linked to organization_admin's organization).
+     * Users with company_admin users can only handle all available email templates of their own company.
+     *
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | status | String | operation status message. |
+     *
+     *  </br>example of result :
+     *  ```json
+     * {
+     *  "data": {
+     *    "companyId": "598857f360c749e5890ff2f9",
+     *    "templateName": "enduser_conversation_download",
+     *    "isActive": true,
+     *    "mjmlFormat": "<mjml>\n  <mj-body>\n    <mj-section>\n      <mj-column>\n        <mj-text font-size=\"20px\" align=\"left\" color=\"#000\">\n          {{ __({phrase: \"Please find attached messages exchanged in your conversation.\", locale: locale}) }}\n          <br/><br/> {{ __({phrase: \"Learn more\", locale: locale}) }} {{ __({phrase: \"about Rainbow\", locale: locale}) }}  \n        </mj-text>\n        <mj-text font-size=\"10px\" align=\"left\" color=\"#000\">\n          Copyright © 2018 Alcatel-Lucent Enterprise\n        </mj-text>\n      </mj-column>\n    </mj-section>\n  </mj-body>\n</mjml>",
+     *    "subject": "{{ __({phrase: \"Conversation with {{userOrRoomDisplayName}}\", locale: locale}, {userOrRoomDisplayName: userOrRoomDisplayName}) | safe }}",
+     *    "textFormat": "{{ __({phrase: \"Please find attached messages exchanged in your conversation.\", locale: locale}) }}\n\n{{ __({phrase: \"Learn more\", locale: locale}) }} {{ __({phrase: \"about Rainbow\", locale: locale}) }}:\n{{ publicWebsiteURL }}\n\nCopyright © 2018 Alcatel-Lucent Enterprise",
+     *    "tested": true
+     *  }
+     * }
+     * ```
+     * </br>
+     */
+    deactivateEmailTemplate (companyId : string, templateName : string) {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deactivateEmailTemplate) templateName : ", that._logger.stripStringForLogs(templateName));
+
+        return new Promise(function (resolve, reject) {
+            try {
+                if (!templateName) {
+                    that._logger.log(that.WARN, LOG_ID + "(deactivateEmailTemplate) bad or empty 'templateName' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(deactivateEmailTemplate) bad or empty 'templateName' parameter : ", templateName);
+                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+                // */
+
+                let isActive : boolean = false;
+                that._rest.activateDesactivateEmailTemplate(companyId, templateName, isActive ).then((result: any) => {
+                    that._logger.log(that.DEBUG, LOG_ID + "(deactivateEmailTemplate) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(deactivateEmailTemplate) Successfully - sent : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log(that.ERROR, LOG_ID + "(deactivateEmailTemplate) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log(that.ERROR, LOG_ID + "(deactivateEmailTemplate) CATCH error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(deactivateEmailTemplate) CATCH error !!! : ", err);
                 return reject(err);
             }
         });
