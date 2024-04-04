@@ -7,6 +7,19 @@ Warning: Before deploying in production a bot that can generate heavy traffic, p
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 
+### [2.28.3] - 2024-04-04
+#### Removed
+-   None
+
+#### Fixed
+-   Fix build Jenkinsfile-sts.groovy file with new hubSearchIndex
+
+#### Added
+-   Add AdminService::deleteEmailTemplate AdminService::deleteAvailableEmailTemplatesBycompanyId AdminService::testEmailTemplateRendering AdminService::activateEmailTemplate AdminService::deactivateEmailTemplate
+
+#### Changed
+-   None
+
 ### [2.28.2] - 2024-03-29
 #### Removed
 -   None
