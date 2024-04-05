@@ -336,10 +336,10 @@ class AdminService extends GenericService {
      *
      * @async
      * @param {string} companyId Company unique identifier
-     * @param {Boolean} enabledForAllCompanyUsers Enable or disable the use of these Rainbow multifactor authentication settings for all members of the company. Valeur par défaut : false
+     * @param {Boolean} enabledForAllCompanyUsers Enable or disable the use of these Rainbow multifactor authentication settings for all members of the company. Default value : false
      * @param {string} mfaName Name of Rainbow multifactor authentication configuration
-     * @param {string} mfaType type of Rainbow multifactor authentication. Valeurs autorisées : none, totp
-     * @param {string} mfaPolicy Policy of Rainbow multifactor authentication. Valeur par défaut : never. Valeurs autorisées : never, untrusted_only, always
+     * @param {string} mfaType type of Rainbow multifactor authentication. Possibles values : none, totp
+     * @param {string} mfaPolicy Policy of Rainbow multifactor authentication. Default value : never. Possibles values : never, untrusted_only, always
      * @param {Number} rememberDaysApplication Number of days when application and browsers are trusted
      * @param {Boolean} mfaCanBeDisabled let the user disable the multifactor authentication
      * @category Company Rainbow Multifactor Authentication Server
@@ -349,10 +349,10 @@ class AdminService extends GenericService {
      * | Champ | Type | Description |
      * | --- | --- | --- |
      * | mfaId | string | unique identifier of Rainbow multifactor authentication |
-     * | mfaType | string | Authentication multifactor type<br><br>Valeurs autorisées : `none`, `totp` |
+     * | mfaType | string | Authentication multifactor type<br><br>Possibles values : `none`, `totp` |
      * | enabledForAllCompanyUsers | Boolean | Enable or disable the use of these Rainbow multifactor authentication settings for all members of comapny  <br>When several Rainbow multifactor or SSO authentication types are configured for a company, the SSO authentication type having `enabledForAllCompanyUsers` set to true is used when users of this company authenticate in Rainbow (if user `authenticationType` setting is not set or equal to `DEFAULT`). |
      * | mfaName | string | Name of Rainbow multifactor authentication |
-     * | mfaPolicy | string | Policy of Rainbow multifactor authentication<br><br>* `never`: no Multi Factor requested to the user<br>* `untrusted_only`: Multi Factor is requested to the user only for untrusted applications and browsers (user has the possibility to trust applications/browsers so that the multi factor is no longer requested for this application/browser during the number of days specified in `rememberDaysApplication` setting)<br>* `always`: Multi Factor is always requested to the user<br><br>Valeurs autorisées : `never`, `untrusted_only`, `always` |
+     * | mfaPolicy | string | Policy of Rainbow multifactor authentication<br><br>* `never`: no Multi Factor requested to the user<br>* `untrusted_only`: Multi Factor is requested to the user only for untrusted applications and browsers (user has the possibility to trust applications/browsers so that the multi factor is no longer requested for this application/browser during the number of days specified in `rememberDaysApplication` setting)<br>* `always`: Multi Factor is always requested to the user<br><br>Possibles values : `never`, `untrusted_only`, `always` |
      * | rememberDaysApplication | Number | Number of days when application and browsers are trusted |
      * | mfaCanBeDisabled | Boolean | let the user disable the multifactor authentication |
      *
@@ -389,8 +389,8 @@ class AdminService extends GenericService {
      * </br> `company_admin` users can only delete an Rainbow Mfa policy server configuration of their own company.
      *
      * @async
-     * @param {string} mfaId Rainbow policy unique identifier
      * @param {string} companyId Company unique identifier
+     * @param {string} mfaId Rainbow policy unique identifier
      * @category Company Rainbow Multifactor Authentication Server
      * @return {Promise<any>} - result
      *
@@ -426,8 +426,8 @@ class AdminService extends GenericService {
      * </br> `company_admin` users can only get Rainbow multifactor configuration of their own company.
      *
      * @async
-     * @param {string} mfaId Rainbow policy unique identifier
      * @param {string} companyId Company unique identifier
+     * @param {string} mfaId Rainbow policy unique identifier
      * @category Company Rainbow Multifactor Authentication Server
      * @return {Promise<any>} - result
      *
@@ -435,10 +435,10 @@ class AdminService extends GenericService {
      * | Champ | Type | Description |
      * | --- | --- | --- |
      * | mfaId | string | unique identifier of Rainbow multifactor authentication |
-     * | mfaType | string | Authentication multifactor type<br><br>Valeurs autorisées : `none`, `totp` |
+     * | mfaType | string | Authentication multifactor type<br><br>Possibles values : `none`, `totp` |
      * | enabledForAllCompanyUsers | Boolean | Enable or disable the use of these Rainbow multifactor authentication settings for all members of the company  <br>When several Rainbow multifactor or SSO authentication types are configured for a company, the SSO authentication type having `enabledForAllCompanyUsers` set to true is used when users of this company authenticate in Rainbow (if user `authenticationType` setting is not set or equal to `DEFAULT`). |
      * | mfaName | string | Name of Rainbow multifactor authentication |
-     * | mfaPolicy | string | Policy of Rainbow multifactor authentication<br><br>* `never`: no Multi Factor requested to the user<br>* `untrusted_only`: Multi Factor is requested to the user only for untrusted applications and browsers (user has the possibility to trust applications/browsers so that the multi factor is no longer requested for this application/browser during the number of days specified in `rememberDaysApplication` setting)<br>* `always`: Multi Factor is always requested to the user<br><br>Valeurs autorisées : `never`, `untrusted_only`, `always` |
+     * | mfaPolicy | string | Policy of Rainbow multifactor authentication<br><br>* `never`: no Multi Factor requested to the user<br>* `untrusted_only`: Multi Factor is requested to the user only for untrusted applications and browsers (user has the possibility to trust applications/browsers so that the multi factor is no longer requested for this application/browser during the number of days specified in `rememberDaysApplication` setting)<br>* `always`: Multi Factor is always requested to the user<br><br>Possibles values : `never`, `untrusted_only`, `always` |
      * | rememberDaysApplication | Number | Number of days when application and browsers are trusted |
      * | mfaCanBeDisabled | Boolean | let the user disable the multifactor authentication |
      *
@@ -481,7 +481,7 @@ class AdminService extends GenericService {
      * \- `medium`: mfaType mfaId mfaName enableForAllCompanyUsers
      * \- `full`: all policy fields
      *
-     * Valeur par défaut : `medium`. Valeurs autorisées : `small`, `medium`, `full`
+     * Default value : `medium`. Possibles values : `small`, `medium`, `full`
      * @category Company Rainbow Multifactor Authentication Server
      * @return {Promise<any>} - result
      *
@@ -492,7 +492,7 @@ class AdminService extends GenericService {
      * | mfaId | string | unique identifier of Rainbow multifactor authentication |
      * | mfaName | string | Name of Rainbow multifactor authentication |
      * | enableForAllCompanyUsers | Boolean | Indicates if MFA is the default method authentication for all company users |
-     * | mfaPolicy | string | Policy of Rainbow multifactor authentication<br><br>* `never`: no Multi Factor requested to the user<br>* `untrusted_only`: Multi Factor is requested to the user only for untrusted applications and browsers (user has the possibility to trust applications/browsers so that the multi factor is no longer requested for this application/browser during the number of days specified in `rememberDaysApplication` setting)<br>* `always`: Multi Factor is always requested to the user<br><br>Valeurs autorisées : `never`, `untrusted_only`, `always` |
+     * | mfaPolicy | string | Policy of Rainbow multifactor authentication<br><br>* `never`: no Multi Factor requested to the user<br>* `untrusted_only`: Multi Factor is requested to the user only for untrusted applications and browsers (user has the possibility to trust applications/browsers so that the multi factor is no longer requested for this application/browser during the number of days specified in `rememberDaysApplication` setting)<br>* `always`: Multi Factor is always requested to the user<br><br>Possibles values : `never`, `untrusted_only`, `always` |
      * | rememberDaysApplication optionnel | string | Indicates how long trusted device could bypass mutifactor authentication in case of untrusted_only policy |
      *
      * </br>example of result :
@@ -541,9 +541,9 @@ class AdminService extends GenericService {
      * </br> -   `untrusted_only`: Multi Factor is requested to the user only for untrusted applications and browsers (user has the possibility to trust applications/browsers so that the multi factor is no longer requested for this application/browser during the number of days specified in `rememberDaysApplication` setting)
      * </br> -   `always`: Multi Factor is always requested to the user
      *
-     * </br> Valeurs autorisées : `never`, `untrusted_only`, `always`
-     * @param {string} rememberDaysApplication Number of days when application and browsers are trusted. Valeur par défaut : 365
-     * @param {boolean} mfaCanBeDisabled let the user disable the multifactor authentication. Valeur par défaut : false
+     * </br> Possibles values : `never`, `untrusted_only`, `always`
+     * @param {string} rememberDaysApplication Number of days when application and browsers are trusted. Default value : 365
+     * @param {boolean} mfaCanBeDisabled let the user disable the multifactor authentication. Default value : false
      * @category Company Rainbow Multifactor Authentication Server
      * @return {Promise<any>} - result
      *
@@ -551,10 +551,10 @@ class AdminService extends GenericService {
      * | Champ | Type | Description |
      * | --- | --- | --- |
      * | mfaId | string | unique identifier of Rainbow multifactor authentication |
-     * | mfaType | string | Authentication multifactor type<br><br>Valeurs autorisées : `none`, `totp` |
+     * | mfaType | string | Authentication multifactor type<br><br>Possibles values : `none`, `totp` |
      * | enabledForAllCompanyUsers | Boolean | Enable or disable the use of these Rainbow multifactor authentication settings for all members of company  <br>When several Rainbow multifactor or SSO authentication types are configured for a company, the SSO authentication type having `enabledForAllCompanyUsers` set to true is used when users of this company authenticate in Rainbow (if user `authenticationType` setting is not set). |
      * | mfaName | string | Name of Rainbow multifactor authentication |
-     * | mfaPolicy | string | Policy of Rainbow multifactor authentication<br><br>* `never`: no Multi Factor requested to the user<br>* `untrusted_only`: Multi Factor is requested to the user only for untrusted applications and browsers (user has the possibility to trust applications/browsers so that the multi factor is no longer requested for this application/browser during the number of days specified in `rememberDaysApplication` setting)<br>* `always`: Multi Factor is always requested to the user<br><br>Valeurs autorisées : `never`, `untrusted_only`, `always` |
+     * | mfaPolicy | string | Policy of Rainbow multifactor authentication<br><br>* `never`: no Multi Factor requested to the user<br>* `untrusted_only`: Multi Factor is requested to the user only for untrusted applications and browsers (user has the possibility to trust applications/browsers so that the multi factor is no longer requested for this application/browser during the number of days specified in `rememberDaysApplication` setting)<br>* `always`: Multi Factor is always requested to the user<br><br>Possibles values : `never`, `untrusted_only`, `always` |
      * | rememberDaysApplication | Number | Number of days when application and browsers are trusted |
      * | mfaCanBeDisabled | Boolean | let the user disable the multifactor authentication |
      *
@@ -3957,7 +3957,7 @@ class AdminService extends GenericService {
      * <div style="text-align : left">
      * </br> {
      * </br>   // A valid mail address.
-     * </br>   // Valeur par défaut : loginEmail
+     * </br>   // Default value : loginEmail
      * </br>   emailTo?: string,
      *
      * </br>   // A list of key/value . Data required by the template for rendering (depends of the template)
@@ -3967,7 +3967,7 @@ class AdminService extends GenericService {
      * </br>   // Language format is composed of locale using format ISO 639-1, with optionally the regional variation using ISO 3166‑1 alpha-2 (separated by hyphen).
      * </br>   // Locale part is in lowercase, regional part is in uppercase. Examples: en, en-US, fr, fr-FR, fr-CA, es-ES, es-MX, ...
      * </br>   // More information about the format can be found on this link: https://en.wikipedia.org/wiki/Language_localisation#Language_tags_and_codes
-     * </br>   // Valeur par défaut : en
+     * </br>   // Default value : en
      * </br>   // Possibles values: /^([a-z]{2})(?:(?:(-)[A-Z]{2}))?$/
      * </br>   language?: string,
      *
@@ -4071,7 +4071,7 @@ class AdminService extends GenericService {
      * @param {string} companyId Company unique identifier
      * @param {string} templateName One of the email template allowed to be customized. For the entire list of allowed template names, use GET /api/rainbow/admin/v1.0/companies/customizations/emails?format=small
      * <div style="text-align : left">
-     * </br>   Valeurs autorisées : admin_cancel_invite_user_join_company, admin_invite_user_join_company,
+     * </br>   Possibles values : admin_cancel_invite_user_join_company, admin_invite_user_join_company,
      * </br>   admin_invite_user_join_company_as_admin, admin_invite_user_register_and_join_company,
      * </br>   admin_invite_user_register_and_join_company_as_admin, admin_request_company_visibility,
      * </br>   bp_admin_invite_ec_admin_link_his_company_to_bp, ec_admin_request_bp_admin_link_his_company_to_bp,
@@ -4155,7 +4155,7 @@ class AdminService extends GenericService {
      * @param {string} companyId Company unique identifier
      * @param {string} templateName One of the email template allowed to be customized. For the entire list of allowed template names, use GET /api/rainbow/admin/v1.0/companies/customizations/emails?format=small
      * <div style="text-align : left">
-     * </br>   Valeurs autorisées : admin_cancel_invite_user_join_company, admin_invite_user_join_company,
+     * </br>   Possibles values : admin_cancel_invite_user_join_company, admin_invite_user_join_company,
      * </br>   admin_invite_user_join_company_as_admin, admin_invite_user_register_and_join_company,
      * </br>   admin_invite_user_register_and_join_company_as_admin, admin_request_company_visibility,
      * </br>   bp_admin_invite_ec_admin_link_his_company_to_bp, ec_admin_request_bp_admin_link_his_company_to_bp,
