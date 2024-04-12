@@ -7,6 +7,19 @@ Warning: Before deploying in production a bot that can generate heavy traffic, p
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 
+### [2.28.4] - 2024-04-XX
+#### Removed
+-   None
+
+#### Fixed
+-   None
+
+#### Added
+-   Add AdminService::getCompaniesBPBusinessType, AdminService::getCompanyAppFeatureCustomisation, AdminService::getCompanyServiceDescriptionFile, AdminService::getDefaultCompanyData, AdminService::setCompanyAppFeatureCustomisation, AdminService::updateCompany api methods about managing companies.
+
+#### Changed
+-   None
+
 ### [2.28.3] - 2024-04-04
 #### Removed
 -   None

@@ -7031,6 +7031,17 @@ let urlS2S;
 
         //region Custom Templates
 
+        async testgetCompanyServiceDescriptionFile() {
+            let myCompanyId = connectedUser.companyId;
+            let result = await rainbowSDK.admin.getCompanyServiceDescriptionFile(myCompanyId)
+
+            _logger.log("debug", "MAIN - getCompanyServiceDescriptionFile - result : ", result);
+        }
+
+        //endregion Custom Templates
+
+        //region Custom Templates
+
         async testapplyCustomisationTemplates() {
             let myCompanyId = connectedUser.companyId;
             let contactEmailToSearch = "vincent00@vbe.test.openrainbow.net";
