@@ -138,7 +138,7 @@ let urlS2S;
     logLevelAreas.showServicesLogs();
     logLevelAreas.showBubblesLogs();
     // */
-    logLevelAreas.admin.api = true;
+/*    logLevelAreas.admin.api = true;
     logLevelAreas.admin.level = LEVELSNAMES.ERROR;
     logLevelAreas.alerts.api = true;
     logLevelAreas.alerts.level = LEVELSNAMES.ERROR;
@@ -231,7 +231,7 @@ let urlS2S;
         logLevelAreas.s2s.level = LEVELSNAMES.INTERNAL;
         logLevelAreas.s2sevent.level = LEVELSNAMES.INTERNAL;
     }
-
+// */
 // Define your configuration
     let options: any = {
         "rainbow": {
@@ -343,14 +343,15 @@ let urlS2S;
             "enableEncryptedLogs": false,
             "color": true,
             //"level": "info",
-            "level": "internal",
+            //"level": "internal",
+            "level": "debug",
             "customLabel": "RainbowSample",
             "system-dev": {
                 "internals": true,
                 "http": true,
             },
             "filter": "",
-            "areas": logLevelAreas,
+            //"areas": logLevelAreas,
             /*,
             "areas" : {
                 "admin": {
@@ -7985,7 +7986,7 @@ let urlS2S;
                     let headers = {
                         'Content-Type': 'application/json',
                         'user-agent': 'node/v14.17.2 (linux; x64) Rainbow Sdk/2.16.0-lts.0',
-                        'Authorization': 'Bearer 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'
+                       // 'Authorization': 'Bearer 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'
                     };
                     //let body = decodeURIComponent(JSON.stringify({
                     let body = JSON.stringify({
