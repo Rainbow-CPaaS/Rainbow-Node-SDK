@@ -91,13 +91,13 @@ class S2SServiceEventHandler extends LevelLogs{
         let originalUrl = event.originalUrl;
         let requestedPath = originalUrl;
 
-        that._logger.log(that.INTERNAL, LOG_ID + "(handleS2SEvent) *************************************************");
-        that._logger.log(that.INTERNAL, LOG_ID + "(handleS2SEvent) received an S2S EVENT : ");
-        that._logger.log(that.INTERNAL, LOG_ID + "(handleS2SEvent) METHOD : ", methodHttp);
-        that._logger.log(that.INTERNAL, LOG_ID + "(handleS2SEvent) BASELURL : ", baseUrl);
-        that._logger.log(that.INTERNAL, LOG_ID + "(handleS2SEvent) ORIGINALURL : ", originalUrl);
+        that._logger.log(that.HTTP, LOG_ID + "(handleS2SEvent) *************************************************");
+        that._logger.log(that.HTTP, LOG_ID + "(handleS2SEvent) received an S2S EVENT : ");
+        that._logger.log(that.HTTP, LOG_ID + "(handleS2SEvent) METHOD : ", methodHttp);
+        that._logger.log(that.HTTP, LOG_ID + "(handleS2SEvent) BASELURL : ", baseUrl);
+        that._logger.log(that.HTTP, LOG_ID + "(handleS2SEvent) ORIGINALURL : ", originalUrl);
         that._logger.log(that.INTERNAL, LOG_ID + "(handleS2SEvent) EVENT BODY : ", that._logger.colors.events(body));
-        that._logger.log(that.INTERNAL, LOG_ID + "(handleS2SEvent) *************************************************");
+        that._logger.log(that.HTTP, LOG_ID + "(handleS2SEvent) *************************************************");
 
         if (String.prototype.toUpperCase.call(methodHttp + "") != "POST") {
             that._logger.log(that.ERROR, LOG_ID + "(handleS2SEvent) Don't manage this request - Invalid HttpVerb - HttpVerb:[", methodHttp, "] - Path:[host : ", event.headers.host, ", path : ", requestedPath, "]");

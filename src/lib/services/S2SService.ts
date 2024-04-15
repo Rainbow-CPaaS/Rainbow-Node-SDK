@@ -154,13 +154,13 @@ class S2SService extends GenericService{
 
                 that.app.all('*', async (req, res) => {
                     res.send('<h1>Hello World!</h1>');
-                    that._logger.log(that.INTERNAL, LOG_ID + "*************************************************");
-                    that._logger.log(that.INTERNAL, LOG_ID + "received an event: ");
-                    that._logger.log(that.INTERNAL, LOG_ID + "METHOD : ", req.method );
-                    that._logger.log(that.INTERNAL, LOG_ID + "BASELURL : ", req.baseUrl );
-                    that._logger.log(that.INTERNAL, LOG_ID + "ORIGINALURL : ", req.originalUrl );
+                    that._logger.log(that.HTTP, LOG_ID + "*************************************************");
+                    that._logger.log(that.HTTP, LOG_ID + "received an event: ");
+                    that._logger.log(that.HTTP, LOG_ID + "METHOD : ", req.method );
+                    that._logger.log(that.HTTP, LOG_ID + "BASELURL : ", req.baseUrl );
+                    that._logger.log(that.HTTP, LOG_ID + "ORIGINALURL : ", req.originalUrl );
                     that._logger.log(that.INTERNAL, LOG_ID + "BODY : ", req.body );
-                    that._logger.log(that.INTERNAL, LOG_ID + "*************************************************");
+                    that._logger.log(that.HTTP, LOG_ID + "*************************************************");
                     let body = req.body;
                     that.s2sEventHandler.handleS2SEvent(req);
                 });

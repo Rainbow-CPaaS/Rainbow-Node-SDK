@@ -109,8 +109,8 @@ import {Task} from "../lib/common/models/Task.js";
     output: process.stdout
 }); // */
 
-//let rainbowMode = "s2s" ;
-let rainbowMode = "xmpp";
+let rainbowMode = "s2s" ;
+//let rainbowMode = "xmpp";
 
 let ngrok = require('ngrok');
 //import ngrok from 'ngrok';
@@ -222,9 +222,15 @@ let urlS2S;
     logLevelAreas.showEventsLogs();
     // logLevelAreas.showServicesLogs();
     logLevelAreas.hideServicesApiLogs();
+
     logLevelAreas.tasks.api = true;
     logLevelAreas.tasks.level = LEVELSNAMES.INTERNAL;
     logLevelAreas.tasksevent.level = LEVELSNAMES.INTERNAL;
+
+    if (rainbowMode === "s2s") {
+        logLevelAreas.s2s.level = LEVELSNAMES.INTERNAL;
+        logLevelAreas.s2sevent.level = LEVELSNAMES.INTERNAL;
+    }
 
 // Define your configuration
     let options: any = {
