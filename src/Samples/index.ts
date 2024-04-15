@@ -7986,7 +7986,6 @@ let urlS2S;
                     let headers = {
                         'Content-Type': 'application/json',
                         'user-agent': 'node/v14.17.2 (linux; x64) Rainbow Sdk/2.16.0-lts.0',
-                       // 'Authorization': 'Bearer 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'
                     };
                     //let body = decodeURIComponent(JSON.stringify({
                     let body = JSON.stringify({
