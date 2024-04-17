@@ -268,6 +268,7 @@ let conf =  {
         autoLoadConversations: true,
         autoLoadConversationHistory: false,
         autoLoadContacts: true,
+        forceHistoryGetContactFromServer: false,
         // manage carbon copy https://xmpp.org/extensions/xep-0280.html
         enableCarbon: true,
         enablesendurgentpushmessages: false,

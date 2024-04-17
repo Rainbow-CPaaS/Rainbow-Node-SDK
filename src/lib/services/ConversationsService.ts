@@ -209,7 +209,7 @@ class ConversationsService extends GenericService {
             PubSub.subscribe( that._xmpp.hash + "." + that._conversationEventHandler.MESSAGE_CLOSE, that._conversationEventHandler.onCloseMessageReceived.bind(that._conversationEventHandler))
         ];
 
-        that._conversationHistoryHandler = new ConversationHistoryHandler(that._xmpp, that, that._contactsService);
+        that._conversationHistoryHandler = new ConversationHistoryHandler(that._xmpp, that, that._contactsService, that._options);
         that._conversationHistoryHandlerToken = [
             PubSub.subscribe( that._xmpp.hash + "." + that._conversationHistoryHandler.MESSAGE_MAM, that._conversationHistoryHandler.onMamMessageReceived.bind(that._conversationHistoryHandler)),
             PubSub.subscribe( that._xmpp.hash + "." + that._conversationHistoryHandler.FIN_MAM, that._conversationHistoryHandler.onMamMessageReceived.bind(that._conversationHistoryHandler))

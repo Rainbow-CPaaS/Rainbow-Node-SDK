@@ -505,6 +505,7 @@ class Options {
             autoLoadConversations: true,
             autoLoadConversationHistory: false,
             autoLoadContacts: true,
+            forceHistoryGetContactFromServer: false,
             enableCarbon: true,
             enablesendurgentpushmessages: false,
             useMessageEditionAndDeletionV2: true
@@ -533,6 +534,7 @@ class Options {
         optionsIM.autoLoadConversations = (this._options.im.autoLoadConversations == true) ? this._options.im.autoLoadConversations : config.im.autoLoadConversations;
         optionsIM.autoLoadConversationHistory = (this._options.im.autoLoadConversationHistory == true) ? this._options.im.autoLoadConversationHistory : config.im.autoLoadConversationHistory;
         optionsIM.autoLoadContacts = (this._options.im.autoLoadContacts == false) ? this._options.im.autoLoadContacts : config.im.autoLoadContacts;
+        optionsIM.forceHistoryGetContactFromServer = (this._options.im.forceHistoryGetContactFromServer == true) ? this._options.im.forceHistoryGetContactFromServer : config.im.forceHistoryGetContactFromServer;
         optionsIM.enableCarbon = (this._options.im.enableCarbon == false) ? this._options.im.enableCarbon : config.im.enableCarbon;
         optionsIM.enablesendurgentpushmessages = (this._options.im.enablesendurgentpushmessages == true) ? this._options.im.enablesendurgentpushmessages : config.im.enablesendurgentpushmessages;
         optionsIM.useMessageEditionAndDeletionV2 = (this._options.im.useMessageEditionAndDeletionV2 == false) ? this._options.im.useMessageEditionAndDeletionV2 : config.im.useMessageEditionAndDeletionV2;

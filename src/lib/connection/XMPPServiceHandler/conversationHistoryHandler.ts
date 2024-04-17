@@ -39,7 +39,8 @@ class ConversationHistoryHandler  extends GenericHandler {
         public FIN_MAM: any;
         public _conversationService: ConversationsService;
         private _contactsService : ContactsService;
-        public forceHistoryGetContactFromServer : boolean;
+    public forceHistoryGetContactFromServer : boolean;
+    private _options: any;
 
     static getClassName(){ return 'ConversationHistoryHandler'; }
     getClassName(){ return ConversationHistoryHandler.getClassName(); }
@@ -47,7 +48,6 @@ class ConversationHistoryHandler  extends GenericHandler {
     static getAccessorName(){ return 'conversationhistory'; }
     getAccessorName(){ return ConversationHistoryHandler.getAccessorName(); }
 
-    constructor(xmppService : XMPPService, conversationService : ConversationsService, contactsService : ContactsService) {
         super( xmppService);
 
         this.MESSAGE_MAM = "urn:xmpp:mam:1.result";
@@ -58,8 +58,9 @@ class ConversationHistoryHandler  extends GenericHandler {
 
         let that = this;
 
-        that.forceHistoryGetContactFromServer = true;
+        that._options = options;
 
+        that.forceHistoryGetContactFromServer = that._options.im.forceHistoryGetContactFromServer;
     }
 
     onMamMessageReceived (msg, stanza) {
