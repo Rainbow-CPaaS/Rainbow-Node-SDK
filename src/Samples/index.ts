@@ -109,8 +109,8 @@ import {Task} from "../lib/common/models/Task.js";
     output: process.stdout
 }); // */
 
-let rainbowMode = "s2s" ;
-//let rainbowMode = "xmpp";
+//let rainbowMode = "s2s" ;
+let rainbowMode = "xmpp";
 
 let ngrok = require('ngrok');
 //import ngrok from 'ngrok';
