@@ -39,6 +39,7 @@ class ConversationHistoryHandler  extends GenericHandler {
         public FIN_MAM: any;
         public _conversationService: ConversationsService;
         private _contactsService : ContactsService;
+        public forceHistoryGetContactFromServer : boolean;
 
     static getClassName(){ return 'ConversationHistoryHandler'; }
     getClassName(){ return ConversationHistoryHandler.getClassName(); }
@@ -57,6 +58,7 @@ class ConversationHistoryHandler  extends GenericHandler {
 
         let that = this;
 
+        that.forceHistoryGetContactFromServer = true;
 
     }
 
@@ -142,7 +144,7 @@ class ConversationHistoryHandler  extends GenericHandler {
                     }
 
                     let promise = new Promise( (resolve) => {
-                        that._contactsService.getContactByJid(fromJid, true)
+                        that._contactsService.getContactByJid(fromJid, forceHistoryGetContactFromServer)
                             .then( (from) => {
                                 resolve(from);
                             }).catch( () => {
@@ -706,7 +708,7 @@ class ConversationHistoryHandler  extends GenericHandler {
                 }
 
                 let promise = new Promise( (resolve) => {
-                    that._contactsService.getContactByJid(callerJid, true)
+                    that._contactsService.getContactByJid(callerJid, forceHistoryGetContactFromServer)
                         .then( (from) => {
                             resolve(from);
                         }).catch( () => {
