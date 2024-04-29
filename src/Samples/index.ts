@@ -5680,14 +5680,108 @@ let urlS2S;
                     }); // */
 
                     rainbowSDK.conversations.getHistoryPage(conversation, 20).then((conversationUpdated) => {
-                        _logger.log("debug", "MAIN - testGetHistoryPageBubbleOpenrainbowNet getHistoryPage");
+                        _logger.log("debug", "MAIN - testGetHistoryPageBubbleOpenrainbowNet getHistoryPage, conversationUpdated : ", conversationUpdated);
 
-                        let result = conversationUpdated.historyComplete ? conversationUpdated:that.getConversationHistoryMaxime(conversationUpdated);
+                      /*
+                      let result = conversationUpdated.historyComplete ? conversationUpdated:that.getConversationHistoryMaxime(conversationUpdated);
                         _logger.log("debug", "MAIN - testGetHistoryPageBubbleOpenrainbowNet getHistoryPage result : ", result);
                         return result;
+                        // */
                     });
 
                 });
+            }
+        }
+
+        async testloadConversationHistoryAsyncBubbleOpenrainbowNet() {
+            // To be used on PROD.
+            let that = this;
+            let bubbles = rainbowSDK.bubbles.getAllBubbles();
+            if (bubbles.length > 0) {
+                //let bubble = bubbles[0];
+                //let jid = "room_61aee9e9d7e94cacbce7234e3fca93f2@muc.openrainbow.com/a9b77288b939470b8da4611cc2af1ed1@openrainbow.com" // jid of the bubble "openrainbow.net" on .COM platform
+                let jid = "room_61aee9e9d7e94cacbce7234e3fca93f2@muc.openrainbow.com" // jid of the bubble "openrainbow.net" on .COM platform
+                let startDate = new Date();
+                rainbowSDK.events.on("rainbow_onloadConversationHistoryCompleted", (conversationHistoryUpdated) => {
+                    // do something when the SDK has been started
+                    _logger.log("debug", "MAIN - (rainbow_onloadConversationHistoryCompleted) - rainbow conversation history loaded completed : ", conversationHistoryUpdated);
+                    let stopDate = new Date();
+                    // @ts-ignore
+                    let startDuration = Math.round(stopDate - startDate);
+                    _logger.log("debug", "MAIN - testloadConversationHistoryAsyncBubbleOpenrainbowNet loadConversationHistoryAsync duration : " + startDuration + " ms.");
+                    if (rainbowSDK) {
+                        rainbowSDK.stop().then(() => {
+                            process.exit(0);
+                        }).catch((err) => {
+                            _logger.log("warn", "MAIN - RainbowSDK stop failed : ", err, ", but even stop the process."); //logger.colors.green(JSON.stringify(result)));
+                            process.exit(0);
+                        });
+                    } else {
+                        process.exit(0);
+                    }
+                });
+
+                rainbowSDK.conversations.getBubbleConversation(jid).then(async function (conversation) {
+                    _logger.log("debug", "MAIN - testloadConversationHistoryAsyncBubbleOpenrainbowNet - getBubbleConversation, conversation.jid : ", conversation.jid, ", conversation : ", conversation);
+                    /* that.getConversationHistoryMaxime(conversation).then(() => {
+                        _logger.log("debug", "MAIN - testGetHistoryPageBubble - getConversationHistoryMaxime, conversation : ", conversation, ", status : ", conversation.status);
+                    }); // */
+                    rainbowSDK.conversations.loadConversationHistoryAsync(conversation, 20).then((running) => {
+                        _logger.log("debug", "MAIN - testloadConversationHistoryAsyncBubbleOpenrainbowNet loadConversationHistoryAsync running : ", running);
+
+                      /*
+                      let result = conversationUpdated.historyComplete ? conversationUpdated:that.getConversationHistoryMaxime(conversationUpdated);
+                        _logger.log("debug", "MAIN - testloadConversationHistoryAsyncBubbleOpenrainbowNet getHistoryPage result : ", result);
+                        return result;
+                        // */
+                    });
+
+                });
+            }
+        }
+
+        async testloadConversationHistoryAsyncP2P() {
+            // To be used on .NET with vincent00.
+            let that = this;
+            let startDate = new Date();
+            rainbowSDK.events.on("rainbow_onloadConversationHistoryCompleted", (conversationHistoryUpdated) => {
+                // do something when the SDK has been started
+                _logger.log("debug", "MAIN - (rainbow_onloadConversationHistoryCompleted) - rainbow conversation history loaded completed : ", conversationHistoryUpdated);
+                let stopDate = new Date();
+                // @ts-ignore
+                let startDuration = Math.round(stopDate - startDate);
+                _logger.log("debug", "MAIN - testloadConversationHistoryAsyncP2P loadConversationHistoryAsync duration : " + startDuration + " ms.");
+                if (rainbowSDK) {
+                    rainbowSDK.stop().then(() => {
+                        process.exit(0);
+                    }).catch((err) => {
+                        _logger.log("warn", "MAIN - RainbowSDK stop failed : ", err, ", but even stop the process."); //logger.colors.green(JSON.stringify(result)));
+                        process.exit(0);
+                    });
+                } else {
+                    process.exit(0);
+                }
+            });
+
+            let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
+            let utc = new Date().toJSON().replace(/-/g, "_");
+            let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+            let conversation : Conversation = await rainbowSDK.conversations.openConversationForContact(contact);
+            if (conversation && conversation.id) {
+                _logger.log("debug", "MAIN - testloadConversationHistoryAsyncP2P - getBubbleConversation, conversation.id : ", conversation.id, ", conversation?.messages.length : ", conversation?.messages.length);
+                /* that.getConversationHistoryMaxime(conversation).then(() => {
+                    _logger.log("debug", "MAIN - testGetHistoryPageBubble - getConversationHistoryMaxime, conversation : ", conversation, ", status : ", conversation.status);
+                }); // */
+                rainbowSDK.conversations.loadConversationHistoryAsync(conversation, 20).then((running) => {
+                    _logger.log("debug", "MAIN - testloadConversationHistoryAsyncP2P loadConversationHistoryAsync running : ", running);
+
+                    /*
+                    let result = conversationUpdated.historyComplete ? conversationUpdated:that.getConversationHistoryMaxime(conversationUpdated);
+                      _logger.log("debug", "MAIN - testloadConversationHistoryAsyncBubbleOpenrainbowNet getHistoryPage result : ", result);
+                      return result;
+                      // */
+                });
+
             }
         }
 

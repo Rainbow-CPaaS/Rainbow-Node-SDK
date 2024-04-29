@@ -532,10 +532,51 @@ class ConversationsService extends GenericService {
         return that.getHistoryPage(conversation, pageSize).then((conversationUpdated) => {
             that._logger.log(that.DEBUG, "(loadConversationHistory) getHistoryPage.");
 
-            let result = conversationUpdated.historyComplete ? conversationUpdated:that.getHistoryPage(conversationUpdated, pageSize);
+            let result = conversationUpdated.historyComplete ? conversationUpdated:that.loadConversationHistory(conversationUpdated, pageSize);
             //that._logger.log(that.INTERNAL, "(loadConversationHistory) getHistoryPage result : ", result);
             return result;
         });
+    }
+
+    /**
+     * @public
+     * @nodered true
+     * @method loadConversationHistoryAsync
+     * @instance
+     * @category MESSAGES
+     * @description
+     *    Retrieve the remote history of a specific conversation. <br>
+     * @param {Conversation} conversation Conversation to retrieve
+     * @param {string} pageSize number of message in each page to retrieve messages.
+     * @async
+     * @return {Promise<Conversation[]>}
+     * @fulfil {Conversation[]} - Array of Conversation object
+     * @category async
+     */
+    loadConversationHistoryAsync(conversation, pageSize : number = 30) {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(loadConversationHistoryAsync) conversation.id : ", conversation?.id);
+        that.resetHistoryPageForConversation(conversation);
+        that.getHistoryPage(conversation, pageSize).then((conversationUpdated) => {
+            that._logger.log(that.DEBUG, "(loadConversationHistoryAsync) getHistoryPage.");
+
+            let result = undefined;
+            if (conversationUpdated.historyComplete) {
+                result = conversationUpdated;
+            } else {
+                result = that.getHistoryPage(conversationUpdated, pageSize);
+            }
+            //that._logger.log(that.INTERNAL, "(loadConversationHistoryAsync) getHistoryPage result : ", result);
+            return result;
+        }).then((conversationHistoryUpdated) => {
+            that._logger.log(that.INFO, "(loadConversationHistoryAsync) getHistoryPage done.");
+            // raise rainbow_onloadConversationHistoryCompleted
+            this._eventEmitter.emit("evt_internal_loadConversationHistoryCompleted", conversationHistoryUpdated);
+        }).catch((error)=>{
+            that._logger.log(that.ERROR, "(loadConversationHistoryAsync) getHistoryPage Failed : ", error);
+            this._eventEmitter.emit("evt_internal_loadConversationHistoryFailed", error);
+        });
+        return Promise.resolve({code:1,label:"load started, you should wait for conversation rainbow_onloadConversationHistoryCompleted for load result."});
     }
 
     /**
