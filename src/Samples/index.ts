@@ -825,7 +825,7 @@ let urlS2S;
     });
 
     rainbowSDK.events.on("rainbow_onbubblepresencechanged", (data) => {
-        _logger.log("debug", "MAIN - (rainbow_onbubblepresencechanged) - rainbow bubble presence : ", data);
+        _logger.log("debug", "MAIN - (rainbow_onbubblepresencechanged) - rainbow bubble presence, nameForLogs : ", data.nameForLogs, ", status :", data.status,", id :", data.id, ", name : ", data.name);
     });
 
     let bubbleInvitationReceived = null;
@@ -1090,13 +1090,14 @@ let urlS2S;
         if (contact.presence!="Unknown") {
             return false;
         }
-        _logger.log("debug", "MAIN - (rainbow_oncontactpresencechanged) ----> ", contact.displayName, "(", contact.jid, ")", " - ", contact.presence);
+        /* _logger.log("debug", "MAIN - (rainbow_oncontactpresencechanged) ----> ", contact.displayName, "(", contact.jid, ")", " - ", contact.presence);
         _logger.log("debug", "MAIN - (rainbow_oncontactpresencechanged) ------------------Presence changed --------------------------");
         _logger.log("debug", "MAIN - (rainbow_oncontactpresencechanged) --> ", contact.displayName);
         _logger.log("debug", "MAIN - (rainbow_oncontactpresencechanged) Presence ", contact.presence);
         _logger.log("debug", "MAIN - (rainbow_oncontactpresencechanged) Status", contact.status);
         _logger.log("debug", "MAIN - (rainbow_oncontactpresencechanged) Resources ", contact.resources);
         _logger.log("debug", "MAIN - (rainbow_oncontactpresencechanged) -------------------------------------------------------------");
+        //  */
         //getLastMessageOfConversation(contact);
     });
 
