@@ -9,7 +9,480 @@ import { v4 as uuid4 } from 'uuid';
 import {Message} from "./Message";
 import {Logger} from "../Logger.js";
 
+import {FIFOQueue} from "../FIFOQueue.js";
+import {pause} from "../Utils.js";
+import {randomUUID} from "node:crypto";
+let AsyncLock = require('async-lock');
+
 const LOG_ID = "CONVERSATION/CONV - ";
+
+class MessagesQueue extends FIFOQueue<Message> {
+    private maxSize = 0;
+    private lockEngine: any;
+    private lockKey : string = "LOCK_MESSAGES_QUEUE";
+    private maxPendingAsyncLockMessagesQueue = 1000;
+
+    constructor(_logger: any, _maxSize : number = 10) {
+        super(_logger);
+        if (_maxSize <= 0) {
+            throw new Error("Maximum size should be greater than zero");
+        }
+        this.maxSize = _maxSize;
+        this.maxPendingAsyncLockMessagesQueue = _maxSize;
+        this.lockEngine = new AsyncLock({timeout: 3 * 60 * 1000, maxPending: this.maxPendingAsyncLockMessagesQueue, maxOccupationTime : 5 * 60 * 1000});
+
+    }
+
+    // Ajoute un élément à la fin de la file d'attente
+    enqueue(item: Message, forceDequeueIfFull: boolean = false): void {
+        let that = this;
+        let timestamp = (new Date()).toUTCString();
+        try {
+            let id = item?.id;
+            that.logger.log("debug", LOG_ID + "(add) - timestamp : ", timestamp, " - id : ", id, " - enqueue Message");
+            that.lock(async () => {
+                try {
+                    //deferedItem.start.bind(deferedItem)();
+                    //await pause(that.timeBetweenXmppRequests);
+                    that.logger.log("debug", LOG_ID + "(add) - id : ", id, " - enqueue will start.");
+                    if (this.queue.length >= this.maxSize ) {
+                        if (!forceDequeueIfFull) {
+                            throw new Error("Queue is full");
+                        } else {
+                            super.dequeue();
+                        }
+                    }
+                    super.enqueue(item);
+                    that.logger.log("debug", LOG_ID + "(add) - id : ", id, " - enqueue started and finished. Will leave lock." );
+                } catch (err) {
+                    that.logger.log("error", LOG_ID + "(add) - id : ", id, " - CATCH Error !!! in lock, error : ", err);
+                }
+                //await pause(that.timeBetweenXmppRequests);
+            }, id).then(() => {
+                that.logger.log("debug", LOG_ID + "(add) - id : ", id, " -  lock succeed.");
+            }).catch((error) => {
+                that.logger.log("error", LOG_ID + "(add) - id : ", id, " - Catch Error, error : ", error);
+            }); // */
+        } catch (err) {
+            let error = {err : err};
+            that.logger.log("error", LOG_ID + "(add) - timestamp : ", timestamp, " - CATCH Error !!! error : ", error);
+            throw error;
+        }
+    }
+
+    // Retire et retourne le premier élément de la file d'attente
+    dequeue(): Message | undefined {
+        let that = this;
+        let timestamp = (new Date()).toUTCString();
+        let result : any;
+        try {
+            let id = randomUUID();
+            that.logger.log("debug", LOG_ID + "(add) - timestamp : ", timestamp, " - id : ", id, " - dequeue Message");
+            that.lock(async () => {
+                try {
+                    //deferedItem.start.bind(deferedItem)();
+                    //await pause(that.timeBetweenXmppRequests);
+                    that.logger.log("debug", LOG_ID + "(add) - id : ", id, " - dequeue will start.");
+                    result = super.dequeue();
+                    that.logger.log("debug", LOG_ID + "(add) - id : ", id, " - dequeue started and finished. Will pause before leave lock." );
+                } catch (err) {
+                    that.logger.log("error", LOG_ID + "(add) - id : ", id, " - CATCH Error !!! in lock, error : ", err);
+                }
+                //await pause(that.timeBetweenXmppRequests);
+            }, id).then(() => {
+                that.logger.log("debug", LOG_ID + "(add) - id : ", id, " -  lock succeed.");
+            }).catch((error) => {
+                that.logger.log("error", LOG_ID + "(add) - id : ", id, " - Catch Error, error : ", error);
+            }); // */
+        } catch (err) {
+            let error = {err : err};
+            that.logger.log("error", LOG_ID + "(add) - timestamp : ", timestamp, " - CATCH Error !!! error : ", error);
+            throw error;
+        }
+        return result;
+    }
+
+    // Retourne le premier élément de la file d'attente sans le retirer
+    peek(): Message | undefined {
+        let that = this;
+        let timestamp = (new Date()).toUTCString();
+        let result : any;
+        try {
+            let id = randomUUID();
+            that.logger.log("debug", LOG_ID + "(add) - timestamp : ", timestamp, " - id : ", id, " - peek Message");
+            that.lock(async () => {
+                try {
+                    //deferedItem.start.bind(deferedItem)();
+                    //await pause(that.timeBetweenXmppRequests);
+                    that.logger.log("debug", LOG_ID + "(add) - id : ", id, " - peek will start.");
+                    result = super.peek();
+                    that.logger.log("debug", LOG_ID + "(add) - id : ", id, " - peek started and finished. Will leave lock." );
+                } catch (err) {
+                    that.logger.log("error", LOG_ID + "(add) - id : ", id, " - CATCH Error !!! in lock, error : ", err);
+                }
+                //await pause(that.timeBetweenXmppRequests);
+            }, id).then(() => {
+                that.logger.log("debug", LOG_ID + "(add) - id : ", id, " -  lock succeed.");
+            }).catch((error) => {
+                that.logger.log("error", LOG_ID + "(add) - id : ", id, " - Catch Error, error : ", error);
+            }); // */
+        } catch (err) {
+            let error = {err : err};
+            that.logger.log("error", LOG_ID + "(add) - timestamp : ", timestamp, " - CATCH Error !!! error : ", error);
+            throw error;
+        }
+        return result;
+    }
+
+    // Retourne vrai si la file d'attente est vide, faux sinon
+    isEmpty(): boolean {
+        let that = this;
+        let timestamp = (new Date()).toUTCString();
+        let result : any;
+        try {
+            let id = randomUUID();
+            that.logger.log("debug", LOG_ID + "(add) - timestamp : ", timestamp, " - id : ", id, " - isEmpty Message");
+            that.lock(async () => {
+                try {
+                    //deferedItem.start.bind(deferedItem)();
+                    //await pause(that.timeBetweenXmppRequests);
+                    that.logger.log("debug", LOG_ID + "(add) - id : ", id, " - isEmpty will start.");
+                    result = super.isEmpty();
+                    that.logger.log("debug", LOG_ID + "(add) - id : ", id, " - isEmpty started and finished. Will leave lock." );
+                } catch (err) {
+                    that.logger.log("error", LOG_ID + "(add) - id : ", id, " - CATCH Error !!! in lock, error : ", err);
+                }
+                //await pause(that.timeBetweenXmppRequests);
+            }, id).then(() => {
+                that.logger.log("debug", LOG_ID + "(add) - id : ", id, " -  lock succeed.");
+            }).catch((error) => {
+                that.logger.log("error", LOG_ID + "(add) - id : ", id, " - Catch Error, error : ", error);
+            }); // */
+        } catch (err) {
+            let error = {err : err};
+            that.logger.log("error", LOG_ID + "(add) - timestamp : ", timestamp, " - CATCH Error !!! error : ", error);
+            throw error;
+        }
+        return result;
+    }
+
+    isFull(): boolean {
+        let that = this;
+        let timestamp = (new Date()).toUTCString();
+        let result : any;
+        try {
+            let id = randomUUID();
+            that.logger.log("debug", LOG_ID + "(add) - timestamp : ", timestamp, " - id : ", id, " - isFull Message");
+            that.lock(async () => {
+                try {
+                    //deferedItem.start.bind(deferedItem)();
+                    //await pause(that.timeBetweenXmppRequests);
+                    that.logger.log("debug", LOG_ID + "(add) - id : ", id, " - isFull will start.");
+                    result = this.queue.length === this.maxSize;
+                    that.logger.log("debug", LOG_ID + "(add) - id : ", id, " - isFull started and finished. Will leave lock." );
+                } catch (err) {
+                    that.logger.log("error", LOG_ID + "(add) - id : ", id, " - CATCH Error !!! in lock, error : ", err);
+                }
+                //await pause(that.timeBetweenXmppRequests);
+            }, id).then(() => {
+                that.logger.log("debug", LOG_ID + "(add) - id : ", id, " -  lock succeed.");
+            }).catch((error) => {
+                that.logger.log("error", LOG_ID + "(add) - id : ", id, " - Catch Error, error : ", error);
+            }); // */
+        } catch (err) {
+            let error = {err : err};
+            that.logger.log("error", LOG_ID + "(add) - timestamp : ", timestamp, " - CATCH Error !!! error : ", error);
+            throw error;
+        }
+        return result;
+    }
+
+    // Retourne la taille de la file d'attente
+    size(): number {
+        let that = this;
+        let timestamp = (new Date()).toUTCString();
+        let result : any;
+        try {
+            let id = randomUUID();
+            that.logger.log("debug", LOG_ID + "(add) - timestamp : ", timestamp, " - id : ", id, " - size Message");
+            that.lock(async () => {
+                try {
+                    //deferedItem.start.bind(deferedItem)();
+                    //await pause(that.timeBetweenXmppRequests);
+                    that.logger.log("debug", LOG_ID + "(add) - id : ", id, " - size will start.");
+                    result = super.size();
+                    that.logger.log("debug", LOG_ID + "(add) - id : ", id, " - size started and finished. Will leave lock." );
+                } catch (err) {
+                    that.logger.log("error", LOG_ID + "(add) - id : ", id, " - CATCH Error !!! in lock, error : ", err);
+                }
+                //await pause(that.timeBetweenXmppRequests);
+            }, id).then(() => {
+                that.logger.log("debug", LOG_ID + "(add) - id : ", id, " -  lock succeed.");
+            }).catch((error) => {
+                that.logger.log("error", LOG_ID + "(add) - id : ", id, " - Catch Error, error : ", error);
+            }); // */
+        } catch (err) {
+            let error = {err : err};
+            that.logger.log("error", LOG_ID + "(add) - timestamp : ", timestamp, " - CATCH Error !!! error : ", error);
+            throw error;
+        }
+        return result;
+    }
+
+    get length(){
+        let result = this.size();
+
+        return result;
+    }
+
+    // Vide la file d'attente
+    clear(): void {
+        let that = this;
+        let timestamp = (new Date()).toUTCString();
+        try {
+            let id = randomUUID();
+            that.logger.log("debug", LOG_ID + "(add) - timestamp : ", timestamp, " - id : ", id, " - clear Message");
+            that.lock(async () => {
+                try {
+                    //deferedItem.start.bind(deferedItem)();
+                    //await pause(that.timeBetweenXmppRequests);
+                    that.logger.log("debug", LOG_ID + "(add) - id : ", id, " - clear will start.");
+                    this.queue = [];
+                    that.logger.log("debug", LOG_ID + "(add) - id : ", id, " - clear started and finished. Will leave lock." );
+                } catch (err) {
+                    that.logger.log("error", LOG_ID + "(add) - id : ", id, " - CATCH Error !!! in lock, error : ", err);
+                }
+                //await pause(that.timeBetweenXmppRequests);
+            }, id).then(() => {
+                that.logger.log("debug", LOG_ID + "(add) - id : ", id, " -  lock succeed.");
+            }).catch((error) => {
+                that.logger.log("error", LOG_ID + "(add) - id : ", id, " - Catch Error, error : ", error);
+            }); // */
+        } catch (err) {
+            let error = {err : err};
+            that.logger.log("error", LOG_ID + "(add) - timestamp : ", timestamp, " - CATCH Error !!! error : ", error);
+            throw error;
+        }
+    }
+
+    find(predicate:  any) {
+        let that = this;
+        let timestamp = (new Date()).toUTCString();
+        let result : any;
+        try {
+            let id = randomUUID();
+            that.logger.log("debug", LOG_ID + "(add) - timestamp : ", timestamp, " - id : ", id, " - find Message");
+            that.lock(async () => {
+                try {
+                    //deferedItem.start.bind(deferedItem)();
+                    //await pause(that.timeBetweenXmppRequests);
+                    that.logger.log("debug", LOG_ID + "(add) - id : ", id, " - find will start.");
+                    result = this.queue.find(predicate);
+                    that.logger.log("debug", LOG_ID + "(add) - id : ", id, " - find started and finished. Will pause before leave lock." );
+                } catch (err) {
+                    that.logger.log("error", LOG_ID + "(add) - id : ", id, " - CATCH Error !!! in lock, error : ", err);
+                }
+                //await pause(that.timeBetweenXmppRequests);
+            }, id).then(() => {
+                that.logger.log("debug", LOG_ID + "(add) - id : ", id, " -  lock succeed.");
+            }).catch((error) => {
+                that.logger.log("error", LOG_ID + "(add) - id : ", id, " - Catch Error, error : ", error);
+            }); // */
+        } catch (err) {
+            let error = {err : err};
+            that.logger.log("error", LOG_ID + "(add) - timestamp : ", timestamp, " - CATCH Error !!! error : ", error);
+            throw error;
+        }
+        return result;
+    }
+
+    filter(predicate: any) {
+        let that = this;
+        let timestamp = (new Date()).toUTCString();
+        let result : any;
+        try {
+            let id = randomUUID();
+            that.logger.log("debug", LOG_ID + "(add) - timestamp : ", timestamp, " - id : ", id, " - dequeue Message");
+            that.lock(async () => {
+                try {
+                    //deferedItem.start.bind(deferedItem)();
+                    //await pause(that.timeBetweenXmppRequests);
+                    that.logger.log("debug", LOG_ID + "(add) - id : ", id, " - dequeue will start.");
+                    result = this.queue.filter(predicate);
+                    that.logger.log("debug", LOG_ID + "(add) - id : ", id, " - dequeue started and finished. Will pause before leave lock." );
+                } catch (err) {
+                    that.logger.log("error", LOG_ID + "(add) - id : ", id, " - CATCH Error !!! in lock, error : ", err);
+                }
+                //await pause(that.timeBetweenXmppRequests);
+            }, id).then(() => {
+                that.logger.log("debug", LOG_ID + "(add) - id : ", id, " -  lock succeed.");
+            }).catch((error) => {
+                that.logger.log("error", LOG_ID + "(add) - id : ", id, " - Catch Error, error : ", error);
+            }); // */
+        } catch (err) {
+            let error = {err : err};
+            that.logger.log("error", LOG_ID + "(add) - timestamp : ", timestamp, " - CATCH Error !!! error : ", error);
+            throw error;
+        }
+        return result;
+    }
+
+    forEach(predicate: any) {
+        let that = this;
+        let timestamp = (new Date()).toUTCString();
+        try {
+            let id = randomUUID();
+            that.logger.log("debug", LOG_ID + "(add) - timestamp : ", timestamp, " - id : ", id, " - forEach Message");
+            that.lock(async () => {
+                try {
+                    //deferedItem.start.bind(deferedItem)();
+                    //await pause(that.timeBetweenXmppRequests);
+                    that.logger.log("debug", LOG_ID + "(add) - id : ", id, " - forEach will start.");
+                    this.queue.forEach(predicate);
+                    that.logger.log("debug", LOG_ID + "(add) - id : ", id, " - forEach started and finished. Will pause before leave lock." );
+                } catch (err) {
+                    that.logger.log("error", LOG_ID + "(add) - id : ", id, " - CATCH Error !!! in lock, error : ", err);
+                }
+                //await pause(that.timeBetweenXmppRequests);
+            }, id).then(() => {
+                that.logger.log("debug", LOG_ID + "(add) - id : ", id, " -  lock succeed.");
+            }).catch((error) => {
+                that.logger.log("error", LOG_ID + "(add) - id : ", id, " - Catch Error, error : ", error);
+            }); // */
+        } catch (err) {
+            let error = {err : err};
+            that.logger.log("error", LOG_ID + "(add) - timestamp : ", timestamp, " - CATCH Error !!! error : ", error);
+            throw error;
+        }
+    }
+
+    unshift(element: any) {
+        let that = this;
+        let timestamp = (new Date()).toUTCString();
+        try {
+            let id = randomUUID();
+            that.logger.log("debug", LOG_ID + "(add) - timestamp : ", timestamp, " - id : ", id, " - unshift Message");
+            that.lock(async () => {
+                try {
+                    //deferedItem.start.bind(deferedItem)();
+                    //await pause(that.timeBetweenXmppRequests);
+                    that.logger.log("debug", LOG_ID + "(add) - id : ", id, " - unshift will start.");
+                    this.queue.unshift(element);
+                    that.logger.log("debug", LOG_ID + "(add) - id : ", id, " - unshift started and finished. Will pause before leave lock." );
+                } catch (err) {
+                    that.logger.log("error", LOG_ID + "(add) - id : ", id, " - CATCH Error !!! in lock, error : ", err);
+                }
+                //await pause(that.timeBetweenXmppRequests);
+            }, id).then(() => {
+                that.logger.log("debug", LOG_ID + "(add) - id : ", id, " -  lock succeed.");
+            }).catch((error) => {
+                that.logger.log("error", LOG_ID + "(add) - id : ", id, " - Catch Error, error : ", error);
+            }); // */
+        } catch (err) {
+            let error = {err : err};
+            that.logger.log("error", LOG_ID + "(add) - timestamp : ", timestamp, " - CATCH Error !!! error : ", error);
+            throw error;
+        }
+    }
+
+    // Méthode pour obtenir un itérateur
+    [Symbol.iterator](): Iterator<any> {
+        let index = 0;
+        const dataArray = this.queue;
+
+        // Fonction next() de l'itérateur
+        const next = (): IteratorResult<any> => {
+            if (index < dataArray.length) {
+                return { value: dataArray[index++], done: false };
+            } else {
+                return { value: undefined, done: true };
+            }
+        };
+
+        // Retourne l'itérateur
+        return { next };
+    }
+
+    updateMessageIfExistsElseEnqueueIt(message: any) : Message {
+        let that = this;
+        let timestamp = (new Date()).toUTCString();
+        let result : any;
+        let messageObj: Message;
+        try {
+            let id = randomUUID();
+            that.logger.log("debug", LOG_ID + "(add) - timestamp : ", timestamp, " - id : ", id, " - dequeue Message");
+            that.lock(async () => {
+                try {
+                    //deferedItem.start.bind(deferedItem)();
+                    //await pause(that.timeBetweenXmppRequests);
+                    that.logger.log("debug", LOG_ID + "(add) - id : ", id, " - dequeue will start.");
+                    // Check if this message already exist in message store
+                    let messageIndice = that.queue.findIndex(function(item, index, tab) {
+                        return item.id === message.id
+                    });
+                    if (messageIndice != -1) {
+                        // update the already existing message and return this new value.
+                        that.queue[messageIndice] = message;
+                        messageObj = that.queue[messageIndice];
+                    } else {
+                        // Store the message
+                        that.queue.push(message);
+                        messageObj = message;
+                    }
+                    that.logger.log("debug", LOG_ID + "(add) - id : ", id, " - dequeue started and finished. Will pause before leave lock." );
+                } catch (err) {
+                    that.logger.log("error", LOG_ID + "(add) - id : ", id, " - CATCH Error !!! in lock, error : ", err);
+                }
+                //await pause(that.timeBetweenXmppRequests);
+            }, id).then(() => {
+                that.logger.log("debug", LOG_ID + "(add) - id : ", id, " -  lock succeed.");
+            }).catch((error) => {
+                that.logger.log("error", LOG_ID + "(add) - id : ", id, " - Catch Error, error : ", error);
+            }); // */
+        } catch (err) {
+            let error = {err : err};
+            that.logger.log("error", LOG_ID + "(add) - timestamp : ", timestamp, " - CATCH Error !!! error : ", error);
+            throw error;
+        }
+        return messageObj;
+    }
+
+    //region Lock
+
+    async lock(fn, id) {
+        let that = this;
+        let resultLock = "Lock failed.";
+        try {
+            that.logger.log("internal", LOG_ID + "(lock) - id : ", id, " - will acquire lock the ", that.lockKey);
+            await that.lockEngine.acquire(that.lockKey, async () => {
+                // that._logger.log("debug", LOG_ID + "(lock) lock the ", that.lockKey);
+                that.logger.log("internal", LOG_ID + "(lock) - id : ", id, " - lock the ", that.lockKey);
+                let result = undefined;
+                try {
+                    result = await fn(); // async work
+                    return result;
+                } catch (err3) {
+                    that.logger.log("error", LOG_ID + "(lock) - id : ", id, " - CATCH Error !!! error at run : ", that.lockKey, ", error : ", err3);
+                }
+            }).then((result) => {
+                // that._logger.log("debug", LOG_ID + "(lock) release the ", that.lockKey);
+                that.logger.log("internal", LOG_ID + "(lock) - id : ", id, " - release the ", that.lockKey, ", result : ", result);
+                resultLock = result;
+            }).catch((err2) => {
+                    that.logger.log("warn", LOG_ID + "(lock) - id : ", id, " - catch at acquire : ", that.lockKey, ", error : ", err2);
+                    throw resultLock = err2;
+                }
+            );
+        } catch (err) {
+            that.logger.log("error", LOG_ID + "(lock) - id : ", id, " - CATCH Error !!! error at acquire : ", that.lockKey, ", error : ", err);
+            throw resultLock = err;
+        }
+        that.logger.log("internal", LOG_ID + "(lock) - id : ", id, " - __ exiting __ ", that.lockKey, ", resultLock : ", resultLock);
+        return resultLock;
+    }
+
+    //endregion Lock
+}
 
 /**
  * @class
@@ -21,7 +494,7 @@ const LOG_ID = "CONVERSATION/CONV - ";
  *		A conversation never ends and all interactions done can be retrieved. <br>
  */
 class Conversation {
-    get messages(): any {
+    get messages(): MessagesQueue {
         //this.logger.log("internal", LOG_ID + "(get messages) id : ", this.id, ", get messages : ", this._messages);
         return this._messages;
     }
@@ -29,10 +502,10 @@ class Conversation {
         //this.logger.log("internal", LOG_ID + "(set messages) id : ", this.id, ", set messages : ", value);
         this._messages = value;
     }
-    updateMessages(index: number , value: any) {
+    /* updateMessages(index: number , value: any) {
         //this.logger.log("internal", LOG_ID + "(updateMessages) id : ", this.id, ", add message : ", value);
         this._messages[index] = value;
-    }
+    } // */
 	public id: any;
 	public dbId: any;
 	public type: any;
@@ -46,7 +519,8 @@ class Conversation {
 	public filterName: any;
 	public missedCounter: any;
 	public missedCalls: any;
-	private _messages: any;
+	//private _messages: any;
+	private _messages: MessagesQueue;
 	public participantStatuses: any;
 	public draft: any;
 	public uploadFile: any;
@@ -189,7 +663,8 @@ class Conversation {
          * @link Message
          * @readonly
          */
-        this._messages = [];
+        this._messages = new MessagesQueue(logger,5);
+        //this._messages = [];
 
         /**
          * @private
@@ -360,7 +835,8 @@ class Conversation {
         this.logger.log("debug", LOG_ID + "(addOrUpdateMessage) id : ", this.id, ", message : ", message?message.id:undefined);
         
         // Check if this message already exist in message store
-        let messageIndice = that.messages.findIndex(function(item, index, tab) {
+        messageObj = that.messages.updateMessageIfExistsElseEnqueueIt(message);
+       /* let messageIndice = that.messages.findIndex(function(item, index, tab) {
             return item.id === message.id
         });
         if (messageIndice != -1) {
@@ -372,6 +848,7 @@ class Conversation {
             that.messages.push(message);
             messageObj = message;
         }
+        */
 
         // Update lastModification
         that.lastModification = new Date();
@@ -460,7 +937,8 @@ class Conversation {
     /*************************************************************/
     reset() {
         this.logger.log("debug", LOG_ID + "(reset) id : ", this.id);
-        this.messages = [];
+        //this.messages = [];
+        this.messages.clear();
         this.lastMessageText = null;
         this.resetHistory();
     }
@@ -488,7 +966,21 @@ class Conversation {
         let messgs = this._messages.filter((mess) => {
             return (mess.side === Message.Side.RIGHT) ;
         });
-        
+
+        if (messgs.length === 0) {
+            return undefined;
+        }
+
+        let latestObject = messgs[0];
+        for (let i = 1; i < messgs.length; i++) {
+            const currentDate = new Date(latestObject.date);
+            const nextDate = new Date(messgs[i].date);
+            if (nextDate > currentDate) {
+                latestObject = messgs[i];
+            }
+        }
+        return latestObject;
+        /*
         messgs.sort((a, b) => {
             let dateElmt1 = new Date(a.date);
             let dateElmt2 = new Date(b.date);
@@ -497,6 +989,7 @@ class Conversation {
         
         return messgs[0];
         // return this.messages.slice(-1)[0];
+        // */
     }
 }
 
