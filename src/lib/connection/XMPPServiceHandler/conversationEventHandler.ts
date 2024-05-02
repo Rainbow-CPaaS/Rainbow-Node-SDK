@@ -61,6 +61,7 @@ class ConversationEventHandler extends GenericHandler {
     private _bubbleService: BubblesService;
     private _contactsService: ContactsService;
     private _presenceService: PresenceService;
+    private storeMessagesInConversation: any;
 
     static getClassName() { return 'ConversationEventHandler'; }
     getClassName() { return ConversationEventHandler.getClassName(); }
@@ -68,7 +69,7 @@ class ConversationEventHandler extends GenericHandler {
     static getAccessorName(){ return 'conversationevent'; }
     getAccessorName(){ return ConversationEventHandler.getAccessorName(); }
 
-    constructor(xmppService : XMPPService, conversationService, fileStorageService, fileServerService, bubbleService, contactsService, presenceService) {
+    constructor(xmppService : XMPPService, conversationService, storeMessagesInConversation, fileStorageService, fileServerService, bubbleService, contactsService, presenceService) {
         super(xmppService);
 
         this.MESSAGE = "jabber:client.message";
@@ -86,6 +87,7 @@ class ConversationEventHandler extends GenericHandler {
         this._bubbleService = bubbleService;
         this._contactsService = contactsService;
         this._presenceService = presenceService;
+        this.storeMessagesInConversation = storeMessagesInConversation;
 
         let that = this;
 
@@ -2059,10 +2061,12 @@ class ConversationEventHandler extends GenericHandler {
                 let createPromise = conversationId.startsWith("room_") ? cs.getBubbleConversation(conversationId) : cs.getOrCreateOneToOneConversation(conversationId);
                 createPromise.then((conv) => {
                     data.conversation = conv;
-                    data.conversation.addOrUpdateMessage(data);
-                    /*if (data.conversation.messages.length === 0 || !data.conversation.messages.find((elmt) => { if (elmt.id === data.id) { return elmt; } })) {
-                        data.conversation.messages.push(data);
-                    } // */
+                    if (that.storeMessagesInConversation) {
+                        data.conversation.addOrUpdateMessage(data);
+                        /*if (data.conversation.messages.length === 0 || !data.conversation.messages.find((elmt) => { if (elmt.id === data.id) { return elmt; } })) {
+                            data.conversation.messages.push(data);
+                        } // */
+                    }
                     this.eventEmitter.emit("evt_internal_onmessagereceived", data);
                     that.eventEmitter.emit("evt_internal_conversationupdated", conv);
                     //that._logger.log(that.INTERNAL, LOG_ID + "(_onMessageReceived) cs.getConversations() : ", cs.getConversations());
@@ -2080,10 +2084,12 @@ class ConversationEventHandler extends GenericHandler {
                 // */
                 that._logger.log(that.INTERNAL, LOG_ID + "(_onMessageReceived) conversation found in cache by Id : ", conversationId, ", for new message : ", data);
                 data.conversation = conversation;
-                data.conversation.addOrUpdateMessage(data);
-                /*if (data.conversation.messages.length === 0 || !data.conversation.messages.find((elmt) => { if (elmt.id === data.id) { return elmt; } })) {
-                    data.conversation.messages.push(data);
-                } // */
+                if (that.storeMessagesInConversation) {
+                    data.conversation.addOrUpdateMessage(data);
+                    /*if (data.conversation.messages.length === 0 || !data.conversation.messages.find((elmt) => { if (elmt.id === data.id) { return elmt; } })) {
+                        data.conversation.messages.push(data);
+                    } // */
+                }
                 that.eventEmitter.emit("evt_internal_onmessagereceived", data);
                 that.eventEmitter.emit("evt_internal_conversationupdated", conversation);
                 //that._logger.log(that.INTERNAL, LOG_ID + "(_onMessageReceived) cs.getConversations() : ", cs.getConversations());

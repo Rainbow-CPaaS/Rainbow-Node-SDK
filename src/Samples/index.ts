@@ -627,7 +627,8 @@ let urlS2S;
             "enableCarbon": true,
             "enablesendurgentpushmessages": true,
             //"useMessageEditionAndDeletionV2": false
-        },
+            "storeMessagesInConversation": false
+    },
         // Services to start. This allows to start the SDK with restricted number of services, so there are less call to API.
         // Take care, severals services are linked, so disabling a service can disturb an other one.
         // By default all the services are started. Events received from server are not yet filtered.
@@ -2184,7 +2185,7 @@ let urlS2S;
             _logger.log("debug", "MAIN - testremoveAllMessages - conversation with messages removed : ", conversationWithMessagesRemoved);
         }
 
-        async testsendMessageToConversationForContact() {
+    async  testsendMessageToConversationForContact(nbMsgToSend = 2) {
             //let that = this;
             //let contactIdToSearch = "5bbdc3812cf496c07dd89128"; // vincent01 vberder
             //let contactIdToSearch = "5bbb3ef9b0bb933e2a35454b"; // vincent00 official
@@ -2193,7 +2194,7 @@ let urlS2S;
             let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
             // Retrieve the associated conversation
             let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
-            let nbMsgToSend = 2;
+        //let nbMsgToSend = 2;
             let msgsSent = [];
             for (let i = 1; i <= nbMsgToSend; i++) {
                 let now = new Date().getTime();
@@ -2212,6 +2213,46 @@ let urlS2S;
             }
             // let conversationWithMessagesRemoved = await rainbowSDK.conversations.removeAllMessages(conversation);
             //_logger.log("debug", "MAIN - testsendMessageToConversationForContact - conversation with messages removed : ", conversationWithMessagesRemoved);
+    }
+
+    testeventrainbow_onconversationchanged() {
+        logger.log("info", "MAIN - (testeventrainbow_onconversationchanged) started.");
+        rainbowSDK.events.on("rainbow_onconversationchanged", async function (conversation) {
+            try {
+                logger.log("debug", "MAIN - (testeventrainbow_onconversationchanged) rainbow_onconversationchanged conversation.name : ", conversation.name, ", conversation.id : ", conversation.id, ", conversation.messages.length : ", conversation?.messages?.length);
+            } catch (err) {
+                logger.log("error", "MAIN - (testeventrainbow_onconversationchanged) rainbow_onconversationchanged CATCH Error !!!");
+            }
+        });
+    }
+
+    async  testsendMessageToConversationForContactSeveralTimes(contactEmailToSearch = "vincent03@vbe.test.openrainbow.net", nbMsgToSend = 2, removeAllMessagesBeforeSend = false) {
+        //let that = this;
+        // Retrieve a contact by its id
+        let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+        // Retrieve the associated conversation
+        let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
+        if (removeAllMessagesBeforeSend && conversation?.id) {
+            await rainbowSDK.conversations.deleteAllMessageInOneToOneConversation(conversation);
+        }
+        let msgsSent = [];
+        for (let i = 1; i <= nbMsgToSend; i++) {
+            let now = new Date().getTime();
+            // Send message
+            //let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "hello num " + i + " from node : " + now, "FR", null, "Le sujet de node : " + now, "middle");
+            let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "hello num " + i + " from node : " + now, "FR", null, "Le sujet de node : " + now);
+            // logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
+            // logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
+            msgsSent.push(msgSent);
+            logger.log("debug", "MAIN - testsendMessageToConversationForContact - wait for message to be in conversation : ", msgSent);
+            await pause(300);
+            /* await Utils.until(() => {
+                return conversation.getMessageById(msgSent.id)!==undefined;
+            }, "Wait for message to be added in conversation num : " + i);
+            let msgDeleted = await rainbowSDK.conversations.deleteMessage(conversation, msgSent.id);
+            logger.log("debug", "MAIN - testsendMessageToConversationForContact - deleted in conversation the message : ", msgDeleted);
+            // */
+        }
         }
 
         async testsendMessageToConversationForContactIrles() {

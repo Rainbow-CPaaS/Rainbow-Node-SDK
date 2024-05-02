@@ -508,7 +508,8 @@ class Options {
             forceHistoryGetContactFromServer: false,
             enableCarbon: true,
             enablesendurgentpushmessages: false,
-            useMessageEditionAndDeletionV2: true
+            useMessageEditionAndDeletionV2: true,
+            storeMessagesInConversation: true
         };
 
         if (!("sendReadReceipt" in this._options.im)) {
@@ -538,6 +539,7 @@ class Options {
         optionsIM.enableCarbon = (this._options.im.enableCarbon == false) ? this._options.im.enableCarbon : config.im.enableCarbon;
         optionsIM.enablesendurgentpushmessages = (this._options.im.enablesendurgentpushmessages == true) ? this._options.im.enablesendurgentpushmessages : config.im.enablesendurgentpushmessages;
         optionsIM.useMessageEditionAndDeletionV2 = (this._options.im.useMessageEditionAndDeletionV2 == false) ? this._options.im.useMessageEditionAndDeletionV2 : config.im.useMessageEditionAndDeletionV2;
+        optionsIM.storeMessagesInConversation = (this._options.im.storeMessagesInConversation == false) ? this._options.im.storeMessagesInConversation : config.im.storeMessagesInConversation;
 
         return optionsIM;
     }
