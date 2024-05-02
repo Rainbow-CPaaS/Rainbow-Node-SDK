@@ -47,6 +47,7 @@ class S2SServiceEventHandler {
     private xmppUtils: XMPPUTils;
     private _conversations: ConversationsService;
     private shouldSendReadReceipt: boolean;
+    private storeMessagesInConversation: boolean;
 
     static getClassName(){ return 'S2SServiceEventHandler'; }
     getClassName(){ return S2SServiceEventHandler.getClassName(); }
@@ -55,6 +56,7 @@ class S2SServiceEventHandler {
         this._logger = _logger;
         this._eventEmitter = _eventEmitter;
         this.shouldSendReadReceipt = _im.sendReadReceipt;
+        this.storeMessagesInConversation = _im.storeMessagesInConversation;
         this.callbackAbsolutePath = _hostCallback;
         this.xmppUtils = XMPPUTils.getXMPPUtils();
 
@@ -536,10 +538,12 @@ class S2SServiceEventHandler {
                 } // */
 
                 data.conversation = conversation;
-                data.conversation.addOrUpdateMessage(data);
-                /*if (data.conversation.messages.length === 0 || !data.conversation.messages.find((elmt) => { if (elmt.id === data.id) { return elmt; } })) {
-                    data.conversation.messages.push(data);
-                } // */
+                if (that.storeMessagesInConversation) {
+                    data.conversation.addOrUpdateMessage(data);
+                    /*if (data.conversation.messages.length === 0 || !data.conversation.messages.find((elmt) => { if (elmt.id === data.id) { return elmt; } })) {
+                        data.conversation.messages.push(data);
+                    } // */
+                }
                 if (this.shouldSendReadReceipt) {
                     await that._rest.markMessageAsRead(conversationId, msgId);
                 }

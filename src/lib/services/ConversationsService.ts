@@ -72,6 +72,8 @@ class ConversationsService extends GenericService {
     private nbMaxConversations: number;
     private autoLoadConversations: boolean;
     private autoLoadConversationHistory: boolean;
+    private storeMessagesInConversation: boolean;
+
     get startConfig(): { start_up: boolean; optional: boolean } {
         return this._startConfig;
     }
@@ -189,7 +191,7 @@ class ConversationsService extends GenericService {
     
     attachHandlers() {
         let that = this;
-        that._conversationEventHandler = new ConversationEventHandler(that._xmpp, that, that._fileStorageService, that._fileServerService, that._bubblesService, that._contactsService, that._presenceService);
+        that._conversationEventHandler = new ConversationEventHandler(that._xmpp, that, that.storeMessagesInConversation, that._fileStorageService, that._fileServerService, that._bubblesService, that._contactsService, that._presenceService);
         that._conversationHandlerToken = [
             //PubSub.subscribe( that._xmpp.hash + "." + that._conversationEventHandler.MESSAGE, that._conversationEventHandler.onMessageReceived.bind(that._conversationEventHandler)),
             PubSub.subscribe( that._xmpp.hash + "." + that._conversationEventHandler.MESSAGE_CHAT, that._conversationEventHandler.onChatMessageReceived.bind(that._conversationEventHandler)),
@@ -282,7 +284,9 @@ class ConversationsService extends GenericService {
                     if (conversation.addOrUpdateMessage) {
                         that._logger.log("debug", LOG_ID + "(_onReceipt) conversation.addOrUpdateMessage.");
                         that._logger.log("internal", LOG_ID + "(_onReceipt) conversation.addOrUpdateMessage : ", message);
-                        conversation.addOrUpdateMessage(message);
+                        if (that.storeMessagesInConversation) {
+                            conversation.addOrUpdateMessage(message);
+                        }
                         that.removePendingMessage(message);
                         //delete this.pendingMessages[message.id];
                         // Send event
