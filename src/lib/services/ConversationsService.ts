@@ -130,6 +130,7 @@ class ConversationsService extends GenericService {
                 that._xmpp = that._core._xmpp;
                 that._rest = that._core._rest;
                 that._options = _options;
+                that.storeMessagesInConversation = _options._imOptions.storeMessagesInConversation;
                 that._s2s = that._core._s2s;
                 that._useXMPP = that._options.useXMPP;
                 that._useS2S = that._options.useS2S;
