@@ -6,6 +6,19 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+### [2.25.2-lts.8] - 2024-05-02
+#### Removed
+-   None
+
+#### Fixed
+-   None
+
+#### Added
+-   None
+
+#### Changed
+-   Add `options.im.storeMessagesInConversation`, it allows to store messages in conversation cache if true else the conversation.messages property stay empty. The default value is true.
+
 ### [2.25.2-lts.7] - 2024-02-26
 #### Removed
 -   None
