@@ -205,7 +205,8 @@ class MessagesQueue extends FIFOQueue<Message> {
         try {
             let id = randomUUID();
             that.logger.log("debug", LOG_ID + "(add) - timestamp : ", timestamp, " - id : ", id, " - size Message");
-            that.lock(async () => {
+            // @ts-ignore
+            return that.lock(async () => {
                 try {
                     //deferedItem.start.bind(deferedItem)();
                     //await pause(that.timeBetweenXmppRequests);
@@ -216,17 +217,19 @@ class MessagesQueue extends FIFOQueue<Message> {
                     that.logger.log("error", LOG_ID + "(add) - id : ", id, " - CATCH Error !!! in lock, error : ", err);
                 }
                 //await pause(that.timeBetweenXmppRequests);
-            }, id).then(() => {
+            }, id).then((res) => {
                 that.logger.log("debug", LOG_ID + "(add) - id : ", id, " -  lock succeed.");
+                return res;
             }).catch((error) => {
                 that.logger.log("error", LOG_ID + "(add) - id : ", id, " - Catch Error, error : ", error);
+                return error;
             }); // */
         } catch (err) {
             let error = {err : err};
             that.logger.log("error", LOG_ID + "(add) - timestamp : ", timestamp, " - CATCH Error !!! error : ", error);
             throw error;
         }
-        return result;
+        // return result;
     }
 
     get length(){
