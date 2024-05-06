@@ -6,6 +6,7 @@ export {};
 
 //const config = require("./config");
 import {config, DataStoreType} from "./config";
+import {isDefined} from "../common/Utils.js";
 
 const LOG_ID = "OPTIONS - ";
 
@@ -533,7 +534,7 @@ class Options {
         optionsIM.maxBubbleJoinInProgress = (this._options.im.maxBubbleJoinInProgress ) ? this._options.im.maxBubbleJoinInProgress : config.im.maxBubbleJoinInProgress;
         optionsIM.autoInitialBubbleFormat = this._options.im.autoInitialBubbleFormat ? this._options.im.autoInitialBubbleFormat : config.im.autoInitialBubbleFormat;
         optionsIM.autoInitialBubbleUnsubscribed = (this._options.im.autoInitialBubbleUnsubscribed == false) ? this._options.im.autoInitialBubbleUnsubscribed : config.im.autoInitialBubbleUnsubscribed;
-        optionsIM.autoLoadConversations = (this._options.im.autoLoadConversations == true) ? this._options.im.autoLoadConversations : config.im.autoLoadConversations;
+        optionsIM.autoLoadConversations = isDefined(this._options.im.autoLoadConversations) ? this._options.im.autoLoadConversations : config.im.autoLoadConversations;
         optionsIM.autoLoadConversationHistory = (this._options.im.autoLoadConversationHistory == true) ? this._options.im.autoLoadConversationHistory : config.im.autoLoadConversationHistory;
         optionsIM.autoLoadContacts = (this._options.im.autoLoadContacts == false) ? this._options.im.autoLoadContacts : config.im.autoLoadContacts;
         optionsIM.forceHistoryGetContactFromServer = (this._options.im.forceHistoryGetContactFromServer == true) ? this._options.im.forceHistoryGetContactFromServer : config.im.forceHistoryGetContactFromServer;
