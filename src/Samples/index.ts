@@ -625,9 +625,10 @@ let urlS2S;
             "autoLoadConversationHistory": false,
             "autoLoadContacts": true,
             "enableCarbon": true,
-            "enablesendurgentpushmessages": true
+            "enablesendurgentpushmessages": true,
             //"useMessageEditionAndDeletionV2": false
             //"storeMessagesInConversation": false
+            "maxMessagesStoredInConversation" : 830
     },
         // Services to start. This allows to start the SDK with restricted number of services, so there are less call to API.
         // Take care, severals services are linked, so disabling a service can disturb an other one.
@@ -2258,10 +2259,10 @@ let urlS2S;
 // */
 
     testeventrainbow_onconversationchanged() {
-        _logger.log("info", "MAIN - (testeventrainbow_onconversationchanged) started.");
+        _logger.log("info", "MAIN - (testeventrainbow_onconversationchanged) ", _logger.colors.cyan("rainbow_onconversationchanged"), " started.");
         rainbowSDK.events.on("rainbow_onconversationchanged", async function (conversation) {
             try {
-                _logger.log("debug", "MAIN - (testeventrainbow_onconversationchanged) rainbow_onconversationchanged conversation.name : ", conversation.name, ", conversation.id : ", conversation.id, ", conversation.messages.length : ", conversation?.messages?.length);
+                _logger.log("debug", "MAIN - (testeventrainbow_onconversationchanged) ", _logger.colors.cyan("rainbow_onconversationchanged"), " conversation.name : ", conversation.name, ", conversation.id : ", conversation.id, ", conversation.messages.length : ", conversation?.messages?.length);
             } catch (err) {
                 _logger.log("error", "MAIN - (testeventrainbow_onconversationchanged) rainbow_onconversationchanged CATCH Error !!!");
             }

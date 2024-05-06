@@ -1,4 +1,6 @@
 "use strict";
+import {randomUUID} from "node:crypto";
+
 export {};
 
 class FIFOQueue<T> {
@@ -38,6 +40,53 @@ class FIFOQueue<T> {
     // Vide la file d'attente
     clear(): void {
         this.queue = [];
+    }
+
+    // Implémentation de toutes les méthodes de Array
+    concat(...items: ConcatArray<T>[]): T[];
+    concat(...items: (T | ConcatArray<T>)[]): T[];
+    concat(...items: any): T[] {
+        return this.queue.concat(...items);
+    }
+
+    copyWithin(target: number, start: number, end?: number): any {
+        return this.queue.copyWithin(target, start, end);
+    }
+
+    entries(): IterableIterator<[number, T]> {
+        return this.queue.entries();
+    }
+
+    every(callbackfn: (value: T, index: number, array: T[]) => unknown, thisArg?: any): boolean {
+        return this.queue.every(callbackfn, thisArg);
+    }
+
+    fill(value: T, start?: number, end?: number): any {
+        return this.queue.fill(value, start, end);
+    }
+
+    filter(callbackfn: (value: T, index: number, array: T[]) => unknown, thisArg?: any): T[] {
+        return this.queue.filter(callbackfn, thisArg);
+    }
+
+    find(predicate: (value: T, index: number, obj: T[]) => unknown, thisArg?: any): T | undefined {
+        return this.queue.find(predicate, thisArg);
+    }
+
+    forEach(predicate: any) {
+        this.queue.forEach(predicate);
+    }
+
+    unshift(...items: T[]) :any {
+        return this.queue.unshift(...items);
+    }
+
+    values() : IterableIterator<T> {
+        return this.queue.values();
+    }
+
+    keys(): IterableIterator<number> {
+        return this.queue.keys();
     }
 }
 

@@ -201,7 +201,7 @@ class ConversationsService extends GenericService {
     
     attachHandlers() {
         let that = this;
-        that._conversationEventHandler = new ConversationEventHandler(that._xmpp, that, that.storeMessagesInConversation, that._fileStorageService, that._fileServerService, that._bubblesService, that._contactsService, that._presenceService);
+        that._conversationEventHandler = new ConversationEventHandler(that._xmpp, that,  that._options?._imOptions, that._fileStorageService, that._fileServerService, that._bubblesService, that._contactsService, that._presenceService);
         that._conversationHandlerToken = [
             //PubSub.subscribe( that._xmpp.hash + "." + that._conversationEventHandler.MESSAGE, that._conversationEventHandler.onMessageReceived.bind(that._conversationEventHandler)),
             PubSub.subscribe( that._xmpp.hash + "." + that._conversationEventHandler.MESSAGE_CHAT, that._conversationEventHandler.onChatMessageReceived.bind(that._conversationEventHandler)),
@@ -1855,7 +1855,7 @@ class ConversationsService extends GenericService {
             that._contactsService.getOrCreateContact(conversationId,undefined) /* Get or create the conversation*/ .then( (contact) => {
                 that._logger.log(that.INFO, LOG_ID + "[Conversation] Create one to one conversation for contact.id : (" + contact.id + ")");
 
-                let  conversation = Conversation.createOneToOneConversation(contact, that._logger);
+                let  conversation = Conversation.createOneToOneConversation(contact, that._logger, that._options._imOptions);
                 conversation.lastModification = lastModification ? new Date(lastModification) : undefined;
                 conversation.lastMessageText = lastMessageText;
                 conversation.muted = muted;
@@ -2053,7 +2053,7 @@ class ConversationsService extends GenericService {
                 } else {
                     that._logger.log(that.INFO, LOG_ID + "[Conversation] Create bubble conversation (" + bubble.jid + ")");
 
-                    conversation = Conversation.createBubbleConversation(bubble, that._logger);
+                    conversation = Conversation.createBubbleConversation(bubble, that._logger, that._options._imOptions);
                     conversation.dbId = conversationDbId;
                     conversation.lastModification = lastModification ? new Date(lastModification) : undefined;
                     conversation.lastMessageText = lastMessageText;

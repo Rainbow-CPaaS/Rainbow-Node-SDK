@@ -49,6 +49,7 @@ class S2SServiceEventHandler extends LevelLogs{
     private _conversations: ConversationsService;
     private shouldSendReadReceipt: boolean;
     private storeMessagesInConversation: boolean;
+    private maxMessagesStoredInConversation: number;
 
     static getClassName(){ return 'S2SServiceEventHandler'; }
     getClassName(){ return S2SServiceEventHandler.getClassName(); }
@@ -66,6 +67,7 @@ class S2SServiceEventHandler extends LevelLogs{
         this._eventEmitter = _eventEmitter;
         this.shouldSendReadReceipt = _im.sendReadReceipt;
         this.storeMessagesInConversation = _im.storeMessagesInConversation;
+        this.maxMessagesStoredInConversation = _im.maxMessagesStoredInConversation;
         this.callbackAbsolutePath = _hostCallback;
         this.xmppUtils = XMPPUTils.getXMPPUtils();
 
@@ -400,7 +402,7 @@ class S2SServiceEventHandler extends LevelLogs{
                         case "delete":
                             if (! conversation) {
                                 that._logger.log(that.DEBUG, LOG_ID + "(ParseConversationCallback) message - conversation received for delete but unknown, conversationId : ", conversationId);
-                                conversation = new Conversation(conversationId, that._logger);
+                                conversation = new Conversation(conversationId, that._logger, that.maxMessagesStoredInConversation);
                             }
                             this._conversations.removeConversation(conversation);
                             break;
@@ -454,7 +456,7 @@ class S2SServiceEventHandler extends LevelLogs{
                         case "delete":
                             if (! conversation) {
                                 that._logger.log(that.DEBUG, LOG_ID + "(ParseConversationCallback) message - conversation received for delete but unknown, conversationId : ", conversationId);
-                                conversation = new Conversation(conversationId, that._logger);
+                                conversation = new Conversation(conversationId, that._logger, that.maxMessagesStoredInConversation);
                             }
                             this._conversations.removeConversation(conversation);
                             break;

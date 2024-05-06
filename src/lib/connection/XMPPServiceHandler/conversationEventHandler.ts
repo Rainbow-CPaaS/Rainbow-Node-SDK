@@ -62,6 +62,7 @@ class ConversationEventHandler extends GenericHandler {
     private _contactsService: ContactsService;
     private _presenceService: PresenceService;
     private storeMessagesInConversation: any;
+    private maxMessagesStoredInConversation: any;
 
     static getClassName() { return 'ConversationEventHandler'; }
     getClassName() { return ConversationEventHandler.getClassName(); }
@@ -69,7 +70,7 @@ class ConversationEventHandler extends GenericHandler {
     static getAccessorName(){ return 'conversationevent'; }
     getAccessorName(){ return ConversationEventHandler.getAccessorName(); }
 
-    constructor(xmppService : XMPPService, conversationService, storeMessagesInConversation, fileStorageService, fileServerService, bubbleService, contactsService, presenceService) {
+    constructor(xmppService : XMPPService, conversationService,  imOptions, fileStorageService, fileServerService, bubbleService, contactsService, presenceService) {
         super(xmppService);
 
         this.MESSAGE = "jabber:client.message";
@@ -87,7 +88,8 @@ class ConversationEventHandler extends GenericHandler {
         this._bubbleService = bubbleService;
         this._contactsService = contactsService;
         this._presenceService = presenceService;
-        this.storeMessagesInConversation = storeMessagesInConversation;
+        this.storeMessagesInConversation = imOptions.storeMessagesInConversation;
+        this.maxMessagesStoredInConversation = imOptions.maxMessagesStoredInConversation;
 
         let that = this;
 
@@ -2497,7 +2499,7 @@ class ConversationEventHandler extends GenericHandler {
 
                     if (action === "delete") {
                         that._logger.log(that.DEBUG, LOG_ID + "(onConversationManagementMessageReceived) conversation not know in cache deleted : ", conversationId);
-                        let conversationUnknown = new Conversation(conversationId, that._logger);
+                        let conversationUnknown = new Conversation(conversationId, that._logger, that.maxMessagesStoredInConversation);
                         if (conversationUnknown) {
                             that._conversationService.removeConversation(conversationUnknown);
                         }

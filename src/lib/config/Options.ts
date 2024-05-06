@@ -509,7 +509,8 @@ class Options {
             enableCarbon: true,
             enablesendurgentpushmessages: false,
             useMessageEditionAndDeletionV2: true,
-            storeMessagesInConversation: true
+            storeMessagesInConversation: true,
+            maxMessagesStoredInConversation: 1000
         };
 
         if (!("sendReadReceipt" in this._options.im)) {
@@ -540,6 +541,7 @@ class Options {
         optionsIM.enablesendurgentpushmessages = (this._options.im.enablesendurgentpushmessages == true) ? this._options.im.enablesendurgentpushmessages : config.im.enablesendurgentpushmessages;
         optionsIM.useMessageEditionAndDeletionV2 = (this._options.im.useMessageEditionAndDeletionV2 == false) ? this._options.im.useMessageEditionAndDeletionV2 : config.im.useMessageEditionAndDeletionV2;
         optionsIM.storeMessagesInConversation = (this._options.im.storeMessagesInConversation == false) ? this._options.im.storeMessagesInConversation : config.im.storeMessagesInConversation;
+        optionsIM.maxMessagesStoredInConversation = this._options.im.maxMessagesStoredInConversation ? this._options.im.maxMessagesStoredInConversation : config.im.maxMessagesStoredInConversation;
 
         return optionsIM;
     }

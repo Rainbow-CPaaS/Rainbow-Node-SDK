@@ -273,7 +273,8 @@ let conf =  {
         enableCarbon: true,
         enablesendurgentpushmessages: false,
         useMessageEditionAndDeletionV2: true,
-        storeMessagesInConversation: true
+        storeMessagesInConversation: true,
+        maxMessagesStoredInConversation: 1000
     },
     mode:"xmpp",
     "concurrentRequests": 1000,
