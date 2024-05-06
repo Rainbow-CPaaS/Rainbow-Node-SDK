@@ -103,6 +103,14 @@ let isNullOrEmpty = function(value) {
     return _isNullOrEmpty;
 }
 
+let isDefined = function(value) {
+    let _isDefined = false;
+    if (value !== null && value !== undefined) {
+        _isDefined = true;
+    }
+    return _isDefined;
+}
+
 let isNumber = function  isNumber(data) {
     return (typeof data === 'number' && !(isNaN(data)));
 }
@@ -675,6 +683,7 @@ export let objToExport = {
     anonymizePhoneNumber,
     equalIgnoreCase,
     isNullOrEmpty,
+    isDefined,
     isNumber,
     Deferred,
     isSuperAdmin,
@@ -711,6 +720,7 @@ export {
     anonymizePhoneNumber,
     equalIgnoreCase,
     isNullOrEmpty,
+    isDefined,
     isNumber,
     Deferred,
     isSuperAdmin,
@@ -746,6 +756,7 @@ export default {
     anonymizePhoneNumber,
     equalIgnoreCase,
     isNullOrEmpty,
+    isDefined,
     isNumber,
     Deferred,
     isSuperAdmin,
