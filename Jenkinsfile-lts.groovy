@@ -398,6 +398,7 @@ pipeline {
                                 sh script: """
                                     #find Documentation/
                                     #cd "${workspace}/Documentation"
+                                    sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E88979FB9B30ACF2
                                 """
                                 
                                 debianBuild(
