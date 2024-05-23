@@ -24,6 +24,7 @@ class MessagesQueue extends FIFOQueue<Message> {
     isFull: () => boolean;
     //updateMessageIfExistsElseEnqueueIt: (message: any, forceDequeueIfFull?: boolean) => Message;
     updateMessageIfExistsElseEnqueueIt: (message: any, forceDequeueIfFull?: boolean) => Message;
+    removeMessage: (message: any, forceDequeueIfFull?: boolean) => Message;
 
     constructor(_logger: any, _maxSize : number = 100) {
         super(_logger, (_logger)=> {
@@ -74,13 +75,13 @@ class MessagesQueue extends FIFOQueue<Message> {
             let messageObj: Message;
             try {
                 let id = randomUUID();
-                that.logger.log("debug", LOG_ID + "(add) - timestamp : ", timestamp, " - id : ", id, " - dequeue Message");
+                that.logger.log("debug", LOG_ID + "(updateMessageIfExistsElseEnqueueIt) - timestamp : ", timestamp, " - id : ", id, " - updateMessageIfExistsElseEnqueueIt Message");
                 // that.lock(async () => {
                 that.rwlock.writeLock(() => {
                     try {
                         //deferedItem.start.bind(deferedItem)();
                         //await pause(that.timeBetweenXmppRequests);
-                        that.logger.log("debug", LOG_ID + "(add) - id : ", id, " - dequeue will start.");
+                        //that.logger.log("debug", LOG_ID + "(updateMessageIfExistsElseEnqueueIt) - id : ", id, " - dequeue will start.");
                         // Check if this message already exist in message store
                         let messageIndice = that.findIndex(function (item, index, tab) {
                             return item.id===message.id
@@ -89,6 +90,7 @@ class MessagesQueue extends FIFOQueue<Message> {
                             // update the already existing message and return this new value.
                             that[messageIndice] = message;
                             messageObj = that[messageIndice];
+                            that.logger.log("debug", LOG_ID + "(updateMessageIfExistsElseEnqueueIt) - id : ", id, " - message updated.");
                         } else {
                             // Store the message
                             //that.queue.push(message);
@@ -97,16 +99,17 @@ class MessagesQueue extends FIFOQueue<Message> {
                                     throw new Error("Queue is full");
                                 } else {
                                     //this.dequeue();
+                                    that.logger.log("debug", LOG_ID + "(updateMessageIfExistsElseEnqueueIt) - id : ", id, " - queue is fulled, dequeue an elmt.");
                                     super.dequeue();
                                 }
                             }
                             //this.enqueue(message);
                             super.enqueue(message);
                             messageObj = message;
+                            that.logger.log("debug", LOG_ID + "(updateMessageIfExistsElseEnqueueIt) - id : ", id, " - message enqueued.");
                         }
-                        that.logger.log("debug", LOG_ID + "(add) - id : ", id, " - dequeue started and finished. Will pause before leave lock.");
                     } catch (err) {
-                        that.logger.log("error", LOG_ID + "(add) - id : ", id, " - CATCH Error !!! in lock, error : ", err);
+                        that.logger.log("error", LOG_ID + "(updateMessageIfExistsElseEnqueueIt) - id : ", id, " - CATCH Error !!! in lock, error : ", err);
                     }
                     //await pause(that.timeBetweenXmppRequests);
                     that.rwlock.unlock();
@@ -118,7 +121,46 @@ class MessagesQueue extends FIFOQueue<Message> {
                             }); // */
             } catch (err) {
                 let error = {err: err};
-                that.logger.log("error", LOG_ID + "(add) - timestamp : ", timestamp, " - CATCH Error !!! error : ", error);
+                that.logger.log("error", LOG_ID + "(updateMessageIfExistsElseEnqueueIt) - timestamp : ", timestamp, " - CATCH Error !!! error : ", error);
+                throw error;
+            }
+            return messageObj;
+        };
+
+        this.removeMessage = (message: any, forceDequeueIfFull: boolean = false): Message => {
+            let that : any = this;
+            let timestamp = (new Date()).toUTCString();
+            let result: any;
+            let messageObj: Message;
+            try {
+                let id = randomUUID();
+                that.logger.log("debug", LOG_ID + "(removeMessage) - timestamp : ", timestamp, " - id : ", id, " - removeMessage Message");
+                that.rwlock.writeLock(() => {
+                    try {
+                        //deferedItem.start.bind(deferedItem)();
+                        //await pause(that.timeBetweenXmppRequests);
+                        that.logger.log("debug", LOG_ID + "(removeMessage) - id : ", id, " - removeMessage will start.");
+                        // Check if this message already exist in message store
+                        let messageIndice = that.findIndex(function (item, index, tab) {
+                            return item.id===message.id
+                        });
+                        if (messageIndice!= -1) {
+                            // update the already existing message and return this new value.
+                            let messageDeleted = super.splice(messageIndice,1);
+                            messageObj = messageDeleted.length>0 ? messageDeleted[0]:undefined;
+                        } else {
+                            messageObj = undefined;
+                        }
+                        that.logger.log("debug", LOG_ID + "(removeMessage) - id : ", id, " - splice started and finished.");
+                    } catch (err) {
+                        that.logger.log("error", LOG_ID + "(removeMessage) - id : ", id, " - CATCH Error !!! in lock, error : ", err);
+                    }
+                    //await pause(that.timeBetweenXmppRequests);
+                    that.rwlock.unlock();
+                });
+            } catch (err) {
+                let error = {err: err};
+                that.logger.log("error", LOG_ID + "(removeMessage) - timestamp : ", timestamp, " - CATCH Error !!! error : ", error);
                 throw error;
             }
             return messageObj;
