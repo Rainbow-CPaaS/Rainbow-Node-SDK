@@ -258,9 +258,9 @@ class Logger {
                 self._areasLogs.showServicesApiLogs();
             }
             if (self.logLevel === LEVELSNAMES.INTERNAL) {
-                self._areasLogs.showServicesApiLogs();
-                self._areasLogs.showRESTLogs();
-                self._areasLogs.showEventsLogs();
+                self._areasLogs.showServicesApiLogs(true);
+                self._areasLogs.showRESTLogs(self.logLevel);
+                self._areasLogs.showEventsLogs(self.logLevel);
             }
         }
 
