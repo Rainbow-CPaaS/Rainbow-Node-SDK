@@ -19,7 +19,7 @@ import {TimeOutManager} from "../lib/common/TimeOutManager";
 import set = Reflect.set;
 import {url} from "inspector";
 import {AdminService, OFFERTYPES} from "../lib/services/AdminService";
-import {Conversation} from "../lib/common/models/Conversation";
+import {Conversation, MessagesQueue} from "../lib/common/models/Conversation";
 import {createWriteStream, readFileSync, writeFileSync, appendFileSync} from "fs";
 import {SDKSTATUSENUM} from "../lib/common/StateManager";
 import {AlertFilter} from "../lib/common/models/AlertFilter";
@@ -2267,6 +2267,18 @@ let urlS2S;
                 _logger.log("error", "MAIN - (testeventrainbow_onconversationchanged) rainbow_onconversationchanged CATCH Error !!!");
             }
         });
+    }
+
+    testMessagesQueue () {
+        let msg1 = {id:"MSG1"};
+        let msg2 = {id:"MSG2"};
+        let msg3 = {id:"MSG3"};
+        let msgQueue = new MessagesQueue(_logger, 10);
+
+        msgQueue.updateMessageIfExistsElseEnqueueIt(msg1, true);
+        _logger.log("debug","MAIN - testMessagesQueue msgQueue : ", msgQueue);
+        _logger.log("debug","MAIN - testMessagesQueue msgQueue[0] : ", msgQueue[0]);
+        // _logger.log("debug","MAIN - testMessagesQueue msgQueue.queue[0] : ", msgQueue.queue[0]);
     }
 
     async  testsendMessageToConversationForContactSeveralTimes(contactEmailToSearch = "vincent03@vbe.test.openrainbow.net", nbMsgToSend = 2, removeAllMessagesBeforeSend = false) {

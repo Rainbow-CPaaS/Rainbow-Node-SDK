@@ -12,6 +12,7 @@ import {Logger} from "../Logger.js";
 import {FIFOQueue} from "../FIFOQueue.js";
 import {pause, pauseSync} from "../Utils.js";
 import {randomUUID} from "node:crypto";
+import {Queue} from "ts-generic-collections-linq";
 let AsyncLock = require('async-lock');
 let locks = require('locks');
 
@@ -20,21 +21,113 @@ const LOG_ID = "CONVERSATION/CONV - ";
 class MessagesQueue extends FIFOQueue<Message> {
     private maxSize = 0;
     private rwlock: any;
+    isFull: () => boolean;
+    //updateMessageIfExistsElseEnqueueIt: (message: any, forceDequeueIfFull?: boolean) => Message;
+    updateMessageIfExistsElseEnqueueIt: (message: any, forceDequeueIfFull?: boolean) => Message;
 
     constructor(_logger: any, _maxSize : number = 100) {
-        super(_logger);
-        if (_maxSize <= 0) {
-            throw new Error("Maximum size should be greater than zero");
-        }
-        this.maxSize = _maxSize;
-        this.rwlock = locks.createReadWriteLock();
+        super(_logger, (_logger)=> {
+            return {
+                /*
+                get: (object, key, args) => {
+                    if (key === 'length') {
+                        return object.length;
+                    } else if (typeof Array.prototype[key] == 'function') { //array methods
+                        if (typeof object[key] == 'function') {
+                            return object[key]();
+                        } else {
+                            return object[key];
+                            //return this.emulateArrayMethod(object, key, container, getter);
+                        }
+                    } else {
+                        try {                                               //access array by index
+                            if(key === parseInt(key).toString()) {
+                                if(0 <= key && key < object.length) {
+                                    return object.queue[key];
+                                } else {
+                                    throw "index out of bondary";
+                                }
+                            } else {
+                                throw "float index";
+                            }
+                        } catch (err) {                                   //access to object by literal
+                            return Reflect.get(object, key);
+                        }
+                    }
+                }, // */
+               /* updateMessageIfExistsElseEnqueueIt : (message: any, forceDequeueIfFull: boolean = false) => {
+                    return 10;
+                } // */
+                /*
+                set: (object, key, value) => {
+                    object[key] = value;
+                    return true;
+                }
+                // */
+            };
+        });
 
-    }
+        this.updateMessageIfExistsElseEnqueueIt = (message: any, forceDequeueIfFull: boolean = false): Message => {
+            let that : any = this;
+            let timestamp = (new Date()).toUTCString();
+            let result: any;
+            let messageObj: Message;
+            try {
+                let id = randomUUID();
+                that.logger.log("debug", LOG_ID + "(add) - timestamp : ", timestamp, " - id : ", id, " - dequeue Message");
+                // that.lock(async () => {
+                that.rwlock.writeLock(() => {
+                    try {
+                        //deferedItem.start.bind(deferedItem)();
+                        //await pause(that.timeBetweenXmppRequests);
+                        that.logger.log("debug", LOG_ID + "(add) - id : ", id, " - dequeue will start.");
+                        // Check if this message already exist in message store
+                        let messageIndice = that.findIndex(function (item, index, tab) {
+                            return item.id===message.id
+                        });
+                        if (messageIndice!= -1) {
+                            // update the already existing message and return this new value.
+                            that[messageIndice] = message;
+                            messageObj = that[messageIndice];
+                        } else {
+                            // Store the message
+                            //that.queue.push(message);
+                            if (this.length >= this.maxSize) {
+                                if (!forceDequeueIfFull) {
+                                    throw new Error("Queue is full");
+                                } else {
+                                    //this.dequeue();
+                                    super.dequeue();
+                                }
+                            }
+                            //this.enqueue(message);
+                            super.enqueue(message);
+                            messageObj = message;
+                        }
+                        that.logger.log("debug", LOG_ID + "(add) - id : ", id, " - dequeue started and finished. Will pause before leave lock.");
+                    } catch (err) {
+                        that.logger.log("error", LOG_ID + "(add) - id : ", id, " - CATCH Error !!! in lock, error : ", err);
+                    }
+                    //await pause(that.timeBetweenXmppRequests);
+                    that.rwlock.unlock();
+                });
+                /*        }, id).then(() => {
+                                that.logger.log("debug", LOG_ID + "(add) - id : ", id, " -  lock succeed.");
+                            }).catch((error) => {
+                                that.logger.log("error", LOG_ID + "(add) - id : ", id, " - Catch Error, error : ", error);
+                            }); // */
+            } catch (err) {
+                let error = {err: err};
+                that.logger.log("error", LOG_ID + "(add) - timestamp : ", timestamp, " - CATCH Error !!! error : ", error);
+                throw error;
+            }
+            return messageObj;
+        };
 
     //region FIFOQueue
-
+/*
     // Ajoute un élément à la fin de la file d'attente
-    enqueue(item: Message, forceDequeueIfFull: boolean = false): void {
+    this.enqueue = (item: Message, forceDequeueIfFull: boolean = false): void => {
         let that = this;
         let timestamp = (new Date()).toUTCString();
         try {
@@ -65,7 +158,7 @@ class MessagesQueue extends FIFOQueue<Message> {
     }
 
     // Retire et retourne le premier élément de la file d'attente
-    dequeue(): Message | undefined {
+    this.dequeue = (): Message | undefined => {
         let that = this;
         let timestamp = (new Date()).toUTCString();
         let result : any;
@@ -91,7 +184,7 @@ class MessagesQueue extends FIFOQueue<Message> {
     }
 
     // Retourne le premier élément de la file d'attente sans le retirer
-    peek(): Message | undefined {
+    this.peek = (): Message | undefined => {
         let that = this;
         let timestamp = (new Date()).toUTCString();
         let result : any;
@@ -117,7 +210,7 @@ class MessagesQueue extends FIFOQueue<Message> {
     }
 
     // Retourne vrai si la file d'attente est vide, faux sinon
-    isEmpty(): boolean {
+    this.isEmpty = (): boolean => {
         let that = this;
         let timestamp = (new Date()).toUTCString();
         let result : any;
@@ -142,7 +235,7 @@ class MessagesQueue extends FIFOQueue<Message> {
         return result;
     }
 
-    isFull(): boolean {
+    this.isFull = (): boolean => {
         let that = this;
         let timestamp = (new Date()).toUTCString();
         let result : any;
@@ -168,7 +261,7 @@ class MessagesQueue extends FIFOQueue<Message> {
     }
 
     // Retourne la taille de la file d'attente
-    size(): number {
+    this.size = (): number => {
         let that = this;
         let timestamp = (new Date()).toUTCString();
         let result : any;
@@ -195,14 +288,8 @@ class MessagesQueue extends FIFOQueue<Message> {
         return result;
     }
 
-    get length(){
-        let result = this.size();
-
-        return result;
-    }
-
     // Vide la file d'attente
-    clear(): void {
+    this.clear = (): void => {
         let that = this;
         let timestamp = (new Date()).toUTCString();
         try {
@@ -224,13 +311,13 @@ class MessagesQueue extends FIFOQueue<Message> {
             throw error;
         }
     }
-
+// */
     //endregion FIFOQueue
 
     //region Array methods supercharged
 
     // Implémentation de toutes les méthodes de Array
-    concat(...items: ConcatArray<Message>[]): Message[];
+    /*concat(...items: ConcatArray<Message>[]): Message[];
     concat(...items: (Message | ConcatArray<Message>)[]): Message[];
     concat(...items: any): Message[] {
         let that = this;
@@ -522,13 +609,96 @@ class MessagesQueue extends FIFOQueue<Message> {
         }
         return result;
     }
-
+ // */
     //endregion Array methods supercharged
 
-    //region operators
+    //region SDK treatments
 
-    // Méthode pour obtenir un itérateur
-    [Symbol.iterator](): Iterator<any> {
+//     updateMessageIfExistsElseEnqueueIt(message: any, forceDequeueIfFull: boolean = false) : Message {
+//         let that = this;
+//         let timestamp = (new Date()).toUTCString();
+//         let result : any;
+//         let messageObj: Message;
+//         try {
+//             let id = randomUUID();
+//             that.logger.log("debug", LOG_ID + "(add) - timestamp : ", timestamp, " - id : ", id, " - dequeue Message");
+//             // that.lock(async () => {
+//             that.rwlock.writeLock(() => {
+//                 try {
+//                     //deferedItem.start.bind(deferedItem)();
+//                     //await pause(that.timeBetweenXmppRequests);
+//                     that.logger.log("debug", LOG_ID + "(add) - id : ", id, " - dequeue will start.");
+//                     // Check if this message already exist in message store
+//                     let messageIndice = that.queue.findIndex(function(item, index, tab) {
+//                         return item.id === message.id
+//                     });
+//                     if (messageIndice != -1) {
+//                         // update the already existing message and return this new value.
+//                         that.queue[messageIndice] = message;
+//                         messageObj = that.queue[messageIndice];
+//                     } else {
+//                         // Store the message
+//                         //that.queue.push(message);
+//                         if (this.queue.length >= this.maxSize ) {
+//                             if (!forceDequeueIfFull) {
+//                                 throw new Error("Queue is full");
+//                             } else {
+//                                 super.dequeue();
+//                             }
+//                         }
+//                         super.enqueue(message);
+//                         messageObj = message;
+//                     }
+//                     that.logger.log("debug", LOG_ID + "(add) - id : ", id, " - dequeue started and finished. Will pause before leave lock." );
+//                 } catch (err) {
+//                     that.logger.log("error", LOG_ID + "(add) - id : ", id, " - CATCH Error !!! in lock, error : ", err);
+//                 }
+//                 //await pause(that.timeBetweenXmppRequests);
+//                 that.rwlock.unlock();
+//             });
+// /*        }, id).then(() => {
+//                 that.logger.log("debug", LOG_ID + "(add) - id : ", id, " -  lock succeed.");
+//             }).catch((error) => {
+//                 that.logger.log("error", LOG_ID + "(add) - id : ", id, " - Catch Error, error : ", error);
+//             }); // */
+//         } catch (err) {
+//             let error = {err : err};
+//             that.logger.log("error", LOG_ID + "(add) - timestamp : ", timestamp, " - CATCH Error !!! error : ", error);
+//             throw error;
+//         }
+//         return messageObj;
+//     }
+
+    //endregion SDK treatments
+
+        this.logger=_logger;
+
+        if (_maxSize <= 0) {
+            throw new Error("Maximum size should be greater than zero");
+        }
+        this.maxSize = _maxSize;
+        this.rwlock = locks.createReadWriteLock();
+
+    }
+
+    get length(){
+        let result = this.size();
+
+        return result;
+    } // */
+
+    //region operators
+    /* get (key) {
+        return this.queue[key];
+    }
+    // */
+
+// Méthode pour obtenir un itérateur
+    /* [Symbol.for("[]")](index: any): any {
+        return this.queue[index];
+    } // */
+
+    /* [Symbol.iterator](): Iterator<any> {
         let index = 0;
         const dataArray = this.queue;
 
@@ -544,67 +714,9 @@ class MessagesQueue extends FIFOQueue<Message> {
         // Retourne l'itérateur
         return { next };
     }
+    // */
 
     //endregion operators
-
-    //region SDK treatments
-
-    updateMessageIfExistsElseEnqueueIt(message: any, forceDequeueIfFull: boolean = false) : Message {
-        let that = this;
-        let timestamp = (new Date()).toUTCString();
-        let result : any;
-        let messageObj: Message;
-        try {
-            let id = randomUUID();
-            that.logger.log("debug", LOG_ID + "(add) - timestamp : ", timestamp, " - id : ", id, " - dequeue Message");
-            // that.lock(async () => {
-            that.rwlock.writeLock(() => {
-                try {
-                    //deferedItem.start.bind(deferedItem)();
-                    //await pause(that.timeBetweenXmppRequests);
-                    that.logger.log("debug", LOG_ID + "(add) - id : ", id, " - dequeue will start.");
-                    // Check if this message already exist in message store
-                    let messageIndice = that.queue.findIndex(function(item, index, tab) {
-                        return item.id === message.id
-                    });
-                    if (messageIndice != -1) {
-                        // update the already existing message and return this new value.
-                        that.queue[messageIndice] = message;
-                        messageObj = that.queue[messageIndice];
-                    } else {
-                        // Store the message
-                        //that.queue.push(message);
-                        if (this.queue.length >= this.maxSize ) {
-                            if (!forceDequeueIfFull) {
-                                throw new Error("Queue is full");
-                            } else {
-                                super.dequeue();
-                            }
-                        }
-                        super.enqueue(message);
-                        messageObj = message;
-                    }
-                    that.logger.log("debug", LOG_ID + "(add) - id : ", id, " - dequeue started and finished. Will pause before leave lock." );
-                } catch (err) {
-                    that.logger.log("error", LOG_ID + "(add) - id : ", id, " - CATCH Error !!! in lock, error : ", err);
-                }
-                //await pause(that.timeBetweenXmppRequests);
-                that.rwlock.unlock();
-            });
-/*        }, id).then(() => {
-                that.logger.log("debug", LOG_ID + "(add) - id : ", id, " -  lock succeed.");
-            }).catch((error) => {
-                that.logger.log("error", LOG_ID + "(add) - id : ", id, " - Catch Error, error : ", error);
-            }); // */
-        } catch (err) {
-            let error = {err : err};
-            that.logger.log("error", LOG_ID + "(add) - timestamp : ", timestamp, " - CATCH Error !!! error : ", error);
-            throw error;
-        }
-        return messageObj;
-    }
-
-    //endregion SDK treatments
 
 }
 
@@ -1162,4 +1274,5 @@ Conversation.Status = {
 };
 
 module.exports.Conversation = Conversation;
-export {Conversation};
+module.exports.MessagesQueue = MessagesQueue;
+export {Conversation, MessagesQueue};
