@@ -2293,33 +2293,39 @@ let urlS2S;
     }
 
     testMessagesQueue () {
-        let msg1 = {id:"MSG1", content: "message1" };
-        let msg2 = {id:"MSG2", content: "message2" };
-        let msg3 = {id:"MSG3", content: "message3" };
-        let msgQueue = new MessagesQueue(_logger, 10);
+        try {
+            let msg1 = {id: "MSG1", content: "message1"};
+            let msg2 = {id: "MSG2", content: "message2"};
+            let msg3 = {id: "MSG3", content: "message3"};
+            let msgQueue = new MessagesQueue(_logger, 10);
 
-        msgQueue.updateMessageIfExistsElseEnqueueIt(msg1, true);
-        msgQueue.updateMessageIfExistsElseEnqueueIt(msg2, true);
-        msgQueue.updateMessageIfExistsElseEnqueueIt(msg3, true);
-        _logger.log("debug","MAIN - testMessagesQueue after store 3 messages msgQueue : ", msgQueue);
-        _logger.log("debug","MAIN - testMessagesQueue msgQueue[0] : ", msgQueue[0]);
-        // _logger.log("debug","MAIN - testMessagesQueue msgQueue.queue[0] : ", msgQueue.queue[0]);
+            msgQueue.updateMessageIfExistsElseEnqueueIt(msg1, true);
+            msgQueue.updateMessageIfExistsElseEnqueueIt(msg2, true);
+            msgQueue.updateMessageIfExistsElseEnqueueIt(msg3, true);
+            _logger.log("debug", "MAIN - testMessagesQueue after store 3 messages msgQueue : ", msgQueue);
+            _logger.log("debug", "MAIN - testMessagesQueue msgQueue[0] : ", msgQueue[0]);
+            // _logger.log("debug","MAIN - testMessagesQueue msgQueue.queue[0] : ", msgQueue.queue[0]);
 
-        // update an already existing message
-        let msg2ToUpdate = {id:"MSG2", content: "message2Update" };
-        msgQueue.updateMessageIfExistsElseEnqueueIt(msg2ToUpdate, true);
-        _logger.log("debug","MAIN - testMessagesQueue after update message (id=MSG2) msgQueue : ", msgQueue);
+            // update an already existing message
+            let msg2ToUpdate = {id: "MSG2", content: "message2Update"};
+            msgQueue.updateMessageIfExistsElseEnqueueIt(msg2ToUpdate, true);
+            _logger.log("debug", "MAIN - testMessagesQueue after update message (id=MSG2) msgQueue : ", msgQueue);
 
-        // remove a message
-        msgQueue.removeMessage(msg2, true);
-        _logger.log("debug","MAIN - testMessagesQueue after removeMessage (id=MSG2) msgQueue : ", msgQueue);
+            // remove a message
+            msgQueue.removeMessage(msg2, true);
+            _logger.log("debug", "MAIN - testMessagesQueue after removeMessage (id=MSG2) msgQueue : ", msgQueue);
 
-        let msgIter = {id:"MSGiter", content: "messageIter" };
-        for (let i = 0; i < 9; i++) {
-            msgIter = {id:"MSGiter"+i, content: "messageIter"+i };
-            msgQueue.updateMessageIfExistsElseEnqueueIt(msgIter, true);
+            let msgIter = {id: "MSGiter", content: "messageIter"};
+            for (let i = 0; i < 9; i++) {
+                msgIter = {id: "MSGiter" + i, content: "messageIter" + i};
+                msgQueue.updateMessageIfExistsElseEnqueueIt(msgIter, true);
+            }
+            _logger.log("debug", "MAIN - testMessagesQueue after adding 8 message to overflow the queue size msgQueue : ", msgQueue);
+            msgQueue.clear();
+            _logger.log("debug", "MAIN - testMessagesQueue after clear message : ", msgQueue);
+        } catch (err) {
+            _logger.log("error", "MAIN - testMessagesQueue CATCH Error !!! error : ", err);
         }
-        _logger.log("debug","MAIN - testMessagesQueue after adding 8 message to overflow the queue size msgQueue : ", msgQueue);
     }
 
     async  testsendMessageToConversationForContactSeveralTimes(contactEmailToSearch = "vincent03@vbe.test.openrainbow.net", nbMsgToSend = 2, removeAllMessagesBeforeSend = false) {

@@ -56,7 +56,7 @@ class FIFOQueue<T> extends Array<T>{
     // Vide la file d'attente
     clear(): void {
         // @ts-ignore
-        this.lengrh = 0;
+        this.length = 0;
     }
 
     handler(container, getter, setter) {
