@@ -60,8 +60,9 @@ let conf =  {
                     /**
                      * When using HTTP KeepAlive, how often to send TCP KeepAlive packets over sockets being kept alive. Default = 1000.
                      * Only relevant if keepAlive is set to true.
+                     * Note that rainbow server keep it opennen 5000 milliseconds.
                      */
-                    keepAliveMsecs: 15000, // ?: number | undefined;
+                    keepAliveMsecs: 4301, // ?: number | undefined;
                     /**
                      * Maximum number of sockets to allow per host. Default for Node 0.10 is 5, default for Node 0.12 is Infinity
                      */
@@ -126,8 +127,9 @@ let conf =  {
                     /**
                      * When using HTTP KeepAlive, how often to send TCP KeepAlive packets over sockets being kept alive. Default = 1000.
                      * Only relevant if keepAlive is set to true.
+                     * Note that rainbow server keep it opennen 5000 milliseconds.
                      */
-                    keepAliveMsecs: 15000, // ?: number | undefined;
+                    keepAliveMsecs: 4301, // ?: number | undefined;
                     /**
                      * Maximum number of sockets to allow per host. Default for Node 0.10 is 5, default for Node 0.12 is Infinity
                      */
@@ -193,8 +195,9 @@ let conf =  {
                     /**
                      * When using HTTP KeepAlive, how often to send TCP KeepAlive packets over sockets being kept alive. Default = 1000.
                      * Only relevant if keepAlive is set to true.
+                     * Note that rainbow server keep it opennen 5000 milliseconds.
                      */
-                    keepAliveMsecs: 15001, // ?: number | undefined;
+                    keepAliveMsecs: 4301, // ?: number | undefined;
                     /**
                      * Maximum number of sockets to allow per host. Default for Node 0.10 is 5, default for Node 0.12 is Infinity
                      */
@@ -268,10 +271,13 @@ let conf =  {
         autoLoadConversations: true,
         autoLoadConversationHistory: false,
         autoLoadContacts: true,
+        forceHistoryGetContactFromServer: false,
         // manage carbon copy https://xmpp.org/extensions/xep-0280.html
         enableCarbon: true,
         enablesendurgentpushmessages: false,
-        useMessageEditionAndDeletionV2: true
+        useMessageEditionAndDeletionV2: true,
+        storeMessagesInConversation: true,
+        maxMessagesStoredInConversation: 1000
     },
     mode:"xmpp",
     "concurrentRequests": 1000,

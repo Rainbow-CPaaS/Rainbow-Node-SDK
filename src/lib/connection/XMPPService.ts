@@ -138,7 +138,7 @@ class XMPPService extends GenericService {
         public shouldSendReadReceipt: any;
         public useXMPP: any;
         public timeBetweenXmppRequests: any;
-	public maxPendingAsyncLockXmppQueue: any;
+        public maxPendingAsyncLockXmppQueue: any;
         public isReconnecting: any;
         public maxAttempts: any;
         public idleTimer: any;
@@ -207,7 +207,6 @@ class XMPPService extends GenericService {
         that.useXMPP = true;
         that.timeBetweenXmppRequests = _xmpp.timeBetweenXmppRequests;
         that.maxPendingAsyncLockXmppQueue = _xmpp.maxPendingAsyncLockXmppQueue;
-
         that.isReconnecting = false;
         that.maxAttempts = 1;
         that.idleTimer = null;

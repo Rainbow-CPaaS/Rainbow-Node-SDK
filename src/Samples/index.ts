@@ -19,7 +19,7 @@ import {TimeOutManager} from "../lib/common/TimeOutManager";
 import set = Reflect.set;
 import {url} from "inspector";
 import {AdminService, OFFERTYPES} from "../lib/services/AdminService";
-import {Conversation} from "../lib/common/models/Conversation";
+import {Conversation, MessagesQueue} from "../lib/common/models/Conversation";
 import {createWriteStream, readFileSync, writeFileSync, appendFileSync} from "fs";
 import {SDKSTATUSENUM} from "../lib/common/StateManager";
 import {AlertFilter} from "../lib/common/models/AlertFilter";
@@ -138,7 +138,7 @@ let urlS2S;
     logLevelAreas.showServicesLogs();
     logLevelAreas.showBubblesLogs();
     // */
-    logLevelAreas.admin.api = true;
+/*    logLevelAreas.admin.api = true;
     logLevelAreas.admin.level = LEVELSNAMES.ERROR;
     logLevelAreas.alerts.api = true;
     logLevelAreas.alerts.level = LEVELSNAMES.ERROR;
@@ -222,10 +222,16 @@ let urlS2S;
     logLevelAreas.showEventsLogs();
     // logLevelAreas.showServicesLogs();
     logLevelAreas.hideServicesApiLogs();
+
     logLevelAreas.tasks.api = true;
     logLevelAreas.tasks.level = LEVELSNAMES.INTERNAL;
     logLevelAreas.tasksevent.level = LEVELSNAMES.INTERNAL;
 
+    if (rainbowMode === "s2s") {
+        logLevelAreas.s2s.level = LEVELSNAMES.INTERNAL;
+        logLevelAreas.s2sevent.level = LEVELSNAMES.INTERNAL;
+    }
+// */
 // Define your configuration
     let options: any = {
         "rainbow": {
@@ -338,13 +344,14 @@ let urlS2S;
             "color": true,
             //"level": "info",
             "level": "internal",
+            //"level": "debug",
             "customLabel": "RainbowSample",
             "system-dev": {
                 "internals": true,
-                "http": false,
+                "http": true,
             },
             "filter": "",
-            "areas": logLevelAreas,
+            //"areas": logLevelAreas,
             /*,
             "areas" : {
                 "admin": {
@@ -620,7 +627,9 @@ let urlS2S;
             "enableCarbon": true,
             "enablesendurgentpushmessages": true,
             //"useMessageEditionAndDeletionV2": false
-        },
+            //"storeMessagesInConversation": false
+            "maxMessagesStoredInConversation" : 830
+    },
         // Services to start. This allows to start the SDK with restricted number of services, so there are less call to API.
         // Take care, severals services are linked, so disabling a service can disturb an other one.
         // By default all the services are started. Events received from server are not yet filtered.
@@ -818,7 +827,7 @@ let urlS2S;
     });
 
     rainbowSDK.events.on("rainbow_onbubblepresencechanged", (data) => {
-        _logger.log("debug", "MAIN - (rainbow_onbubblepresencechanged) - rainbow bubble presence : ", data);
+        _logger.log("debug", "MAIN - (rainbow_onbubblepresencechanged) - rainbow bubble presence, nameForLogs : ", data.nameForLogs, ", status :", data.status,", id :", data.id, ", name : ", data.name);
     });
 
     let bubbleInvitationReceived = null;
@@ -1083,13 +1092,14 @@ let urlS2S;
         if (contact.presence!="Unknown") {
             return false;
         }
-        _logger.log("debug", "MAIN - (rainbow_oncontactpresencechanged) ----> ", contact.displayName, "(", contact.jid, ")", " - ", contact.presence);
+        /* _logger.log("debug", "MAIN - (rainbow_oncontactpresencechanged) ----> ", contact.displayName, "(", contact.jid, ")", " - ", contact.presence);
         _logger.log("debug", "MAIN - (rainbow_oncontactpresencechanged) ------------------Presence changed --------------------------");
         _logger.log("debug", "MAIN - (rainbow_oncontactpresencechanged) --> ", contact.displayName);
         _logger.log("debug", "MAIN - (rainbow_oncontactpresencechanged) Presence ", contact.presence);
         _logger.log("debug", "MAIN - (rainbow_oncontactpresencechanged) Status", contact.status);
         _logger.log("debug", "MAIN - (rainbow_oncontactpresencechanged) Resources ", contact.resources);
         _logger.log("debug", "MAIN - (rainbow_oncontactpresencechanged) -------------------------------------------------------------");
+        //  */
         //getLastMessageOfConversation(contact);
     });
 
@@ -2176,7 +2186,7 @@ let urlS2S;
             _logger.log("debug", "MAIN - testremoveAllMessages - conversation with messages removed : ", conversationWithMessagesRemoved);
         }
 
-        async testsendMessageToConversationForContact() {
+    async  testsendMessageToConversationForContact(nbMsgToSend = 2) {
             //let that = this;
             //let contactIdToSearch = "5bbdc3812cf496c07dd89128"; // vincent01 vberder
             //let contactIdToSearch = "5bbb3ef9b0bb933e2a35454b"; // vincent00 official
@@ -2185,7 +2195,7 @@ let urlS2S;
             let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
             // Retrieve the associated conversation
             let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
-            let nbMsgToSend = 2;
+        //let nbMsgToSend = 2;
             let msgsSent = [];
             for (let i = 1; i <= nbMsgToSend; i++) {
                 let now = new Date().getTime();
@@ -2204,6 +2214,147 @@ let urlS2S;
             }
             // let conversationWithMessagesRemoved = await rainbowSDK.conversations.removeAllMessages(conversation);
             //_logger.log("debug", "MAIN - testsendMessageToConversationForContact - conversation with messages removed : ", conversationWithMessagesRemoved);
+    }
+/*
+    testeventrainbow_onconversationchanged() {
+        _logger.log("info", "MAIN - (testeventrainbow_onconversationchanged) started.");
+        rainbowSDK.events.on("rainbow_onconversationchanged", async function (conversation) {
+            try {
+                _logger.log("debug", "MAIN - (testeventrainbow_onconversationchanged) rainbow_onconversationchanged conversation.name : ", conversation.name, ", conversation.id : ", conversation.id, ", conversation.messages.length : ", conversation?.messages?.length);
+            } catch (err) {
+                _logger.log("error", "MAIN - (testeventrainbow_onconversationchanged) rainbow_onconversationchanged CATCH Error !!!");
+            }
+        });
+    }
+
+    async  testsendMessageToConversationForContactSeveralTimes(contactEmailToSearch = "vincent03@vbe.test.openrainbow.net", nbMsgToSend = 2, removeAllMessagesBeforeSend = false) {
+        //let that = this;
+        // Retrieve a contact by its id
+        let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+        // Retrieve the associated conversation
+        let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
+        if (removeAllMessagesBeforeSend && conversation?.id) {
+            await rainbowSDK.conversations.deleteAllMessageInOneToOneConversation(conversation);
+        }
+        let msgsSent = [];
+        for (let i = 1; i <= nbMsgToSend; i++) {
+            let now = new Date().getTime();
+            // Send message
+            //let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "hello num " + i + " from node : " + now, "FR", null, "Le sujet de node : " + now, "middle");
+            let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "hello num " + i + " from node : " + now, "FR", null, "Le sujet de node : " + now);
+            // _logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
+            // _logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
+            msgsSent.push(msgSent);
+            _logger.log("debug", "MAIN - testsendMessageToConversationForContact - wait for message to be in conversation : ", msgSent);
+            await pause(300);
+            // */
+            /* await Utils.until(() => {
+                return conversation.getMessageById(msgSent.id)!==undefined;
+            }, "Wait for message to be added in conversation num : " + i);
+            let msgDeleted = await rainbowSDK.conversations.deleteMessage(conversation, msgSent.id);
+            _logger.log("debug", "MAIN - testsendMessageToConversationForContact - deleted in conversation the message : ", msgDeleted);
+            // */
+/*        }
+    }
+// */
+
+    testeventrainbow_onconversationchanged() {
+        _logger.log("info", "MAIN - (testeventrainbow_onconversationchanged) ", _logger.colors.cyan("rainbow_onconversationchanged"), " started.");
+        rainbowSDK.events.on("rainbow_onconversationchanged", async function (conversation) {
+            try {
+                _logger.log("debug", "MAIN - (testeventrainbow_onconversationchanged) ", _logger.colors.cyan("rainbow_onconversationchanged"), " conversation.name : ", conversation.name, ", conversation.id : ", conversation.id, ", conversation.messages.length : ", conversation?.messages?.length);
+            } catch (err) {
+                _logger.log("error", "MAIN - (testeventrainbow_onconversationchanged) rainbow_onconversationchanged CATCH Error !!!");
+            }
+        });
+    }
+
+    testLogs () {
+        /*
+         "error" = 0,
+ "warn" = 1,
+ "info" = 2,
+ "trace" = 3,
+ "http" = 4,
+ "xmpp" = 5,
+ "debug" = 6,
+ "internalerror" = 7,
+ "internal" = 8,
+         */
+        _logger.log("error","MAIN - testMessagesQueue error.");
+        _logger.log("warn","MAIN - testMessagesQueue warn.");
+        _logger.log("info","MAIN - testMessagesQueue info.");
+        _logger.log("trace","MAIN - testMessagesQueue trace.");
+        _logger.log("http","MAIN - testMessagesQueue http.");
+        _logger.log("xmpp","MAIN - testMessagesQueue xmpp.");
+        _logger.log("debug","MAIN - testMessagesQueue debug.");
+        _logger.log("internalerror","MAIN - testMessagesQueue internalerror.");
+        _logger.log("internal","MAIN - testMessagesQueue internal.");
+    }
+
+    testMessagesQueue () {
+        try {
+            let msg1 = {id: "MSG1", content: "message1"};
+            let msg2 = {id: "MSG2", content: "message2"};
+            let msg3 = {id: "MSG3", content: "message3"};
+            let msgQueue = new MessagesQueue(_logger, 10);
+
+            msgQueue.updateMessageIfExistsElseEnqueueIt(msg1, true);
+            msgQueue.updateMessageIfExistsElseEnqueueIt(msg2, true);
+            msgQueue.updateMessageIfExistsElseEnqueueIt(msg3, true);
+            _logger.log("debug", "MAIN - testMessagesQueue after store 3 messages msgQueue : ", msgQueue);
+            _logger.log("debug", "MAIN - testMessagesQueue msgQueue[0] : ", msgQueue[0]);
+            // _logger.log("debug","MAIN - testMessagesQueue msgQueue.queue[0] : ", msgQueue.queue[0]);
+
+            // update an already existing message
+            let msg2ToUpdate = {id: "MSG2", content: "message2Update"};
+            msgQueue.updateMessageIfExistsElseEnqueueIt(msg2ToUpdate, true);
+            _logger.log("debug", "MAIN - testMessagesQueue after update message (id=MSG2) msgQueue : ", msgQueue);
+
+            // remove a message
+            msgQueue.removeMessage(msg2, true);
+            _logger.log("debug", "MAIN - testMessagesQueue after removeMessage (id=MSG2) msgQueue : ", msgQueue);
+
+            let msgIter = {id: "MSGiter", content: "messageIter"};
+            for (let i = 0; i < 9; i++) {
+                msgIter = {id: "MSGiter" + i, content: "messageIter" + i};
+                msgQueue.updateMessageIfExistsElseEnqueueIt(msgIter, true);
+            }
+            _logger.log("debug", "MAIN - testMessagesQueue after adding 8 message to overflow the queue size msgQueue : ", msgQueue);
+            msgQueue.clear();
+            _logger.log("debug", "MAIN - testMessagesQueue after clear message : ", msgQueue);
+        } catch (err) {
+            _logger.log("error", "MAIN - testMessagesQueue CATCH Error !!! error : ", err);
+        }
+    }
+
+    async  testsendMessageToConversationForContactSeveralTimes(contactEmailToSearch = "vincent03@vbe.test.openrainbow.net", nbMsgToSend = 2, removeAllMessagesBeforeSend = false) {
+        //let that = this;
+        // Retrieve a contact by its id
+        let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+        // Retrieve the associated conversation
+        let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
+        if (removeAllMessagesBeforeSend && conversation?.id) {
+            await rainbowSDK.conversations.deleteAllMessageInOneToOneConversation(conversation);
+        }
+        let msgsSent = [];
+        for (let i = 1; i <= nbMsgToSend; i++) {
+            let now = new Date().getTime();
+            // Send message
+            //let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "hello num " + i + " from node : " + now, "FR", null, "Le sujet de node : " + now, "middle");
+            let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "hello num " + i + " from node : " + now, "FR", null, "Le sujet de node : " + now);
+            // _logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
+            // _logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
+            msgsSent.push(msgSent);
+            _logger.log("debug", "MAIN - testsendMessageToConversationForContact - wait for message to be in conversation : ", msgSent);
+            await pause(300);
+            /* await Utils.until(() => {
+                return conversation.getMessageById(msgSent.id)!==undefined;
+            }, "Wait for message to be added in conversation num : " + i);
+            let msgDeleted = await rainbowSDK.conversations.deleteMessage(conversation, msgSent.id);
+            _logger.log("debug", "MAIN - testsendMessageToConversationForContact - deleted in conversation the message : ", msgDeleted);
+            // */
+        }
         }
 
         async testsendMessageToConversationForContactIrles() {
@@ -5529,7 +5680,7 @@ let urlS2S;
             let contactEmailToSearch = "vincent00@vbe.test.openrainbow.net";
             let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
             rainbowSDK.conversations.openConversationForContact(contact).then(async function (conversation) {
-                _logger.log("debug", "MAIN - testGetHistoryPage - openConversationForContact, conversation : ", conversation);
+                _logger.log("debug", "MAIN - testresetHistoryPageForConversation - openConversationForContact, conversation : ", conversation);
                 rainbowSDK.conversations.resetHistoryPageForConversation(conversation);
             });
         }
@@ -5659,6 +5810,7 @@ let urlS2S;
         }
 
         async testGetHistoryPageBubbleOpenrainbowNet() {
+            // To be used on PROD.
             let that = this;
             let bubbles = rainbowSDK.bubbles.getAllBubbles();
             if (bubbles.length > 0) {
@@ -5666,11 +5818,114 @@ let urlS2S;
                 //let jid = "room_61aee9e9d7e94cacbce7234e3fca93f2@muc.openrainbow.com/a9b77288b939470b8da4611cc2af1ed1@openrainbow.com" // jid of the bubble "openrainbow.net" on .COM platform
                 let jid = "room_61aee9e9d7e94cacbce7234e3fca93f2@muc.openrainbow.com" // jid of the bubble "openrainbow.net" on .COM platform
                 rainbowSDK.conversations.getBubbleConversation(jid).then(async function (conversation) {
-                    _logger.log("debug", "MAIN - testGetHistoryPageBubble - openConversationForContact, conversation : ", conversation);
-                    that.getConversationHistoryMaxime(conversation).then(() => {
+                    _logger.log("debug", "MAIN - testGetHistoryPageBubbleOpenrainbowNet - getBubbleConversation, conversation.jid : ", conversation.jid, ", conversation : ", conversation);
+                    /* that.getConversationHistoryMaxime(conversation).then(() => {
                         _logger.log("debug", "MAIN - testGetHistoryPageBubble - getConversationHistoryMaxime, conversation : ", conversation, ", status : ", conversation.status);
+                    }); // */
+
+                    rainbowSDK.conversations.getHistoryPage(conversation, 20).then((conversationUpdated) => {
+                        _logger.log("debug", "MAIN - testGetHistoryPageBubbleOpenrainbowNet getHistoryPage, conversationUpdated : ", conversationUpdated);
+
+                      /*
+                      let result = conversationUpdated.historyComplete ? conversationUpdated:that.getConversationHistoryMaxime(conversationUpdated);
+                        _logger.log("debug", "MAIN - testGetHistoryPageBubbleOpenrainbowNet getHistoryPage result : ", result);
+                        return result;
+                        // */
                     });
+
                 });
+            }
+        }
+
+        async testloadConversationHistoryAsyncBubbleOpenrainbowNet() {
+            // To be used on PROD.
+            let that = this;
+            let bubbles = rainbowSDK.bubbles.getAllBubbles();
+            if (bubbles.length > 0) {
+                //let bubble = bubbles[0];
+                //let jid = "room_61aee9e9d7e94cacbce7234e3fca93f2@muc.openrainbow.com/a9b77288b939470b8da4611cc2af1ed1@openrainbow.com" // jid of the bubble "openrainbow.net" on .COM platform
+                let jid = "room_61aee9e9d7e94cacbce7234e3fca93f2@muc.openrainbow.com" // jid of the bubble "openrainbow.net" on .COM platform
+                let startDate = new Date();
+                rainbowSDK.events.on("rainbow_onloadConversationHistoryCompleted", (conversationHistoryUpdated) => {
+                    // do something when the SDK has been started
+                    _logger.log("debug", "MAIN - (rainbow_onloadConversationHistoryCompleted) - rainbow conversation history loaded completed : ", conversationHistoryUpdated);
+                    let stopDate = new Date();
+                    // @ts-ignore
+                    let startDuration = Math.round(stopDate - startDate);
+                    _logger.log("debug", "MAIN - testloadConversationHistoryAsyncBubbleOpenrainbowNet loadConversationHistoryAsync duration : " + startDuration + " ms.");
+                    if (rainbowSDK) {
+                        rainbowSDK.stop().then(() => {
+                            process.exit(0);
+                        }).catch((err) => {
+                            _logger.log("warn", "MAIN - RainbowSDK stop failed : ", err, ", but even stop the process."); //logger.colors.green(JSON.stringify(result)));
+                            process.exit(0);
+                        });
+                    } else {
+                        process.exit(0);
+                    }
+                });
+
+                rainbowSDK.conversations.getBubbleConversation(jid).then(async function (conversation) {
+                    _logger.log("debug", "MAIN - testloadConversationHistoryAsyncBubbleOpenrainbowNet - getBubbleConversation, conversation.jid : ", conversation.jid, ", conversation : ", conversation);
+                    /* that.getConversationHistoryMaxime(conversation).then(() => {
+                        _logger.log("debug", "MAIN - testGetHistoryPageBubble - getConversationHistoryMaxime, conversation : ", conversation, ", status : ", conversation.status);
+                    }); // */
+                    rainbowSDK.conversations.loadConversationHistoryAsync(conversation, 20).then((running) => {
+                        _logger.log("debug", "MAIN - testloadConversationHistoryAsyncBubbleOpenrainbowNet loadConversationHistoryAsync running : ", running);
+
+                      /*
+                      let result = conversationUpdated.historyComplete ? conversationUpdated:that.getConversationHistoryMaxime(conversationUpdated);
+                        _logger.log("debug", "MAIN - testloadConversationHistoryAsyncBubbleOpenrainbowNet getHistoryPage result : ", result);
+                        return result;
+                        // */
+                    });
+
+                });
+            }
+        }
+
+        async testloadConversationHistoryAsyncP2P() {
+            // To be used on .NET with vincent00.
+            let that = this;
+            let startDate = new Date();
+            rainbowSDK.events.on("rainbow_onloadConversationHistoryCompleted", (conversationHistoryUpdated) => {
+                // do something when the SDK has been started
+                _logger.log("debug", "MAIN - (rainbow_onloadConversationHistoryCompleted) - rainbow conversation history loaded completed : ", conversationHistoryUpdated);
+                let stopDate = new Date();
+                // @ts-ignore
+                let startDuration = Math.round(stopDate - startDate);
+                _logger.log("debug", "MAIN - testloadConversationHistoryAsyncP2P loadConversationHistoryAsync duration : " + startDuration + " ms.");
+                if (rainbowSDK) {
+                    rainbowSDK.stop().then(() => {
+                        process.exit(0);
+                    }).catch((err) => {
+                        _logger.log("warn", "MAIN - RainbowSDK stop failed : ", err, ", but even stop the process."); //logger.colors.green(JSON.stringify(result)));
+                        process.exit(0);
+                    });
+                } else {
+                    process.exit(0);
+                }
+            });
+
+            let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
+            let utc = new Date().toJSON().replace(/-/g, "_");
+            let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+            let conversation : Conversation = await rainbowSDK.conversations.openConversationForContact(contact);
+            if (conversation && conversation.id) {
+                _logger.log("debug", "MAIN - testloadConversationHistoryAsyncP2P - getBubbleConversation, conversation.id : ", conversation.id, ", conversation?.messages.length : ", conversation?.messages.length);
+                /* that.getConversationHistoryMaxime(conversation).then(() => {
+                    _logger.log("debug", "MAIN - testGetHistoryPageBubble - getConversationHistoryMaxime, conversation : ", conversation, ", status : ", conversation.status);
+                }); // */
+                rainbowSDK.conversations.loadConversationHistoryAsync(conversation, 20).then((running) => {
+                    _logger.log("debug", "MAIN - testloadConversationHistoryAsyncP2P loadConversationHistoryAsync running : ", running);
+
+                    /*
+                    let result = conversationUpdated.historyComplete ? conversationUpdated:that.getConversationHistoryMaxime(conversationUpdated);
+                      _logger.log("debug", "MAIN - testloadConversationHistoryAsyncBubbleOpenrainbowNet getHistoryPage result : ", result);
+                      return result;
+                      // */
+                });
+
             }
         }
 
@@ -6936,6 +7191,24 @@ let urlS2S;
 
         //endregion Company From enduser
 
+        //region compagnies
+
+        async testcreateRainbowMultifactorAuthenticationServerConfiguration() {
+           // let results: any = await rainbowSDK.admin.createRainbowMultifactorAuthenticationServerConfiguration();
+            //_logger.log("debug", "MAIN - testcreateRainbowMultifactorAuthenticationServerConfiguration - results : ", results);
+        }
+
+        async testgetAllRainbowMultifactorConfiguration () {
+            try {
+                let results: any = await rainbowSDK.admin.getAllRainbowMultifactorConfiguration(undefined, "small");
+                _logger.log("debug", "MAIN - testgetAllRainbowMultifactorConfiguration - results : ", results);
+            } catch (err) {
+                _logger.log("debug", "MAIN - testgetAllRainbowMultifactorConfiguration - CATCH Error !!! error : ", err);
+            }
+        }
+
+        //endregion compagnies
+
         async testgetAllCompanies() {
             // to be used with vincentbp@vbe.test.openrainbow.net on vberder AIO.
             _logger.log("debug", "MAIN - testgetAllCompanies. ");
@@ -7010,6 +7283,17 @@ let urlS2S;
         }
 
         //endregion Company
+
+        //region Custom Templates
+
+        async testgetCompanyServiceDescriptionFile() {
+            let myCompanyId = connectedUser.companyId;
+            let result = await rainbowSDK.admin.getCompanyServiceDescriptionFile(myCompanyId)
+
+            _logger.log("debug", "MAIN - getCompanyServiceDescriptionFile - result : ", result);
+        }
+
+        //endregion Custom Templates
 
         //region Custom Templates
 
@@ -7950,7 +8234,6 @@ let urlS2S;
                     let headers = {
                         'Content-Type': 'application/json',
                         'user-agent': 'node/v14.17.2 (linux; x64) Rainbow Sdk/2.16.0-lts.0',
-                        'Authorization': 'Bearer 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'
                     };
                     //let body = decodeURIComponent(JSON.stringify({
                     let body = JSON.stringify({

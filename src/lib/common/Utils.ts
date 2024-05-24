@@ -148,6 +148,14 @@ let pause = setTimeoutPromised;
     return setTimeoutPromised(timeToWaitMS);
 } // */
 
+function pauseSync(milliseconds: number): void {
+    const startTime = Date.now();
+    while (Date.now() - startTime < milliseconds) {
+        // Ne rien faire, attendre que le temps s'écoule
+        setTimeout(()=>{}, 10);
+    }
+}
+
 /*
 myFunction() in the original question can be modified as follows
 
@@ -857,6 +865,7 @@ export let objToExport = {
     getBinaryData,
     getRandomInt,
     pause,
+    pauseSync,
     stackTrace,
     addDaysToDate,
     addParamToUrl,
@@ -898,6 +907,7 @@ export {
     getBinaryData,
     getRandomInt,
     pause,
+    pauseSync,
     stackTrace,
     addDaysToDate,
     addParamToUrl,
@@ -938,6 +948,7 @@ export default {
     getBinaryData,
     getRandomInt,
     pause,
+    pauseSync,
     stackTrace,
     addDaysToDate,
     addParamToUrl,

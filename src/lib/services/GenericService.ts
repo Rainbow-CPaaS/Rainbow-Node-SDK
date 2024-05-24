@@ -13,6 +13,8 @@ import {ContactsService} from "./ContactsService";
 import {stackTrace} from "../common/Utils.js";
 import {LevelLogs} from "../common/LevelLogs.js";
 
+const API_ID = "API_CALL - ";
+
 class GenericService extends LevelLogs{
     protected _logger : Logger;
     protected _logId : string;
@@ -108,6 +110,28 @@ class GenericService extends LevelLogs{
         that._logger.log(that.INFO, that._logId + `=== STOPPED () ===`);
     }
 
+    callRestMethod (methodName : string = "methodNameUnknown", lesarguments) {
+        let that = this;
+        that._logger.log(that.INFOAPI, that._logId + API_ID + "(" + methodName + ") "); //, that._logger.stripStringForLogs(companyId));
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._rest[methodName]( ...lesarguments ).then((result) => {
+                    that._logger.log(that.DEBUG, that._logId  + "(" + methodName + ") Successfully created.");
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log(that.ERROR, that._logId  + "(" + methodName + ") ErrorManager .");
+                    that._logger.log(that.INTERNALERROR, that._logId  + "(" + methodName + ") ErrorManager  : ", err);
+                    return reject(err);
+                });
+
+
+            } catch (err) {
+                that._logger.log(that.INTERNALERROR, that._logId  + "(" + methodName + ") error : ", err);
+                return reject(err);
+            }
+        });
+    }
 }
 
 module.exports = {'GenericService' : GenericService};

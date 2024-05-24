@@ -6,6 +6,7 @@ export {};
 
 //const config = require("./config");
 import {config, DataStoreType} from "./config";
+import {isDefined} from "../common/Utils.js";
 
 const LOG_ID = "OPTIONS - ";
 
@@ -508,9 +509,12 @@ class Options {
             autoLoadConversations: true,
             autoLoadConversationHistory: false,
             autoLoadContacts: true,
+            forceHistoryGetContactFromServer: false,
             enableCarbon: true,
             enablesendurgentpushmessages: false,
-            useMessageEditionAndDeletionV2: true
+            useMessageEditionAndDeletionV2: true,
+            storeMessagesInConversation: true,
+            maxMessagesStoredInConversation: 1000
         };
 
         if (!("sendReadReceipt" in this._options.im)) {
@@ -533,12 +537,15 @@ class Options {
         optionsIM.maxBubbleJoinInProgress = (this._options.im.maxBubbleJoinInProgress ) ? this._options.im.maxBubbleJoinInProgress : config.im.maxBubbleJoinInProgress;
         optionsIM.autoInitialBubbleFormat = this._options.im.autoInitialBubbleFormat ? this._options.im.autoInitialBubbleFormat : config.im.autoInitialBubbleFormat;
         optionsIM.autoInitialBubbleUnsubscribed = (this._options.im.autoInitialBubbleUnsubscribed == false) ? this._options.im.autoInitialBubbleUnsubscribed : config.im.autoInitialBubbleUnsubscribed;
-        optionsIM.autoLoadConversations = (this._options.im.autoLoadConversations == true) ? this._options.im.autoLoadConversations : config.im.autoLoadConversations;
+        optionsIM.autoLoadConversations = isDefined(this._options.im.autoLoadConversations) ? this._options.im.autoLoadConversations : config.im.autoLoadConversations;
         optionsIM.autoLoadConversationHistory = (this._options.im.autoLoadConversationHistory == true) ? this._options.im.autoLoadConversationHistory : config.im.autoLoadConversationHistory;
         optionsIM.autoLoadContacts = (this._options.im.autoLoadContacts == false) ? this._options.im.autoLoadContacts : config.im.autoLoadContacts;
+        optionsIM.forceHistoryGetContactFromServer = (this._options.im.forceHistoryGetContactFromServer == true) ? this._options.im.forceHistoryGetContactFromServer : config.im.forceHistoryGetContactFromServer;
         optionsIM.enableCarbon = (this._options.im.enableCarbon == false) ? this._options.im.enableCarbon : config.im.enableCarbon;
         optionsIM.enablesendurgentpushmessages = (this._options.im.enablesendurgentpushmessages == true) ? this._options.im.enablesendurgentpushmessages : config.im.enablesendurgentpushmessages;
         optionsIM.useMessageEditionAndDeletionV2 = (this._options.im.useMessageEditionAndDeletionV2 == false) ? this._options.im.useMessageEditionAndDeletionV2 : config.im.useMessageEditionAndDeletionV2;
+        optionsIM.storeMessagesInConversation = (this._options.im.storeMessagesInConversation == false) ? this._options.im.storeMessagesInConversation : config.im.storeMessagesInConversation;
+        optionsIM.maxMessagesStoredInConversation = this._options.im.maxMessagesStoredInConversation ? this._options.im.maxMessagesStoredInConversation : config.im.maxMessagesStoredInConversation;
 
         return optionsIM;
     }

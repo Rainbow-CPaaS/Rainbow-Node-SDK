@@ -39,6 +39,8 @@ class ConversationHistoryHandler  extends GenericHandler {
         public FIN_MAM: any;
         public _conversationService: ConversationsService;
         private _contactsService : ContactsService;
+    public forceHistoryGetContactFromServer : boolean;
+    private _options: any;
 
     static getClassName(){ return 'ConversationHistoryHandler'; }
     getClassName(){ return ConversationHistoryHandler.getClassName(); }
@@ -46,8 +48,8 @@ class ConversationHistoryHandler  extends GenericHandler {
     static getAccessorName(){ return 'conversationhistory'; }
     getAccessorName(){ return ConversationHistoryHandler.getAccessorName(); }
 
-    constructor(xmppService : XMPPService, conversationService : ConversationsService, contactsService : ContactsService) {
-        super( xmppService);
+    constructor(xmppService : XMPPService, conversationService : ConversationsService, contactsService : ContactsService, options : any) {
+         super( xmppService);
 
         this.MESSAGE_MAM = "urn:xmpp:mam:1.result";
         this.FIN_MAM = "urn:xmpp:mam:1.fin";
@@ -57,7 +59,9 @@ class ConversationHistoryHandler  extends GenericHandler {
 
         let that = this;
 
+        that._options = options;
 
+        that.forceHistoryGetContactFromServer = that._options.imOptions.forceHistoryGetContactFromServer;
     }
 
     onMamMessageReceived (msg, stanza) {
@@ -142,7 +146,7 @@ class ConversationHistoryHandler  extends GenericHandler {
                     }
 
                     let promise = new Promise( (resolve) => {
-                        that._contactsService.getContactByJid(fromJid, true)
+                        that._contactsService.getContactByJid(fromJid, that.forceHistoryGetContactFromServer)
                             .then( (from) => {
                                 resolve(from);
                             }).catch( () => {
@@ -706,7 +710,7 @@ class ConversationHistoryHandler  extends GenericHandler {
                 }
 
                 let promise = new Promise( (resolve) => {
-                    that._contactsService.getContactByJid(callerJid, true)
+                    that._contactsService.getContactByJid(callerJid, that.forceHistoryGetContactFromServer)
                         .then( (from) => {
                             resolve(from);
                         }).catch( () => {

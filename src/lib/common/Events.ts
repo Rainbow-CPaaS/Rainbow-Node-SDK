@@ -98,6 +98,7 @@ class Emitter extends EventEmitterClass{
  * @fires Events#rainbow_onpresencechanged
  * @fires Events#rainbow_onconversationremoved
  * @fires Events#rainbow_onconversationchanged
+ * @fires Events#rainbow_onloadConversationHistoryCompleted
  * @fires Events#rainbow_onallmessagedremovedfromconversationreceived
  * @fires Events#rainbow_onchatstate
  * @fires Events#rainbow_oncontactinformationchanged
@@ -215,6 +216,7 @@ class Events {
         "rainbow_onpresencechanged",
         "rainbow_onconversationremoved",
         "rainbow_onconversationchanged",
+        "rainbow_onloadConversationHistoryCompleted",
         "rainbow_onallmessagedremovedfromconversationreceived",
         "rainbow_onchatstate",
         "rainbow_oncontactinformationchanged",
@@ -507,6 +509,18 @@ class Events {
              *      This event is fired when a conversation has changed
              */
             that.publishEvent("conversationchanged", conversation);
+        });
+
+        this._evReceiver.on("evt_internal_loadConversationHistoryCompleted", function(conversation) {
+
+            /**
+             * @public
+             * @event Events#rainbow_onloadConversationHistoryCompleted
+             * @param { Conversation } conversation The conversation
+             * @description
+             *      This event is fired when a conversation history has finished to charge.
+             */
+            that.publishEvent("loadConversationHistoryCompleted", conversation);
         });
 
         this._evReceiver.on("evt_internal_allmessagedremovedfromconversationreceived", function(conversation) {

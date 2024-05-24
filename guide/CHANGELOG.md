@@ -7,6 +7,19 @@ Warning: Before deploying in production a bot that can generate heavy traffic, p
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 
+### [2.29.0] - 2024-05-XX
+#### Removed
+-   None
+
+#### Fixed
+-   None
+
+#### Added
+-   Add AdminService::getCompaniesBPBusinessType, AdminService::getCompanyAppFeatureCustomisation, AdminService::getCompanyServiceDescriptionFile, AdminService::getDefaultCompanyData, AdminService::setCompanyAppFeatureCustomisation, AdminService::updateCompany api methods about managing companies.
+
+#### Changed
+-   None
+
 ### [2.28.3] - 2024-04-04
 #### Removed
 -   None
@@ -124,25 +137,40 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   None
 
 #### Fixed
--   Fix `429` error for got lib.
+-   Fix reading of xmpp.timeBetweenXmppRequests SDK options.
 -   Fix "roomid" and "pollid" when a poll event is received.
 
 #### Added
--   Add options `maxBubbleJoinInProgress` to define the maximum of simultaneous "send initial presence of the bubbles".
+-   Add Offended `raw in` and `raw out` xmpp stanza in `debug` level.
+
+#### Changed
+-   Update logs by levels.
+
+### [2.25.2-lts.5] - 2024-01-11
+#### Removed
+-   None
+
+#### Fixed
+-   Fix RESTConferenceV2::addPSTNParticipantToConference
+-   Fix ChannelsService::fetchChannel when an error occurred.
+
+#### Added
+-   None
 -   Add options `useGotLibForHttp` to enable the use of `got` lib for REST requests (esle the old Request lib is used). Default value is true.
 -   Add options `gotOptions` to customize the `got` lib for REST requests options.
 -   Add a header in REST requests : `x-rainbow-request-id`.
 -   Add `fix-esm` lib to load node package of type `ES Modules`.
  
 #### Changed
--   Replace `request` lib by `got` lib for the Low layer http network request lib. Note the Request lib is even available with setting `useGotLibForHttp` option to false. 
+-   Update `AdminService::uploadLdapAvatar` with parameter `ldapId` user unique identifier in ldap
+-   Update `AdminService::deleteLdapAvatar` with parameter `ldapId` user unique identifier in ldap
 
 ### [2.25.2-lts.4] - 2023-10-20
 #### Removed
 -   None
 
 #### Fixed
--   None
+-   Fix `429` error for got lib.
 
 #### Added
 -   None

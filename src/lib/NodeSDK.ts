@@ -124,10 +124,10 @@ let LOG_ID = "NodeSDK/IDX";
  * @property {number} options.im.nbMaxConversations 15, Parameter to set the maximum number of conversations to keep (defaut value to 15). Old ones are remove from XMPP server with the new method `ConversationsService::removeOlderConversations`.
  * @property {number} options.im.rateLimitPerHour 1000, Parameter to set the maximum of "message" stanza sent to server by hour. Default value is 1000.
  * @property {string} options.im.messagesDataStore Parameter to override the storeMessages parameter of the SDK to define the behaviour of the storage of the messages (Enum DataStoreType in lib/config/config , default value "DataStoreType.UsestoreMessagesField" so it follows the storeMessages behaviour).<br>
- *                          DataStoreType.NoStore Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.<br>
- *                          DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).<br>
- *                          DataStoreType.StoreTwinSide The messages are fully stored.<br>
- *                          DataStoreType.UsestoreMessagesField to follow the storeMessages SDK's parameter behaviour.
+ *                          DataStoreType.NoStore "no-store" Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.<br>
+ *                          DataStoreType.NoPermanentStore "no-permanent-store" Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).<br>
+ *                          DataStoreType.StoreTwinSide "storetwinside" The messages are fully stored.<br>
+ *                          DataStoreType.UsestoreMessagesField "OldstoreMessagesUsed" to follow the storeMessages SDK's parameter behaviour.
  * @property {boolean} options.im.autoInitialGetBubbles to allow automatic opening of the bubbles the user is in. Default value is true.
  * @property {boolean} options.im.autoInitialBubblePresence to allow automatic opening of conversation to the bubbles with sending XMPP initial presence to the room. Default value is true.
  * @property {number} options.im.maxBubbleJoinInProgress to define the maximum of simultaneous "send initial presence of the bubbles".
@@ -139,6 +139,8 @@ let LOG_ID = "NodeSDK/IDX";
  * @property {boolean} options.im.copyMessage to manage if the Messages hint should not be copied to others resources (https://xmpp.org/extensions/xep-0334.html#no-copy) . The default value is true.
  * @property {boolean} options.im.enableCarbon to manage carbon copy of message (https://xmpp.org/extensions/xep-0280.html). The default value is true.
  * @property {string} options.im.enablesendurgentpushmessages permit to add <retry-push xmlns='urn:xmpp:hints'/> tag to allows the server sending this messge in push with a small ttl (meaning urgent for apple/google backend) and retry sending it 10 times to increase probability that it is received by mobile device. The default value is false.
+ * @property {string} options.im.storeMessagesInConversation Allows to store messages in conversation cache if true else the conversation.messages property stay empty. The default value is true.
+ * @property {string} options.im._options._imOptions Allows to store messages in conversation with a maximum entries. The default value is 1000. Note: `storeMessagesInConversation` needs to be setted to true to be relevant.
  * @property {Object} options.servicesToStart <br>
  *    Services to start. This allows to start the SDK with restricted number of services, so there are less call to API.<br>
  *    Take care, severals services are linked, so disabling a service can disturb an other one.<br>
@@ -470,10 +472,10 @@ class NodeSDK {
      * @param {string} options.im.nbMaxConversations 15, Parameter to set the maximum number of conversations to keep (defaut value to 15). Old ones are remove from XMPP server with the new method `ConversationsService::removeOlderConversations`.
      * @param {string} options.im.rateLimitPerHour 1000, Parameter to set the maximum of "message" stanza sent to server by hour. Default value is 1000.
      * @param {string} options.im.messagesDataStore Parameter to override the storeMessages parameter of the SDK to define the behaviour of the storage of the messages (Enum DataStoreType in lib/config/config , default value "DataStoreType.UsestoreMessagesField" so it follows the storeMessages behaviour).<br>
-     *                          DataStoreType.NoStore Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.<br>
-     *                          DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).<br>
-     *                          DataStoreType.StoreTwinSide The messages are fully stored.<br>
-     *                          DataStoreType.UsestoreMessagesField to follow the storeMessages SDK's parameter behaviour.
+     *                         DataStoreType.NoStore "no-store" Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.<br>
+     *                          DataStoreType.NoPermanentStore "no-permanent-store" Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).<br>
+     *                          DataStoreType.StoreTwinSide "storetwinside" The messages are fully stored.<br>
+     *                          DataStoreType.UsestoreMessagesField "OldstoreMessagesUsed" to follow the storeMessages SDK's parameter behaviour.
      * @param {boolean} options.im.autoInitialGetBubbles to allow automatic opening of the bubbles the user is in. Default value is true.
      * @param {string} options.im.autoInitialBubblePresence to allow automatic opening of conversation to the bubbles with sending XMPP initial presence to the room. Default value is true.
      * @param {number} options.im.maxBubbleJoinInProgress to define the maximum of simultaneous "send initial presence of the bubbles".
@@ -482,7 +484,9 @@ class NodeSDK {
      * @param {string} options.im.autoLoadConversations to activate the retrieve of conversations from the server. The default value is true. 
      * @param {string} options.im.autoLoadConversationHistory to activate the retrieve of conversation's messages from the server. The default value is false.
      * @param {string} options.im.autoLoadContacts to activate the retrieve of contacts from roster from the server. The default value is true.   
-     * @param {string} options.im.enablesendurgentpushmessages permit to add <retry-push xmlns='urn:xmpp:hints'/> tag to allows the server sending this messge in push with a small ttl (meaning urgent for apple/google backend) and retry sending it 10 times to increase probability that it is received by mobile device. The default value is false.   
+     * @param {string} options.im.enablesendurgentpushmessages permit to add <retry-push xmlns='urn:xmpp:hints'/> tag to allows the server sending this messge in push with a small ttl (meaning urgent for apple/google backend) and retry sending it 10 times to increase probability that it is received by mobile device. The default value is false.
+     * @param {string} options.im.storeMessagesInConversation Allows to store messages in conversation cache if true else the conversation.messages property stay empty. The default value is true.
+     * @param {string} options.im._options._imOptions Allows to store messages in conversation with a maximum entries. The default value is 1000. Note: `storeMessagesInConversation` needs to be setted to true to be relevant.
      * @param {Object} options.servicesToStart <br>
      *    Services to start. This allows to start the SDK with restricted number of services, so there are less call to API.<br>
      *    Take care, severals services are linked, so disabling a service can disturb an other one.<br>
@@ -519,10 +523,11 @@ class NodeSDK {
              *       @ deprecated "storeMessages": false, Tell the server to store the message for delay distribution and also for history. Please avoid to set it to true for a bot which will not read anymore the messages. It is a better way to store it in your own CPaaS application<br>
      *       "nbMaxConversations": 15, Parameter to set the maximum number of conversations to keep (defaut value to 15). Old ones are remove from XMPP server with the new method `ConversationsService::removeOlderConversations`.<br>
      *       "rateLimitPerHour": 1000, Parameter to set the maximum of "message" stanza sent to server by hour. Default value is 1000.<br>
-     *       "messagesDataStore": DataStoreType.NoStoreBotSide, Parameter to define the behaviour of the storage of the messages (Enum DataStoreType in lib/config/config , default value "DataStoreType.NoStoreBotSide")<br>
-     *                          DataStoreType.NoStore Same behaviour as previously `storeMessages=false` Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.<br>
-     *                          DataStoreType.NoStoreBotSide The messages are not stored on  loggued-in Bot's history, but are stored on the other side. So the contact kept the messages exchanged with bot in his history.<br>
-     *                          DataStoreType.StoreTwinSide The messages are fully stored.<br>
+     *       "messagesDataStore":
+     *  DataStoreType.NoStoreBotSide, "no-store" Parameter to define the behaviour of the storage of the messages (Enum DataStoreType in lib/config/config , default value "DataStoreType.NoStoreBotSide")<br>
+     *                          DataStoreType.NoStore "no-permanent-store" Same behaviour as previously `storeMessages=false` Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.<br>
+     *                          DataStoreType.NoStoreBotSide "storetwinside" The messages are not stored on  loggued-in Bot's history, but are stored on the other side. So the contact kept the messages exchanged with bot in his history.<br>
+     *                          DataStoreType.StoreTwinSide "OldstoreMessagesUsed" The messages are fully stored.<br>
 
          */
         /* process.on("uncaughtException", (err) => {

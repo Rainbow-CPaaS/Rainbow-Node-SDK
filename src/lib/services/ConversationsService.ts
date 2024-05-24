@@ -73,6 +73,8 @@ class ConversationsService extends GenericService {
     private nbMaxConversations: number;
     private autoLoadConversations: boolean;
     private autoLoadConversationHistory: boolean;
+    private storeMessagesInConversation: boolean;
+
     get startConfig(): { start_up: boolean; optional: boolean } {
         return this._startConfig;
     }
@@ -128,6 +130,7 @@ class ConversationsService extends GenericService {
                 that._xmpp = that._core._xmpp;
                 that._rest = that._core._rest;
                 that._options = _options;
+                that.storeMessagesInConversation = _options._imOptions.storeMessagesInConversation;
                 that._s2s = that._core._s2s;
                 that._useXMPP = that._options.useXMPP;
                 that._useS2S = that._options.useS2S;
@@ -198,7 +201,7 @@ class ConversationsService extends GenericService {
     
     attachHandlers() {
         let that = this;
-        that._conversationEventHandler = new ConversationEventHandler(that._xmpp, that, that._fileStorageService, that._fileServerService, that._bubblesService, that._contactsService, that._presenceService);
+        that._conversationEventHandler = new ConversationEventHandler(that._xmpp, that,  that._options?._imOptions, that._fileStorageService, that._fileServerService, that._bubblesService, that._contactsService, that._presenceService);
         that._conversationHandlerToken = [
             //PubSub.subscribe( that._xmpp.hash + "." + that._conversationEventHandler.MESSAGE, that._conversationEventHandler.onMessageReceived.bind(that._conversationEventHandler)),
             PubSub.subscribe( that._xmpp.hash + "." + that._conversationEventHandler.MESSAGE_CHAT, that._conversationEventHandler.onChatMessageReceived.bind(that._conversationEventHandler)),
@@ -209,7 +212,7 @@ class ConversationsService extends GenericService {
             PubSub.subscribe( that._xmpp.hash + "." + that._conversationEventHandler.MESSAGE_CLOSE, that._conversationEventHandler.onCloseMessageReceived.bind(that._conversationEventHandler))
         ];
 
-        that._conversationHistoryHandler = new ConversationHistoryHandler(that._xmpp, that, that._contactsService);
+        that._conversationHistoryHandler = new ConversationHistoryHandler(that._xmpp, that, that._contactsService, that._options);
         that._conversationHistoryHandlerToken = [
             PubSub.subscribe( that._xmpp.hash + "." + that._conversationHistoryHandler.MESSAGE_MAM, that._conversationHistoryHandler.onMamMessageReceived.bind(that._conversationHistoryHandler)),
             PubSub.subscribe( that._xmpp.hash + "." + that._conversationHistoryHandler.FIN_MAM, that._conversationHistoryHandler.onMamMessageReceived.bind(that._conversationHistoryHandler))
@@ -291,7 +294,9 @@ class ConversationsService extends GenericService {
                     if (conversation.addOrUpdateMessage) {
                         that._logger.log(that.DEBUG, LOG_ID + "(_onReceipt) conversation.addOrUpdateMessage.");
                         that._logger.log(that.INTERNAL, LOG_ID + "(_onReceipt) conversation.addOrUpdateMessage : ", message);
-                        conversation.addOrUpdateMessage(message);
+                        if (that.storeMessagesInConversation) {
+                            conversation.addOrUpdateMessage(message);
+                        }
                         that.removePendingMessage(message);
                         //delete this.pendingMessages[message.id];
                         // Send event
@@ -451,6 +456,13 @@ class ConversationsService extends GenericService {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getHistoryPage) conversation.id : ", conversation?.id);
 
+        // if  conversation.historyDefered is already exist, then a getHistory is yet running, wait before calling it.
+        if (conversation.historyDefered && conversation.historyDefered.promise) {
+            that._logger.log(that.DEBUG, LOG_ID + "(getHistoryPage) conversation.historyDefered already defined, wait for end promise's treatment.");
+            await conversation.historyDefered.promise;
+            that._logger.log(that.DEBUG, LOG_ID + "(getHistoryPage) conversation.historyDefered already defined, promise's treatment Ended.");
+        }
+
         // Avoid to call several time the same request
         if (conversation.currentHistoryId && conversation.currentHistoryId === conversation.historyIndex) {
             that._logger.log(that.DEBUG, LOG_ID + "(getHistoryPage) (", conversation.id, ", ", size, ", ", conversation.historyIndex, ") already asked");
@@ -529,13 +541,73 @@ class ConversationsService extends GenericService {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(loadConversationHistory) conversation.id : ", conversation?.id);
         that.resetHistoryPageForConversation(conversation);
-        return that.getHistoryPage(conversation, pageSize).then((conversationUpdated) => {
-            that._logger.log(that.DEBUG, "(loadConversationHistory) getHistoryPage.");
 
-            let result = conversationUpdated.historyComplete ? conversationUpdated:that.getHistoryPage(conversationUpdated, pageSize);
-            //that._logger.log(that.INTERNAL, "(loadConversationHistory) getHistoryPage result : ", result);
-            return result;
+        /*
+        function getConversationHistory(conversation, _pageSize) {
+            that._logger.log("debug", "(loadConversationHistory) - getConversationHistory");
+            return that.getHistoryPage(conversation, _pageSize).then((conversationUpdated) => {
+                that._logger.log("debug", "(loadConversationHistory) - getConversationHistory getHistoryPage");
+
+                let result = conversationUpdated.historyComplete ? conversationUpdated:getConversationHistory(conversationUpdated, pageSize);
+                that._logger.log("debug", "(loadConversationHistory) - getConversationHistory getHistoryPage result : ", result);
+                return result;
+            });
+        }
+        // */
+
+        async function getConversationHistory(conversation: Conversation, pageSize: number): Promise<Conversation> {
+
+            let currentConversation = conversation;
+            while (! currentConversation.historyComplete) {
+                that._logger.log("debug", "(loadConversationHistory) - getConversationHistory");
+
+                await that.getHistoryPage(currentConversation, pageSize).then((conversationUpdated) => {
+                    that._logger.log("debug", "(loadConversationHistory) - getConversationHistory getHistoryPage completed");
+                    currentConversation = conversationUpdated;
+                }).catch((err) => {
+                    that._logger.log("debug", "(loadConversationHistory) - getHistoryPage CATCH Error : ", err);
+                });
+            }
+
+            return Promise.resolve(currentConversation);
+        }
+
+        return getConversationHistory(conversation, pageSize);
+    }
+
+    /**
+     * @public
+     * @nodered true
+     * @method loadConversationHistoryAsync
+     * @instance
+     * @category MESSAGES
+     * @description
+     *    Retrieve the remote history of a specific conversation asynchronously. The result only said that the request has succesfully started (or not).
+     *    </br>The result of the loading process is sent with the event `rainbow_onloadConversationHistoryCompleted`<br>
+     * @param {Conversation} conversation Conversation to retrieve
+     * @param {string} pageSize number of message in each page to retrieve messages.
+     * @async
+     * @return {Promise<{code:number,label:string}>}
+     * @category async
+     */
+    loadConversationHistoryAsync(conversation: Conversation, pageSize: number = 30): Promise<{code:number,label:string}> {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(loadConversationHistoryAsync) conversation.id : ", conversation?.id);
+        that.resetHistoryPageForConversation(conversation);
+        that.loadConversationHistory(conversation, pageSize).then((conversationUpdated: any) => {
+            that._logger.log(that.DEBUG, "(loadConversationHistoryAsync) loadConversationHistory done.");
+            //that._logger.log(that.INTERNAL, "(loadConversationHistoryAsync) loadConversationHistory conversationUpdated : ", conversationUpdated);
+            return conversationUpdated;
+        }).then((conversationHistoryUpdated: any) => {
+            that._logger.log(that.INFO, "(loadConversationHistoryAsync) loadConversationHistory done.");
+            // raise rainbow_onloadConversationHistoryCompleted
+            this._eventEmitter.emit("evt_internal_loadConversationHistoryCompleted", conversationHistoryUpdated);
+            return Promise.reject({code:-1, label:"load failed."});
+        }).catch((error: any)=>{
+            that._logger.log(that.ERROR, "(loadConversationHistoryAsync) loadConversationHistory Failed : ", error);
+            this._eventEmitter.emit("evt_internal_loadConversationHistoryFailed", error);
         });
+        return Promise.resolve({code:1, label:"load started, you should wait for conversation rainbow_onloadConversationHistoryCompleted for load result."});
     }
 
     /**
@@ -1783,7 +1855,7 @@ class ConversationsService extends GenericService {
             that._contactsService.getOrCreateContact(conversationId,undefined) /* Get or create the conversation*/ .then( (contact) => {
                 that._logger.log(that.INFO, LOG_ID + "[Conversation] Create one to one conversation for contact.id : (" + contact.id + ")");
 
-                let  conversation = Conversation.createOneToOneConversation(contact, that._logger);
+                let  conversation = Conversation.createOneToOneConversation(contact, that._logger, that._options._imOptions);
                 conversation.lastModification = lastModification ? new Date(lastModification) : undefined;
                 conversation.lastMessageText = lastMessageText;
                 conversation.muted = muted;
@@ -1981,7 +2053,7 @@ class ConversationsService extends GenericService {
                 } else {
                     that._logger.log(that.INFO, LOG_ID + "[Conversation] Create bubble conversation (" + bubble.jid + ")");
 
-                    conversation = Conversation.createBubbleConversation(bubble, that._logger);
+                    conversation = Conversation.createBubbleConversation(bubble, that._logger, that._options._imOptions);
                     conversation.dbId = conversationDbId;
                     conversation.lastModification = lastModification ? new Date(lastModification) : undefined;
                     conversation.lastMessageText = lastMessageText;

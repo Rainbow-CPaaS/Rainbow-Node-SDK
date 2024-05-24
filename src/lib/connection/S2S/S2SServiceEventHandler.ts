@@ -48,6 +48,8 @@ class S2SServiceEventHandler extends LevelLogs{
     private xmppUtils: XMPPUTils;
     private _conversations: ConversationsService;
     private shouldSendReadReceipt: boolean;
+    private storeMessagesInConversation: boolean;
+    private maxMessagesStoredInConversation: number;
 
     static getClassName(){ return 'S2SServiceEventHandler'; }
     getClassName(){ return S2SServiceEventHandler.getClassName(); }
@@ -64,6 +66,8 @@ class S2SServiceEventHandler extends LevelLogs{
         this._logger = _logger;
         this._eventEmitter = _eventEmitter;
         this.shouldSendReadReceipt = _im.sendReadReceipt;
+        this.storeMessagesInConversation = _im.storeMessagesInConversation;
+        this.maxMessagesStoredInConversation = _im.maxMessagesStoredInConversation;
         this.callbackAbsolutePath = _hostCallback;
         this.xmppUtils = XMPPUTils.getXMPPUtils();
 
@@ -91,13 +95,13 @@ class S2SServiceEventHandler extends LevelLogs{
         let originalUrl = event.originalUrl;
         let requestedPath = originalUrl;
 
-        that._logger.log(that.INTERNAL, LOG_ID + "(handleS2SEvent) *************************************************");
-        that._logger.log(that.INTERNAL, LOG_ID + "(handleS2SEvent) received an S2S EVENT : ");
-        that._logger.log(that.INTERNAL, LOG_ID + "(handleS2SEvent) METHOD : ", methodHttp);
-        that._logger.log(that.INTERNAL, LOG_ID + "(handleS2SEvent) BASELURL : ", baseUrl);
-        that._logger.log(that.INTERNAL, LOG_ID + "(handleS2SEvent) ORIGINALURL : ", originalUrl);
+        that._logger.log(that.HTTP, LOG_ID + "(handleS2SEvent) *************************************************");
+        that._logger.log(that.HTTP, LOG_ID + "(handleS2SEvent) received an S2S EVENT : ");
+        that._logger.log(that.HTTP, LOG_ID + "(handleS2SEvent) METHOD : ", methodHttp);
+        that._logger.log(that.HTTP, LOG_ID + "(handleS2SEvent) BASELURL : ", baseUrl);
+        that._logger.log(that.HTTP, LOG_ID + "(handleS2SEvent) ORIGINALURL : ", originalUrl);
         that._logger.log(that.INTERNAL, LOG_ID + "(handleS2SEvent) EVENT BODY : ", that._logger.colors.events(body));
-        that._logger.log(that.INTERNAL, LOG_ID + "(handleS2SEvent) *************************************************");
+        that._logger.log(that.HTTP, LOG_ID + "(handleS2SEvent) *************************************************");
 
         if (String.prototype.toUpperCase.call(methodHttp + "") != "POST") {
             that._logger.log(that.ERROR, LOG_ID + "(handleS2SEvent) Don't manage this request - Invalid HttpVerb - HttpVerb:[", methodHttp, "] - Path:[host : ", event.headers.host, ", path : ", requestedPath, "]");
@@ -398,7 +402,7 @@ class S2SServiceEventHandler extends LevelLogs{
                         case "delete":
                             if (! conversation) {
                                 that._logger.log(that.DEBUG, LOG_ID + "(ParseConversationCallback) message - conversation received for delete but unknown, conversationId : ", conversationId);
-                                conversation = new Conversation(conversationId, that._logger);
+                                conversation = new Conversation(conversationId, that._logger, that.maxMessagesStoredInConversation);
                             }
                             this._conversations.removeConversation(conversation);
                             break;
@@ -452,7 +456,7 @@ class S2SServiceEventHandler extends LevelLogs{
                         case "delete":
                             if (! conversation) {
                                 that._logger.log(that.DEBUG, LOG_ID + "(ParseConversationCallback) message - conversation received for delete but unknown, conversationId : ", conversationId);
-                                conversation = new Conversation(conversationId, that._logger);
+                                conversation = new Conversation(conversationId, that._logger, that.maxMessagesStoredInConversation);
                             }
                             this._conversations.removeConversation(conversation);
                             break;
@@ -545,10 +549,12 @@ class S2SServiceEventHandler extends LevelLogs{
                 } // */
 
                 data.conversation = conversation;
-                data.conversation.addOrUpdateMessage(data);
-                /*if (data.conversation.messages.length === 0 || !data.conversation.messages.find((elmt) => { if (elmt.id === data.id) { return elmt; } })) {
-                    data.conversation.messages.push(data);
-                } // */
+                if (that.storeMessagesInConversation) {
+                    data.conversation.addOrUpdateMessage(data);
+                    /*if (data.conversation.messages.length === 0 || !data.conversation.messages.find((elmt) => { if (elmt.id === data.id) { return elmt; } })) {
+                        data.conversation.messages.push(data);
+                    } // */
+                }
                 if (this.shouldSendReadReceipt) {
                     await that._rest.markMessageAsRead(conversationId, msgId);
                 }
