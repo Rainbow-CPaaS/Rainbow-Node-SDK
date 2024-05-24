@@ -140,7 +140,7 @@ let LOG_ID = "NodeSDK/IDX";
  * @property {boolean} options.im.enableCarbon to manage carbon copy of message (https://xmpp.org/extensions/xep-0280.html). The default value is true.
  * @property {string} options.im.enablesendurgentpushmessages permit to add <retry-push xmlns='urn:xmpp:hints'/> tag to allows the server sending this messge in push with a small ttl (meaning urgent for apple/google backend) and retry sending it 10 times to increase probability that it is received by mobile device. The default value is false.
  * @property {string} options.im.storeMessagesInConversation Allows to store messages in conversation cache if true else the conversation.messages property stay empty. The default value is true.
- * @property {string} options.im._options._imOptions Allows to store messages in conversation with a maximum entries. The default value is 1000. Note: `storeMessagesInConversation` needs to be setted to true to be relevant.
+ * @property {string} options.im.maxMessagesStoredInConversation Allows to store messages in conversation with a maximum entries. The default value is 1000. Note: `storeMessagesInConversation` needs to be setted to true to be relevant.
  * @property {Object} options.servicesToStart <br>
  *    Services to start. This allows to start the SDK with restricted number of services, so there are less call to API.<br>
  *    Take care, severals services are linked, so disabling a service can disturb an other one.<br>
@@ -486,7 +486,7 @@ class NodeSDK {
      * @param {string} options.im.autoLoadContacts to activate the retrieve of contacts from roster from the server. The default value is true.   
      * @param {string} options.im.enablesendurgentpushmessages permit to add <retry-push xmlns='urn:xmpp:hints'/> tag to allows the server sending this messge in push with a small ttl (meaning urgent for apple/google backend) and retry sending it 10 times to increase probability that it is received by mobile device. The default value is false.
      * @param {string} options.im.storeMessagesInConversation Allows to store messages in conversation cache if true else the conversation.messages property stay empty. The default value is true.
-     * @param {string} options.im._options._imOptions Allows to store messages in conversation with a maximum entries. The default value is 1000. Note: `storeMessagesInConversation` needs to be setted to true to be relevant.
+     * @param {string} options.im.maxMessagesStoredInConversation Allows to store messages in conversation with a maximum entries. The default value is 1000. Note: `storeMessagesInConversation` needs to be setted to true to be relevant.
      * @param {Object} options.servicesToStart <br>
      *    Services to start. This allows to start the SDK with restricted number of services, so there are less call to API.<br>
      *    Take care, severals services are linked, so disabling a service can disturb an other one.<br>

@@ -7,7 +7,7 @@ Warning: Before deploying in production a bot that can generate heavy traffic, p
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 
-### [2.29.0] - 2024-05-XX
+### [2.29.0] - 2024-05-24
 #### Removed
 -   None
 
@@ -16,6 +16,8 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 #### Added
 -   Add AdminService::getCompaniesBPBusinessType, AdminService::getCompanyAppFeatureCustomisation, AdminService::getCompanyServiceDescriptionFile, AdminService::getDefaultCompanyData, AdminService::setCompanyAppFeatureCustomisation, AdminService::updateCompany api methods about managing companies.
+-   Add option `storeMessagesInConversation` to define if messages are stored in Conversation.  
+-   Add option `maxMessagesStoredInConversation` to define the number of messages stored in Conversation. It is still stored in `messages` property but the type becomes a MessagesQueue (a FIFOQueue which extends Array). Note that storeMessagesInConversation needs to  
 
 #### Changed
 -   None
