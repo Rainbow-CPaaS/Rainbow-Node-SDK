@@ -62,9 +62,9 @@ let LOG_ID = "NodeSDK/IDX";
  * //Keep sockets around in a pool to be used by other requests in the future. Default = false</BR>
  * keepAlive: true, // ?: boolean or undefined;</BR>
  * </BR>
- * //When using HTTP KeepAlive, how often to send TCP KeepAlive packets over sockets being kept alive. Default = 1000.</BR>
+ * //When using HTTP KeepAlive, how often to send TCP KeepAlive packets over sockets being kept alive. Default = 4301.</BR>
  * //Only relevant if keepAlive is set to true.</BR>
- * keepAliveMsecs: 15001, // ?: number or undefined;</BR>
+ * keepAliveMsecs: 4301, // ?: number or undefined;</BR>
  * </BR>
  * Maximum number of sockets to allow per host. Default for Node 0.10 is 5, default for Node 0.12 is Infinity</BR>
  * maxSockets: 26, // ?: number or undefined;</BR>
@@ -410,9 +410,9 @@ class NodeSDK {
      * //Keep sockets around in a pool to be used by other requests in the future. Default = false</BR>
      * keepAlive: true, // ?: boolean or undefined;</BR>
      * </BR>
-     * //When using HTTP KeepAlive, how often to send TCP KeepAlive packets over sockets being kept alive. Default = 1000.</BR>
+     * //When using HTTP KeepAlive, how often to send TCP KeepAlive packets over sockets being kept alive. Default = 4301.</BR>
      * //Only relevant if keepAlive is set to true.</BR>
-     * keepAliveMsecs: 15001, // ?: number or undefined;</BR>
+     * keepAliveMsecs: 4301, // ?: number or undefined;</BR>
      * </BR>
      * Maximum number of sockets to allow per host. Default for Node 0.10 is 5, default for Node 0.12 is Infinity</BR>
      * maxSockets: 26, // ?: number or undefined;</BR>

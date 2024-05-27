@@ -121,7 +121,7 @@ class HTTPService extends LevelLogs{
              * When using HTTP KeepAlive, how often to send TCP KeepAlive packets over sockets being kept alive. Default = 1000.
              * Only relevant if keepAlive is set to true.
              */
-            keepAliveMsecs: customLiveOption?.agentOptions?.keepAliveMsecs!==undefined ? customLiveOption.agentOptions.keepAliveMsecs:15000, // ?: number | undefined;
+            keepAliveMsecs: customLiveOption?.agentOptions?.keepAliveMsecs!==undefined ? customLiveOption.agentOptions.keepAliveMsecs:4301, // ?: number | undefined;
             /**
              * Maximum number of sockets to allow per host. Default for Node 0.10 is 5, default for Node 0.12 is Infinity
              */

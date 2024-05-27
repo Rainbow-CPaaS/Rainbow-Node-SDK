@@ -272,7 +272,7 @@ let urlS2S;
                      * When using HTTP KeepAlive, how often to send TCP KeepAlive packets over sockets being kept alive. Default = 1000.
                      * Only relevant if keepAlive is set to true.
                      */
-                    keepAliveMsecs: 1002, // ?: number | undefined;
+                    keepAliveMsecs: 4302, // ?: number | undefined;
                     /**
                      * Maximum number of sockets to allow per host. Default for Node 0.10 is 5, default for Node 0.12 is Infinity
                      */
