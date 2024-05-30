@@ -76,8 +76,8 @@ class IQEventHandler extends GenericHandler {
                 }
             });
         } catch (err) {
-            that._logger.log(that.ERROR, LOG_ID + "(onIqGetSetReceived) CATCH ErrorManager !!! ");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(onIqGetSetReceived) CATCH ErrorManager !!! : ", err);
+            // that._logger.log(that.ERROR, LOG_ID + "(onIqGetSetReceived) CATCH ErrorManager !!! ");
+            that._logger.log(that.ERROR, LOG_ID + "(onIqGetSetReceived) CATCH ErrorManager !!! : ", err);
         }
     };
 
@@ -120,8 +120,8 @@ class IQEventHandler extends GenericHandler {
                 that.eventEmitter.emit("rainbow_oncarbondisabled");
             }
         } catch (err) {
-            that._logger.log(that.ERROR, LOG_ID + "(onIqResultReceived) CATCH ErrorManager !!! ");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(onIqResultReceived) CATCH ErrorManager !!! : ", err);
+            // that._logger.log(that.ERROR, LOG_ID + "(onIqResultReceived) CATCH ErrorManager !!! ");
+            that._logger.log(that.ERROR, LOG_ID + "(onIqResultReceived) CATCH ErrorManager !!! : ", err);
         }
     };
 
@@ -166,8 +166,8 @@ class IQEventHandler extends GenericHandler {
 //        .log("info", LOG_ID + "(handleXMPPConnection) answered - 'stanza'", stanzaResponse.toString(), " for Rainbow Node SDK version : ", packageVersion.version);
             that.xmppClient.send(stanzaResponse);
         } catch (err) {
-            that._logger.log(that.ERROR, LOG_ID + "(_onIqGetPingReceived) (handleXMPPConnection) CATCH ErrorManager !!! ");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(_onIqGetPingReceived) (handleXMPPConnection) CATCH ErrorManager !!! : ", err);
+            // that._logger.log(that.ERROR, LOG_ID + "(_onIqGetPingReceived) (handleXMPPConnection) CATCH ErrorManager !!! ");
+            that._logger.log(that.ERROR, LOG_ID + "(_onIqGetPingReceived) (handleXMPPConnection) CATCH ErrorManager !!! : ", err);
         }
 
     };
@@ -193,8 +193,8 @@ class IQEventHandler extends GenericHandler {
                 that.eventEmitter.emit("evt_internal_onrosters", contacts);
             }
         } catch (err) {
-            that._logger.log(that.ERROR, LOG_ID + "(_onIqGetQueryReceived) (handleXMPPConnection) CATCH ErrorManager !!! ");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(_onIqGetQueryReceived) (handleXMPPConnection) CATCH ErrorManager !!! : ", err);
+            // that._logger.log(that.ERROR, LOG_ID + "(_onIqGetQueryReceived) (handleXMPPConnection) CATCH ErrorManager !!! ");
+            that._logger.log(that.ERROR, LOG_ID + "(_onIqGetQueryReceived) (handleXMPPConnection) CATCH ErrorManager !!! : ", err);
         }
     };
 

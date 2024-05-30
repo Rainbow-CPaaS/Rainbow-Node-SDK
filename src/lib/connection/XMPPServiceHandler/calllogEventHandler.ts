@@ -134,8 +134,8 @@ class CallLogEventHandler extends GenericHandler {
                 that._logger.log(that.DEBUG, LOG_ID + "(onIqCallLogReceived) : ignored stanza for calllog !");
             }
         } catch (error) {
-            that._logger.log(that.ERROR, LOG_ID + "(onIqCallLogReceived) CATCH Error !!! ");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(onIqCallLogReceived) CATCH Error !!! : ", error);
+            //that._logger.log(that.ERROR, LOG_ID + "(onIqCallLogReceived) CATCH Error !!! ");
+            that._logger.log(that.ERROR, LOG_ID + "(onIqCallLogReceived) CATCH Error !!! : ", error);
             return true;
         }
 
@@ -164,8 +164,8 @@ class CallLogEventHandler extends GenericHandler {
             }
 
         } catch (error) {
-            that._logger.log(that.ERROR, LOG_ID + "(onCallLogAckReceived) .");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(onCallLogAckReceived) : " + error);
+            // that._logger.log(that.ERROR, LOG_ID + "(onCallLogAckReceived) .");
+            that._logger.log(that.ERROR, LOG_ID + "(onCallLogAckReceived) : " + error);
             return true;
         }
 
@@ -220,8 +220,8 @@ class CallLogEventHandler extends GenericHandler {
                     });
             }
         } catch (error) {
-            that._logger.log(that.ERROR, LOG_ID + "(onIqCallLogNotificationReceived) CATCH Error !!! ");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(onIqCallLogNotificationReceived) CATCH Error !!! : ", error);
+            //that._logger.log(that.ERROR, LOG_ID + "(onIqCallLogNotificationReceived) CATCH Error !!! ");
+            that._logger.log(that.ERROR, LOG_ID + "(onIqCallLogNotificationReceived) CATCH Error !!! : ", error);
             return true;
         }
     };
@@ -441,8 +441,8 @@ class CallLogEventHandler extends GenericHandler {
                     defered.resolve(callLog);
                 })
                 .catch(function (error) {
-                    that._logger.log(that.ERROR, LOG_ID + "(createCallLogFromMessage) createCallLogFromMessage error ");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(createCallLogFromMessage) createCallLogFromMessage error : " + error);
+                    // that._logger.log(that.ERROR, LOG_ID + "(createCallLogFromMessage) createCallLogFromMessage error ");
+                    that._logger.log(that.ERROR, LOG_ID + "(createCallLogFromMessage) createCallLogFromMessage error : " + error);
                     defered.resolve(undefined);
                 });
         } else {
@@ -534,8 +534,8 @@ class CallLogEventHandler extends GenericHandler {
                 }
             });
         } catch (err) {
-            that._logger.log(that.ERROR, LOG_ID + "[callLogAckUpdate] !!! CATCH Error ");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "[callLogAckUpdate] !!! CATCH Error : ", err);
+            //that._logger.log(that.ERROR, LOG_ID + "[callLogAckUpdate] !!! CATCH Error ");
+            that._logger.log(that.ERROR, LOG_ID + "[callLogAckUpdate] !!! CATCH Error : ", err);
         }
     }
 
