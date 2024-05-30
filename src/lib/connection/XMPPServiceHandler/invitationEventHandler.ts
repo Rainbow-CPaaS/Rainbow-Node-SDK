@@ -137,7 +137,7 @@ class InvitationEventHandler extends GenericHandler {
             });
         } catch (err) {
             that.logger.log("error", LOG_ID + "(onManagementMessageReceived) CATCH Error !!! ");
-            that.logger.log("internalerror", LOG_ID + "(onManagementMessageReceived) CATCH Error !!! : ", err);
+            that.logger.log("error", LOG_ID + "(onManagementMessageReceived) CATCH Error !!! : ", err);
         }
     }
 
@@ -219,7 +219,7 @@ class InvitationEventHandler extends GenericHandler {
                         that.eventEmitter.emit("evt_internal_channelitemreceived", message);
                     } else {
                         that.logger.log("error", LOG_ID + "(onHeadlineMessageReceived) channel entry received, but empty. It can not be parsed, so ignored.");
-                        that.logger.log("internalerror", LOG_ID + "(onHeadlineMessageReceived) channel entry received, but empty. It can not be parsed, so ignored. : ", stanza);
+                        that.logger.log("error", LOG_ID + "(onHeadlineMessageReceived) channel entry received, but empty. It can not be parsed, so ignored. : ", stanza);
                     }
                 }
                     break;
@@ -231,7 +231,7 @@ class InvitationEventHandler extends GenericHandler {
             }
         } catch (err) {
             that.logger.log("error", LOG_ID + "(onHeadlineMessageReceived) CATCH Error !!! ");
-            that.logger.log("internalerror", LOG_ID + "(onHeadlineMessageReceived) CATCH Error !!! : ", err);
+            that.logger.log("error", LOG_ID + "(onHeadlineMessageReceived) CATCH Error !!! : ", err);
         }
     };// */
 
@@ -256,12 +256,12 @@ class InvitationEventHandler extends GenericHandler {
                 that.eventEmitter.emit("evt_internal_invitationsManagementUpdate", invitation);
                 return true;
             } else {
-                that.logger.log("error", LOG_ID + "(onInvitationManagementMessageReceived) userInvite empty.");
-                that.logger.log("internalerror", LOG_ID + "(onInvitationManagementMessageReceived) userInvite empty : ", stanza);
+                //  that.logger.log("error", LOG_ID + "(onInvitationManagementMessageReceived) userInvite empty.");
+                that.logger.log("error", LOG_ID + "(onInvitationManagementMessageReceived) userInvite empty : ", stanza);
             }
         } catch (err) {
-            that.logger.log("error", LOG_ID + "(onInvitationManagementMessageReceived) CATCH Error !!! ");
-            that.logger.log("internalerror", LOG_ID + "(onInvitationManagementMessageReceived) CATCH Error !!! : ", err);
+            //  that.logger.log("error", LOG_ID + "(onInvitationManagementMessageReceived) CATCH Error !!! ");
+            that.logger.log("error", LOG_ID + "(onInvitationManagementMessageReceived) CATCH Error !!! : ", err);
             return true;
         }
     }
@@ -287,12 +287,12 @@ class InvitationEventHandler extends GenericHandler {
                 that.eventEmitter.emit("evt_internal_joinCompanyInvitationManagementUpdate", invitation);
                 return true;
             } else {
-                that.logger.log("error", LOG_ID + "(onJoinCompanyInviteManagementMessageReceived) joincompanyinvite empty.");
-                that.logger.log("internalerror", LOG_ID + "(onJoinCompanyInviteManagementMessageReceived) joincompanyinvite empty : ", stanza);
+                //  that.logger.log("error", LOG_ID + "(onJoinCompanyInviteManagementMessageReceived) joincompanyinvite empty.");
+                that.logger.log("error", LOG_ID + "(onJoinCompanyInviteManagementMessageReceived) joincompanyinvite empty : ", stanza);
             }
         } catch (err) {
-            that.logger.log("error", LOG_ID + "(onJoinCompanyInviteManagementMessageReceived) CATCH Error !!! ");
-            that.logger.log("internalerror", LOG_ID + "(onJoinCompanyInviteManagementMessageReceived) CATCH Error !!! : ", err);
+            //  that.logger.log("error", LOG_ID + "(onJoinCompanyInviteManagementMessageReceived) CATCH Error !!! ");
+            that.logger.log("error", LOG_ID + "(onJoinCompanyInviteManagementMessageReceived) CATCH Error !!! : ", err);
             return true;
         }
     }
@@ -318,12 +318,12 @@ class InvitationEventHandler extends GenericHandler {
                 that.eventEmitter.emit("evt_internal_joinCompanyRequestManagementUpdate", request);
                 return true;
             } else {
-                that.logger.log("error", LOG_ID + "(onJoinCompanyRequestManagementMessageReceived) joincompanyinvite empty.");
-                that.logger.log("internalerror", LOG_ID + "(onJoinCompanyRequestManagementMessageReceived) joincompanyinvite empty : ", stanza);
+                //  that.logger.log("error", LOG_ID + "(onJoinCompanyRequestManagementMessageReceived) joincompanyinvite empty.");
+                that.logger.log("error", LOG_ID + "(onJoinCompanyRequestManagementMessageReceived) joincompanyinvite empty : ", stanza);
             }
         } catch (err) {
-            that.logger.log("error", LOG_ID + "(onJoinCompanyRequestManagementMessageReceived) CATCH Error !!! ");
-            that.logger.log("internalerror", LOG_ID + "(onJoinCompanyRequestManagementMessageReceived) CATCH Error !!! : ", err);
+            //  that.logger.log("error", LOG_ID + "(onJoinCompanyRequestManagementMessageReceived) CATCH Error !!! ");
+            that.logger.log("error", LOG_ID + "(onJoinCompanyRequestManagementMessageReceived) CATCH Error !!! : ", err);
             return true;
         }
     }
@@ -351,12 +351,12 @@ class InvitationEventHandler extends GenericHandler {
                 that.eventEmitter.emit("evt_internal_openinvitationManagementUpdate", invitation);
                 return true;
             } else {
-                that.logger.log("error", LOG_ID + "(onOpenInvitationManagementMessageReceived) userInvite empty.");
-                that.logger.log("internalerror", LOG_ID + "(onOpenInvitationManagementMessageReceived) userInvite empty : ", stanza);
+                //  that.logger.log("error", LOG_ID + "(onOpenInvitationManagementMessageReceived) userInvite empty.");
+                that.logger.log("error", LOG_ID + "(onOpenInvitationManagementMessageReceived) userInvite empty : ", stanza);
             }
         } catch (err) {
-            that.logger.log("error", LOG_ID + "(onOpenInvitationManagementMessageReceived) CATCH Error !!! ");
-            that.logger.log("internalerror", LOG_ID + "(onOpenInvitationManagementMessageReceived) CATCH Error !!! : ", err);
+            //  that.logger.log("error", LOG_ID + "(onOpenInvitationManagementMessageReceived) CATCH Error !!! ");
+            that.logger.log("error", LOG_ID + "(onOpenInvitationManagementMessageReceived) CATCH Error !!! : ", err);
             return true;
         }
     }
@@ -372,13 +372,13 @@ class InvitationEventHandler extends GenericHandler {
             if (stanza.getChild('no-store') != undefined){
                 // // Treated in conversation handler that.logger.log("error", LOG_ID + "(onErrorMessageReceived) The 'to' of the message can not received the message");
             } else {
-                that.logger.log("error", LOG_ID + "(onErrorMessageReceived) something goes wrong...");
-                that.logger.log("internalerror", LOG_ID + "(onErrorMessageReceived) something goes wrong...", msg, "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
+                // that.logger.log("error", LOG_ID + "(onErrorMessageReceived) something goes wrong...");
+                that.logger.log("error", LOG_ID + "(onErrorMessageReceived) something goes wrong...", msg, "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
                 that.eventEmitter.emit("evt_internal_xmpperror", msg);
             }
         } catch (err) {
-            that.logger.log("error", LOG_ID + "(onErrorMessageReceived) CATCH Error !!! ");
-            that.logger.log("internalerror", LOG_ID + "(onErrorMessageReceived) CATCH Error !!! : ", err);
+            // that.logger.log("error", LOG_ID + "(onErrorMessageReceived) CATCH Error !!! ");
+            that.logger.log("error", LOG_ID + "(onErrorMessageReceived) CATCH Error !!! : ", err);
         }
     }
 

@@ -76,8 +76,8 @@ class HttpoverxmppEventHandler extends GenericHandler {
                 }
             });
         } catch (err) {
-            that.logger.log("error", LOG_ID + "(onIqGetSetReceived) CATCH ErrorManager !!! ");
-            that.logger.log("internalerror", LOG_ID + "(onIqGetSetReceived) CATCH ErrorManager !!! : ", err);
+            //  that.logger.log("error", LOG_ID + "(onIqGetSetReceived) CATCH ErrorManager !!! ");
+            that.logger.log("error", LOG_ID + "(onIqGetSetReceived) CATCH ErrorManager !!! : ", err);
         }
     };
 
@@ -116,8 +116,8 @@ class HttpoverxmppEventHandler extends GenericHandler {
                 }
             });
         } catch (err) {
-            that.logger.log("error", LOG_ID + "(onIqResultReceived) CATCH ErrorManager !!! ");
-            that.logger.log("internalerror", LOG_ID + "(onIqResultReceived) CATCH ErrorManager !!! : ", err);
+            //  that.logger.log("error", LOG_ID + "(onIqResultReceived) CATCH ErrorManager !!! ");
+            that.logger.log("error", LOG_ID + "(onIqResultReceived) CATCH ErrorManager !!! : ", err);
         }
     };
 
@@ -330,8 +330,8 @@ class HttpoverxmppEventHandler extends GenericHandler {
                 await that.xmppClient.resolvPendingRequest(stanza.attrs.id, {});
             }
         } catch (err) {
-            that.logger.log("error", LOG_ID + "(_onIqGetSetReqReceived) (handleXMPPConnection) CATCH ErrorManager !!! ");
-            that.logger.log("internalerror", LOG_ID + "(_onIqGetSetReqReceived) (handleXMPPConnection) CATCH ErrorManager !!! : ", err);
+            //  that.logger.log("error", LOG_ID + "(_onIqGetSetReqReceived) (handleXMPPConnection) CATCH ErrorManager !!! ");
+            that.logger.log("error", LOG_ID + "(_onIqGetSetReqReceived) (handleXMPPConnection) CATCH ErrorManager !!! : ", err);
         }
     };
 
@@ -376,8 +376,8 @@ class HttpoverxmppEventHandler extends GenericHandler {
             // */
 
         } catch (err) {
-            that.logger.log("error", LOG_ID + "(_onIqRespResultReceived) (handleXMPPConnection) CATCH ErrorManager !!! ");
-            that.logger.log("internalerror", LOG_ID + "(_onIqRespResultReceived) (handleXMPPConnection) CATCH ErrorManager !!! : ", err);
+            // that.logger.log("error", LOG_ID + "(_onIqRespResultReceived) (handleXMPPConnection) CATCH ErrorManager !!! ");
+            that.logger.log("error", LOG_ID + "(_onIqRespResultReceived) (handleXMPPConnection) CATCH ErrorManager !!! : ", err);
         }
     }
     

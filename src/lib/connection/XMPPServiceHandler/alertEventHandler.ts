@@ -409,8 +409,8 @@ class AlertEventHandler extends GenericHandler {
                 }
             });
         } catch (err) {
-            that.logger.log("error", LOG_ID + "(onManagementMessageReceived) CATCH Error !!! ");
-            that.logger.log("internalerror", LOG_ID + "(onManagementMessageReceived) CATCH Error !!! : ", err);
+           // that.logger.log("error", LOG_ID + "(onManagementMessageReceived) CATCH Error !!! ");
+            that.logger.log("error", LOG_ID + "(onManagementMessageReceived) CATCH Error !!! : ", err);
         }
     };
 
@@ -576,8 +576,8 @@ class AlertEventHandler extends GenericHandler {
                 that.logger.log("internal", LOG_ID + "(onHeadlineMessageReceived) it is not an alert message received : ", stanza);
             }
         } catch (err) {
-            that.logger.log("error", LOG_ID + "(onHeadlineMessageReceived) CATCH Error !!! ");
-            that.logger.log("internalerror", LOG_ID + "(onHeadlineMessageReceived) CATCH Error !!! : ", err);
+           // that.logger.log("error", LOG_ID + "(onHeadlineMessageReceived) CATCH Error !!! ");
+            that.logger.log("error", LOG_ID + "(onHeadlineMessageReceived) CATCH Error !!! : ", err);
         }
     }
 
@@ -607,8 +607,8 @@ class AlertEventHandler extends GenericHandler {
             }
             return true;
         } catch (err) {
-            that.logger.log("error", LOG_ID + "(onNotificationManagementMessageReceived) -- failure -- ");
-            that.logger.log("internalerror", LOG_ID + "(onNotificationManagementMessageReceived) -- failure -- : ", err.message);
+            // that.logger.log("error", LOG_ID + "(onNotificationManagementMessageReceived) -- failure -- ");
+            that.logger.log("error", LOG_ID + "(onNotificationManagementMessageReceived) -- failure -- : ", err.message);
             return true;
         }
 
@@ -628,13 +628,13 @@ class AlertEventHandler extends GenericHandler {
             if (stanza.getChild('no-store') != undefined){
                 // // Treated in conversation handler that.logger.log("error", LOG_ID + "(onErrorMessageReceived) The 'to' of the message can not received the message");
             } else {
-                that.logger.log("error", LOG_ID + "(onErrorMessageReceived) something goes wrong...");
-                that.logger.log("internalerror", LOG_ID + "(onErrorMessageReceived) something goes wrong... : ", msg, "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
+                //  that.logger.log("error", LOG_ID + "(onErrorMessageReceived) something goes wrong...");
+                that.logger.log("error", LOG_ID + "(onErrorMessageReceived) something goes wrong... : ", msg, "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
                 that.eventEmitter.emit("evt_internal_xmpperror", msg);
             }
         } catch (err) {
-            that.logger.log("error", LOG_ID + "(onErrorMessageReceived) CATCH Error !!! ");
-            that.logger.log("internalerror", LOG_ID + "(onErrorMessageReceived) CATCH Error !!! : ", err);
+            //  that.logger.log("error", LOG_ID + "(onErrorMessageReceived) CATCH Error !!! ");
+            that.logger.log("error", LOG_ID + "(onErrorMessageReceived) CATCH Error !!! : ", err);
         }
     };
 

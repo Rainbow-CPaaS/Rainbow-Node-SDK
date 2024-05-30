@@ -158,8 +158,8 @@ class ConversationEventHandler extends GenericHandler {
 
             return null;
         } catch (error) {
-            that.logger.log("error", LOG_ID + "(createSessionParticipantFromParticipantElem) CATCH Error !!!");
-            that.logger.log("internalerror", LOG_ID + "(createSessionParticipantFromParticipantElem) CATCH Error !!! error : ", error);
+            //  that.logger.log("error", LOG_ID + "(createSessionParticipantFromParticipantElem) CATCH Error !!!");
+            that.logger.log("error", LOG_ID + "(createSessionParticipantFromParticipantElem) CATCH Error !!! error : ", error);
             return null;
         }
     }
@@ -1024,8 +1024,8 @@ class ConversationEventHandler extends GenericHandler {
                         break;
                     }
                     default:
-                        that.logger.log("error", LOG_ID + "(onChatMessageReceived) id : ", id, ", unmanaged chat message node : ", node.getName());
-                        that.logger.log("internalerror", LOG_ID + "(onChatMessageReceived) id : ", id, ", unmanaged chat message node : ", node.getName(), "\n", stanza.root ? prettydata.xml(stanza.root().toString()):stanza);
+                        // that.logger.log("error", LOG_ID + "(onChatMessageReceived) id : ", id, ", unmanaged chat message node : ", node.getName());
+                        that.logger.log("error", LOG_ID + "(onChatMessageReceived) id : ", id, ", unmanaged chat message node : ", node.getName(), "\n", stanza.root ? prettydata.xml(stanza.root().toString()):stanza);
                         break;
                 }
             }
@@ -1116,7 +1116,7 @@ class ConversationEventHandler extends GenericHandler {
                 }
                     break;
                 default:
-                    that.logger.log("internalerror", LOG_ID + "(onChatMessageReceived) id : ", id, ", no treatment of event ", msg, ", eventName : ", eventName, " : ", "\n", stanza.root ? prettydata.xml(stanza.root().toString()):stanza, " so default."); //, this.eventEmitter
+                    that.logger.log("error", LOG_ID + "(onChatMessageReceived) id : ", id, ", no treatment of event ", msg, ", eventName : ", eventName, " : ", "\n", stanza.root ? prettydata.xml(stanza.root().toString()):stanza, " so default."); //, this.eventEmitter
             }
 
             let fromBubbleJid = "";
@@ -1327,8 +1327,8 @@ class ConversationEventHandler extends GenericHandler {
                 that.logger.log("internal", LOG_ID + "(onChatMessageReceived) We are the sender, so ignore it : ", "\n", stanza.root ? prettydata.xml(stanza.root().toString()):stanza);
             }
         } catch (err) {
-            that.logger.log("error", LOG_ID + "(onChatMessageReceived) CATCH Error !!! ");
-            that.logger.log("internalerror", LOG_ID + "(onChatMessageReceived) CATCH Error !!! : ", err);
+            //  that.logger.log("error", LOG_ID + "(onChatMessageReceived) CATCH Error !!! ");
+            that.logger.log("error", LOG_ID + "(onChatMessageReceived) CATCH Error !!! : ", err);
         }
     };
 
@@ -2092,8 +2092,8 @@ class ConversationEventHandler extends GenericHandler {
                 //that.logger.log("internal", LOG_ID + "(_onMessageReceived) cs.getConversations() : ", cs.getConversations());
             }
         } catch (err) {
-            that.logger.log("error", LOG_ID + "(_onMessageReceived) CATCH Error !!! ");
-            that.logger.log("internalerror", LOG_ID + "(_onMessageReceived) CATCH Error !!! : ", err);
+            // that.logger.log("error", LOG_ID + "(_onMessageReceived) CATCH Error !!! ");
+            that.logger.log("error", LOG_ID + "(_onMessageReceived) CATCH Error !!! : ", err);
         }
     }
 
@@ -2200,8 +2200,8 @@ class ConversationEventHandler extends GenericHandler {
                 }
             });
         } catch (err) {
-            that.logger.log("error", LOG_ID + "(onManagementMessageReceived) CATCH Error !!! ");
-            that.logger.log("internalerror", LOG_ID + "(onManagementMessageReceived) CATCH Error !!! : ", err);
+            // that.logger.log("error", LOG_ID + "(onManagementMessageReceived) CATCH Error !!! ");
+            that.logger.log("error", LOG_ID + "(onManagementMessageReceived) CATCH Error !!! : ", err);
         }
     };
 
@@ -2285,8 +2285,8 @@ class ConversationEventHandler extends GenericHandler {
                 }
             }
         } catch (err) {
-            that.logger.log("error", LOG_ID + "(onRoomManagementMessageReceived) CATCH Error !!! ");
-            that.logger.log("internalerror", LOG_ID + "(onRoomManagementMessageReceived) CATCH Error !!! : ", err);
+            // that.logger.log("error", LOG_ID + "(onRoomManagementMessageReceived) CATCH Error !!! ");
+            that.logger.log("error", LOG_ID + "(onRoomManagementMessageReceived) CATCH Error !!! : ", err);
         }
     };
 
@@ -2306,8 +2306,8 @@ class ConversationEventHandler extends GenericHandler {
                 }
             }
         } catch (err) {
-            that.logger.log("error", LOG_ID + "(onUserSettingsManagementMessageReceived) CATCH Error !!! ");
-            that.logger.log("internalerror", LOG_ID + "(onUserSettingsManagementMessageReceived) CATCH Error !!! : ", err);
+            //  that.logger.log("error", LOG_ID + "(onUserSettingsManagementMessageReceived) CATCH Error !!! ");
+            that.logger.log("error", LOG_ID + "(onUserSettingsManagementMessageReceived) CATCH Error !!! : ", err);
         }
     };
 
@@ -2343,8 +2343,8 @@ class ConversationEventHandler extends GenericHandler {
             }
             // */
         } catch (err) {
-            that.logger.log("error", LOG_ID + "(onUserInviteManagementMessageReceived) CATCH Error !!! ");
-            that.logger.log("internalerror", LOG_ID + "(onUserInviteManagementMessageReceived) CATCH Error !!! : ", err);
+            // that.logger.log("error", LOG_ID + "(onUserInviteManagementMessageReceived) CATCH Error !!! ");
+            that.logger.log("error", LOG_ID + "(onUserInviteManagementMessageReceived) CATCH Error !!! : ", err);
         }
     };
 
@@ -2382,8 +2382,8 @@ class ConversationEventHandler extends GenericHandler {
                 }
             }
         } catch (err) {
-            that.logger.log("error", LOG_ID + "(onGroupManagementMessageReceived) CATCH Error !!! ");
-            that.logger.log("internalerror", LOG_ID + "(onGroupManagementMessageReceived) CATCH Error !!! : ", err);
+            // that.logger.log("error", LOG_ID + "(onGroupManagementMessageReceived) CATCH Error !!! ");
+            that.logger.log("error", LOG_ID + "(onGroupManagementMessageReceived) CATCH Error !!! : ", err);
         }
     };
 
@@ -2516,8 +2516,8 @@ class ConversationEventHandler extends GenericHandler {
                 }
             }
         } catch (err) {
-            that.logger.log("error", LOG_ID + "(onConversationManagementMessageReceived) CATCH Error !!! ");
-            that.logger.log("internalerror", LOG_ID + "(onConversationManagementMessageReceived) CATCH Error !!! : ", err);
+            // that.logger.log("error", LOG_ID + "(onConversationManagementMessageReceived) CATCH Error !!! ");
+            that.logger.log("error", LOG_ID + "(onConversationManagementMessageReceived) CATCH Error !!! : ", err);
         }
     };
 
@@ -2540,8 +2540,8 @@ class ConversationEventHandler extends GenericHandler {
                 }
             }
         } catch (err) {
-            that.logger.log("error", LOG_ID + "(onMuteManagementMessageReceived) CATCH Error !!! ");
-            that.logger.log("internalerror", LOG_ID + "(onMuteManagementMessageReceived) CATCH Error !!! : ", err);
+            // that.logger.log("error", LOG_ID + "(onMuteManagementMessageReceived) CATCH Error !!! ");
+            that.logger.log("error", LOG_ID + "(onMuteManagementMessageReceived) CATCH Error !!! : ", err);
         }
     };
 
@@ -2564,8 +2564,8 @@ class ConversationEventHandler extends GenericHandler {
                 }
             }
         } catch (err) {
-            that.logger.log("error", LOG_ID + "(onUnmuteManagementMessageReceived) CATCH Error !!! ");
-            that.logger.log("internalerror", LOG_ID + "(onUnmuteManagementMessageReceived) CATCH Error !!! : ", err);
+            //  that.logger.log("error", LOG_ID + "(onUnmuteManagementMessageReceived) CATCH Error !!! ");
+            that.logger.log("error", LOG_ID + "(onUnmuteManagementMessageReceived) CATCH Error !!! : ", err);
         }
     };
 
@@ -2651,8 +2651,8 @@ class ConversationEventHandler extends GenericHandler {
                 }
             }
         } catch (err) {
-            that.logger.log("error", LOG_ID + "(onFileManagementMessageReceived) CATCH Error !!! ");
-            that.logger.log("internalerror", LOG_ID + "(onFileManagementMessageReceived) CATCH Error !!! : ", err);
+            // that.logger.log("error", LOG_ID + "(onFileManagementMessageReceived) CATCH Error !!! ");
+            that.logger.log("error", LOG_ID + "(onFileManagementMessageReceived) CATCH Error !!! : ", err);
         }
     };
 
@@ -2688,8 +2688,8 @@ class ConversationEventHandler extends GenericHandler {
                 }
             }
         } catch (err) {
-            that.logger.log("error", LOG_ID + "(onThumbnailManagementMessageReceived) CATCH Error !!! ");
-            that.logger.log("internalerror", LOG_ID + "(onThumbnailManagementMessageReceived) CATCH Error !!! : ", err);
+            // that.logger.log("error", LOG_ID + "(onThumbnailManagementMessageReceived) CATCH Error !!! ");
+            that.logger.log("error", LOG_ID + "(onThumbnailManagementMessageReceived) CATCH Error !!! : ", err);
         }
     };
 
@@ -2765,8 +2765,8 @@ class ConversationEventHandler extends GenericHandler {
                 }
             } // */
         } catch (err) {
-            that.logger.log("error", LOG_ID + "(onRoomsContainerManagementMessageReceived) CATCH Error !!! ");
-            that.logger.log("internalerror", LOG_ID + "(onRoomsContainerManagementMessageReceived) CATCH Error !!! : ", err);
+            // that.logger.log("error", LOG_ID + "(onRoomsContainerManagementMessageReceived) CATCH Error !!! ");
+            that.logger.log("error", LOG_ID + "(onRoomsContainerManagementMessageReceived) CATCH Error !!! : ", err);
         }
     };
     
@@ -2792,8 +2792,8 @@ class ConversationEventHandler extends GenericHandler {
                 that.eventEmitter.emit("evt_internal_connectorimportstatus", {reqId, seq, status, failed, warnings, succeeded, total});
             } // */
         } catch (err) {
-            that.logger.log("error", LOG_ID + "(onConnectorImportStatusMessageReceived) CATCH Error !!! ");
-            that.logger.log("internalerror", LOG_ID + "(onConnectorImportStatusMessageReceived) CATCH Error !!! : ", err);
+            // that.logger.log("error", LOG_ID + "(onConnectorImportStatusMessageReceived) CATCH Error !!! ");
+            that.logger.log("error", LOG_ID + "(onConnectorImportStatusMessageReceived) CATCH Error !!! : ", err);
         }
     };
     
@@ -2814,8 +2814,8 @@ class ConversationEventHandler extends GenericHandler {
                 that.eventEmitter.emit("evt_internal_connectorcommand", {command, commandId});
             } // */
         } catch (err) {
-            that.logger.log("error", LOG_ID + "(onConnectorCommandManagementMessageReceived) CATCH Error !!! ");
-            that.logger.log("internalerror", LOG_ID + "(onConnectorCommandManagementMessageReceived) CATCH Error !!! : ", err);
+            // that.logger.log("error", LOG_ID + "(onConnectorCommandManagementMessageReceived) CATCH Error !!! ");
+            that.logger.log("error", LOG_ID + "(onConnectorCommandManagementMessageReceived) CATCH Error !!! : ", err);
         }
     };
     
@@ -2835,8 +2835,8 @@ class ConversationEventHandler extends GenericHandler {
                 that.eventEmitter.emit("evt_internal_connectorcommand_ended", {commandId});
             } // */
         } catch (err) {
-            that.logger.log("error", LOG_ID + "(onConnectorCommandEndedMessageReceived) CATCH Error !!! ");
-            that.logger.log("internalerror", LOG_ID + "(onConnectorCommandEndedMessageReceived) CATCH Error !!! : ", err);
+            // that.logger.log("error", LOG_ID + "(onConnectorCommandEndedMessageReceived) CATCH Error !!! ");
+            that.logger.log("error", LOG_ID + "(onConnectorCommandEndedMessageReceived) CATCH Error !!! : ", err);
         }
     };
     
@@ -2857,8 +2857,8 @@ class ConversationEventHandler extends GenericHandler {
                 that.eventEmitter.emit("evt_internal_connectorconfig", {action, configId});
             } // */
         } catch (err) {
-            that.logger.log("error", LOG_ID + "(onConnectorConfigManagementMessageReceived) CATCH Error !!! ");
-            that.logger.log("internalerror", LOG_ID + "(onConnectorConfigManagementMessageReceived) CATCH Error !!! : ", err);
+            // that.logger.log("error", LOG_ID + "(onConnectorConfigManagementMessageReceived) CATCH Error !!! ");
+            that.logger.log("error", LOG_ID + "(onConnectorConfigManagementMessageReceived) CATCH Error !!! : ", err);
         }
     };
     
@@ -2879,8 +2879,8 @@ class ConversationEventHandler extends GenericHandler {
                 that.eventEmitter.emit("evt_internal_logsconfig", {action, contextid});
             } // */
         } catch (err) {
-            that.logger.log("error", LOG_ID + "(onLogsMessageReceived) CATCH Error !!! ");
-            that.logger.log("internalerror", LOG_ID + "(onLogsMessageReceived) CATCH Error !!! : ", err);
+            // that.logger.log("error", LOG_ID + "(onLogsMessageReceived) CATCH Error !!! ");
+            that.logger.log("error", LOG_ID + "(onLogsMessageReceived) CATCH Error !!! : ", err);
         }
     };
     
@@ -2899,11 +2899,11 @@ class ConversationEventHandler extends GenericHandler {
                     "subject": stanza.getChild('subject').text()
                 };
                 that.logger.log("error", LOG_ID + "(onErrorMessageReceived) no-store message setted...");
-                that.logger.log("internalerror", LOG_ID + "(onErrorMessageReceived) failed to send : ", err);
+                that.logger.log("error", LOG_ID + "(onErrorMessageReceived) failed to send : ", err);
                 that.eventEmitter.emit("evt_internal_onsendmessagefailed", err);
             } else {
-                that.logger.log("error", LOG_ID + "(onErrorMessageReceived) something goes wrong...");
-                that.logger.log("internalerror", LOG_ID + "(onErrorMessageReceived) something goes wrong... : ", msg, "\n", stanza.root ? prettydata.xml(stanza.root().toString()):stanza);
+                // that.logger.log("error", LOG_ID + "(onErrorMessageReceived) something goes wrong...");
+                that.logger.log("error", LOG_ID + "(onErrorMessageReceived) something goes wrong... : ", msg, "\n", stanza.root ? prettydata.xml(stanza.root().toString()):stanza);
                 let errorObject = {
                     message: msg,
                     stanza: stanza.root ? prettydata.xml(stanza.root().toString()):stanza
@@ -2932,13 +2932,13 @@ class ConversationEventHandler extends GenericHandler {
                 }
                 //return true;
             } catch (_err) {
-                that.logger.log("error", LOG_ID + "(onErrorMessageReceived) CATCH Error !!! while sending bubble initial presence.");
-                that.logger.log("internalerror", LOG_ID + "(onErrorMessageReceived) CATCH Error !!! while sending bubble initial presence : ", _err);
+                //  that.logger.log("error", LOG_ID + "(onErrorMessageReceived) CATCH Error !!! while sending bubble initial presence.");
+                that.logger.log("error", LOG_ID + "(onErrorMessageReceived) CATCH Error !!! while sending bubble initial presence : ", _err);
                 //return true;
             }
         } catch (err) {
-            that.logger.log("error", LOG_ID + "(onErrorMessageReceived) CATCH Error !!! ");
-            that.logger.log("internalerror", LOG_ID + "(onErrorMessageReceived) CATCH Error !!! : ", err);
+            //  that.logger.log("error", LOG_ID + "(onErrorMessageReceived) CATCH Error !!! ");
+            that.logger.log("error", LOG_ID + "(onErrorMessageReceived) CATCH Error !!! : ", err);
         }
     }
 

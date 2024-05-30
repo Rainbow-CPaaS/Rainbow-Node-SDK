@@ -294,13 +294,13 @@ class TelephonyEventHandler extends GenericHandler {
                 // */
                 return true;
             } else {
-                that.logger.log("error", LOG_ID + "(onMessageReceived) -- failure -- no name found in callservice children.");
-                that.logger.log("internalerror", LOG_ID + "(onMessageReceived) -- failure -- no name found in callservice children : ", stanzaElem);
+                // that.logger.log("error", LOG_ID + "(onMessageReceived) -- failure -- no name found in callservice children.");
+                that.logger.log("error", LOG_ID + "(onMessageReceived) -- failure -- no name found in callservice children : ", stanzaElem);
             }
         }
         catch (error) {
-            that.logger.log("error", LOG_ID + "(onMessageReceived) CATCH Error !!! -- failure -- ");
-            that.logger.log("internalerror", LOG_ID + "(onMessageReceived) CATCH Error !!! -- failure -- : ", error);
+            //  that.logger.log("error", LOG_ID + "(onMessageReceived) CATCH Error !!! -- failure -- ");
+            that.logger.log("error", LOG_ID + "(onMessageReceived) CATCH Error !!! -- failure -- : ", error);
             //return true;
         }
 
@@ -457,8 +457,8 @@ class TelephonyEventHandler extends GenericHandler {
                 }
                 catch (error) {
                     let errorMessage = "onOriginatedEvent -- " + error.message;
-                    that.logger.log("error", LOG_ID + "(onOriginatedEvent) Catch Error !!! " );
-                    that.logger.log("internalerror", LOG_ID + "(onOriginatedEvent) Catch Error !!! : ", errorMessage);
+                    //  that.logger.log("error", LOG_ID + "(onOriginatedEvent) Catch Error !!! " );
+                    that.logger.log("error", LOG_ID + "(onOriginatedEvent) Catch Error !!! : ", errorMessage);
                     return Promise.reject(new Error(errorMessage));
                 }
             });
@@ -495,8 +495,8 @@ class TelephonyEventHandler extends GenericHandler {
             }
             catch (error) {
                 let errorMessage = "onDeliveredEvent -- " + error.message;
-                that.logger.log("error", LOG_ID + "(onDeliveredEvent) Catch Error !!! " );
-                that.logger.log("internalerror", LOG_ID + "(onDeliveredEvent) Catch Error !!! : ", errorMessage);
+                //  that.logger.log("error", LOG_ID + "(onDeliveredEvent) Catch Error !!! " );
+                that.logger.log("error", LOG_ID + "(onDeliveredEvent) Catch Error !!! : ", errorMessage);
                 return Promise.reject(new Error(errorMessage));
             }
         }); // */
@@ -573,8 +573,8 @@ class TelephonyEventHandler extends GenericHandler {
             }
             catch (error) {
                 let errorMessage = "onEstablishedEvent -- " + error.message;
-                that.logger.log("error", LOG_ID + "(onEstablishedEvent) Catch Error!!! " );
-                that.logger.log("internalerror", LOG_ID + "(onEstablishedEvent) Catch Error!!! : ", errorMessage);
+                // that.logger.log("error", LOG_ID + "(onEstablishedEvent) Catch Error!!! " );
+                that.logger.log("error", LOG_ID + "(onEstablishedEvent) Catch Error!!! : ", errorMessage);
                 return Promise.reject(new Error(errorMessage));
             }
         }); // */
@@ -648,8 +648,8 @@ class TelephonyEventHandler extends GenericHandler {
             }
             catch (error) {
                 let errorMessage = "onHeldEvent -- " + error.message;
-                that.logger.log("error", LOG_ID + "(onHeldEvent) Catch Error!!! " );
-                that.logger.log("internalerror", LOG_ID + "(onHeldEvent) Catch Error!!! : ", errorMessage);
+                //  that.logger.log("error", LOG_ID + "(onHeldEvent) Catch Error!!! " );
+                that.logger.log("error", LOG_ID + "(onHeldEvent) Catch Error!!! : ", errorMessage);
                 return Promise.reject(new Error(errorMessage));
             }
         }); // */
@@ -689,8 +689,8 @@ class TelephonyEventHandler extends GenericHandler {
             }
             catch (error) {
                 let errorMessage = "onQueuedEvent -- " + error.message;
-                that.logger.log("error", LOG_ID + "(onHeldEvent) Catch Error!!! " );
-                that.logger.log("internalerror", LOG_ID + "(onHeldEvent) Catch Error!!! : ", errorMessage);
+                // that.logger.log("error", LOG_ID + "(onHeldEvent) Catch Error!!! " );
+                that.logger.log("error", LOG_ID + "(onHeldEvent) Catch Error!!! : ", errorMessage);
                 return Promise.reject(new Error(errorMessage));
             }
         });
@@ -1497,8 +1497,8 @@ class TelephonyEventHandler extends GenericHandler {
         }
         catch (error) {
             let errorMessage = "updateCallContact -- " + error.message;
-            that.logger.log("error", LOG_ID + "(updateCallContact) Catch Error !!! ");
-            that.logger.log("internalerror", LOG_ID + "(updateCallContact) Catch Error !!! : ", errorMessage);
+            // that.logger.log("error", LOG_ID + "(updateCallContact) Catch Error !!! ");
+            that.logger.log("error", LOG_ID + "(updateCallContact) Catch Error !!! : ", errorMessage);
             return Promise.reject(new Error(errorMessage));
         }
     }

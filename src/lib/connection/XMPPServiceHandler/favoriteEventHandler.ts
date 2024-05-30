@@ -176,8 +176,8 @@ class FavoriteEventHandler extends GenericHandler {
                 }
             });
         } catch (err) {
-            that.logger.log("error", LOG_ID + "(onManagementMessageReceived) CATCH Error !!! ");
-            that.logger.log("internalerror", LOG_ID + "(onManagementMessageReceived) CATCH Error !!! : ", err);
+            //  that.logger.log("error", LOG_ID + "(onManagementMessageReceived) CATCH Error !!! ");
+            that.logger.log("error", LOG_ID + "(onManagementMessageReceived) CATCH Error !!! : ", err);
         }
     };
 
@@ -212,8 +212,8 @@ class FavoriteEventHandler extends GenericHandler {
             }
             return true;
         } catch (err) {
-            that.logger.log("error", LOG_ID + "(onFavoriteManagementMessageReceived) -- failure -- ");
-            that.logger.log("internalerror", LOG_ID + "(onFavoriteManagementMessageReceived) -- failure -- : ", err.message);
+            //  that.logger.log("error", LOG_ID + "(onFavoriteManagementMessageReceived) -- failure -- ");
+            that.logger.log("error", LOG_ID + "(onFavoriteManagementMessageReceived) -- failure -- : ", err.message);
             return true;
         }
 
@@ -233,13 +233,13 @@ class FavoriteEventHandler extends GenericHandler {
             if (stanza.getChild('no-store') != undefined){
                 // // Treated in conversation handler that.logger.log("error", LOG_ID + "(onErrorMessageReceived) The 'to' of the message can not received the message");
             } else {
-                that.logger.log("error", LOG_ID + "(onErrorMessageReceived) something goes wrong...");
-                that.logger.log("internalerror", LOG_ID + "(onErrorMessageReceived) something goes wrong... : ", msg, "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
+                //  that.logger.log("error", LOG_ID + "(onErrorMessageReceived) something goes wrong...");
+                that.logger.log("error", LOG_ID + "(onErrorMessageReceived) something goes wrong... : ", msg, "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
                 that.eventEmitter.emit("evt_internal_xmpperror", msg);
             }
         } catch (err) {
-            that.logger.log("error", LOG_ID + "(onErrorMessageReceived) CATCH Error !!! ");
-            that.logger.log("internalerror", LOG_ID + "(onErrorMessageReceived) CATCH Error !!! : ", err);
+            //  that.logger.log("error", LOG_ID + "(onErrorMessageReceived) CATCH Error !!! ");
+            that.logger.log("error", LOG_ID + "(onErrorMessageReceived) CATCH Error !!! : ", err);
         }
     };
 

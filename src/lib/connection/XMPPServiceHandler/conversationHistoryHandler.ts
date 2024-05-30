@@ -647,8 +647,8 @@ class ConversationHistoryHandler  extends GenericHandler {
 
             return true;
         } catch (error) {
-            that.logger.log("error", LOG_ID + "(onHistoryMessageReceived) error ");
-            that.logger.log("internalerror", LOG_ID + "(onHistoryMessageReceived) error : ", error);
+            //  that.logger.log("error", LOG_ID + "(onHistoryMessageReceived) error ");
+            that.logger.log("error", LOG_ID + "(onHistoryMessageReceived) error : ", error);
             return true;
         }
     }

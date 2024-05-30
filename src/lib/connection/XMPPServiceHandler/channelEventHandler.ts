@@ -184,8 +184,8 @@ class ChannelEventHandler extends GenericHandler {
                 }
             });
         } catch (err) {
-            that.logger.log("error", LOG_ID + "(onManagementMessageReceived) CATCH Error !!! ");
-            that.logger.log("internalerror", LOG_ID + "(onManagementMessageReceived) CATCH Error !!! : ", err);
+            // that.logger.log("error", LOG_ID + "(onManagementMessageReceived) CATCH Error !!! ");
+            that.logger.log("error", LOG_ID + "(onManagementMessageReceived) CATCH Error !!! : ", err);
         }
     };
 
@@ -328,8 +328,8 @@ class ChannelEventHandler extends GenericHandler {
 
                         that.eventEmitter.emit("evt_internal_channelitemreceived", message);
                     } else {
-                        that.logger.log("error", LOG_ID + "(onHeadlineMessageReceived) channel entry received, but empty. It can not be parsed, so ignored.");
-                        that.logger.log("internalerror", LOG_ID + "(onHeadlineMessageReceived) channel entry received, but empty. It can not be parsed, so ignored. : ", stanza);
+                        //  that.logger.log("error", LOG_ID + "(onHeadlineMessageReceived) channel entry received, but empty. It can not be parsed, so ignored.");
+                        that.logger.log("error", LOG_ID + "(onHeadlineMessageReceived) channel entry received, but empty. It can not be parsed, so ignored. : ", stanza);
                     }
                 }
                     break;
@@ -345,8 +345,8 @@ class ChannelEventHandler extends GenericHandler {
 
             } // */
         } catch (err) {
-            that.logger.log("error", LOG_ID + "(onHeadlineMessageReceived) CATCH Error !!! ");
-            that.logger.log("internalerror", LOG_ID + "(onHeadlineMessageReceived) CATCH Error !!! : ", err);
+            // that.logger.log("error", LOG_ID + "(onHeadlineMessageReceived) CATCH Error !!! ");
+            that.logger.log("error", LOG_ID + "(onHeadlineMessageReceived) CATCH Error !!! : ", err);
         }
     };
 
@@ -447,8 +447,8 @@ class ChannelEventHandler extends GenericHandler {
             return true;
         }
         catch (err) {
-            that.logger.log("error", LOG_ID + "(onChannelManagementMessageReceived) -- failure -- " );
-            that.logger.log("internalerror", LOG_ID + "(onChannelManagementMessageReceived) -- failure -- : " + err.message);
+            //  that.logger.log("error", LOG_ID + "(onChannelManagementMessageReceived) -- failure -- " );
+            that.logger.log("error", LOG_ID + "(onChannelManagementMessageReceived) -- failure -- : " + err.message);
             return true;
         }
     };
@@ -464,13 +464,13 @@ class ChannelEventHandler extends GenericHandler {
             if (stanza.getChild('no-store') != undefined){
                 // // Treated in conversation handler that.logger.log("error", LOG_ID + "(onErrorMessageReceived) The 'to' of the message can not received the message");
             } else {
-                that.logger.log("error", LOG_ID + "(onErrorMessageReceived) something goes wrong...");
-                that.logger.log("internalerror", LOG_ID + "(onErrorMessageReceived) something goes wrong...", msg, "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
+                //  that.logger.log("error", LOG_ID + "(onErrorMessageReceived) something goes wrong...");
+                that.logger.log("error", LOG_ID + "(onErrorMessageReceived) something goes wrong...", msg, "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
                 that.eventEmitter.emit("evt_internal_xmpperror", msg);
             }
         } catch (err) {
-            that.logger.log("error", LOG_ID + "(onErrorMessageReceived) CATCH Error !!! ");
-            that.logger.log("internalerror", LOG_ID + "(onErrorMessageReceived) CATCH Error !!! : ", err);
+            //  that.logger.log("error", LOG_ID + "(onErrorMessageReceived) CATCH Error !!! ");
+            that.logger.log("error", LOG_ID + "(onErrorMessageReceived) CATCH Error !!! : ", err);
         }
     };
 
