@@ -2890,23 +2890,23 @@ class ConversationEventHandler extends GenericHandler {
     async onErrorMessageReceived(msg, stanza) {
         let that = this;
         try {
-
+            that.logger.log("warn", LOG_ID + "(onErrorMessageReceived) something goes wrong... : ", msg, "\n", stanza?.root ? prettydata.xml(stanza.root().toString()):stanza);
             if (stanza.getChild('no-store')!=undefined) {
                 that.logger.log("error", LOG_ID + "(onErrorMessageReceived) The message could not be delivered.");
                 let err = {
                     "id": stanza.attrs.id,
-                    "body": stanza.getChild('body').text(),
-                    "subject": stanza.getChild('subject').text()
+                    "body": stanza.getChild('body')?.text(),
+                    "subject": stanza.getChild('subject')?.text()
                 };
                 that.logger.log("error", LOG_ID + "(onErrorMessageReceived) no-store message setted...");
                 that.logger.log("error", LOG_ID + "(onErrorMessageReceived) failed to send : ", err);
                 that.eventEmitter.emit("evt_internal_onsendmessagefailed", err);
             } else {
                 // that.logger.log("error", LOG_ID + "(onErrorMessageReceived) something goes wrong...");
-                that.logger.log("error", LOG_ID + "(onErrorMessageReceived) something goes wrong... : ", msg, "\n", stanza.root ? prettydata.xml(stanza.root().toString()):stanza);
+                that.logger.log("error", LOG_ID + "(onErrorMessageReceived) something goes wrong... : ", msg, "\n", stanza?.root ? prettydata.xml(stanza.root().toString()):stanza);
                 let errorObject = {
                     message: msg,
-                    stanza: stanza.root ? prettydata.xml(stanza.root().toString()):stanza
+                    stanza: stanza?.root ? prettydata.xml(stanza.root().toString()):stanza
                 };
                 that.eventEmitter.emit("evt_internal_xmpperror", errorObject);
             }

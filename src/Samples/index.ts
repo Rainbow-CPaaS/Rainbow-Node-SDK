@@ -769,6 +769,23 @@ let urlS2S;
             rainbowSDK._core._xmpp.mockStanza(stanza);
         } // */
 
+        testConversationEventHandler_onErrorMessageReceived() {
+            try {
+                let stanza = undefined;
+
+                logger.log("info", "MAIN - (testConversationEventHandler_onErrorMessageReceived) stanza?.root : ", stanza?.root);
+                logger.log("info", "MAIN - (testConversationEventHandler_onErrorMessageReceived) stanza?.root() : ", stanza?.root());
+                logger.log("info", "MAIN - (testConversationEventHandler_onErrorMessageReceived) stanza?.root().toString() : ", stanza?.root().toString());
+
+                rainbowSDK.conversations.conversationEventHandler.onErrorMessageReceived("<xml></xml>", {});
+                rainbowSDK.conversations.conversationEventHandler.onErrorMessageReceived(undefined, undefined);
+                logger.log("info", "MAIN - (testConversationEventHandler_onErrorMessageReceived) result : ");
+                // */
+            } catch (err) {
+                logger.log("error", "MAIN - (testConversationEventHandler_onErrorMessageReceived) Error : ", err);
+            }
+        }
+
         // region File JSON
         testloadDocJSON() {
             let pathJson = path.join(__dirname,'../build/JSONDOCS/BubblesService.json');

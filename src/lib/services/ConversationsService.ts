@@ -26,7 +26,7 @@ import {S2SService} from "./S2SService";
 import {Core} from "../Core";
 import {PresenceService} from "./PresenceService";
 import {Message} from "../common/models/Message";
-import {Bubble} from "../common/models/Bubble";
+import bubble, {Bubble} from "../common/models/Bubble";
 import {GenericService} from "./GenericService";
 
 const LOG_ID = "CONVERSATIONS/SVCE - ";
@@ -49,6 +49,9 @@ const LOG_ID = "CONVERSATIONS/SVCE - ";
  * <br>
  *   */
 class ConversationsService extends GenericService {
+    public get conversationEventHandler(): ConversationEventHandler {
+        return this._conversationEventHandler;
+    }
     private _contactsService: ContactsService;
     private _fileStorageService: FileStorageService;
     private _fileServerService: FileServerService;
