@@ -41,8 +41,8 @@ class PresenceEventHandler extends GenericHandler {
         let xmppUtils = XMPPUTils.getXMPPUtils();
 
         try {
-            //that.logger.log("internal", LOG_ID + "(onPresenceReceived) _entering_ : ", msg, stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
-            that.logger.log("debug", LOG_ID + "(onPresenceReceived) _entering_ : ", msg, stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
+            //that.logger.log("internal", LOG_ID + "(onPresenceReceived) _entering_ : ", msg, stanza?.root ? prettydata.xml(stanza?.root().toString()) : stanza);
+            that.logger.log("debug", LOG_ID + "(onPresenceReceived) _entering_ : ", msg, stanza?.root ? prettydata.xml(stanza?.root().toString()) : stanza);
             //that.logger.log("internal", LOG_ID + "(onPresenceReceived) msg : ", msg, "stanza : ", stanza);
             let from = stanza.attrs.from;
 

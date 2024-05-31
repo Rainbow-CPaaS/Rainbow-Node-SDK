@@ -168,7 +168,7 @@ class ConversationEventHandler extends GenericHandler {
         let that = this;
 
         that.logger.log("debug", LOG_ID + "(parseConferenceV2UpdatedEvent) __entering__ ");
-        that.logger.log("internal", LOG_ID + "(parseConferenceV2UpdatedEvent) stanza : ", stanza.root ? prettydata.xml(stanza.root().toString()):stanza, ", node : ", node);
+        that.logger.log("internal", LOG_ID + "(parseConferenceV2UpdatedEvent) stanza : ", stanza?.root ? prettydata.xml(stanza?.root().toString()):stanza, ", node : ", node);
 
         let xmlNodeStr = node ? node.toString():"<xml></xml>";
         let jsonNode = await getJsonFromXML(xmlNodeStr);
@@ -398,7 +398,7 @@ class ConversationEventHandler extends GenericHandler {
     async onChatMessageReceived(msg, stanza: Element) {
         let that = this;
         try {
-            that.logger.log("internal", LOG_ID + "(onChatMessageReceived) _entering_ : ", msg, "\n", stanza.root ? prettydata.xml(stanza.root().toString()):stanza);
+            that.logger.log("internal", LOG_ID + "(onChatMessageReceived) _entering_ : ", msg, "\n", stanza?.root ? prettydata.xml(stanza?.root().toString()):stanza);
             let content = "";
             let lang = "";
             let alternativeContent: Array<{ "message": string, "type": string }> = [];
@@ -1025,7 +1025,7 @@ class ConversationEventHandler extends GenericHandler {
                     }
                     default:
                         // that.logger.log("error", LOG_ID + "(onChatMessageReceived) id : ", id, ", unmanaged chat message node : ", node.getName());
-                        that.logger.log("error", LOG_ID + "(onChatMessageReceived) id : ", id, ", unmanaged chat message node : ", node.getName(), "\n", stanza.root ? prettydata.xml(stanza.root().toString()):stanza);
+                        that.logger.log("error", LOG_ID + "(onChatMessageReceived) id : ", id, ", unmanaged chat message node : ", node.getName(), "\n", stanza?.root ? prettydata.xml(stanza?.root().toString()):stanza);
                         break;
                 }
             }
@@ -1116,7 +1116,7 @@ class ConversationEventHandler extends GenericHandler {
                 }
                     break;
                 default:
-                    that.logger.log("error", LOG_ID + "(onChatMessageReceived) id : ", id, ", no treatment of event ", msg, ", eventName : ", eventName, " : ", "\n", stanza.root ? prettydata.xml(stanza.root().toString()):stanza, " so default."); //, this.eventEmitter
+                    that.logger.log("error", LOG_ID + "(onChatMessageReceived) id : ", id, ", no treatment of event ", msg, ", eventName : ", eventName, " : ", "\n", stanza?.root ? prettydata.xml(stanza?.root().toString()):stanza, " so default."); //, this.eventEmitter
             }
 
             let fromBubbleJid = "";
@@ -1324,7 +1324,7 @@ class ConversationEventHandler extends GenericHandler {
                 //that._onMessageReceived(conversationId, data);
             } else {
                 that.logger.log("debug", LOG_ID + "(onChatMessageReceived) We are the sender, so ignore it.");
-                that.logger.log("internal", LOG_ID + "(onChatMessageReceived) We are the sender, so ignore it : ", "\n", stanza.root ? prettydata.xml(stanza.root().toString()):stanza);
+                that.logger.log("internal", LOG_ID + "(onChatMessageReceived) We are the sender, so ignore it : ", "\n", stanza?.root ? prettydata.xml(stanza?.root().toString()):stanza);
             }
         } catch (err) {
             //  that.logger.log("error", LOG_ID + "(onChatMessageReceived) CATCH Error !!! ");
@@ -2110,7 +2110,7 @@ class ConversationEventHandler extends GenericHandler {
     onManagementMessageReceived (msg, stanza) {
         let that = this;
         try {
-            that.logger.log("internal", LOG_ID + "(onManagementMessageReceived) _entering_ : ", msg, stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
+            that.logger.log("internal", LOG_ID + "(onManagementMessageReceived) _entering_ : ", msg, stanza?.root ? prettydata.xml(stanza?.root().toString()) : stanza);
             let children = stanza.children;
             children.forEach(function (node) {
                 switch (node.getName()) {
@@ -2890,7 +2890,7 @@ class ConversationEventHandler extends GenericHandler {
     async onErrorMessageReceived(msg, stanza) {
         let that = this;
         try {
-            that.logger.log("warn", LOG_ID + "(onErrorMessageReceived) something goes wrong... : ", msg, "\n", stanza?.root ? prettydata.xml(stanza.root().toString()):stanza);
+            that.logger.log("warn", LOG_ID + "(onErrorMessageReceived) something goes wrong... : ", msg, "\n", stanza?.root ? prettydata.xml(stanza?.root().toString()):stanza);
             if (stanza.getChild('no-store')!=undefined) {
                 that.logger.log("error", LOG_ID + "(onErrorMessageReceived) The message could not be delivered.");
                 let err = {
@@ -2903,10 +2903,10 @@ class ConversationEventHandler extends GenericHandler {
                 that.eventEmitter.emit("evt_internal_onsendmessagefailed", err);
             } else {
                 // that.logger.log("error", LOG_ID + "(onErrorMessageReceived) something goes wrong...");
-                that.logger.log("error", LOG_ID + "(onErrorMessageReceived) something goes wrong... : ", msg, "\n", stanza?.root ? prettydata.xml(stanza.root().toString()):stanza);
+                that.logger.log("error", LOG_ID + "(onErrorMessageReceived) something goes wrong... : ", msg, "\n", stanza?.root ? prettydata.xml(stanza?.root().toString()):stanza);
                 let errorObject = {
                     message: msg,
-                    stanza: stanza?.root ? prettydata.xml(stanza.root().toString()):stanza
+                    stanza: stanza?.root ? prettydata.xml(stanza?.root().toString()):stanza
                 };
                 that.eventEmitter.emit("evt_internal_xmpperror", errorObject);
             }

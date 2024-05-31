@@ -92,7 +92,7 @@ class CallLogEventHandler extends GenericHandler {
 
     onIqCallLogReceived (msg, stanza) {
         let that = this;
-        that.logger.log("internal", LOG_ID + "(onIqCallLogReceived) received - 'stanza'", msg, "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
+        that.logger.log("internal", LOG_ID + "(onIqCallLogReceived) received - 'stanza'", msg, "\n", stanza?.root ? prettydata.xml(stanza?.root().toString()) : stanza);
         try {
             //that.logger.log("debug", LOG_ID + "[callLogService] onCallLogMessageReceived");
             //handle message
@@ -141,7 +141,7 @@ class CallLogEventHandler extends GenericHandler {
 
     onCallLogAckReceived (msg, stanza) {
         let that = this;
-        that.logger.log("internal", LOG_ID + "(onCallLogAckReceived) received - 'stanza'", msg, "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
+        that.logger.log("internal", LOG_ID + "(onCallLogAckReceived) received - 'stanza'", msg, "\n", stanza?.root ? prettydata.xml(stanza?.root().toString()) : stanza);
         try {
             that.logger.log("debug", LOG_ID + "(onCallLogAckReceived) received");
             //console.log(stanza);
@@ -172,7 +172,7 @@ class CallLogEventHandler extends GenericHandler {
     async onIqCallLogNotificationReceived (msg, stanza) {
         let that = this;
 
-        that.logger.log("internal", LOG_ID + "(onIqCallLogNotificationReceived) received - 'stanza'", msg, "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
+        that.logger.log("internal", LOG_ID + "(onIqCallLogNotificationReceived) received - 'stanza'", msg, "\n", stanza?.root ? prettydata.xml(stanza?.root().toString()) : stanza);
         that.logger.log("debug", LOG_ID + "(onIqCallLogNotificationReceived) received");
         //console.log(stanza);
 

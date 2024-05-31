@@ -60,7 +60,7 @@ class ConversationHistoryHandler  extends GenericHandler {
     onMamMessageReceived (msg, stanza) {
         let that = this;
         try {
-            that.logger.log("internal", LOG_ID + "(onMamMessageReceived) _entering_ : ", msg, "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
+            that.logger.log("internal", LOG_ID + "(onMamMessageReceived) _entering_ : ", msg, "\n", stanza?.root ? prettydata.xml(stanza?.root().toString()) : stanza);
             // Get queryId and deleteId
             let queryId = stanza.getChild("result") ? stanza.getChild("result").getAttr("queryid") : null;
             if (!queryId) {
@@ -94,7 +94,7 @@ class ConversationHistoryHandler  extends GenericHandler {
         // Handle response
         try {
             let conversation : Conversation = null;
-            that.logger.log("internal", LOG_ID + "(onHistoryMessageReceived) _entering_ : ", msg, "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
+            that.logger.log("internal", LOG_ID + "(onHistoryMessageReceived) _entering_ : ", msg, "\n", stanza?.root ? prettydata.xml(stanza?.root().toString()) : stanza);
 
             let queryId = stanza.getChild("result") ? stanza.getChild("result").getAttr("queryid") : null;
             if (queryId) {

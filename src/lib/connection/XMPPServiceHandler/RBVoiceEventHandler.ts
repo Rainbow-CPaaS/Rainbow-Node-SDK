@@ -96,7 +96,7 @@ class RBVoiceEventHandler extends GenericHandler {
                 // // Treated in conversation handler that.logger.log("error", LOG_ID + "(onErrorMessageReceived) The 'to' of the message can not received the message");
             } else {
                 //  that.logger.log("error", LOG_ID + "(onErrorMessageReceived) something goes wrong...");
-                that.logger.log("error", LOG_ID + "(onErrorMessageReceived) something goes wrong... : ", msg, "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
+                that.logger.log("error", LOG_ID + "(onErrorMessageReceived) something goes wrong... : ", msg, "\n", stanza?.root ? prettydata.xml(stanza?.root().toString()) : stanza);
                 that.eventEmitter.emit("evt_internal_xmpperror", msg);
             }
         } catch (err) {
@@ -108,7 +108,7 @@ class RBVoiceEventHandler extends GenericHandler {
     async onMessageReceived(msg, stanza) {
         let that = this;
 
-        that.logger.log("internal", LOG_ID + "(onMessageReceived) _entering_ : ", msg, stanza.root ? prettydata.xml(stanza.root().toString()):stanza);
+        that.logger.log("internal", LOG_ID + "(onMessageReceived) _entering_ : ", msg, stanza?.root ? prettydata.xml(stanza?.root().toString()):stanza);
         try {
             let stanzaElem = stanza;
             //let that = this;
@@ -139,7 +139,7 @@ class RBVoiceEventHandler extends GenericHandler {
     async onManagementMessageReceived(msg, stanza) {
         let that = this;
 
-        that.logger.log("internal", LOG_ID + "(onManagementMessageReceived) _entering_ : ", msg, stanza.root ? prettydata.xml(stanza.root().toString()):stanza);
+        that.logger.log("internal", LOG_ID + "(onManagementMessageReceived) _entering_ : ", msg, stanza?.root ? prettydata.xml(stanza?.root().toString()):stanza);
         try {
             let stanzaElem = stanza;
             //let that = this;
@@ -170,7 +170,7 @@ class RBVoiceEventHandler extends GenericHandler {
     async onHeadlineMessageReceived(msg, stanza) {
         let that = this;
 
-        that.logger.log("internal", LOG_ID + "(onHeadlineMessageReceived) _entering_ : ", msg, stanza.root ? prettydata.xml(stanza.root().toString()):stanza);
+        that.logger.log("internal", LOG_ID + "(onHeadlineMessageReceived) _entering_ : ", msg, stanza?.root ? prettydata.xml(stanza?.root().toString()):stanza);
         try {
             let stanzaElem = stanza;
             //let that = this;

@@ -147,7 +147,7 @@ class TelephonyEventHandler extends GenericHandler {
     onMessageReceived (msg, stanza) {
         let that = this;
 
-        that.logger.log("internal", LOG_ID + "(onMessageReceived) _entering_ : ", msg, stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
+        that.logger.log("internal", LOG_ID + "(onMessageReceived) _entering_ : ", msg, stanza?.root ? prettydata.xml(stanza?.root().toString()) : stanza);
         try {
             let stanzaElem = stanza;
             //let that = this;

@@ -359,8 +359,8 @@ class XMPPService extends GenericService {
                          // stanza.append(xml("show", {}, "away"));
                          // stanza.append(xml("status", {}, "away"));
 
-                        that.logger.log("debug", LOG_ID + "(stop) send Unavailable Presence- send - 'message'", stanza.root().toString());
-                        //that.logger.log("internal", LOG_ID + "(stop) send Unavailable Presence- send - 'message'", stanza.root().toString());
+                        that.logger.log("debug", LOG_ID + "(stop) send Unavailable Presence- send - 'message'", stanza?.root().toString());
+                        //that.logger.log("internal", LOG_ID + "(stop) send Unavailable Presence- send - 'message'", stanza?.root().toString());
                         that.xmppClient.send(stanza).catch((err) => {
                             that.logger.log("warn", LOG_ID + "(stop) send failed to send Unavailable Presence, error : ", err);
                         });
@@ -624,7 +624,7 @@ class XMPPService extends GenericService {
                     "id": that.xmppUtils.getUniqueMessageId()
                 }, xml("enable", { "companyid" : companyId, "xmlns": NameSpacesLabels.MonitoringNS}));
 
-                that.logger.log("internal", LOG_ID + "(handleXMPPConnection) send - 'iq set' : ", stanza.root().toString());
+                that.logger.log("internal", LOG_ID + "(handleXMPPConnection) send - 'iq set' : ", stanza?.root().toString());
                 that.xmppClient.sendIq(stanza);
             }
             
@@ -707,10 +707,10 @@ class XMPPService extends GenericService {
                     }
                     break;
                 case "presence":
-                    that.logger.log("debug", LOG_ID + "(handleXMPPConnection) presence received : ", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
+                    that.logger.log("debug", LOG_ID + "(handleXMPPConnection) presence received : ", stanza?.root ? prettydata.xml(stanza?.root().toString()) : stanza);
                     break;
                 case "close":
-                    that.logger.log("warn", LOG_ID + "(handleXMPPConnection) close received : ", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
+                    that.logger.log("warn", LOG_ID + "(handleXMPPConnection) close received : ", stanza?.root ? prettydata.xml(stanza?.root().toString()) : stanza);
                     break;
                 default:
                     that.logger.log("warn", LOG_ID + "(handleXMPPConnection) not managed - 'stanza' : ", stanza.getName());
@@ -846,7 +846,7 @@ class XMPPService extends GenericService {
                 "xmlns": NameSpacesLabels.XmppFraming
             });
 
-            that.logger.log("warn", LOG_ID + "(handleXMPPConnection) send close XMPP Layer, to allow reconnect on the same websocket with same resource. : ", stanza.root().toString());
+            that.logger.log("warn", LOG_ID + "(handleXMPPConnection) send close XMPP Layer, to allow reconnect on the same websocket with same resource. : ", stanza?.root().toString());
             return that.xmppClient.send(stanza);
         });
 
@@ -903,7 +903,7 @@ class XMPPService extends GenericService {
                 "id": that.xmppUtils.getUniqueMessageId()
             }, xml("query", {"xmlns": "http://jabber.org/protocol/disco#info"}));
 
-            that.logger.log("internal", LOG_ID + "(handleXMPPConnection) send IQ discover : ", stanza.root().toString());
+            that.logger.log("internal", LOG_ID + "(handleXMPPConnection) send IQ discover : ", stanza?.root().toString());
             return that.xmppClient.send(stanza);
             // */
 
@@ -1795,7 +1795,7 @@ class XMPPService extends GenericService {
             "id": that.xmppUtils.getUniqueMessageId()
         }, xml("pbxagentstatus", {"xmlns": NameSpacesLabels.Monitoring1NameSpace}));
 
-        that.logger.log("internal", LOG_ID + "(getAgentStatus) send - 'iq get'", stanza.root().toString());
+        that.logger.log("internal", LOG_ID + "(getAgentStatus) send - 'iq get'", stanza?.root().toString());
         return that.xmppClient.sendIq(stanza);
     };
 
@@ -1818,7 +1818,7 @@ class XMPPService extends GenericService {
                 stanza.append(xml("priority", {}, "5"));
             }
 
-            that.logger.log("internal", LOG_ID + "(sendInitialBubblePresence) send - 'message'", stanza.root().toString());
+            that.logger.log("internal", LOG_ID + "(sendInitialBubblePresence) send - 'message'", stanza?.root().toString());
             return that.xmppClient.send(stanza);
         } else {
             that.logger.log("warn", LOG_ID + "(sendInitialBubblePresence) No XMPP connection...");
@@ -1837,7 +1837,7 @@ class XMPPService extends GenericService {
                 type: "unavailable"
             }, xml("x", {"xmlns": NameSpacesLabels.MucNameSpace}));
 
-            that.logger.log("internal", LOG_ID + "(sendUnavailableBubblePresence) send - 'message'", stanza.root().toString());
+            that.logger.log("internal", LOG_ID + "(sendUnavailableBubblePresence) send - 'message'", stanza?.root().toString());
             that.xmppClient.send(stanza);
         } else {
             that.logger.log("warn", LOG_ID + "(sendUnavailableBubblePresence) No XMPP connection...");
@@ -1856,7 +1856,7 @@ class XMPPService extends GenericService {
                 }, xml("pbxagentstatus", {"xmlns": NameSpacesLabels.Monitoring1NameSpace}));
 
 
-                that.logger.log("internal", LOG_ID + "(getAgentStatus) send - 'iq get'", stanza.root().toString());
+                that.logger.log("internal", LOG_ID + "(getAgentStatus) send - 'iq get'", stanza?.root().toString());
                 that.xmppClient.sendIq(stanza).then((data : any) => {
                     let pbxagentstatus = {
                         "phoneapi": "",
@@ -2232,7 +2232,7 @@ class XMPPService extends GenericService {
                 }, xml("callservice", {"xmlns":  NameSpacesLabels.CallService1NameSpace}, xml("connections", {deviceType: "SECONDARY"})));
             }
 
-                that.logger.log("internal", LOG_ID + "(getTelephonyState) send - 'iq get'", stanza.root().toString());
+                that.logger.log("internal", LOG_ID + "(getTelephonyState) send - 'iq get'", stanza?.root().toString());
             that.xmppClient.sendIq(stanza).then((data)=> {
                 that.logger.log("debug", LOG_ID + "(getTelephonyState) received - 'iq result'");
                 that.logger.log("internal", LOG_ID + "(getTelephonyState) received - 'iq result'", data);
@@ -2270,7 +2270,7 @@ class XMPPService extends GenericService {
                     "id": id
                 }, xml("ping", {xmlns: NameSpacesLabels.PingNameSpace}));
 
-                that.logger.log("debug", LOG_ID + "(sendPing) send - 'message'", stanza.root().toString(), " for Rainbow Node SDK version : ", packageVersion.version);
+                that.logger.log("debug", LOG_ID + "(sendPing) send - 'message'", stanza?.root().toString(), " for Rainbow Node SDK version : ", packageVersion.version);
                 if (that.xmppClient) {
                     return that.xmppClient.send(stanza).catch((error) => {
                         that.logger.log("error", LOG_ID + "(sendPing) error ");

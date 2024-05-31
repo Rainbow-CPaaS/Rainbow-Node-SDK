@@ -44,7 +44,7 @@ class IQEventHandler extends GenericHandler {
     onIqGetSetReceived (msg, stanza) {
         let that = this;
         try {
-            that.logger.log("internal", LOG_ID + "(onIqGetSetReceived) _entering_ : ", msg, stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
+            that.logger.log("internal", LOG_ID + "(onIqGetSetReceived) _entering_ : ", msg, stanza?.root ? prettydata.xml(stanza?.root().toString()) : stanza);
             let children = stanza.children;
             children.forEach((node) => {
                 switch (node.getName()) {
@@ -62,13 +62,13 @@ class IQEventHandler extends GenericHandler {
                         // The treatment is in HttpoverxmppEventHandler
                         break;
                     case "default":
-                        that.logger.log("internal", LOG_ID + "(onIqGetSetReceived) default : ", msg, stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
+                        that.logger.log("internal", LOG_ID + "(onIqGetSetReceived) default : ", msg, stanza?.root ? prettydata.xml(stanza?.root().toString()) : stanza);
                         that.logger.log("warn", LOG_ID + "(onIqGetSetReceived) not managed - 'stanza'", node.getName());
                         break;
                     default:
-                        that.logger.log("internal", LOG_ID + "(onIqGetSetReceived) _entering_ : ", msg, stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
+                        that.logger.log("internal", LOG_ID + "(onIqGetSetReceived) _entering_ : ", msg, stanza?.root ? prettydata.xml(stanza?.root().toString()) : stanza);
                         that.logger.log("warn", LOG_ID + "(onIqGetSetReceived) child not managed for iq - 'stanza'", node.getName());
-                        that.logger.log("internal", LOG_ID + "(onIqGetSetReceived) child not managed for iq - 'stanza' name : ", node.getName(), ",stanza : ",  "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza, " node : ", node);
+                        that.logger.log("internal", LOG_ID + "(onIqGetSetReceived) child not managed for iq - 'stanza' name : ", node.getName(), ",stanza : ",  "\n", stanza?.root ? prettydata.xml(stanza?.root().toString()) : stanza, " node : ", node);
 
                 }
             });
@@ -82,7 +82,7 @@ class IQEventHandler extends GenericHandler {
         let that = this;
 
         try {
-            that.logger.log("internal", LOG_ID + "(onIqResultReceived) _entering_", msg, "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
+            that.logger.log("internal", LOG_ID + "(onIqResultReceived) _entering_", msg, "\n", stanza?.root ? prettydata.xml(stanza?.root().toString()) : stanza);
             let children = stanza.children;
             children.forEach((node) => {
                 switch (node.getName()) {
@@ -107,7 +107,7 @@ class IQEventHandler extends GenericHandler {
                         break;
                     default:
                         that.logger.log("warn", LOG_ID + "(onIqResultReceived) - child not managed for iq - 'stanza'", node.getName());
-                        that.logger.log("internal", LOG_ID + "(onIqResultReceived) - child not managed for iq - 'stanza' name : ", node.getName(), ", stanza : ",  "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza, " node : ", node);
+                        that.logger.log("internal", LOG_ID + "(onIqResultReceived) - child not managed for iq - 'stanza' name : ", node.getName(), ", stanza : ",  "\n", stanza?.root ? prettydata.xml(stanza?.root().toString()) : stanza, " node : ", node);
                 }
             });
             if (stanza.attrs.id === "enable_xmpp_carbon") {
@@ -173,7 +173,7 @@ class IQEventHandler extends GenericHandler {
         let that = this;
 
         try {
-            that.logger.log("internal", LOG_ID + "(_onIqGetQueryReceived) _entering_ : ", "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza, "\n", node.root ? prettydata.xml(node.root().toString()) : node);
+            that.logger.log("internal", LOG_ID + "(_onIqGetQueryReceived) _entering_ : ", "\n", stanza?.root ? prettydata.xml(stanza?.root().toString()) : stanza, "\n", node.root ? prettydata.xml(node.root().toString()) : node);
             if (node.attrs.xmlns === "jabber:iq:roster") {
                 let contacts = [];
                 let subchildren = node.children;

@@ -56,7 +56,7 @@ class RpcoverxmppEventHandler extends GenericHandler {
     onIqGetSetReceived (msg, stanza) {
         let that = this;
         try {
-            that.logger.log("internal", LOG_ID + "(onIqGetSetReceived) _entering_ : ", msg, stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
+            that.logger.log("internal", LOG_ID + "(onIqGetSetReceived) _entering_ : ", msg, stanza?.root ? prettydata.xml(stanza?.root().toString()) : stanza);
             let children = stanza.children;
             children.forEach((node) => {
                 switch (node.getName()) {
@@ -76,13 +76,13 @@ class RpcoverxmppEventHandler extends GenericHandler {
                         // treatement in iqEventHandler
                         break;
                     /*case "default":
-                        that.logger.log("internal", LOG_ID + "(onIqGetSetReceived) default : ", msg, stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
+                        that.logger.log("internal", LOG_ID + "(onIqGetSetReceived) default : ", msg, stanza?.root ? prettydata.xml(stanza?.root().toString()) : stanza);
                         that.logger.log("warn", LOG_ID + "(onIqGetSetReceived) not managed - 'stanza'", node.getName());
                         break; // */
                     default:
-                        that.logger.log("internal", LOG_ID + "(onIqGetSetReceived) _entering_ : ", msg, stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
+                        that.logger.log("internal", LOG_ID + "(onIqGetSetReceived) _entering_ : ", msg, stanza?.root ? prettydata.xml(stanza?.root().toString()) : stanza);
                         that.logger.log("warn", LOG_ID + "(onIqGetSetReceived) child not managed for iq - 'stanza' name : ", node.getName());
-                        that.logger.log("internal", LOG_ID + "(onIqGetSetReceived) child not managed for iq - 'stanza' name : ", node.getName(), ",stanza : ",  "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza, " node : ", node);
+                        that.logger.log("internal", LOG_ID + "(onIqGetSetReceived) child not managed for iq - 'stanza' name : ", node.getName(), ",stanza : ",  "\n", stanza?.root ? prettydata.xml(stanza?.root().toString()) : stanza, " node : ", node);
 
                 }
             });
@@ -96,7 +96,7 @@ class RpcoverxmppEventHandler extends GenericHandler {
         let that = this;
 
         try {
-            that.logger.log("internal", LOG_ID + "(onIqResultReceived) _entering_", msg, "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
+            that.logger.log("internal", LOG_ID + "(onIqResultReceived) _entering_", msg, "\n", stanza?.root ? prettydata.xml(stanza?.root().toString()) : stanza);
             let children = stanza.children;
             children.forEach((node) => {
                 switch (node.getName()) {
@@ -123,7 +123,7 @@ class RpcoverxmppEventHandler extends GenericHandler {
                         break; //*/
                     default:
                         that.logger.log("warn", LOG_ID + "(onIqResultReceived) - child not managed for iq - 'stanza'", node.getName());
-                        that.logger.log("internal", LOG_ID + "(onIqResultReceived) - child not managed for iq - 'stanza' name : ", node.getName(), ", stanza : ",  "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza, " node : ", node);
+                        that.logger.log("internal", LOG_ID + "(onIqResultReceived) - child not managed for iq - 'stanza' name : ", node.getName(), ", stanza : ",  "\n", stanza?.root ? prettydata.xml(stanza?.root().toString()) : stanza, " node : ", node);
                 }
             });
         } catch (err) {
@@ -136,7 +136,7 @@ class RpcoverxmppEventHandler extends GenericHandler {
         let that = this;
         // treatment of the XEP 0332.
         try {
-            that.logger.log("internal", LOG_ID + "(_onIqGetSetQueryReceived) _entering_ : ", "\n", stanza.root ? prettydata.xml(stanza.root().toString()):stanza, "\n", node.root ? prettydata.xml(node.root().toString()):node);
+            that.logger.log("internal", LOG_ID + "(_onIqGetSetQueryReceived) _entering_ : ", "\n", stanza?.root ? prettydata.xml(stanza?.root().toString()):stanza, "\n", node.root ? prettydata.xml(node.root().toString()):node);
             let xmlNodeStr = node ? node.toString():"<xml></xml>";
             let reqObj = await getJsonFromXML(xmlNodeStr);
             that.logger.log("debug", LOG_ID + "(_onIqGetSetQueryReceived) reqObj : ", reqObj);
@@ -225,12 +225,12 @@ class RpcoverxmppEventHandler extends GenericHandler {
         // treatment of the XEP 0332.
         try {
             if ( !that.options._httpoverxmppserver) {
-                that.logger.log("internal", LOG_ID + "(_onIqGetSetReqReceived) httpoverxmppserver is desactivated, so send empty response to request : ", "\n", stanza.root ? prettydata.xml(stanza.root().toString()):stanza, "\n", node.root ? prettydata.xml(node.root().toString()):node);
+                that.logger.log("internal", LOG_ID + "(_onIqGetSetReqReceived) httpoverxmppserver is desactivated, so send empty response to request : ", "\n", stanza?.root ? prettydata.xml(stanza?.root().toString()):stanza, "\n", node.root ? prettydata.xml(node.root().toString()):node);
                 await that.xmppClient.resolvPendingRequest(stanza.attrs.id, {});
                 return (0);
             }
 
-            that.logger.log("internal", LOG_ID + "(_onIqGetSetReqReceived) _entering_ : ", "\n", stanza.root ? prettydata.xml(stanza.root().toString()):stanza, "\n", node.root ? prettydata.xml(node.root().toString()):node);
+            that.logger.log("internal", LOG_ID + "(_onIqGetSetReqReceived) _entering_ : ", "\n", stanza?.root ? prettydata.xml(stanza?.root().toString()):stanza, "\n", node.root ? prettydata.xml(node.root().toString()):node);
             let xmlNodeStr = node ? node.toString():"<xml></xml>";
             let reqObj = await getJsonFromXML(xmlNodeStr);
             that.logger.log("debug", LOG_ID + "(_onIqGetSetReqReceived) reqObj : ", reqObj);
@@ -462,7 +462,7 @@ class RpcoverxmppEventHandler extends GenericHandler {
    </iq>
          */
         try {
-            that.logger.log("internal", LOG_ID + "(_onIqRespResultReceived) _entering_ : ", "\n", stanza.root ? prettydata.xml(stanza.root().toString()):stanza, "\n", node.root ? prettydata.xml(node.root().toString()):node);
+            that.logger.log("internal", LOG_ID + "(_onIqRespResultReceived) _entering_ : ", "\n", stanza?.root ? prettydata.xml(stanza?.root().toString()):stanza, "\n", node.root ? prettydata.xml(node.root().toString()):node);
            /* 
             let xmlNodeStr = node ? node.toString():"<xml></xml>";
             let reqObj = await getJsonFromXML(xmlNodeStr);
