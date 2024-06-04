@@ -338,7 +338,7 @@ let urlS2S;
         // Logs options
         "logs": {
             "enableConsoleLogs": true,
-            "enableFileLogs": false,
+            "enableFileLogs": true,
             "enableEventsLogs": false,
             "enableEncryptedLogs": false,
             "color": true,
@@ -5848,11 +5848,16 @@ let urlS2S;
                 let startDate = new Date();
                 rainbowSDK.events.on("rainbow_onloadConversationHistoryCompleted", (conversationHistoryUpdated) => {
                     // do something when the SDK has been started
-                    _logger.log("debug", "MAIN - (rainbow_onloadConversationHistoryCompleted) - rainbow conversation history loaded completed : ", conversationHistoryUpdated);
+                    _logger.log("debug", "MAIN - (rainbow_onloadConversationHistoryCompleted) - rainbow conversation history loaded completed, conversationHistoryUpdated?.messages?.length : ", conversationHistoryUpdated?.messages?.length);
                     let stopDate = new Date();
                     // @ts-ignore
                     let startDuration = Math.round(stopDate - startDate);
-                    _logger.log("debug", "MAIN - testloadConversationHistoryAsyncBubbleOpenrainbowNet loadConversationHistoryAsync duration : " + startDuration + " ms.");
+                    _logger.log("debug", "MAIN - testloadConversationHistoryAsyncBubbleOpenrainbowNet loadConversationHistoryAsync duration : " + startDuration + " ms => ", msToTime(startDuration));
+                    for (let i = 0; i < conversationHistoryUpdated?.messages?.length ; i++) {
+                        let msg = conversationHistoryUpdated?.messages[i];
+                        _logger.log("debug", "MAIN - testloadConversationHistoryAsyncBubbleOpenrainbowNet conversationHistoryUpdated.messages[" + i + "] id : ", msg.id, ", fromJid : ", msg.fromJid, ", date : ", msg.date, ", content : ", msg.content);
+                    }
+
                     if (rainbowSDK) {
                         rainbowSDK.stop().then(() => {
                             process.exit(0);
@@ -5890,11 +5895,18 @@ let urlS2S;
             let startDate = new Date();
             rainbowSDK.events.on("rainbow_onloadConversationHistoryCompleted", (conversationHistoryUpdated) => {
                 // do something when the SDK has been started
-                _logger.log("debug", "MAIN - (rainbow_onloadConversationHistoryCompleted) - rainbow conversation history loaded completed : ", conversationHistoryUpdated);
+                _logger.log("debug", "MAIN - (rainbow_onloadConversationHistoryCompleted) - rainbow conversation history loaded completed, conversationHistoryUpdated?.messages?.length : ", conversationHistoryUpdated?.messages?.length);
                 let stopDate = new Date();
                 // @ts-ignore
                 let startDuration = Math.round(stopDate - startDate);
                 _logger.log("debug", "MAIN - testloadConversationHistoryAsyncP2P loadConversationHistoryAsync duration : " + startDuration + " ms.");
+
+                if (conversationHistoryUpdated && conversationHistoryUpdated.messages) {
+                    for (let i = 0; i < conversationHistoryUpdated.messages.length ; i++) {
+                        _logger.log("debug", "MAIN - testloadConversationHistoryAsyncP2P conversationHistoryUpdated.messages[" + i + "] : ", conversationHistoryUpdated.messages[i]);
+                    }
+                }
+
                 if (rainbowSDK) {
                     rainbowSDK.stop().then(() => {
                         process.exit(0);

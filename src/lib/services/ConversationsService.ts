@@ -602,7 +602,7 @@ class ConversationsService extends GenericService {
             that._logger.log(that.INFO, "(loadConversationHistoryAsync) loadConversationHistory done.");
             // raise rainbow_onloadConversationHistoryCompleted
             this._eventEmitter.emit("evt_internal_loadConversationHistoryCompleted", conversationHistoryUpdated);
-            return Promise.reject({code:-1, label:"load failed."});
+            //return Promise.reject({code:-1, label:"load failed."});
         }).catch((error: any)=>{
             that._logger.log(that.ERROR, "(loadConversationHistoryAsync) loadConversationHistory Failed : ", error);
             this._eventEmitter.emit("evt_internal_loadConversationHistoryFailed", error);
