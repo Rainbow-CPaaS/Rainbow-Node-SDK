@@ -138,7 +138,7 @@ let urlS2S;
     logLevelAreas.showServicesLogs();
     logLevelAreas.showBubblesLogs();
     // */
-/*    logLevelAreas.admin.api = true;
+    logLevelAreas.admin.api = true;
     logLevelAreas.admin.level = LEVELSNAMES.ERROR;
     logLevelAreas.alerts.api = true;
     logLevelAreas.alerts.level = LEVELSNAMES.ERROR;
@@ -222,10 +222,15 @@ let urlS2S;
     logLevelAreas.showEventsLogs();
     // logLevelAreas.showServicesLogs();
     logLevelAreas.hideServicesApiLogs();
-
+/*
     logLevelAreas.tasks.api = true;
     logLevelAreas.tasks.level = LEVELSNAMES.INTERNAL;
     logLevelAreas.tasksevent.level = LEVELSNAMES.INTERNAL;
+*/
+    logLevelAreas.conversations.api = true;
+    logLevelAreas.conversations.level = LEVELSNAMES.INTERNAL;
+    logLevelAreas.conversationevent.level = LEVELSNAMES.INTERNAL;
+    logLevelAreas.conversationhistory.level = LEVELSNAMES.INTERNAL;
 
     if (rainbowMode === "s2s") {
         logLevelAreas.s2s.level = LEVELSNAMES.INTERNAL;
@@ -342,8 +347,9 @@ let urlS2S;
             "enableEventsLogs": false,
             "enableEncryptedLogs": false,
             "color": true,
-            //"level": "info",
-            "level": "internal",
+            //"level": "error",
+            "level": "info",
+            //"level": "internal",
             //"level": "debug",
             "customLabel": "RainbowSample",
             "system-dev": {
@@ -351,7 +357,7 @@ let urlS2S;
                 "http": true,
             },
             "filter": "",
-            //"areas": logLevelAreas,
+            "areas": logLevelAreas,
             /*,
             "areas" : {
                 "admin": {
@@ -5848,14 +5854,14 @@ let urlS2S;
                 let startDate = new Date();
                 rainbowSDK.events.on("rainbow_onloadConversationHistoryCompleted", (conversationHistoryUpdated) => {
                     // do something when the SDK has been started
-                    _logger.log("debug", "MAIN - (rainbow_onloadConversationHistoryCompleted) - rainbow conversation history loaded completed, conversationHistoryUpdated?.messages?.length : ", conversationHistoryUpdated?.messages?.length);
+                    _logger.log("info", "MAIN - (rainbow_onloadConversationHistoryCompleted) - rainbow conversation history loaded completed, conversationHistoryUpdated?.messages?.length : ", conversationHistoryUpdated?.messages?.length);
                     let stopDate = new Date();
                     // @ts-ignore
                     let startDuration = Math.round(stopDate - startDate);
-                    _logger.log("debug", "MAIN - testloadConversationHistoryAsyncBubbleOpenrainbowNet loadConversationHistoryAsync duration : " + startDuration + " ms => ", msToTime(startDuration));
+                    _logger.log("info", "MAIN - testloadConversationHistoryAsyncBubbleOpenrainbowNet loadConversationHistoryAsync duration : " + startDuration + " ms => ", msToTime(startDuration));
                     for (let i = 0; i < conversationHistoryUpdated?.messages?.length ; i++) {
                         let msg = conversationHistoryUpdated?.messages[i];
-                        _logger.log("debug", "MAIN - testloadConversationHistoryAsyncBubbleOpenrainbowNet conversationHistoryUpdated.messages[" + i + "] id : ", msg.id, ", fromJid : ", msg.fromJid, ", date : ", msg.date, ", content : ", msg.content);
+                        _logger.log("info", "MAIN - testloadConversationHistoryAsyncBubbleOpenrainbowNet conversationHistoryUpdated.messages[" + i + "] id : ", msg.id, ", fromJid : ", msg.fromJid, ", date : ", msg.date, ", content : ", msg.content);
                     }
 
                     if (rainbowSDK) {
@@ -5871,12 +5877,12 @@ let urlS2S;
                 });
 
                 rainbowSDK.conversations.getBubbleConversation(jid).then(async function (conversation) {
-                    _logger.log("debug", "MAIN - testloadConversationHistoryAsyncBubbleOpenrainbowNet - getBubbleConversation, conversation.jid : ", conversation.jid, ", conversation : ", conversation);
+                    _logger.log("info", "MAIN - testloadConversationHistoryAsyncBubbleOpenrainbowNet - getBubbleConversation, conversation.jid : ", conversation.jid, ", conversation : ", conversation);
                     /* that.getConversationHistoryMaxime(conversation).then(() => {
                         _logger.log("debug", "MAIN - testGetHistoryPageBubble - getConversationHistoryMaxime, conversation : ", conversation, ", status : ", conversation.status);
                     }); // */
                     rainbowSDK.conversations.loadConversationHistoryAsync(conversation, 20).then((running) => {
-                        _logger.log("debug", "MAIN - testloadConversationHistoryAsyncBubbleOpenrainbowNet loadConversationHistoryAsync running : ", running);
+                        _logger.log("info", "MAIN - testloadConversationHistoryAsyncBubbleOpenrainbowNet loadConversationHistoryAsync running : ", running);
 
                       /*
                       let result = conversationUpdated.historyComplete ? conversationUpdated:that.getConversationHistoryMaxime(conversationUpdated);
@@ -5895,15 +5901,15 @@ let urlS2S;
             let startDate = new Date();
             rainbowSDK.events.on("rainbow_onloadConversationHistoryCompleted", (conversationHistoryUpdated) => {
                 // do something when the SDK has been started
-                _logger.log("debug", "MAIN - (rainbow_onloadConversationHistoryCompleted) - rainbow conversation history loaded completed, conversationHistoryUpdated?.messages?.length : ", conversationHistoryUpdated?.messages?.length);
+                _logger.log("info", "MAIN - (rainbow_onloadConversationHistoryCompleted) - rainbow conversation history loaded completed, conversationHistoryUpdated?.messages?.length : ", conversationHistoryUpdated?.messages?.length);
                 let stopDate = new Date();
                 // @ts-ignore
                 let startDuration = Math.round(stopDate - startDate);
-                _logger.log("debug", "MAIN - testloadConversationHistoryAsyncP2P loadConversationHistoryAsync duration : " + startDuration + " ms.");
+                _logger.log("info", "MAIN - testloadConversationHistoryAsyncP2P loadConversationHistoryAsync duration : " + startDuration + " ms.");
 
                 if (conversationHistoryUpdated && conversationHistoryUpdated.messages) {
                     for (let i = 0; i < conversationHistoryUpdated.messages.length ; i++) {
-                        _logger.log("debug", "MAIN - testloadConversationHistoryAsyncP2P conversationHistoryUpdated.messages[" + i + "] : ", conversationHistoryUpdated.messages[i]);
+                        _logger.log("info", "MAIN - testloadConversationHistoryAsyncP2P conversationHistoryUpdated.messages[" + i + "] : ", conversationHistoryUpdated.messages[i]);
                     }
                 }
 
@@ -5924,12 +5930,12 @@ let urlS2S;
             let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
             let conversation : Conversation = await rainbowSDK.conversations.openConversationForContact(contact);
             if (conversation && conversation.id) {
-                _logger.log("debug", "MAIN - testloadConversationHistoryAsyncP2P - getBubbleConversation, conversation.id : ", conversation.id, ", conversation?.messages.length : ", conversation?.messages.length);
+                _logger.log("info", "MAIN - testloadConversationHistoryAsyncP2P - getBubbleConversation, conversation.id : ", conversation.id, ", conversation?.messages.length : ", conversation?.messages.length);
                 /* that.getConversationHistoryMaxime(conversation).then(() => {
                     _logger.log("debug", "MAIN - testGetHistoryPageBubble - getConversationHistoryMaxime, conversation : ", conversation, ", status : ", conversation.status);
                 }); // */
                 rainbowSDK.conversations.loadConversationHistoryAsync(conversation, 20).then((running) => {
-                    _logger.log("debug", "MAIN - testloadConversationHistoryAsyncP2P loadConversationHistoryAsync running : ", running);
+                    _logger.log("info", "MAIN - testloadConversationHistoryAsyncP2P loadConversationHistoryAsync running : ", running);
 
                     /*
                     let result = conversationUpdated.historyComplete ? conversationUpdated:that.getConversationHistoryMaxime(conversationUpdated);
@@ -5947,9 +5953,9 @@ let urlS2S;
             if (bubbles.length > 0) {
                 let bubble = bubbles[0];
                 rainbowSDK.conversations.getBubbleConversation(bubble.jid).then(async function (conversation) {
-                    _logger.log("debug", "MAIN - testGetHistoryPageBubble - openConversationForContact, conversation : ", conversation);
+                    _logger.log("info", "MAIN - testGetHistoryPageBubble - openConversationForContact, conversation : ", conversation);
                     that.getConversationHistoryMaxime(conversation).then(() => {
-                        _logger.log("debug", "MAIN - testGetHistoryPageBubble - getConversationHistoryMaxime, conversation : ", conversation, ", status : ", conversation.status);
+                        _logger.log("info", "MAIN - testGetHistoryPageBubble - getConversationHistoryMaxime, conversation : ", conversation, ", status : ", conversation.status);
                     });
                 });
             }
@@ -5960,7 +5966,7 @@ let urlS2S;
             let conversations = rainbowSDK.conversations.getAllConversations();
             if (conversations) {
                 conversations.forEach((conversation) => {
-                    _logger.log("debug", "MAIN - [testgetAllConversations ] :: conversation.d : ", conversation.id);
+                    _logger.log("info", "MAIN - [testgetAllConversations ] :: conversation.d : ", conversation.id);
                 });
             }
         }

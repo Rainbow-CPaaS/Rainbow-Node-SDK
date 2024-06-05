@@ -96,7 +96,7 @@ class ConversationHistoryHandler  extends GenericHandler {
 
     }
 
-    onHistoryMessageReceived (msg, stanza) {
+    async onHistoryMessageReceived (msg, stanza) {
         let that = this;
         // Handle response
         try {
