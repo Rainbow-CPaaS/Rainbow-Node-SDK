@@ -73,7 +73,6 @@ let LOG_ID = "NodeSDK/IDX";
  * @property {boolean} options.testDNSentry true, Parameter to verify at startup/reconnection that the rainbow server DNS entry name is available.
  * @property {boolean} options.httpoverxmppserver false, Activate the treatment of Http over Xmpp requests (xep0332).
  * @property {number} options.intervalBetweenCleanMemoryCache 21600000 (6 hours), There is a cleannig process to reduce memory use and this option allow to modify the interval between it.
- * @property {boolean} options.requestsRate.useRequestRateLimiter true, // Allows to use the rate limit of the http requests to server.
  * @property {number} options.requestsRate.maxReqByIntervalForRequestRate 600, // nb requests during the interval of the rate limit of the http requests to server.
  * @property {number} options.requestsRate.intervalForRequestRate 60, // nb of seconds used for the calcul of the rate limit of the rate limit of the http requests to server.
  * @property {number} options.requestsRate.timeoutRequestForRequestRate 600 // nb seconds Request stay in queue before being rejected if queue is full of the rate limit of the http requests to server.
@@ -97,7 +96,6 @@ let LOG_ID = "NodeSDK/IDX";
  * @property {boolean} options.im.autoLoadConversations to activate the retrieve of conversations from the server. The default value is true.
  * @property {boolean} options.im.autoLoadConversationHistory to activate the retrieve of conversation's messages from the server. The default value is false.
  * @property {boolean} options.im.autoLoadContacts to activate the retrieve of contacts from roster from the server. The default value is true.
- * @property {boolean} options.im.forceHistoryGetContactFromServer Allows to force to retrieve information about contacts when history messages are getted from server.
  * @property {boolean} options.im.enableCarbon to manage carbon copy of message (https://xmpp.org/extensions/xep-0280.html). The default value is true.
  * @property {string} options.im.enablesendurgentpushmessages permit to add <retry-push xmlns='urn:xmpp:hints'/> tag to allows the server sending this messge in push with a small ttl (meaning urgent for apple/google backend) and retry sending it 10 times to increase probability that it is received by mobile device. The default value is false.
  * @property {string} options.im.storeMessagesInConversation Allows to store messages in conversation cache if true else the conversation.messages property stay empty. The default value is true.
@@ -384,7 +382,6 @@ class NodeSDK {
      * @param {string} options.testDNSentry true, Parameter to verify at startup/reconnection that the rainbow server DNS entry name is available.
      * @param {string} options.httpoverxmppserver false, Activate the treatment of Http over Xmpp requests (xep0332).
      * @param {number} options.intervalBetweenCleanMemoryCache 21600000 (6 hours), There is a cleannig process to reduce memory use and this option allow to modify the interval between it.
-     * @param {string} options.requestsRate.useRequestRateLimiter true, // Allows to use the rate limit of the http requests to server.
      * @param {string} options.requestsRate.maxReqByIntervalForRequestRate 600, // nb requests during the interval of the rate limit of the http requests to server.
      * @param {string} options.requestsRate.intervalForRequestRate 60, // nb of seconds used for the calcul of the rate limit of the rate limit of the http requests to server.
      * @param {string} options.requestsRate.timeoutRequestForRequestRate 600 // nb seconds Request stay in queue before being rejected if queue is full of the rate limit of the http requests to server.
@@ -408,7 +405,6 @@ class NodeSDK {
      * @param {string} options.im.autoLoadConversations to activate the retrieve of conversations from the server. The default value is true. 
      * @param {string} options.im.autoLoadConversationHistory to activate the retrieve of conversation's messages from the server. The default value is false.
      * @param {string} options.im.autoLoadContacts to activate the retrieve of contacts from roster from the server. The default value is true.
-     * @param {boolean} options.im.forceHistoryGetContactFromServer Allows to force to retrieve information about contacts when history messages are getted from server.
      * @param {boolean} options.im.enableCarbon to manage carbon copy of message (https://xmpp.org/extensions/xep-0280.html). The default value is true.     * @param {string} options.im.enablesendurgentpushmessages permit to add <retry-push xmlns='urn:xmpp:hints'/> tag to allows the server sending this messge in push with a small ttl (meaning urgent for apple/google backend) and retry sending it 10 times to increase probability that it is received by mobile device. The default value is false.
      * @param {string} options.im.enablesendurgentpushmessages permit to add <retry-push xmlns='urn:xmpp:hints'/> tag to allows the server sending this messge in push with a small ttl (meaning urgent for apple/google backend) and retry sending it 10 times to increase probability that it is received by mobile device. The default value is false.
      * @param {string} options.im.storeMessagesInConversation Allows to store messages in conversation cache if true else the conversation.messages property stay empty. The default value is true.
