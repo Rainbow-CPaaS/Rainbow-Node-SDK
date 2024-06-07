@@ -488,7 +488,7 @@ class Options {
             storeMessages: false,
             copyMessage: true,
             nbMaxConversations: 15,
-            rateLimitPerHour: 1000,
+            rateLimitPerHour: 10000,
             messagesDataStore: DataStoreType.UsestoreMessagesField,
             autoInitialGetBubbles: true,
             autoInitialBubblePresence: true,
