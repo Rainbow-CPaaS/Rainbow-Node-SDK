@@ -593,8 +593,8 @@ let urlS2S;
                 "customFileName": "R-SDK-Node-Sample-" + Math.floor(Math.random() * 1000),
                 //"level": 'info',                    // Default log level used
                 "zippedArchive": false,
-                "maxSize": '100m',
-                "maxFiles": 1 // */
+                "maxSize": '500m',
+                "maxFiles": 5 // */
             }
         },
         "testOutdatedVersion": false,
