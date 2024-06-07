@@ -1,5 +1,6 @@
 'use strict';
 
+const path = require("path");
 module.exports = function(grunt) {
 
     // Please see the Grunt documentation for more information regarding task
@@ -112,6 +113,35 @@ module.exports = function(grunt) {
                         result = _.find(docs, { longname: 'Code.ignored' });
                         expect(result).toBeUndefined();
                         // */
+
+                        let sdkPublic = [];
+                        let serviceType = "NodeSDK";
+                        grunt.log.writeln(">> Will get API Methods names from Service : " + serviceType);
+
+                        let pathJson = path.join(__dirname, '../build/JSONDOCS/' + serviceType + '.json');
+                        grunt.log.writeln(">> pathJson : ", pathJson);
+                        let bubblesServiceDocJSONTab = require(pathJson);
+                        // console.log("Rainbow BubblesService JSON : ", util.inspect(bubblesServiceDocJSONTab));
+
+                        for (let i = 0; i < bubblesServiceDocJSONTab.length; i++) {
+                            let bubblesServiceDocJSON = bubblesServiceDocJSONTab[i];
+                            if (bubblesServiceDocJSON) {
+                                //console.log("Rainbow BubblesService bubblesServiceDocJSONNodeRed JSON : ", bubblesServiceDocJSONNodeRed);
+                                if (bubblesServiceDocJSON.name === "constructor" && (bubblesServiceDocJSON["kind"] === "function")) {
+                                    //console.log("Rainbow BubblesService bubblesServiceDocJSON JSON : ", util.inspect(bubblesServiceDocJSON));
+                                    let methodObj = {};
+                                    methodObj.name = bubblesServiceDocJSON.name;
+                                    methodObj.description = bubblesServiceDocJSON.description;
+                                    methodObj.params = bubblesServiceDocJSON.params ? bubblesServiceDocJSON.params : [];
+                                    grunt.log.writeln(">> sdkPublic : ", methodObj) ;
+
+                                    sdkPublic = methodObj.params;
+                                }
+                            }
+                        }
+                        grunt.log.writeln(">> sdkPublic : ", sdkPublic) ;
+
+
                     }).catch(err => {
                         //console.log("error : ",  err.stack);
                         grunt.log.writeln(">> error src : " + fileInputName + " to dest : " + fileDestName, ", error : ", err);
