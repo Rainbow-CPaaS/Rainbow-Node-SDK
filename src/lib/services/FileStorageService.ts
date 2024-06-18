@@ -356,7 +356,7 @@ class FileStorage extends GenericService{
 
                 if (!conversation) {
                     let errorMessage = "Parameter 'bubble' don't have a conversation";
-                    that._logger.log(that.ERROR, LOG_ID + "(uploadFileToBubble) " + errorMessage + ", try to open it.");
+                    that._logger.log(that.DEBUG, LOG_ID + "(uploadFileToBubble) " + errorMessage + ", try to open it.");
 
                     conversation = await that._conversations.openConversationForBubble(bubble);
 
