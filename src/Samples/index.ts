@@ -227,10 +227,14 @@ let urlS2S;
     logLevelAreas.tasks.level = LEVELSNAMES.INTERNAL;
     logLevelAreas.tasksevent.level = LEVELSNAMES.INTERNAL;
 */
-    logLevelAreas.conversations.api = true;
+
+/*    logLevelAreas.conversations.api = true;
     logLevelAreas.conversations.level = LEVELSNAMES.INTERNAL;
     logLevelAreas.conversationevent.level = LEVELSNAMES.INTERNAL;
     logLevelAreas.conversationhistory.level = LEVELSNAMES.INTERNAL;
+    // */
+
+    logLevelAreas.bubblemanager.level = LEVELSNAMES.INTERNAL;
 
     if (rainbowMode === "s2s") {
         logLevelAreas.s2s.level = LEVELSNAMES.INTERNAL;
@@ -348,7 +352,7 @@ let urlS2S;
             "enableEncryptedLogs": false,
             "color": true,
             //"level": "error",
-            "level": "info",
+            "level": "debug",
             //"level": "internal",
             //"level": "debug",
             "customLabel": "RainbowSample",
@@ -622,7 +626,7 @@ let urlS2S;
             "messagesDataStore": DataStoreType.StoreTwinSide,
             "autoInitialGetBubbles": true,
             "autoInitialBubblePresence": true,
-            "maxBubbleJoinInProgress": 6,
+            "maxBubbleJoinInProgress": 10,
             "autoInitialBubbleFormat": "full",
             "autoInitialBubbleUnsubscribed": true,
             "autoLoadConversations": true,
@@ -3939,22 +3943,22 @@ let urlS2S;
             //    let utc = new Date().toJSON().replace(/-/g, '/');
         }
 
-        async testCreate50BubblesAndActivateThem() {
+        async testCreate50BubblesAndActivateThem(nbCreateBubbles : number =50) {
             let loginEmail = "vincent02@vbe.test.openrainbow.net";
             let appointmentRoom = "testBot";
             //let botappointment = "vincent01@vbe.test.openrainbow.net";
             rainbowSDK.contacts.getContactByLoginEmail(loginEmail).then(async contact => {
                 if (contact) {
-                    _logger.log("debug", "MAIN - [testCreateBubbles    ] :: getContactByLoginEmail contact : ", contact);
-                    for (let i = 0; i < 50; i++) {
+                    _logger.log("debug", "MAIN - [testCreate50BubblesAndActivateThem    ] :: getContactByLoginEmail contact : ", contact);
+                    for (let i = 0; i < nbCreateBubbles; i++) {
                         let utc = new Date().toJSON().replace(/-/g, "/");
                         let bubbleName = appointmentRoom + "_" + utc + contact + "_" + i;
                         let timeBetweenCreate = 2000 + (getRandomInt(6) * 1000);
                         await setTimeoutPromised(timeBetweenCreate).then(async () => {
-                            _logger.log("debug", "MAIN - [testCreateBubbles    ] :: createBubble request ", bubbleName, " after : ", timeBetweenCreate, " seconds waiting.");
+                            _logger.log("debug", "MAIN - [testCreate50BubblesAndActivateThem    ] :: createBubble request ", bubbleName, " after : ", timeBetweenCreate, " seconds waiting.");
 
                             await rainbowSDK.bubbles.createBubble(bubbleName, "desc : " + appointmentRoom + "_" + utc + "_" + i).then(async (bubble: any) => {
-                                _logger.log("debug", "MAIN - [testCreateBubbles    ] :: createBubble request ok", bubble);
+                                _logger.log("debug", "MAIN - [testCreate50BubblesAndActivateThem    ] :: createBubble request ok", bubble);
                                 rainbowSDK.bubbles.inviteContactToBubble(contact, bubble, false, false).then(async () => {
                                     let message = "message de test";
                                     await rainbowSDK.im.sendMessageToBubbleJid(message, bubble.jid, "en", {
@@ -3964,7 +3968,7 @@ let urlS2S;
                                     // await rainbowSDK.im.sendMessageToBubbleJid(message, bubble.jid, "en", { "type": "text/markdown", "message": message }, "subject");
                                     // await rainbowSDK.im.sendMessageToBubbleJid(message, bubble.jid, "en", { "type": "text/markdown", "message": message }, "subject");
                                     let bubbles = rainbowSDK.bubbles.getAll();
-                                    _logger.log("debug", "MAIN testCreateBubbles - after archiveBubble - bubble : ", bubble, ", bubbles : ", bubbles);
+                                    _logger.log("debug", "MAIN testCreate50BubblesAndActivateThem - after archiveBubble - bubble : ", bubble, ", bubbles : ", bubbles);
                                 });
                             });
                             // */
