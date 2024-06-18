@@ -503,7 +503,7 @@ class Options {
             messagesDataStore: DataStoreType.UsestoreMessagesField,
             autoInitialGetBubbles: true,
             autoInitialBubblePresence: true,
-            maxBubbleJoinInProgress: 5,
+            maxBubbleJoinInProgress: 10,
             "autoInitialBubbleFormat": "small",
             "autoInitialBubbleUnsubscribed": false,
             autoLoadConversations: true,
