@@ -104,7 +104,7 @@ import {jwtDecode} from "jwt-decode";
 import {LEVELSNAMES} from "../lib/common/LevelLogs.js";
 import {TaskInput} from "../lib/services/TasksService.js";
 import {Task} from "../lib/common/models/Task.js";
-import FileInfo from "../lib/common/FileInfo.js";
+import {FileInfo} from "../lib/common/FileInfo.js";
 /*const readline = require('readline').createInterface({
     input: process.stdin,
     output: process.stdout
@@ -229,7 +229,7 @@ let urlS2S;
     logLevelAreas.tasksevent.level = LEVELSNAMES.INTERNAL;
 */
 
-/*    logLevelAreas.conversations.api = true;
+    logLevelAreas.conversations.api = true;
     logLevelAreas.conversations.level = LEVELSNAMES.INTERNAL;
     logLevelAreas.conversationevent.level = LEVELSNAMES.INTERNAL;
     logLevelAreas.conversationhistory.level = LEVELSNAMES.INTERNAL;
@@ -358,7 +358,7 @@ let urlS2S;
             "enableEncryptedLogs": false,
             "color": true,
             //"level": "error",
-            "level": "debug",
+            "level": "internal",
             //"level": "internal",
             //"level": "debug",
             "customLabel": "RainbowSample",
@@ -367,7 +367,7 @@ let urlS2S;
                 "http": true,
             },
             "filter": "",
-            "areas": logLevelAreas,
+//            "areas": logLevelAreas,
             /*,
             "areas" : {
                 "admin": {
@@ -635,9 +635,9 @@ let urlS2S;
             "maxBubbleJoinInProgress": 10,
             "autoInitialBubbleFormat": "full",
             "autoInitialBubbleUnsubscribed": true,
-            "autoLoadConversations": true,
+            //"autoLoadConversations": true,
             // "autoInitialBubblePresence": false,
-            // "autoLoadConversations": false,
+            "autoLoadConversations": false,
             "autoLoadConversationHistory": false,
             "autoLoadContacts": true,
             "enableCarbon": true,
@@ -4166,7 +4166,7 @@ let urlS2S;
             //    let utc = new Date().toJSON().replace(/-/g, '/');
         }
 
-        testsendMultiFilesInBubbles() {
+        async testsendMultiFilesInBubbles() {
             let that = this;
             let file1 = null;
             let file2 = null;
@@ -4174,7 +4174,7 @@ let urlS2S;
             let strMessageFile1 = "message for the file 1";
             let strMessageFile2 = "message for the file 2";
             let strMessageFile3 = "message for the file 3";
-             file1 = new FileInfo({
+            file1 = new FileInfo({
                 //            path: "c:\\temp\\15777240.jpg",   // path of file to read
                 path: "c:\\temp\\IMG_20131005_173918.jpg",
                 //path: "c:\\temp\\Rainbow_log_test.log",   // path of file to read
@@ -4182,7 +4182,7 @@ let urlS2S;
                 async: false,
             }); // */
 
-         //   const stats : any = fs.statSync("c:\\temp\\IMG_20131005_173918.jpg");
+            //   const stats : any = fs.statSync("c:\\temp\\IMG_20131005_173918.jpg");
 
             _logger.log("debug", "MAIN - (testsendMultiFilesInBubbles) file1 : ", file1);
             file2 = new FileInfo({
@@ -4202,8 +4202,7 @@ let urlS2S;
                 jsdom: true,
                 async: false,
             });
-            _logger.log("debug", "MAIN - (testsendMultiFilesInBubbles) file2 : ", file2);
-
+            _logger.log("debug", "MAIN - (testsendMultiFilesInBubbles) file3 : ", file3);
 
 
             //let result = that.rainbowSDK.bubbles.getAllOwnedBubbles();
@@ -4243,78 +4242,91 @@ let urlS2S;
                 }
 
                 shareFile(bubblesActive[0]?.id, file1, strMessageFile1);
+
+                await pause(10000);
+
                 shareFile(bubblesActive[1]?.id, file2, strMessageFile2);
                 shareFile(bubblesActive[2]?.id, file3, strMessageFile3);
 
                 // */
             }
             //});
-/*
-        private async sendMessageToBubbleRainbowClient(id: string, rainbowMessage: RainbowMessageDto, rainbowClient: typeof RainbowSDK): Promise<RainbowMessage> {
-           try {
-                    if (!rainbowClient) {
-                throw new NotFoundException('sendMessageToBubbleRainbowClient: No Rainbow client');
-            }
-            let res;
-            const bubble = await rainbowClient.bubbles.getBubbleById(id);
-            if (!bubble) {
-                throw new NotFoundException(`sendMessageToBubbleRainbowClient: Bubble ${id} not found`);
-            }
-            this.logger.debug(`sendMessageToBubbleRainbowClient - bubbleId: ${bubble?.id} - JID: ${bubble?.jid}  name: ${bubble?.name}`);
+            /*
+                    private async sendMessageToBubbleRainbowClient(id: string, rainbowMessage: RainbowMessageDto, rainbowClient: typeof RainbowSDK): Promise<RainbowMessage> {
+                       try {
+                                if (!rainbowClient) {
+                            throw new NotFoundException('sendMessageToBubbleRainbowClient: No Rainbow client');
+                        }
+                        let res;
+                        const bubble = await rainbowClient.bubbles.getBubbleById(id);
+                        if (!bubble) {
+                            throw new NotFoundException(`sendMessageToBubbleRainbowClient: Bubble ${id} not found`);
+                        }
+                        this.logger.debug(`sendMessageToBubbleRainbowClient - bubbleId: ${bubble?.id} - JID: ${bubble?.jid}  name: ${bubble?.name}`);
 
-            const lang = "en"; // content language used
-            let message = rainbowMessage.message;
-            let content = (rainbowMessage.card ? { type: "form/json", message: rainbowMessage.card } : null);
-            if (rainbowMessage.file) {
-                message = message ? message : "Attached file";
+                        const lang = "en"; // content language used
+                        let message = rainbowMessage.message;
+                        let content = (rainbowMessage.card ? { type: "form/json", message: rainbowMessage.card } : null);
+                        if (rainbowMessage.file) {
+                            message = message ? message : "Attached file";
 
-                const stats = fs.statSync(rainbowMessage.file.path);
+                            const stats = fs.statSync(rainbowMessage.file.path);
 
-                // Construire l'objet avec les informations sur le fichier
-                const transformedFile = {
-                    type: rainbowMessage.file.mimeType,
-                    name: rainbowMessage.file.originalName,
-                    path: rainbowMessage.file.path,
-                    size: stats.size
-                };
+                            // Construire l'objet avec les informations sur le fichier
+                            const transformedFile = {
+                                type: rainbowMessage.file.mimeType,
+                                name: rainbowMessage.file.originalName,
+                                path: rainbowMessage.file.path,
+                                size: stats.size
+                            };
 
-                res = await rainbowClient.fileStorage.uploadFileToBubble(bubble, transformedFile, message);
-            }
-            else {
-                message = message ? message : "Message";
-                let content = null;
-                if (rainbowMessage.card) {
-                    // Update special characters of content message body
-                    let adaptiveCard = rainbowMessage.card;
-                    // List
-                    adaptiveCard = adaptiveCard.replace(/\\\\n\\\\t-/g, '\\r\\t-');
-                    // New line
-                    adaptiveCard = adaptiveCard.replace(/\\\\n/g, '\\n\\n');
-                    // Other
-                    adaptiveCard = adaptiveCard.replace(/\\\\t/g, '\\t');
-                    // Rainbow alternative text base content to send
-                    content = {
-                        type: "form/json",
-                        message: adaptiveCard
-                    };
-                }
-                //imsService.sendMessageToBubble(message, bubble, [lang], [content], [subject], mentions, urgency)
-                let urgency = (rainbowMessage.messageType ? rainbowMessage.messageType.toLowerCase() : null);
-                if (urgency === "high") {
-                    urgency = "middle"
-                }
-                res = await rainbowClient.im.sendMessageToBubble(message, bubble, lang, content, "", [], urgency);
-            }
-            return {
-                status: "SUCCESS",
-                msgId: res.id,
-                msgType: res.type
-            };
-        } catch (e: any) {
-                throw this.rainbowException(e);
-            }
+                            res = await rainbowClient.fileStorage.uploadFileToBubble(bubble, transformedFile, message);
+                        }
+                        else {
+                            message = message ? message : "Message";
+                            let content = null;
+                            if (rainbowMessage.card) {
+                                // Update special characters of content message body
+                                let adaptiveCard = rainbowMessage.card;
+                                // List
+                                adaptiveCard = adaptiveCard.replace(/\\\\n\\\\t-/g, '\\r\\t-');
+                                // New line
+                                adaptiveCard = adaptiveCard.replace(/\\\\n/g, '\\n\\n');
+                                // Other
+                                adaptiveCard = adaptiveCard.replace(/\\\\t/g, '\\t');
+                                // Rainbow alternative text base content to send
+                                content = {
+                                    type: "form/json",
+                                    message: adaptiveCard
+                                };
+                            }
+                            //imsService.sendMessageToBubble(message, bubble, [lang], [content], [subject], mentions, urgency)
+                            let urgency = (rainbowMessage.messageType ? rainbowMessage.messageType.toLowerCase() : null);
+                            if (urgency === "high") {
+                                urgency = "middle"
+                            }
+                            res = await rainbowClient.im.sendMessageToBubble(message, bubble, lang, content, "", [], urgency);
+                        }
+                        return {
+                            status: "SUCCESS",
+                            msgId: res.id,
+                            msgType: res.type
+                        };
+                    } catch (e: any) {
+                            throw this.rainbowException(e);
+                        }
+                    }
+                    // */
+
         }
-        // */
+
+        testgetConversationByDbId() {
+            let result = rainbowSDK.conversations.getConversationByDbId(undefined);
+            if (result) {
+                _logger.log("debug", "MAIN - [testgetConversationByDbId    ] :: getConversationByDbId result : ", result);
+            } else {
+                _logger.log("debug", "MAIN - [testgetConversationByDbId    ] :: getConversationByDbId no result found.");
+            }
 
         }
 

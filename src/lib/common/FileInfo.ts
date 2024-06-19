@@ -62,3 +62,5 @@ class FileInfo {
 }
 
 export default FileInfo;
+export {FileInfo as FileInfo};
+module.exports.FileInfo = FileInfo;

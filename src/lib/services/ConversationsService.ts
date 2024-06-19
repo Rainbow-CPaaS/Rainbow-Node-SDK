@@ -1924,9 +1924,9 @@ class ConversationsService extends GenericService {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getConversationByDbId) dbId : ", dbId);
 
-        if (that.conversations) {
+        if (that.conversations && isDefined(dbId)) {
             for (let key in that.conversations) {
-                if (that.conversations.hasOwnProperty(key) && that.conversations[key].dbId === dbId) {
+                if (that.conversations.hasOwnProperty(key) && that.conversations[key].dbId === dbId ) {
                     return that.conversations[key];
                 }
             }
