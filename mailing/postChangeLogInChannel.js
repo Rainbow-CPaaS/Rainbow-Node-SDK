@@ -277,7 +277,7 @@ rainbowSDK.start(undefined).then(async(result) => {
 
                 logger.log("debug", "html : ", html);
 
-                await rainbowSDK.channels.createItem(mychannel, html, product.title, null, null, "basic",  {tag:["node"]}).then(async (res ) => {
+                await rainbowSDK.channels.createItem(mychannel, html, product.title, null, null, "basic",  {tag:["node","SDK"]}).then(async (res ) => {
                     logger.log("debug", "createItem - res : ", res);
                     if (res.publishResult && res.publishResult.data && res.publishResult.data[0]) {
                         await rainbowSDK.channels.likeItem(mychannel, res.publishResult.data[0].id, RainbowSDK.Appreciation.Fantastic).catch((err1) => {
