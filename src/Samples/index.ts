@@ -637,13 +637,13 @@ let urlS2S;
             "autoInitialBubbleUnsubscribed": true,
             //"autoLoadConversations": true,
             // "autoInitialBubblePresence": false,
-            "autoLoadConversations": false,
+            "autoLoadConversations": true,
             "autoLoadConversationHistory": false,
             "autoLoadContacts": true,
             "enableCarbon": true,
             "enablesendurgentpushmessages": true,
             //"useMessageEditionAndDeletionV2": false
-            //"storeMessagesInConversation": false
+            "storeMessagesInConversation": true,
             "maxMessagesStoredInConversation" : 830
     },
         // Services to start. This allows to start the SDK with restricted number of services, so there are less call to API.
@@ -6139,8 +6139,9 @@ let urlS2S;
         testgetAllConversations() {
             let conversations = rainbowSDK.conversations.getAllConversations();
             if (conversations) {
+                _logger.log("info", "MAIN - [testgetAllConversations ] :: rainbowSDK.conversations.pendingMessages.length : ",  rainbowSDK.conversations?.pendingMessages?.length  );
                 conversations.forEach((conversation) => {
-                    _logger.log("info", "MAIN - [testgetAllConversations ] :: conversation.d : ", conversation.id);
+                    _logger.log("info", "MAIN - [testgetAllConversations ] :: conversation.d : ", conversation.id, ", conversations.messages.length : ", conversation?.messages?.length, ", conversations.pendingMessages.length : ", conversation?.pendingMessages?.length  );
                 });
             }
         }
