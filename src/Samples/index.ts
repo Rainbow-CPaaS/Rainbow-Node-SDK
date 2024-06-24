@@ -6146,6 +6146,17 @@ let urlS2S;
             }
         }
 
+        testgetApiConfigurationFromServer() {
+            rainbowSDK._core.rest.getApiConfigurationFromServer();
+            let apiSettings = rainbowSDK._core._rest.http.apiHeadersConfiguration;
+            if (apiSettings) {
+                _logger.log("info", "MAIN - [testgetApiConfigurationFromServer ] :: apiSettings : ", apiSettings );
+                apiSettings.forEach((apiConfig) => {
+                    _logger.log("info", "MAIN - [testgetApiConfigurationFromServer ] :: apiConfig.method : ", apiConfig.method, ", apiConfig.URL : ", apiConfig.URL, ", apiConfig.headers : ", apiConfig.headers );
+                });
+            }
+        }
+
         async testgetMyProfiles() {
             //let contactEmailToSearch = "vincent00@vbe.test.openrainbow.net";
             //let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
