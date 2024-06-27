@@ -12,7 +12,7 @@ import {
     getRandomInt,
     logEntryExit,
     makeId,
-    msToTime,
+    msToTime, orderByFilter,
     stackTrace
 } from "../common/Utils.js";
 import {createPassword} from "../common/Utils.js";
@@ -3142,6 +3142,26 @@ Request Method: PUT
         });
     }
 
+    getBubbleLastActivityDate(bubble) {
+        let date: Date;
+        if (bubble?.lastActivityDate) {
+            date = new Date(bubble?.lastActivityDate);
+        } else if (bubble?.creationDate) {
+            date = new Date(bubble?.creationDate);
+        } else {
+            date = new Date(0);
+        }
+        return date.getTime();
+    }
+
+    sortByDate(dateA, dateB) {
+        let res = 1;
+        if (dateA && dateB) {
+            res = dateB - dateA;
+        }
+        return res;
+    }
+
     getBubbles(format: string = "small", unsubscribed: boolean = false) {
         let that = this;
         let getSetOfBubbles = (page, max, bubbles) => {
@@ -3189,6 +3209,10 @@ Request Method: PUT
             getAllBubbles(page, limit, []).then((json: any) => {
                 that._logger.log(that.DEBUG, LOG_ID + "(getBubbles) getAllBubbles successfull");
                 that._logger.log(that.INTERNAL, LOG_ID + "(getBubbles) getAllBubbles REST result : " + json.length + " bubbles");
+                //json.sort((a, b) => that.getBubbleLastActivityDate(b) - that.getBubbleLastActivityDate(a));
+                // lastActivityDate
+                //bubbles = orderByFilter( bubbles, that.getBubbleLastActivityDate, true, that.sortByDate);
+
                 resolve(json);
             }).catch((err) => {
                 that._logger.log(that.ERROR, LOG_ID, "(getBubbles) getAllBubbles error");

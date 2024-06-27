@@ -17,6 +17,7 @@ import {BubblesService} from "../services/BubblesService";
 let AsyncLock = require('async-lock');
 import {FibonacciStrategy} from "backoff";
 import { LevelLogs } from "./LevelLogs.js";
+import {isArray} from "node:util";
 //let backoff = require("backoff");
 
 export{};
@@ -249,6 +250,15 @@ class BubblesManager extends LevelLogs {
                 let start = true;
                 that.fibonacciStrategy.reset();
                 that.delay = that.fibonacciStrategy.getInitialDelay();
+
+                // @ts-ignore
+                if (that.poolBubbleToJoin && isArray(that.poolBubbleToJoin?.list)) {
+                    // @ts-ignore
+                    that.poolBubbleToJoin.list.sort((a, b) => that._rest.getBubbleLastActivityDate(b?.value) - that._rest.getBubbleLastActivityDate(a?.value));
+                    // lastActivityDate
+                    //bubbles = orderByFilter( bubbles, that.getBubbleLastActivityDate, true, that.sortByDate);
+                }
+
                 while ((that.poolBubbleToJoin.length > 0 || that.poolBubbleJoinInProgress.length > 0 ) || start == true) {
                     that._logger.log(that.DEBUG, LOG_ID + "(treatAllBubblesToJoin) START with pause value : ", that.delay, "  treat a group of " + that.maxBubbleJoinInProgress + " bubbles to join, that.poolBubbleToJoin.length : ", that.poolBubbleToJoin.length, ", that.poolBubbleJoinInProgress.length : ", that.poolBubbleJoinInProgress.length);
                     start = false;
