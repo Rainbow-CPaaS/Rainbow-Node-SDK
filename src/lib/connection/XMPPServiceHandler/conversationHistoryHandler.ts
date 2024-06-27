@@ -123,9 +123,47 @@ class ConversationHistoryHandler  extends GenericHandler {
                     // Extract fromJid
                     let fromJid;
                     let roomEvent = null;
+                    let bodyEvent = undefined;// <body>Vincent04 Berder04 a rejoint la bulle</body>
+                    let subjectEvent = undefined;// <subject>room event</subject>
+
                     if (brutJid.indexOf("room_") === 0) { fromJid = brutJid.split("/")[1]; }
                     else { fromJid = XMPPUTils.getXMPPUtils().getBareJIDFromFullJID(brutJid); }
 
+                        const eventElmt = stanzaMessage.find("event");
+                        if (Array.isArray(eventElmt)) {
+                            eventElmt.forEach((content) => {
+                                if (!fromJid ) {
+                                    roomEvent = content.attr("name") + "";
+                                    fromJid = content.attr("jid");
+
+                                    if (roomEvent === "welcome" && conversation.bubble && conversation.bubble.creator) {
+                                        let ownerContact = conversation.bubble.users.find( (user) => conversation.bubble.creator === user.userId )
+                                        fromJid = ownerContact ? ownerContact.jid_im : "";
+                                    }
+                                }
+                                bodyEvent = content.getChild("body")?.text();// <body>Vincent04 Berder04 a rejoint la bulle</body>
+                                subjectEvent = content.getChild("subject")?.text();// <subject>room event</subject>
+
+                                that._logger.log(that.DEBUG, LOG_ID + "(onHistoryMessageReceived) message - event, roomEvent : ", roomEvent, ", fromJid  : ", fromJid );
+                            });
+                        } else {
+                            // mention['jid'] = eventElmt.text();
+                            if (!fromJid ) {
+                                roomEvent = eventElmt.attr("name") + "";
+                                fromJid = eventElmt.attr("jid");
+
+                                if (roomEvent === "welcome" && conversation.bubble && conversation.bubble.creator) {
+                                    let ownerContact = conversation.bubble.users.find( (user) => conversation.bubble.creator === user.userId )
+                                    fromJid = ownerContact ? ownerContact.jid_im : "";
+                                }
+                            }
+                            bodyEvent = eventElmt.getChild("body")?.text();// <body>Vincent04 Berder04 a rejoint la bulle</body>
+                            subjectEvent = eventElmt.getChild("subject")?.text();// <subject>room event</subject>
+
+                            that._logger.log(that.DEBUG, LOG_ID + "(onHistoryMessageReceived) message - event, roomEvent : ", roomEvent, ", fromJid  : ", fromJid );
+                        }
+
+                    /*
                     if (!fromJid && stanzaMessage.getChild("event")) {
                         roomEvent = stanzaMessage.getChild("event").attr("name") + "";
                         fromJid = stanzaMessage.getChild("event").attr("jid");
@@ -135,6 +173,7 @@ class ConversationHistoryHandler  extends GenericHandler {
                             fromJid = ownerContact ? ownerContact.jid_im : "";
                         }
                     }
+                    // */
 
                     if (!fromJid) {
                         that._logger.log(that.WARN, LOG_ID + "(onHistoryMessageReceived) - Receive message without valid fromJid information");
@@ -250,7 +289,7 @@ class ConversationHistoryHandler  extends GenericHandler {
                                     message = Message.createWebRTCMessage(messageId, date, from, side, body, false);
                                     break;
                                 case "admin":
-                                    message = Message.createBubbleAdminMessage(messageId, date, from, roomEvent);
+                                    message = Message.createBubbleAdminMessage(messageId, date, from, roomEvent, bodyEvent, subjectEvent);
                                     break;
                                 default:
                                     /*  if (oob && oob.children.length) {

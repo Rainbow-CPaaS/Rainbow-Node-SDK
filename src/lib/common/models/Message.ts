@@ -730,11 +730,11 @@ class Message {
      * @method
      * @instance
      */
-    static createBubbleAdminMessage(id, date, from, type) {
+    static createBubbleAdminMessage(id, date, from, type, body, subject) {
         let data = type + "MsgRoom";
         let side = Message.Side.ADMIN;
         //let message = Message.create(id, date, from, side, data, false);
-        let message = Message.MessageFactory()({id, date, from, side, data, status: false});
+        let message = Message.MessageFactory()({id, date, from, side, data, status: false, content:body, subject});
 
         return message;
     }
