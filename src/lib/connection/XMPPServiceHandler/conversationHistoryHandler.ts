@@ -305,7 +305,7 @@ class ConversationHistoryHandler  extends GenericHandler {
 
                                     message = Message.createBubbleAdminMessage(messageId, date, from, roomEvent, bodyEvent, subjectEvent);
                                     let eventElmt2 = stanzaMessage.find("event");
-                                    if (eventElmt2.length > 0) {
+                                    if (eventElmt2?.length > 0) {
                                         if (Array.isArray(eventElmt2)) {
                                             eventElmt2.forEach((content) => {
                                                 message.event = content.attr("name") + "";
@@ -403,7 +403,7 @@ class ConversationHistoryHandler  extends GenericHandler {
                                     }
                                     that._logger.log(that.DEBUG, LOG_ID + "(onHistoryMessageReceived) message - lang : ", lang);
                                     let eventElmt = stanzaMessage.find("event");
-                                    if (eventElmt.length > 0) {
+                                    if (eventElmt?.length > 0) {
                                         event = eventElmt.attrs.name;
                                         eventJid = eventElmt.attrs.jid;
                                         isEvent = true;
