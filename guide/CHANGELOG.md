@@ -7,6 +7,24 @@ Warning: Before deploying in production a bot that can generate heavy traffic, p
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 
+### [2.30.0] - 2024-06-28
+#### Removed
+-   None
+
+#### Fixed
+-   Fix upload file in wrong bubbles.
+-   Fix event message received in conversationHistoryHandler.
+
+#### Added
+-   Add "SDK" in tag of postChangeLogInChannel.
+-   Add API RESTService::getApiConfigurationFromServer and HttpService::addAdditionalHeaders to retrieve settings. The settings is the configuration of rules allowing to force the clients to use a specific region for some API calls in Rainbow multi-region deployment (to avoid some clustering issues or increase performances)
+
+#### Changed
+-   Update keepAliveMsecs got option to 4301 to follow server values.
+-   Update logs when an error occured in Event handlers.
+-   Update to do less job when the history is retrieved.
+-   Update BubblesManager::treatAllBubblesToJoin to join bubble with the most recent lastActivityDate.
+
 ### [2.29.0] - 2024-05-24
 #### Removed
 -   None
