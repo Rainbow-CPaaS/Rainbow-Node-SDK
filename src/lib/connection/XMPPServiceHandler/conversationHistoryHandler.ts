@@ -141,8 +141,6 @@ class ConversationHistoryHandler  extends GenericHandler {
                                         fromJid = ownerContact ? ownerContact.jid_im : "";
                                     }
                                 }
-                                bodyEvent = content.getChild("body")?.text();// <body>Vincent04 Berder04 a rejoint la bulle</body>
-                                subjectEvent = content.getChild("subject")?.text();// <subject>room event</subject>
 
                                 that._logger.log(that.DEBUG, LOG_ID + "(onHistoryMessageReceived) message - event, roomEvent : ", roomEvent, ", fromJid  : ", fromJid );
                             });
@@ -157,8 +155,6 @@ class ConversationHistoryHandler  extends GenericHandler {
                                     fromJid = ownerContact ? ownerContact.jid_im : "";
                                 }
                             }
-                            bodyEvent = eventElmt.getChild("body")?.text();// <body>Vincent04 Berder04 a rejoint la bulle</body>
-                            subjectEvent = eventElmt.getChild("subject")?.text();// <subject>room event</subject>
 
                             that._logger.log(that.DEBUG, LOG_ID + "(onHistoryMessageReceived) message - event, roomEvent : ", roomEvent, ", fromJid  : ", fromJid );
                         }
@@ -289,7 +285,39 @@ class ConversationHistoryHandler  extends GenericHandler {
                                     message = Message.createWebRTCMessage(messageId, date, from, side, body, false);
                                     break;
                                 case "admin":
+                                    /* let forwardedElmt = stanzaMessage.find("forwarded");
+                                    if (forwardedElmt && forwardedElmt.length > 0 && forwardedElmt.attrs.xmlns === "urn:xmpp:forward:0") {
+                                        isForwarded = true;
+                                        let msg = forwardedElmt.getChild("message");
+                                        forwardedMsg = {
+                                            "origMsgId" : msg.attrs.id,
+                                            "fromJid": msg.attrs.from,
+                                            "to" : msg.attrs.to,
+                                            "type" : msg.attrs.type,
+                                            "body" : msg.getChild("body").text(),
+                                            "lang" : msg.getChild("body").attrs["xml:lang"]
+                                        };
+                                        that._logger.log(that.INTERNAL, LOG_ID + "(onChatMessageReceived) message - forwardedMsg : ", forwardedMsg);
+                                    } // */
+
+                                    bodyEvent = stanzaMessage.find("body")?.text();// <body>Vincent04 Berder04 a rejoint la bulle</body>
+                                    subjectEvent = stanzaMessage.find("subject")?.text();// <subject>room event</subject>
+
                                     message = Message.createBubbleAdminMessage(messageId, date, from, roomEvent, bodyEvent, subjectEvent);
+                                    let eventElmt2 = stanzaMessage.find("event");
+                                    if (eventElmt2.length > 0) {
+                                        if (Array.isArray(eventElmt2)) {
+                                            eventElmt2.forEach((content) => {
+                                                message.event = content.attr("name") + "";
+                                                //  that._logger.log(that.DEBUG, LOG_ID + "(onHistoryMessageReceived) message - event, roomEvent : ", roomEvent, ", fromJid  : ", fromJid );
+                                            });
+                                        } else {
+                                            message.event = eventElmt2.attr("name") + "";
+                                            //that._logger.log(that.DEBUG, LOG_ID + "(onHistoryMessageReceived) message - event, roomEvent : ", roomEvent, ", fromJid  : ", fromJid );
+                                        }
+                                        message.isEvent = true;
+                                    }
+
                                     break;
                                 default:
                                     /*  if (oob && oob.children.length) {
@@ -633,9 +661,9 @@ class ConversationHistoryHandler  extends GenericHandler {
                                    }  
                                 });
                                 if (!messageUpdated) {
-                                    that._logger.log(that.DEBUG, LOG_ID + "(onHistoryMessageReceived) message not updated from history, so added it to conversation.messages.");
+                                    that._logger.log(that.DEBUG, LOG_ID + "(onHistoryMessageReceived) id : ", historyFirstElement.id, ", message not updated from history, so added it to conversation.messages.");
                                     conversation.messages.unshift.apply(conversation.messages, [historyFirstElement]);
-                                    that._logger.log(that.INTERNAL, LOG_ID + "(onHistoryMessageReceived) message not updated from history, so added it to conversation.messages.length : ", conversation?.messages?.length);
+                                    that._logger.log(that.INTERNAL, LOG_ID + "(onHistoryMessageReceived) id : ", historyFirstElement.id, ", message not updated from history, so added it to conversation.messages.length : ", conversation?.messages?.length);
                                 }  else {
                                     that._logger.log(that.DEBUG, LOG_ID + "(onHistoryMessageReceived) message updated from history.");
                                 }
