@@ -356,6 +356,17 @@ class MessagesQueue extends FIFOQueue<Message> {
 // */
         //endregion FIFOQueue
 
+        this.toSmallString = () => {
+            let that = this;
+            let res="\n";
+            for (let i = 0; i < that.size(); i++) {
+                let msg = that[i];
+                res+= msg.id + ", side : " + msg.side + ", isEvent : " + msg.isEvent + ", event : " + msg.event + ", deleted : " + msg.deleted + ", modified : " + msg.modified + ", content : " + msg.content + "\n";
+            }
+
+            return res;
+        }
+
         //region Array methods supercharged
 
         // Implémentation de toutes les méthodes de Array

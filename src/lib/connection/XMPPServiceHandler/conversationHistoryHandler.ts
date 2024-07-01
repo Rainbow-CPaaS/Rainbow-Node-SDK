@@ -629,8 +629,9 @@ class ConversationHistoryHandler  extends GenericHandler {
                 queryId = stanza.getChild("fin").getAttr("queryid");
                 conversation = that._conversationService.getConversationById(queryId);
                 if (conversation) {
-
+                    that._logger.log(that.INTERNAL, LOG_ID + "(onHistoryMessageReceived) getConversationById returned, conversation.id : ", conversation.id, ", conversation.messages.toSmallString() : ", conversation.messages.toSmallString());
                     if ( conversation.pendingPromise ) {
+                        that._logger.log(that.INTERNAL, LOG_ID + "(onHistoryMessageReceived) conversation.pendingPromise is setted so wait allSettled, conversation.id : ", conversation.id);
                         Promise.allSettled( conversation.pendingPromise ).then(async () => {
 
                             // Extract info
@@ -652,20 +653,29 @@ class ConversationHistoryHandler  extends GenericHandler {
                             // */
                             while (conversation.historyMessages.length > 0) {
                                 const historyFirstElement = conversation.historyMessages.shift();
-                                that._logger.log(that.INTERNAL, LOG_ID + "(onHistoryMessageReceived) start treatment of history message :  : id : ", historyFirstElement.id, ", fromJid : ", historyFirstElement.fromJid, ", date : ", historyFirstElement.date, ", content : ", historyFirstElement.content, " for conversation.messages, conversation.id : ", conversation.id);
+                                that._logger.log(that.INTERNAL, LOG_ID + "(onHistoryMessageReceived) start treatment of history message : msg id : ", historyFirstElement.id, ", fromJid : ", historyFirstElement.fromJid, ", date : ", historyFirstElement.date, ", content : ", historyFirstElement.content, " for conversation.messages, conversation.id : ", conversation.id);
                                 let messageUpdated = false;
+                                /*
                                 conversation.messages.forEach((elmt : Message) => {
                                    if (elmt.id == historyFirstElement.id || elmt.historyIndex == historyFirstElement.historyIndex) {
                                        elmt.updateMessage(historyFirstElement);
                                        messageUpdated = true;
                                    }  
                                 });
+                                // */
+                                for (let i = 0; i < conversation.messages.length; i++) {
+                                    const elmt: Message = conversation.messages[i];
+                                    if (elmt.id === historyFirstElement.id || elmt.historyIndex === historyFirstElement.historyIndex) {
+                                        elmt.updateMessage(historyFirstElement);
+                                        messageUpdated = true;
+                                    }
+                                }
                                 if (!messageUpdated) {
-                                    that._logger.log(that.DEBUG, LOG_ID + "(onHistoryMessageReceived) id : ", historyFirstElement.id, ", message not updated from history, so added it to conversation.messages.");
+                                    that._logger.log(that.DEBUG, LOG_ID + "(onHistoryMessageReceived) msg id : ", historyFirstElement.id, ", message not updated from history, so added it to conversation.messages.");
                                     conversation.messages.unshift.apply(conversation.messages, [historyFirstElement]);
-                                    that._logger.log(that.INTERNAL, LOG_ID + "(onHistoryMessageReceived) id : ", historyFirstElement.id, ", message not updated from history, so added it to conversation.messages.length : ", conversation?.messages?.length);
+                                    that._logger.log(that.INTERNAL, LOG_ID + "(onHistoryMessageReceived) msg id : ", historyFirstElement.id, ", message not updated from history, so added it to conversation.messages.length : ", conversation?.messages?.length);
                                 }  else {
-                                    that._logger.log(that.DEBUG, LOG_ID + "(onHistoryMessageReceived) message updated from history.");
+                                    that._logger.log(that.DEBUG, LOG_ID + "(onHistoryMessageReceived) msg id : ", historyFirstElement.id, ", message updated from history.");
                                 }
                             }
 
@@ -696,6 +706,7 @@ class ConversationHistoryHandler  extends GenericHandler {
                             //});
                             // */
 
+                            that._logger.log(that.INTERNAL, LOG_ID + "(onHistoryMessageReceived) conversation.historyDefered before resolve conversation.messages.toSmallString() : ", conversation.messages.toSmallString());
                             conversation.historyDefered.resolve(conversation);
                             delete conversation.pendingPromise;
                         }).catch ((err) => {
@@ -719,7 +730,7 @@ class ConversationHistoryHandler  extends GenericHandler {
                                 //let conversation = that._conversationService.getConversationById(conversation.id);
                                 that._logger.log(that.DEBUG, LOG_ID + "(onHistoryMessageReceived) with answeredMsg message try to search its details, answeredMsgId : ", message.answeredMsgId, ", conversation.id: ", conversation.id);
                                 //answeredMsg = await that._conversationService.getOneMessageFromConversationId(conversation.id, answeredMsgId, answeredMsgStamp); //
-                                message.answeredMsg = await conversation.getMessageById(message.answeredMsgId);
+                                message.answeredMsg = conversation.getMessageById(message.answeredMsgId);
                             }
                         };
 
@@ -736,6 +747,7 @@ class ConversationHistoryHandler  extends GenericHandler {
                             }
                         }); */
 
+                        that._logger.log(that.INTERNAL, LOG_ID + "(onHistoryMessageReceived) conversation.historyComplete = true, conversation.messages.toSmallString() : ", conversation.messages.toSmallString());
                         conversation.historyComplete = true;
                         conversation.historyDefered.resolve(conversation);
                     }

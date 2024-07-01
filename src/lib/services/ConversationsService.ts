@@ -486,7 +486,7 @@ class ConversationsService extends GenericService {
 
         if (conversation.historyComplete) {
             that._logger.log(that.DEBUG, LOG_ID + "(getHistoryPage) (" + conversation.id + ") : already complete");
-            defered.resolve(conversation);
+            defered.resolve(await that.getConversationById(conversation?.id));
             return defered.promise;
         }
 
