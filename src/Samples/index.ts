@@ -2297,15 +2297,15 @@ let urlS2S;
  "internalerror" = 7,
  "internal" = 8,
          */
-        _logger.log("error","MAIN - testMessagesQueue error.");
-        _logger.log("warn","MAIN - testMessagesQueue warn.");
-        _logger.log("info","MAIN - testMessagesQueue info.");
-        _logger.log("trace","MAIN - testMessagesQueue trace.");
-        _logger.log("http","MAIN - testMessagesQueue http.");
-        _logger.log("xmpp","MAIN - testMessagesQueue xmpp.");
-        _logger.log("debug","MAIN - testMessagesQueue debug.");
-        _logger.log("internalerror","MAIN - testMessagesQueue internalerror.");
-        _logger.log("internal","MAIN - testMessagesQueue internal.");
+        _logger.log("error","MAIN - testLogs error.");
+        _logger.log("warn","MAIN - testLogs warn.");
+        _logger.log("info","MAIN - testLogs info.");
+        _logger.log("trace","MAIN - testLogs trace.");
+        _logger.log("http","MAIN - testLogs http.");
+        _logger.log("xmpp","MAIN - testLogs xmpp.");
+        _logger.log("debug","MAIN - testLogs debug.");
+        _logger.log("internalerror","MAIN - testLogs internalerror.");
+        _logger.log("internal","MAIN - testLogs internal.");
     }
 
     testMessagesQueue () {
@@ -2325,7 +2325,7 @@ let urlS2S;
             // update an already existing message
             let msg2ToUpdate = {id: "MSG2", content: "message2Update"};
             msgQueue.updateMessageIfExistsElseEnqueueIt(msg2ToUpdate, true);
-            _logger.log("debug", "MAIN - testMessagesQueue after update message (id=MSG2) msgQueue : ", msgQueue);
+            _logger.log("debug", "MAIN - testMessagesQueue after update message (id=MSG2) msgQueue.toSmallString() : ", msgQueue.toSmallString());
 
             // remove a message
             msgQueue.removeMessage(msg2, true);
@@ -2964,6 +2964,88 @@ let urlS2S;
                 _logger.log("debug", "MAIN - [testsendMessageToContactUrgencyMiddle] after sendMessageToContact result : ", result);
             });
         }
+
+        async testgetMessagesFromConversation() {
+            //let that = this;
+            //let bubbleJib = "room_f829530bba37411896022878f81603ca@muc.vberder-all-in-one-dev-1.opentouch.cloud";
+            //let conversation = rainbowSDK.conversations.getConversationByBubbleJid(bubbleJib);
+            //await rainbowSDK.im.getMessagesFromConversation(conversation, 10);
+            let bubbles = rainbowSDK.bubbles.getAllActiveBubbles();
+
+            for (const bubble of bubbles) {
+                //if (bubble.name.indexOf("testBubbleEvents")!= -1) {
+                if (bubble.name.indexOf("testBotName_2024/02/09T10:35:36.732ZGuestUser")!= -1) {
+                    _logger.log("debug", "MAIN - testgetMessagesFromConversation Found bubble.name : ", bubble.name, ", bubble.isActive : ", bubble.isActive);
+                    rainbowSDK.conversations.getConversationByBubbleId(bubble.id).then((result) => {
+                    //rainbowSDK.conversations.getConversationByBubbleId("65c5fff8f3c002518b2e2a29").then((result) => {
+                        _logger.log("debug", "MAIN - testgetMessagesFromConversation getConversationByBubbleId result : ", result);
+                        rainbowSDK.im.getMessagesFromConversation(result).then((res2) => {
+                            _logger.log("debug", "MAIN - testgetMessagesFromConversation res2 : ", res2);
+                        })
+                    })
+                } else {
+                    _logger.log("debug", "MAIN - testgetMessagesFromConversation NOT Found bubble.name : ", bubble.name, ", buibble.isActive : ", bubble.isActive);
+                }
+            }
+        }
+
+        testmsgInObj() {
+            try {
+                let msg1 = {id: "MSG1", content: "message1"};
+                let msg2 = {id: "MSG2", content: "message2"};
+                let msg3 = {id: "MSG3", content: "message3"};
+
+                class ConversationService{
+                    public conversations: any;
+                    constructor(){
+                        this.conversations = {};
+                    }
+
+                    getConversationById(conversationId : string) {
+                        let that = this;
+                        _logger.log("debug", "(getConversationById) conversationId : ", conversationId);
+                        //that._logger.log(that.DEBUG, LOG_ID + " (getConversationById) conversationId : ", conversationId);
+                        if (!this.conversations) {
+                            return null;
+                        }
+                        let conv =  this.conversations[conversationId];
+                        _logger.log("debug", "(getConversationById) conversation by id, id of conversation found : ", conv ? conv.id : "");
+                        /* if (!conv) {
+                            conv = that.getConversationByDbId(conversationId);
+                            _logger.log("debug", "(getConversationById) conversation not found by id, so searched by dbId result : ", conv);
+                        } // */
+                        return conv;
+                    }
+
+                }
+
+                let conversationService = new ConversationService();
+
+                let conversationInitial = {
+                    "id" : "123",
+                    "msgQueue": new MessagesQueue(_logger, 10)
+                };
+
+                conversationInitial.msgQueue.updateMessageIfExistsElseEnqueueIt(msg1, true);
+                conversationInitial.msgQueue.updateMessageIfExistsElseEnqueueIt(msg2, true);
+                conversationInitial.msgQueue.updateMessageIfExistsElseEnqueueIt(msg3, true);
+                _logger.log("debug", "MAIN - testMessagesQueue after store 3 messages msgQueue : ", conversationInitial.msgQueue.toSmallString());
+
+                conversationService.conversations[conversationInitial.id] = conversationInitial;
+
+                let conversation = conversationService.getConversationById(conversationInitial.id);
+
+                //conversation.msgQueue.updateMessageIfExistsElseEnqueueIt({id: "MSG4", content: "message4"}, true);
+                conversation.msgQueue.unshift({id: "MSG4", content: "message4"});
+                _logger.log("debug", "MAIN - testMessagesQueue should have 4 messages conversationInitial msgQueue : ", conversationInitial.msgQueue.toSmallString());
+                _logger.log("debug", "MAIN - testMessagesQueue should have 4 messages conversation msgQueue : ", conversation.msgQueue.toSmallString());
+
+
+            } catch (err) {
+                _logger.log("error", "MAIN - testMessagesQueue CATCH Error !!! error : ", err);
+            }
+        }
+
 
         //endregion Messages
 
