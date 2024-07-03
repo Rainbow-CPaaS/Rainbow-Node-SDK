@@ -250,8 +250,8 @@ pipeline {
                     //registry.npmjs.org/:_authToken=${NPMJSAUTH_PSW}" |tee ./.npmrc
                         
                     #sudo npm install npm -g
-                    sudo npm install n -g
-                    sudo n stable
+                    #sudo npm install n -g
+                    #sudo n stable
                     
                     sudo npm install --global npm@6
                         
