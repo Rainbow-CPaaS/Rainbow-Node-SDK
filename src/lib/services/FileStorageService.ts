@@ -2536,4 +2536,5 @@ class FileStorage extends GenericService{
 }
 
 module.exports.FileStorageService = FileStorage;
-export {FileStorage as FileStorageService};
+module.exports.FileUpdated = FileUpdated;
+export {FileStorage as FileStorageService, FileUpdated as FileUpdated};

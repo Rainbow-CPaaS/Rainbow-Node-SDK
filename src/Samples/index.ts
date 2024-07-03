@@ -30,6 +30,7 @@ import {AlertDevice, AlertDevicesData} from "../lib/common/models/AlertDevice";
 import {Contact} from "../lib/common/models/Contact";
 import {ConferenceSession} from "../lib/common/models/ConferenceSession";
 import {DataStoreType} from "../lib/config/config";
+import {FileUpdated} from "../lib/services/FileStorageService";
 import {Server as MockServer, WebSocket as WS} from 'mock-socket';
 import {v4 as uuidv4} from 'uuid';
 
@@ -104,7 +105,6 @@ import {jwtDecode} from "jwt-decode";
 import {LEVELSNAMES} from "../lib/common/LevelLogs.js";
 import {TaskInput} from "../lib/services/TasksService.js";
 import {Task} from "../lib/common/models/Task.js";
-import {FileInfo} from "../lib/common/FileInfo.js";
 /*const readline = require('readline').createInterface({
     input: process.stdin,
     output: process.stdout
@@ -4256,7 +4256,7 @@ let urlS2S;
             let strMessageFile1 = "message for the file 1";
             let strMessageFile2 = "message for the file 2";
             let strMessageFile3 = "message for the file 3";
-            file1 = new FileInfo({
+            file1 = new FileUpdated({
                 //            path: "c:\\temp\\15777240.jpg",   // path of file to read
                 path: "c:\\temp\\IMG_20131005_173918.jpg",
                 //path: "c:\\temp\\Rainbow_log_test.log",   // path of file to read
@@ -4267,7 +4267,7 @@ let urlS2S;
             //   const stats : any = fs.statSync("c:\\temp\\IMG_20131005_173918.jpg");
 
             _logger.log("debug", "MAIN - (testsendMultiFilesInBubbles) file1 : ", file1);
-            file2 = new FileInfo({
+            file2 = new FileUpdated({
                 //            path: "c:\\temp\\15777240.jpg",   // path of file to read
                 path: "src/lib/resources/unknownContact.png",
                 //path: "c:\\temp\\Rainbow_log_test.log",   // path of file to read
@@ -4277,7 +4277,7 @@ let urlS2S;
             _logger.log("debug", "MAIN - (testsendMultiFilesInBubbles) file2 : ", file2);
 
 
-            file3 = new FileInfo({
+            file3 = new FileUpdated({
                 //            path: "c:\\temp\\15777240.jpg",   // path of file to read
                 path: "package.json",
                 //path: "c:\\temp\\Rainbow_log_test.log",   // path of file to read
