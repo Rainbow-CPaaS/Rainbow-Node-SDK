@@ -59,6 +59,18 @@ class FIFOQueue<T> extends Array<T>{
         this.length = 0;
     }
 
+    toSmallString = () => {
+        let that = this;
+        let res="SmallStr";
+/*        for (let i = 0; i < that.size(); i++) {
+            let msg = that[i];
+            res+= msg.id + ", side : " + msg.side + ", isEvent : " + msg.isEvent + ", event : " + msg.event + ", deleted : " + msg.deleted + ", modified : " + msg.modified + ", content : " + msg.content + "\n";
+        }
+        // */
+
+        return res;
+    }
+
     handler(container, getter, setter) {
         return {
            /*  get: (object, key) => {

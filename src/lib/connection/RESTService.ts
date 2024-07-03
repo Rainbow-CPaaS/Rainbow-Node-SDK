@@ -12,7 +12,7 @@ import {
     getRandomInt,
     logEntryExit,
     makeId,
-    msToTime,
+    msToTime, orderByFilter,
     stackTrace
 } from "../common/Utils.js";
 import {createPassword} from "../common/Utils.js";
@@ -322,6 +322,8 @@ class RESTService extends GenericRESTService {
     private reconnectInProgress: boolean;
     private _options: any;
     private timeOutManager: TimeOutManager;
+    protected apiConfigTTL: number = 1;
+    protected apiConfigTTLTimeout: any = 1;
 
     static getClassName() { return 'RESTService'; }
     getClassName() { return RESTService.getClassName(); }
@@ -368,6 +370,7 @@ class RESTService extends GenericRESTService {
             maxDelay: RECONNECT_MAX_DELAY
         });
         this.reconnectDelay = this.fibonacciStrategy.getInitialDelay();
+
     }
 
     get userId() {
@@ -492,6 +495,7 @@ class RESTService extends GenericRESTService {
                 that._logger.log(that.INTERNAL, LOG_ID + "(signin) welcome " + that.account.displayName + "!");
                 //that._logger.log(that.DEBUG, LOG_ID + "(signin) user information ", that.account);
                 that._logger.log(that.INTERNAL, LOG_ID + "(signin) application information : ", that.app);
+                that.getApiConfigurationFromServer();
                 resolve(JSON);
             }).catch(function (err) {
                 that._logger.log(that.ERROR, LOG_ID, "(signin) ErrorManager during REST signin");
@@ -549,6 +553,72 @@ class RESTService extends GenericRESTService {
                         that._logger.log(that.INTERNALERROR, LOG_ID, "(askTokenOnBehalf) Error requesting a token : ", err);
                         return reject(err);
                     });
+        });
+    }
+
+    /**
+     * @public
+     * @method getApiConfigurationFromServer
+     * @since 2.30.0
+     * @instance
+     * @async
+     * @category CONVERSATIONS
+     * @description
+     * This API returns settings applying to Rainbow APIs. </br>
+     * The first use case of these settings is the configuration of rules allowing to force the clients to use a specific region for some API calls in Rainbow multi-region deployment (to avoid some clustering issues or increase performances).</br>
+     * The `additionalHeaders` Array specifies that given header(s) have to be added by the clients when calling APIs being specified in the associated `match` Object (list of APIs with `method` and `url`).</br>
+     * The data returned by this API comes from server configuration and can evolve, therefore the clients should periodically refresh the settings kept in their cache. A ttl (time to live) field is returned, indicating the periodicity the clients should refresh their cache.</br>
+     *
+     * @return {Promise<any>} - result
+     *
+     *
+     */
+    //private async getApiConfigurationFromServer() {
+    async getApiConfigurationFromServer() {
+        let that = this;
+
+        return new Promise(async (resolve, reject) => {
+            that._logger.log(that.INFOAPI, LOG_ID + "(getApiConfigurationFromServer) entering.");
+            await that.getApisSettings().then(async (apiSettings: any) => {
+                that._logger.log(that.DEBUG, LOG_ID + "(getApiConfigurationFromServer) success");
+
+                const httpUrls = [];
+                if (apiSettings?.additionalHeaders) {
+                    /* apiSettings.additionalHeaders.forEach((additionalHeader: any) => {
+                        additionalHeader.match.forEach((obj) => {
+                            httpUrls.push({
+                                "url": obj.url.replace("*", ""),
+                                "method": obj.method,
+                                "headers": additionalHeader.headers
+                            });
+                        });
+                    }); // */
+                    for (let i = 0; i < apiSettings.additionalHeaders.length; i++) {
+                        const additionalHeader = apiSettings.additionalHeaders[i];
+                        for (let j = 0; j < additionalHeader.match.length; j++) {
+                            const obj = additionalHeader.match[j];
+                            httpUrls.push({
+                                "url": obj.url.replace("*", ""),
+                                "method": obj.method,
+                                "headers": additionalHeader.headers
+                            });
+                        }
+                    }
+                }
+
+                that.http.apiHeadersConfiguration = httpUrls;
+
+                that.apiConfigTTL = apiSettings?.ttl;
+                if (that.apiConfigTTL) {
+                    that.apiConfigTTLTimeout = setTimeout(() => {
+                        that.apiConfigTTL = 0;
+                        that.getApiConfigurationFromServer();
+                    }, that.apiConfigTTL * 1000);
+                }
+            }).catch((error) => {
+                that._logger.log(that.WARN, LOG_ID + "(getApiConfigurationFromServer) Failed to retrieve API settings : ", error);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getApiConfigurationFromServer) Failed to retrieve API settings : ", error);
+            });
         });
     }
 
@@ -1860,6 +1930,7 @@ class RESTService extends GenericRESTService {
             that._logger.log(that.DEBUG, LOG_ID + "(getContactByToken) token signin, welcome " + that.account.id + "!");
             that._logger.log(that.INTERNAL, LOG_ID + "(getContactByToken) user information ", that.account);
             that._logger.log(that.INTERNAL, LOG_ID + "(getContactByToken) application information : ", that.app);
+            that.getApiConfigurationFromServer();
             return Promise.resolve(JSON);
         } catch (err) {
             that._logger.log(that.DEBUG, LOG_ID + "(getContactByToken) CATCH Error !!! error : ", err);
@@ -3071,6 +3142,26 @@ Request Method: PUT
         });
     }
 
+    getBubbleLastActivityDate(bubble) {
+        let date: Date;
+        if (bubble?.lastActivityDate) {
+            date = new Date(bubble?.lastActivityDate);
+        } else if (bubble?.creationDate) {
+            date = new Date(bubble?.creationDate);
+        } else {
+            date = new Date(0);
+        }
+        return date.getTime();
+    }
+
+    sortByDate(dateA, dateB) {
+        let res = 1;
+        if (dateA && dateB) {
+            res = dateB - dateA;
+        }
+        return res;
+    }
+
     getBubbles(format: string = "small", unsubscribed: boolean = false) {
         let that = this;
         let getSetOfBubbles = (page, max, bubbles) => {
@@ -3118,6 +3209,10 @@ Request Method: PUT
             getAllBubbles(page, limit, []).then((json: any) => {
                 that._logger.log(that.DEBUG, LOG_ID + "(getBubbles) getAllBubbles successfull");
                 that._logger.log(that.INTERNAL, LOG_ID + "(getBubbles) getAllBubbles REST result : " + json.length + " bubbles");
+                //json.sort((a, b) => that.getBubbleLastActivityDate(b) - that.getBubbleLastActivityDate(a));
+                // lastActivityDate
+                //bubbles = orderByFilter( bubbles, that.getBubbleLastActivityDate, true, that.sortByDate);
+
                 resolve(json);
             }).catch((err) => {
                 that._logger.log(that.ERROR, LOG_ID, "(getBubbles) getAllBubbles error");
@@ -15774,6 +15869,46 @@ kamEmailList?: string[], businessSpecific?: string, adminServiceNotificationsLev
     }
 
     //endregion Tasks MANAGEMENT
+
+        //endregion Rainbow Voice Routing
+
+    //region Rainbow APIs Settings
+
+    getApisSettings() {
+        // GET  https://api.openrainbow.org/api/rainbow/enduser/v1.0/settings/apis
+        // API https://api.openrainbow.org/enduser/#api-settings_apis-getApisSettings
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url: string = "/api/rainbow/enduser/v1.0/settings/apis";
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            /*
+            addParamToUrl(urlParamsTab, "calleeId", calleeId );
+            addParamToUrl(urlParamsTab, "addresseeId", addresseeId );
+            addParamToUrl(urlParamsTab, "addresseePhoneNumber", addresseePhoneNumber );
+            addParamToUrl(urlParamsTab, "sortOrder", sortOrder + "");
+            addParamToUrl(urlParamsTab, "fromDate", fromDate);
+            addParamToUrl(urlParamsTab, "toDate", toDate );
+            addParamToUrl(urlParamsTab, "callerName", callerName );
+            addParamToUrl(urlParamsTab, "callerNumber", callerNumber );
+             // */
+            url = urlParamsTab[0];
+
+            that._logger.log(that.INTERNAL, LOG_ID + "(getApisSettings) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
+                that._logger.log(that.DEBUG, LOG_ID + "(getApisSettings) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getApisSettings) REST result : ", json);
+                resolve(json?.data);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(getApisSettings) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getApisSettings) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    //endregion Rainbow APIs Settings
 
 }
 

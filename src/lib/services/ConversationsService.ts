@@ -50,11 +50,14 @@ const API_ID = "API_CALL - ";
  * <br>
  *   */
 class ConversationsService extends GenericService {
+    get pendingMessages(): any {
+        return this._pendingMessages;
+    }
     private _contactsService: ContactsService;
     private _fileStorageService: FileStorageService;
     private _fileServerService: FileServerService;
     private _presenceService: PresenceService;
-    private pendingMessages: any;
+    private _pendingMessages: any;
     private _conversationEventHandler: ConversationEventHandler;
     private _conversationHandlerToken: any;
     private _conversationHistoryHandlerToken: any;
@@ -106,7 +109,7 @@ class ConversationsService extends GenericService {
 
         this._core = _core;
 
-        this.pendingMessages = {};
+        this._pendingMessages = {};
         this._conversationEventHandler = null;
         this._conversationHandlerToken = [];
         this._conversationHistoryHandlerToken = [];
@@ -221,7 +224,7 @@ class ConversationsService extends GenericService {
 
     async _onReceipt(receipt) {
         let that = this;
-        let messageInfo = this.pendingMessages[receipt.id];
+        let messageInfo = this._pendingMessages[receipt.id];
         if (messageInfo && messageInfo.message) {
             let data = messageInfo.message;
             let conversation = messageInfo.conversation;
@@ -483,7 +486,7 @@ class ConversationsService extends GenericService {
 
         if (conversation.historyComplete) {
             that._logger.log(that.DEBUG, LOG_ID + "(getHistoryPage) (" + conversation.id + ") : already complete");
-            defered.resolve(conversation);
+            defered.resolve(await that.getConversationById(conversation?.id));
             return defered.promise;
         }
 
@@ -602,7 +605,7 @@ class ConversationsService extends GenericService {
             that._logger.log(that.INFO, "(loadConversationHistoryAsync) loadConversationHistory done.");
             // raise rainbow_onloadConversationHistoryCompleted
             this._eventEmitter.emit("evt_internal_loadConversationHistoryCompleted", conversationHistoryUpdated);
-            return Promise.reject({code:-1, label:"load failed."});
+            //return Promise.reject({code:-1, label:"load failed."});
         }).catch((error: any)=>{
             that._logger.log(that.ERROR, "(loadConversationHistoryAsync) loadConversationHistory Failed : ", error);
             this._eventEmitter.emit("evt_internal_loadConversationHistoryFailed", error);
@@ -1132,7 +1135,7 @@ class ConversationsService extends GenericService {
                 newMsg.originalMessageReplaced = originalMessage; // Warning this is a circular depend.
                 originalMessage.replacedByMessage = newMsg; // Warning this is a circular depend.
                 that._logger.log(that.INTERNAL, LOG_ID + "(sendCorrectedChatMessage) id : ", sentMessageId, ", This is a replace msg, so set newMsg.originalMessageReplaced.replacedByMessage : ", newMsg.originalMessageReplaced.replacedByMessage);
-                this.pendingMessages[sentMessageId] = {conversation: conversation, message: newMsg};
+                this._pendingMessages[sentMessageId] = {conversation: conversation, message: newMsg};
                 return newMsg;
             } catch (err) {
                 that._logger.log(that.ERROR, LOG_ID + "sendCorrectedChatMessage error");
@@ -1232,7 +1235,7 @@ class ConversationsService extends GenericService {
      * @param message
      */
     storePendingMessage(conversation, message) {
-        this.pendingMessages[message.id] = {
+        this._pendingMessages[message.id] = {
             conversation: conversation,
             message: message
         };
@@ -1247,7 +1250,7 @@ class ConversationsService extends GenericService {
      * @param message
      */
     removePendingMessage(message) {
-        delete this.pendingMessages[message.id];
+        delete this._pendingMessages[message.id];
     }
 
     /**
@@ -1288,7 +1291,7 @@ class ConversationsService extends GenericService {
                 }
             };
 
-            that.pendingMessages = {};
+            that._pendingMessages = {};
 
             that._xmpp.mamDelete( mamRequest);
 
@@ -1352,7 +1355,7 @@ class ConversationsService extends GenericService {
                 }
             };
 
-            that.pendingMessages = Object.fromEntries(Object.entries(that.pendingMessages).filter(([key, messagePending ] : [string, Message]) => { if (messagePending.date > date) { return false; } }));
+            that._pendingMessages = Object.fromEntries(Object.entries(that._pendingMessages).filter(([key, messagePending ] : [string, Message]) => { if (messagePending.date > date) { return false; } }));
             
             //that.pendingMessages = that.pendingMessages.filter((messagePending) => { if (messagePending.date > date) { return false; } });
 
@@ -1924,9 +1927,9 @@ class ConversationsService extends GenericService {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getConversationByDbId) dbId : ", dbId);
 
-        if (that.conversations) {
+        if (that.conversations && isDefined(dbId)) {
             for (let key in that.conversations) {
-                if (that.conversations.hasOwnProperty(key) && that.conversations[key].dbId === dbId) {
+                if (that.conversations.hasOwnProperty(key) && that.conversations[key].dbId === dbId ) {
                     return that.conversations[key];
                 }
             }

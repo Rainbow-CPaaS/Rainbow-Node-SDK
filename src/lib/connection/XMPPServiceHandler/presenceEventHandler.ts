@@ -319,8 +319,8 @@ class PresenceEventHandler extends GenericHandler {
 
             }
         } catch (err) {
-            that._logger.log(that.ERROR, LOG_ID + "(onPresenceReceived) CATCH ErrorManager !!! ");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(onPresenceReceived) CATCH ErrorManager !!! : ", err);
+            // that._logger.log(that.ERROR, LOG_ID + "(onPresenceReceived) CATCH ErrorManager !!! ");
+            that._logger.log(that.ERROR, LOG_ID + "(onPresenceReceived) CATCH ErrorManager !!! : ", err);
         }
     };
 

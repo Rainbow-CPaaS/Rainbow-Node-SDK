@@ -104,6 +104,7 @@ import {jwtDecode} from "jwt-decode";
 import {LEVELSNAMES} from "../lib/common/LevelLogs.js";
 import {TaskInput} from "../lib/services/TasksService.js";
 import {Task} from "../lib/common/models/Task.js";
+import {FileInfo} from "../lib/common/FileInfo.js";
 /*const readline = require('readline').createInterface({
     input: process.stdin,
     output: process.stdout
@@ -138,7 +139,7 @@ let urlS2S;
     logLevelAreas.showServicesLogs();
     logLevelAreas.showBubblesLogs();
     // */
-/*    logLevelAreas.admin.api = true;
+    logLevelAreas.admin.api = true;
     logLevelAreas.admin.level = LEVELSNAMES.ERROR;
     logLevelAreas.alerts.api = true;
     logLevelAreas.alerts.level = LEVELSNAMES.ERROR;
@@ -222,10 +223,24 @@ let urlS2S;
     logLevelAreas.showEventsLogs();
     // logLevelAreas.showServicesLogs();
     logLevelAreas.hideServicesApiLogs();
-
+/*
     logLevelAreas.tasks.api = true;
     logLevelAreas.tasks.level = LEVELSNAMES.INTERNAL;
     logLevelAreas.tasksevent.level = LEVELSNAMES.INTERNAL;
+*/
+
+    logLevelAreas.conversations.api = true;
+    logLevelAreas.conversations.level = LEVELSNAMES.INTERNAL;
+    logLevelAreas.conversationevent.level = LEVELSNAMES.INTERNAL;
+    logLevelAreas.conversationhistory.level = LEVELSNAMES.INTERNAL;
+    // */
+
+    //logLevelAreas.bubblemanager.level = LEVELSNAMES.INTERNAL;
+
+    logLevelAreas.fileServer.api = true;
+    logLevelAreas.fileServer.level = LEVELSNAMES.INTERNAL;
+    logLevelAreas.fileStorage.api = true;
+    logLevelAreas.fileStorage.level = LEVELSNAMES.INTERNAL;
 
     if (rainbowMode === "s2s") {
         logLevelAreas.s2s.level = LEVELSNAMES.INTERNAL;
@@ -272,7 +287,7 @@ let urlS2S;
                      * When using HTTP KeepAlive, how often to send TCP KeepAlive packets over sockets being kept alive. Default = 1000.
                      * Only relevant if keepAlive is set to true.
                      */
-                    keepAliveMsecs: 1002, // ?: number | undefined;
+                    keepAliveMsecs: 4302, // ?: number | undefined;
                     /**
                      * Maximum number of sockets to allow per host. Default for Node 0.10 is 5, default for Node 0.12 is Infinity
                      */
@@ -338,12 +353,13 @@ let urlS2S;
         // Logs options
         "logs": {
             "enableConsoleLogs": true,
-            "enableFileLogs": false,
+            "enableFileLogs": true,
             "enableEventsLogs": false,
             "enableEncryptedLogs": false,
             "color": true,
-            //"level": "info",
+            //"level": "error",
             "level": "internal",
+            //"level": "internal",
             //"level": "debug",
             "customLabel": "RainbowSample",
             "system-dev": {
@@ -351,7 +367,7 @@ let urlS2S;
                 "http": true,
             },
             "filter": "",
-            //"areas": logLevelAreas,
+//            "areas": logLevelAreas,
             /*,
             "areas" : {
                 "admin": {
@@ -587,8 +603,8 @@ let urlS2S;
                 "customFileName": "R-SDK-Node-Sample-" + Math.floor(Math.random() * 1000),
                 //"level": 'info',                    // Default log level used
                 "zippedArchive": false,
-                "maxSize": '100m',
-                "maxFiles": 1 // */
+                "maxSize": '500m',
+                "maxFiles": 5 // */
             }
         },
         "testOutdatedVersion": false,
@@ -616,18 +632,18 @@ let urlS2S;
             "messagesDataStore": DataStoreType.StoreTwinSide,
             "autoInitialGetBubbles": true,
             "autoInitialBubblePresence": true,
-            "maxBubbleJoinInProgress": 6,
+            "maxBubbleJoinInProgress": 10,
             "autoInitialBubbleFormat": "full",
             "autoInitialBubbleUnsubscribed": true,
-            "autoLoadConversations": true,
+            //"autoLoadConversations": true,
             // "autoInitialBubblePresence": false,
-            // "autoLoadConversations": false,
+            "autoLoadConversations": true,
             "autoLoadConversationHistory": false,
             "autoLoadContacts": true,
             "enableCarbon": true,
             "enablesendurgentpushmessages": true,
             //"useMessageEditionAndDeletionV2": false
-            //"storeMessagesInConversation": false
+            "storeMessagesInConversation": true,
             "maxMessagesStoredInConversation" : 830
     },
         // Services to start. This allows to start the SDK with restricted number of services, so there are less call to API.
@@ -2281,15 +2297,15 @@ let urlS2S;
  "internalerror" = 7,
  "internal" = 8,
          */
-        _logger.log("error","MAIN - testMessagesQueue error.");
-        _logger.log("warn","MAIN - testMessagesQueue warn.");
-        _logger.log("info","MAIN - testMessagesQueue info.");
-        _logger.log("trace","MAIN - testMessagesQueue trace.");
-        _logger.log("http","MAIN - testMessagesQueue http.");
-        _logger.log("xmpp","MAIN - testMessagesQueue xmpp.");
-        _logger.log("debug","MAIN - testMessagesQueue debug.");
-        _logger.log("internalerror","MAIN - testMessagesQueue internalerror.");
-        _logger.log("internal","MAIN - testMessagesQueue internal.");
+        _logger.log("error","MAIN - testLogs error.");
+        _logger.log("warn","MAIN - testLogs warn.");
+        _logger.log("info","MAIN - testLogs info.");
+        _logger.log("trace","MAIN - testLogs trace.");
+        _logger.log("http","MAIN - testLogs http.");
+        _logger.log("xmpp","MAIN - testLogs xmpp.");
+        _logger.log("debug","MAIN - testLogs debug.");
+        _logger.log("internalerror","MAIN - testLogs internalerror.");
+        _logger.log("internal","MAIN - testLogs internal.");
     }
 
     testMessagesQueue () {
@@ -2309,7 +2325,7 @@ let urlS2S;
             // update an already existing message
             let msg2ToUpdate = {id: "MSG2", content: "message2Update"};
             msgQueue.updateMessageIfExistsElseEnqueueIt(msg2ToUpdate, true);
-            _logger.log("debug", "MAIN - testMessagesQueue after update message (id=MSG2) msgQueue : ", msgQueue);
+            _logger.log("debug", "MAIN - testMessagesQueue after update message (id=MSG2) msgQueue.toSmallString() : ", msgQueue.toSmallString());
 
             // remove a message
             msgQueue.removeMessage(msg2, true);
@@ -2948,6 +2964,88 @@ let urlS2S;
                 _logger.log("debug", "MAIN - [testsendMessageToContactUrgencyMiddle] after sendMessageToContact result : ", result);
             });
         }
+
+        async testgetMessagesFromConversation() {
+            //let that = this;
+            //let bubbleJib = "room_f829530bba37411896022878f81603ca@muc.vberder-all-in-one-dev-1.opentouch.cloud";
+            //let conversation = rainbowSDK.conversations.getConversationByBubbleJid(bubbleJib);
+            //await rainbowSDK.im.getMessagesFromConversation(conversation, 10);
+            let bubbles = rainbowSDK.bubbles.getAllActiveBubbles();
+
+            for (const bubble of bubbles) {
+                //if (bubble.name.indexOf("testBubbleEvents")!= -1) {
+                if (bubble.name.indexOf("testBotName_2024/02/09T10:35:36.732ZGuestUser")!= -1) {
+                    _logger.log("debug", "MAIN - testgetMessagesFromConversation Found bubble.name : ", bubble.name, ", bubble.isActive : ", bubble.isActive);
+                    rainbowSDK.conversations.getConversationByBubbleId(bubble.id).then((result) => {
+                    //rainbowSDK.conversations.getConversationByBubbleId("65c5fff8f3c002518b2e2a29").then((result) => {
+                        _logger.log("debug", "MAIN - testgetMessagesFromConversation getConversationByBubbleId result : ", result);
+                        rainbowSDK.im.getMessagesFromConversation(result).then((res2) => {
+                            _logger.log("debug", "MAIN - testgetMessagesFromConversation res2 : ", res2);
+                        })
+                    })
+                } else {
+                    _logger.log("debug", "MAIN - testgetMessagesFromConversation NOT Found bubble.name : ", bubble.name, ", buibble.isActive : ", bubble.isActive);
+                }
+            }
+        }
+
+        testmsgInObj() {
+            try {
+                let msg1 = {id: "MSG1", content: "message1"};
+                let msg2 = {id: "MSG2", content: "message2"};
+                let msg3 = {id: "MSG3", content: "message3"};
+
+                class ConversationService{
+                    public conversations: any;
+                    constructor(){
+                        this.conversations = {};
+                    }
+
+                    getConversationById(conversationId : string) {
+                        let that = this;
+                        _logger.log("debug", "(getConversationById) conversationId : ", conversationId);
+                        //that._logger.log(that.DEBUG, LOG_ID + " (getConversationById) conversationId : ", conversationId);
+                        if (!this.conversations) {
+                            return null;
+                        }
+                        let conv =  this.conversations[conversationId];
+                        _logger.log("debug", "(getConversationById) conversation by id, id of conversation found : ", conv ? conv.id : "");
+                        /* if (!conv) {
+                            conv = that.getConversationByDbId(conversationId);
+                            _logger.log("debug", "(getConversationById) conversation not found by id, so searched by dbId result : ", conv);
+                        } // */
+                        return conv;
+                    }
+
+                }
+
+                let conversationService = new ConversationService();
+
+                let conversationInitial = {
+                    "id" : "123",
+                    "msgQueue": new MessagesQueue(_logger, 10)
+                };
+
+                conversationInitial.msgQueue.updateMessageIfExistsElseEnqueueIt(msg1, true);
+                conversationInitial.msgQueue.updateMessageIfExistsElseEnqueueIt(msg2, true);
+                conversationInitial.msgQueue.updateMessageIfExistsElseEnqueueIt(msg3, true);
+                _logger.log("debug", "MAIN - testMessagesQueue after store 3 messages msgQueue : ", conversationInitial.msgQueue.toSmallString());
+
+                conversationService.conversations[conversationInitial.id] = conversationInitial;
+
+                let conversation = conversationService.getConversationById(conversationInitial.id);
+
+                //conversation.msgQueue.updateMessageIfExistsElseEnqueueIt({id: "MSG4", content: "message4"}, true);
+                conversation.msgQueue.unshift({id: "MSG4", content: "message4"});
+                _logger.log("debug", "MAIN - testMessagesQueue should have 4 messages conversationInitial msgQueue : ", conversationInitial.msgQueue.toSmallString());
+                _logger.log("debug", "MAIN - testMessagesQueue should have 4 messages conversation msgQueue : ", conversation.msgQueue.toSmallString());
+
+
+            } catch (err) {
+                _logger.log("error", "MAIN - testMessagesQueue CATCH Error !!! error : ", err);
+            }
+        }
+
 
         //endregion Messages
 
@@ -3933,22 +4031,22 @@ let urlS2S;
             //    let utc = new Date().toJSON().replace(/-/g, '/');
         }
 
-        async testCreate50BubblesAndActivateThem() {
+        async testCreate50BubblesAndActivateThem(nbCreateBubbles : number =50) {
             let loginEmail = "vincent02@vbe.test.openrainbow.net";
             let appointmentRoom = "testBot";
             //let botappointment = "vincent01@vbe.test.openrainbow.net";
             rainbowSDK.contacts.getContactByLoginEmail(loginEmail).then(async contact => {
                 if (contact) {
-                    _logger.log("debug", "MAIN - [testCreateBubbles    ] :: getContactByLoginEmail contact : ", contact);
-                    for (let i = 0; i < 50; i++) {
+                    _logger.log("debug", "MAIN - [testCreate50BubblesAndActivateThem    ] :: getContactByLoginEmail contact : ", contact);
+                    for (let i = 0; i < nbCreateBubbles; i++) {
                         let utc = new Date().toJSON().replace(/-/g, "/");
                         let bubbleName = appointmentRoom + "_" + utc + contact + "_" + i;
                         let timeBetweenCreate = 2000 + (getRandomInt(6) * 1000);
                         await setTimeoutPromised(timeBetweenCreate).then(async () => {
-                            _logger.log("debug", "MAIN - [testCreateBubbles    ] :: createBubble request ", bubbleName, " after : ", timeBetweenCreate, " seconds waiting.");
+                            _logger.log("debug", "MAIN - [testCreate50BubblesAndActivateThem    ] :: createBubble request ", bubbleName, " after : ", timeBetweenCreate, " seconds waiting.");
 
                             await rainbowSDK.bubbles.createBubble(bubbleName, "desc : " + appointmentRoom + "_" + utc + "_" + i).then(async (bubble: any) => {
-                                _logger.log("debug", "MAIN - [testCreateBubbles    ] :: createBubble request ok", bubble);
+                                _logger.log("debug", "MAIN - [testCreate50BubblesAndActivateThem    ] :: createBubble request ok", bubble);
                                 rainbowSDK.bubbles.inviteContactToBubble(contact, bubble, false, false).then(async () => {
                                     let message = "message de test";
                                     await rainbowSDK.im.sendMessageToBubbleJid(message, bubble.jid, "en", {
@@ -3958,7 +4056,7 @@ let urlS2S;
                                     // await rainbowSDK.im.sendMessageToBubbleJid(message, bubble.jid, "en", { "type": "text/markdown", "message": message }, "subject");
                                     // await rainbowSDK.im.sendMessageToBubbleJid(message, bubble.jid, "en", { "type": "text/markdown", "message": message }, "subject");
                                     let bubbles = rainbowSDK.bubbles.getAll();
-                                    _logger.log("debug", "MAIN testCreateBubbles - after archiveBubble - bubble : ", bubble, ", bubbles : ", bubbles);
+                                    _logger.log("debug", "MAIN testCreate50BubblesAndActivateThem - after archiveBubble - bubble : ", bubble, ", bubbles : ", bubbles);
                                 });
                             });
                             // */
@@ -4148,6 +4246,170 @@ let urlS2S;
                 }
             }); // */
             //    let utc = new Date().toJSON().replace(/-/g, '/');
+        }
+
+        async testsendMultiFilesInBubbles() {
+            let that = this;
+            let file1 = null;
+            let file2 = null;
+            let file3 = null;
+            let strMessageFile1 = "message for the file 1";
+            let strMessageFile2 = "message for the file 2";
+            let strMessageFile3 = "message for the file 3";
+            file1 = new FileInfo({
+                //            path: "c:\\temp\\15777240.jpg",   // path of file to read
+                path: "c:\\temp\\IMG_20131005_173918.jpg",
+                //path: "c:\\temp\\Rainbow_log_test.log",   // path of file to read
+                jsdom: true,
+                async: false,
+            }); // */
+
+            //   const stats : any = fs.statSync("c:\\temp\\IMG_20131005_173918.jpg");
+
+            _logger.log("debug", "MAIN - (testsendMultiFilesInBubbles) file1 : ", file1);
+            file2 = new FileInfo({
+                //            path: "c:\\temp\\15777240.jpg",   // path of file to read
+                path: "src/lib/resources/unknownContact.png",
+                //path: "c:\\temp\\Rainbow_log_test.log",   // path of file to read
+                jsdom: true,
+                async: false,
+            });
+            _logger.log("debug", "MAIN - (testsendMultiFilesInBubbles) file2 : ", file2);
+
+
+            file3 = new FileInfo({
+                //            path: "c:\\temp\\15777240.jpg",   // path of file to read
+                path: "package.json",
+                //path: "c:\\temp\\Rainbow_log_test.log",   // path of file to read
+                jsdom: true,
+                async: false,
+            });
+            _logger.log("debug", "MAIN - (testsendMultiFilesInBubbles) file3 : ", file3);
+
+
+            //let result = that.rainbowSDK.bubbles.getAllOwnedBubbles();
+            let bubbles = rainbowSDK.bubbles.getAllActiveBubbles();
+            _logger.log("debug", "MAIN - (testsendMultiFilesInBubbles) getAllActiveBubbles - bubbles : ", bubbles, "nb owned bulles : ", bubbles ? bubbles.length:0);
+            if (bubbles.length > 2) {
+
+                let bubblesActive = bubbles.filter((bubble) => {
+                    return bubble.isActive===true;
+                });
+
+                for (let i = 0; i < bubblesActive.length; i++) {
+                    let bubble = bubblesActive[i];
+                    _logger.log("debug", "MAIN - (testsendMultiFilesInBubbles) iter - bubbles[", i, "] - bubble.name : ", bubble?.name, ", bubble?.id : ", bubble?.id, ", bubble?.jid : ", bubble?.jid, ", bubble?.status : ", bubble?.status, ", bubble?.isActive : ", bubble?.isActive);
+
+                }
+
+                /* if (bubble.isActive==false) {
+                     rainbowSDK.presence.sendInitialBubblePresenceSync(bubble);
+                 } // */
+
+                /*
+                rainbowSDK.fileStorage.uploadFileToBubble(bubblesActive[0], file1, strMessageFile1).then((result) => {
+                    _logger.log("debug", "MAIN - (testsendMultiFilesInBubbles) uploadFileToBubble file1 - result : ", result);
+                });
+                rainbowSDK.fileStorage.uploadFileToBubble(bubblesActive[1], file2, strMessageFile2).then((result) => {
+                    _logger.log("debug", "MAIN - (testsendMultiFilesInBubbles) uploadFileToBubble file1 - result : ", result);
+                });
+            // */
+
+                async function shareFile(id, file, strMessageFile) {
+                    const bubble = await rainbowSDK.bubbles.getBubbleById(id);
+                    // Share the file
+                    rainbowSDK.fileStorage.uploadFileToBubble(bubble, file, strMessageFile).then((result) => {
+                        _logger.log("debug", "MAIN - (testsendMultiFilesInBubbles) uploadFileToBubble file - result : ", result);
+                    });
+                }
+
+                shareFile(bubblesActive[0]?.id, file1, strMessageFile1);
+
+                await pause(10000);
+
+                shareFile(bubblesActive[1]?.id, file2, strMessageFile2);
+                shareFile(bubblesActive[2]?.id, file3, strMessageFile3);
+
+                // */
+            }
+            //});
+            /*
+                    private async sendMessageToBubbleRainbowClient(id: string, rainbowMessage: RainbowMessageDto, rainbowClient: typeof RainbowSDK): Promise<RainbowMessage> {
+                       try {
+                                if (!rainbowClient) {
+                            throw new NotFoundException('sendMessageToBubbleRainbowClient: No Rainbow client');
+                        }
+                        let res;
+                        const bubble = await rainbowClient.bubbles.getBubbleById(id);
+                        if (!bubble) {
+                            throw new NotFoundException(`sendMessageToBubbleRainbowClient: Bubble ${id} not found`);
+                        }
+                        this.logger.debug(`sendMessageToBubbleRainbowClient - bubbleId: ${bubble?.id} - JID: ${bubble?.jid}  name: ${bubble?.name}`);
+
+                        const lang = "en"; // content language used
+                        let message = rainbowMessage.message;
+                        let content = (rainbowMessage.card ? { type: "form/json", message: rainbowMessage.card } : null);
+                        if (rainbowMessage.file) {
+                            message = message ? message : "Attached file";
+
+                            const stats = fs.statSync(rainbowMessage.file.path);
+
+                            // Construire l'objet avec les informations sur le fichier
+                            const transformedFile = {
+                                type: rainbowMessage.file.mimeType,
+                                name: rainbowMessage.file.originalName,
+                                path: rainbowMessage.file.path,
+                                size: stats.size
+                            };
+
+                            res = await rainbowClient.fileStorage.uploadFileToBubble(bubble, transformedFile, message);
+                        }
+                        else {
+                            message = message ? message : "Message";
+                            let content = null;
+                            if (rainbowMessage.card) {
+                                // Update special characters of content message body
+                                let adaptiveCard = rainbowMessage.card;
+                                // List
+                                adaptiveCard = adaptiveCard.replace(/\\\\n\\\\t-/g, '\\r\\t-');
+                                // New line
+                                adaptiveCard = adaptiveCard.replace(/\\\\n/g, '\\n\\n');
+                                // Other
+                                adaptiveCard = adaptiveCard.replace(/\\\\t/g, '\\t');
+                                // Rainbow alternative text base content to send
+                                content = {
+                                    type: "form/json",
+                                    message: adaptiveCard
+                                };
+                            }
+                            //imsService.sendMessageToBubble(message, bubble, [lang], [content], [subject], mentions, urgency)
+                            let urgency = (rainbowMessage.messageType ? rainbowMessage.messageType.toLowerCase() : null);
+                            if (urgency === "high") {
+                                urgency = "middle"
+                            }
+                            res = await rainbowClient.im.sendMessageToBubble(message, bubble, lang, content, "", [], urgency);
+                        }
+                        return {
+                            status: "SUCCESS",
+                            msgId: res.id,
+                            msgType: res.type
+                        };
+                    } catch (e: any) {
+                            throw this.rainbowException(e);
+                        }
+                    }
+                    // */
+
+        }
+
+        testgetConversationByDbId() {
+            let result = rainbowSDK.conversations.getConversationByDbId(undefined);
+            if (result) {
+                _logger.log("debug", "MAIN - [testgetConversationByDbId    ] :: getConversationByDbId result : ", result);
+            } else {
+                _logger.log("debug", "MAIN - [testgetConversationByDbId    ] :: getConversationByDbId no result found.");
+            }
+
         }
 
         testgetBubblesConsumption() {
@@ -5848,11 +6110,16 @@ let urlS2S;
                 let startDate = new Date();
                 rainbowSDK.events.on("rainbow_onloadConversationHistoryCompleted", (conversationHistoryUpdated) => {
                     // do something when the SDK has been started
-                    _logger.log("debug", "MAIN - (rainbow_onloadConversationHistoryCompleted) - rainbow conversation history loaded completed : ", conversationHistoryUpdated);
+                    _logger.log("info", "MAIN - (rainbow_onloadConversationHistoryCompleted) - rainbow conversation history loaded completed, conversationHistoryUpdated?.messages?.length : ", conversationHistoryUpdated?.messages?.length);
                     let stopDate = new Date();
                     // @ts-ignore
                     let startDuration = Math.round(stopDate - startDate);
-                    _logger.log("debug", "MAIN - testloadConversationHistoryAsyncBubbleOpenrainbowNet loadConversationHistoryAsync duration : " + startDuration + " ms.");
+                    _logger.log("info", "MAIN - testloadConversationHistoryAsyncBubbleOpenrainbowNet loadConversationHistoryAsync duration : " + startDuration + " ms => ", msToTime(startDuration));
+                    for (let i = 0; i < conversationHistoryUpdated?.messages?.length ; i++) {
+                        let msg = conversationHistoryUpdated?.messages[i];
+                        _logger.log("info", "MAIN - testloadConversationHistoryAsyncBubbleOpenrainbowNet conversationHistoryUpdated.messages[" + i + "] id : ", msg.id, ", fromJid : ", msg.fromJid, ", date : ", msg.date, ", content : ", msg.content);
+                    }
+
                     if (rainbowSDK) {
                         rainbowSDK.stop().then(() => {
                             process.exit(0);
@@ -5866,12 +6133,12 @@ let urlS2S;
                 });
 
                 rainbowSDK.conversations.getBubbleConversation(jid).then(async function (conversation) {
-                    _logger.log("debug", "MAIN - testloadConversationHistoryAsyncBubbleOpenrainbowNet - getBubbleConversation, conversation.jid : ", conversation.jid, ", conversation : ", conversation);
+                    _logger.log("info", "MAIN - testloadConversationHistoryAsyncBubbleOpenrainbowNet - getBubbleConversation, conversation.jid : ", conversation.jid, ", conversation : ", conversation);
                     /* that.getConversationHistoryMaxime(conversation).then(() => {
                         _logger.log("debug", "MAIN - testGetHistoryPageBubble - getConversationHistoryMaxime, conversation : ", conversation, ", status : ", conversation.status);
                     }); // */
                     rainbowSDK.conversations.loadConversationHistoryAsync(conversation, 20).then((running) => {
-                        _logger.log("debug", "MAIN - testloadConversationHistoryAsyncBubbleOpenrainbowNet loadConversationHistoryAsync running : ", running);
+                        _logger.log("info", "MAIN - testloadConversationHistoryAsyncBubbleOpenrainbowNet loadConversationHistoryAsync running : ", running);
 
                       /*
                       let result = conversationUpdated.historyComplete ? conversationUpdated:that.getConversationHistoryMaxime(conversationUpdated);
@@ -5890,11 +6157,18 @@ let urlS2S;
             let startDate = new Date();
             rainbowSDK.events.on("rainbow_onloadConversationHistoryCompleted", (conversationHistoryUpdated) => {
                 // do something when the SDK has been started
-                _logger.log("debug", "MAIN - (rainbow_onloadConversationHistoryCompleted) - rainbow conversation history loaded completed : ", conversationHistoryUpdated);
+                _logger.log("info", "MAIN - (rainbow_onloadConversationHistoryCompleted) - rainbow conversation history loaded completed, conversationHistoryUpdated?.messages?.length : ", conversationHistoryUpdated?.messages?.length);
                 let stopDate = new Date();
                 // @ts-ignore
                 let startDuration = Math.round(stopDate - startDate);
-                _logger.log("debug", "MAIN - testloadConversationHistoryAsyncP2P loadConversationHistoryAsync duration : " + startDuration + " ms.");
+                _logger.log("info", "MAIN - testloadConversationHistoryAsyncP2P loadConversationHistoryAsync duration : " + startDuration + " ms.");
+
+                if (conversationHistoryUpdated && conversationHistoryUpdated.messages) {
+                    for (let i = 0; i < conversationHistoryUpdated.messages.length ; i++) {
+                        _logger.log("info", "MAIN - testloadConversationHistoryAsyncP2P conversationHistoryUpdated.messages[" + i + "] : ", conversationHistoryUpdated.messages[i]);
+                    }
+                }
+
                 if (rainbowSDK) {
                     rainbowSDK.stop().then(() => {
                         process.exit(0);
@@ -5912,12 +6186,12 @@ let urlS2S;
             let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
             let conversation : Conversation = await rainbowSDK.conversations.openConversationForContact(contact);
             if (conversation && conversation.id) {
-                _logger.log("debug", "MAIN - testloadConversationHistoryAsyncP2P - getBubbleConversation, conversation.id : ", conversation.id, ", conversation?.messages.length : ", conversation?.messages.length);
+                _logger.log("info", "MAIN - testloadConversationHistoryAsyncP2P - getBubbleConversation, conversation.id : ", conversation.id, ", conversation?.messages.length : ", conversation?.messages.length);
                 /* that.getConversationHistoryMaxime(conversation).then(() => {
                     _logger.log("debug", "MAIN - testGetHistoryPageBubble - getConversationHistoryMaxime, conversation : ", conversation, ", status : ", conversation.status);
                 }); // */
                 rainbowSDK.conversations.loadConversationHistoryAsync(conversation, 20).then((running) => {
-                    _logger.log("debug", "MAIN - testloadConversationHistoryAsyncP2P loadConversationHistoryAsync running : ", running);
+                    _logger.log("info", "MAIN - testloadConversationHistoryAsyncP2P loadConversationHistoryAsync running : ", running);
 
                     /*
                     let result = conversationUpdated.historyComplete ? conversationUpdated:that.getConversationHistoryMaxime(conversationUpdated);
@@ -5935,9 +6209,9 @@ let urlS2S;
             if (bubbles.length > 0) {
                 let bubble = bubbles[0];
                 rainbowSDK.conversations.getBubbleConversation(bubble.jid).then(async function (conversation) {
-                    _logger.log("debug", "MAIN - testGetHistoryPageBubble - openConversationForContact, conversation : ", conversation);
+                    _logger.log("info", "MAIN - testGetHistoryPageBubble - openConversationForContact, conversation : ", conversation);
                     that.getConversationHistoryMaxime(conversation).then(() => {
-                        _logger.log("debug", "MAIN - testGetHistoryPageBubble - getConversationHistoryMaxime, conversation : ", conversation, ", status : ", conversation.status);
+                        _logger.log("info", "MAIN - testGetHistoryPageBubble - getConversationHistoryMaxime, conversation : ", conversation, ", status : ", conversation.status);
                     });
                 });
             }
@@ -5947,8 +6221,20 @@ let urlS2S;
         testgetAllConversations() {
             let conversations = rainbowSDK.conversations.getAllConversations();
             if (conversations) {
+                _logger.log("info", "MAIN - [testgetAllConversations ] :: rainbowSDK.conversations.pendingMessages.length : ",  rainbowSDK.conversations?.pendingMessages?.length  );
                 conversations.forEach((conversation) => {
-                    _logger.log("debug", "MAIN - [testgetAllConversations ] :: conversation.d : ", conversation.id);
+                    _logger.log("info", "MAIN - [testgetAllConversations ] :: conversation.d : ", conversation.id, ", conversations.messages.length : ", conversation?.messages?.length, ", conversations.pendingMessages.length : ", conversation?.pendingMessages?.length  );
+                });
+            }
+        }
+
+        testgetApiConfigurationFromServer() {
+            rainbowSDK._core.rest.getApiConfigurationFromServer();
+            let apiSettings = rainbowSDK._core._rest.http.apiHeadersConfiguration;
+            if (apiSettings) {
+                _logger.log("info", "MAIN - [testgetApiConfigurationFromServer ] :: apiSettings : ", apiSettings );
+                apiSettings.forEach((apiConfig) => {
+                    _logger.log("info", "MAIN - [testgetApiConfigurationFromServer ] :: apiConfig.method : ", apiConfig.method, ", apiConfig.URL : ", apiConfig.URL, ", apiConfig.headers : ", apiConfig.headers );
                 });
             }
         }

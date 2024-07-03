@@ -311,12 +311,12 @@ class MessagesQueue extends FIFOQueue<Message> {
             let lockProm: Promise<any>;
             try {
                 let id = randomUUID();
-                that.logger.log("debug", LOG_ID + "(size) - timestamp : ", timestamp, " - id : ", id, " - size Message");
+                //that.logger.log("debug", LOG_ID + "(size) - timestamp : ", timestamp, " - id : ", id, " - size Message");
                 that.rwlock.readLock(() => {
                     try {
-                        that.logger.log("debug", LOG_ID + "(size) - id : ", id, " - size will start.");
+                        //that.logger.log("debug", LOG_ID + "(size) - id : ", id, " - size will start.");
                         result = super.size();
-                        that.logger.log("debug", LOG_ID + "(size) - id : ", id, " - size started and finished. Will leave lock.");
+                        //that.logger.log("debug", LOG_ID + "(size) - id : ", id, " - size started and finished. Will leave lock.");
                     } catch (err) {
                         that.logger.log("error", LOG_ID + "(size) - id : ", id, " - CATCH Error !!! in lock, error : ", err);
                     }
@@ -355,6 +355,17 @@ class MessagesQueue extends FIFOQueue<Message> {
         }
 // */
         //endregion FIFOQueue
+
+        this.toSmallString = () => {
+            let that = this;
+            let res="\n";
+            for (let i = 0; i < that.size(); i++) {
+                let msg = that[i];
+                res+= "MESSAGE from Queue, id : " + msg.id + ", side : " + msg.side + ", isEvent : " + msg.isEvent + ", event : " + msg.event + ", deleted : " + msg.deleted + ", modified : " + msg.modified + ", content : " + msg.content + "\n";
+            }
+
+            return res;
+        }
 
         //region Array methods supercharged
 

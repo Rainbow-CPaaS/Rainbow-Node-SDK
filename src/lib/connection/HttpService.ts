@@ -79,6 +79,7 @@ class HTTPService extends LevelLogs{
     private reqAgentHttp: any;
     private reqAgentHttps: any;
     public useRequestRateLimiter: boolean;
+    public apiHeadersConfiguration: any[];
 
     static getClassName(){ return 'HTTPService'; }
     getClassName(){ return HTTPService.getClassName(); }
@@ -121,7 +122,7 @@ class HTTPService extends LevelLogs{
              * When using HTTP KeepAlive, how often to send TCP KeepAlive packets over sockets being kept alive. Default = 1000.
              * Only relevant if keepAlive is set to true.
              */
-            keepAliveMsecs: customLiveOption?.agentOptions?.keepAliveMsecs!==undefined ? customLiveOption.agentOptions.keepAliveMsecs:15000, // ?: number | undefined;
+            keepAliveMsecs: customLiveOption?.agentOptions?.keepAliveMsecs!==undefined ? customLiveOption.agentOptions.keepAliveMsecs:4301, // ?: number | undefined;
             /**
              * Maximum number of sockets to allow per host. Default for Node 0.10 is 5, default for Node 0.12 is Infinity
              */
@@ -368,6 +369,32 @@ safeJsonParse(str) {
         }
     }
 
+    addAdditionalHeaders (httpConfig : {URL : string, method:string, headers: any}) {
+        let that = this;
+
+        try {
+            if (httpConfig) {
+                if (!httpConfig.method) httpConfig.method = "GET";
+            }
+
+            if (this.apiHeadersConfiguration?.length) {
+                this.apiHeadersConfiguration.forEach((apiConfig) => {
+                    let url = httpConfig?.URL;
+                    if (url.indexOf(apiConfig.url)!== -1 && (apiConfig.method==="*" || apiConfig.method===httpConfig.method)) {
+                        //add the headers to the request
+                        apiConfig.headers.forEach((additionalHeader) => {
+                            that._logger.log(that.DEBUG, LOG_ID + "(addAdditionalHeaders) key : ", additionalHeader.key, ", value : ", additionalHeader.value);
+                            httpConfig.headers[additionalHeader.key] = additionalHeader.value;
+                        });
+                    }
+                });
+            }
+        } catch (err) {
+
+        }
+    }
+
+
     getUrlRaw(url, headers: any = {}, params): Promise<any> {
         let that = this;
         let req : RequestForQueue = new RequestForQueue();
@@ -392,6 +419,9 @@ safeJsonParse(str) {
             try {
                 headers["user-agent"] = USER_AGENT;
                 let urlEncoded = url;
+
+                let httpConfig = {URL : urlEncoded, method : "GET", headers : headers};
+                that.addAdditionalHeaders(httpConfig);
 
                 let xRainbowRequestNodeId = headers["x-rainbow-request-node-id"] ;
                 that._logger.log(that.HTTP, LOG_ID + "(_getUrlRaw) url : ", ( urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-request-node-id : ", xRainbowRequestNodeId);
@@ -647,6 +677,9 @@ safeJsonParse(str) {
                 let urlEncoded = url;
                 headers["user-agent"] = USER_AGENT;
 
+                let httpConfig = {URL : urlEncoded, method : "HEAD", headers : headers};
+                that.addAdditionalHeaders(httpConfig);
+
                 let xRainbowRequestNodeId = headers["x-rainbow-request-node-id"] ;
                 that._logger.log(that.HTTP, LOG_ID + "(_headUrlRaw) url : ", ( urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-request-node-id : ", xRainbowRequestNodeId);
                 that._logger.log(that.INTERNAL, LOG_ID + "(_headUrlRaw) url : ", urlEncoded, ", headers : ", headers);
@@ -875,6 +908,10 @@ safeJsonParse(str) {
                 //let urlEncoded = encodeURI(that.serverURL + url); // Can not be used because the data in url are allready encodeURIComponent
                 let urlEncoded = url;
                 headers["user-agent"] = USER_AGENT;
+
+                let httpConfig = {URL : urlEncoded, method : "POST", headers : headers};
+                that.addAdditionalHeaders(httpConfig);
+
                 let body = data;
                 /*
                 if (contentType) {
@@ -1058,6 +1095,9 @@ safeJsonParse(str) {
                 //let urlEncoded = encodeURI(that.serverURL + url); // Can not be used because the data in url are allready encodeURIComponent
                 let urlEncoded = url;
 
+                let httpConfig = {URL : urlEncoded, method : "PUT", headers : headers};
+                that.addAdditionalHeaders(httpConfig);
+
                 let xRainbowRequestNodeId = headers["x-rainbow-request-node-id"] ;
                 that._logger.log(that.HTTP, LOG_ID + "(_putUrlRaw) url : ", ( urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-request-node-id : ", xRainbowRequestNodeId);
 
@@ -1227,6 +1267,9 @@ safeJsonParse(str) {
 
                 //let urlEncoded = encodeURI(that.serverURL + url); // Can not be used because the data in url are allready encodeURIComponent
                 let urlEncoded = url;
+
+                let httpConfig = {URL : urlEncoded, method : "DELETE", headers : headers};
+                that.addAdditionalHeaders(httpConfig);
 
                 let body = data;
 
@@ -1480,6 +1523,9 @@ safeJsonParse(str) {
             try {
                 headers["user-agent"] = USER_AGENT;
                 let urlEncoded = url;
+
+                let httpConfig = {URL : urlEncoded, method : "GET", headers : headers};
+                that.addAdditionalHeaders(httpConfig);
 
                 let xRainbowRequestNodeId = headers["x-rainbow-request-node-id"] ;
                 that._logger.log(that.HTTP, LOG_ID + "(_getUrlJson) url : ", ( urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-request-node-id : ", xRainbowRequestNodeId);
@@ -1800,6 +1846,9 @@ safeJsonParse(str) {
 
                 //let urlEncoded = encodeURI(that.serverURL + url); // Can not be used because the data in url are allready encodeURIComponent
                 let urlEncoded = that.serverURL + url;
+
+                let httpConfig = {URL : urlEncoded, method : "GET", headers : headers};
+                that.addAdditionalHeaders(httpConfig);
 
                 let xRainbowRequestNodeId = headers["x-rainbow-request-node-id"] ;
                 that._logger.log(that.HTTP, LOG_ID + "(get) url : ", (urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-request-node-id : ", xRainbowRequestNodeId);
@@ -2254,6 +2303,10 @@ safeJsonParse(str) {
         return new Promise(function (resolve, reject) {
             //let urlEncoded = encodeURI(that.serverURL + url); // Can not be used because the data in url are allready encodeURIComponent
             let urlEncoded = that.serverURL + url;
+
+            let httpConfig = {URL : urlEncoded, method : "POST", headers : headers};
+            that.addAdditionalHeaders(httpConfig);
+
             headers["user-agent"] = USER_AGENT;
             let body = data;
             if (contentType) {
@@ -2606,6 +2659,10 @@ safeJsonParse(str) {
         return new Promise(function (resolve, reject) {
             //let urlEncoded = encodeURI(that.serverURL + url); // Can not be used because the data in url are allready encodeURIComponent
             let urlEncoded = that.serverURL + url;
+
+            let httpConfig = {URL : urlEncoded, method : "HEAD", headers : headers};
+            that.addAdditionalHeaders(httpConfig);
+
             headers["user-agent"] = USER_AGENT;
 
             let xRainbowRequestNodeId = headers["x-rainbow-request-node-id"] ;
@@ -2943,6 +3000,9 @@ safeJsonParse(str) {
         return new Promise(function (resolve, reject) {
             //let urlEncoded = encodeURI(that.serverURL + url); // Can not be used because the data in url are allready encodeURIComponent
             let urlEncoded = that.serverURL + url;
+
+            let httpConfig = {URL : urlEncoded, method : "PATCH", headers : headers};
+            that.addAdditionalHeaders(httpConfig);
 
             let xRainbowRequestNodeId = headers["x-rainbow-request-node-id"] ;
             that._logger.log(that.HTTP, LOG_ID + "(patch) url : ", ( urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-request-node-id : ", xRainbowRequestNodeId);
@@ -3300,6 +3360,9 @@ safeJsonParse(str) {
             //let urlEncoded = encodeURI(that.serverURL + url); // Can not be used because the data in url are allready encodeURIComponent
             let urlEncoded = that.serverURL + url;
 
+            let httpConfig = {URL : urlEncoded, method : "PUT", headers : headers};
+            that.addAdditionalHeaders(httpConfig);
+
             let xRainbowRequestNodeId = headers["x-rainbow-request-node-id"] ;
             that._logger.log(that.HTTP, LOG_ID + "(put) url : ", ( urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-request-node-id : ", xRainbowRequestNodeId);
 
@@ -3650,6 +3713,9 @@ safeJsonParse(str) {
             //let urlEncoded = encodeURI(that.serverURL + url); // Can not be used because the data in url are allready encodeURIComponent
             let urlEncoded = that.serverURL + url;
 
+            let httpConfig = {URL : urlEncoded, method : "PUT", headers : headers};
+            that.addAdditionalHeaders(httpConfig);
+
             let xRainbowRequestNodeId = headers["x-rainbow-request-node-id"] ;
             that._logger.log(that.HTTP, LOG_ID + "(_putBuffer) url : ", ( urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-request-node-id : ", xRainbowRequestNodeId);
 
@@ -3783,6 +3849,9 @@ safeJsonParse(str) {
         return new Promise(function (resolve, reject) {
             //let urlEncoded = encodeURI(that.serverURL + url); // Can not be used because the data in url are allready encodeURIComponent
             let urlEncoded = that.serverURL + url;
+
+            let httpConfig = {URL : urlEncoded, method : "PUT", headers : headers};
+            that.addAdditionalHeaders(httpConfig);
 
             let xRainbowRequestNodeId = headers["x-rainbow-request-node-id"] ;
             that._logger.log(that.HTTP, LOG_ID + "(putStream) url : ", ( urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-request-node-id : ", xRainbowRequestNodeId);
@@ -4149,6 +4218,9 @@ safeJsonParse(str) {
         return new Promise(function (resolve, reject) {
             //let urlEncoded = encodeURI(that.serverURL + url); // Can not be used because the data in url are allready encodeURIComponent
             let urlEncoded = that.serverURL + url;
+
+            let httpConfig = {URL : urlEncoded, method : "DELETE", headers : headers};
+            that.addAdditionalHeaders(httpConfig);
 
             let xRainbowRequestNodeId = headers["x-rainbow-request-node-id"] ;
             that._logger.log(that.HTTP, LOG_ID + "(delete) url : ", ( urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-request-node-id : ", xRainbowRequestNodeId);
