@@ -842,6 +842,16 @@ function flattenObject(obj: any, parentKey : string = '', withparentKey : boolea
     }, {});
 }
 
+function formattStringOnNbChars(variableString, nbChars = 50) {
+    // S'assurer que la chaîne a exactement 50 caractères
+    let formattedString = variableString?.slice(0, nbChars).padEnd(nbChars);
+
+    // Entourer la chaîne de parenthèses
+    //formattedString = `(${formattedString})`;
+
+    // Afficher sur la console
+    return formattedString;
+}
 
 export let objToExport = {
     makeId,
@@ -881,7 +891,8 @@ export let objToExport = {
     functionSignature,
     traceExecutionTime,
     msToTime,
-    flattenObject
+    flattenObject,
+    formattStringOnNbChars
 };
 
 module.exports = objToExport;
@@ -923,7 +934,8 @@ export {
     functionSignature,
     traceExecutionTime,
     msToTime,
-    flattenObject
+    flattenObject,
+    formattStringOnNbChars
 };
 
 export default {
@@ -964,5 +976,6 @@ export default {
     functionSignature,
     traceExecutionTime,
     msToTime,
-    flattenObject
+    flattenObject,
+    formattStringOnNbChars
 };

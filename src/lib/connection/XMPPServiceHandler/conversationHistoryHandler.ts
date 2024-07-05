@@ -69,11 +69,11 @@ class ConversationHistoryHandler  extends GenericHandler {
         try {
             that._logger.log(that.INTERNAL, LOG_ID + "(onMamMessageReceived) _entering_ : ", msg, "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
             // Get queryId and deleteId
-            let queryId = stanza.getChild("result") ? stanza.getChild("result").getAttr("queryid") : null;
+            let queryId = stanza.getChild("result") ? stanza.getChild("result")?.getAttr("queryid") : null;
             if (!queryId) {
-                if ( stanza.getChild("fin")) {
+                if ( stanza?.getChild("fin")) {
                     that._logger.log(that.INTERNAL, LOG_ID + "(onMamMessageReceived) no queryid found on result, and a \"fin\" found.");
-                    queryId = stanza.getAttr("id");
+                    queryId = stanza?.getAttr("id");
                 } else {
                     queryId = null;
                 }
@@ -103,7 +103,7 @@ class ConversationHistoryHandler  extends GenericHandler {
             let conversation : Conversation = null;
             that._logger.log(that.INTERNAL, LOG_ID + "(onHistoryMessageReceived) _entering_ : ", msg, "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
 
-            let queryId = stanza.getChild("result") ? stanza.getChild("result").getAttr("queryid") : null;
+            let queryId = stanza.getChild("result") ? stanza?.getChild("result")?.getAttr("queryid") : null;
             if (queryId) {
 
                 // Get associated conversation
@@ -111,14 +111,14 @@ class ConversationHistoryHandler  extends GenericHandler {
                 if (conversation) {
 
                     // Extract info
-                    let stanzaForwarded = stanza.getChild("result").getChild("forwarded");
+                    let stanzaForwarded = stanza.getChild("result")?.getChild("forwarded");
                     let stanzaMessage = stanzaForwarded.getChild("message");
 
                     if (stanzaMessage.getChild("call_log")) {
                         return this.onWebrtcHistoryMessageReceived(stanza, conversation);
                     }
 
-                    let brutJid = stanzaMessage.getAttr("from");
+                    let brutJid = stanzaMessage?.getAttr("from");
 
                     // Extract fromJid
                     let fromJid;
@@ -133,8 +133,8 @@ class ConversationHistoryHandler  extends GenericHandler {
                         if (Array.isArray(eventElmt)) {
                             eventElmt.forEach((content) => {
                                 if (!fromJid ) {
-                                    roomEvent = content.attr("name") + "";
-                                    fromJid = content.attr("jid");
+                                    roomEvent = content?.attr("name") + "";
+                                    fromJid = content?.attr("jid");
 
                                     if (roomEvent === "welcome" && conversation.bubble && conversation.bubble.creator) {
                                         let ownerContact = conversation.bubble.users.find( (user) => conversation.bubble.creator === user.userId )
@@ -147,8 +147,8 @@ class ConversationHistoryHandler  extends GenericHandler {
                         } else {
                             // mention['jid'] = eventElmt.text();
                             if (!fromJid ) {
-                                roomEvent = eventElmt.attr("name") + "";
-                                fromJid = eventElmt.attr("jid");
+                                roomEvent = eventElmt?.attr("name") + "";
+                                fromJid = eventElmt?.attr("jid");
 
                                 if (roomEvent === "welcome" && conversation.bubble && conversation.bubble.creator) {
                                     let ownerContact = conversation.bubble.users.find( (user) => conversation.bubble.creator === user.userId )
@@ -161,8 +161,8 @@ class ConversationHistoryHandler  extends GenericHandler {
 
                     /*
                     if (!fromJid && stanzaMessage.getChild("event")) {
-                        roomEvent = stanzaMessage.getChild("event").attr("name") + "";
-                        fromJid = stanzaMessage.getChild("event").attr("jid");
+                        roomEvent = stanzaMessage.getChild("event")?.attr("name") + "";
+                        fromJid = stanzaMessage.getChild("event")?.attr("jid");
 
                         if (roomEvent === "welcome" && conversation.bubble && conversation.bubble.creator) {
                             let ownerContact = conversation.bubble.users.find( (user) => conversation.bubble.creator === user.userId )
@@ -188,14 +188,14 @@ class ConversationHistoryHandler  extends GenericHandler {
                             resolve(null);
                         });
                     }).then( async (from : any ) => {
-                        let type = stanzaMessage.getAttr("type");
-                        let messageId = stanzaMessage.getAttr("id");
-                        let date = new Date(stanzaForwarded.getChild("delay").getAttr("stamp"));
-                        let body = stanzaMessage.getChild("body").text();
-                        let ack = stanzaMessage.getChild("ack");
-                        let oobElmt = stanzaMessage.getChild("x", "jabber:x:oob");
-                        let conference = stanzaMessage.getChild("x", "jabber:x:audioconference");
-                        let content = stanzaMessage.getChild("content", "urn:xmpp:content");
+                        let type = stanzaMessage?.getAttr("type");
+                        let messageId = stanzaMessage?.getAttr("id");
+                        let date = new Date(stanzaForwarded?.getChild("delay")?.getAttr("stamp"));
+                        let body = stanzaMessage?.getChild("body")?.text();
+                        let ack = stanzaMessage?.getChild("ack");
+                        let oobElmt = stanzaMessage?.getChild("x", "jabber:x:oob");
+                        let conference = stanzaMessage?.getChild("x", "jabber:x:audioconference");
+                        let content = stanzaMessage?.getChild("content", "urn:xmpp:content");
                         let answeredMsg: Message ;
                         let answeredMsgId: string;
                         let answeredMsgDate: string;
@@ -215,6 +215,7 @@ class ConversationHistoryHandler  extends GenericHandler {
                         let eventJid :string = "";
                         let isEvent : boolean = false;
                         let oob: any;
+                        let isFileAttachment = false;
                         let originalMessageReplaced : any = null;
                         let isForwarded : boolean = false;
                         let forwardedMsg : any;
@@ -224,9 +225,9 @@ class ConversationHistoryHandler  extends GenericHandler {
 
 
                         that._logger.log(that.DEBUG, LOG_ID + "(onHistoryMessageReceived) message - before treat answeredMsg.");
-                        if (stanzaMessage.getChild( "answeredMsg")) {
-                            answeredMsgId = stanzaMessage.getChild("answeredMsg").text();
-                            answeredMsgStamp = stanzaMessage.getChild("answeredMsg").getAttr("stamp");
+                        if (stanzaMessage?.getChild( "answeredMsg")) {
+                            answeredMsgId = stanzaMessage?.getChild("answeredMsg")?.text();
+                            answeredMsgStamp = stanzaMessage?.getChild("answeredMsg")?.getAttr("stamp");
                             answeredMsgDate = answeredMsgStamp ? new Date(parseInt(answeredMsgStamp)).toISOString() : undefined;
 
                             that._logger.log(that.DEBUG, LOG_ID + "(onHistoryMessageReceived) message - answeredMsgId : ", answeredMsgId, ", answeredMsgStamp : ", answeredMsgStamp, ", answeredMsgDate : ", answeredMsgDate);
@@ -294,8 +295,8 @@ class ConversationHistoryHandler  extends GenericHandler {
                                             "fromJid": msg.attrs.from,
                                             "to" : msg.attrs.to,
                                             "type" : msg.attrs.type,
-                                            "body" : msg.getChild("body").text(),
-                                            "lang" : msg.getChild("body").attrs["xml:lang"]
+                                            "body" : msg.getChild("body")?.text(),
+                                            "lang" : msg.getChild("body")?.attrs["xml:lang"]
                                         };
                                         that._logger.log(that.INTERNAL, LOG_ID + "(onChatMessageReceived) message - forwardedMsg : ", forwardedMsg);
                                     } // */
@@ -308,11 +309,11 @@ class ConversationHistoryHandler  extends GenericHandler {
                                     if (eventElmt2?.length > 0) {
                                         if (Array.isArray(eventElmt2)) {
                                             eventElmt2.forEach((content) => {
-                                                message.event = content.attr("name") + "";
+                                                message.event = content?.attr("name") + "";
                                                 //  that._logger.log(that.DEBUG, LOG_ID + "(onHistoryMessageReceived) message - event, roomEvent : ", roomEvent, ", fromJid  : ", fromJid );
                                             });
                                         } else {
-                                            message.event = eventElmt2.attr("name") + "";
+                                            message.event = eventElmt2?.attr("name") + "";
                                             //that._logger.log(that.DEBUG, LOG_ID + "(onHistoryMessageReceived) message - event, roomEvent : ", roomEvent, ", fromJid  : ", fromJid );
                                         }
                                         message.isEvent = true;
@@ -321,10 +322,10 @@ class ConversationHistoryHandler  extends GenericHandler {
                                     break;
                                 default:
                                     /*  if (oob && oob.children.length) {
-                                          let url = oob.getChild("url").text();
-                                          let mime = oob.getChild("mime").text();
-                                          let filename = oob.getChild("filename").text();
-                                          let filesize = oob.getChild("size").text();
+                                          let url = oob.getChild("url")?.text();
+                                          let mime = oob.getChild("mime")?.text();
+                                          let filename = oob.getChild("filename")?.text();
+                                          let filesize = oob.getChild("size")?.text();
                                           let fileId = Message.extractFileIdFromUrl(url);
   
                                           attachIndex = oob.attrs.index;
@@ -345,10 +346,10 @@ class ConversationHistoryHandler  extends GenericHandler {
                                           message = Message.createFileSharingMessage(messageId, date, from, side, body, false, shortFileDescriptor);
   
                                       } else {*/
-                                    let isMarkdown = content && content.getAttr("type")==="text/markdown";
-                                    body = isMarkdown ? content.text():body;
-                                    subject = stanzaMessage.find("subject").text();
-                                    attention = stanzaMessage.find("attention").text()==="true" ? true:false;
+                                    let isMarkdown = content && content?.getAttr("type")==="text/markdown";
+                                    body = isMarkdown ? content?.text():body;
+                                    subject = stanzaMessage.find("subject")?.text();
+                                    attention = stanzaMessage.find("attention")?.text()==="true" ? true:false;
 
                                     const headersElem = stanzaMessage.find("headers");
                                     if (headersElem && headersElem.length > 0) {
@@ -357,12 +358,12 @@ class ConversationHistoryHandler  extends GenericHandler {
                                                 const urgencyElem = headersElem[i].find("header");
                                                 if (urgencyElem.length===1) {
                                                     if (urgencyElem.attrs.name=='Urgency') {
-                                                        urgency = urgencyElem.text();
+                                                        urgency = urgencyElem?.text();
                                                     }
                                                 } else {
                                                     for (let i = 0; i < urgencyElem.length; i++) {
-                                                        if (urgencyElem[i].attrs.name=='Urgency') {
-                                                            urgency = urgencyElem.text();
+                                                        if (urgencyElem[i]?.attrs?.name=='Urgency') {
+                                                            urgency = urgencyElem?.text();
                                                         }
                                                     }
                                                 }
@@ -371,12 +372,12 @@ class ConversationHistoryHandler  extends GenericHandler {
                                             const urgencyElem = headersElem.find("header");
                                             if (urgencyElem.length===1) {
                                                 if (urgencyElem.attrs.name=='Urgency') {
-                                                    urgency = urgencyElem.text();
+                                                    urgency = urgencyElem?.text();
                                                 }
                                             } else {
                                                 for (let i = 0; i < urgencyElem.length; i++) {
-                                                    if (urgencyElem[i].attrs.name=='Urgency') {
-                                                        urgency = urgencyElem.text();
+                                                    if (urgencyElem[i]?.attrs?.name=='Urgency') {
+                                                        urgency = urgencyElem?.text();
                                                     }
                                                 }
                                             }
@@ -386,16 +387,16 @@ class ConversationHistoryHandler  extends GenericHandler {
 
                                     let attachTo = stanzaMessage.find("attach-to");
                                     if (attachTo && attachTo.length > 0 && attachTo.attrs.xmlns==="urn:xmpp:message-attaching:1") {
-                                        attachedMsgId = attachTo.attrs.id;
+                                        attachedMsgId = attachTo?.attrs?.id;
                                     } else {
                                         that._logger.log(that.WARN, LOG_ID + "(onHistoryMessageReceived) message - unknown attachedMsgId : ", attachedMsgId);
                                     }
 
-                                    resource = xu.getResourceFromFullJID(stanzaMessage.attrs.from);
-                                    toJid = stanzaMessage.attrs.to;
+                                    resource = xu.getResourceFromFullJID(stanzaMessage?.attrs?.from);
+                                    toJid = stanzaMessage?.attrs?.to;
 
-                                    if (stanzaMessage.attrs["xml:lang"]) { // in <body>
-                                        lang = stanzaMessage.attrs["xml:lang"];
+                                    if (stanzaMessage?.attrs["xml:lang"]) { // in <body>
+                                        lang = stanzaMessage?.attrs["xml:lang"];
                                     } /*else if (content.parent.attrs["xml:lang"]) { // in <message>
                                         lang = content.parent.attrs["xml:lang"];
                                     }*/ else {
@@ -404,38 +405,42 @@ class ConversationHistoryHandler  extends GenericHandler {
                                     that._logger.log(that.DEBUG, LOG_ID + "(onHistoryMessageReceived) message - lang : ", lang);
                                     let eventElmt = stanzaMessage.find("event");
                                     if (eventElmt?.length > 0) {
-                                        event = eventElmt.attrs.name;
-                                        eventJid = eventElmt.attrs.jid;
+                                        event = eventElmt?.attrs?.name;
+                                        eventJid = eventElmt?.attrs?.jid;
                                         isEvent = true;
                                     }
 
                                     if (oobElmt) {
-                                        attachIndex = oobElmt.attrs.index;
-                                        attachNumber = oobElmt.attrs.count;
+                                        attachIndex = oobElmt?.attrs?.index;
+                                        attachNumber = oobElmt?.attrs?.count;
                                         oob = {
-                                            url: oobElmt.getChild("url").getText(),
-                                            mime: oobElmt.getChild("mime").getText(),
-                                            filename: oobElmt.getChild("filename").getText(),
-                                            filesize: oobElmt.getChild("size").getText()
+                                            url: oobElmt.getChild("url")?.getText(),
+                                            mime: oobElmt.getChild("mime")?.getText(),
+                                            filename: oobElmt.getChild("filename")?.getText(),
+                                            filesize: oobElmt.getChild("size")?.getText()
                                         };
+                                        if (body == oob?.filename) {
+                                            isFileAttachment = true;
+                                            body="";  // if it is a file attachment then empty the message's content (body)
+                                        }
                                         that._logger.log(that.DEBUG, LOG_ID + "(onHistoryMessageReceived) oob received");
                                     }
 
                                     let fromBubbleJid = "";
                                     let fromBubbleUserJid = "";
-                                    if (stanza.attrs.type===TYPE_GROUPCHAT) {
-                                        fromBubbleJid = xu.getBareJIDFromFullJID(stanza.attrs.from);
-                                        fromBubbleUserJid = xu.getResourceFromFullJID(stanza.attrs.from);
+                                    if (stanza?.attrs?.type===TYPE_GROUPCHAT) {
+                                        fromBubbleJid = xu.getBareJIDFromFullJID(stanza?.attrs?.from);
+                                        fromBubbleUserJid = xu.getResourceFromFullJID(stanza?.attrs?.from);
                                         resource = xu.getResourceFromFullJID(fromBubbleUserJid);
                                     }
 
                                     let outgoingMessage = that._contactsService.isUserContactJid(fromJid);
-                                    let conversationId = outgoingMessage ? toJid:(stanza.attrs.type===TYPE_GROUPCHAT ? fromBubbleJid:fromJid);
+                                    let conversationId = outgoingMessage ? toJid:(stanza?.attrs?.type===TYPE_GROUPCHAT ? fromBubbleJid:fromJid);
 
                                     let replaceElmt = stanzaMessage.find("replace");
                                     if (replaceElmt.length > 0) {
 
-                                        let replaceMessageId = replaceElmt.attrs.id;
+                                        let replaceMessageId = replaceElmt?.attrs?.id;
 
                                         if (replaceMessageId) {
                                             //data.replaceMessageId = replaceMessageId;
@@ -452,23 +457,23 @@ class ConversationHistoryHandler  extends GenericHandler {
                                     }
 
                                     let forwardedElmt = stanzaMessage.find("forwarded");
-                                    if (forwardedElmt && forwardedElmt.length > 0 && forwardedElmt.attrs.xmlns === "urn:xmpp:forward:0") {
+                                    if (forwardedElmt && forwardedElmt.length > 0 && forwardedElmt?.attrs?.xmlns === "urn:xmpp:forward:0") {
                                         isForwarded = true;
                                         let msg = forwardedElmt.getChild("message");
                                         forwardedMsg = {
-                                            "origMsgId" : msg.attrs.id,
-                                            "fromJid": msg.attrs.from,
-                                            "to" : msg.attrs.to,
-                                            "type" : msg.attrs.type,
-                                            "body" : msg.getChild("body").text(),
-                                            "lang" : msg.getChild("body").attrs["xml:lang"]
+                                            "origMsgId" : msg?.attrs?.id,
+                                            "fromJid": msg?.attrs?.from,
+                                            "to" : msg?.attrs?.to,
+                                            "type" : msg?.attrs?.type,
+                                            "body" : msg.getChild("body")?.text(),
+                                            "lang" : msg.getChild("body")?.attrs["xml:lang"]
                                         };                                        
                                         that._logger.log(that.INTERNAL, LOG_ID + "(onChatMessageReceived) message - forwardedMsg : ", forwardedMsg);
                                     }
 
-                                    deletedMsg = stanzaMessage.find("delete").length > 0;
+                                    deletedMsg = stanzaMessage.find("delete").length > 0 ||  stanzaMessage.find("deleted").length > 0;
                                     that._logger.log(that.INTERNAL, LOG_ID + "(onChatMessageReceived) message - deletedMsg : ", deletedMsg);
-                                    modifiedMsg = stanzaMessage.find("modify").length > 0;
+                                    modifiedMsg = stanzaMessage.find("modify").length > 0 || stanzaMessage.find("modified").length > 0;
                                     that._logger.log(that.INTERNAL, LOG_ID + "(onChatMessageReceived) message - modifiedMsg : ", modifiedMsg);
                                         
                                     let mentionElmt = stanzaMessage.find("mention");
@@ -480,9 +485,9 @@ class ConversationHistoryHandler  extends GenericHandler {
                                             mentionJidElem.forEach((content) => {
 
                                                 const mention = {};
-                                                mention['jid'] = content.text();
-                                                mention['pos'] = parseInt(content.attr("pos"), 10);
-                                                mention['size'] = parseInt(content.attr("size"), 10);
+                                                mention['jid'] = content?.text();
+                                                mention['pos'] = parseInt(content?.attr("pos"), 10);
+                                                mention['size'] = parseInt(content?.attr("size"), 10);
 
                                                 if (mention['jid'] && mention['size']) {
                                                     mentions.push(mention);
@@ -495,9 +500,9 @@ class ConversationHistoryHandler  extends GenericHandler {
                                             });
                                         } else {
                                             const mention = {};
-                                            mention['jid'] = mentionJidElem.text();
-                                            mention['pos'] = parseInt(mentionJidElem.attr("pos"), 10);
-                                            mention['size'] = parseInt(mentionJidElem.attr("size"), 10);
+                                            mention['jid'] = mentionJidElem?.text();
+                                            mention['pos'] = parseInt(mentionJidElem?.attr("pos"), 10);
+                                            mention['size'] = parseInt(mentionJidElem?.attr("size"), 10);
 
                                             if (mention['jid'] && mention['size']) {
                                                 mentions.push(mention);
@@ -549,7 +554,7 @@ class ConversationHistoryHandler  extends GenericHandler {
                                             subject,
                                             null, //data.geoloc,
                                             null, //data.voiceMessage,
-                                            body, // data.alternativeContent,
+                                        body,
                                             attention,
                                             mentions,
                                             urgency,
@@ -565,7 +570,7 @@ class ConversationHistoryHandler  extends GenericHandler {
                                             attachNumber,
                                             resource,
                                             toJid,
-                                            body, //data.content,
+                                            body, //data.content
                                             lang,
                                             false, //data.cc,
                                             "", //data.cctype,
@@ -596,7 +601,7 @@ class ConversationHistoryHandler  extends GenericHandler {
                                     break;
                             }
                             // console.error("message "+ JSON.stringify(message.date));
-                            message.receiptStatus = ack.getAttr("read") === "true" ? 5 : (ack.getAttr("received") === "true" ? 4 : 3);
+                            message.receiptStatus = ack?.getAttr("read") === "true" ? 5 : (ack?.getAttr("received") === "true" ? 4 : 3);
 
                             // if (conversation.bubble) {
                             //  message.receiptStatus = 3;
@@ -608,7 +613,7 @@ class ConversationHistoryHandler  extends GenericHandler {
                             if (message.subject || message.alternativeContent || message.content ) {
                                 hasATextMessage = true;
                             }
-                            if (!hasATextMessage && !isForwarded && ! (deletedMsg) && !modifiedMsg) {
+                            if (!hasATextMessage && !isForwarded && ! (deletedMsg) && !modifiedMsg && !isFileAttachment) {
                                 that._logger.log(that.DEBUG, LOG_ID + "(onHistoryMessageReceived) with No message text, so ignore it! hasATextMessage : ", hasATextMessage, ", message : id : ", message.id, ", fromJid : ", message.fromJid, ", date : ", message.date, ", content : ", message.content);
                             } else {
                                 that._logger.log(that.DEBUG, LOG_ID + "(onHistoryMessageReceived) with message text, message : id : ", message.id, ", fromJid : ", message.fromJid, ", date : ", message.date, ", content : ", message.content);
@@ -626,18 +631,18 @@ class ConversationHistoryHandler  extends GenericHandler {
                 that._logger.log(that.DEBUG, LOG_ID + "(onHistoryMessageReceived) queryId not defined. Treat 'fin' history xml tag.");
 
                 // Get associated conversation
-                queryId = stanza.getChild("fin").getAttr("queryid");
+                queryId = stanza.getChild("fin")?.getAttr("queryid");
                 conversation = that._conversationService.getConversationById(queryId);
                 if (conversation) {
-                    that._logger.log(that.INTERNAL, LOG_ID + "(onHistoryMessageReceived) getConversationById returned, conversation.id : ", conversation.id, ", conversation.messages.toSmallString() : ", that._logger.colors.yellow(conversation.messages.toSmallString()));
+                 //   that._logger.log(that.INTERNAL, LOG_ID + "(onHistoryMessageReceived) getConversationById returned, conversation.id : ", conversation.id, ", conversation.messages.toSmallString() : ", that._logger.colors.yellow(conversation.messages.toSmallString()));
                     if ( conversation.pendingPromise ) {
                         that._logger.log(that.INTERNAL, LOG_ID + "(onHistoryMessageReceived) conversation.pendingPromise is setted so wait allSettled, conversation.id : ", conversation.id);
                         Promise.allSettled( conversation.pendingPromise ).then(async () => {
 
                             // Extract info
-                            conversation.historyComplete = stanza.getChild("fin").getAttr("complete") === "true";
-                            let historyIndex = stanza.getChild("fin").getChild("set").getChild("first") ?
-                                stanza.getChild("fin").getChild("set").getChild("first").text() : -1;
+                            conversation.historyComplete = stanza.getChild("fin")?.getAttr("complete") === "true";
+                            let historyIndex = stanza.getChild("fin")?.getChild("set")?.getChild("first") ?
+                                stanza.getChild("fin")?.getChild("set")?.getChild("first")?.text() : -1;
 
                             /* 
                             // Handle very particular case of historyIndex == -1
@@ -673,11 +678,11 @@ class ConversationHistoryHandler  extends GenericHandler {
                                     }
                                 }
                                 if (!messageUpdated) {
-                                    that._logger.log(that.DEBUG, LOG_ID + "(onHistoryMessageReceived) msg id : ", historyFirstElement.id, ", message not updated from history, so added it to conversation.messages.length : ", conversation?.messages?.length, ", conversation.messages.toSmallString() : ", that._logger.colors.yellow(conversation.messages.toSmallString()));
+                                    //that._logger.log(that.DEBUG, LOG_ID + "(onHistoryMessageReceived) msg id : ", historyFirstElement.id, ", message not updated from history, so added it to conversation.messages.length : ", conversation?.messages?.length, ", conversation.messages.toSmallString() : ", that._logger.colors.yellow(conversation.messages.toSmallString()));
                                     //conversation.messages.unshift.call(conversation.messages, [historyFirstElement]);
                                   //  conversation.messages.unshift.apply(conversation.messages, [historyFirstElement]);
                                     conversation.messages.unshift(historyFirstElement);
-                                    that._logger.log(that.INTERNAL, LOG_ID + "(onHistoryMessageReceived) msg id : ", historyFirstElement.id, ", message not updated from history, so added it to conversation.messages.length : ", conversation?.messages?.length, ", conversation.messages.toSmallString() : ", that._logger.colors.yellow(conversation.messages.toSmallString()));
+                                    //that._logger.log(that.INTERNAL, LOG_ID + "(onHistoryMessageReceived) msg id : ", historyFirstElement.id, ", message not updated from history, so added it to conversation.messages.length : ", conversation?.messages?.length, ", conversation.messages.toSmallString() : ", that._logger.colors.yellow(conversation.messages.toSmallString()));
                                 }  else {
                                     that._logger.log(that.DEBUG, LOG_ID + "(onHistoryMessageReceived) msg id : ", historyFirstElement.id, ", message updated from history.");
                                 }
@@ -710,7 +715,7 @@ class ConversationHistoryHandler  extends GenericHandler {
                             //});
                             // */
 
-                            that._logger.log(that.INTERNAL, LOG_ID + "(onHistoryMessageReceived) conversation.historyDefered before resolve conversation.messages.toSmallString() : ", that._logger.colors.yellow(conversation.messages.toSmallString()));
+                            //that._logger.log(that.INTERNAL, LOG_ID + "(onHistoryMessageReceived) conversation.historyDefered before resolve conversation.messages.toSmallString() : ", that._logger.colors.yellow(conversation.messages.toSmallString()));
                             conversation.historyDefered.resolve(conversation);
                             delete conversation.pendingPromise;
                         }).catch ((err) => {
@@ -719,7 +724,7 @@ class ConversationHistoryHandler  extends GenericHandler {
                     } else {
 
                         // @ts-ignore
-                        conversation.messages.sort((msg1, msg2) => new Date(msg1.date) - new Date(msg2.date));
+                       // conversation.messages.sort((msg1, msg2) => new Date(msg1.date) - new Date(msg2.date));
                         //that._logger.log(that.INTERNAL, LOG_ID + "[Conversation] onHistoryMessageReceived conversation ordered by date: ", conversation);
                         if (conversation.messages && conversation.messages.length > 0) {
                             conversation.lastMessageText = conversation.messages[conversation.messages.length - 1].content;
@@ -751,7 +756,7 @@ class ConversationHistoryHandler  extends GenericHandler {
                             }
                         }); */
 
-                        that._logger.log(that.INTERNAL, LOG_ID + "(onHistoryMessageReceived) conversation.historyComplete = true, conversation.messages.toSmallString() : ", that._logger.colors.yellow(conversation.messages.toSmallString()));
+                        //that._logger.log(that.INTERNAL, LOG_ID + "(onHistoryMessageReceived) conversation.historyComplete = true, conversation.messages.toSmallString() : ", that._logger.colors.yellow(conversation.messages.toSmallString()));
                         conversation.historyComplete = true;
                         conversation.historyDefered.resolve(conversation);
                     }
@@ -770,16 +775,16 @@ class ConversationHistoryHandler  extends GenericHandler {
     onWebrtcHistoryMessageReceived (stanza, conversation) {
         let that = this;
         try {
-            let stanzaMessage = stanza.getChild("result").getChild("forwarded").getChild("message");
-            let messageId = stanzaMessage.getAttr("id");
-            let stanzaMessageCallLog = stanzaMessage.getChild("call_log");
-            let callerJid = stanzaMessageCallLog.getChild("caller").text();
-            let state = stanzaMessageCallLog.getChild("state").text();
+            let stanzaMessage = stanza?.getChild("result")?.getChild("forwarded")?.getChild("message");
+            let messageId = stanzaMessage?.getAttr("id");
+            let stanzaMessageCallLog = stanzaMessage?.getChild("call_log");
+            let callerJid = stanzaMessageCallLog?.getChild("caller")?.text();
+            let state = stanzaMessageCallLog?.getChild("state")?.text();
             let duration = 0;
             let durationTxt = "0";
 
-            if (stanzaMessageCallLog.getChild("duration")) {
-                duration = stanzaMessageCallLog.getChild("duration").text();
+            if (stanzaMessageCallLog?.getChild("duration")) {
+                duration = stanzaMessageCallLog?.getChild("duration")?.text();
                 duration = parseInt(String(duration), 10);
             }
 
@@ -789,13 +794,13 @@ class ConversationHistoryHandler  extends GenericHandler {
                 duration = 0;
             }
 
-            let date = stanzaMessageCallLog.getChild("date").text();
+            let date = stanzaMessageCallLog?.getChild("date")?.text();
 
             if (date) {
                 date = new Date(date);
             }
             else {
-                date = new Date(stanza.getChild("result").getChild("forwarded").getChild("delay").attr("stamp"));
+                date = new Date(stanza?.getChild("result")?.getChild("forwarded")?.getChild("delay")?.attr("stamp"));
             }
 
             let body = "";
@@ -835,9 +840,9 @@ class ConversationHistoryHandler  extends GenericHandler {
 
                     message = Message.createWebRTCMessage(messageId, date, from, side, body, false);
 
-                    let ack = stanzaMessage.getChild('ack');
+                    let ack = stanzaMessage?.getChild('ack');
                     if (ack) {
-                        message.receiptStatus = ack.getAttr("read") === "true" ? 5 : (ack.getAttr("received") === "true" ? 4 : 3);
+                        message.receiptStatus = ack?.getAttr("read") === "true" ? 5 : (ack?.getAttr("received") === "true" ? 4 : 3);
                     }
 
                     conversation.historyMessages.push(message);

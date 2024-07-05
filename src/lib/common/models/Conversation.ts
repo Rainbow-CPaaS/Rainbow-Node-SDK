@@ -10,7 +10,7 @@ import {Message} from "./Message";
 import {Logger} from "../Logger.js";
 
 import {FIFOQueue} from "../FIFOQueue.js";
-import {pause, pauseSync} from "../Utils.js";
+import {formattStringOnNbChars, pause, pauseSync} from "../Utils.js";
 import {randomUUID} from "node:crypto";
 import {Queue} from "ts-generic-collections-linq";
 let AsyncLock = require('async-lock');
@@ -359,9 +359,13 @@ class MessagesQueue extends FIFOQueue<Message> {
         this.toSmallString = () => {
             let that = this;
             let res="\n";
+            // 2024-07-03T15:48:17.322Z-Id:[node_e4093315-49fa-4772-b3c1-509af178939d19       ] - Content:[hello from node_6                                 ] - Deleted:[ ] - Modified:[ ] - Event:[]
+            // @ts-ignore
+            that.sort((msg1, msg2) => new Date(msg2.date) - new Date(msg1.date));
             for (let i = 0; i < that.size(); i++) {
                 let msg = that[i];
-                res+= "MESSAGE from Queue, id : " + msg.id + ", side : " + msg.side + ", isEvent : " + msg.isEvent + ", event : " + msg.event + ", deleted : " + msg.deleted + ", modified : " + msg.modified + ", content : " + msg.content + "\n";
+                // res+= "MESSAGE from Queue, id : " + msg.id + ", side : " + msg.side + ", isEvent : " + msg.isEvent + ", event : " + msg.event + ", deleted : " + msg.deleted + ", modified : " + msg.modified + ", content : " + msg.content + "\n";
+                res+=msg.date?.toJSON() + "-Id:[" + formattStringOnNbChars(msg.id) + "] - Content:[" + formattStringOnNbChars(msg.content? msg.content.replace(/\n/g,"").replace(/\r/g,""):"") + "] - Deleted:[" + (msg.deleted?"X":" " ) + "] - Modified:[" + (msg.modified?"X":" " ) + "] - Event:[" + msg.event + "]\n";
             }
 
             return res;

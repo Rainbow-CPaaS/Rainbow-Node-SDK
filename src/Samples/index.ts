@@ -353,12 +353,13 @@ let urlS2S;
         // Logs options
         "logs": {
             "enableConsoleLogs": true,
-            "enableFileLogs": true,
+            "enableFileLogs": false,
             "enableEventsLogs": false,
             "enableEncryptedLogs": false,
             "color": true,
             //"level": "error",
-            "level": "internal",
+            "level": "info",
+            //"level": "internal",
             //"level": "internal",
             //"level": "debug",
             "customLabel": "RainbowSample",
@@ -367,7 +368,7 @@ let urlS2S;
                 "http": true,
             },
             "filter": "",
-//            "areas": logLevelAreas,
+            "areas": logLevelAreas,
             /*,
             "areas" : {
                 "admin": {
@@ -6099,6 +6100,52 @@ let urlS2S;
             }
         }
 
+        async testsendMessageBubbleTestBotName_2024() {
+            // To be used with user vincent00 on .Net
+            let that = this;
+            let bubbles = rainbowSDK.bubbles.getAllActiveBubbles();
+
+            for (const bubble of bubbles) {
+                //if (bubble.name.indexOf("testBubbleEvents")!= -1) {
+                if (bubble.name.indexOf("testBotName_2024/02/09T10:35:36.732ZGuestUser")!= -1) {
+                    _logger.log("debug", "MAIN - testsendMessageBubbleTestBotName_2024 Found bubble.name : ", bubble.name, ", bubble.isActive : ", bubble.isActive);
+                    rainbowSDK.conversations.getBubbleConversation(bubble.jid).then(async function (conversation) {
+                        _logger.log("info", "MAIN - testsendMessageBubbleTestBotName_2024 - getBubbleConversation, conversation.jid : ", conversation.jid);
+                        //setInterval(() => {
+                        for (let i = 0; i < 4400; i++) {
+
+
+                            rainbowSDK.im.sendMessageToConversation(conversation, "hello from node_" + i, "FR", null, "Le sujet de node").then((result) => {
+                                _logger.log("debug", "MAIN - testsendMessageBubbleTestBotName_2024 sendMessageToConversation - result : ", result);
+                            });
+                            //}, 15000);
+                            await pause(100);
+                        }
+                    });
+                } else {
+                    _logger.log("debug", "MAIN - testsendMessageBubbleTestBotName_2024 NOT Found bubble.name : ", bubble.name, ", buibble.isActive : ", bubble.isActive);
+                }
+            }
+        }
+        async testloadConversationHistoryAsyncBubbleTestBotName_2024() {
+            // To be used with user vincent00 on .Net
+            let that = this;
+            let bubbles = rainbowSDK.bubbles.getAllActiveBubbles();
+
+            for (const bubble of bubbles) {
+                //if (bubble.name.indexOf("testBubbleEvents")!= -1) {
+                if (bubble.name.indexOf("bulleDeTest")!= -1) {
+                //if (bubble.name.indexOf("testBotName_2024/02/09T10:35:36.732ZGuestUser")!= -1) {
+                    _logger.log("debug", "MAIN - testloadConversationHistoryAsyncBubbleTestBotName_2024 Found bubble.name : ", bubble.name, ", bubble.isActive : ", bubble.isActive);
+                  that.testloadConversationHistoryAsyncBubbleByJid(bubble.jid).then((res) => {
+                      _logger.log("debug", "MAIN - testloadConversationHistoryAsyncBubbleTestBotName_2024 testloadConversationHistoryAsyncBubbleByJid treated.");
+                  });
+                } else {
+                    _logger.log("debug", "MAIN - testloadConversationHistoryAsyncBubbleTestBotName_2024 NOT Found bubble.name : ", bubble.name, ", buibble.isActive : ", bubble.isActive);
+                }
+            }
+        }
+
         async testloadConversationHistoryAsyncBubbleOpenrainbowNet() {
             // To be used on PROD.
             let that = this;
@@ -6107,6 +6154,18 @@ let urlS2S;
                 //let bubble = bubbles[0];
                 //let jid = "room_61aee9e9d7e94cacbce7234e3fca93f2@muc.openrainbow.com/a9b77288b939470b8da4611cc2af1ed1@openrainbow.com" // jid of the bubble "openrainbow.net" on .COM platform
                 let jid = "room_61aee9e9d7e94cacbce7234e3fca93f2@muc.openrainbow.com" // jid of the bubble "openrainbow.net" on .COM platform
+                await that.testloadConversationHistoryAsyncBubbleByJid(jid);
+            }
+        }
+
+        async testloadConversationHistoryAsyncBubbleByJid(jid = "room_61aee9e9d7e94cacbce7234e3fca93f2@muc.openrainbow.com") {
+            // To be used on PROD.
+            let that = this;
+            let bubbles = rainbowSDK.bubbles.getAllBubbles();
+            if (bubbles.length > 0) {
+                //let bubble = bubbles[0];
+                //let jid = "room_61aee9e9d7e94cacbce7234e3fca93f2@muc.openrainbow.com/a9b77288b939470b8da4611cc2af1ed1@openrainbow.com" // jid of the bubble "openrainbow.net" on .COM platform
+                //let jid = "room_61aee9e9d7e94cacbce7234e3fca93f2@muc.openrainbow.com" // jid of the bubble "openrainbow.net" on .COM platform
                 let startDate = new Date();
                 rainbowSDK.events.on("rainbow_onloadConversationHistoryCompleted", (conversationHistoryUpdated) => {
                     // do something when the SDK has been started
@@ -6114,17 +6173,32 @@ let urlS2S;
                     let stopDate = new Date();
                     // @ts-ignore
                     let startDuration = Math.round(stopDate - startDate);
-                    _logger.log("info", "MAIN - testloadConversationHistoryAsyncBubbleOpenrainbowNet loadConversationHistoryAsync duration : " + startDuration + " ms => ", msToTime(startDuration));
-                    for (let i = 0; i < conversationHistoryUpdated?.messages?.length ; i++) {
+                    _logger.log("info", "MAIN - testloadConversationHistoryAsyncBubbleByJid loadConversationHistoryAsync duration : " + startDuration + " ms => ", msToTime(startDuration));
+                    let utc = new Date().toJSON().replace(/-/g, "_").replace(/:/g,"_");
+                    let fileName = "listMsgs_"+utc ;
+                    const path = './'+fileName+'.txt';
+                    //writeFileSync(path, "", "utf8");
+
+                        try {
+                            let data = conversationHistoryUpdated.messages.toSmallString();
+                            writeFileSync(path, data, "utf8");
+                            //appendFileSync(path, data);
+                        } catch (err) {
+
+                        }
+
+                    /*
+                     for (let i = 0; i < conversationHistoryUpdated?.messages?.length ; i++) {
                         let msg = conversationHistoryUpdated?.messages[i];
-                        _logger.log("info", "MAIN - testloadConversationHistoryAsyncBubbleOpenrainbowNet conversationHistoryUpdated.messages[" + i + "] id : ", msg.id, ", fromJid : ", msg.fromJid, ", date : ", msg.date, ", content : ", msg.content);
+                        _logger.log("info", "MAIN - testloadConversationHistoryAsyncBubbleByJid conversationHistoryUpdated.messages[" + i + "] id : ", msg.id, ", fromJid : ", msg.fromJid, ", date : ", msg.date, ", content : ", msg.content);
                     }
+                    // */
 
                     if (rainbowSDK) {
                         rainbowSDK.stop().then(() => {
                             process.exit(0);
                         }).catch((err) => {
-                            _logger.log("warn", "MAIN - RainbowSDK stop failed : ", err, ", but even stop the process."); //logger.colors.green(JSON.stringify(result)));
+                            _logger.log("warn", "MAIN - testloadConversationHistoryAsyncBubbleByJid RainbowSDK stop failed : ", err, ", but even stop the process."); //logger.colors.green(JSON.stringify(result)));
                             process.exit(0);
                         });
                     } else {
@@ -6133,16 +6207,16 @@ let urlS2S;
                 });
 
                 rainbowSDK.conversations.getBubbleConversation(jid).then(async function (conversation) {
-                    _logger.log("info", "MAIN - testloadConversationHistoryAsyncBubbleOpenrainbowNet - getBubbleConversation, conversation.jid : ", conversation.jid, ", conversation : ", conversation);
+                    _logger.log("info", "MAIN - testloadConversationHistoryAsyncBubbleByJid - getBubbleConversation, conversation.jid : ", conversation.jid);
                     /* that.getConversationHistoryMaxime(conversation).then(() => {
                         _logger.log("debug", "MAIN - testGetHistoryPageBubble - getConversationHistoryMaxime, conversation : ", conversation, ", status : ", conversation.status);
                     }); // */
-                    rainbowSDK.conversations.loadConversationHistoryAsync(conversation, 20).then((running) => {
-                        _logger.log("info", "MAIN - testloadConversationHistoryAsyncBubbleOpenrainbowNet loadConversationHistoryAsync running : ", running);
+                    rainbowSDK.conversations.loadConversationHistoryAsync(conversation, 50).then((running) => {
+                        _logger.log("info", "MAIN - testloadConversationHistoryAsyncBubbleByJid loadConversationHistoryAsync running : ", running);
 
                       /*
                       let result = conversationUpdated.historyComplete ? conversationUpdated:that.getConversationHistoryMaxime(conversationUpdated);
-                        _logger.log("debug", "MAIN - testloadConversationHistoryAsyncBubbleOpenrainbowNet getHistoryPage result : ", result);
+                        _logger.log("debug", "MAIN - testloadConversationHistoryAsyncBubbleByJid getHistoryPage result : ", result);
                         return result;
                         // */
                     });
