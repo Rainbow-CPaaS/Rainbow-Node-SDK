@@ -93,9 +93,13 @@ class CallLogEventHandler extends GenericHandler {
 
     }
 
-    onIqCallLogReceived (msg, stanza) {
+    onIqCallLogReceived (msg, stanzaTab) {
         let that = this;
-        that._logger.log(that.INTERNAL, LOG_ID + "(onIqCallLogReceived) received - 'stanza'", msg, "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
+        let stanza = stanzaTab[0];
+        let prettyStanza = stanzaTab[1];
+        let jsonStanza = stanzaTab[2];
+
+        that._logger.log(that.INTERNAL, LOG_ID + "(onIqCallLogReceived) received - 'stanza'", msg, "\n", prettyStanza);
         try {
             //that._logger.log(that.INFO, LOG_ID + "[callLogService] onCallLogMessageReceived");
             //handle message
@@ -142,9 +146,13 @@ class CallLogEventHandler extends GenericHandler {
         return true;
     };
 
-    onCallLogAckReceived (msg, stanza) {
+    onCallLogAckReceived (msg, stanzaTab) {
         let that = this;
-        that._logger.log(that.INTERNAL, LOG_ID + "(onCallLogAckReceived) received - 'stanza'", msg, "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
+        let stanza = stanzaTab[0];
+        let prettyStanza = stanzaTab[1];
+        let jsonStanza = stanzaTab[2];
+
+        that._logger.log(that.INTERNAL, LOG_ID + "(onCallLogAckReceived) received - 'stanza'", msg, "\n", prettyStanza);
         try {
             that._logger.log(that.DEBUG, LOG_ID + "(onCallLogAckReceived) received");
             //console.log(stanza);
@@ -172,10 +180,13 @@ class CallLogEventHandler extends GenericHandler {
         return true;
     };
 
-    async onIqCallLogNotificationReceived (msg, stanza) {
+    async onIqCallLogNotificationReceived (msg, stanzaTab) {
         let that = this;
+        let stanza = stanzaTab[0];
+        let prettyStanza = stanzaTab[1];
+        let jsonStanza = stanzaTab[2];
 
-        that._logger.log(that.INTERNAL, LOG_ID + "(onIqCallLogNotificationReceived) received - 'stanza'", msg, "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
+        that._logger.log(that.INTERNAL, LOG_ID + "(onIqCallLogNotificationReceived) received - 'stanza'", msg, "\n", prettyStanza);
         that._logger.log(that.DEBUG, LOG_ID + "(onIqCallLogNotificationReceived) received");
         //console.log(stanza);
 

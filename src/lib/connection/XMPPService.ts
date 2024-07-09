@@ -476,7 +476,118 @@ class XMPPService extends GenericService {
         that.xmppClient.emit(STANZA_EVENT, stanza);
         that._logger.log(that.INTERNAL, LOG_ID + "(handleXMPPConnection) mockStanza - STANZA_EVENT : " + STANZA_EVENT + " | ", stanza.toString());
     }
-        
+
+
+    fn_input (stanzaStr) {
+        let that = this;
+
+        //let jsonStanzaIn = getJsonFromXML(stanzaStr);
+
+        // that._logger.log("info", LOG_ID + "(handleXMPPConnection) raw in - Before offendXml");
+        let stanzaElmt : any = parse(stanzaStr);
+        let stanzaElmtOffended = that.xmppUtils.offendXml(stanzaElmt);
+        let xmlOffendedStr = prettydata.xml(stanzaElmtOffended.toString());
+        that._logger.log(that.XMPP, LOG_ID + "(handleXMPPConnection) ", that._logger.colors.cyan(" raw in - ⮈ stanza : ") + that._logger.colors.cyan(xmlOffendedStr));
+        //that._logger.log(that.XMPP, LOG_ID + "(handleXMPPConnection) raw in - After offendXml");
+
+        let xmlStr="";
+        if ( that._logger.enableEncryptedLogs == true || that.raiseLowLevelXmppInEvent) {
+            //that._logger.log(that.XMPP, LOG_ID + "(handleXMPPConnection) raw in - Before prettydata");
+            let xmlStr = prettydata.xml(stanzaStr);
+            //that._logger.log(that.INTERNAL, LOG_ID + "(handleXMPPConnection) ", that._logger.colors.cyan(" raw in - ⮈ stanza : ") + that._logger.colors.cyan(xmlStr));
+            //that._logger.log(that.INTERNAL, LOG_ID + "(handleXMPPConnection) ", that._logger.colors.cyan(" raw in - ⮈ stanza : ") + that._logger.colors.cyan(xmlStr));
+            that._logger.log(that.XMPP, LOG_ID + "(handleXMPPConnection) ", that._logger.colors.cyan(" raw in - ⮈ stanza : ") + that._logger.colors.cyan(xmlStr));
+            //that._logger.log(that.XMPP, LOG_ID + "(handleXMPPConnection) raw in - After prettydata");
+            // */
+        }
+        if ( that._logger.enableEncryptedLogs == true ) {
+            let encodedXml = that._logger.encrypt(xmlStr);
+            that._logger.log("error", LOG_ID + "(handleXMPPConnection) ", " raw in - encoded : (" + encodedXml + ")");
+        }
+        that.startOrResetIdleTimer(true);
+        if (that.raiseLowLevelXmppInEvent ) {
+            that.eventEmitter.emit("evt_internal_xmmpeventreceived", xmlStr);
+        }
+        //that._logger.log(that.XMPP, LOG_ID + "(handleXMPPConnection)  raw in - exit__");
+    }
+
+    async fn_STANZA_EVENT (stanza) {
+        let that =this;
+        that._logger.log(that.INTERNAL, LOG_ID + "(handleXMPPConnection) event - STANZA_EVENT : " + STANZA_EVENT + " | ", stanza.toString());
+
+        let prettyStanza = stanza.root ? prettydata.xml(stanza.root().toString()) : stanza;
+        let xmlNodeStr = stanza ? stanza.toString():"<xml></xml>";
+        let jsonStanza = await getJsonFromXML(xmlNodeStr);
+
+        let eventId = that.hash + "." + stanza.getNS() + "." + stanza.getName() + (stanza.attrs.type ? "." + stanza.attrs.type : "");
+        that._logger.log(that.DEBUG, LOG_ID + "(handleXMPPConnection) event - STANZA_EVENT : eventId ", eventId);
+        let delivered = PubSub.publish(eventId, [stanza, prettyStanza, jsonStanza]);
+
+        stanza.children.forEach((child) => {
+            let eventIdForChilds = that.hash + "." + child.getNS() + "." + child.getName() + (child.attrs.type ? "." + child.attrs.type : "");
+            that._logger.log(that.DEBUG, LOG_ID + "(handleXMPPConnection) event - STANZA_EVENT : eventIdForChilds : ", eventIdForChilds);
+            delivered |= PubSub.publish(eventIdForChilds,  [stanza, prettyStanza, jsonStanza]);
+        });
+
+        if (!delivered) {
+            that._logger.log(that.ERROR, LOG_ID + "(handleXMPPConnection) event - STANZA_EVENT : " + STANZA_EVENT + " not managed | ", stanza.getNS() + "." + stanza.getName() + (stanza.attrs.type ? "." + stanza.attrs.type : ""));
+        }
+
+        switch (stanza.getName()) {
+            case "iq":
+                break;
+            case "message":
+                let content = "";
+                let lang = "";
+                let alternativeContent = [];
+                let subject = "";
+                let event = "";
+                let eventJid = "";
+                let hasATextMessage = false;
+                let oob = null;
+                let messageType = stanza.attrs.type;
+                if (messageType === TYPE_CHAT || messageType === TYPE_GROUPCHAT) {
+
+                } else if (stanza.attrs.type === "management") {
+                } else if (stanza.attrs.type === "error") {
+                    //that._logger.log(that.ERROR, LOG_ID + "(handleXMPPConnection) something goes wrong...");
+                } else if (stanza.attrs.type === "headline") {
+
+                    // that._logger.log(that.INFO, LOG_ID + "(handleXMPPConnection) channel message received");
+
+                } else {
+                    let children = stanza.children;
+
+                    children.forEach(function (node) {
+                        switch (node.getName()) {
+                            case "received":
+                                let receipt = {
+                                    event: node.attrs.event,
+                                    entity: node.attrs.entity,
+                                    type: null,
+                                    id: node.attrs.id
+                                };
+                                //that._logger.log(that.INFO, LOG_ID + "(handleXMPPConnection) server receipt received");
+                                that.eventEmitter.emit("evt_internal_onreceipt", receipt);
+                                break;
+                            default:
+                                break;
+                        }
+                    });
+                }
+                break;
+            case "presence":
+                that._logger.log(that.DEBUG, LOG_ID + "(handleXMPPConnection) presence received : ", prettyStanza);
+                break;
+            case "close":
+                that._logger.log(that.WARN, LOG_ID + "(handleXMPPConnection) close received : ", prettyStanza);
+                break;
+            default:
+                that._logger.log(that.WARN, LOG_ID + "(handleXMPPConnection) not managed - 'stanza' : ", stanza.getName());
+                break;
+        }
+    }
+
     async handleXMPPConnection (headers) {
 
         let that = this;
@@ -573,27 +684,7 @@ class XMPPService extends GenericService {
         "raiseLowLevelXmppOutReq": true
          */
         
-        that.xmppClient.on("input", function fn_input (stanzaStr) {
-
-            //let jsonStanzaIn = getJsonFromXML(stanzaStr);
-
-            let stanzaElmt : any = parse(stanzaStr);
-            let stanzaElmtOffended = that.xmppUtils.offendXml(stanzaElmt);
-            let xmlOffendedStr = prettydata.xml(stanzaElmtOffended.toString());
-            that._logger.log(that.XMPP, LOG_ID + "(handleXMPPConnection) ", that._logger.colors.cyan(" raw in - ⮈ stanza : ") + that._logger.colors.cyan(xmlOffendedStr));
-
-            let xmlStr = prettydata.xml(stanzaStr);
-            //that._logger.log(that.INTERNAL, LOG_ID + "(handleXMPPConnection) ", that._logger.colors.cyan(" raw in - ⮈ stanza : ") + that._logger.colors.cyan(xmlStr));
-            that._logger.log(that.INTERNAL, LOG_ID + "(handleXMPPConnection) ", that._logger.colors.cyan(" raw in - ⮈ stanza : ") + that._logger.colors.cyan(xmlStr));
-            if ( that._logger.enableEncryptedLogs == true ) {
-                let encodedXml = that._logger.encrypt(xmlStr);
-                that._logger.log(that.XMPP, LOG_ID + "(handleXMPPConnection) ", " raw in - encoded : (" + encodedXml + ")");
-            }
-            that.startOrResetIdleTimer(true);
-            if (that.raiseLowLevelXmppInEvent ) {
-                that.eventEmitter.emit("evt_internal_xmmpeventreceived", xmlStr);
-            }
-        });
+        that.xmppClient.on("input", this.fn_input.bind(this));
 
         that.xmppClient.on("element", function fn_input (elmt) {
           //  that._logger.log(that.DEBUG, LOG_ID + "(handleXMPPConnection) ", that._logger.colors.cyan(" element event stanza : ") + that._logger.colors.cyan(elmt));
@@ -662,77 +753,7 @@ class XMPPService extends GenericService {
              } // */
         });
 
-        that.xmppClient.on(STANZA_EVENT, function fn_STANZA_EVENT (stanza) {
-            that._logger.log(that.INTERNAL, LOG_ID + "(handleXMPPConnection) event - STANZA_EVENT : " + STANZA_EVENT + " | ", stanza.toString());
-
-            let eventId = that.hash + "." + stanza.getNS() + "." + stanza.getName() + (stanza.attrs.type ? "." + stanza.attrs.type : "");
-            that._logger.log(that.DEBUG, LOG_ID + "(handleXMPPConnection) event - STANZA_EVENT : eventId ", eventId);
-            let delivered = PubSub.publish(eventId, stanza);
-
-            stanza.children.forEach((child) => {
-                let eventIdForChilds = that.hash + "." + child.getNS() + "." + child.getName() + (child.attrs.type ? "." + child.attrs.type : "");
-                that._logger.log(that.DEBUG, LOG_ID + "(handleXMPPConnection) event - STANZA_EVENT : eventIdForChilds : ", eventIdForChilds);
-                delivered |= PubSub.publish(eventIdForChilds, stanza);
-            });
-
-            if (!delivered) {
-                that._logger.log(that.ERROR, LOG_ID + "(handleXMPPConnection) event - STANZA_EVENT : " + STANZA_EVENT + " not managed | ", stanza.getNS() + "." + stanza.getName() + (stanza.attrs.type ? "." + stanza.attrs.type : ""));
-            }
-
-            switch (stanza.getName()) {
-                case "iq":
-                    break;
-                case "message":
-                    let content = "";
-                    let lang = "";
-                    let alternativeContent = [];
-                    let subject = "";
-                    let event = "";
-                    let eventJid = "";
-                    let hasATextMessage = false;
-                    let oob = null;
-                    let messageType = stanza.attrs.type;
-                    if (messageType === TYPE_CHAT || messageType === TYPE_GROUPCHAT) {
-
-                    } else if (stanza.attrs.type === "management") {
-                    } else if (stanza.attrs.type === "error") {
-                        //that._logger.log(that.ERROR, LOG_ID + "(handleXMPPConnection) something goes wrong...");
-                    } else if (stanza.attrs.type === "headline") {
-
-                        // that._logger.log(that.INFO, LOG_ID + "(handleXMPPConnection) channel message received");
-
-                    } else {
-                        let children = stanza.children;
-
-                        children.forEach(function (node) {
-                            switch (node.getName()) {
-                                case "received":
-                                    let receipt = {
-                                        event: node.attrs.event,
-                                        entity: node.attrs.entity,
-                                        type: null,
-                                        id: node.attrs.id
-                                    };
-                                    //that._logger.log(that.INFO, LOG_ID + "(handleXMPPConnection) server receipt received");
-                                    that.eventEmitter.emit("evt_internal_onreceipt", receipt);
-                                    break;
-                                default:
-                                    break;
-                            }
-                        });
-                    }
-                    break;
-                case "presence":
-                    that._logger.log(that.DEBUG, LOG_ID + "(handleXMPPConnection) presence received : ", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
-                    break;
-                case "close":
-                    that._logger.log(that.WARN, LOG_ID + "(handleXMPPConnection) close received : ", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
-                    break;
-                default:
-                    that._logger.log(that.WARN, LOG_ID + "(handleXMPPConnection) not managed - 'stanza' : ", stanza.getName());
-                    break;
-            }
-        });
+        that.xmppClient.on(STANZA_EVENT, that.fn_STANZA_EVENT.bind(that));
 
         that.xmppClient.on(ERROR_EVENT, async function fn_ERROR_EVENT (err) {
             if (err.code === "HPE_INVALID_CONSTANT") {

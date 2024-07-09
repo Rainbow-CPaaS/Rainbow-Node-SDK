@@ -64,10 +64,14 @@ class ConversationHistoryHandler  extends GenericHandler {
         that.forceHistoryGetContactFromServer = that._options.imOptions.forceHistoryGetContactFromServer;
     }
 
-    onMamMessageReceived (msg, stanza) {
+    onMamMessageReceived (msg, stanzaTab) {
         let that = this;
+        let stanza = stanzaTab[0];
+        let prettyStanza = stanzaTab[1];
+        let jsonStanza = stanzaTab[2];
+
         try {
-            that._logger.log(that.INTERNAL, LOG_ID + "(onMamMessageReceived) _entering_ : ", msg, "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
+            that._logger.log(that.INTERNAL, LOG_ID + "(onMamMessageReceived) _entering_ : ", msg, "\n", prettyStanza);
             // Get queryId and deleteId
             let queryId = stanza.getChild("result") ? stanza.getChild("result")?.getAttr("queryid") : null;
             if (!queryId) {
@@ -101,7 +105,8 @@ class ConversationHistoryHandler  extends GenericHandler {
         // Handle response
         try {
             let conversation : Conversation = null;
-            that._logger.log(that.INTERNAL, LOG_ID + "(onHistoryMessageReceived) _entering_ : ", msg, "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
+            that._logger.log(that.INTERNAL, LOG_ID + "(onHistoryMessageReceived) _entering_ : ", msg, "\n", stanza.root ? stanza.root().toString() : stanza);
+           // that._logger.log(that.INTERNAL, LOG_ID + "(onHistoryMessageReceived) _entering_ : ", msg, "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
 
             let queryId = stanza.getChild("result") ? stanza?.getChild("result")?.getAttr("queryid") : null;
             if (queryId) {

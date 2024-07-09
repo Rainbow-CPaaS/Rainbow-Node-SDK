@@ -150,8 +150,12 @@ class XmppClient  {
         setInterval(that.resetnbMessagesSentThisHour.bind(this), that.timeBetweenReset);
     }
 
-    onIqErrorReceived (msg, stanza) {
+    onIqErrorReceived (msg, stanzaTab) {
         let that = this;
+        let stanza = stanzaTab[0];
+        let prettyStanza = stanzaTab[1];
+        let jsonStanza = stanzaTab[2];
+
         //let children = stanza.children;
         let iqId = stanza.attrs.id;
         let errorMsg = stanza.getChild("error")?stanza.getChild("error").getChild("text").getText() ||  "" : "";
@@ -223,8 +227,12 @@ class XmppClient  {
         return result;
     };
 
-    onIqResultReceived (msg, stanza) {
+    onIqResultReceived (msg, stanzaTab) {
         let that = this;
+        let stanza = stanzaTab[0];
+        let prettyStanza = stanzaTab[1];
+        let jsonStanza = stanzaTab[2];
+
         //let children = stanza.children;
         let iqId = stanza.attrs.id;
         that.logger.log("debug", LOG_ID + "(XmmpClient) onIqResultReceived received iq result - 'stanza id '", iqId);

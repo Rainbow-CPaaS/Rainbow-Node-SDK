@@ -395,10 +395,14 @@ class ConversationEventHandler extends GenericHandler {
         }
     }
 
-    async onChatMessageReceived(msg, stanza: Element) {
+    async onChatMessageReceived(msg, stanzaTab: Element) {
         let that = this;
+        let stanza = stanzaTab[0];
+        let prettyStanza = stanzaTab[1];
+        let jsonStanza = stanzaTab[2];
+
         try {
-            that._logger.log(that.INTERNAL, LOG_ID + "(onChatMessageReceived) _entering_ : ", msg, "\n", stanza.root ? prettydata.xml(stanza.root().toString()):stanza);
+            that._logger.log(that.INTERNAL, LOG_ID + "(onChatMessageReceived) _entering_ : ", msg, "\n", prettyStanza);
             let content = "";
             let lang = "";
             let alternativeContent: Array<{ "message": string, "type": string }> = [];
@@ -2102,20 +2106,24 @@ class ConversationEventHandler extends GenericHandler {
         }
     }
 
-    onRoomAdminMessageReceived (msg, stanza) {
+    onRoomAdminMessageReceived (msg, stanzaTab) {
     }
 
-    onFileMessageReceived (msg, stanza) {
+    onFileMessageReceived (msg, stanzaTab) {
     }
 
-    onWebRTCMessageReceived (msg, stanza) {
+    onWebRTCMessageReceived (msg, stanzaTab) {
         // No treatment, dedicated to Call Log later
     }
 
-    onManagementMessageReceived (msg, stanza) {
+    onManagementMessageReceived (msg, stanzaTab) {
         let that = this;
+        let stanza = stanzaTab[0];
+        let prettyStanza = stanzaTab[1];
+        let jsonStanza = stanzaTab[2];
+
         try {
-            that._logger.log(that.INTERNAL, LOG_ID + "(onManagementMessageReceived) _entering_ : ", msg, stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
+            that._logger.log(that.INTERNAL, LOG_ID + "(onManagementMessageReceived) _entering_ : ", msg, prettyStanza);
             let children = stanza.children;
             children.forEach(function (node) {
                 switch (node.getName()) {
@@ -2897,13 +2905,17 @@ class ConversationEventHandler extends GenericHandler {
     onReceiptMessageReceived (msg, stanza){
     }
 
-    async onErrorMessageReceived(msg, stanza) {
+    async onErrorMessageReceived(msg, stanzaTab) {
         let that = this;
+        let stanza = stanzaTab[0];
+        let prettyStanza = stanzaTab[1];
+        let jsonStanza = stanzaTab[2];
+
         try {
 
             if (stanza.getChild('no-store')!=undefined) {
                 that._logger.log(that.ERROR, LOG_ID + "(onErrorMessageReceived) The message could not be delivered.");
-                that._logger.log(that.ERROR, LOG_ID + "(onErrorMessageReceived) something goes wrong... : ", msg, "\n", stanza.root ? prettydata.xml(stanza.root().toString()):stanza);
+                that._logger.log(that.ERROR, LOG_ID + "(onErrorMessageReceived) something goes wrong... : ", msg, "\n", prettyStanza);
                 let err = {
                     "id": stanza.attrs.id,
                     "body": stanza.getChild('body').text(),
@@ -2914,7 +2926,7 @@ class ConversationEventHandler extends GenericHandler {
                 that.eventEmitter.emit("evt_internal_onsendmessagefailed", err);
             } else {
                 that._logger.log(that.ERROR, LOG_ID + "(onErrorMessageReceived) something goes wrong...");
-                that._logger.log(that.ERROR, LOG_ID + "(onErrorMessageReceived) something goes wrong... : ", msg, "\n", stanza.root ? prettydata.xml(stanza.root().toString()):stanza);
+                that._logger.log(that.ERROR, LOG_ID + "(onErrorMessageReceived) something goes wrong... : ", msg, "\n", prettyStanza);
                 let errorObject = {
                     message: msg,
                     stanza: stanza.root ? prettydata.xml(stanza.root().toString()):stanza
@@ -2953,7 +2965,7 @@ class ConversationEventHandler extends GenericHandler {
         }
     }
 
-    onCloseMessageReceived (msg, stanza) {
+    onCloseMessageReceived (msg, stanzaTab) {
 
     }
 

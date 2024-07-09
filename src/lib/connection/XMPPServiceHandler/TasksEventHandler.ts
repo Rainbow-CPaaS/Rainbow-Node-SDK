@@ -69,15 +69,18 @@ class TasksEventHandler extends GenericHandler {
         });
     };
 
-    onErrorMessageReceived (msg, stanza) {
+    onErrorMessageReceived (msg, stanzaTab) {
         let that = this;
+        let stanza = stanzaTab[0];
+        let prettyStanza = stanzaTab[1];
+        let jsonStanza = stanzaTab[2];
 
         try {
             if (stanza.getChild('no-store') != undefined){
                 // // Treated in conversation handler that._logger.log(that.ERROR, LOG_ID + "(onErrorMessageReceived) The 'to' of the message can not received the message");
             } else {
                 // that._logger.log(that.ERROR, LOG_ID + "(onErrorMessageReceived) something goes wrong...");
-                that._logger.log(that.ERROR, LOG_ID + "(onErrorMessageReceived) something goes wrong... : ", msg, "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
+                that._logger.log(that.ERROR, LOG_ID + "(onErrorMessageReceived) something goes wrong... : ", msg, "\n", prettyStanza);
                 that.eventEmitter.emit("evt_internal_xmpperror", msg);
             }
         } catch (err) {
@@ -86,8 +89,11 @@ class TasksEventHandler extends GenericHandler {
         }
     };
 
-    async onMessageReceived(msg, stanza) {
+    async onMessageReceived(msg, stanzaTab) {
         let that = this;
+        let stanza = stanzaTab[0];
+        let prettyStanza = stanzaTab[1];
+        let jsonStanza = stanzaTab[2];
 
         return ;
 
@@ -119,10 +125,13 @@ class TasksEventHandler extends GenericHandler {
         return true;
     }
 
-    async onManagementMessageReceived(msg, stanza) {
+    async onManagementMessageReceived(msg, stanzaTab) {
         let that = this;
+        let stanza = stanzaTab[0];
+        let prettyStanza = stanzaTab[1];
+        let jsonStanza = stanzaTab[2];
 
-        that._logger.log(that.INTERNAL, LOG_ID + "(onManagementMessageReceived) _entering_ : ", msg, stanza.root ? prettydata.xml(stanza.root().toString()):stanza);
+        that._logger.log(that.INTERNAL, LOG_ID + "(onManagementMessageReceived) _entering_ : ", msg, prettyStanza);
         try {
 
             let children = stanza.children;

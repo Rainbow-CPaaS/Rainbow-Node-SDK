@@ -242,6 +242,10 @@ let urlS2S;
     logLevelAreas.fileStorage.api = true;
     logLevelAreas.fileStorage.level = LEVELSNAMES.INTERNAL;
 
+    logLevelAreas.xmpp.level = LEVELSNAMES.INTERNAL;
+    logLevelAreas.xmpp.xmppin
+    logLevelAreas.xmpp.xmppout
+
     if (rainbowMode === "s2s") {
         logLevelAreas.s2s.level = LEVELSNAMES.INTERNAL;
         logLevelAreas.s2sevent.level = LEVELSNAMES.INTERNAL;
@@ -6134,8 +6138,8 @@ let urlS2S;
 
             for (const bubble of bubbles) {
                 //if (bubble.name.indexOf("testBubbleEvents")!= -1) {
-                if (bubble.name.indexOf("bulleDeTest")!= -1) {
-                //if (bubble.name.indexOf("testBotName_2024/02/09T10:35:36.732ZGuestUser")!= -1) {
+                //if (bubble.name.indexOf("bulleDeTest")!= -1) {
+                if (bubble.name.indexOf("testBotName_2024/02/09T10:35:36.732ZGuestUser")!= -1) {
                     _logger.log("debug", "MAIN - testloadConversationHistoryAsyncBubbleTestBotName_2024 Found bubble.name : ", bubble.name, ", bubble.isActive : ", bubble.isActive);
                   that.testloadConversationHistoryAsyncBubbleByJid(bubble.jid).then((res) => {
                       _logger.log("debug", "MAIN - testloadConversationHistoryAsyncBubbleTestBotName_2024 testloadConversationHistoryAsyncBubbleByJid treated.");
@@ -6166,7 +6170,7 @@ let urlS2S;
                 //let bubble = bubbles[0];
                 //let jid = "room_61aee9e9d7e94cacbce7234e3fca93f2@muc.openrainbow.com/a9b77288b939470b8da4611cc2af1ed1@openrainbow.com" // jid of the bubble "openrainbow.net" on .COM platform
                 //let jid = "room_61aee9e9d7e94cacbce7234e3fca93f2@muc.openrainbow.com" // jid of the bubble "openrainbow.net" on .COM platform
-                let startDate = new Date();
+                let startDate = undefined// new Date();
                 rainbowSDK.events.on("rainbow_onloadConversationHistoryCompleted", (conversationHistoryUpdated) => {
                     // do something when the SDK has been started
                     _logger.log("info", "MAIN - (rainbow_onloadConversationHistoryCompleted) - rainbow conversation history loaded completed, conversationHistoryUpdated?.messages?.length : ", conversationHistoryUpdated?.messages?.length);
@@ -6176,7 +6180,7 @@ let urlS2S;
                     _logger.log("info", "MAIN - testloadConversationHistoryAsyncBubbleByJid loadConversationHistoryAsync duration : " + startDuration + " ms => ", msToTime(startDuration));
                     let utc = new Date().toJSON().replace(/-/g, "_").replace(/:/g,"_");
                     let fileName = "listMsgs_"+utc ;
-                    const path = './'+fileName+'.txt';
+                    const path = 'c:/Temp/'+fileName+'.txt';
                     //writeFileSync(path, "", "utf8");
 
                         try {
@@ -6211,6 +6215,7 @@ let urlS2S;
                     /* that.getConversationHistoryMaxime(conversation).then(() => {
                         _logger.log("debug", "MAIN - testGetHistoryPageBubble - getConversationHistoryMaxime, conversation : ", conversation, ", status : ", conversation.status);
                     }); // */
+                    startDate = new Date();
                     rainbowSDK.conversations.loadConversationHistoryAsync(conversation, 50).then((running) => {
                         _logger.log("info", "MAIN - testloadConversationHistoryAsyncBubbleByJid loadConversationHistoryAsync running : ", running);
 

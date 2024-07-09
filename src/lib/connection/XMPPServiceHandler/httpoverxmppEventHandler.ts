@@ -50,10 +50,14 @@ class HttpoverxmppEventHandler extends GenericHandler {
     }
 
 
-    onIqGetSetReceived (msg, stanza) {
+    onIqGetSetReceived (msg, stanzaTab) {
         let that = this;
+        let stanza = stanzaTab[0];
+        let prettyStanza = stanzaTab[1];
+        let jsonStanza = stanzaTab[2];
+
         try {
-            that._logger.log(that.INTERNAL, LOG_ID + "(onIqGetSetReceived) _entering_ : ", msg, stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
+            that._logger.log(that.INTERNAL, LOG_ID + "(onIqGetSetReceived) _entering_ : ", msg, prettyStanza);
             let children = stanza.children;
             children.forEach((node) => {
                 switch (node.getName()) {
@@ -72,9 +76,9 @@ class HttpoverxmppEventHandler extends GenericHandler {
                         that._logger.log(that.WARN, LOG_ID + "(onIqGetSetReceived) not managed - 'stanza'", node.getName());
                         break; // */
                     default:
-                        that._logger.log(that.INTERNAL, LOG_ID + "(onIqGetSetReceived) _entering_ : ", msg, stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
+                        that._logger.log(that.INTERNAL, LOG_ID + "(onIqGetSetReceived) _entering_ : ", msg, prettyStanza);
                         that._logger.log(that.WARN, LOG_ID + "(onIqGetSetReceived) child not managed for iq - 'stanza' name : ", node.getName());
-                        that._logger.log(that.INTERNAL, LOG_ID + "(onIqGetSetReceived) child not managed for iq - 'stanza' name : ", node.getName(), ",stanza : ",  "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza, " node : ", node);
+                        that._logger.log(that.INTERNAL, LOG_ID + "(onIqGetSetReceived) child not managed for iq - 'stanza' name : ", node.getName(), ",stanza : ",  "\n", prettyStanza, " node : ", node);
 
                 }
             });
@@ -84,11 +88,14 @@ class HttpoverxmppEventHandler extends GenericHandler {
         }
     };
 
-    onIqResultReceived (msg, stanza) {
+    onIqResultReceived (msg, stanzaTab) {
         let that = this;
+        let stanza = stanzaTab[0];
+        let prettyStanza = stanzaTab[1];
+        let jsonStanza = stanzaTab[2];
 
         try {
-            that._logger.log(that.INTERNAL, LOG_ID + "(onIqResultReceived) _entering_", msg, "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
+            that._logger.log(that.INTERNAL, LOG_ID + "(onIqResultReceived) _entering_", msg, "\n", prettyStanza);
             let children = stanza.children;
             children.forEach((node) => {
                 switch (node.getName()) {
@@ -115,7 +122,7 @@ class HttpoverxmppEventHandler extends GenericHandler {
                         break; //*/
                     default:
                         that._logger.log(that.WARN, LOG_ID + "(onIqResultReceived) - child not managed for iq - 'stanza'", node.getName());
-                        that._logger.log(that.INTERNAL, LOG_ID + "(onIqResultReceived) - child not managed for iq - 'stanza' name : ", node.getName(), ", stanza : ",  "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza, " node : ", node);
+                        that._logger.log(that.INTERNAL, LOG_ID + "(onIqResultReceived) - child not managed for iq - 'stanza' name : ", node.getName(), ", stanza : ",  "\n", prettyStanza, " node : ", node);
                 }
             });
         } catch (err) {

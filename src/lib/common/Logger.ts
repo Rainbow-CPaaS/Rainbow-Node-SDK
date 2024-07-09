@@ -358,6 +358,16 @@ class Logger {
             return that._winston.end();
         }
 
+      /*  this._logger.log = function (options : {"callerObj" : any, "level" : LEVELSNAMES, isApi : boolean} | LEVELSNAMES) {
+            try {
+                const args = [...arguments];
+                console.log(new Date().toISOString() + args?.toString());
+
+                return (-1);
+            } catch (err) {
+            }
+        } // */
+
         this._logger.log = function (options : {"callerObj" : any, "level" : LEVELSNAMES, isApi : boolean} | LEVELSNAMES) {
             try {
                 let levelOfLog: LEVELSNAMES ;

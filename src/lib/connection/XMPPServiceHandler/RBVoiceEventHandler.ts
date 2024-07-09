@@ -90,15 +90,18 @@ class RBVoiceEventHandler extends GenericHandler {
         });
     };
 
-    onErrorMessageReceived (msg, stanza) {
+    onErrorMessageReceived (msg, stanzaTab) {
         let that = this;
+        let stanza = stanzaTab[0];
+        let prettyStanza = stanzaTab[1];
+        let jsonStanza = stanzaTab[2];
 
         try {
             if (stanza.getChild('no-store') != undefined){
                 // // Treated in conversation handler that._logger.log(that.ERROR, LOG_ID + "(onErrorMessageReceived) The 'to' of the message can not received the message");
             } else {
                 //that._logger.log(that.ERROR, LOG_ID + "(onErrorMessageReceived) something goes wrong...");
-                that._logger.log(that.ERROR, LOG_ID + "(onErrorMessageReceived) something goes wrong... : ", msg, "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
+                that._logger.log(that.ERROR, LOG_ID + "(onErrorMessageReceived) something goes wrong... : ", msg, "\n", prettyStanza);
                 that.eventEmitter.emit("evt_internal_xmpperror", msg);
             }
         } catch (err) {
@@ -107,17 +110,22 @@ class RBVoiceEventHandler extends GenericHandler {
         }
     };
 
-    async onMessageReceived(msg, stanza) {
+    async onMessageReceived(msg, stanzaTab) {
         let that = this;
+        let stanza = stanzaTab[0];
+        let prettyStanza = stanzaTab[1];
+        let jsonStanza = stanzaTab[2];
 
-        that._logger.log(that.INTERNAL, LOG_ID + "(onMessageReceived) _entering_ : ", msg, stanza.root ? prettydata.xml(stanza.root().toString()):stanza);
+        that._logger.log(that.INTERNAL, LOG_ID + "(onMessageReceived) _entering_ : ", msg, prettyStanza);
         try {
             let stanzaElem = stanza;
             //let that = this;
 
-            let xmlNodeStr = stanza ? stanza.toString():"<xml></xml>";
+            /*let xmlNodeStr = stanza ? stanza.toString():"<xml></xml>";
             let reqObj = await getJsonFromXML(xmlNodeStr);
             that._logger.log(that.DEBUG, LOG_ID + "(onMessageReceived) reqObj : ", reqObj);
+            // */
+            that._logger.log(that.DEBUG, LOG_ID + "(onMessageReceived) jsonStanza : ", jsonStanza);
 
             // Ignore "Offline" message
             let delay = stanzaElem.getChild("delay");
@@ -138,10 +146,13 @@ class RBVoiceEventHandler extends GenericHandler {
         return true;
     }
 
-    async onManagementMessageReceived(msg, stanza) {
+    async onManagementMessageReceived(msg, stanzaTab) {
         let that = this;
+        let stanza = stanzaTab[0];
+        let prettyStanza = stanzaTab[1];
+        let jsonStanza = stanzaTab[2];
 
-        that._logger.log(that.INTERNAL, LOG_ID + "(onManagementMessageReceived) _entering_ : ", msg, stanza.root ? prettydata.xml(stanza.root().toString()):stanza);
+        that._logger.log(that.INTERNAL, LOG_ID + "(onManagementMessageReceived) _entering_ : ", msg, prettyStanza);
         try {
             let stanzaElem = stanza;
             //let that = this;
@@ -169,15 +180,18 @@ class RBVoiceEventHandler extends GenericHandler {
         return true;
     }
     
-    async onHeadlineMessageReceived(msg, stanza) {
+    async onHeadlineMessageReceived(msg, stanzaTab) {
         let that = this;
+        let stanza = stanzaTab[0];
+        let prettyStanza = stanzaTab[1];
+        let jsonStanza = stanzaTab[2];
 
-        that._logger.log(that.INTERNAL, LOG_ID + "(onHeadlineMessageReceived) _entering_ : ", msg, stanza.root ? prettydata.xml(stanza.root().toString()):stanza);
+        that._logger.log(that.INTERNAL, LOG_ID + "(onHeadlineMessageReceived) _entering_ : ", msg, prettyStanza);
         try {
             let stanzaElem = stanza;
             //let that = this;
-            let xmlNodeStr = stanza ? stanza.toString():"<xml></xml>";
-            let stanzaObj = await getJsonFromXML(xmlNodeStr);
+            //let xmlNodeStr = stanza ? stanza.toString():"<xml></xml>";
+            let stanzaObj = jsonStanza; //await getJsonFromXML(xmlNodeStr);
             that._logger.log(that.DEBUG, LOG_ID + "(onHeadlineMessageReceived) stanzaObj : ", stanzaObj);
 
             if (stanzaObj && stanzaObj.message) {

@@ -97,8 +97,12 @@ class TelephonyEventHandler extends GenericHandler {
 
     }
 
-    onIqResultReceived (msg, stanza) {
+    onIqResultReceived (msg, stanzaTab) {
         let that = this;
+        let stanza = stanzaTab[0];
+        let prettyStanza = stanzaTab[1];
+        let jsonStanza = stanzaTab[2];
+
         let children = stanza.children;
         children.forEach((node) => {
             switch (node.getName()) {
@@ -147,10 +151,13 @@ class TelephonyEventHandler extends GenericHandler {
     };
 
 
-    onMessageReceived (msg, stanza) {
+    onMessageReceived (msg, stanzaTab) {
         let that = this;
+        let stanza = stanzaTab[0];
+        let prettyStanza = stanzaTab[1];
+        let jsonStanza = stanzaTab[2];
 
-        that._logger.log(that.INTERNAL, LOG_ID + "(onMessageReceived) _entering_ : ", msg, stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
+        that._logger.log(that.INTERNAL, LOG_ID + "(onMessageReceived) _entering_ : ", msg, prettyStanza);
         try {
             let stanzaElem = stanza;
             //let that = this;

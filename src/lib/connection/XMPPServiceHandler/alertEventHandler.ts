@@ -421,11 +421,14 @@ class AlertEventHandler extends GenericHandler {
         }
     };
 
-    onHeadlineMessageReceived (msg, stanza) {
+    onHeadlineMessageReceived (msg, stanzaTab) {
         let that = this;
+        let stanza = stanzaTab[0];
+        let prettyStanza = stanzaTab[1];
+        let jsonStanza = stanzaTab[2];
 
         try {
-            that._logger.log(that.INTERNAL, LOG_ID + "(onHeadlineMessageReceived) _entering_ : ", msg, stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
+            that._logger.log(that.INTERNAL, LOG_ID + "(onHeadlineMessageReceived) _entering_ : ", msg, prettyStanza);
             that._logger.log(that.DEBUG, LOG_ID + "(onHeadlineMessageReceived) message received");
 
 
@@ -628,15 +631,18 @@ class AlertEventHandler extends GenericHandler {
     onReceiptMessageReceived (msg, stanza) {
     };
 
-    onErrorMessageReceived (msg, stanza) {
+    onErrorMessageReceived (msg, stanzaTab) {
         let that = this;
+        let stanza = stanzaTab[0];
+        let prettyStanza = stanzaTab[1];
+        let jsonStanza = stanzaTab[2];
 
         try {
             if (stanza.getChild('no-store') != undefined){
                 // // Treated in conversation handler that._logger.log(that.ERROR, LOG_ID + "(onErrorMessageReceived) The 'to' of the message can not received the message");
             } else {
                 // that._logger.log(that.ERROR, LOG_ID + "(onErrorMessageReceived) something goes wrong...");
-                that._logger.log(that.ERROR, LOG_ID + "(onErrorMessageReceived) something goes wrong... : ", msg, "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
+                that._logger.log(that.ERROR, LOG_ID + "(onErrorMessageReceived) something goes wrong... : ", msg, "\n", prettyStanza);
                 that.eventEmitter.emit("evt_internal_xmpperror", msg);
             }
         } catch (err) {
