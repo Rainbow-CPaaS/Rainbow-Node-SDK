@@ -21,7 +21,7 @@ global.window = undefined;
 
 const xml = require("@xmpp/xml");
 import {Message} from "../../common/models/Message";
-import {isDefined, logEntryExit} from "../../common/Utils";
+import {findAllPropInJSONByPropertyName, findAllPropInJSONByPropertyNameByXmlNS, isDefined, logEntryExit} from "../../common/Utils";
 import {ConversationsService} from "../../services/ConversationsService";
 import {ContactsService} from "../../services/ContactsService";
 import {stringify} from "querystring";
@@ -71,21 +71,27 @@ class ConversationHistoryHandler  extends GenericHandler {
         let jsonStanza = stanzaTab[2];
 
         try {
-            that._logger.log(that.INTERNAL, LOG_ID + "(onMamMessageReceived) _entering_ : ", msg, "\n", prettyStanza);
+            that._logger.log(that.INTERNAL, LOG_ID + "(onMamMessageReceived) _entering_ : ", msg, "\n", prettyStanza, "\n jsonStanza : \n", jsonStanza);
             // Get queryId and deleteId
-            let queryId = stanza.getChild("result") ? stanza.getChild("result")?.getAttr("queryid") : null;
+            // let queryId2 = stanza.getChild("result") ? stanza.getChild("result")?.getAttr("queryid") : null;
+            let queryId = jsonStanza?.message?.result['$attrs']?.queryid;
             if (!queryId) {
-                if ( stanza?.getChild("fin")) {
+                if ( jsonStanza?.iq?.fin) {
+                //if ( stanza?.getChild("fin")) {
                     that._logger.log(that.INTERNAL, LOG_ID + "(onMamMessageReceived) no queryid found on result, and a \"fin\" found.");
-                    queryId = stanza?.getAttr("id");
+                    /*
+                    let queryId2 = stanza?.getAttr("id");
+                    queryId = jsonStanza?.iq['$attrs']?.id;
+                    that._logger.log(that.INTERNAL, LOG_ID + "(onMamMessageReceived) no queryid found on result, and a \"fin\" found.");
+                    // */
                 } else {
                     queryId = null;
                 }
             }
 
             // jidTel are used for callLog
-            if (queryId && queryId.indexOf("tel_") !== 0 && that.onHistoryMessageReceived) {
-                that.onHistoryMessageReceived(msg, stanza);
+            if (queryId?.indexOf("tel_") !== 0 && that.onHistoryMessageReceived) {
+                that.onHistoryMessageReceived(msg, stanzaTab, queryId);
             }
 
             // jidIm are used for history
@@ -100,15 +106,20 @@ class ConversationHistoryHandler  extends GenericHandler {
 
     }
 
-    async onHistoryMessageReceived (msg, stanza) {
+    async onHistoryMessageReceived (msg, stanzaTab, queryId) {
         let that = this;
         // Handle response
         try {
             let conversation : Conversation = null;
-            that._logger.log(that.INTERNAL, LOG_ID + "(onHistoryMessageReceived) _entering_ : ", msg, "\n", stanza.root ? stanza.root().toString() : stanza);
+            let stanza = stanzaTab[0];
+            let prettyStanza = stanzaTab[1];
+            let jsonStanza = stanzaTab[2];
+
+            that._logger.log(that.INTERNAL, LOG_ID + "(onHistoryMessageReceived) _entering_ : ", msg, "\n", prettyStanza);
+            //that._logger.log(that.INTERNAL, LOG_ID + "(onHistoryMessageReceived) _entering_ : ", msg, "\n", stanza.root ? stanza.root().toString() : stanza);
            // that._logger.log(that.INTERNAL, LOG_ID + "(onHistoryMessageReceived) _entering_ : ", msg, "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
 
-            let queryId = stanza.getChild("result") ? stanza?.getChild("result")?.getAttr("queryid") : null;
+            //let queryId = stanza.getChild("result") ? stanza?.getChild("result")?.getAttr("queryid") : null;
             if (queryId) {
 
                 // Get associated conversation
@@ -117,13 +128,16 @@ class ConversationHistoryHandler  extends GenericHandler {
 
                     // Extract info
                     let stanzaForwarded = stanza.getChild("result")?.getChild("forwarded");
+                    let jsonForwarded = jsonStanza?.message?.result?.forwarded;
                     let stanzaMessage = stanzaForwarded.getChild("message");
+                    let jsonMessage = jsonForwarded?.message;
 
-                    if (stanzaMessage.getChild("call_log")) {
+                    if (jsonMessage?.call_log) {
                         return this.onWebrtcHistoryMessageReceived(stanza, conversation);
                     }
 
-                    let brutJid = stanzaMessage?.getAttr("from");
+                    //let brutJid = stanzaMessage?.getAttr("from");
+                    let brutJid = jsonMessage["$attrs"]?.from;
 
                     // Extract fromJid
                     let fromJid;
@@ -131,15 +145,20 @@ class ConversationHistoryHandler  extends GenericHandler {
                     let bodyEvent = undefined;// <body>Vincent04 Berder04 a rejoint la bulle</body>
                     let subjectEvent = undefined;// <subject>room event</subject>
 
-                    if (brutJid.indexOf("room_") === 0) { fromJid = brutJid.split("/")[1]; }
+                    if (brutJid.indexOf("room_") === 0) {
+                        fromJid = brutJid.split("/")[1];
+                    }
                     else { fromJid = XMPPUTils.getXMPPUtils().getBareJIDFromFullJID(brutJid); }
 
-                        const eventElmt = stanzaMessage.find("event");
+                        //const eventElmt = stanzaMessage.find("event"); //findAllPropInJSONByPropertyName
+                        const eventElmt = findAllPropInJSONByPropertyName(jsonMessage, "event"); //findAllPropInJSONByPropertyName
                         if (Array.isArray(eventElmt)) {
                             eventElmt.forEach((content) => {
                                 if (!fromJid ) {
-                                    roomEvent = content?.attr("name") + "";
-                                    fromJid = content?.attr("jid");
+                                    //roomEvent = content?.attr("name") + "";
+                                    roomEvent = content?.$attrs?.name + "";
+                                    //fromJid = content?.attr("jid");
+                                    fromJid = content?.$attrs?.jid;
 
                                     if (roomEvent === "welcome" && conversation.bubble && conversation.bubble.creator) {
                                         let ownerContact = conversation.bubble.users.find( (user) => conversation.bubble.creator === user.userId )
@@ -152,8 +171,10 @@ class ConversationHistoryHandler  extends GenericHandler {
                         } else {
                             // mention['jid'] = eventElmt.text();
                             if (!fromJid ) {
-                                roomEvent = eventElmt?.attr("name") + "";
-                                fromJid = eventElmt?.attr("jid");
+                                //roomEvent = eventElmt?.attr("name") + "";
+                                roomEvent = eventElmt?.$attrs.name + "";
+                                //fromJid = eventElmt?.attr("jid");
+                                fromJid = eventElmt?.$attrs?.jid;
 
                                 if (roomEvent === "welcome" && conversation.bubble && conversation.bubble.creator) {
                                     let ownerContact = conversation.bubble.users.find( (user) => conversation.bubble.creator === user.userId )
@@ -193,14 +214,21 @@ class ConversationHistoryHandler  extends GenericHandler {
                             resolve(null);
                         });
                     }).then( async (from : any ) => {
-                        let type = stanzaMessage?.getAttr("type");
-                        let messageId = stanzaMessage?.getAttr("id");
-                        let date = new Date(stanzaForwarded?.getChild("delay")?.getAttr("stamp"));
-                        let body = stanzaMessage?.getChild("body")?.text();
-                        let ack = stanzaMessage?.getChild("ack");
-                        let oobElmt = stanzaMessage?.getChild("x", "jabber:x:oob");
-                        let conference = stanzaMessage?.getChild("x", "jabber:x:audioconference");
-                        let content = stanzaMessage?.getChild("content", "urn:xmpp:content");
+                        //let type = stanzaMessage?.getAttr("type");
+                        let type = jsonMessage?.$attrs?.type;
+                        //let messageId = stanzaMessage?.getAttr("id");
+                        let messageId = jsonMessage?.$attrs?.id;
+                        //let date = new Date(stanzaForwarded?.getChild("delay")?.getAttr("stamp"));
+                        let date = new Date(jsonForwarded?.delay?.$attrs?.stamp);
+                        let body = jsonMessage?.body._;
+                        //let body = stanzaMessage?.getChild("body")?.text();
+                        //let ack = stanzaMessage?.getChild("ack");
+                        let ack = jsonMessage?.ack;
+                        let oobElmt = findAllPropInJSONByPropertyNameByXmlNS(jsonMessage, "x", "jabber:x:oob") ; //? jsonMessage?.x //: undefined; // stanzaMessage?.getChild("x", "jabber:x:oob");
+                        //let oobElmt = stanzaMessage?.getChild("x", "jabber:x:oob");
+                        let conference =  findAllPropInJSONByPropertyNameByXmlNS(jsonMessage, "x", "jabber:x:audioconference") ;//stanzaMessage?.getChild("x", "jabber:x:audioconference");
+                        //let content = stanzaMessage?.getChild("content", "urn:xmpp:content");
+                        let content =   findAllPropInJSONByPropertyNameByXmlNS(jsonMessage, "x", "urn:xmpp:content") ; // stanzaMessage?.getChild("content", "urn:xmpp:content");
                         let answeredMsg: Message ;
                         let answeredMsgId: string;
                         let answeredMsgDate: string;
@@ -230,9 +258,12 @@ class ConversationHistoryHandler  extends GenericHandler {
 
 
                         that._logger.log(that.DEBUG, LOG_ID + "(onHistoryMessageReceived) message - before treat answeredMsg.");
-                        if (stanzaMessage?.getChild( "answeredMsg")) {
-                            answeredMsgId = stanzaMessage?.getChild("answeredMsg")?.text();
-                            answeredMsgStamp = stanzaMessage?.getChild("answeredMsg")?.getAttr("stamp");
+                        if (jsonMessage?.answeredMsg) {
+                        //if (stanzaMessage?.getChild( "answeredMsg")) {
+                            // answeredMsgId = stanzaMessage?.getChild("answeredMsg")?.text();
+                            answeredMsgId = jsonMessage?.answeredMsg?._;
+                            //answeredMsgStamp = stanzaMessage?.getChild("answeredMsg")?.getAttr("stamp");
+                            answeredMsgStamp = jsonMessage?.answeredMsg?.$attrs?.stamp;
                             answeredMsgDate = answeredMsgStamp ? new Date(parseInt(answeredMsgStamp)).toISOString() : undefined;
 
                             that._logger.log(that.DEBUG, LOG_ID + "(onHistoryMessageReceived) message - answeredMsgId : ", answeredMsgId, ", answeredMsgStamp : ", answeredMsgStamp, ", answeredMsgDate : ", answeredMsgDate);
@@ -306,19 +337,24 @@ class ConversationHistoryHandler  extends GenericHandler {
                                         that._logger.log(that.INTERNAL, LOG_ID + "(onChatMessageReceived) message - forwardedMsg : ", forwardedMsg);
                                     } // */
 
-                                    bodyEvent = stanzaMessage.find("body")?.text();// <body>Vincent04 Berder04 a rejoint la bulle</body>
-                                    subjectEvent = stanzaMessage.find("subject")?.text();// <subject>room event</subject>
+                                    bodyEvent = jsonMessage?.body?._;// <body>Vincent04 Berder04 a rejoint la bulle</body>
+                                    //bodyEvent = stanzaMessage.find("body")?.text();// <body>Vincent04 Berder04 a rejoint la bulle</body>
+                                    //subjectEvent = stanzaMessage.find("subject")?.text();// <subject>room event</subject>
+                                    subjectEvent = jsonMessage?.subject?._;// <subject>room event</subject>
 
                                     message = Message.createBubbleAdminMessage(messageId, date, from, roomEvent, bodyEvent, subjectEvent);
-                                    let eventElmt2 = stanzaMessage.find("event");
+                                    let eventElmt2 = findAllPropInJSONByPropertyName(jsonMessage,"event");
+                                    //let eventElmt2 = stanzaMessage.find("event");
                                     if (eventElmt2?.length > 0) {
                                         if (Array.isArray(eventElmt2)) {
                                             eventElmt2.forEach((content) => {
-                                                message.event = content?.attr("name") + "";
+                                                //message.event = content?.attr("name") + "";
+                                                message.event = content?.$attrs?.name + "";
                                                 //  that._logger.log(that.DEBUG, LOG_ID + "(onHistoryMessageReceived) message - event, roomEvent : ", roomEvent, ", fromJid  : ", fromJid );
                                             });
                                         } else {
-                                            message.event = eventElmt2?.attr("name") + "";
+                                            //message.event = eventElmt2?.attr("name") + "";
+                                            message.event = eventElmt2?.$attrs?.name + "";
                                             //that._logger.log(that.DEBUG, LOG_ID + "(onHistoryMessageReceived) message - event, roomEvent : ", roomEvent, ", fromJid  : ", fromJid );
                                         }
                                         message.isEvent = true;
@@ -351,12 +387,14 @@ class ConversationHistoryHandler  extends GenericHandler {
                                           message = Message.createFileSharingMessage(messageId, date, from, side, body, false, shortFileDescriptor);
   
                                       } else {*/
-                                    let isMarkdown = content && content?.getAttr("type")==="text/markdown";
-                                    body = isMarkdown ? content?.text():body;
-                                    subject = stanzaMessage.find("subject")?.text();
-                                    attention = stanzaMessage.find("attention")?.text()==="true" ? true:false;
+                                    let isMarkdown = content && content?.$attrs?.type==="text/markdown";
+                                    body = isMarkdown ? content?._:body;
+                                    //subject = stanzaMessage.find("subject")?.text();
+                                    subject = jsonMessage.subject?._;
+                                    //attention = stanzaMessage.find("attention")?.text()==="true" ? true:false;
+                                    attention = stanzaMessage.attention?._==="true" ? true:false;
 
-                                    const headersElem = stanzaMessage.find("headers");
+                                    const headersElem = stanzaMessage.find("headers"); // findAllPropInJSONByPropertyName
                                     if (headersElem && headersElem.length > 0) {
                                         if ( Array.isArray(headersElem) ) {
                                             for (let i = 0; i <headersElem.length ; i++) {
@@ -390,25 +428,27 @@ class ConversationHistoryHandler  extends GenericHandler {
                                         urgencyAck = true;
                                     }
 
-                                    let attachTo = stanzaMessage.find("attach-to");
-                                    if (attachTo && attachTo.length > 0 && attachTo.attrs.xmlns==="urn:xmpp:message-attaching:1") {
+                                    //let attachTo = stanzaMessage.find("attach-to");
+                                    let attachTo = jsonMessage["attach-to"];
+                                    if (attachTo && attachTo?.length > 0 && attachTo?.$attrs?.xmlns==="urn:xmpp:message-attaching:1") {
                                         attachedMsgId = attachTo?.attrs?.id;
                                     } else {
                                         that._logger.log(that.WARN, LOG_ID + "(onHistoryMessageReceived) message - unknown attachedMsgId : ", attachedMsgId);
                                     }
 
-                                    resource = xu.getResourceFromFullJID(stanzaMessage?.attrs?.from);
-                                    toJid = stanzaMessage?.attrs?.to;
+                                    resource = xu.getResourceFromFullJID(jsonMessage?.$attrs?.from);
+                                    toJid = jsonMessage?.$attrs?.to;
 
-                                    if (stanzaMessage?.attrs["xml:lang"]) { // in <body>
-                                        lang = stanzaMessage?.attrs["xml:lang"];
+                                    if (jsonMessage?.$attrs["xml:lang"]) { // in <body>
+                                        lang = jsonMessage?.$attrs["xml:lang"];
                                     } /*else if (content.parent.attrs["xml:lang"]) { // in <message>
                                         lang = content.parent.attrs["xml:lang"];
                                     }*/ else {
                                         lang = "en";
                                     }
                                     that._logger.log(that.DEBUG, LOG_ID + "(onHistoryMessageReceived) message - lang : ", lang);
-                                    let eventElmt = stanzaMessage.find("event");
+                                    //let eventElmt = stanzaMessage.find("event");
+                                    let eventElmt = findAllPropInJSONByPropertyName(jsonMessage, "event");
                                     if (eventElmt?.length > 0) {
                                         event = eventElmt?.attrs?.name;
                                         eventJid = eventElmt?.attrs?.jid;
@@ -416,13 +456,13 @@ class ConversationHistoryHandler  extends GenericHandler {
                                     }
 
                                     if (oobElmt) {
-                                        attachIndex = oobElmt?.attrs?.index;
-                                        attachNumber = oobElmt?.attrs?.count;
+                                        attachIndex = oobElmt?.$attrs?.index;
+                                        attachNumber = oobElmt?.$attrs?.count;
                                         oob = {
-                                            url: oobElmt.getChild("url")?.getText(),
-                                            mime: oobElmt.getChild("mime")?.getText(),
-                                            filename: oobElmt.getChild("filename")?.getText(),
-                                            filesize: oobElmt.getChild("size")?.getText()
+                                            url: oobElmt?.url?._,
+                                            mime: oobElmt?.mime?._,
+                                            filename: oobElmt?.filename?._,
+                                            filesize: oobElmt?.size?._
                                         };
                                         if (body == oob?.filename) {
                                             isFileAttachment = true;
@@ -433,19 +473,20 @@ class ConversationHistoryHandler  extends GenericHandler {
 
                                     let fromBubbleJid = "";
                                     let fromBubbleUserJid = "";
-                                    if (stanza?.attrs?.type===TYPE_GROUPCHAT) {
-                                        fromBubbleJid = xu.getBareJIDFromFullJID(stanza?.attrs?.from);
-                                        fromBubbleUserJid = xu.getResourceFromFullJID(stanza?.attrs?.from);
+                                    if (jsonStanza?.$attrs?.type===TYPE_GROUPCHAT) {
+                                        fromBubbleJid = xu.getBareJIDFromFullJID(jsonStanza?.$attrs?.from);
+                                        fromBubbleUserJid = xu.getResourceFromFullJID(jsonStanza?.$attrs?.from);
                                         resource = xu.getResourceFromFullJID(fromBubbleUserJid);
                                     }
 
                                     let outgoingMessage = that._contactsService.isUserContactJid(fromJid);
-                                    let conversationId = outgoingMessage ? toJid:(stanza?.attrs?.type===TYPE_GROUPCHAT ? fromBubbleJid:fromJid);
+                                    let conversationId = outgoingMessage ? toJid:(jsonStanza?.$attrs?.type===TYPE_GROUPCHAT ? fromBubbleJid:fromJid);
 
-                                    let replaceElmt = stanzaMessage.find("replace");
+                                    //let replaceElmt = stanzaMessage.find("replace"); //findAllPropInJSONByPropertyName
+                                    let replaceElmt = findAllPropInJSONByPropertyName(jsonMessage, "replace");
                                     if (replaceElmt.length > 0) {
 
-                                        let replaceMessageId = replaceElmt?.attrs?.id;
+                                        let replaceMessageId = replaceElmt?.$attrs?.id;
 
                                         if (replaceMessageId) {
                                             //data.replaceMessageId = replaceMessageId;
@@ -461,38 +502,42 @@ class ConversationHistoryHandler  extends GenericHandler {
                                         }
                                     }
 
-                                    let forwardedElmt = stanzaMessage.find("forwarded");
-                                    if (forwardedElmt && forwardedElmt.length > 0 && forwardedElmt?.attrs?.xmlns === "urn:xmpp:forward:0") {
+                                    //let forwardedElmt = stanzaMessage.find("forwarded");
+                                    let forwardedElmt = findAllPropInJSONByPropertyName(jsonMessage, "forwarded");
+                                    if (forwardedElmt && forwardedElmt.length > 0 && forwardedElmt?.$attrs?.xmlns === "urn:xmpp:forward:0") {
                                         isForwarded = true;
-                                        let msg = forwardedElmt.getChild("message");
+                                        let msg = forwardedElmt?.message;
                                         forwardedMsg = {
-                                            "origMsgId" : msg?.attrs?.id,
-                                            "fromJid": msg?.attrs?.from,
-                                            "to" : msg?.attrs?.to,
-                                            "type" : msg?.attrs?.type,
-                                            "body" : msg.getChild("body")?.text(),
-                                            "lang" : msg.getChild("body")?.attrs["xml:lang"]
+                                            "origMsgId" : msg?.$attrs?.id,
+                                            "fromJid": msg?.$attrs?.from,
+                                            "to" : msg?.$attrs?.to,
+                                            "type" : msg?.$attrs?.type,
+                                            "body" : msg?.body?._,
+                                            "lang" : msg?.body?.$attrs["xml:lang"]
                                         };                                        
                                         that._logger.log(that.INTERNAL, LOG_ID + "(onChatMessageReceived) message - forwardedMsg : ", forwardedMsg);
                                     }
 
-                                    deletedMsg = stanzaMessage.find("delete").length > 0 ||  stanzaMessage.find("deleted").length > 0;
+                                    //deletedMsg = stanzaMessage.find("delete").length > 0 ||  stanzaMessage.find("deleted").length > 0;
+                                    deletedMsg = findAllPropInJSONByPropertyName(jsonMessage, "delete").length > 0 || findAllPropInJSONByPropertyName(jsonMessage, "deleted").length > 0;
                                     that._logger.log(that.INTERNAL, LOG_ID + "(onChatMessageReceived) message - deletedMsg : ", deletedMsg);
-                                    modifiedMsg = stanzaMessage.find("modify").length > 0 || stanzaMessage.find("modified").length > 0;
+                                    //modifiedMsg = stanzaMessage.find("modify").length > 0 || stanzaMessage.find("modified").length > 0;
+                                    modifiedMsg = findAllPropInJSONByPropertyName(jsonMessage, "modify").length > 0 || findAllPropInJSONByPropertyName(jsonMessage, "modified").length > 0;
                                     that._logger.log(that.INTERNAL, LOG_ID + "(onChatMessageReceived) message - modifiedMsg : ", modifiedMsg);
                                         
-                                    let mentionElmt = stanzaMessage.find("mention");
+                                    //let mentionElmt = stanzaMessage.find("mention");
+                                    let mentionElmt = findAllPropInJSONByPropertyName(jsonMessage, "mention");
                                     // stanzaData.mentions = [];
                                         
                                     if (mentionElmt.length > 0) {
-                                        const mentionJidElem = mentionElmt.find("jid");
+                                        const mentionJidElem = findAllPropInJSONByPropertyName(mentionElmt, "jid");
                                         if (Array.isArray(mentionJidElem)) {
                                             mentionJidElem.forEach((content) => {
 
                                                 const mention = {};
-                                                mention['jid'] = content?.text();
-                                                mention['pos'] = parseInt(content?.attr("pos"), 10);
-                                                mention['size'] = parseInt(content?.attr("size"), 10);
+                                                mention['jid'] = content?._;
+                                                mention['pos'] = parseInt(content?.$attrs?.pos, 10);
+                                                mention['size'] = parseInt(content?.$attr?.size, 10);
 
                                                 if (mention['jid'] && mention['size']) {
                                                     mentions.push(mention);
@@ -505,9 +550,9 @@ class ConversationHistoryHandler  extends GenericHandler {
                                             });
                                         } else {
                                             const mention = {};
-                                            mention['jid'] = mentionJidElem?.text();
-                                            mention['pos'] = parseInt(mentionJidElem?.attr("pos"), 10);
-                                            mention['size'] = parseInt(mentionJidElem?.attr("size"), 10);
+                                            mention['jid'] = mentionJidElem?._;
+                                            mention['pos'] = parseInt(mentionJidElem?.$attrs?.pos, 10);
+                                            mention['size'] = parseInt(mentionJidElem?.$attrs?.size, 10);
 
                                             if (mention['jid'] && mention['size']) {
                                                 mentions.push(mention);
@@ -606,7 +651,8 @@ class ConversationHistoryHandler  extends GenericHandler {
                                     break;
                             }
                             // console.error("message "+ JSON.stringify(message.date));
-                            message.receiptStatus = ack?.getAttr("read") === "true" ? 5 : (ack?.getAttr("received") === "true" ? 4 : 3);
+                            //message.receiptStatus = ack?.getAttr("read") === "true" ? 5 : (ack?.getAttr("received") === "true" ? 4 : 3);
+                            message.receiptStatus = ack?.$attrs?.read === "true" ? 5 : (ack?.$attrs?.received === "true" ? 4 : 3);
 
                             // if (conversation.bubble) {
                             //  message.receiptStatus = 3;

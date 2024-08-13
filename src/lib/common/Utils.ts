@@ -720,6 +720,41 @@ async function getJsonFromXML(xml : string) {
     }
 }
 
+type JsonObject = { [key: string]: any };
+
+function findAllPropInJSONByPropertyName(obj: JsonObject, propertyName: string, maxDepth: number = 10, cond : (key, value) => {} = null): any[] | any {
+    let results: any[] = [];
+
+    function search(obj: JsonObject, currentDepth: number) {
+        if (currentDepth > maxDepth) {
+            return;
+        }
+
+        for (let key in obj) {
+            if (obj.hasOwnProperty(key)) {
+                if (key === propertyName && ( !cond || ( cond && cond(key, obj[key]) ) ) ) {
+                    results.push(obj[key]);
+                }
+                if (typeof obj[key] === 'object' && obj[key] !== null) {
+                    search(obj[key], currentDepth + 1);
+                }
+            }
+        }
+    }
+
+    search(obj, 0);
+    if (results.length === 1) {
+        results[0].length = 1;
+        return results[0];
+    }
+    return results;
+}
+
+function findAllPropInJSONByPropertyNameByXmlNS(obj: JsonObject, propertyName: string, xmlNsStr : string,  maxDepth: number = 10 ){
+    let result = findAllPropInJSONByPropertyName(obj, propertyName, maxDepth, (key, value) => { return value?.$attrs?.xmlns === xmlNsStr; }) ;
+    return result.length === 0 ? undefined : result;
+}
+
 function randomString(length, chars) {
     let result = "";
     for (let i = length; i > 0; --i) {
@@ -886,6 +921,8 @@ export let objToExport = {
     addPropertyToObj,
     generateRamdomEmail,
     getJsonFromXML,
+    findAllPropInJSONByPropertyName,
+    findAllPropInJSONByPropertyNameByXmlNS,
     callerName,
     functionName,
     functionSignature,
@@ -929,6 +966,8 @@ export {
     addPropertyToObj,
     generateRamdomEmail,
     getJsonFromXML,
+    findAllPropInJSONByPropertyName,
+    findAllPropInJSONByPropertyNameByXmlNS,
     callerName,
     functionName,
     functionSignature,
@@ -971,6 +1010,8 @@ export default {
     addPropertyToObj,
     generateRamdomEmail,
     getJsonFromXML,
+    findAllPropInJSONByPropertyName,
+    findAllPropInJSONByPropertyNameByXmlNS,
     callerName,
     functionName,
     functionSignature,

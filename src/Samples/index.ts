@@ -628,7 +628,7 @@ let urlS2S;
             "sendReadReceipt": true,
 //            "messageMaxLength": 1024,
             "sendMessageToConnectedUser": false,
-            "conversationsRetrievedFormat": "small",
+            "conversationsRetrievedFormat": "full",
             "storeMessages": false,
             "copyMessage": true,
             "nbMaxConversations": 15,
@@ -6138,7 +6138,7 @@ let urlS2S;
 
             for (const bubble of bubbles) {
                 //if (bubble.name.indexOf("testBubbleEvents")!= -1) {
-                //if (bubble.name.indexOf("bulleDeTest")!= -1) {
+               // if (bubble.name.indexOf("bulleDeTest")!= -1) {
                 if (bubble.name.indexOf("testBotName_2024/02/09T10:35:36.732ZGuestUser")!= -1) {
                     _logger.log("debug", "MAIN - testloadConversationHistoryAsyncBubbleTestBotName_2024 Found bubble.name : ", bubble.name, ", bubble.isActive : ", bubble.isActive);
                   that.testloadConversationHistoryAsyncBubbleByJid(bubble.jid).then((res) => {
