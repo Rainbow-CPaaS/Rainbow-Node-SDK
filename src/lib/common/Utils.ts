@@ -9,6 +9,7 @@ import src from "../../index.js";
 
 const config = require ("../config/config");
 import {atob} from "atob";
+import {isArray, isObject} from "node:util";
 const Jimp = require('jimp');
 const dns = require('dns')
 const utilTypes = require('util').types
@@ -649,6 +650,11 @@ function isPromise (x) {
     //return Object(x).constructor===Promise;
 }
 
+// Function to test if variable is a string
+function isString(variable) {
+    return typeof variable === "string";
+}
+
 const resolveDns = (cname) => {
     return new Promise(function (resolve, reject ) {
         const getIp = (accum) => {
@@ -720,9 +726,13 @@ async function getJsonFromXML(xml : string) {
     }
 }
 
+function getTextFromJSONProperty(property){
+    return isObject(property)?property?._: (isString(property)?property:property) ;
+}
+
 type JsonObject = { [key: string]: any };
 
-function findAllPropInJSONByPropertyName(obj: JsonObject, propertyName: string, maxDepth: number = 10, cond : (key, value) => {} = null): any[] | any {
+function findAllPropInJSONByPropertyName(obj: JsonObject, propertyName: string, maxDepth: number = 10, cond : (key, value, tabToSaveObjFound) => void = null): any[] | any {
     let results: any[] = [];
 
     function search(obj: JsonObject, currentDepth: number) {
@@ -732,8 +742,18 @@ function findAllPropInJSONByPropertyName(obj: JsonObject, propertyName: string, 
 
         for (let key in obj) {
             if (obj.hasOwnProperty(key)) {
-                if (key === propertyName && ( !cond || ( cond && cond(key, obj[key]) ) ) ) {
-                    results.push(obj[key]);
+                //if (key === propertyName && ( !cond || ( cond && cond(key, obj[key]) ) ) ) {
+                if (key === propertyName) {
+                    if (!cond) {
+                        results.push(obj[key]);
+                    } else {
+                        cond(key, obj[key], results);
+                        /* if (Array.isArray(obj[key])) {
+
+                        } else {
+                            cond(key, obj[key])
+                        } // */
+                    }
                 }
                 if (typeof obj[key] === 'object' && obj[key] !== null) {
                     search(obj[key], currentDepth + 1);
@@ -751,8 +771,33 @@ function findAllPropInJSONByPropertyName(obj: JsonObject, propertyName: string, 
 }
 
 function findAllPropInJSONByPropertyNameByXmlNS(obj: JsonObject, propertyName: string, xmlNsStr : string,  maxDepth: number = 10 ){
-    let result = findAllPropInJSONByPropertyName(obj, propertyName, maxDepth, (key, value) => { return value?.$attrs?.xmlns === xmlNsStr; }) ;
+    let result = findAllPropInJSONByPropertyName(obj, propertyName, maxDepth, (key, value, tabToSaveObjFound) => {
+        let isFound = false;
+        if (Array.isArray(value)){
+                value.forEach((valueElmtItem) => {
+                    if (valueElmtItem?.$attrs?.xmlns === xmlNsStr) {
+                        tabToSaveObjFound.push(valueElmtItem);
+                    }
+               //     isFound = isFound || (valueElmtItem?.$attrs?.xmlns === xmlNsStr);
+                });
+            //return isFound;
+        } else {
+            if (value?.$attrs?.xmlns === xmlNsStr) {
+                tabToSaveObjFound.push(value);
+            }
+             //isFound = value?.$attrs?.xmlns === xmlNsStr;
+            //return isFound;
+        }
+    }) ;
     return result.length === 0 ? undefined : result;
+}
+
+function safeJsonParse(str) {
+    try {
+        return [null, JSON.parse(str)];
+    } catch (err) {
+        return [err];
+    }
 }
 
 function randomString(length, chars) {
@@ -897,6 +942,7 @@ export let objToExport = {
     isNullOrEmpty,
     isDefined,
     isNumber,
+    isString,
     Deferred,
     isSuperAdmin,
     setTimeoutPromised,
@@ -921,6 +967,7 @@ export let objToExport = {
     addPropertyToObj,
     generateRamdomEmail,
     getJsonFromXML,
+    getTextFromJSONProperty,
     findAllPropInJSONByPropertyName,
     findAllPropInJSONByPropertyNameByXmlNS,
     callerName,
@@ -929,7 +976,8 @@ export let objToExport = {
     traceExecutionTime,
     msToTime,
     flattenObject,
-    formattStringOnNbChars
+    formattStringOnNbChars,
+    safeJsonParse
 };
 
 module.exports = objToExport;
@@ -942,6 +990,7 @@ export {
     isNullOrEmpty,
     isDefined,
     isNumber,
+    isString,
     Deferred,
     isSuperAdmin,
     setTimeoutPromised,
@@ -966,6 +1015,7 @@ export {
     addPropertyToObj,
     generateRamdomEmail,
     getJsonFromXML,
+    getTextFromJSONProperty,
     findAllPropInJSONByPropertyName,
     findAllPropInJSONByPropertyNameByXmlNS,
     callerName,
@@ -974,7 +1024,8 @@ export {
     traceExecutionTime,
     msToTime,
     flattenObject,
-    formattStringOnNbChars
+    formattStringOnNbChars,
+    safeJsonParse
 };
 
 export default {
@@ -986,6 +1037,7 @@ export default {
     isNullOrEmpty,
     isDefined,
     isNumber,
+    isString,
     Deferred,
     isSuperAdmin,
     setTimeoutPromised,
@@ -1010,6 +1062,7 @@ export default {
     addPropertyToObj,
     generateRamdomEmail,
     getJsonFromXML,
+    getTextFromJSONProperty,
     findAllPropInJSONByPropertyName,
     findAllPropInJSONByPropertyNameByXmlNS,
     callerName,
@@ -1018,5 +1071,6 @@ export default {
     traceExecutionTime,
     msToTime,
     flattenObject,
-    formattStringOnNbChars
+    formattStringOnNbChars,
+    safeJsonParse
 };

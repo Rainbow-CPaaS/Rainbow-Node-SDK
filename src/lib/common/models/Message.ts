@@ -3,6 +3,7 @@ import {GeoLoc} from "./GeoLoc";
 import {stringify} from "querystring";
 import {xu} from "../XMPPUtils";
 import {Conversation} from "./Conversation";
+import {isDefined} from "../Utils.js";
 
 export {};
 
@@ -375,7 +376,7 @@ class Message {
          * @property {Boolean} isEvent True if the message is an event (a specific admin message in Bubble - should not be considered as text message)
          * @instance
          */
-        this.isEvent = false;
+        this.isEvent = isDefined(isEvent)?isEvent:false;
 
         /**
          * @public
@@ -383,7 +384,7 @@ class Message {
          * @property {string} event Contains the name of the event (only filled if isEvent=true)
          * @instance
          */
-        this.event = "";
+        this.event = event?event:"";
 
         /**
          * @public
@@ -731,10 +732,11 @@ class Message {
      * @instance
      */
     static createBubbleAdminMessage(id, date, from, type, body, subject) {
-        let data = type + "MsgRoom";
+        let event = type;
+        let isEvent = isDefined(event)?true:false;
         let side = Message.Side.ADMIN;
         //let message = Message.create(id, date, from, side, data, false);
-        let message = Message.MessageFactory()({id, date, from, side, data, status: false, content:body, subject});
+        let message = Message.MessageFactory()({id, date, from, side, event, status: false, content:body, subject, isEvent});
 
         return message;
     }
@@ -887,6 +889,22 @@ class Message {
                             }
                         }
                     });
+                    // */
+                /*
+                const propertyNames = Object.getOwnPropertyNames(data);
+
+                for (let idx = 0; idx < propertyNames.length; idx++) {
+                    const val = propertyNames[idx];
+
+                    const propertyExists = messageproperties.find((el) => val === el);
+
+                    if (!propertyExists) {
+                        if (val !== "from" && val !== "data") {
+                            console.log("WARNING : One property of the parameter of MessageFactory method is not present in the Message class : ", val);
+                        }
+                    }
+                }
+                // */
             }
 
             return message;

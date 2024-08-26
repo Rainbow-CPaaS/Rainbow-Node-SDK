@@ -28,6 +28,7 @@ import {PresenceService} from "./PresenceService";
 import {Message} from "../common/models/Message";
 import {Bubble} from "../common/models/Bubble";
 import {GenericService} from "./GenericService";
+import {use} from "chai";
 
 const LOG_ID = "CONVERSATIONS/SVCE - ";
 const API_ID = "API_CALL - ";
@@ -218,7 +219,9 @@ class ConversationsService extends GenericService {
         that._conversationHistoryHandler = new ConversationHistoryHandler(that._xmpp, that, that._contactsService, that._options);
         that._conversationHistoryHandlerToken = [
             PubSub.subscribe( that._xmpp.hash + "." + that._conversationHistoryHandler.MESSAGE_MAM, that._conversationHistoryHandler.onMamMessageReceived.bind(that._conversationHistoryHandler)),
-            PubSub.subscribe( that._xmpp.hash + "." + that._conversationHistoryHandler.FIN_MAM, that._conversationHistoryHandler.onMamMessageReceived.bind(that._conversationHistoryHandler))
+            PubSub.subscribe( that._xmpp.hash + "." + that._conversationHistoryHandler.FIN_MAM, that._conversationHistoryHandler.onMamMessageReceived.bind(that._conversationHistoryHandler)),
+            PubSub.subscribe( that._xmpp.hash + "." + that._conversationHistoryHandler.MESSAGE_MAM_BULK, that._conversationHistoryHandler.onMamMessageReceived.bind(that._conversationHistoryHandler)),
+            PubSub.subscribe( that._xmpp.hash + "." + that._conversationHistoryHandler.FIN_MAM_BULK, that._conversationHistoryHandler.onMamMessageReceived.bind(that._conversationHistoryHandler)),
         ];
     }
 
@@ -450,12 +453,13 @@ class ConversationsService extends GenericService {
      *    Retrieve the remote history of a specific conversation. <br>
      * @param {Conversation} conversation Conversation to retrieve
      * @param {number} size Maximum number of element to retrieve
+     * @param {boolean} useBulk Does the history should be retrieved with a bulk (group) of messages
      * @async
      * @return {Promise<Conversation[]>}
      * @fulfil {Conversation[]} - Array of Conversation object
      * @category async
      */
-    async getHistoryPage(conversation : Conversation, size: number = 30) {
+    async getHistoryPage(conversation : Conversation, size: number = 30, useBulk: boolean = false) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getHistoryPage) conversation.id : ", conversation?.id);
 
@@ -494,7 +498,8 @@ class ConversationsService extends GenericService {
             "queryid": conversation.id,
             "with": conversation.id,
             "max": size,
-            "before": ""
+            "before": "",
+            "useBulk": useBulk
         };
 
         if (conversation.historyIndex !== -1) {
@@ -509,7 +514,8 @@ class ConversationsService extends GenericService {
                 "queryid": conversation.id,
                 "with": that._xmpp.jid_im,
                 "max": size,
-                "before": ""
+                "before": "",
+                "useBulk": useBulk
             };
 
             if (conversation.historyIndex !== -1) {
@@ -534,13 +540,14 @@ class ConversationsService extends GenericService {
      * @description
      *    Retrieve the remote history of a specific conversation. <br>
      * @param {Conversation} conversation Conversation to retrieve
-     * @param {string} pageSize number of message in each page to retrieve messages. 
+     * @param {string} pageSize number of message in each page to retrieve messages.
+     * @param {boolean} useBulk Does the history should be retrieved with a bulk (group) of messages
      * @async
      * @return {Promise<Conversation[]>}
      * @fulfil {Conversation[]} - Array of Conversation object
      * @category async
      */
-    loadConversationHistory(conversation, pageSize : number = 30) {
+    loadConversationHistory(conversation, pageSize : number = 30, useBulk : boolean = false) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(loadConversationHistory) conversation.id : ", conversation?.id);
         that.resetHistoryPageForConversation(conversation);
@@ -558,13 +565,13 @@ class ConversationsService extends GenericService {
         }
         // */
 
-        async function getConversationHistory(conversation: Conversation, pageSize: number): Promise<Conversation> {
+        async function getConversationHistory(conversation: Conversation, pageSize: number, useBulk2: boolean): Promise<Conversation> {
 
             let currentConversation = conversation;
             while (! currentConversation.historyComplete) {
                 that._logger.log("debug", "(loadConversationHistory) - getConversationHistory");
 
-                await that.getHistoryPage(currentConversation, pageSize).then((conversationUpdated) => {
+                await that.getHistoryPage(currentConversation, pageSize, useBulk2).then((conversationUpdated) => {
                     that._logger.log("debug", "(loadConversationHistory) - getConversationHistory getHistoryPage completed");
                     currentConversation = conversationUpdated;
                 }).catch((err) => {
@@ -575,7 +582,7 @@ class ConversationsService extends GenericService {
             return Promise.resolve(currentConversation);
         }
 
-        return getConversationHistory(conversation, pageSize);
+        return getConversationHistory(conversation, pageSize, useBulk);
     }
 
     /**
@@ -589,15 +596,16 @@ class ConversationsService extends GenericService {
      *    </br>The result of the loading process is sent with the event `rainbow_onloadConversationHistoryCompleted`<br>
      * @param {Conversation} conversation Conversation to retrieve
      * @param {string} pageSize number of message in each page to retrieve messages.
+     * @param {boolean} useBulk Does the history should be retrieved with a bulk (group) of messages
      * @async
      * @return {Promise<{code:number,label:string}>}
      * @category async
      */
-    loadConversationHistoryAsync(conversation: Conversation, pageSize: number = 30): Promise<{code:number,label:string}> {
+    loadConversationHistoryAsync(conversation: Conversation, pageSize: number = 30, useBulk : boolean = false): Promise<{code:number,label:string}> {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(loadConversationHistoryAsync) conversation.id : ", conversation?.id);
         that.resetHistoryPageForConversation(conversation);
-        that.loadConversationHistory(conversation, pageSize).then((conversationUpdated: any) => {
+        that.loadConversationHistory(conversation, pageSize, useBulk).then((conversationUpdated: any) => {
             that._logger.log(that.DEBUG, "(loadConversationHistoryAsync) loadConversationHistory done.");
             //that._logger.log(that.INTERNAL, "(loadConversationHistoryAsync) loadConversationHistory conversationUpdated : ", conversationUpdated);
             return conversationUpdated;
@@ -621,13 +629,14 @@ class ConversationsService extends GenericService {
      * @description
      *    Retrieve the remote history of a specific conversation. <br>
      * @param {Conversation} conversation Conversation to retrieve
-     * @param {string} pageSize number of message in each page to retrieve messages. 
+     * @param {string} pageSize number of message in each page to retrieve messages.
+     * @param {boolean} useBulk Does the history should be retrieved with a bulk (group) of messages
      * @async
      * @return {Promise<Conversation[]>}
      * @fulfil {Conversation[]} - Array of Conversation object
      * @category async
      */
-    loadEveryConversationsHistory( pageSize : number = 30) {
+    loadEveryConversationsHistory( pageSize : number = 30, useBulk :boolean = true) {
         let that = this;
         let nbConversations = that.conversations?that.conversations.length:0 ;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(loadEveryConversationsHistory) .");
@@ -639,7 +648,7 @@ class ConversationsService extends GenericService {
                     //logger.log("debug", "MAIN - testloadConversationHistory - openConversationForContact, conversation : ", conversation);
                     let conversationOpenned = conversation;
                     that._logger.log(that.DEBUG, "MAIN - testloadConversationHistory - openConversationForContact, conversation.messages.length : ", conversationOpenned.messages.length);
-                    that.loadConversationHistory(conversationOpenned, pageSize).then((conversationLoadedHistory) => {
+                    that.loadConversationHistory(conversationOpenned, pageSize, useBulk).then((conversationLoadedHistory) => {
                         that._logger.log(that.DEBUG, "(loadEveryConversationsHistory) loadConversationHistory result : ", conversationLoadedHistory.messages.length);
                     }, (err) => {
                         that._logger.log(that.DEBUG, "(loadEveryConversationsHistory) loadConversationHistory error : ", err);
@@ -765,10 +774,11 @@ class ConversationsService extends GenericService {
      * @description
      *    To retrieve messages exchanged by contacts in a conversation. The result is the messages without event type. <br>
      * @param {string} conversationId : Id of the conversation
+     * @param {boolean} useBulk Does the history should be retrieved with a bulk (group) of messages
      * @async
      * @return {Promise<any>}
      */
-    async getContactsMessagesFromConversationId(conversationId:string) : Promise<Message> {
+    async getContactsMessagesFromConversationId(conversationId:string, useBulk : boolean = false) : Promise<Message> {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getContactsMessagesFromConversationId) conversationId : ", conversationId);
 
@@ -790,7 +800,7 @@ class ConversationsService extends GenericService {
 
         if (conversation.historyComplete == false) {
             that._logger.log(that.INFO, LOG_ID + "(getContactsMessagesFromConversationId) 'conversation.messages' empty, load the history !");
-            await that.loadConversationHistory(conversation);
+            await that.loadConversationHistory(conversation, 50, useBulk);
             if (!conversation.messages) {
                 that._logger.log(that.WARN, LOG_ID + "(getContactsMessagesFromConversationId) after load history 'conversation.messages' undefined!");
                 return null;

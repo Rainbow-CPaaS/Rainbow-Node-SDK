@@ -13,7 +13,15 @@ import {
     until,
     getRandomInt,
     addPropertyToObj,
-    generateRamdomEmail, functionName, makeId, Deferred, msToTime, flattenObject, getJsonFromXML
+    generateRamdomEmail,
+    functionName,
+    makeId,
+    Deferred,
+    msToTime,
+    flattenObject,
+    getJsonFromXML,
+    isString,
+    findAllPropInJSONByPropertyNameByXmlNS
 } from "../lib/common/Utils";
 import {TimeOutManager} from "../lib/common/TimeOutManager";
 import set = Reflect.set;
@@ -105,6 +113,7 @@ import {jwtDecode} from "jwt-decode";
 import {LEVELSNAMES} from "../lib/common/LevelLogs.js";
 import {TaskInput} from "../lib/services/TasksService.js";
 import {Task} from "../lib/common/models/Task.js";
+import * as v8 from "v8";
 /*const readline = require('readline').createInterface({
     input: process.stdin,
     output: process.stdout
@@ -357,15 +366,15 @@ let urlS2S;
         // Logs options
         "logs": {
             "enableConsoleLogs": true,
-            "enableFileLogs": false,
+            "enableFileLogs": true,
             "enableEventsLogs": false,
             "enableEncryptedLogs": false,
             "color": true,
             //"level": "error",
-            "level": "info",
+            //"level": "info",
             //"level": "internal",
             //"level": "internal",
-            //"level": "debug",
+            "level": "debug",
             "customLabel": "RainbowSample",
             "system-dev": {
                 "internals": true,
@@ -6131,6 +6140,7 @@ let urlS2S;
                 }
             }
         }
+
         async testloadConversationHistoryAsyncBubbleTestBotName_2024() {
             // To be used with user vincent00 on .Net
             let that = this;
@@ -6146,6 +6156,131 @@ let urlS2S;
                   });
                 } else {
                     _logger.log("debug", "MAIN - testloadConversationHistoryAsyncBubbleTestBotName_2024 NOT Found bubble.name : ", bubble.name, ", buibble.isActive : ", bubble.isActive);
+                }
+            }
+        }
+
+        async teststring() {
+            let msg = {"content":undefined};
+            msg.content = {"body":"testString"} ;
+            let res = isString(msg.content)? msg.content?.replace(/\n/g,"").replace(/\r/g,""):""+msg.content;
+            _logger.log("debug", "MAIN - teststring res : ", res);
+
+        }
+
+        async testfindAllPropInJSONByPropertyNameByXmlNS() {
+            let jsonMessage : any = {
+                "$attrs": {
+                    "xml:lang": "fr",
+                    "from": "room_4ffb3ac439d048549eff81ec273fcf46@muc.openrainbow.net/adcf613d42984a79a7bebccc80c2b65e@openrainbow.net/web_win_2.143.1_vX7Xa0OG",
+                    "type": "groupchat",
+                    "id": "web_b073d60e-6a20-49d9-9e16-1d91f2e2b3bc4",
+                    "xmlns": "jabber:client"
+                },
+                "ack": {
+                    "$attrs": {
+                        "recv": false,
+                        "read": false,
+                        "xmlns": "urn:xmpp:receipts"
+                    }
+                },
+                "x": [
+                    {
+                        "$attrs": {
+                            "xmlns": "http://jabber.org/protocol/muc#user"
+                        },
+                        "item": {
+                            "$attrs": {
+                                "jid": "adcf613d42984a79a7bebccc80c2b65e@openrainbow.net"
+                            }
+                        }
+                    },
+                    {
+                        "$attrs": {
+                            "xmlns": "jabber:x:oob"
+                        },
+                        "url": "https://openrainbow.net:443/api/rainbow/fileserver/v1.0/files/66c884c52a85a299acd65f3d",
+                        "mime": "image/jpeg",
+                        "filename": "4289476.jpg",
+                        "size": 133829
+                    }
+                ],
+                "archived": {
+                    "$attrs": {
+                        "stamp": "2024-08-23T12:47:02.129723Z",
+                        "by": "room_4ffb3ac439d048549eff81ec273fcf46@muc.openrainbow.net",
+                        "id": 1724417222129723,
+                        "xmlns": "urn:xmpp:mam:tmp"
+                    }
+                },
+                "stanza-id": {
+                    "$attrs": {
+                        "by": "room_4ffb3ac439d048549eff81ec273fcf46@muc.openrainbow.net",
+                        "id": 1724417222129723,
+                        "xmlns": "urn:xmpp:sid:0"
+                    }
+                },
+                "store": {
+                    "$attrs": {
+                        "xmlns": "urn:xmpp:hints"
+                    }
+                },
+                "request": {
+                    "$attrs": {
+                        "xmlns": "urn:xmpp:receipts"
+                    }
+                },
+                "active": {
+                    "$attrs": {
+                        "xmlns": "http://jabber.org/protocol/chatstates"
+                    }
+                },
+                "body": {
+                    "_": "4289476.jpg",
+                    "$attrs": {
+                        "xml:lang": "fr"
+                    }
+                }
+            };
+
+            let oobElmt = findAllPropInJSONByPropertyNameByXmlNS(jsonMessage, "x", "jabber:x:oob") ; //? jsonMessage?.x //: undefined; // stanzaMessage?.getChild("x", "jabber:x:oob");
+            _logger.log("debug", "MAIN - testfindAllPropInJSONByPropertyNameByXmlNS : ", oobElmt);
+        }
+
+        async testloadConversationHistoryAsyncBubbleTestBubbleBot2023_03_13T16() {
+            // To be used with user vincent00 on .Net
+            let that = this;
+            let bubbles = rainbowSDK.bubbles.getAllActiveBubbles();
+
+            for (const bubble of bubbles) {
+                //if (bubble.name.indexOf("testBubbleEvents")!= -1) {
+               // if (bubble.name.indexOf("bulleDeTest")!= -1) {
+                if (bubble.name.indexOf("TestBubbleBot2023_03_13T16:15:24.673Z")!= -1) {
+                    _logger.log("debug", "MAIN - testloadConversationHistoryAsyncBubbleTestBubbleBot2023_03_13T16 Found bubble.name : ", bubble.name, ", bubble.isActive : ", bubble.isActive);
+                  that.testloadConversationHistoryAsyncBubbleByJid(bubble.jid).then((res) => {
+                      _logger.log("debug", "MAIN - testloadConversationHistoryAsyncBubbleTestBubbleBot2023_03_13T16 testloadConversationHistoryAsyncBubbleByJid treated.");
+                  });
+                } else {
+                    _logger.log("debug", "MAIN - testloadConversationHistoryAsyncBubbleTestBubbleBot2023_03_13T16 NOT Found bubble.name : ", bubble.name, ", buibble.isActive : ", bubble.isActive);
+                }
+            }
+        }
+
+        async testloadConversationHistoryAsyncBubblebulle1() {
+            // To be used with user vincent00 on .Net
+            let that = this;
+            let bubbles = rainbowSDK.bubbles.getAllActiveBubbles();
+
+            for (const bubble of bubbles) {
+                //if (bubble.name.indexOf("testBubbleEvents")!= -1) {
+               // if (bubble.name.indexOf("bulleDeTest")!= -1) {
+                if (bubble.name.indexOf("bulle1")!= -1) {
+                    _logger.log("debug", "MAIN - testloadConversationHistoryAsyncBubblebulle1 Found bubble.name : ", bubble.name, ", bubble.isActive : ", bubble.isActive);
+                  that.testloadConversationHistoryAsyncBubbleByJid(bubble.jid).then((res) => {
+                      _logger.log("debug", "MAIN - testloadConversationHistoryAsyncBubblebulle1 testloadConversationHistoryAsyncBubbleByJid treated.");
+                  });
+                } else {
+                    _logger.log("debug", "MAIN - testloadConversationHistoryAsyncBubblebulle1 NOT Found bubble.name : ", bubble.name, ", buibble.isActive : ", bubble.isActive);
                 }
             }
         }
@@ -6188,7 +6323,7 @@ let urlS2S;
                             writeFileSync(path, data, "utf8");
                             //appendFileSync(path, data);
                         } catch (err) {
-
+                            _logger.log("error", "MAIN - testloadConversationHistoryAsyncBubbleByJid loadConversationHistoryAsync CATCH Error !!! : ", err);
                         }
 
                     /*
@@ -6216,7 +6351,9 @@ let urlS2S;
                         _logger.log("debug", "MAIN - testGetHistoryPageBubble - getConversationHistoryMaxime, conversation : ", conversation, ", status : ", conversation.status);
                     }); // */
                     startDate = new Date();
-                    rainbowSDK.conversations.loadConversationHistoryAsync(conversation, 50).then((running) => {
+                    let useBulk = false;
+
+                    rainbowSDK.conversations.loadConversationHistoryAsync(conversation, 100, useBulk).then((running) => {
                         _logger.log("info", "MAIN - testloadConversationHistoryAsyncBubbleByJid loadConversationHistoryAsync running : ", running);
 
                       /*
@@ -10410,6 +10547,7 @@ let urlS2S;
         let testsFunctions = findTests(tests);
 
         _logger.log("info", "MAIN - findTests : ", testsFunctions);
+        _logger.log("info", "MAIN - NodeJS process memory : ", v8.getHeapStatistics().heap_size_limit/(1024*1024));
         let questions = [
             {
                 type: "input",

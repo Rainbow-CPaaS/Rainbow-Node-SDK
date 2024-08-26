@@ -2502,7 +2502,7 @@ class XMPPService extends GenericService {
     mamQuery( jid, options) {
         let that = this;
 
-        const MAM = "urn:xmpp:mam:1";
+        let MAM = "urn:xmpp:mam:1" + ( options.useBulk ? ":bulk" : "" );
         const _p =  [ "with", "start", "end" ];
 
         let mamAttr = {xmlns: MAM, queryid: null};
@@ -2547,7 +2547,7 @@ class XMPPService extends GenericService {
 
     mamQueryMuc(jid, to, options) {
         let that = this;
-        const MAM = "urn:xmpp:mam:1";
+        let MAM = "urn:xmpp:mam:1" + (options.useBulk ? ":bulk" : "");
         const _p =  [ "with", "start", "end" ];
 
         let mamAttr = {xmlns: MAM, queryid: null};

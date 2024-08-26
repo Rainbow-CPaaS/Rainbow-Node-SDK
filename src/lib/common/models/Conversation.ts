@@ -10,7 +10,7 @@ import {Message} from "./Message";
 import {Logger} from "../Logger.js";
 
 import {FIFOQueue} from "../FIFOQueue.js";
-import {formattStringOnNbChars, pause, pauseSync} from "../Utils.js";
+import {formattStringOnNbChars, isDefined, isString, pause, pauseSync, safeJsonParse} from "../Utils.js";
 import {randomUUID} from "node:crypto";
 import {Queue} from "ts-generic-collections-linq";
 let AsyncLock = require('async-lock');
@@ -365,7 +365,15 @@ class MessagesQueue extends FIFOQueue<Message> {
             for (let i = 0; i < that.size(); i++) {
                 let msg = that[i];
                 // res+= "MESSAGE from Queue, id : " + msg.id + ", side : " + msg.side + ", isEvent : " + msg.isEvent + ", event : " + msg.event + ", deleted : " + msg.deleted + ", modified : " + msg.modified + ", content : " + msg.content + "\n";
-                res+=msg.date?.toJSON() + "-Id:[" + formattStringOnNbChars(msg.id) + "] - Content:[" + formattStringOnNbChars(msg.content? msg.content.replace(/\n/g,"").replace(/\r/g,""):"") + "] - Deleted:[" + (msg.deleted?"X":" " ) + "] - Modified:[" + (msg.modified?"X":" " ) + "] - Event:[" + msg.event + "]\n";
+                /* const [err, contentFromJson] = safeJsonParse(msg.content);
+
+                if (err) {
+                    console.log('Failed to parse JSON: ' + err.message);
+
+                } else {
+                    console.log(contentFromJson);
+                } // */
+                res+=msg.date?.toJSON() + "-Id:[" + formattStringOnNbChars(msg.id) + "] - Content:[" + formattStringOnNbChars(isString(msg.content)? msg.content?.replace(/\n/g,"").replace(/\r/g,""):(msg.content?"" + JSON.stringify(msg.content) : "")) + "] - Deleted:[" + (msg.deleted?"X":" " ) + "] - Modified:[" + (msg.modified?"X":" " ) + "] - Event:[" + msg.event + "]\n";
             }
 
             return res;
