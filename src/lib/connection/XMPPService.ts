@@ -7,7 +7,7 @@ import {
     isNumber,
     isStarted,
     logEntryExit,
-    makeId,
+    makeId, randomString,
     setTimeoutPromised
 } from "../common/Utils";
 import * as PubSub from "pubsub-js";
@@ -2499,10 +2499,10 @@ class XMPPService extends GenericService {
 // enregion Alerts
 
 //region Mam
-    mamQuery( jid, options) {
+    mamQuery( jid, options, useBulk) {
         let that = this;
 
-        let MAM = "urn:xmpp:mam:1" + ( options.useBulk ? ":bulk" : "" );
+        let MAM = "urn:xmpp:mam:1" + ( useBulk ? ":bulk" : "" );
         const _p =  [ "with", "start", "end" ];
 
         let mamAttr = {xmlns: MAM, queryid: null};
@@ -2545,9 +2545,9 @@ class XMPPService extends GenericService {
        });
     }
 
-    mamQueryMuc(jid, to, options) {
+    mamQueryMuc(jid, to, options, useBulk) {
         let that = this;
-        let MAM = "urn:xmpp:mam:1" + (options.useBulk ? ":bulk" : "");
+        let MAM = "urn:xmpp:mam:1" + (useBulk ? ":bulk" : "");
         const _p =  [ "with", "start", "end" ];
 
         let mamAttr = {xmlns: MAM, queryid: null};
@@ -2609,6 +2609,7 @@ class XMPPService extends GenericService {
         delete options.onMessage;
         let onComplete = options.onComplete;
         delete options.onComplete;
+        let randomId = randomString(10, "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
 
         options.queryid = that.xmppUtils.getUniqueMessageId();
 

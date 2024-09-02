@@ -381,7 +381,7 @@ let urlS2S;
                 "http": true,
             },
             "filter": "",
-            "areas": logLevelAreas,
+           // "areas": logLevelAreas,
             /*,
             "areas" : {
                 "admin": {
@@ -6312,14 +6312,16 @@ let urlS2S;
                     let stopDate = new Date();
                     // @ts-ignore
                     let startDuration = Math.round(stopDate - startDate);
+                    let historyDelay : number = rainbowSDK.conversations.conversationHistoryHandler.historyDelay;
                     _logger.log("info", "MAIN - testloadConversationHistoryAsyncBubbleByJid loadConversationHistoryAsync duration : " + startDuration + " ms => ", msToTime(startDuration));
+                    _logger.log("info", "MAIN - testloadConversationHistoryAsyncBubbleByJid loadConversationHistoryAsync treatment in callback duration historyDelay : " + historyDelay + " ms => ", msToTime(historyDelay));
                     let utc = new Date().toJSON().replace(/-/g, "_").replace(/:/g,"_");
                     let fileName = "listMsgs_"+utc ;
                     const path = 'c:/Temp/'+fileName+'.txt';
                     //writeFileSync(path, "", "utf8");
 
                         try {
-                            let data = conversationHistoryUpdated.messages.toSmallString();
+                            let data = conversationHistoryUpdated.messages.toSmallString() + "MAIN - testloadConversationHistoryAsyncBubbleByJid loadConversationHistoryAsync duration : " + startDuration + " ms => " + msToTime(startDuration) + "\n MAIN - testloadConversationHistoryAsyncBubbleByJid loadConversationHistoryAsync treatment in callback duration historyDelay : " + historyDelay + " ms => " + msToTime(historyDelay);
                             writeFileSync(path, data, "utf8");
                             //appendFileSync(path, data);
                         } catch (err) {
@@ -6351,7 +6353,7 @@ let urlS2S;
                         _logger.log("debug", "MAIN - testGetHistoryPageBubble - getConversationHistoryMaxime, conversation : ", conversation, ", status : ", conversation.status);
                     }); // */
                     startDate = new Date();
-                    let useBulk = false;
+                    let useBulk = true;
 
                     rainbowSDK.conversations.loadConversationHistoryAsync(conversation, 100, useBulk).then((running) => {
                         _logger.log("info", "MAIN - testloadConversationHistoryAsyncBubbleByJid loadConversationHistoryAsync running : ", running);

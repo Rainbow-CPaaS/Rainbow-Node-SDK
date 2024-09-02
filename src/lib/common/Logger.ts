@@ -377,6 +377,7 @@ class Logger {
                 let levelLimit = LEVELS.error;
                 let isApi : boolean = false;
                 let showAreaApi : boolean = false;
+
                 if (typeof options==="object") {
                     let callerObj = options?.callerObj;
                     let callerAreaName = "unknown";

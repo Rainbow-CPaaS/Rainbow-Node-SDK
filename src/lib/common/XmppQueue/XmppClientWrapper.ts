@@ -63,6 +63,7 @@ function client(options = {}) {
   const sessionEstablishment = _sessionEstablishment({iqCaller, streamFeatures});
   // SASL mechanisms - order matters and define priority
   const mechanisms = Object.entries({ scramsha1, plain}).map(
+  //const mechanisms = Object.entries({ plain}).map(
     ([k, v]) => ({[k]: v(sasl)})
   );
 

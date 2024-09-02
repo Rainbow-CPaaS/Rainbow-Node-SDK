@@ -8,8 +8,7 @@ import {RESTService} from "../connection/RESTService";
 import {ErrorManager} from "../common/ErrorManager";
 import {Conversation} from "../common/models/Conversation";
 import {Call} from "../common/models/Call";
-import * as moment from 'moment';
-import {Deferred, isDefined, logEntryExit} from "../common/Utils";
+import {Deferred, isDefined, logEntryExit, randomString} from "../common/Utils";
 import * as PubSub from "pubsub-js";
 import {ConversationEventHandler} from "../connection/XMPPServiceHandler/conversationEventHandler";
 import {ConversationHistoryHandler} from "../connection/XMPPServiceHandler/conversationHistoryHandler";
@@ -26,9 +25,12 @@ import {S2SService} from "./S2SService";
 import {Core} from "../Core";
 import {PresenceService} from "./PresenceService";
 import {Message} from "../common/models/Message";
-import {Bubble} from "../common/models/Bubble";
+import bubble, {Bubble} from "../common/models/Bubble";
 import {GenericService} from "./GenericService";
 import {use} from "chai";
+import {error} from "winston";
+import moment, {lang} from "moment";
+import {setInterval} from "timers";
 
 const LOG_ID = "CONVERSATIONS/SVCE - ";
 const API_ID = "API_CALL - ";
@@ -51,6 +53,9 @@ const API_ID = "API_CALL - ";
  * <br>
  *   */
 class ConversationsService extends GenericService {
+    get conversationHistoryHandler(): ConversationHistoryHandler {
+        return this._conversationHistoryHandler;
+    }
     get pendingMessages(): any {
         return this._pendingMessages;
     }
@@ -493,13 +498,13 @@ class ConversationsService extends GenericService {
             defered.resolve(await that.getConversationById(conversation?.id));
             return defered.promise;
         }
+        let randomId = randomString(10, "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
 
         let mamRequest = {
-            "queryid": conversation.id,
+            "queryid": "id:"+randomId+conversation.id,
             "with": conversation.id,
             "max": size,
-            "before": "",
-            "useBulk": useBulk
+            "before": ""
         };
 
         if (conversation.historyIndex !== -1) {
@@ -511,21 +516,20 @@ class ConversationsService extends GenericService {
         // Request for history messages for the room chat
         if (conversation.bubble) {
             mamRequest = {
-                "queryid": conversation.id,
+                "queryid": "id:"+randomId+conversation.id,
                 "with": that._xmpp.jid_im,
                 "max": size,
-                "before": "",
-                "useBulk": useBulk
+                "before": ""
             };
 
             if (conversation.historyIndex !== -1) {
                 mamRequest.before = conversation.historyIndex;
             }
 
-            that._xmpp.mamQueryMuc(conversation.id, conversation.bubble.jid, mamRequest);
+            that._xmpp.mamQueryMuc(conversation.id, conversation.bubble.jid, mamRequest, useBulk);
         } else {
             // Request for history messages for the conversation
-            that._xmpp.mamQuery(conversation.id, mamRequest);
+            that._xmpp.mamQuery(conversation.id, mamRequest, useBulk);
         }
 
         return defered.promise;
@@ -836,6 +840,7 @@ class ConversationsService extends GenericService {
             defered.reject();
             return defered.promise;
         }
+        let randomId = randomString(10, "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
         /*
           if (conversation.historyComplete) {
               that._logger.log(that.DEBUG, LOG_ID + "getHistoryPage(" + conversation.id + ") : already complete");
@@ -844,7 +849,7 @@ class ConversationsService extends GenericService {
           }
           // */
         let mamRequest = {
-            "queryid": conversation.id,
+            "queryid": "id:"+randomId+conversation.id,
             "with": conversation.id,
             "start": new Date(parseInt(stamp) - 300).toISOString(),
             "end": new Date(parseInt(stamp) + 300).toISOString()
@@ -855,7 +860,7 @@ class ConversationsService extends GenericService {
         // Request for history messages for the room chat
         if (conversation.bubble) {
             mamRequest = {
-                "queryid": conversation.id,
+                "queryid": "id:"+randomId+conversation.id,
                 "with": that._xmpp.jid_im,
                 "start": new Date(parseInt(stamp) - 300).toISOString(),
                 "end": new Date(parseInt(stamp) + 300).toISOString()
@@ -863,10 +868,10 @@ class ConversationsService extends GenericService {
             if (conversation.historyIndex !== -1) {
 //                mamRequest.before = conversation.historyIndex;
             }
-            that._xmpp.mamQueryMuc(conversation.id, conversation.bubble.jid, mamRequest);
+            that._xmpp.mamQueryMuc(conversation.id, conversation.bubble.jid, mamRequest, false);
         } else {
             // Request for history messages for the conversation
-            that._xmpp.mamQuery(conversation.id, mamRequest);
+            that._xmpp.mamQuery(conversation.id, mamRequest, false);
         } // */
 
         return defered.promise;

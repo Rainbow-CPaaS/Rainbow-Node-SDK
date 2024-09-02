@@ -283,7 +283,12 @@ class ContactsService extends GenericService {
                     await Promise.all([userInfo]).then((contact: Contact[]) => {
                         //that._logger.log(that.INTERNAL, LOG_ID + "(init) before updateFromUserData ", contact);
                         if (contact) {
+                            // Create the contact object
                             that.userContact.updateFromUserData(contact[0]);
+                            //that.userContact.updateFromUserData(that._rest.account);
+                            that.userContact.avatar = that.getAvatarByContactId(that._rest.account.id, that._rest.account.lastAvatarUpdateDate);
+                            //that.userContact.status = that._presenceService.getUserConnectedPresence().presenceStatus;
+                            //that.userContact.presence = that._presenceService.getUserConnectedPresence().presenceLevel;
                         }
                         that.setInitialized();
                         //return resolve(undefined);
@@ -301,6 +306,8 @@ class ContactsService extends GenericService {
                             undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, undefined, that._rest.account.jid_im, undefined)
                             .then((result) => {
                                 that._logger.log(that.INTERNAL, LOG_ID + "(init) search by jid_im result : ", result);
+                                that.userContact.updateFromUserData(that._rest.account);
+                                that.userContact.avatar = that.getAvatarByContactId(that._rest.account.id, that._rest.account.lastAvatarUpdateDate);
                             });
                     /* .then((contact: Contact) => {
                         //that._logger.log(that.INTERNAL, LOG_ID + "(init) before updateFromUserData ", contact);
@@ -550,7 +557,7 @@ class ContactsService extends GenericService {
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             } else {
                 let contactFound = null;
-                let connectedUser = that.getConnectedUser() ? that.getConnectedUser():new Contact();
+                let connectedUserJid = that._rest.account.jid_im;
 
                 if (that._contacts && !forceServerSearch) {
                     contactFound = that._contacts.find((contact) => {
@@ -559,8 +566,9 @@ class ContactsService extends GenericService {
                 }
 
                 if (contactFound) {
-                    that._logger.log(that.INFO, LOG_ID + "(getContactByJid) contact found locally with jid ", jid);
-                    if (contactFound.jid_im===connectedUser.jid_im) {
+                    that._logger.log(that.DEBUG, LOG_ID + "(getContactByJid) contact found locally with jid ", jid);
+                    if (contactFound.jid_im===connectedUserJid) {
+                        let connectedUser = that.getConnectedUser() ? that.getConnectedUser():new Contact();
                         resolve(connectedUser);
                     } else {
                         resolve(contactFound);
@@ -570,7 +578,8 @@ class ContactsService extends GenericService {
                     that._rest.getContactInformationByJID(jid).then((_contactFromServer: any) => {
                         let contact = null;
                         if (_contactFromServer) {
-                            that._logger.log(that.INTERNAL, LOG_ID + "(getContactByJid) contact found on the server", _contactFromServer);
+                            that._logger.log(that.DEBUG, LOG_ID + "(getContactByJid) contact found on the server.");
+                            //that._logger.log(that.INTERNAL, LOG_ID + "(getContactByJid) contact found on the server : ", _contactFromServer);
                             let contactIndex = that._contacts.findIndex((value) => {
                                 return value.jid_im===_contactFromServer.jid_im;
                             });
@@ -585,7 +594,7 @@ class ContactsService extends GenericService {
                             //that._logger.log(that.INTERNAL, LOG_ID + "(getContactByJid) before updateFromUserData ", contact);
                             contact.updateFromUserData(_contactFromServer);
                             contact.avatar = that.getAvatarByContactId(_contactFromServer.id, _contactFromServer.lastAvatarUpdateDate);
-                            if (contact.jid_im===connectedUser.jid_im) {
+                            if (contact.jid_im===connectedUserJid) {
                                 contact.status = that._presenceService.getUserConnectedPresence().presenceDetails;
                                 contact.presence = that._presenceService.getUserConnectedPresence().presenceLevel;
                             }
@@ -626,7 +635,7 @@ class ContactsService extends GenericService {
             } else {
 
                 let contactFound = null;
-                let connectedUser = that.getConnectedUser() ? that.getConnectedUser():new Contact();
+                let connectedUserId = that._rest.account.id;
 
                 if (that._contacts && !forceServerSearch) {
                     contactFound = that._contacts.find((contact) => {
@@ -637,7 +646,8 @@ class ContactsService extends GenericService {
                 if (contactFound) {
                     that._logger.log(that.INTERNAL, LOG_ID + "(getContactById) contact found locally - contactFound id : ", contactFound.id, ", contactFound.displayName : ", contactFound.displayName, " for contact.jid : ", contactFound.jid);
 
-                    if (contactFound.id===connectedUser.id) {
+                    if (contactFound.id===connectedUserId) {
+                        let connectedUser = that.getConnectedUser() ? that.getConnectedUser():new Contact();
                         return resolve(connectedUser);
                     } else {
                         return resolve(contactFound);
@@ -665,7 +675,7 @@ class ContactsService extends GenericService {
                             contact.updateFromUserData(_contactFromServer);
                             contact.avatar = that.getAvatarByContactId(_contactFromServer.id, _contactFromServer.lastAvatarUpdateDate);
 
-                            if (contact.id===connectedUser.id) {
+                            if (contact.id===connectedUserId) {
                                 contact.status = that._presenceService.getUserConnectedPresence().presenceStatus;
                                 contact.presence = that._presenceService.getUserConnectedPresence().presenceLevel;
                             }
@@ -3654,8 +3664,8 @@ class ContactsService extends GenericService {
         let that = this;
 
         that._rest.getContactInformationByJID(jid).then((_contactFromServer: any) => {
-            that._logger.log(that.INFO, LOG_ID + "(getContactByJid) contact found on the server");
-            that._logger.log(that.INTERNAL, LOG_ID + "(getContactByJid) contact found on the server : ", util.inspect(_contactFromServer));
+            that._logger.log(that.DEBUG, LOG_ID + "(_onContactInfoChanged) getContactInformationByJID contact found on the server");
+            // that._logger.log(that.INTERNAL, LOG_ID + "(_onContactInfoChanged) getContactInformationByJID contact found on the server : ", util.inspect(_contactFromServer));
             let connectedUser = that.getConnectedUser() ? that.getConnectedUser():new Contact();
 
             if (jid === connectedUser.jid) {
@@ -3683,7 +3693,7 @@ class ContactsService extends GenericService {
 
         that._rest.getContactInformationByJID(jid).then((_contactFromServer: any) => {
             that._logger.log(that.INFO, LOG_ID + "(_onRosterContactInfoChanged) contact found on the server jid : ", _contactFromServer.jid);
-            that._logger.log(that.INTERNAL, LOG_ID + "(_onRosterContactInfoChanged) contact found on the server - _contactFromServer id : ", _contactFromServer.id, ", _contactFromServer.displayName : ", _contactFromServer.displayName, " for _contactFromServer.jid : ", _contactFromServer.jid);
+           // that._logger.log(that.INTERNAL, LOG_ID + "(_onRosterContactInfoChanged) contact found on the server - _contactFromServer id : ", _contactFromServer.id, ", _contactFromServer.displayName : ", _contactFromServer.displayName, " for _contactFromServer.jid : ", _contactFromServer.jid);
             //that._logger.log(that.INTERNAL, LOG_ID + "(_onRosterContactInfoChanged) contact found on the server : ", util.inspect(_contactFromServer));
             let contactIndex = -1;
             // Update or Add contact
