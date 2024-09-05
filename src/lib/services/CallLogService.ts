@@ -18,6 +18,7 @@ import {ProfilesService} from "./ProfilesService";
 import {TelephonyService} from "./TelephonyService";
 import {S2SService} from "./S2SService";
 import {Core} from "../Core";
+import {error} from "winston";
 
 const LOG_ID = "CALLLOG/SVCE - ";
 const API_ID = "API_CALL - ";
@@ -61,6 +62,9 @@ function CallLogsBean() : ICallLogsBean {
 *      - Mark calls as read / unread <br>
 */
  class CallLogService extends GenericService{
+    get calllogEventHandler(): CallLogEventHandler {
+        return this._calllogEventHandler;
+    }
     private calllogs: ICallLogsBean;
     private callLogHandlerRef: any;
     private callLogMessageAckRef: any;
@@ -85,6 +89,7 @@ function CallLogsBean() : ICallLogsBean {
     private _profiles: ProfilesService;
     private _calllogEventHandler: CallLogEventHandler;
     private _telephony: TelephonyService;
+    private iMOptions: any;
 
     static getClassName(){ return 'CallLogService'; }
     getClassName(){ return CallLogService.getClassName(); }
@@ -158,6 +163,8 @@ function CallLogsBean() : ICallLogsBean {
         that._useXMPP = that._options.useXMPP;
         that._useS2S = that._options.useS2S;
 
+        that.iMOptions = _options?._getIMOptions();
+
         this.calllogHandlerToken = [];
 
        that._logger.log(that.INFO, LOG_ID + " ");
@@ -203,10 +210,11 @@ function CallLogsBean() : ICallLogsBean {
        that._logger.log(that.INFO, LOG_ID + "[stop] Stopped");
     }
 
-    async init(useRestAtStartup : boolean) {
+    public async init(useRestAtStartup : boolean) {
         let that = this;
+        that._logger.log(that.INFO, LOG_ID + "(init)");
 
-        if (useRestAtStartup) {
+        if (useRestAtStartup && that.iMOptions.autoLoadCallLog) {
             //that._eventEmitter.on("rainbow_oncalllogupdated", that.onIqCallLogNotificationReceived.bind(that));
             await setTimeoutPromised(3000).then(async () => {
                 let startDate = new Date();
@@ -232,9 +240,10 @@ function CallLogsBean() : ICallLogsBean {
 
         that._calllogEventHandler = new CallLogEventHandler(that._xmpp, that, that._contacts, that._profiles, that._telephony);
         that.calllogHandlerToken = [
-            PubSub.subscribe(that._xmpp.hash + "." + that._calllogEventHandler.IQ_CALLLOG, that._calllogEventHandler.onIqCallLogReceived.bind(that._calllogEventHandler)),
-            PubSub.subscribe(that._xmpp.hash + "." + that._calllogEventHandler.CALLLOG_ACK, that._calllogEventHandler.onCallLogAckReceived.bind(that._calllogEventHandler)),
-            PubSub.subscribe(that._xmpp.hash + "." + that._calllogEventHandler.IQ_CALLOG_NOTIFICATION, that._calllogEventHandler.onIqCallLogNotificationReceived.bind(that._calllogEventHandler))
+            PubSub.subscribe(that._xmpp.hash + "." + that._calllogEventHandler.MESSAGE, that._calllogEventHandler.onMessageReceived.bind(that._calllogEventHandler)),
+            //PubSub.subscribe(that._xmpp.hash + "." + that._calllogEventHandler.IQ_CALLLOG, that._calllogEventHandler.onIqCallLogReceived.bind(that._calllogEventHandler)),
+            //PubSub.subscribe(that._xmpp.hash + "." + that._calllogEventHandler.CALLLOG_ACK, that._calllogEventHandler.onCallLogAckReceived.bind(that._calllogEventHandler)),
+            //PubSub.subscribe(that._xmpp.hash + "." + that._calllogEventHandler.IQ_CALLOG_NOTIFICATION, that._calllogEventHandler.onIqCallLogNotificationReceived.bind(that._calllogEventHandler))
         ];
 
         /*

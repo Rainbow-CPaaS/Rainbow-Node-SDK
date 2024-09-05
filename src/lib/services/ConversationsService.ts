@@ -223,10 +223,12 @@ class ConversationsService extends GenericService {
 
         that._conversationHistoryHandler = new ConversationHistoryHandler(that._xmpp, that, that._contactsService, that._options);
         that._conversationHistoryHandlerToken = [
-            PubSub.subscribe( that._xmpp.hash + "." + that._conversationHistoryHandler.MESSAGE_MAM, that._conversationHistoryHandler.onMamMessageReceived.bind(that._conversationHistoryHandler)),
+            PubSub.subscribe( that._xmpp.hash + "." + that._conversationHistoryHandler.MESSAGE, that._conversationHistoryHandler.onMessageReceived.bind(that._conversationHistoryHandler)),
+            /* PubSub.subscribe( that._xmpp.hash + "." + that._conversationHistoryHandler.MESSAGE_MAM, that._conversationHistoryHandler.onMamMessageReceived.bind(that._conversationHistoryHandler)),
             PubSub.subscribe( that._xmpp.hash + "." + that._conversationHistoryHandler.FIN_MAM, that._conversationHistoryHandler.onMamMessageReceived.bind(that._conversationHistoryHandler)),
             PubSub.subscribe( that._xmpp.hash + "." + that._conversationHistoryHandler.MESSAGE_MAM_BULK, that._conversationHistoryHandler.onMamMessageReceived.bind(that._conversationHistoryHandler)),
             PubSub.subscribe( that._xmpp.hash + "." + that._conversationHistoryHandler.FIN_MAM_BULK, that._conversationHistoryHandler.onMamMessageReceived.bind(that._conversationHistoryHandler)),
+            // */
         ];
     }
 

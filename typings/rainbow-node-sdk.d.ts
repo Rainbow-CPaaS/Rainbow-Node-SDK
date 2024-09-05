@@ -4,7 +4,7 @@ declare module 'lib/common/Utils' {
     reject: any;
     promise: any;
     constructor();
-} let isSuperAdmin: (roles: any) => boolean; let anonymizePhoneNumber: (number: any) => any; let equalIgnoreCase: (s1: string, s2: string) => boolean; let isNullOrEmpty: (value: any) => boolean; let isDefined: (value: any) => boolean; let isNumber: (data: any) => boolean; let setTimeoutPromised: (timeOutMs: number) => Promise<any>; let pause: (timeOutMs: number) => Promise<any>; function until(conditionFunction: Function, labelOfWaitingCondition: string, waitMsTimeBeforeReject?: number): Promise<any>; function doWithinInterval({ promise, timeout, error }: {
+} let isSuperAdmin: (roles: any) => boolean; let anonymizePhoneNumber: (number: any) => any; let equalIgnoreCase: (s1: string, s2: string) => boolean; let isNullOrEmpty: (value: any) => boolean; let isDefined: (value: any) => boolean; let isNumber: (data: any) => boolean; let setTimeoutPromised: (timeOutMs: number) => Promise<any>; let pause: (timeOutMs: number) => Promise<any>; function pauseSync(milliseconds: number): void; function until(conditionFunction: Function, labelOfWaitingCondition: string, waitMsTimeBeforeReject?: number): Promise<any>; function doWithinInterval({ promise, timeout, error }: {
     promise: any;
     timeout: any;
     error: any;
@@ -36,6 +36,7 @@ export let objToExport: {
     getBinaryData: typeof getBinaryData;
     getRandomInt: typeof getRandomInt;
     pause: (timeOutMs: number) => Promise<any>;
+    pauseSync: typeof pauseSync;
     stackTrace: typeof stackTrace;
     addDaysToDate: typeof addDaysToDate;
     addParamToUrl: typeof addParamToUrl;
@@ -53,7 +54,7 @@ export let objToExport: {
     msToTime: typeof msToTime;
     flattenObject: typeof flattenObject;
 };
-export { makeId, createPassword, isAdmin, anonymizePhoneNumber, equalIgnoreCase, isNullOrEmpty, isDefined, isNumber, Deferred, isSuperAdmin, setTimeoutPromised, until, orderByFilter, updateObjectPropertiesFromAnOtherObject, isStart_upService, isStarted, logEntryExit, resizeImage, getBinaryData, getRandomInt, pause, stackTrace, addDaysToDate, addParamToUrl, cleanEmptyMembersFromObject, resolveDns, isPromise, doWithinInterval, addPropertyToObj, generateRamdomEmail, getJsonFromXML, callerName, functionName, functionSignature, traceExecutionTime, msToTime, flattenObject }; const _default: {
+export { makeId, createPassword, isAdmin, anonymizePhoneNumber, equalIgnoreCase, isNullOrEmpty, isDefined, isNumber, Deferred, isSuperAdmin, setTimeoutPromised, until, orderByFilter, updateObjectPropertiesFromAnOtherObject, isStart_upService, isStarted, logEntryExit, resizeImage, getBinaryData, getRandomInt, pause, pauseSync, stackTrace, addDaysToDate, addParamToUrl, cleanEmptyMembersFromObject, resolveDns, isPromise, doWithinInterval, addPropertyToObj, generateRamdomEmail, getJsonFromXML, callerName, functionName, functionSignature, traceExecutionTime, msToTime, flattenObject }; const _default: {
     makeId: (n: any) => string;
     createPassword: (size: any) => string;
     isAdmin: (roles: any) => boolean;
@@ -75,6 +76,7 @@ export { makeId, createPassword, isAdmin, anonymizePhoneNumber, equalIgnoreCase,
     getBinaryData: typeof getBinaryData;
     getRandomInt: typeof getRandomInt;
     pause: (timeOutMs: number) => Promise<any>;
+    pauseSync: typeof pauseSync;
     stackTrace: typeof stackTrace;
     addDaysToDate: typeof addDaysToDate;
     addParamToUrl: typeof addParamToUrl;
@@ -751,6 +753,7 @@ declare module 'lib/config/config' {
                     /**
                      * When using HTTP KeepAlive, how often to send TCP KeepAlive packets over sockets being kept alive. Default = 1000.
                      * Only relevant if keepAlive is set to true.
+                     * Note that rainbow server keep it opennen 5000 milliseconds.
                      */
                     keepAliveMsecs: number;
                     /**
@@ -817,6 +820,7 @@ declare module 'lib/config/config' {
                     /**
                      * When using HTTP KeepAlive, how often to send TCP KeepAlive packets over sockets being kept alive. Default = 1000.
                      * Only relevant if keepAlive is set to true.
+                     * Note that rainbow server keep it opennen 5000 milliseconds.
                      */
                     keepAliveMsecs: number;
                     /**
@@ -883,6 +887,7 @@ declare module 'lib/config/config' {
                     /**
                      * When using HTTP KeepAlive, how often to send TCP KeepAlive packets over sockets being kept alive. Default = 1000.
                      * Only relevant if keepAlive is set to true.
+                     * Note that rainbow server keep it opennen 5000 milliseconds.
                      */
                     keepAliveMsecs: number;
                     /**
@@ -948,9 +953,12 @@ declare module 'lib/config/config' {
         autoLoadConversations: boolean;
         autoLoadConversationHistory: boolean;
         autoLoadContacts: boolean;
+        forceHistoryGetContactFromServer: boolean;
         enableCarbon: boolean;
         enablesendurgentpushmessages: boolean;
         useMessageEditionAndDeletionV2: boolean;
+        storeMessagesInConversation: boolean;
+        maxMessagesStoredInConversation: number;
     };
     mode: string;
     concurrentRequests: number;
@@ -1448,7 +1456,7 @@ export {}; class Message {
      * @method
      * @instance
      */
-    static createBubbleAdminMessage(id: any, date: any, from: any, type: any): Message;
+    static createBubbleAdminMessage(id: any, date: any, from: any, type: any, body: any, subject: any): Message;
     /**
      * @private
      * @method
@@ -1478,11 +1486,39 @@ export {}; class Message {
 export { Message };
 
 }
+declare module 'lib/common/FIFOQueue' {
+	export {}; class FIFOQueue<T> extends Array<T> {
+    queue: T[];
+    protected logger: any;
+    proxy: any;
+    constructor(_logger: any, handler?: any);
+    enqueue(item: T): void;
+    dequeue(): T | undefined;
+    peek(): T | undefined;
+    isEmpty(): boolean;
+    size(): number;
+    clear(): void;
+    toSmallString: () => string;
+    handler(container: any, getter: any, setter: any): {};
+    emulateArrayMethod(object: any, key: any, container: any, getter: any): (...args: any[]) => void;
+} let createFIFOQueue: (_logger: any) => FIFOQueue<unknown>;
+export { createFIFOQueue, FIFOQueue };
+
+}
 declare module 'lib/common/models/Conversation' {
-	import { Logger } from 'lib/common/Logger.js'; class Conversation {
-    get messages(): any;
+	import { Message } from 'lib/common/models/Message';
+import { Logger } from 'lib/common/Logger.js';
+import { FIFOQueue } from 'lib/common/FIFOQueue.js'; class MessagesQueue extends FIFOQueue<Message> {
+    private maxSize;
+    private rwlock;
+    isFull: () => boolean;
+    updateMessageIfExistsElseEnqueueIt: (message: any, forceDequeueIfFull?: boolean) => Message;
+    removeMessage: (message: any, forceDequeueIfFull?: boolean) => Message;
+    constructor(_logger: any, _maxSize?: number);
+    get length(): number;
+} class Conversation {
+    get messages(): MessagesQueue;
     set messages(value: any);
-    updateMessages(index: number, value: any): void;
     id: any;
     dbId: any;
     type: any;
@@ -1534,7 +1570,7 @@ declare module 'lib/common/models/Conversation' {
     };
     pendingPromise: Array<any>;
     private logger;
-    constructor(conversationId: any, logger: Logger);
+    constructor(conversationId: any, logger: Logger, imsOptions: any);
     /**
      * @private
      * @method addMessage
@@ -1544,8 +1580,8 @@ declare module 'lib/common/models/Conversation' {
     addOrUpdateMessage(message: any): any;
     /*************************************************************/
     /*************************************************************/
-    static createOneToOneConversation(participant: any, logger: Logger): Conversation;
-    static createBubbleConversation(bubble: any, logger: Logger): Conversation;
+    static createOneToOneConversation(participant: any, logger: Logger, imsOptions: any): Conversation;
+    static createBubbleConversation(bubble: any, logger: Logger, imsOptions: any): Conversation;
     generateRandomID(): any;
     static getUniqueMessageId(): string;
     /*************************************************************/
@@ -1555,10 +1591,10 @@ declare module 'lib/common/models/Conversation' {
     /*************************************************************/
     reset(): void;
     resetHistory(): void;
-    getMessageById(messId: any): any;
-    getlastEditableMsg(): any;
+    getMessageById(messId: any): Message;
+    getlastEditableMsg(): Message;
 }
-export { Conversation };
+export { Conversation, MessagesQueue };
 
 }
 declare module 'lib/connection/XMPPServiceHandler/GenericHandler' {
@@ -8136,6 +8172,26 @@ import { GenericService } from 'lib/services/GenericService'; class TelephonySer
 export { TelephonyService as TelephonyService };
 
 }
+declare module 'lib/common/models/RainbowVoiceCloudPBX' {
+	export {}; class HuntingGroup {
+    name: string;
+    shortNumber: string;
+    type?: "hunting_group" | "manager_assistant";
+    subType?: "default" | "hg_attendant" | "manager_assistant";
+    policy?: "serial" | "parallel" | "circular";
+    timeout?: number;
+    isEmergencyGroup?: boolean;
+    isEmptyAllowed?: boolean;
+    isDDIUpdateByManagerAllowed?: boolean;
+    members: GroupMember[];
+} class GroupMember {
+    memberId: string;
+    roles?: ('agent' | 'manager' | 'leader' | 'assistant')[];
+    status?: 'active' | 'idle';
+}
+export { HuntingGroup as HuntingGroup, GroupMember as GroupMember };
+
+}
 declare module 'lib/services/AdminService' {
 	/// <reference types="node" />
 export {};
@@ -8143,7 +8199,8 @@ import { EventEmitter } from 'events';
 import { Logger } from 'lib/common/Logger';
 import { Contact } from 'lib/common/models/Contact';
 import { GenericService } from 'lib/services/GenericService';
-import { Core } from 'lib/Core.js'; enum OFFERTYPES {
+import { Core } from 'lib/Core.js';
+import { HuntingGroup } from 'lib/common/models/RainbowVoiceCloudPBX.js'; enum OFFERTYPES {
     /** freemium licence offer */
     "FREEMIUM" = "freemium",
     /** premium licence offer */
@@ -8181,13 +8238,13 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      *
      * | Champ | Type | Description |
      * | --- | --- | --- |
-     * | id  | String | Bot service unique identifier. |
-     * | name | String | Bot title, like 'Emily'. |
-     * | jid | String | Bot service's jid, should be like 'emily.rainbow.com'. |
+     * | id  | string | Bot service unique identifier. |
+     * | name | string | Bot title, like 'Emily'. |
+     * | jid | string | Bot service's jid, should be like 'emily.rainbow.com'. |
      * | isRainbowSupportBot | Boolean | Indicates if the bot service corresponds to Rainbow support bot (Emily). |
-     * | capabilities | String\[\] | List of capabilities tags |
-     * | createdByUserId | String | Unique identifier of the bot service owner. |
-     * | avatarId | String | Identifier of the Bot service's avatar.<br> |
+     * | capabilities | string\[\] | List of capabilities tags |
+     * | createdByUserId | string | Unique identifier of the bot service owner. |
+     * | avatarId | string | Identifier of the Bot service's avatar.<br> |
      * | lastAvatarUpdateDate | Date-Time | Date of last bot avatar update.<br><br>* `null` value indicates that no avatar is set for this bot.<br>* Bot avatar can be customized by company (users from the company see the custom avatar instead of the default one set for the bot).<br>    * if the bot has an avatar and this one is not customized for the company, `lastAvatarUpdateDate` corresponds to the date when the bot's owner set an avatar to the bot.<br>    * otherwise if the bot has a customized avatar for the company, `lastAvatarUpdateDate` corresponds to the date when the administrator has set the customized avatar for this company. |
      *
      * @fulfil {Object} - result
@@ -8209,13 +8266,13 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      *
      * | Champ | Type | Description |
      * | --- | --- | --- |
-     * | id  | String | Bot service unique identifier. |
-     * | name | String | Bot title, like 'Emily'. |
-     * | jid | String | Bot service's jid, should be like 'emily.rainbow.com'. |
+     * | id  | string | Bot service unique identifier. |
+     * | name | string | Bot title, like 'Emily'. |
+     * | jid | string | Bot service's jid, should be like 'emily.rainbow.com'. |
      * | isRainbowSupportBot | Boolean | Indicates if the bot service corresponds to Rainbow support bot (Emily). |
-     * | capabilities | String\[\] | List of capabilities tags |
-     * | createdByUserId | String | Unique identifier of the bot service owner. |
-     * | avatarId | String | Identifier of the Bot service's avatar.<br> |
+     * | capabilities | string\[\] | List of capabilities tags |
+     * | createdByUserId | string | Unique identifier of the bot service owner. |
+     * | avatarId | string | Identifier of the Bot service's avatar.<br> |
      * | lastAvatarUpdateDate | Date-Time | Date of last bot avatar update.<br><br>* `null` value indicates that no avatar is set for this bot.<br>* Bot avatar can be customized by company (users from the company see the custom avatar instead of the default one set for the bot).<br>    * if the bot has an avatar and this one is not customized for the company, `lastAvatarUpdateDate` corresponds to the date when the bot's owner set an avatar to the bot.<br>    * otherwise if the bot has a customized avatar for the company, `lastAvatarUpdateDate` corresponds to the date when the administrator has set the customized avatar for this company. |
      *
      * @fulfil {Object} - result
@@ -8245,19 +8302,255 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      *
      * | Champ | Type | Description |
      * | --- | --- | --- |
-     * | id  | String | Bot service unique identifier. |
-     * | name | String | Bot title, like 'Emily'. |
-     * | jid | String | Bot service's jid, should be like 'emily.rainbow.com'. |
+     * | id  | string | Bot service unique identifier. |
+     * | name | string | Bot title, like 'Emily'. |
+     * | jid | string | Bot service's jid, should be like 'emily.rainbow.com'. |
      * | isRainbowSupportBot | Boolean | Indicates if the bot service corresponds to Rainbow support bot (Emily). |
-     * | capabilities | String\[\] | List of capabilities tags |
-     * | createdByUserId | String | Unique identifier of the bot service owner. |
-     * | avatarId | String | Identifier of the Bot service's avatar.<br> |
+     * | capabilities | string\[\] | List of capabilities tags |
+     * | createdByUserId | string | Unique identifier of the bot service owner. |
+     * | avatarId | string | Identifier of the Bot service's avatar.<br> |
      * | lastAvatarUpdateDate | Date-Time | Date of last bot avatar update.<br><br>* `null` value indicates that no avatar is set for this bot.<br>* Bot avatar can be customized by company (users from the company see the custom avatar instead of the default one set for the bot).<br>    * if the bot has an avatar and this one is not customized for the company, `lastAvatarUpdateDate` corresponds to the date when the bot's owner set an avatar to the bot.<br>    * otherwise if the bot has a customized avatar for the company, `lastAvatarUpdateDate` corresponds to the date when the administrator has set the customized avatar for this company. |
      *
      * @fulfil {Object} - result
      * @category async
      */
     getAllBotServices(format?: string, limit?: number, offset?: number, sortField?: string, sortOrder?: number): any;
+    /**
+     * @public
+     * @nodered true
+     * @method createRainbowMultifactorAuthenticationServerConfiguration
+     * @instance
+     * @since 2.29.0
+     * @description
+     *      This API allows to create a Rainbow multifactor authentication configuration for a given company.
+     * </br>
+     * </br> Users with `superadmin` role can create a Rainbow multifactor authentication configuration of any company.
+     * </br> `bp_admin` users can only create a Rainbow multifactor authentication configuration for a company they manage (i.e. End Customer company for which bp_admin's company if the BP company).
+     * </br> `organization_admin` users can only create a Rainbow multifactor authentication configuration for a company they manage (i.e. company linked to organization_admin's organization).
+     * </br> `company_admin` users can only create a Rainbow multifactor authentication configuration of their own company.
+     *
+     * @async
+     * @param {string} companyId Company unique identifier
+     * @param {Boolean} enabledForAllCompanyUsers Enable or disable the use of these Rainbow multifactor authentication settings for all members of the company. Default value : false
+     * @param {string} mfaName Name of Rainbow multifactor authentication configuration
+     * @param {string} mfaType type of Rainbow multifactor authentication. Possibles values : none, totp
+     * @param {string} mfaPolicy Policy of Rainbow multifactor authentication. Default value : never. Possibles values : never, untrusted_only, always
+     * @param {Number} rememberDaysApplication Number of days when application and browsers are trusted
+     * @param {Boolean} mfaCanBeDisabled let the user disable the multifactor authentication
+     * @category Company Rainbow Multifactor Authentication Server
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | mfaId | string | unique identifier of Rainbow multifactor authentication |
+     * | mfaType | string | Authentication multifactor type<br><br>Possibles values : `none`, `totp` |
+     * | enabledForAllCompanyUsers | Boolean | Enable or disable the use of these Rainbow multifactor authentication settings for all members of comapny  <br>When several Rainbow multifactor or SSO authentication types are configured for a company, the SSO authentication type having `enabledForAllCompanyUsers` set to true is used when users of this company authenticate in Rainbow (if user `authenticationType` setting is not set or equal to `DEFAULT`). |
+     * | mfaName | string | Name of Rainbow multifactor authentication |
+     * | mfaPolicy | string | Policy of Rainbow multifactor authentication<br><br>* `never`: no Multi Factor requested to the user<br>* `untrusted_only`: Multi Factor is requested to the user only for untrusted applications and browsers (user has the possibility to trust applications/browsers so that the multi factor is no longer requested for this application/browser during the number of days specified in `rememberDaysApplication` setting)<br>* `always`: Multi Factor is always requested to the user<br><br>Possibles values : `never`, `untrusted_only`, `always` |
+     * | rememberDaysApplication | Number | Number of days when application and browsers are trusted |
+     * | mfaCanBeDisabled | Boolean | let the user disable the multifactor authentication |
+     *
+     * </br>example of result :
+     * ```json
+     *   {
+     *         "mfaId": "60ae30f1334f9a0741e4102f",
+     *         "mfaType": "totp",
+     *         "mfaPolicy" : "untrusted_only",
+     *         "enabledForAllCompanyUsers": false,
+     *         "mfaName": "totp example",
+     *         "rememberDaysApplication": 60
+     *     }
+     * ```
+     *
+     */
+    createRainbowMultifactorAuthenticationServerConfiguration(companyId: string, enabledForAllCompanyUsers: boolean, mfaName: string, mfaType: string, mfaPolicy: string, rememberDaysApplication: string, mfaCanBeDisabled: boolean): Promise<any>;
+    /**
+     * @public
+     * @nodered true
+     * @method deleteRainbowMultifactorConfiguration
+     * @since 2.29.0
+     * @instance
+     * @description
+     * This API allows to delete a Rainbow mfa policy server configuration for a given company.
+     *
+     * </br> Users with `superadmin` role can delete an Rainbow Mfa policy server configuration of any company.
+     * </br> `bp_admin` users can only delete an Rainbow Mfa policy server configuration for a company they manage (i.e. End Customer company for which bp_admin's company if the BP company).
+     * </br> `organization_admin` users can only delete an Rainbow Mfa policy server configuration for a company they manage
+     * </br> `company_admin` users can only delete an Rainbow Mfa policy server configuration of their own company.
+     *
+     * @async
+     * @param {string} companyId Company unique identifier
+     * @param {string} mfaId Rainbow policy unique identifier
+     * @category Company Rainbow Multifactor Authentication Server
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | status | string | deletion status |
+     *
+     * </br>example of result :
+     * ```json
+     *  {
+     *      "status": "TOTP factor settings 'xyz' successfully deleted"
+     *  }
+     * ```
+     *
+     */
+    deleteRainbowMultifactorConfiguration(companyId: string, mfaId: string): Promise<any>;
+    /**
+     * @public
+     * @nodered true
+     * @method getRainbowMultifactorConfiguration
+     * @since 2.29.0
+     * @instance
+     * @description
+     * This API allows to get a Rainbow multifactor configuration for a given company.
+     * </br> Users with `superadmin` role can get Rainbow multifactor configuration of any company.
+     * </br> `bp_admin` users can only get Rainbow multifactor configuration for a company they manage (i.e. End Customer company for which bp_admin's company if the BP company).
+     * </br> `organization_admin` users can only get Rainbow multifactor configuration for a company they manage (i.e. company linked to organization_admin's organization).
+     * </br> `company_admin` users can only get Rainbow multifactor configuration of their own company.
+     *
+     * @async
+     * @param {string} companyId Company unique identifier
+     * @param {string} mfaId Rainbow policy unique identifier
+     * @category Company Rainbow Multifactor Authentication Server
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | mfaId | string | unique identifier of Rainbow multifactor authentication |
+     * | mfaType | string | Authentication multifactor type<br><br>Possibles values : `none`, `totp` |
+     * | enabledForAllCompanyUsers | Boolean | Enable or disable the use of these Rainbow multifactor authentication settings for all members of the company  <br>When several Rainbow multifactor or SSO authentication types are configured for a company, the SSO authentication type having `enabledForAllCompanyUsers` set to true is used when users of this company authenticate in Rainbow (if user `authenticationType` setting is not set or equal to `DEFAULT`). |
+     * | mfaName | string | Name of Rainbow multifactor authentication |
+     * | mfaPolicy | string | Policy of Rainbow multifactor authentication<br><br>* `never`: no Multi Factor requested to the user<br>* `untrusted_only`: Multi Factor is requested to the user only for untrusted applications and browsers (user has the possibility to trust applications/browsers so that the multi factor is no longer requested for this application/browser during the number of days specified in `rememberDaysApplication` setting)<br>* `always`: Multi Factor is always requested to the user<br><br>Possibles values : `never`, `untrusted_only`, `always` |
+     * | rememberDaysApplication | Number | Number of days when application and browsers are trusted |
+     * | mfaCanBeDisabled | Boolean | let the user disable the multifactor authentication |
+     *
+     * </br>example of result :
+     * ```json
+     * {
+     *     "mfaId": "60ae30f1334f9a0741e4102f",
+     *     "mfaType": "totp",
+     *     "mfaPolicy" : "untrusted_app",
+     *     "enabledForAllCompanyUsers": false,
+     *     "mfaName": "totp example",
+     *     "rememberDaysApplication": 60
+     * }
+     * ```
+     *
+     */
+    getRainbowMultifactorConfiguration(companyId: string, mfaId: string): Promise<any>;
+    /**
+     * @public
+     * @nodered true
+     * @method getAllRainbowMultifactorConfiguration
+     * @since 2.29.0
+     * @instance
+     * @description
+     * This API allows to get all Rainbow multifactor configuration for a given company.
+     *
+     * </br> Users with `superadmin` role can get Rainbow multifactor configuration of any company.
+     * </br> `bp_admin` users can only get Rainbow multifactor configuration for a company they manage (i.e. End Customer company for which bp_admin's company if the BP company).
+     * </br> `organization_admin` users can only get Rainbow multifactor configuration for a company they manage (i.e. company linked to organization_admin's organization).
+     * </br> `company_admin` users can only get Rainbow multifactor configuration of their own company.
+     *
+     * @async
+     * @param {string} companyId Company unique identifier
+     * @param {string} format Allows to retrieve more or less policy details in response.
+     * \- `small`: mfaType mfaId mfaName
+     * \- `medium`: mfaType mfaId mfaName enableForAllCompanyUsers
+     * \- `full`: all policy fields
+     *
+     * Default value : `medium`. Possibles values : `small`, `medium`, `full`
+     * @category Company Rainbow Multifactor Authentication Server
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | mfType | string | type of Rainbow multifactor authentication |
+     * | mfaId | string | unique identifier of Rainbow multifactor authentication |
+     * | mfaName | string | Name of Rainbow multifactor authentication |
+     * | enableForAllCompanyUsers | Boolean | Indicates if MFA is the default method authentication for all company users |
+     * | mfaPolicy | string | Policy of Rainbow multifactor authentication<br><br>* `never`: no Multi Factor requested to the user<br>* `untrusted_only`: Multi Factor is requested to the user only for untrusted applications and browsers (user has the possibility to trust applications/browsers so that the multi factor is no longer requested for this application/browser during the number of days specified in `rememberDaysApplication` setting)<br>* `always`: Multi Factor is always requested to the user<br><br>Possibles values : `never`, `untrusted_only`, `always` |
+     * | rememberDaysApplication optionnel | string | Indicates how long trusted device could bypass mutifactor authentication in case of untrusted_only policy |
+     *
+     * </br>example of result :
+     * ```json
+     *    [
+     *         {
+     *            "mfaType": "totp",
+     *            "mfaId": "60ae30f1334f9a0741e4102f",
+     *            "mfaName": "totp example",
+     *            "enableForAllCompanyUsers": false
+     *         }
+     *     ]
+     * ```
+     *
+     */
+    getAllRainbowMultifactorConfiguration(companyId: string, format?: string): Promise<any>;
+    /**
+     * @public
+     * @nodered true
+     * @method updateRainbowMultifactorAuthenticationConfiguration
+     * @since 2.29.0
+     * @instance
+     * @description
+     * This API allows to update an Rainbow multifactor authentication configuration for a given company.
+     *
+     * </br> Users with `superadmin` role can create a Rainbow multifactor authentication configuration of any company.
+     * </br> `bp_admin` users can only create a Rainbow multifactor authentication configuration for a company they manage (i.e. End Customer company for which bp_admin's company if the BP company).
+     * </br> `organization_admin` users can only create a Rainbow multifactor authentication configuration for a company they manage (i.e. company linked to organization_admin's organization).
+     * </br> `company_admin` users can only create a Rainbow multifactor authentication configuration of their own company.
+     *
+     * @async
+     * @param {string} companyId Company unique identifier
+     * @param {string} mfaId Rainbow policy unique identifier
+     * @param {boolean} enabledForAllCompanyUsers Enable or disable the use of these Rainbow multifactor authentication settings for all members of the company
+     * </br> When several Rainbow multifactor or SSO authentication types are configured for a company, the multifactor authentication type having `enabledForAllCompanyUsers` set to true is used when users of this company authenticate in Rainbow (if user `authenticationType` setting is not set or equal to `DEFAULT`).
+     * </br> If `enabledForAllCompanyUsers` is set to true during MFA setting creation of update, the previous MFA or SSO having `enabledForAllCompanyUsers` set to true is updated to false so that there will always be only one authentication setting with `enabledForAllCompanyUsers` set to true.
+     * @param {string} mfaName Name of Rainbow multifactor authentication configuration
+     * @param {string} mfaType type of Rainbow multifactor authentication
+     * @param {string} mfaPolicy Policy of Rainbow multifactor authentication
+     *
+     * </br> -   `never`: no Multi Factor requested to the user
+     * </br> -   `untrusted_only`: Multi Factor is requested to the user only for untrusted applications and browsers (user has the possibility to trust applications/browsers so that the multi factor is no longer requested for this application/browser during the number of days specified in `rememberDaysApplication` setting)
+     * </br> -   `always`: Multi Factor is always requested to the user
+     *
+     * </br> Possibles values : `never`, `untrusted_only`, `always`
+     * @param {string} rememberDaysApplication Number of days when application and browsers are trusted. Default value : 365
+     * @param {boolean} mfaCanBeDisabled let the user disable the multifactor authentication. Default value : false
+     * @category Company Rainbow Multifactor Authentication Server
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | mfaId | string | unique identifier of Rainbow multifactor authentication |
+     * | mfaType | string | Authentication multifactor type<br><br>Possibles values : `none`, `totp` |
+     * | enabledForAllCompanyUsers | Boolean | Enable or disable the use of these Rainbow multifactor authentication settings for all members of company  <br>When several Rainbow multifactor or SSO authentication types are configured for a company, the SSO authentication type having `enabledForAllCompanyUsers` set to true is used when users of this company authenticate in Rainbow (if user `authenticationType` setting is not set). |
+     * | mfaName | string | Name of Rainbow multifactor authentication |
+     * | mfaPolicy | string | Policy of Rainbow multifactor authentication<br><br>* `never`: no Multi Factor requested to the user<br>* `untrusted_only`: Multi Factor is requested to the user only for untrusted applications and browsers (user has the possibility to trust applications/browsers so that the multi factor is no longer requested for this application/browser during the number of days specified in `rememberDaysApplication` setting)<br>* `always`: Multi Factor is always requested to the user<br><br>Possibles values : `never`, `untrusted_only`, `always` |
+     * | rememberDaysApplication | Number | Number of days when application and browsers are trusted |
+     * | mfaCanBeDisabled | Boolean | let the user disable the multifactor authentication |
+     *
+     * </br>example of result :
+     * ```json
+     *    {
+     *         "mfaId": "60ae30f1334f9a0741e4102f",
+     *         "mfaType": "totp",
+     *         "mfaPolicy" : "untrusted_app",
+     *         "enabledForAllCompanyUsers": true,
+     *         "mfaName": "totp example",
+     *         "rememberDaysApplication": 70
+     *     }
+     * ```
+     *
+     */
+    updateRainbowMultifactorAuthenticationConfiguration(companyId: string, mfaId: string, enabledForAllCompanyUsers: boolean, mfaName: string, mfaType: string, mfaPolicy: string, rememberDaysApplication: string, mfaCanBeDisabled: boolean): Promise<any>;
     /**
      * @public
      * @nodered true
@@ -8284,11 +8577,11 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      *
      * | Champ | Type | Description |
      * | --- | --- | --- |
-     * | id  | String | Join company link unique Id |
-     * | companyId | String | Company related to the join company link |
+     * | id  | string | Join company link unique Id |
+     * | companyId | string | Company related to the join company link |
      * | creationDate | Date-Time | Creation date of the join company link |
-     * | createdByAdminId | String | Unique Id of the admin who created the join company link |
-     * | description optionnel | String | Join company link description |
+     * | createdByAdminId | string | Unique Id of the admin who created the join company link |
+     * | description optionnel | string | Join company link description |
      * | isEnabled | Boolean | Boolean allowing to enable or disable the join company link.<br><br>* if the link is enabled, users can register using it,<br>* if the link is disabled, users can't register using it. |
      * | expirationDate optionnel | Date-Time | Date of expiration of the Join company link  <br>If a user tries to register using a link while its `expirationDate` is less than the current date, user registration will be denied. |
      * | maxNumberUsers optionnel | Number | Maximum number of users allowed to register in the company using this join company link.  <br>If a user tries to register using a link while its `nbUsersRegistered` is equal to `maxNumberUsers`, user registration will be denied. |
@@ -8317,12 +8610,12 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      * | Champ | Type | Description |
      * | --- | --- | --- |
      * | data | Object | Join company link Object |
-     * | status | String | Deletion status |
-     * | id  | String | Join company link unique Id |
-     * | companyId | String | Company related to the join company link |
+     * | status | string | Deletion status |
+     * | id  | string | Join company link unique Id |
+     * | companyId | string | Company related to the join company link |
      * | creationDate | Date-Time | Creation date of the join company link |
-     * | createdByAdminId | String | Unique Id of the admin who created the join company link |
-     * | description optionnel | String | Join company link description |
+     * | createdByAdminId | string | Unique Id of the admin who created the join company link |
+     * | description optionnel | string | Join company link description |
      * | isEnabled | Boolean | Boolean allowing to enable or disable the join company link.<br><br>* if the link is enabled, users can register using it,<br>* if the link is disabled, users can't register using it. |
      * | expirationDate optionnel | Date-Time | Date of expiration of the Join company link  <br>If a user tries to register using a link while its `expirationDate` is less than the current date, user registration will be denied. |
      * | maxNumberUsers optionnel | Number | Maximum number of users allowed to register in the company using this join company link.  <br>If a user tries to register using a link while its `nbUsersRegistered` is equal to `maxNumberUsers`, user registration will be denied. |
@@ -8350,11 +8643,11 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      * | Champ | Type | Description |
      * | --- | --- | --- |
      * | data | Object | Join company link Object |
-     * | id  | String | Join company link unique Id |
-     * | companyId | String | Company related to the join company link |
+     * | id  | string | Join company link unique Id |
+     * | companyId | string | Company related to the join company link |
      * | creationDate | Date-Time | Creation date of the join company link |
-     * | createdByAdminId | String | Unique Id of the admin who created the join company link |
-     * | description optionnel | String | Join company link description |
+     * | createdByAdminId | string | Unique Id of the admin who created the join company link |
+     * | description optionnel | string | Join company link description |
      * | isEnabled | Boolean | Boolean allowing to enable or disable the join company link.<br><br>* if the link is enabled, users can register using it,<br>* if the link is disabled, users can't register using it. |
      * | expirationDate optionnel | Date-Time | Date of expiration of the Join company link  <br>If a user tries to register using a link while its `expirationDate` is less than the current date, user registration will be denied. |
      * | maxNumberUsers optionnel | Number | Maximum number of users allowed to register in the company using this join company link.  <br>If a user tries to register using a link while its `nbUsersRegistered` is equal to `maxNumberUsers`, user registration will be denied. |
@@ -8375,9 +8668,9 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      * @async
      * @param {string} companyId Company unique identifier. Default value is the current logued in user's company.</br>
      * @param {string} format Allows to retrieve more or less join company links details in response.
-     * > * `small`: id, companyId, isEnabled
-     * > * `medium`: id, companyId, isEnabled, expirationDate, maxNumberUsers
-     * > * `full`: all join company links fields
+     * </br> * `small`: id, companyId, isEnabled
+     * </br> * `medium`: id, companyId, isEnabled, expirationDate, maxNumberUsers
+     * </br> * `full`: all join company links fields
      * Default value : `small`. Possibles values : `small`, `medium`, `full`.
      * @param {string} createdByAdminId List join company links created by the specified administrator id(s).
      * @param {boolean} isEnabled List join company links with the specified isEnabled value (true/false).
@@ -8399,11 +8692,11 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      * | limit | Number | Number of requested items |
      * | offset | Number | Requested position of the first item to retrieve |
      * | total | Number | Total number of items |
-     * | id  | String | Join company link unique Id |
-     * | companyId | String | Company related to the join company link |
+     * | id  | string | Join company link unique Id |
+     * | companyId | string | Company related to the join company link |
      * | creationDate | Date-Time | Creation date of the join company link |
-     * | createdByAdminId | String | Unique Id of the admin who created the join company link |
-     * | description optionnel | String | Join company link description |
+     * | createdByAdminId | string | Unique Id of the admin who created the join company link |
+     * | description optionnel | string | Join company link description |
      * | isEnabled | Boolean | Boolean allowing to enable or disable the join company link.<br><br>* if the link is enabled, users can register using it,<br>* if the link is disabled, users can't register using it. |
      * | expirationDate optionnel | Date-Time | Date of expiration of the Join company link  <br>If a user tries to register using a link while its `expirationDate` is less than the current date, user registration will be denied. |
      * | maxNumberUsers optionnel | Number | Maximum number of users allowed to register in the company using this join company link.  <br>If a user tries to register using a link while its `nbUsersRegistered` is equal to `maxNumberUsers`, user registration will be denied. |
@@ -8442,11 +8735,11 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      * | Champ | Type | Description |
      * | --- | --- | --- |
      * | data | Object | Join company link Object |
-     * | id  | String | Join company link unique Id |
-     * | companyId | String | Company related to the join company link |
+     * | id  | string | Join company link unique Id |
+     * | companyId | string | Company related to the join company link |
      * | creationDate | Date-Time | Creation date of the join company link |
-     * | createdByAdminId | String | Unique Id of the admin who created the join company link |
-     * | description optionnel | String | Join company link description |
+     * | createdByAdminId | string | Unique Id of the admin who created the join company link |
+     * | description optionnel | string | Join company link description |
      * | isEnabled | Boolean | Boolean allowing to enable or disable the join company link.<br><br>* if the link is enabled, users can register using it,<br>* if the link is disabled, users can't register using it. |
      * | expirationDate optionnel | Date-Time | Date of expiration of the Join company link  <br>If a user tries to register using a link while its `expirationDate` is less than the current date, user registration will be denied. |
      * | maxNumberUsers optionnel | Number | Maximum number of users allowed to register in the company using this join company link.  <br>If a user tries to register using a link while its `nbUsersRegistered` is equal to `maxNumberUsers`, user registration will be denied. |
@@ -8476,104 +8769,104 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      *
      * | Champ | Type | Description |
      * | --- | --- | --- |
-     * | meetingRecordingCustomisation | String | Activate/Deactivate the capability for a user to record a meeting.  <br>Defines if a user can record a meeting.  <br>meetingRecordingCustomisation can be:<br><br>* `enabled`: The user can record a meeting.<br>* `disabled`: The user can't record a meeting. |
-     * | eLearningGamificationCustomisation | String | Activate/Deactivate the capability for a user to earn badges for Elearning progress.  <br>Defines if a user can earn badges for Elearning progress.  <br>eLearningGamificationCustomisation can be:<br><br>* `enabled`: The user can earn badges for Elearning progress.<br>* `disabled`: The user can't earn badges for Elearning progress. |
-     * | eLearningCustomisation | String | Activate/Deactivate the capability for a user to participate on a Elearning training.  <br>Defines if a user can particapate on an Elearning training.  <br>eLearningCustomisation can be:<br><br>* `enabled`: The user can participate on an Elearning training.<br>* `disabled`: The user can't participate on an Elearning training. |
+     * | meetingRecordingCustomisation | string | Activate/Deactivate the capability for a user to record a meeting.  <br>Defines if a user can record a meeting.  <br>meetingRecordingCustomisation can be:<br><br>* `enabled`: The user can record a meeting.<br>* `disabled`: The user can't record a meeting. |
+     * | eLearningGamificationCustomisation | string | Activate/Deactivate the capability for a user to earn badges for Elearning progress.  <br>Defines if a user can earn badges for Elearning progress.  <br>eLearningGamificationCustomisation can be:<br><br>* `enabled`: The user can earn badges for Elearning progress.<br>* `disabled`: The user can't earn badges for Elearning progress. |
+     * | eLearningCustomisation | string | Activate/Deactivate the capability for a user to participate on a Elearning training.  <br>Defines if a user can particapate on an Elearning training.  <br>eLearningCustomisation can be:<br><br>* `enabled`: The user can participate on an Elearning training.<br>* `disabled`: The user can't participate on an Elearning training. |
      * | autoAcceptUserInvitations optionnel | Boolean | Allow to enable or disable the auto-acceptation of user invitations between users of this company (default true: enabled)<br><br>Default value : `true` |
      * | data | Object | Company Object. |
-     * | id  | String | Company unique identifier |
+     * | id  | string | Company unique identifier |
      * | creationDate | Date-Time | Company creation date (Read only) |
      * | statusUpdatedDate | Date-Time | Date of last company status update (Read only) |
      * | lastAvatarUpdateDate | Date-Time | Date of last company avatar update (Read only) |
-     * | name | String | Company name |
-     * | country optionnel | String | Company country (ISO 3166-1 alpha3 format)<br><br>The list of allowed countries can be obtained using the API [GET /api/rainbow/enduser/v1.0/countries](/enduser/#api-countries-getCountries) |
-     * | street optionnel | String | Company street<br> |
-     * | city optionnel | String | Company city<br> |
-     * | state optionnel | String | When country is 'USA' or 'CAN', a state must be defined. Else it is not managed.<br><br>The list of allowed states can be obtained using the API [GET /api/rainbow/enduser/v1.0/countries](/enduser/#api-countries-getCountries) for the associated countries.<br><br>* List of allowed states for `USA`:<br>    * `AA`: "Armed Forces America",<br>    * `AE`: "Armed Forces",<br>    * `AP`: "Armed Forces Pacific",<br>    * `AK`: "Alaska",<br>    * `AL`: "Alabama",<br>    * `AR`: "Arkansas",<br>    * `AZ`: "Arizona",<br>    * `CA`: "California",<br>    * `CO`: "Colorado",<br>    * `CT`: "Connecticut",<br>    * `DC`: Washington DC",<br>    * `DE`: "Delaware",<br>    * `FL`: "Florida",<br>    * `GA`: "Georgia",<br>    * `GU`: "Guam",<br>    * `HI`: "Hawaii",<br>    * `IA`: "Iowa",<br>    * `ID`: "Idaho",<br>    * `IL`: "Illinois",<br>    * `IN`: "Indiana",<br>    * `KS`: "Kansas",<br>    * `KY`: "Kentucky",<br>    * `LA`: "Louisiana",<br>    * `MA`: "Massachusetts",<br>    * `MD`: "Maryland",<br>    * `ME`: "Maine",<br>    * `MI`: "Michigan",<br>    * `MN`: "Minnesota",<br>    * `MO`: "Missouri",<br>    * `MS`: "Mississippi",<br>    * `MT`: "Montana",<br>    * `NC`: "North Carolina",<br>    * `ND`: "North Dakota",<br>    * `NE`: "Nebraska",<br>    * `NH`: "New Hampshire",<br>    * `NJ`: "New Jersey",<br>    * `NM`: "New Mexico",<br>    * `NV`: "Nevada",<br>    * `NY`: "New York",<br>    * `OH`: "Ohio",<br>    * `OK`: "Oklahoma",<br>    * `OR`: "Oregon",<br>    * `PA`: "Pennsylvania",<br>    * `PR`: "Puerto Rico",<br>    * `RI`: "Rhode Island",<br>    * `SC`: "South Carolina",<br>    * `SD`: "South Dakota",<br>    * `TN`: "Tennessee",<br>    * `TX`: "Texas",<br>    * `UT`: "Utah",<br>    * `VA`: "Virginia",<br>    * `VI`: "Virgin Islands",<br>    * `VT`: "Vermont",<br>    * `WA`: "Washington",<br>    * `WI`: "Wisconsin",<br>    * `WV`: "West Virginia",<br>    * `WY`: "Wyoming"<br>* List of allowed states for `CAN`:<br>    * `AB`: "Alberta",<br>    * `BC`: "British Columbia",<br>    * `MB`: "Manitoba",<br>    * `NB`: "New Brunswick",<br>    * `NL`: "Newfoundland and Labrador",<br>    * `NS`: "Nova Scotia",<br>    * `NT`: "Northwest Territories",<br>    * `NU`: "Nunavut",<br>    * `ON`: "Ontario",<br>    * `PE`: "Prince Edward Island",<br>    * `QC`: "Quebec",<br>    * `SK`: "Saskatchewan",<br>    * `YT`: "Yukon"<br><br>Possibles values `null`, `"AA"`, `"AE"`, `"AP"`, `"AK"`, `"AL"`, `"AR"`, `"AZ"`, `"CA"`, `"CO"`, `"CT"`, `"DC"`, `"DE"`, `"FL"`, `"GA"`, `"GU"`, `"HI"`, `"IA"`, `"ID"`, `"IL"`, `"IN"`, `"KS"`, `"KY"`, `"LA"`, `"MA"`, `"MD"`, `"ME"`, `"MI"`, `"MN"`, `"MO"`, `"MS"`, `"MT"`, `"NC"`, `"ND"`, `"NE"`, `"NH"`, `"NJ"`, `"NM"`, `"NV"`, `"NY"`, `"OH"`, `"OK"`, `"OR"`, `"PA"`, `"PR"`, `"RI"`, `"SC"`, `"SD"`, `"TN"`, `"TX"`, `"UT"`, `"VA"`, `"VI"`, `"VT"`, `"WA"`, `"WI"`, `"WV"`, `"WY"`, `"AB"`, `"BC"`, `"MB"`, `"NB"`, `"NL"`, `"NS"`, `"NT"`, `"NU"`, `"ON"`, `"PE"`, `"QC"`, `"SK"`, `"YT"` |
-     * | postalCode optionnel | String | Company postal code<br> |
-     * | currency optionnel | String | Company currency, for payment of premium offers (ISO 4217 format)  <br>For now, only USD, EUR and CNY are supported<br><br>Possibles values `USD`, `EUR`, `CNY` |
-     * | status | String | Company status<br><br>Possibles values `initializing`, `active`, `alerting`, `hold`, `terminated` |
+     * | name | string | Company name |
+     * | country optionnel | string | Company country (ISO 3166-1 alpha3 format)<br><br>The list of allowed countries can be obtained using the API AdminService::getListOfCountries() |
+     * | street optionnel | string | Company street<br> |
+     * | city optionnel | string | Company city<br> |
+     * | state optionnel | string | When country is 'USA' or 'CAN', a state must be defined. Else it is not managed.<br><br>The list of allowed states can be obtained using the API AdminService::getListOfCountries() for the associated countries.<br><br>* List of allowed states for `USA`:<br>    * `AA`: "Armed Forces America",<br>    * `AE`: "Armed Forces",<br>    * `AP`: "Armed Forces Pacific",<br>    * `AK`: "Alaska",<br>    * `AL`: "Alabama",<br>    * `AR`: "Arkansas",<br>    * `AZ`: "Arizona",<br>    * `CA`: "California",<br>    * `CO`: "Colorado",<br>    * `CT`: "Connecticut",<br>    * `DC`: Washington DC",<br>    * `DE`: "Delaware",<br>    * `FL`: "Florida",<br>    * `GA`: "Georgia",<br>    * `GU`: "Guam",<br>    * `HI`: "Hawaii",<br>    * `IA`: "Iowa",<br>    * `ID`: "Idaho",<br>    * `IL`: "Illinois",<br>    * `IN`: "Indiana",<br>    * `KS`: "Kansas",<br>    * `KY`: "Kentucky",<br>    * `LA`: "Louisiana",<br>    * `MA`: "Massachusetts",<br>    * `MD`: "Maryland",<br>    * `ME`: "Maine",<br>    * `MI`: "Michigan",<br>    * `MN`: "Minnesota",<br>    * `MO`: "Missouri",<br>    * `MS`: "Mississippi",<br>    * `MT`: "Montana",<br>    * `NC`: "North Carolina",<br>    * `ND`: "North Dakota",<br>    * `NE`: "Nebraska",<br>    * `NH`: "New Hampshire",<br>    * `NJ`: "New Jersey",<br>    * `NM`: "New Mexico",<br>    * `NV`: "Nevada",<br>    * `NY`: "New York",<br>    * `OH`: "Ohio",<br>    * `OK`: "Oklahoma",<br>    * `OR`: "Oregon",<br>    * `PA`: "Pennsylvania",<br>    * `PR`: "Puerto Rico",<br>    * `RI`: "Rhode Island",<br>    * `SC`: "South Carolina",<br>    * `SD`: "South Dakota",<br>    * `TN`: "Tennessee",<br>    * `TX`: "Texas",<br>    * `UT`: "Utah",<br>    * `VA`: "Virginia",<br>    * `VI`: "Virgin Islands",<br>    * `VT`: "Vermont",<br>    * `WA`: "Washington",<br>    * `WI`: "Wisconsin",<br>    * `WV`: "West Virginia",<br>    * `WY`: "Wyoming"<br>* List of allowed states for `CAN`:<br>    * `AB`: "Alberta",<br>    * `BC`: "British Columbia",<br>    * `MB`: "Manitoba",<br>    * `NB`: "New Brunswick",<br>    * `NL`: "Newfoundland and Labrador",<br>    * `NS`: "Nova Scotia",<br>    * `NT`: "Northwest Territories",<br>    * `NU`: "Nunavut",<br>    * `ON`: "Ontario",<br>    * `PE`: "Prince Edward Island",<br>    * `QC`: "Quebec",<br>    * `SK`: "Saskatchewan",<br>    * `YT`: "Yukon"<br><br>Possibles values `null`, `"AA"`, `"AE"`, `"AP"`, `"AK"`, `"AL"`, `"AR"`, `"AZ"`, `"CA"`, `"CO"`, `"CT"`, `"DC"`, `"DE"`, `"FL"`, `"GA"`, `"GU"`, `"HI"`, `"IA"`, `"ID"`, `"IL"`, `"IN"`, `"KS"`, `"KY"`, `"LA"`, `"MA"`, `"MD"`, `"ME"`, `"MI"`, `"MN"`, `"MO"`, `"MS"`, `"MT"`, `"NC"`, `"ND"`, `"NE"`, `"NH"`, `"NJ"`, `"NM"`, `"NV"`, `"NY"`, `"OH"`, `"OK"`, `"OR"`, `"PA"`, `"PR"`, `"RI"`, `"SC"`, `"SD"`, `"TN"`, `"TX"`, `"UT"`, `"VA"`, `"VI"`, `"VT"`, `"WA"`, `"WI"`, `"WV"`, `"WY"`, `"AB"`, `"BC"`, `"MB"`, `"NB"`, `"NL"`, `"NS"`, `"NT"`, `"NU"`, `"ON"`, `"PE"`, `"QC"`, `"SK"`, `"YT"` |
+     * | postalCode optionnel | string | Company postal code<br> |
+     * | currency optionnel | string | Company currency, for payment of premium offers (ISO 4217 format)  <br>For now, only USD, EUR and CNY are supported<br><br>Possibles values `USD`, `EUR`, `CNY` |
+     * | status | string | Company status<br><br>Possibles values `initializing`, `active`, `alerting`, `hold`, `terminated` |
      * | visibility optionnel | string | Company visibility (define if users being in this company can be searched by users being in other companies and if the user can search users being in other companies).<br><br>* `public`: User can be searched by external users / can search external users. User can invite external users / can be invited by external users<br>* `private`: User **can't** be searched by external users (even within his organisation) / can search external users. User can invite external users / can be invited by external users<br>* `organisation`: User **can't** be searched by external users / can search external users. User can invite external users / can be invited by external users<br>* `closed`: User **can't** be searched by external users / **can't** search external users. User can invite external users / can be invited by external users<br>* `isolated`: User **can't** be searched by external users / **can't** search external users. User **can't** invite external users / **can't** be invited by external users<br>* `none`: Default value reserved for guest. User **can't** be searched by **any users** (even within the same company) / can search external users. User can invite external users / can be invited by external users<br><br>External users mean public user not being in user's company nor user's organisation nor a company visible by user's company.<br><br>Note related to organisation visibility:<br><br>* Under the same organisation, a company can choose the visibility=organisation. That means users belonging to this company are visible for users of foreign companies inside the same organisation.<br>* The visibility=organisation is same as visibility=private outside the organisation. That is to say users can't be searched outside the organisation's companies.<br><br>Default value : `private`<br><br>Possibles values `public`, `private`, `organisation`, `closed`, `isolated` |
-     * | visibleBy | String\[\] | If visibility is private, list of companyIds for which visibility is allowed |
-     * | adminEmail optionnel | String | Company contact person email |
-     * | supportEmail optionnel | String | Company support email |
-     * | supportUrlFAQ optionnel | String | Company support URL |
-     * | companyContactId optionnel | String | User Id of a Rainbow user which is the contact for this company |
+     * | visibleBy | string\[\] | If visibility is private, list of companyIds for which visibility is allowed |
+     * | adminEmail optionnel | string | Company contact person email |
+     * | supportEmail optionnel | string | Company support email |
+     * | supportUrlFAQ optionnel | string | Company support URL |
+     * | companyContactId optionnel | string | User Id of a Rainbow user which is the contact for this company |
      * | disableCCareAdminAccess optionnel | Boolean | When True, disables the access to the customer care logs for admins of this company.  <br>Note that if `disableCCareAdminAccessCustomers` is enabled on its BP company or `disableCCareAdminAccessResellers` is enabled on its BP VAD company, this setting is forced to true. |
      * | disableCCareAdminAccessCustomers optionnel | Boolean | When True, disables the access to the customer care logs for admins of all the customers company.  <br>This setting is only applicable for BP companies (`isBP`=true)<br><br>* If the BP company is a DR or an IR, enabling this setting disables the access to the customer care logs for the admins of all its customers companies.<br>* If the BP company is a VAD, enabling this setting disables the access to the customer care logs for all the admins of its customers companies.  <br>    Note that the bp_admins/admins of all the BP IRs companies linked to this VAD still have access to the customer care logs (the setting `disableCCareAdminAccessResellers` on the BP VAD company allows to disable it). |
      * | disableCCareAdminAccessResellers optionnel | Boolean | When True, disables the access to the customer care logs for admins of all the BP IRs companies linked to the BP VAD and their customers company.  <br>This setting is only applicable for BP VAD companies (`isBP`=true and `bpType`=`VAD`)  <br>Enabling this setting disables on the BP VAD company disables the access to the customer care logs for the bp_admins/admins of all the BP IRs linked to this VAD, and to all the admins of their customers.  <br>Note that the admins of all the customer companies directly linked to this VAD still have access to the customer care logs (the setting `disableCCareAdminAccessCustomers` on the BP VAD company allows to disable it). |
      * | userSelfRegisterEnabled | Boolean | Allow users with email domain matching 'userSelfRegisterAllowedDomains' to join the company by self-register process |
-     * | userSelfRegisterAllowedDomains | String\[\] | Allow users with email domain matching one of the values of this array to join the company by self-register process (if userSelfRegisterEnabled is true) |
-     * | slogan optionnel | String | A free string corresponding to the slogan of the company (255 char length) |
-     * | description optionnel | String | A free string that describes the company (2000 char length) |
-     * | size | String | An overview of the number of employees<br><br>Possibles values `"self-employed"`, `"1-10 employees"`, `"11-50 employees"`, `"51-200 employees"`, `"201-500 employees"`, `"501-1000 employees"`, `"1001-5000 employees"`, `"5001-10,000 employees"`, `"10,001+ employees"` |
-     * | economicActivityClassification optionnel | String | * `A`: AGRICULTURE, FORESTRY AND FISHING<br>* `B`: MINING AND QUARRYING<br>* `C`: MANUFACTURING<br>* `D`: ELECTRICITY, GAS, STEAM AND AIR CONDITIONING SUPPLY<br>* `E`: WATER SUPPLY; SEWERAGE, WASTE MANAGEMENT AND REMEDIATION ACTIVITIES<br>* `F`: CONSTRUCTION<br>* `G`: WHOLESALE AND RETAIL TRADE; REPAIR OF MOTOR VEHICLES AND MOTORCYCLES<br>* `H`: TRANSPORTATION AND STORAGE<br>* `I`: ACCOMMODATION AND FOOD SERVICE ACTIVITIES<br>* `J`: INFORMATION AND COMMUNICATION<br>* `K`: FINANCIAL AND INSURANCE ACTIVITIES<br>* `L`: REAL ESTATE ACTIVITIES<br>* `M`: PROFESSIONAL, SCIENTIFIC AND TECHNICAL ACTIVITIES<br>* `N`: ADMINISTRATIVE AND SUPPORT SERVICE ACTIVITIES<br>* `O`: PUBLIC ADMINISTRATION AND DEFENCE; COMPULSORY SOCIAL SECURITY<br>* `P`: EDUCATION<br>* `Q`: HUMAN HEALTH AND SOCIAL WORK ACTIVITIES<br>* `R`: ARTS, ENTERTAINMENT AND RECREATION<br>* `S`: OTHER SERVICE ACTIVITIES<br>* `T`: ACTIVITIES OF HOUSEHOLDS AS EMPLOYERS; UNDIFFERENTIATED GOODS- AND SERVICES-PRODUCING ACTIVITIES OF HOUSEHOLDS FOR OWN USE<br>* `U`: ACTIVITIES OF EXTRATERRITORIAL ORGANISATIONS AND BODIES<br><br>Possibles values `"NONE"`, `"A"`, `"B"`, `"C"`, `"D"`, `"E"`, `"F"`, `"G"`, `"H"`, `"I"`, `"J"`, `"K"`, `"L"`, `"M"`, `"N"`, `"O"`, `"P"`, `"Q"`, `"R"`, `"S"`, `"T"`, `"U"` |
+     * | userSelfRegisterAllowedDomains | string\[\] | Allow users with email domain matching one of the values of this array to join the company by self-register process (if userSelfRegisterEnabled is true) |
+     * | slogan optionnel | string | A free string corresponding to the slogan of the company (255 char length) |
+     * | description optionnel | string | A free string that describes the company (2000 char length) |
+     * | size | string | An overview of the number of employees<br><br>Possibles values `"self-employed"`, `"1-10 employees"`, `"11-50 employees"`, `"51-200 employees"`, `"201-500 employees"`, `"501-1000 employees"`, `"1001-5000 employees"`, `"5001-10,000 employees"`, `"10,001+ employees"` |
+     * | economicActivityClassification optionnel | string | * `A`: AGRICULTURE, FORESTRY AND FISHING<br>* `B`: MINING AND QUARRYING<br>* `C`: MANUFACTURING<br>* `D`: ELECTRICITY, GAS, STEAM AND AIR CONDITIONING SUPPLY<br>* `E`: WATER SUPPLY; SEWERAGE, WASTE MANAGEMENT AND REMEDIATION ACTIVITIES<br>* `F`: CONSTRUCTION<br>* `G`: WHOLESALE AND RETAIL TRADE; REPAIR OF MOTOR VEHICLES AND MOTORCYCLES<br>* `H`: TRANSPORTATION AND STORAGE<br>* `I`: ACCOMMODATION AND FOOD SERVICE ACTIVITIES<br>* `J`: INFORMATION AND COMMUNICATION<br>* `K`: FINANCIAL AND INSURANCE ACTIVITIES<br>* `L`: REAL ESTATE ACTIVITIES<br>* `M`: PROFESSIONAL, SCIENTIFIC AND TECHNICAL ACTIVITIES<br>* `N`: ADMINISTRATIVE AND SUPPORT SERVICE ACTIVITIES<br>* `O`: PUBLIC ADMINISTRATION AND DEFENCE; COMPULSORY SOCIAL SECURITY<br>* `P`: EDUCATION<br>* `Q`: HUMAN HEALTH AND SOCIAL WORK ACTIVITIES<br>* `R`: ARTS, ENTERTAINMENT AND RECREATION<br>* `S`: OTHER SERVICE ACTIVITIES<br>* `T`: ACTIVITIES OF HOUSEHOLDS AS EMPLOYERS; UNDIFFERENTIATED GOODS- AND SERVICES-PRODUCING ACTIVITIES OF HOUSEHOLDS FOR OWN USE<br>* `U`: ACTIVITIES OF EXTRATERRITORIAL ORGANISATIONS AND BODIES<br><br>Possibles values `"NONE"`, `"A"`, `"B"`, `"C"`, `"D"`, `"E"`, `"F"`, `"G"`, `"H"`, `"I"`, `"J"`, `"K"`, `"L"`, `"M"`, `"N"`, `"O"`, `"P"`, `"Q"`, `"R"`, `"S"`, `"T"`, `"U"` |
      * | giphyEnabled optionnel | Boolean | Whether or not giphy feature is enabled for users belonging to this company (possibility to use animated gifs in conversations) |
-     * | website optionnel | String | Company website URL |
-     * | organisationId | String | Optional identifier to indicate the company belongs to an organisation |
-     * | catalogId | String | Id of the catalog of Rainbow offers to which the company is linked. The catalog corresponds to the list of offers the company can subscribe. |
-     * | bpId | String | Optional identifier which links the company to the corresponding Business partner company |
+     * | website optionnel | string | Company website URL |
+     * | organisationId | string | Optional identifier to indicate the company belongs to an organisation |
+     * | catalogId | string | Id of the catalog of Rainbow offers to which the company is linked. The catalog corresponds to the list of offers the company can subscribe. |
+     * | bpId | string | Optional identifier which links the company to the corresponding Business partner company |
      * | adminHasRightToUpdateSubscriptions optionnel | Boolean | In the case the company is linked to a Business Partner company, indicates if the `bp_admin` allows the `company_admin` to update the subscriptions of his company (if enable, allowed operations depend of the value of `adminAllowedUpdateSubscriptionsOps`).  <br>Can only be set by `superadmin` or `bp_admin`/`bp_finance` of the related company. |
-     * | adminAllowedUpdateSubscriptionsOps optionnel | String | In the case the company is linked to a Business Partner company and `adminHasRightToUpdateSubscriptions` is enabled, indicates the update operations for which the `bp_admin` allows the `company_admin` to perform on the subscriptions of his company.<br><br>Can only be set by `superadmin` or `bp_admin`/`bp_finance` of the related company.<br><br>Possible values:<br><br>* `all`: company_admin is allowed to perform all update operations on the subscriptions of his company<br>* `increase_only`: company_admin is only allowed to increase `maxNumberUsers` on the subscriptions of his company (decrease is forbidden)<br><br>Possibles values `all`, `increase_only` |
+     * | adminAllowedUpdateSubscriptionsOps optionnel | string | In the case the company is linked to a Business Partner company and `adminHasRightToUpdateSubscriptions` is enabled, indicates the update operations for which the `bp_admin` allows the `company_admin` to perform on the subscriptions of his company.<br><br>Can only be set by `superadmin` or `bp_admin`/`bp_finance` of the related company.<br><br>Possible values:<br><br>* `all`: company_admin is allowed to perform all update operations on the subscriptions of his company<br>* `increase_only`: company_admin is only allowed to increase `maxNumberUsers` on the subscriptions of his company (decrease is forbidden)<br><br>Possibles values `all`, `increase_only` |
      * | isBP | Boolean | Indicates if the company is a Business partner company<br><br>Default value : `false` |
-     * | bpType optionnel | String | Indicates BP Company type<br><br>* `IR`: Indirect Reseller,<br>* `VAD`: Value Added Distributor,<br>* `DR`: Direct Reseller.<br><br>Possibles values `IR`, `VAD`, `DR` |
-     * | bpBusinessModel optionnel | String | Indicates BP business model |
-     * | bpApplicantNumber optionnel | String | Reference of the Business Partner in ALE Finance tools (SAP) |
-     * | bpCRDid optionnel | String | Reference of the Business Partner in CDR |
+     * | bpType optionnel | string | Indicates BP Company type<br><br>* `IR`: Indirect Reseller,<br>* `VAD`: Value Added Distributor,<br>* `DR`: Direct Reseller.<br><br>Possibles values `IR`, `VAD`, `DR` |
+     * | bpBusinessModel optionnel | string | Indicates BP business model |
+     * | bpApplicantNumber optionnel | string | Reference of the Business Partner in ALE Finance tools (SAP) |
+     * | bpCRDid optionnel | string | Reference of the Business Partner in CDR |
      * | bpHasRightToSell optionnel | Boolean | Indicates if the Business has the right to sell |
      * | bpHasRightToConnect optionnel | Boolean | When True, the BP can connect CPE equipment of managed companies. So when False, the "equipment" tab should be removed from the admin GUI |
      * | bpIsContractAccepted optionnel | Boolean | Indicates if the Business has accepted the contract and can sell Rainbow offers |
      * | bpContractAcceptationInfo optionnel | Object | If the Business has accepted the contract, indicates who accepted the contract, Only visible by `superadmin` and `support`. |
      * | acceptationDate | Date-Time | Date of contract acceptation by the BP admin |
-     * | bpAdminId | String | User Id of the BP admin who accepted the contract |
-     * | offerType | String | Allowed company offer types<br><br>Possibles values `freemium`, `premium` |
-     * | bpAdminLoginEmail | String | User loginEmail of the BP admin who accepted the contract |
-     * | businessSpecific optionnel | String | When the customer has subscribed to specific business offers, this field is set to the associated specific business (ex: HDS for HealthCare business specific)<br><br>Possibles values `HDS` |
-     * | externalReference optionnel | String | Free field that BP can use to link their customers to their IS/IT tools  <br>Only applicable by `superadmin` or by `bp_admin`/`bp_finance` on one of his customer companies.<br> |
-     * | externalReference2 optionnel | String | Free field that BP can use to link their customers to their IS/IT tools  <br>Only applicable by `superadmin` or by `bp_admin`/`bp_finance` on one of his customer companies.<br> |
-     * | avatarShape optionnel | String | Company's avatar customization<br><br>Possibles values `square`, `circle` |
+     * | bpAdminId | string | User Id of the BP admin who accepted the contract |
+     * | offerType | string | Allowed company offer types<br><br>Possibles values `freemium`, `premium` |
+     * | bpAdminLoginEmail | string | User loginEmail of the BP admin who accepted the contract |
+     * | businessSpecific optionnel | string | When the customer has subscribed to specific business offers, this field is set to the associated specific business (ex: HDS for HealthCare business specific)<br><br>Possibles values `HDS` |
+     * | externalReference optionnel | string | Free field that BP can use to link their customers to their IS/IT tools  <br>Only applicable by `superadmin` or by `bp_admin`/`bp_finance` on one of his customer companies.<br> |
+     * | externalReference2 optionnel | string | Free field that BP can use to link their customers to their IS/IT tools  <br>Only applicable by `superadmin` or by `bp_admin`/`bp_finance` on one of his customer companies.<br> |
+     * | avatarShape optionnel | string | Company's avatar customization<br><br>Possibles values `square`, `circle` |
      * | allowUsersSelectTheme | Boolean | Allow users of this company to select a theme among the ones available (owned or visible by the company). |
      * | allowUsersSelectPublicTheme | Boolean | Allow users of this company to select a public theme. |
      * | selectedTheme optionnel | Object | Set the selected theme(s) for users of the company. |
-     * | light optionnel | String | Set the selected theme light for users of the company. |
-     * | dark optionnel | String | Set the selected theme dark for users of the company. |
+     * | light optionnel | string | Set the selected theme light for users of the company. |
+     * | dark optionnel | string | Set the selected theme dark for users of the company. |
      * | adminCanSetCustomData optionnel | Boolean | Whether or not administrators can set `customData` field for their own company. |
      * | isLockedByBp optionnel | Boolean | Whether or not BP company has locked themes so that indicates if company admin can manage themes (create/update/delete). |
-     * | superadminComment optionnel | String | Free field that only `superadmin` can see<br> |
-     * | bpBusinessType optionnel | String\[\] | Business type that can be sold by a BP.<br><br>Possibles values `voice_by_partner`, `voice_by_ale`, `conference`, `default` |
-     * | billingModel optionnel | String | Billing model that can be subscribed for this company.<br><br>Possibles values `monthly`, `prepaid_1y`, `prepaid_3y`, `prepaid_5y` |
-     * | office365Tenant optionnel | String | Office365 tenant configured for this company. |
-     * | office365ScopesGranted optionnel | String\[\] | Scopes granted to Rainbow for usage of Microsoft Office365 APIs.  <br>If no office365Tenant is set or if admin has not granted access of Office365 APIs to Rainbow for the configured office365Tenant, office365ScopesGranted is set to an empty Array.  <br>Otherwise, office365ScopesGranted lists the scopes requested by Rainbow to use Office365 APIs for the configured office365Tenant. This field can be used to determine if the admin must re-authenticate to Microsoft Office365 in the case new scopes are requested for Rainbow application (scopes requested for the current version of office365-portal are listed in API GET /api/rainbow/office365/v1.0/consent).<br><br>Possibles values `directory`, `calendar` |
+     * | superadminComment optionnel | string | Free field that only `superadmin` can see<br> |
+     * | bpBusinessType optionnel | string\[\] | Business type that can be sold by a BP.<br><br>Possibles values `voice_by_partner`, `voice_by_ale`, `conference`, `default` |
+     * | billingModel optionnel | string | Billing model that can be subscribed for this company.<br><br>Possibles values `monthly`, `prepaid_1y`, `prepaid_3y`, `prepaid_5y` |
+     * | office365Tenant optionnel | string | Office365 tenant configured for this company. |
+     * | office365ScopesGranted optionnel | string\[\] | Scopes granted to Rainbow for usage of Microsoft Office365 APIs.  <br>If no office365Tenant is set or if admin has not granted access of Office365 APIs to Rainbow for the configured office365Tenant, office365ScopesGranted is set to an empty Array.  <br>Otherwise, office365ScopesGranted lists the scopes requested by Rainbow to use Office365 APIs for the configured office365Tenant. This field can be used to determine if the admin must re-authenticate to Microsoft Office365 in the case new scopes are requested for Rainbow application (scopes requested for the current version of office365-portal are listed in API GET /api/rainbow/office365/v1.0/consent).<br><br>Possibles values `directory`, `calendar` |
      * | mobilePermanentConnectionMode | Boolean | deactivate push mode for mobile devices.  <br>When we can't rely on Internet and Google FCM services to wake-up the app or notify the app, we can fall back to a direct XMPP connection.  <br>For customers using Samsung devices with Google Play services, we must have an option on admin side to set this permanent connection mode, so that mobile apps can rely on this parameter. This option will be applied for the whole company. |
-     * | fileSharingCustomisation | String | Activate/Deactivate file sharing capability per company  <br>Define if the company can use the file sharing service then, allowed to download and share file.  <br>FileSharingCustomisation can be:<br><br>* `enabled`: Each user of the company can use the file sharing service, except when his own capability is set to 'disabled'.<br>* `disabled`: No user of the company can use the file sharing service, except when his own capability is set to 'enabled'. When one user of the company has the capability 'fileSharingCustomisation' set to 'same\_than\_company', his capability follow the company setting. |
-     * | userTitleNameCustomisation | String | Activate/Deactivate the capability for a user to modify his profile (title, firstName, lastName) per company  <br>Define if the company allows his users to change some profile data.  <br>userTitleNameCustomisation can be:<br><br>* `enabled`: Each user of the company can change some profile data, except when his own capability is set to 'disabled'.<br>* `disabled`: No user of the company can change some profile data, except when his own capability is set to 'enabled'. When one user of the company has the capability 'userTitleNameCustomisation' set to 'same\_than\_company', his capability follow the company setting. |
-     * | softphoneOnlyCustomisation | String | Activate/Deactivate the capability for an UCaas application not to offer all Rainbow services and but to focus to telephony services.  <br>Define if UCaas apps used by a user of this company must provide Softphone functions, i.e. no chat, no bubbles, no meetings, no channels, and so on.  <br>softphoneOnlyCustomisation can be:<br><br>* `enabled`: The user switch to a softphone mode only.<br>* `disabled`: The user can use telephony services, chat, bubbles, channels meeting services and so on. |
-     * | useRoomCustomisation | String | Activate/Deactivate the capability for a user to use bubbles.  <br>Define if a user can create bubbles or participate in bubbles (chat and web conference).  <br>useRoomCustomisation can be:<br><br>* `enabled`: Each user of the company can use bubbles.<br>* `disabled`: No user of the company can use bubbles. |
-     * | phoneMeetingCustomisation | String | Activate/Deactivate the capability for a user to use phone meetings (PSTN conference).  <br>Define if a user has the right to join phone meetings.  <br>phoneMeetingCustomisation can be:<br><br>* `enabled`: Each user of the company can join phone meetings.<br>* `disabled`: No user of the company can join phone meetings. |
-     * | useChannelCustomisation | String | Activate/Deactivate the capability for a user to use a channel.  <br>Define if a user has the right to create channels or be a member of channels.  <br>useChannelCustomisation can be:<br><br>* `enabled`: Each user of the company can use some channels.<br>* `disabled`: No user of the company can use some channel. |
-     * | useScreenSharingCustomisation | String | Activate/Deactivate the capability for a user to share a screen.  <br>Define if a user has the right to share his screen.  <br>useScreenSharingCustomisation can be:<br><br>* `enabled`: Each user of the company can share his screen.<br>* `disabled`: No user of the company can share his screen. |
-     * | useWebRTCVideoCustomisation | String | Activate/Deactivate the capability for a user to switch to a Web RTC video conversation.  <br>Define if a user has the right to be joined via video and to use video (start a P2P video call, add video in a P2P call, add video in a web conference call).  <br>useWebRTCVideoCustomisation can be:<br><br>* `enabled`: Each user of the company can switch to a Web RTC video conversation.<br>* `disabled`: No user of the company can switch to a Web RTC video conversation. |
-     * | useWebRTCAudioCustomisation | String | Activate/Deactivate the capability for a user to switch to a Web RTC audio conversation.  <br>Define if a user has the right to be joined via audio (WebRTC) and to use Rainbow audio (WebRTC) (start a P2P audio call, start a web conference call).  <br>useWebRTCVideoCustomisation can be:<br><br>* `enabled`: Each user of the company can switch to a Web RTC audio conversation.<br>* `disabled`: No user of the company can switch to a Web RTC audio conversation. |
-     * | instantMessagesCustomisation | String | Activate/Deactivate the capability for a user to use instant messages.  <br>Define if a user has the right to use IM, then to start a chat (P2P ou group chat) or receive chat messages and chat notifications.  <br>instantMessagesCustomisation can be:<br><br>* `enabled`: Each user of the company can use instant messages.<br>* `disabled`: No user of the company can use instant messages. |
-     * | userProfileCustomisation | String | Activate/Deactivate the capability for a user to modify his profile.  <br>Define if a user has the right to modify the globality of his profile and not only (title, firstName, lastName).  <br>userProfileCustomisation can be:<br><br>* `enabled`: Each user of the company can modify his profile.<br>* `disabled`: No user of the company can modify his profile. |
-     * | fileStorageCustomisation | String | Activate/Deactivate the capability for a user to access to Rainbow file storage.  <br>Define if a user has the right to upload/download/copy or share documents.  <br>fileStorageCustomisation can be:<br><br>* `enabled`: Each user of the company can manage and share files.<br>* `disabled`: No user of the company can manage and share files. |
-     * | overridePresenceCustomisation | String | Activate/Deactivate the capability for a user to change manually his presence.  <br>Define if a user has the right to change his presence manually or only use automatic states.  <br>overridePresenceCustomisation can be:<br><br>* `enabled`: Each user of the company can change his presence.<br>* `disabled`: No user of the company can change his presence. |
-     * | alertNotificationReception | String | Activate/Deactivate the capability for a user to receive alert notification.  <br>Define if a user has the right to receive alert notification  <br>alertNotificationReception can be:<br><br>* `enabled`: Each user of the company can receive alert notification.<br>* `disabled`: No user of the company can receive alert notification. |
-     * | alertNotificationSending | String | Activate/Deactivate the capability for a user to send alert notification.  <br>Define if a user has the right to send alert notification  <br>alertNotificationSending can be:<br><br>* `enabled`: Each user of the company can send alert notification.<br>* `disabled`: No user of the company can send alert notification. |
-     * | changeTelephonyCustomisation | String | Activate/Deactivate the ability for a user to modify some telephony settings.  <br>Define if a user has the right to modify telephony settings like forward activation ....  <br>changeTelephonyCustomisation can be:<br><br>* `enabled`: The user can modify telephony settings.<br>* `disabled`: The user can't modify telephony settings. |
-     * | changeSettingsCustomisation | String | Activate/Deactivate the ability for a user to change all client general settings.  <br>Define if a user has the right to change his client general settings.  <br>changeSettingsCustomisation can be:<br><br>* `enabled`: The user can change all client general settings.<br>* `disabled`: The user can't change any client general setting. recordingConversationCustomisation Activate/Deactivate the capability for a user to record a conversation.  <br>    Define if a user has the right to record a conversation (for P2P and multi-party calls).  <br>    recordingConversationCustomisation can be:<br>* `enabled`: The user can record a peer to peer or a multi-party call.<br>* `disabled`: The user can't record a peer to peer or a multi-party call. |
-     * | useGifCustomisation | String | Activate/Deactivate the ability for a user to Use GIFs in conversations.  <br>Define if a user has the is allowed to send animated GIFs in conversations  <br>useGifCustomisation can be:<br><br>* `enabled`: The user can send animated GIFs in conversations.<br>* `disabled`: The user can't send animated GIFs in conversations. |
-     * | useDialOutCustomisation | String | Activate/Deactivate the capability for a user to use dial out in phone meetings.  <br>Define if a user is allowed to be called by the Rainbow conference bridge.  <br>useDialOutCustomisation can be:<br><br>* `enabled`: The user can be called by the Rainbow conference bridge.<br>* `disabled`: The user can't be called by the Rainbow conference bridge. |
-     * | fileCopyCustomisation | String | Activate/Deactivate the capability for a user to copy files  <br>Define if one or all users of a company is allowed to copy any file he receives in his personal cloud space.  <br>fileCopyCustomisation can be:<br><br>* `enabled`: The user can make a copy of a file to his personal cloud space.<br>* `disabled`: The user can't make a copy of a file to his personal cloud space. |
-     * | fileTransferCustomisation | String | Activate/Deactivate the ability for a user to transfer files.  <br>Define if one or all users of a company has the right to copy a file from a conversation then share it inside another conversation.  <br>fileTransferCustomisation can be:<br><br>* `enabled`: The user can transfer a file doesn't belong to him.<br>* `disabled`: The user can't transfer a file doesn't belong to him. |
-     * | forbidFileOwnerChangeCustomisation | String | Activate/Deactivate the ability for a user to loose the ownership on one file.  <br>Define if one or all users can drop the ownership of a file to another Rainbow user of the same company  <br>forbidFileOwnerChangeCustomisation can be:<br><br>* `enabled`: The user can't give the ownership of his file.<br>* `disabled`: The user can give the ownership of his file. |
-     * | readReceiptsCustomisation | String | Activate/Deactivate the capability for a user to allow a sender to check if a chat message is read.  <br>Defines whether a peer user in a conversation allows the sender of a chat message to see if this IM is acknowledged by the peer.  <br>This right is used by Ucaas or Cpaas application to show either or not a message is acknowledged. No check is done on backend side.  <br>readReceiptsCustomisation can be:<br><br>* `enabled`: Each user of the company allow the sender to check if an IM is read.<br>* `disabled`: No user of the company allow the sender to check if an IM is read. |
-     * | useSpeakingTimeStatistics | String | Activate/Deactivate the ability for a user to see speaking time statistics..  <br>Defines whether a user has the right to see for a given meeting the speaking time for each attendee of this meeting.  <br>useSpeakingTimeStatistics can be:<br><br>* `enabled`: Each user of the company can use meeting speaking time statistics.<br>* `disabled`: No user of the company can use meeting speaking time statistics. |
-     * | defaultLicenseGroup | String | Group of license to assign to user when finalizing his account (e.g. Enterprise, Business ...) |
-     * | defaultOptionsGroups | String\[\] | List of options to assign to user when finalizing his account (e.g. Alert ...) |
+     * | fileSharingCustomisation | string | Activate/Deactivate file sharing capability per company  <br>Define if the company can use the file sharing service then, allowed to download and share file.  <br>FileSharingCustomisation can be:<br><br>* `enabled`: Each user of the company can use the file sharing service, except when his own capability is set to 'disabled'.<br>* `disabled`: No user of the company can use the file sharing service, except when his own capability is set to 'enabled'. When one user of the company has the capability 'fileSharingCustomisation' set to 'same\_than\_company', his capability follow the company setting. |
+     * | userTitleNameCustomisation | string | Activate/Deactivate the capability for a user to modify his profile (title, firstName, lastName) per company  <br>Define if the company allows his users to change some profile data.  <br>userTitleNameCustomisation can be:<br><br>* `enabled`: Each user of the company can change some profile data, except when his own capability is set to 'disabled'.<br>* `disabled`: No user of the company can change some profile data, except when his own capability is set to 'enabled'. When one user of the company has the capability 'userTitleNameCustomisation' set to 'same\_than\_company', his capability follow the company setting. |
+     * | softphoneOnlyCustomisation | string | Activate/Deactivate the capability for an UCaas application not to offer all Rainbow services and but to focus to telephony services.  <br>Define if UCaas apps used by a user of this company must provide Softphone functions, i.e. no chat, no bubbles, no meetings, no channels, and so on.  <br>softphoneOnlyCustomisation can be:<br><br>* `enabled`: The user switch to a softphone mode only.<br>* `disabled`: The user can use telephony services, chat, bubbles, channels meeting services and so on. |
+     * | useRoomCustomisation | string | Activate/Deactivate the capability for a user to use bubbles.  <br>Define if a user can create bubbles or participate in bubbles (chat and web conference).  <br>useRoomCustomisation can be:<br><br>* `enabled`: Each user of the company can use bubbles.<br>* `disabled`: No user of the company can use bubbles. |
+     * | phoneMeetingCustomisation | string | Activate/Deactivate the capability for a user to use phone meetings (PSTN conference).  <br>Define if a user has the right to join phone meetings.  <br>phoneMeetingCustomisation can be:<br><br>* `enabled`: Each user of the company can join phone meetings.<br>* `disabled`: No user of the company can join phone meetings. |
+     * | useChannelCustomisation | string | Activate/Deactivate the capability for a user to use a channel.  <br>Define if a user has the right to create channels or be a member of channels.  <br>useChannelCustomisation can be:<br><br>* `enabled`: Each user of the company can use some channels.<br>* `disabled`: No user of the company can use some channel. |
+     * | useScreenSharingCustomisation | string | Activate/Deactivate the capability for a user to share a screen.  <br>Define if a user has the right to share his screen.  <br>useScreenSharingCustomisation can be:<br><br>* `enabled`: Each user of the company can share his screen.<br>* `disabled`: No user of the company can share his screen. |
+     * | useWebRTCVideoCustomisation | string | Activate/Deactivate the capability for a user to switch to a Web RTC video conversation.  <br>Define if a user has the right to be joined via video and to use video (start a P2P video call, add video in a P2P call, add video in a web conference call).  <br>useWebRTCVideoCustomisation can be:<br><br>* `enabled`: Each user of the company can switch to a Web RTC video conversation.<br>* `disabled`: No user of the company can switch to a Web RTC video conversation. |
+     * | useWebRTCAudioCustomisation | string | Activate/Deactivate the capability for a user to switch to a Web RTC audio conversation.  <br>Define if a user has the right to be joined via audio (WebRTC) and to use Rainbow audio (WebRTC) (start a P2P audio call, start a web conference call).  <br>useWebRTCVideoCustomisation can be:<br><br>* `enabled`: Each user of the company can switch to a Web RTC audio conversation.<br>* `disabled`: No user of the company can switch to a Web RTC audio conversation. |
+     * | instantMessagesCustomisation | string | Activate/Deactivate the capability for a user to use instant messages.  <br>Define if a user has the right to use IM, then to start a chat (P2P ou group chat) or receive chat messages and chat notifications.  <br>instantMessagesCustomisation can be:<br><br>* `enabled`: Each user of the company can use instant messages.<br>* `disabled`: No user of the company can use instant messages. |
+     * | userProfileCustomisation | string | Activate/Deactivate the capability for a user to modify his profile.  <br>Define if a user has the right to modify the globality of his profile and not only (title, firstName, lastName).  <br>userProfileCustomisation can be:<br><br>* `enabled`: Each user of the company can modify his profile.<br>* `disabled`: No user of the company can modify his profile. |
+     * | fileStorageCustomisation | string | Activate/Deactivate the capability for a user to access to Rainbow file storage.  <br>Define if a user has the right to upload/download/copy or share documents.  <br>fileStorageCustomisation can be:<br><br>* `enabled`: Each user of the company can manage and share files.<br>* `disabled`: No user of the company can manage and share files. |
+     * | overridePresenceCustomisation | string | Activate/Deactivate the capability for a user to change manually his presence.  <br>Define if a user has the right to change his presence manually or only use automatic states.  <br>overridePresenceCustomisation can be:<br><br>* `enabled`: Each user of the company can change his presence.<br>* `disabled`: No user of the company can change his presence. |
+     * | alertNotificationReception | string | Activate/Deactivate the capability for a user to receive alert notification.  <br>Define if a user has the right to receive alert notification  <br>alertNotificationReception can be:<br><br>* `enabled`: Each user of the company can receive alert notification.<br>* `disabled`: No user of the company can receive alert notification. |
+     * | alertNotificationSending | string | Activate/Deactivate the capability for a user to send alert notification.  <br>Define if a user has the right to send alert notification  <br>alertNotificationSending can be:<br><br>* `enabled`: Each user of the company can send alert notification.<br>* `disabled`: No user of the company can send alert notification. |
+     * | changeTelephonyCustomisation | string | Activate/Deactivate the ability for a user to modify some telephony settings.  <br>Define if a user has the right to modify telephony settings like forward activation ....  <br>changeTelephonyCustomisation can be:<br><br>* `enabled`: The user can modify telephony settings.<br>* `disabled`: The user can't modify telephony settings. |
+     * | changeSettingsCustomisation | string | Activate/Deactivate the ability for a user to change all client general settings.  <br>Define if a user has the right to change his client general settings.  <br>changeSettingsCustomisation can be:<br><br>* `enabled`: The user can change all client general settings.<br>* `disabled`: The user can't change any client general setting. recordingConversationCustomisation Activate/Deactivate the capability for a user to record a conversation.  <br>    Define if a user has the right to record a conversation (for P2P and multi-party calls).  <br>    recordingConversationCustomisation can be:<br>* `enabled`: The user can record a peer to peer or a multi-party call.<br>* `disabled`: The user can't record a peer to peer or a multi-party call. |
+     * | useGifCustomisation | string | Activate/Deactivate the ability for a user to Use GIFs in conversations.  <br>Define if a user has the is allowed to send animated GIFs in conversations  <br>useGifCustomisation can be:<br><br>* `enabled`: The user can send animated GIFs in conversations.<br>* `disabled`: The user can't send animated GIFs in conversations. |
+     * | useDialOutCustomisation | string | Activate/Deactivate the capability for a user to use dial out in phone meetings.  <br>Define if a user is allowed to be called by the Rainbow conference bridge.  <br>useDialOutCustomisation can be:<br><br>* `enabled`: The user can be called by the Rainbow conference bridge.<br>* `disabled`: The user can't be called by the Rainbow conference bridge. |
+     * | fileCopyCustomisation | string | Activate/Deactivate the capability for a user to copy files  <br>Define if one or all users of a company is allowed to copy any file he receives in his personal cloud space.  <br>fileCopyCustomisation can be:<br><br>* `enabled`: The user can make a copy of a file to his personal cloud space.<br>* `disabled`: The user can't make a copy of a file to his personal cloud space. |
+     * | fileTransferCustomisation | string | Activate/Deactivate the ability for a user to transfer files.  <br>Define if one or all users of a company has the right to copy a file from a conversation then share it inside another conversation.  <br>fileTransferCustomisation can be:<br><br>* `enabled`: The user can transfer a file doesn't belong to him.<br>* `disabled`: The user can't transfer a file doesn't belong to him. |
+     * | forbidFileOwnerChangeCustomisation | string | Activate/Deactivate the ability for a user to loose the ownership on one file.  <br>Define if one or all users can drop the ownership of a file to another Rainbow user of the same company  <br>forbidFileOwnerChangeCustomisation can be:<br><br>* `enabled`: The user can't give the ownership of his file.<br>* `disabled`: The user can give the ownership of his file. |
+     * | readReceiptsCustomisation | string | Activate/Deactivate the capability for a user to allow a sender to check if a chat message is read.  <br>Defines whether a peer user in a conversation allows the sender of a chat message to see if this IM is acknowledged by the peer.  <br>This right is used by Ucaas or Cpaas application to show either or not a message is acknowledged. No check is done on backend side.  <br>readReceiptsCustomisation can be:<br><br>* `enabled`: Each user of the company allow the sender to check if an IM is read.<br>* `disabled`: No user of the company allow the sender to check if an IM is read. |
+     * | useSpeakingTimeStatistics | string | Activate/Deactivate the ability for a user to see speaking time statistics..  <br>Defines whether a user has the right to see for a given meeting the speaking time for each attendee of this meeting.  <br>useSpeakingTimeStatistics can be:<br><br>* `enabled`: Each user of the company can use meeting speaking time statistics.<br>* `disabled`: No user of the company can use meeting speaking time statistics. |
+     * | defaultLicenseGroup | string | Group of license to assign to user when finalizing his account (e.g. Enterprise, Business ...) |
+     * | defaultOptionsGroups | string\[\] | List of options to assign to user when finalizing his account (e.g. Alert ...) |
      * | selectedThemeCustomers optionnel | Object | Set the selected theme(s) for customers of this BP company.  <br>This attribute only applies for BP companies. |
-     * | light optionnel | String | Set the selected theme light for customers of this BP company. |
-     * | dark optionnel | String | Set the selected theme dark for customers of this BP company. |
+     * | light optionnel | string | Set the selected theme light for customers of this BP company. |
+     * | dark optionnel | string | Set the selected theme dark for customers of this BP company. |
      * | ddiReadOnly optionnel | Boolean | Indicates if admin of IR company is allowed to create or delete a DDI. Used only on IR companies. |
      * | locked optionnel | Boolean | Allow to lock selected theme for customers. If true, customers won't be able to manage themes (create/update/delete). |
      * | customData optionnel | Object | Company's custom data.  <br>Object with free keys/values.  <br>It is up to the client to manage the company's customData (new customData provided overwrite the existing one).  <br>  <br>Restrictions on customData Object:<br><br>* max 10 keys,<br>* max key length: 64 characters,<br>* max value length: 512 characters. |
@@ -8667,13 +8960,13 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      * | Champ | Type | Description |
      * | --- | --- | --- |
      * | data | Object | User Object. |
-     * | loginEmail | String | DEPRECATED (will be removed in a future release).  </br>User email address (used for login) |
-     * | id  | String | User unique identifier |
-     * | firstName | String | User first name |
-     * | lastName | String | User last name |
-     * | jid_im | String | User Jabber IM identifier |
-     * | companyId | String | User company unique identifier |
-     * | companyName | String | User company name |
+     * | loginEmail | string | DEPRECATED (will be removed in a future release).  </br>User email address (used for login) |
+     * | id  | string | User unique identifier |
+     * | firstName | string | User first name |
+     * | lastName | string | User last name |
+     * | jid_im | string | User Jabber IM identifier |
+     * | companyId | string | User company unique identifier |
+     * | companyName | string | User company name |
      * | lastUpdateDate | Date-Time | Date of last user update (whatever the field updated) |
      * | lastAvatarUpdateDate | Date-Time | Date of last user avatar create/update, null if no avatar |
      * | isTerminated | Boolean | Indicates if the Rainbow account of this user has been deleted |
@@ -8764,7 +9057,7 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      * * \`company\_admin\` or \`organization\_admin\` of his company, </BR>
      * * \`bp\_admin\` and \`bp\_finance\` of his company, </BR>
      * * \`superadmin\`. </BR>
-     * @param {string} password optionnel String User password. Rules: more than 8 characters, </BR>
+     * @param {string} password optionnel string User password. Rules: more than 8 characters, </BR>
      * ⚠️ Warning: the minimal password length will soon be increased to 12, planned to be effective mid-june 2023 (8 characters are still accepted until this date) at least 1 capital letter, 1 number, 1 special character. </BR>
      * If password is not set, the user will have to use the reset-password feature to define his password so that he can login to Rainbow (except if the user is configured to use a Single Sign On method (SAML or OIDC)). </BR>
      * @param {string} companyId User company unique identifier (like 569ce8c8f9336c471b98eda1). If not provided, users are attached to a "Default" company. companyName field is automatically filled on server side based on companyId.
@@ -8805,7 +9098,7 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      * Otherwise `numberE164` is computed using provided `number` and `country` field (if `country` is provided this value is used, otherwise user's `country` is set in `country` field). </BR>
      * If `numberE164` can't be computed from `number` and `country` fields, an error 400 is returned (ex: wrong phone number, phone number not matching country code, ...) </BR>
      * System phoneNumbers can't be created using this API, only PCG can create system PhoneNumbers </BR>
-     * @param {string} country User country (ISO 3166-1 alpha3 format) The list of allowed countries can be obtained using the API [GET /api/rainbow/enduser/v1.0/countries](/enduser/#api-countries-getCountries)
+     * @param {string} country User country (ISO 3166-1 alpha3 format) The list of allowed countries can be obtained using the API AdminService::getListOfCountries()
      * @param {string} state When country is 'USA' or 'CAN', a state can be defined. Else it is not managed (null). </BR>
      * The list of allowed states can be obtained using the API getListOfCountries() for the associated countries. </BR>
      * Possibles values : `null`, `"AA"`, `"AE"`, `"AP"`, `"AK"`, `"AL"`, `"AR"`, `"AZ"`, `"CA"`, `"CO"`, `"CT"`, `"DC"`, `"DE"`, `"FL"`, `"GA"`, `"GU"`, `"HI"`, `"IA"`, `"ID"`, `"IL"`, `"IN"`, `"KS"`, `"KY"`, `"LA"`, `"MA"`, `"MD"`, `"ME"`, `"MI"`, `"MN"`, `"MO"`, `"MS"`, `"MT"`, `"NC"`, `"ND"`, `"NE"`, `"NH"`, `"NJ"`, `"NM"`, `"NV"`, `"NY"`, `"OH"`, `"OK"`, `"OR"`, `"PA"`, `"PR"`, `"RI"`, `"SC"`, `"SD"`, `"TN"`, `"TX"`, `"UT"`, `"VA"`, `"VI"`, `"VT"`, `"WA"`, `"WI"`, `"WV"`, `"WY"`, `"AB"`, `"BC"`, `"MB"`, `"NB"`, `"NL"`, `"NS"`, `"NT"`, `"NU"`, `"ON"`, `"PE"`, `"QC"`, `"SK"`, `"YT"` </BR>
@@ -8864,70 +9157,70 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      *
      * | Champ | Type | Description |
      * | --- | --- | --- |
-     * | selectedAppCustomisationTemplate | String | To log the last template applied to the user. |
-     * | useSpeakingTimeStatistics | String | Activate/Deactivate the capability for a user to see speaking time statistics.  <br>Defines whether a user has the right to see for a given meeting the speaking time for each attendee of this meeting.  <br>useSpeakingTimeStatistics can be:<br><br>* `same_than_company`: The same useSpeakingTimeStatistics setting than the user's company's is applied to the user. if the useSpeakingTimeStatistics of the company is changed the user's useSpeakingTimeStatistics will use this company new setting.<br>* `enabled`: The user can use meeting speaking time statistics.<br>* `disabled`: The user can't use meeting speaking time statistics. |
-     * | readReceiptsCustomisation | String | Activate/Deactivate the capability for a user to allow a sender to check if a chat message is read.  <br>Defines whether a peer user in a conversation allows the sender of a chat message to see if this IM is acknowledged by the peer.  <br>This right is used by Ucaas or Cpaas application to show either or not a message is acknowledged. No check is done on backend side.  <br>readReceiptsCustomisation can be:<br><br>* `same_than_company`: The same readReceiptsCustomisation setting than the user's company's is applied to the user. if the readReceiptsCustomisation of the company is changed the user's readReceiptsCustomisation will use this company new setting.<br>* `enabled`: The user allows the sender to check if an IM is read.<br>* `disabled`: The user doesn't allow the sender to check if an IM is read. |
-     * | useDialOutCustomisation | String | Activate/Deactivate the capability for a user to use dial out in phone meetings.  <br>Define if a user is allowed to be called by the Rainbow conference bridge.  <br>useDialOutCustomisation can be:<br><br>* `same_than_company`: The same useDialOutCustomisation setting than the user's company's is applied to the user. if the useDialOutCustomisation of the company is changed the user's useDialOutCustomisation will use this company new setting.<br>* `enabled`: The user can be called by the Rainbow conference bridge.<br>* `disabled`: The user can't be called by the Rainbow conference bridge. |
-     * | forbidFileOwnerChangeCustomisation | String | Activate/Deactivate the capability for a user to loose the ownership on one file..  <br>One user can drop the ownership to another Rainbow user of the same company.  <br>forbidFileOwnerChangeCustomisation can be:<br><br>* `same_than_company`: The same forbidFileOwnerChangeCustomisation setting than the user's company's is applied to the user. if the forbidFileOwnerChangeCustomisation of the company is changed the user's forbidFileOwnerChangeCustomisation will use this company new setting.<br>* `enabled`: The user can't give the ownership of his file.<br>* `disabled`: The user can give the ownership of his file. |
-     * | fileTransferCustomisation | String | Activate/Deactivate the capability for a user to copy a file from a conversation then share it inside another conversation.  <br>The file cannot be re-shared.  <br>fileTransferCustomisation can be:<br><br>* `same_than_company`: The same fileTransferCustomisation setting than the user's company's is applied to the user. if the fileTransferCustomisation of the company is changed the user's fileTransferCustomisation will use this company new setting.<br>* `enabled`: The user can transfer a file doesn't belong to him.<br>* `disabled`: The user can't transfer a file doesn't belong to him. |
-     * | fileCopyCustomisation | String | Activate/Deactivate the capability for one user to copy any file he receives in his personal cloud space  <br>fileCopyCustomisation can be:<br><br>* `same_than_company`: The same fileCopyCustomisation setting than the user's company's is applied to the user. if the fileCopyCustomisation of the company is changed the user's fileCopyCustomisation will use this company new setting.<br>* `enabled`: The user can make a copy of a file to his personal cloud space.<br>* `disabled`: The user can't make a copy of a file to his personal cloud space. |
-     * | useGifCustomisation | String | Activate/Deactivate the ability for a user to Use GIFs in conversations.  <br>Define if a user has the is allowed to send animated GIFs in conversations  <br>useGifCustomisation can be:<br><br>* `same_than_company`: The same useGifCustomisation setting than the user's company's is applied to the user. if the useGifCustomisation of the company is changed the user's useGifCustomisation will use this company new setting.<br>* `enabled`: The user can send animated GIFs in conversations.<br>* `disabled`: The user can't send animated GIFs in conversations. |
-     * | recordingConversationCustomisation | String | Activate/Deactivate the capability for a user to record a conversation.  <br>Define if a user has the right to record a conversation (for P2P and multi-party calls).  <br>recordingConversationCustomisation can be:<br><br>* `same_than_company`: The same recordingConversationCustomisation setting than the user's company's is applied to the user. if the recordingConversationCustomisation of the company is changed the user's recordingConversationCustomisation will use this company new setting.<br>* `enabled`: The user can record a peer to peer or a multi-party call.<br>* `disabled`: The user can't record a peer to peer or a multi-party call. |
-     * | changeSettingsCustomisation | String | Activate/Deactivate the ability for a user to change all client general settings.  <br>changeSettingsCustomisation can be:<br><br>* `same_than_company`: The same changeSettingsCustomisation setting than the user's company's is applied to the user. if the changeSettingsCustomisation of the company is changed the user's changeSettingsCustomisation will use this company new setting.<br>* `enabled`: The user can change all client general settings.<br>* `disabled`: The user can't change any client general setting. |
-     * | changeTelephonyCustomisation | String | Activate/Deactivate the ability for a user to modify telephony settings.  <br>Define if a user has the right to modify some telephony settigs like forward activation...  <br>changeTelephonyCustomisation can be:<br><br>* `same_than_company`: The same changeTelephonyCustomisation setting than the user's company's is applied to the user. if the changeTelephonyCustomisation of the company is changed the user's changeTelephonyCustomisation will use this company new setting.<br>* `enabled`: The user can modify telephony settings.<br>* `disabled`: The user can't modify telephony settings. |
-     * | overridePresenceCustomisation | String | Activate/Deactivate the capability for a user to use instant messages.  <br>Define if a user has the right to change his presence manually or only use automatic states.  <br>overridePresenceCustomisation can be:<br><br>* `same_than_company`: The same overridePresenceCustomisation setting than the user's company's is applied to the user. if the overridePresenceCustomisation of the company is changed the user's overridePresenceCustomisation will use this company new setting.<br>* `enabled`: The user can change his presence.<br>* `disabled`: The user can't change his presence. |
-     * | fileStorageCustomisation | String | Activate/Deactivate the capability for a user to access to Rainbow file storage..  <br>Define if a user has the right to upload/download/copy or share documents.  <br>fileStorageCustomisation can be:<br><br>* `same_than_company`: The same fileStorageCustomisation setting than the user's company's is applied to the user. if the fileStorageCustomisation of the company is changed the user's fileStorageCustomisation will use this company new setting.<br>* `enabled`: The user can manage and share files.<br>* `disabled`: The user can't manage and share files. |
-     * | userProfileCustomisation | String | Activate/Deactivate the capability for a user to modify his profile.  <br>Define if a user has the right to modify the globality of his profile and not only (title, firstName, lastName).  <br>userProfileCustomisation can be:<br><br>* `same_than_company`: The same userProfileCustomisation setting than the user's company's is applied to the user. if the userProfileCustomisation of the company is changed the user's userProfileCustomisation will use this company new setting.<br>* `enabled`: The user can modify his profile.<br>* `disabled`: The user can't modify his profile. |
-     * | instantMessagesCustomisation | String | Activate/Deactivate the capability for a user to use instant messages.  <br>Define if a user has the right to use IM, then to start a chat (P2P ou group chat) or receive chat messages and chat notifications.  <br>instantMessagesCustomisation can be:<br><br>* `same_than_company`: The same instantMessagesCustomisation setting than the user's company's is applied to the user. if the instantMessagesCustomisation of the company is changed the user's instantMessagesCustomisation will use this company new setting.<br>* `enabled`: The user can use instant messages.<br>* `disabled`: The user can't use instant messages. |
-     * | useWebRTCAudioCustomisation | String | Activate/Deactivate the capability for a user to switch to a Web RTC audio conversation.  <br>Define if a user has the right to be joined via audio (WebRTC) and to use Rainbow audio (WebRTC) (start a P2P audio call, start a web conference call).  <br>useWebRTCAudioCustomisation can be:<br><br>* `same_than_company`: The same useWebRTCAudioCustomisation setting than the user's company's is applied to the user. if the useWebRTCAudioCustomisation of the company is changed the user's useWebRTCAudioCustomisation will use this company new setting.<br>* `enabled`: Each user of the company can switch to a Web RTC audio conversation.<br>* `disabled`: No user of the company can switch to a Web RTC audio conversation. |
-     * | useWebRTCVideoCustomisation | String | Activate/Deactivate the capability for a user to switch to a Web RTC video conversation.  <br>Define if a user has the right to be joined via video and to use video (start a P2P video call, add video in a P2P call, add video in a web conference call).  <br>useWebRTCVideoCustomisation can be:<br><br>* `same_than_company`: The same useWebRTCVideoCustomisation setting than the user's company's is applied to the user. if the useWebRTCVideoCustomisation of the company is changed the user's useWebRTCVideoCustomisation will use this company new setting.<br>* `enabled`: Each user of the company can switch to a Web RTC video conversation.<br>* `disabled`: No user of the company can switch to a Web RTC video conversation. |
-     * | useScreenSharingCustomisation | String | Activate/Deactivate the capability for a user to share a screen.  <br>Define if a user has the right to share his screen.  <br>useScreenSharingCustomisation can be:<br><br>* `same_than_company`: The same useScreenSharingCustomisation setting than the user's company's is applied to the user. if the useScreenSharingCustomisation of the company is changed the user's useScreenSharingCustomisation will use this company new setting.<br>* `enabled`: Each user of the company can share his screen.<br>* `disabled`: No user of the company can share his screen. |
-     * | useChannelCustomisation | String | Activate/Deactivate the capability for a user to use a channel.  <br>Define if a user has the right to create channels or be a member of channels.  <br>useChannelCustomisation can be:<br><br>* `same_than_company`: The same useChannelCustomisation setting than the user's company's is applied to the user. if the useChannelCustomisation of the company is changed the user's useChannelCustomisation will use this company new setting.<br>* `enabled`: Each user of the company can use some channels.<br>* `disabled`: No user of the company can use some channel. |
-     * | phoneMeetingCustomisation | String | Activate/Deactivate the capability for a user to use phone meetings (PSTN conference).  <br>Define if a user has the right to join phone meetings.  <br>phoneMeetingCustomisation can be:<br><br>* `same_than_company`: The same phoneMeetingCustomisation setting than the user's company's is applied to the user. if the phoneMeetingCustomisation of the company is changed the user's phoneMeetingCustomisation will use this company new setting.<br>* `enabled`: The user can join phone meetings.<br>* `disabled`: The user can't join phone meetings. |
-     * | useRoomCustomisation | String | Activate/Deactivate the capability for a user to use bubbles.  <br>Define if a user can create bubbles or participate in bubbles (chat and web conference).  <br>useRoomCustomisation can be:<br><br>* `same_than_company`: The same useRoomCustomisation setting than the user's company's is applied to the user. if the useRoomCustomisation of the company is changed the user's useRoomCustomisation will use this company new setting.<br>* `enabled`: The user can use bubbles.<br>* `disabled`: The user can't use bubbles. |
-     * | softphoneOnlyCustomisation | String | Activate/Deactivate the capability for an UCaas application not to offer all Rainbow services and but to focus to telephony services  <br>Define if UCaas apps used by a user of this company must provide Softphone functions, i.e. no chat, no bubbles, no meetings, no channels, and so on.  <br>softphoneOnlyCustomisation can be:<br><br>* `same_than_company`: The same softphoneOnlyCustomisation setting than the user's company's is applied to the user. if the softphoneOnlyCustomisation of the company is changed the user's softphoneOnlyCustomisation will use this company new setting.<br>* `enabled`: The user switch to a softphone mode only.<br>* `disabled`: The user can use telephony services, chat, bubbles, channels meeting services and so on. |
-     * | userTitleNameCustomisation | String | Activate/Deactivate the capability for a user to modify his profile (title, firstName, lastName)  <br>Define if the user can change some profile data.  <br>userTitleNameCustomisation can be:<br><br>* `same_than_company`: The same userTitleNameCustomisation setting than the user's company's is applied to the user. if the userTitleNameCustomisation of the company is changed the user's userTitleNameCustomisation will use this company new setting.<br>* `enabled`: Whatever the userTitleNameCustomisation of the company setting, the user can change some profile data.<br>* `disabled`: Whatever the userTitleNameCustomisation of the company setting, the user can't change some profile data. |
-     * | fileSharingCustomisation | String | Activate/Deactivate file sharing capability per user  <br>Define if the user can use the file sharing service then, allowed to download and share file.  <br>FileSharingCustomisation can be:<br><br>* `same_than_company`: The same fileSharingCustomisation setting than the user's company's is applied to the user. if the fileSharingCustomisation of the company is changed the user's fileSharingCustomisation will use this company new setting.<br>* `enabled`: Whatever the fileSharingCustomisation of the company setting, the user can use the file sharing service.<br>* `disabled`: Whatever the fileSharingCustomisation of the company setting, the user can't use the file sharing service. |
+     * | selectedAppCustomisationTemplate | string | To log the last template applied to the user. |
+     * | useSpeakingTimeStatistics | string | Activate/Deactivate the capability for a user to see speaking time statistics.  <br>Defines whether a user has the right to see for a given meeting the speaking time for each attendee of this meeting.  <br>useSpeakingTimeStatistics can be:<br><br>* `same_than_company`: The same useSpeakingTimeStatistics setting than the user's company's is applied to the user. if the useSpeakingTimeStatistics of the company is changed the user's useSpeakingTimeStatistics will use this company new setting.<br>* `enabled`: The user can use meeting speaking time statistics.<br>* `disabled`: The user can't use meeting speaking time statistics. |
+     * | readReceiptsCustomisation | string | Activate/Deactivate the capability for a user to allow a sender to check if a chat message is read.  <br>Defines whether a peer user in a conversation allows the sender of a chat message to see if this IM is acknowledged by the peer.  <br>This right is used by Ucaas or Cpaas application to show either or not a message is acknowledged. No check is done on backend side.  <br>readReceiptsCustomisation can be:<br><br>* `same_than_company`: The same readReceiptsCustomisation setting than the user's company's is applied to the user. if the readReceiptsCustomisation of the company is changed the user's readReceiptsCustomisation will use this company new setting.<br>* `enabled`: The user allows the sender to check if an IM is read.<br>* `disabled`: The user doesn't allow the sender to check if an IM is read. |
+     * | useDialOutCustomisation | string | Activate/Deactivate the capability for a user to use dial out in phone meetings.  <br>Define if a user is allowed to be called by the Rainbow conference bridge.  <br>useDialOutCustomisation can be:<br><br>* `same_than_company`: The same useDialOutCustomisation setting than the user's company's is applied to the user. if the useDialOutCustomisation of the company is changed the user's useDialOutCustomisation will use this company new setting.<br>* `enabled`: The user can be called by the Rainbow conference bridge.<br>* `disabled`: The user can't be called by the Rainbow conference bridge. |
+     * | forbidFileOwnerChangeCustomisation | string | Activate/Deactivate the capability for a user to loose the ownership on one file..  <br>One user can drop the ownership to another Rainbow user of the same company.  <br>forbidFileOwnerChangeCustomisation can be:<br><br>* `same_than_company`: The same forbidFileOwnerChangeCustomisation setting than the user's company's is applied to the user. if the forbidFileOwnerChangeCustomisation of the company is changed the user's forbidFileOwnerChangeCustomisation will use this company new setting.<br>* `enabled`: The user can't give the ownership of his file.<br>* `disabled`: The user can give the ownership of his file. |
+     * | fileTransferCustomisation | string | Activate/Deactivate the capability for a user to copy a file from a conversation then share it inside another conversation.  <br>The file cannot be re-shared.  <br>fileTransferCustomisation can be:<br><br>* `same_than_company`: The same fileTransferCustomisation setting than the user's company's is applied to the user. if the fileTransferCustomisation of the company is changed the user's fileTransferCustomisation will use this company new setting.<br>* `enabled`: The user can transfer a file doesn't belong to him.<br>* `disabled`: The user can't transfer a file doesn't belong to him. |
+     * | fileCopyCustomisation | string | Activate/Deactivate the capability for one user to copy any file he receives in his personal cloud space  <br>fileCopyCustomisation can be:<br><br>* `same_than_company`: The same fileCopyCustomisation setting than the user's company's is applied to the user. if the fileCopyCustomisation of the company is changed the user's fileCopyCustomisation will use this company new setting.<br>* `enabled`: The user can make a copy of a file to his personal cloud space.<br>* `disabled`: The user can't make a copy of a file to his personal cloud space. |
+     * | useGifCustomisation | string | Activate/Deactivate the ability for a user to Use GIFs in conversations.  <br>Define if a user has the is allowed to send animated GIFs in conversations  <br>useGifCustomisation can be:<br><br>* `same_than_company`: The same useGifCustomisation setting than the user's company's is applied to the user. if the useGifCustomisation of the company is changed the user's useGifCustomisation will use this company new setting.<br>* `enabled`: The user can send animated GIFs in conversations.<br>* `disabled`: The user can't send animated GIFs in conversations. |
+     * | recordingConversationCustomisation | string | Activate/Deactivate the capability for a user to record a conversation.  <br>Define if a user has the right to record a conversation (for P2P and multi-party calls).  <br>recordingConversationCustomisation can be:<br><br>* `same_than_company`: The same recordingConversationCustomisation setting than the user's company's is applied to the user. if the recordingConversationCustomisation of the company is changed the user's recordingConversationCustomisation will use this company new setting.<br>* `enabled`: The user can record a peer to peer or a multi-party call.<br>* `disabled`: The user can't record a peer to peer or a multi-party call. |
+     * | changeSettingsCustomisation | string | Activate/Deactivate the ability for a user to change all client general settings.  <br>changeSettingsCustomisation can be:<br><br>* `same_than_company`: The same changeSettingsCustomisation setting than the user's company's is applied to the user. if the changeSettingsCustomisation of the company is changed the user's changeSettingsCustomisation will use this company new setting.<br>* `enabled`: The user can change all client general settings.<br>* `disabled`: The user can't change any client general setting. |
+     * | changeTelephonyCustomisation | string | Activate/Deactivate the ability for a user to modify telephony settings.  <br>Define if a user has the right to modify some telephony settigs like forward activation...  <br>changeTelephonyCustomisation can be:<br><br>* `same_than_company`: The same changeTelephonyCustomisation setting than the user's company's is applied to the user. if the changeTelephonyCustomisation of the company is changed the user's changeTelephonyCustomisation will use this company new setting.<br>* `enabled`: The user can modify telephony settings.<br>* `disabled`: The user can't modify telephony settings. |
+     * | overridePresenceCustomisation | string | Activate/Deactivate the capability for a user to use instant messages.  <br>Define if a user has the right to change his presence manually or only use automatic states.  <br>overridePresenceCustomisation can be:<br><br>* `same_than_company`: The same overridePresenceCustomisation setting than the user's company's is applied to the user. if the overridePresenceCustomisation of the company is changed the user's overridePresenceCustomisation will use this company new setting.<br>* `enabled`: The user can change his presence.<br>* `disabled`: The user can't change his presence. |
+     * | fileStorageCustomisation | string | Activate/Deactivate the capability for a user to access to Rainbow file storage..  <br>Define if a user has the right to upload/download/copy or share documents.  <br>fileStorageCustomisation can be:<br><br>* `same_than_company`: The same fileStorageCustomisation setting than the user's company's is applied to the user. if the fileStorageCustomisation of the company is changed the user's fileStorageCustomisation will use this company new setting.<br>* `enabled`: The user can manage and share files.<br>* `disabled`: The user can't manage and share files. |
+     * | userProfileCustomisation | string | Activate/Deactivate the capability for a user to modify his profile.  <br>Define if a user has the right to modify the globality of his profile and not only (title, firstName, lastName).  <br>userProfileCustomisation can be:<br><br>* `same_than_company`: The same userProfileCustomisation setting than the user's company's is applied to the user. if the userProfileCustomisation of the company is changed the user's userProfileCustomisation will use this company new setting.<br>* `enabled`: The user can modify his profile.<br>* `disabled`: The user can't modify his profile. |
+     * | instantMessagesCustomisation | string | Activate/Deactivate the capability for a user to use instant messages.  <br>Define if a user has the right to use IM, then to start a chat (P2P ou group chat) or receive chat messages and chat notifications.  <br>instantMessagesCustomisation can be:<br><br>* `same_than_company`: The same instantMessagesCustomisation setting than the user's company's is applied to the user. if the instantMessagesCustomisation of the company is changed the user's instantMessagesCustomisation will use this company new setting.<br>* `enabled`: The user can use instant messages.<br>* `disabled`: The user can't use instant messages. |
+     * | useWebRTCAudioCustomisation | string | Activate/Deactivate the capability for a user to switch to a Web RTC audio conversation.  <br>Define if a user has the right to be joined via audio (WebRTC) and to use Rainbow audio (WebRTC) (start a P2P audio call, start a web conference call).  <br>useWebRTCAudioCustomisation can be:<br><br>* `same_than_company`: The same useWebRTCAudioCustomisation setting than the user's company's is applied to the user. if the useWebRTCAudioCustomisation of the company is changed the user's useWebRTCAudioCustomisation will use this company new setting.<br>* `enabled`: Each user of the company can switch to a Web RTC audio conversation.<br>* `disabled`: No user of the company can switch to a Web RTC audio conversation. |
+     * | useWebRTCVideoCustomisation | string | Activate/Deactivate the capability for a user to switch to a Web RTC video conversation.  <br>Define if a user has the right to be joined via video and to use video (start a P2P video call, add video in a P2P call, add video in a web conference call).  <br>useWebRTCVideoCustomisation can be:<br><br>* `same_than_company`: The same useWebRTCVideoCustomisation setting than the user's company's is applied to the user. if the useWebRTCVideoCustomisation of the company is changed the user's useWebRTCVideoCustomisation will use this company new setting.<br>* `enabled`: Each user of the company can switch to a Web RTC video conversation.<br>* `disabled`: No user of the company can switch to a Web RTC video conversation. |
+     * | useScreenSharingCustomisation | string | Activate/Deactivate the capability for a user to share a screen.  <br>Define if a user has the right to share his screen.  <br>useScreenSharingCustomisation can be:<br><br>* `same_than_company`: The same useScreenSharingCustomisation setting than the user's company's is applied to the user. if the useScreenSharingCustomisation of the company is changed the user's useScreenSharingCustomisation will use this company new setting.<br>* `enabled`: Each user of the company can share his screen.<br>* `disabled`: No user of the company can share his screen. |
+     * | useChannelCustomisation | string | Activate/Deactivate the capability for a user to use a channel.  <br>Define if a user has the right to create channels or be a member of channels.  <br>useChannelCustomisation can be:<br><br>* `same_than_company`: The same useChannelCustomisation setting than the user's company's is applied to the user. if the useChannelCustomisation of the company is changed the user's useChannelCustomisation will use this company new setting.<br>* `enabled`: Each user of the company can use some channels.<br>* `disabled`: No user of the company can use some channel. |
+     * | phoneMeetingCustomisation | string | Activate/Deactivate the capability for a user to use phone meetings (PSTN conference).  <br>Define if a user has the right to join phone meetings.  <br>phoneMeetingCustomisation can be:<br><br>* `same_than_company`: The same phoneMeetingCustomisation setting than the user's company's is applied to the user. if the phoneMeetingCustomisation of the company is changed the user's phoneMeetingCustomisation will use this company new setting.<br>* `enabled`: The user can join phone meetings.<br>* `disabled`: The user can't join phone meetings. |
+     * | useRoomCustomisation | string | Activate/Deactivate the capability for a user to use bubbles.  <br>Define if a user can create bubbles or participate in bubbles (chat and web conference).  <br>useRoomCustomisation can be:<br><br>* `same_than_company`: The same useRoomCustomisation setting than the user's company's is applied to the user. if the useRoomCustomisation of the company is changed the user's useRoomCustomisation will use this company new setting.<br>* `enabled`: The user can use bubbles.<br>* `disabled`: The user can't use bubbles. |
+     * | softphoneOnlyCustomisation | string | Activate/Deactivate the capability for an UCaas application not to offer all Rainbow services and but to focus to telephony services  <br>Define if UCaas apps used by a user of this company must provide Softphone functions, i.e. no chat, no bubbles, no meetings, no channels, and so on.  <br>softphoneOnlyCustomisation can be:<br><br>* `same_than_company`: The same softphoneOnlyCustomisation setting than the user's company's is applied to the user. if the softphoneOnlyCustomisation of the company is changed the user's softphoneOnlyCustomisation will use this company new setting.<br>* `enabled`: The user switch to a softphone mode only.<br>* `disabled`: The user can use telephony services, chat, bubbles, channels meeting services and so on. |
+     * | userTitleNameCustomisation | string | Activate/Deactivate the capability for a user to modify his profile (title, firstName, lastName)  <br>Define if the user can change some profile data.  <br>userTitleNameCustomisation can be:<br><br>* `same_than_company`: The same userTitleNameCustomisation setting than the user's company's is applied to the user. if the userTitleNameCustomisation of the company is changed the user's userTitleNameCustomisation will use this company new setting.<br>* `enabled`: Whatever the userTitleNameCustomisation of the company setting, the user can change some profile data.<br>* `disabled`: Whatever the userTitleNameCustomisation of the company setting, the user can't change some profile data. |
+     * | fileSharingCustomisation | string | Activate/Deactivate file sharing capability per user  <br>Define if the user can use the file sharing service then, allowed to download and share file.  <br>FileSharingCustomisation can be:<br><br>* `same_than_company`: The same fileSharingCustomisation setting than the user's company's is applied to the user. if the fileSharingCustomisation of the company is changed the user's fileSharingCustomisation will use this company new setting.<br>* `enabled`: Whatever the fileSharingCustomisation of the company setting, the user can use the file sharing service.<br>* `disabled`: Whatever the fileSharingCustomisation of the company setting, the user can't use the file sharing service. |
      * | data | Object | User Object. |
-     * | id  | String | User unique identifier |
-     * | loginEmail | String | User email address (used for login) |
-     * | firstName | String | User first name |
-     * | lastName | String | User last name |
-     * | displayName | String | User display name (firstName + lastName concatenated on server side) |
-     * | nickName optionnel | String | User nickName |
-     * | title optionnel | String | User title (honorifics title, like Mr, Mrs, Sir, Lord, Lady, Dr, Prof,...) |
-     * | jobTitle optionnel | String | User job title |
-     * | department optionnel | String | User department |
-     * | tags optionnel | String\[\] | An Array of free tags associated to the user.  <br>A maximum of 5 tags is allowed, each tag can have a maximum length of 64 characters.  <br>`tags` can only be set by users who have administrator rights on the user. The user can't modify the tags.  <br>The tags are visible by the user and all users belonging to his organisation/company, and can be used with the search API to search the user based on his tags. |
+     * | id  | string | User unique identifier |
+     * | loginEmail | string | User email address (used for login) |
+     * | firstName | string | User first name |
+     * | lastName | string | User last name |
+     * | displayName | string | User display name (firstName + lastName concatenated on server side) |
+     * | nickName optionnel | string | User nickName |
+     * | title optionnel | string | User title (honorifics title, like Mr, Mrs, Sir, Lord, Lady, Dr, Prof,...) |
+     * | jobTitle optionnel | string | User job title |
+     * | department optionnel | string | User department |
+     * | tags optionnel | string\[\] | An Array of free tags associated to the user.  <br>A maximum of 5 tags is allowed, each tag can have a maximum length of 64 characters.  <br>`tags` can only be set by users who have administrator rights on the user. The user can't modify the tags.  <br>The tags are visible by the user and all users belonging to his organisation/company, and can be used with the search API to search the user based on his tags. |
      * | emails | Object\[\] | Array of user emails addresses objects |
-     * | email | String | User email address |
-     * | type | String | Email type, one of `home`, `work`, `other` |
+     * | email | string | User email address |
+     * | type | string | Email type, one of `home`, `work`, `other` |
      * | phoneNumbers | Object\[\] | Array of user phone numbers objects.  <br>Phone number objects can:<br><br>* be created by user (information filled by user),<br>* come from association with a system (pbx) device (association is done by admin). |
-     * | phoneNumberId | String | Phone number unique id in phone-numbers directory collection. |
-     * | number optionnel | String | User phone number (as entered by user) |
-     * | numberE164 optionnel | String | User E.164 phone number, computed by server from `number` and `country` fields |
-     * | country | String | Phone number country (ISO 3166-1 alpha3 format)  <br>`country` field is automatically computed using the following algorithm when creating/updating a phoneNumber entry:<br><br>* If `number` is provided and is in E164 format, `country` is computed from E164 number<br>* Else if `country` field is provided in the phoneNumber entry, this one is used<br>* Else user `country` field is used |
+     * | phoneNumberId | string | Phone number unique id in phone-numbers directory collection. |
+     * | number optionnel | string | User phone number (as entered by user) |
+     * | numberE164 optionnel | string | User E.164 phone number, computed by server from `number` and `country` fields |
+     * | country | string | Phone number country (ISO 3166-1 alpha3 format)  <br>`country` field is automatically computed using the following algorithm when creating/updating a phoneNumber entry:<br><br>* If `number` is provided and is in E164 format, `country` is computed from E164 number<br>* Else if `country` field is provided in the phoneNumber entry, this one is used<br>* Else user `country` field is used |
      * | isFromSystem | Boolean | Boolean indicating if phone is linked to a system (pbx). |
-     * | shortNumber optionnel | String | **\[Only for phone numbers linked to a system (pbx)\]**  <br>If phone is linked to a system (pbx), short phone number (corresponds to the number monitored by PCG).  <br>Only usable within the same PBX.  <br>Only PCG can set this field. |
-     * | internalNumber optionnel | String | **\[Only for phone numbers linked to a system (pbx)\]**  <br>If phone is linked to a system (pbx), internal phone number.  <br>Usable within a PBX group.  <br>Admins and users can modify this internalNumber field. |
-     * | systemId optionnel | String | **\[Only for phone numbers linked to a system (pbx)\]**  <br>If phone is linked to a system (pbx), unique identifier of that system in Rainbow database. |
-     * | pbxId optionnel | String | **\[Only for phone numbers linked to a system (pbx)\]**  <br>If phone is linked to a system (pbx), unique identifier of that pbx. |
-     * | type | String | Phone number type, one of `home`, `work`, `other`. |
-     * | deviceType | String | Phone number device type, one of `landline`, `mobile`, `fax`, `other`. |
+     * | shortNumber optionnel | string | **\[Only for phone numbers linked to a system (pbx)\]**  <br>If phone is linked to a system (pbx), short phone number (corresponds to the number monitored by PCG).  <br>Only usable within the same PBX.  <br>Only PCG can set this field. |
+     * | internalNumber optionnel | string | **\[Only for phone numbers linked to a system (pbx)\]**  <br>If phone is linked to a system (pbx), internal phone number.  <br>Usable within a PBX group.  <br>Admins and users can modify this internalNumber field. |
+     * | systemId optionnel | string | **\[Only for phone numbers linked to a system (pbx)\]**  <br>If phone is linked to a system (pbx), unique identifier of that system in Rainbow database. |
+     * | pbxId optionnel | string | **\[Only for phone numbers linked to a system (pbx)\]**  <br>If phone is linked to a system (pbx), unique identifier of that pbx. |
+     * | type | string | Phone number type, one of `home`, `work`, `other`. |
+     * | deviceType | string | Phone number device type, one of `landline`, `mobile`, `fax`, `other`. |
      * | isVisibleByOthers | Boolean | Allow user to choose if the phone number is visible by other users or not.  <br>Note that administrators can see all the phone numbers, even if `isVisibleByOthers` is set to false.  <br>Note that phone numbers linked to a system (`isFromSystem`=true) are always visible, `isVisibleByOthers` can't be set to false for these numbers. |
-     * | country | String | User country (ISO 3166-1 alpha3 format)<br><br>The list of allowed countries can be obtained using the API [GET /api/rainbow/enduser/v1.0/countries](/enduser/#api-countries-getCountries) |
-     * | state optionnel | String | When country is 'USA' or 'CAN', a state can be defined. Else it is not managed (null).<br><br>The list of allowed states can be obtained using the API [GET /api/rainbow/enduser/v1.0/countries](/enduser/#api-countries-getCountries) for the associated countries.<br><br>* List of allowed states for `USA`:<br>    * `AA`: "Armed Forces America",<br>    * `AE`: "Armed Forces",<br>    * `AP`: "Armed Forces Pacific",<br>    * `AK`: "Alaska",<br>    * `AL`: "Alabama",<br>    * `AR`: "Arkansas",<br>    * `AZ`: "Arizona",<br>    * `CA`: "California",<br>    * `CO`: "Colorado",<br>    * `CT`: "Connecticut",<br>    * `DC`: Washington DC",<br>    * `DE`: "Delaware",<br>    * `FL`: "Florida",<br>    * `GA`: "Georgia",<br>    * `GU`: "Guam",<br>    * `HI`: "Hawaii",<br>    * `IA`: "Iowa",<br>    * `ID`: "Idaho",<br>    * `IL`: "Illinois",<br>    * `IN`: "Indiana",<br>    * `KS`: "Kansas",<br>    * `KY`: "Kentucky",<br>    * `LA`: "Louisiana",<br>    * `MA`: "Massachusetts",<br>    * `MD`: "Maryland",<br>    * `ME`: "Maine",<br>    * `MI`: "Michigan",<br>    * `MN`: "Minnesota",<br>    * `MO`: "Missouri",<br>    * `MS`: "Mississippi",<br>    * `MT`: "Montana",<br>    * `NC`: "North Carolina",<br>    * `ND`: "North Dakota",<br>    * `NE`: "Nebraska",<br>    * `NH`: "New Hampshire",<br>    * `NJ`: "New Jersey",<br>    * `NM`: "New Mexico",<br>    * `NV`: "Nevada",<br>    * `NY`: "New York",<br>    * `OH`: "Ohio",<br>    * `OK`: "Oklahoma",<br>    * `OR`: "Oregon",<br>    * `PA`: "Pennsylvania",<br>    * `PR`: "Puerto Rico",<br>    * `RI`: "Rhode Island",<br>    * `SC`: "South Carolina",<br>    * `SD`: "South Dakota",<br>    * `TN`: "Tennessee",<br>    * `TX`: "Texas",<br>    * `UT`: "Utah",<br>    * `VA`: "Virginia",<br>    * `VI`: "Virgin Islands",<br>    * `VT`: "Vermont",<br>    * `WA`: "Washington",<br>    * `WI`: "Wisconsin",<br>    * `WV`: "West Virginia",<br>    * `WY`: "Wyoming"<br>* List of allowed states for `CAN`:<br>    * `AB`: "Alberta",<br>    * `BC`: "British Columbia",<br>    * `MB`: "Manitoba",<br>    * `NB`: "New Brunswick",<br>    * `NL`: "Newfoundland and Labrador",<br>    * `NS`: "Nova Scotia",<br>    * `NT`: "Northwest Territories",<br>    * `NU`: "Nunavut",<br>    * `ON`: "Ontario",<br>    * `PE`: "Prince Edward Island",<br>    * `QC`: "Quebec",<br>    * `SK`: "Saskatchewan",<br>    * `YT`: "Yukon"<br><br>Possibles values : `null`, `"AA"`, `"AE"`, `"AP"`, `"AK"`, `"AL"`, `"AR"`, `"AZ"`, `"CA"`, `"CO"`, `"CT"`, `"DC"`, `"DE"`, `"FL"`, `"GA"`, `"GU"`, `"HI"`, `"IA"`, `"ID"`, `"IL"`, `"IN"`, `"KS"`, `"KY"`, `"LA"`, `"MA"`, `"MD"`, `"ME"`, `"MI"`, `"MN"`, `"MO"`, `"MS"`, `"MT"`, `"NC"`, `"ND"`, `"NE"`, `"NH"`, `"NJ"`, `"NM"`, `"NV"`, `"NY"`, `"OH"`, `"OK"`, `"OR"`, `"PA"`, `"PR"`, `"RI"`, `"SC"`, `"SD"`, `"TN"`, `"TX"`, `"UT"`, `"VA"`, `"VI"`, `"VT"`, `"WA"`, `"WI"`, `"WV"`, `"WY"`, `"AB"`, `"BC"`, `"MB"`, `"NB"`, `"NL"`, `"NS"`, `"NT"`, `"NU"`, `"ON"`, `"PE"`, `"QC"`, `"SK"`, `"YT"` |
-     * | language | String | User language (ISO 639-1 code format, with possibility of regional variation. Ex: both 'en' and 'en-US' are supported) |
-     * | timezone | String | User timezone name |
-     * | jid_im | String | User Jabber IM identifier |
-     * | jid_tel | String | User Jabber TEL identifier |
-     * | jid_password | String | User Jabber IM and TEL password |
-     * | roles | String\[\] | List of user roles (Array of String)  <br>Note: `company_support` role is only used for support redirection. If a user writes a #support ticket and have the role `company_support`, the ticket will be sent to ALE's support (otherwise the ticket is sent to user's company's `supportEmail` address is set, ALE otherwise). |
-     * | adminType | String | In case of user's is 'admin', define the subtype (organisation\_admin, company\_admin, site_admin (default undefined) |
-     * | companyId | String | User company unique identifier |
-     * | organisationId | String | In addition to User companyId, optional identifier to indicate the user belongs also to an organization |
-     * | siteId | String | In addition to User companyId, optional identifier to indicate the user belongs also to a site |
-     * | companyName | String | User company name |
+     * | country | string | User country (ISO 3166-1 alpha3 format)<br><br>The list of allowed countries can be obtained using the API AdminService::getListOfCountries() |
+     * | state optionnel | string | When country is 'USA' or 'CAN', a state can be defined. Else it is not managed (null).<br><br>The list of allowed states can be obtained using the API AdminService::getListOfCountries() for the associated countries.<br><br>* List of allowed states for `USA`:<br>    * `AA`: "Armed Forces America",<br>    * `AE`: "Armed Forces",<br>    * `AP`: "Armed Forces Pacific",<br>    * `AK`: "Alaska",<br>    * `AL`: "Alabama",<br>    * `AR`: "Arkansas",<br>    * `AZ`: "Arizona",<br>    * `CA`: "California",<br>    * `CO`: "Colorado",<br>    * `CT`: "Connecticut",<br>    * `DC`: Washington DC",<br>    * `DE`: "Delaware",<br>    * `FL`: "Florida",<br>    * `GA`: "Georgia",<br>    * `GU`: "Guam",<br>    * `HI`: "Hawaii",<br>    * `IA`: "Iowa",<br>    * `ID`: "Idaho",<br>    * `IL`: "Illinois",<br>    * `IN`: "Indiana",<br>    * `KS`: "Kansas",<br>    * `KY`: "Kentucky",<br>    * `LA`: "Louisiana",<br>    * `MA`: "Massachusetts",<br>    * `MD`: "Maryland",<br>    * `ME`: "Maine",<br>    * `MI`: "Michigan",<br>    * `MN`: "Minnesota",<br>    * `MO`: "Missouri",<br>    * `MS`: "Mississippi",<br>    * `MT`: "Montana",<br>    * `NC`: "North Carolina",<br>    * `ND`: "North Dakota",<br>    * `NE`: "Nebraska",<br>    * `NH`: "New Hampshire",<br>    * `NJ`: "New Jersey",<br>    * `NM`: "New Mexico",<br>    * `NV`: "Nevada",<br>    * `NY`: "New York",<br>    * `OH`: "Ohio",<br>    * `OK`: "Oklahoma",<br>    * `OR`: "Oregon",<br>    * `PA`: "Pennsylvania",<br>    * `PR`: "Puerto Rico",<br>    * `RI`: "Rhode Island",<br>    * `SC`: "South Carolina",<br>    * `SD`: "South Dakota",<br>    * `TN`: "Tennessee",<br>    * `TX`: "Texas",<br>    * `UT`: "Utah",<br>    * `VA`: "Virginia",<br>    * `VI`: "Virgin Islands",<br>    * `VT`: "Vermont",<br>    * `WA`: "Washington",<br>    * `WI`: "Wisconsin",<br>    * `WV`: "West Virginia",<br>    * `WY`: "Wyoming"<br>* List of allowed states for `CAN`:<br>    * `AB`: "Alberta",<br>    * `BC`: "British Columbia",<br>    * `MB`: "Manitoba",<br>    * `NB`: "New Brunswick",<br>    * `NL`: "Newfoundland and Labrador",<br>    * `NS`: "Nova Scotia",<br>    * `NT`: "Northwest Territories",<br>    * `NU`: "Nunavut",<br>    * `ON`: "Ontario",<br>    * `PE`: "Prince Edward Island",<br>    * `QC`: "Quebec",<br>    * `SK`: "Saskatchewan",<br>    * `YT`: "Yukon"<br><br>Possibles values : `null`, `"AA"`, `"AE"`, `"AP"`, `"AK"`, `"AL"`, `"AR"`, `"AZ"`, `"CA"`, `"CO"`, `"CT"`, `"DC"`, `"DE"`, `"FL"`, `"GA"`, `"GU"`, `"HI"`, `"IA"`, `"ID"`, `"IL"`, `"IN"`, `"KS"`, `"KY"`, `"LA"`, `"MA"`, `"MD"`, `"ME"`, `"MI"`, `"MN"`, `"MO"`, `"MS"`, `"MT"`, `"NC"`, `"ND"`, `"NE"`, `"NH"`, `"NJ"`, `"NM"`, `"NV"`, `"NY"`, `"OH"`, `"OK"`, `"OR"`, `"PA"`, `"PR"`, `"RI"`, `"SC"`, `"SD"`, `"TN"`, `"TX"`, `"UT"`, `"VA"`, `"VI"`, `"VT"`, `"WA"`, `"WI"`, `"WV"`, `"WY"`, `"AB"`, `"BC"`, `"MB"`, `"NB"`, `"NL"`, `"NS"`, `"NT"`, `"NU"`, `"ON"`, `"PE"`, `"QC"`, `"SK"`, `"YT"` |
+     * | language | string | User language (ISO 639-1 code format, with possibility of regional variation. Ex: both 'en' and 'en-US' are supported) |
+     * | timezone | string | User timezone name |
+     * | jid_im | string | User Jabber IM identifier |
+     * | jid_tel | string | User Jabber TEL identifier |
+     * | jid_password | string | User Jabber IM and TEL password |
+     * | roles | string\[\] | List of user roles (Array of string)  <br>Note: `company_support` role is only used for support redirection. If a user writes a #support ticket and have the role `company_support`, the ticket will be sent to ALE's support (otherwise the ticket is sent to user's company's `supportEmail` address is set, ALE otherwise). |
+     * | adminType | string | In case of user's is 'admin', define the subtype (organisation\_admin, company\_admin, site_admin (default undefined) |
+     * | companyId | string | User company unique identifier |
+     * | organisationId | string | In addition to User companyId, optional identifier to indicate the user belongs also to an organization |
+     * | siteId | string | In addition to User companyId, optional identifier to indicate the user belongs also to a site |
+     * | companyName | string | User company name |
      * | isInDefaultCompany | Boolean | Is user in default company |
      * | isActive | Boolean | Is user active |
      * | isInitialized | Boolean | Is user initialized |
@@ -8938,42 +9231,42 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      * | lastAvatarUpdateDate | Date-Time | Date of last user avatar create/update, null if no avatar |
      * | createdBySelfRegister | Boolean | true if user has been created using self register |
      * | createdByAdmin | Object | If user has been created by an admin or superadmin, contain userId and loginEmail of the admin who created this user |
-     * | userId | String | userId of the admin who created this user |
-     * | loginEmail | String | loginEmail of the admin who created this user |
+     * | userId | string | userId of the admin who created this user |
+     * | loginEmail | string | loginEmail of the admin who created this user |
      * | invitedBy | Object | If user has been created from an email invitation sent by another rainbow user, contain the date the invitation was sent and userId and loginEmail of the user who invited this user |
-     * | userId | String | userId of the user who invited this user |
+     * | userId | string | userId of the user who invited this user |
      * | firstLoginDate | Date-Time | Date of first user login (only set the first time user logs in, null if user never logged in) |
-     * | loginEmail | String | loginEmail of the user who invited this user |
+     * | loginEmail | string | loginEmail of the user who invited this user |
      * | lastLoginDate | Date-Time | Date of last user login (defined even if user is logged out) |
      * | loggedSince | Date-Time | Date of last user login (null if user is logged out) |
      * | lastSeenDate | Date-Time | Approximate date when the user has been seen on Rainbow (null if user never logged in)  <br>This date is updated:<br><br>* When the user logs in (either from login API, SAML/OIDC SSO, OAuth)<br>* When the token of the user is refreshed (using the API GET /api/rainbow/authentication/v1.0/renew, done automatically by the clients before the token expires and not visible by the user)<br>* When the user logs out |
-     * | authenticationType optionnel | String | User authentication type (if not set company default authentication will be used)<br><br>Possibles values : `DEFAULT`, `RAINBOW`, `SAML`, `OIDC` |
-     * | authenticationExternalUid optionnel | String | User external authentication ID (return by identity provider in case of SAML or OIDC authenticationType) |
+     * | authenticationType optionnel | string | User authentication type (if not set company default authentication will be used)<br><br>Possibles values : `DEFAULT`, `RAINBOW`, `SAML`, `OIDC` |
+     * | authenticationExternalUid optionnel | string | User external authentication ID (return by identity provider in case of SAML or OIDC authenticationType) |
      * | isTerminated | Boolean | Indicates if the Rainbow account of this user has been deleted |
      * | timeToLive | Number | Duration in second to wait before automatically starting a user deletion from the creation date.  <br>Once the timeToLive has been reached, the user won't be usable to use APIs anymore (error 401523). His account may then be deleted from the database at any moment.  <br>Value -1 means timeToLive is disable (i.e. user account will not expire). |
      * | guestMode | Boolean | Indicated a user embedded in a chat or conference room, as guest, with limited rights until he finalizes his registration. |
-     * | userInfo1 | String | Free field that admin can use to link their users to their IS/IT tools / to perform analytics (this field is output in the CDR file) |
-     * | userInfo2 | String | 2nd Free field that admin can use to link their users to their IS/IT tools / to perform analytics (this field is output in the CDR file) |
+     * | userInfo1 | string | Free field that admin can use to link their users to their IS/IT tools / to perform analytics (this field is output in the CDR file) |
+     * | userInfo2 | string | 2nd Free field that admin can use to link their users to their IS/IT tools / to perform analytics (this field is output in the CDR file) |
      * | profiles | Object\[\] | User profile Objects. |
-     * | subscriptionId | String | Id of company subscription to which user profile is assigned (one of the subscriptions available to user's company) |
-     * | offerId | String | Id of the Rainbow offer to which company subscription is attached |
-     * | offerName | String | Name of the Rainbow offer to which company subscription is attached |
-     * | profileId | String | Id of the Rainbow profile to which company subscription is attached |
-     * | profileName | String | Name of the Rainbow profile to which company subscription is attached |
-     * | status | String | Status of the company subscription to which user profile is assigned  <br>  <br>Possible values: `active`, `alerting`, `hold`, `terminated` |
+     * | subscriptionId | string | Id of company subscription to which user profile is assigned (one of the subscriptions available to user's company) |
+     * | offerId | string | Id of the Rainbow offer to which company subscription is attached |
+     * | offerName | string | Name of the Rainbow offer to which company subscription is attached |
+     * | profileId | string | Id of the Rainbow profile to which company subscription is attached |
+     * | profileName | string | Name of the Rainbow profile to which company subscription is attached |
+     * | status | string | Status of the company subscription to which user profile is assigned  <br>  <br>Possible values: `active`, `alerting`, `hold`, `terminated` |
      * | isDefault | Boolean | Indicates if this profile is linked to user's company's subscription to default offer (i.e. Essential) |
-     * | assignationDate | String | Date when the subscription was attached to user profile |
+     * | assignationDate | string | Date when the subscription was attached to user profile |
      * | canBeSold | Boolean | Indicates if the offer is billed.  <br>Some offers will not be billed (Essential, Demo, ...). |
      * | offerTechnicalDescription optionnel | string | Offer technical description.<br> |
      * | businessModel optionnel | string | Indicates the business model associated to this offer (number of users, usage, ...)<br><br>* `nb_users`: Licencing business model. Subscriptions having this business model are billed according to the number of users bought for it.<br>* `usage`: Subscriptions having this business model are billed based on service consumption (whatever the number of users assigned to the subscription of this offer).<br>* `flat_fee`: Subscriptions having this business model are billed based on a flat fee (same price each month for the company which subscribe to this offer).<br>* `none`: no business model. Should be used for offers which are not sold (like Essential...).<br><br>Default value : `none`<br><br>Possibles values : `nb_users`, `usage`, `flat_fee`, `none` |
-     * | businessSpecific optionnel | String\[\] | Indicates if the subscription is related to specific(s) business (for verticals like HDS)<br><br>* `NONE`: This subscription is used if the company does not have a businessSpecific field.<br>* `HDS`: This subscription is used if the company have a businessSpecific HDS (HealthCare).<br><br>Default value : `["NONE"]`<br><br>Possibles values : `NONE`, `HDS` |
+     * | businessSpecific optionnel | string\[\] | Indicates if the subscription is related to specific(s) business (for verticals like HDS)<br><br>* `NONE`: This subscription is used if the company does not have a businessSpecific field.<br>* `HDS`: This subscription is used if the company have a businessSpecific HDS (HealthCare).<br><br>Default value : `["NONE"]`<br><br>Possibles values : `NONE`, `HDS` |
      * | isExclusive optionnel | Boolean | Indicates if the offer is exclusive for assignation to a user profile (if the user has already an exclusive offer assigned, it won't be possible to assign a second exclusive offer). |
      * | isPrepaid optionnel | Boolean | Indicates if the profile is linked to a prepaid subscription |
      * | prepaidDuration optionnel | Number | Prepaid subscription duration (in month).  <br>Only set if `isPrepaid` is true. |
      * | provisioningNeeded optionnel | Object\[\] | Array of Objects which indicates if account must be provisioned on other internal components when subscribing to this offer. |
-     * | providerType | String | If provisioningNeeded is set, each element of the array must contain providerType. providerType defines the internal component on which the provisioning is needed when subscribing to this offer (provisioning is launched asynchronously when the subscription is created).<br><br>Possibles values : `PGI`, `JANUS` |
-     * | pgiEnterpriseId optionnel | String | Only set if provisioningNeeded is set and the element of the array has providerType `PGI`. Corresponds to an enterpriseId to use when provisioning the company account on PSTN Conferencing component.<br><br>Possibles values : `testEnterpriseId`, `internalEnterpriseId`, `genericEnterpriseId` |
-     * | mediaType optionnel | String | Only set if provisioningNeeded is set and the element of the array has providerType `JANUS`. Corresponds to the media type to use when provisioning the company account on WebRTC Conferencing component.<br><br>Possibles values : `webrtc` |
+     * | providerType | string | If provisioningNeeded is set, each element of the array must contain providerType. providerType defines the internal component on which the provisioning is needed when subscribing to this offer (provisioning is launched asynchronously when the subscription is created).<br><br>Possibles values : `PGI`, `JANUS` |
+     * | pgiEnterpriseId optionnel | string | Only set if provisioningNeeded is set and the element of the array has providerType `PGI`. Corresponds to an enterpriseId to use when provisioning the company account on PSTN Conferencing component.<br><br>Possibles values : `testEnterpriseId`, `internalEnterpriseId`, `genericEnterpriseId` |
+     * | mediaType optionnel | string | Only set if provisioningNeeded is set and the element of the array has providerType `JANUS`. Corresponds to the media type to use when provisioning the company account on WebRTC Conferencing component.<br><br>Possibles values : `webrtc` |
      * | zuoraOfferId optionnel | string | ID of the related offer in Zuora (if offer can be sold) |
      * | zuoraProductRatePlanId optionnel | string | ID of the ProductRatePlanId to used in Zuora (if offer can be sold) |
      * | zuoraProductRatePlanChargeId optionnel | string | ID of the ProductRatePlanChargeId used in Zuora (if offer can be sold) |
@@ -9195,23 +9488,951 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
     /**
      * @public
      * @nodered true
-     * @method getAllUsers
+     * @method getCompaniesBPBusinessType
      * @instance
      * @description
-     *      Get all users for a given admin </BR>
+     *      This API allows superadmin to retrieve allowed values for bpBusinessType
      * @async
      * @category Companies and users management
-     * @param {string} format Allows to retrieve more or less user details in response.
-     *   small: id, loginEmail, firstName, lastName, displayName, companyId, companyName, isTerminated
-     *   medium: id, loginEmail, firstName, lastName, displayName, jid_im, jid_tel, companyId, companyName, lastUpdateDate, lastAvatarUpdateDate, isTerminated, guestMode
-     *   full: all user fields
-     * @param {number} offset Allow to specify the position of first user to retrieve (first user if not specified). Warning: if offset > total, no results are returned.
-     * @param {number} limit Allow to specify the number of users to retrieve (default=100).
-     * @param {string} sortField Sort user list based on the given field (default="loginEmail").
-     * @return {Promise<Object, ErrorManager>}
-     * @fulfil {Array} - Array of Json object containing users or an error object depending on the result
-     * @category async
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | id  | String | bp business type id. |
+     * | description | String | bp business type description. |
+     *
+     * examples of result :
+     * ```json
+     * [
+     *         {
+     *             "id": "voice_by_partner",
+     *             "description": "Voice by Partner"
+     *         },
+     *         {
+     *             "id": "voice_by_ale",
+     *             "description": "Voice by ALE"
+     *         },
+     *         {
+     *             "id": "default",
+     *             "description": "Default"
+     *         },
+     *         {
+     *             "id": "conference",
+     *             "description": "Conference"
+     *         }
+     * ]
+     * ```
+     *
      */
+    getCompaniesBPBusinessType(): Promise<any>;
+    /**
+     * @public
+     * @nodered true
+     * @method getCompanyAppFeatureCustomisation
+     * @instance
+     * @description
+     *      This API allows administrators to list the features customisation elements for the company.
+     *
+     * Retrieves the application features customisation elements (e.g. conversation pane, menu pane, services) for the given company.
+     * The list of supported features elements is the following (naming convention given from the desktop):
+     *
+     * * featureConversationPane: Left pane containing conversations.
+     * * callContact: Button call a contact from conversations pane.
+     * * searchContact: Search bar in the conversations pane.
+     * * featureTopPane: Top pane containing the menu.
+     * * featureServices: Services available for the users.
+     * * meeting: Allow to create a meeting.
+     * * uploadFile: Allow user to upload a file.
+     * * shareFile: Allow user to share file with other user .
+     * * callHistory: Allow user to have a call history.
+     * * createBubble: Allow user to create bubble.
+     * @async
+     * @param {string} companyId Company for which list of custom feature elements is requested.
+     * @category Companies and users management
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | companyId  | String | Company for which list of custom feature elements is requested. |
+     *
+     * examples of result :
+     * ```json
+     * {
+     *  "id": "59a86a53aa11836bde061833",
+     *  "appFeaturesCustomisation": {
+     *     "featureConversationPane": "#595959",
+     *     "callContact": false,
+     *     "searchContact": false,
+     *     "meeting": false
+     *  }
+     * }
+     * ```
+     *
+     */
+    getCompanyAppFeatureCustomisation(companyId: string): Promise<any>;
+    /**
+     * @public
+     * @nodered true
+     * @method getCompanyServiceDescriptionFile
+     * @instance
+     * @description
+     *      This API allows administrators to get service description pdf file uploaded by superadmin.
+     * @async
+     * @param {string} companyId Company for which service description file is requested.
+     * @category Companies and users management
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | pdf  | Binary | Service description pdf file. |
+     *
+     */
+    getCompanyServiceDescriptionFile(companyId: string): Promise<any>;
+    /**
+     * @public
+     * @nodered true
+     * @method getDefaultCompanyData
+     * @instance
+     * @description
+     *     This API allows to get the default Rainbow company.
+     * @async
+     * @param {string} format Allows to retrieve more or less company details in response.
+     * </br>
+     * </br> * `small`: _id, name
+     * </br> * `medium`: id, name, status, adminEmail, companyContactId, isBP, bpType, country, website, slogan, description, size, economicActivityClassification, creationDate, lastAvatarUpdateDate, lastBannerUpdateDate, avatarShape, visibility
+     * </br> * `full` for superadmin and support: All fields
+     * </br>* `full` for admin: All fields except BP fields (bpType, bpBusinessModel, bpApplicantNumber, bpCRDid, bpHasRightToSell, bpHasRightToConnect, bpHasRightForBYOT, preferredSipLoadBalancerId, bpIsContractAccepted, bpContractAcceptationInfo)
+     * </br>
+     * Default value : `full`. Possibles values : `small`, `medium`, `full`.
+     * @param {string} selectedThemeObj Allows to return selectedTheme attribute as an object:
+     * </br>
+     * </br> * true returns selectedTheme as an object (e.g. { "light": "60104754c8fada2ad4be3e48", "dark": "5ea304e4359c0e6815fc8b57" }),
+     * </br> * false return selectedTheme as a string.
+     * @category Companies and users management
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | data | Object | Company Object. |
+     * | id  | String | Company unique identifier |
+     * | creationDate | Date-Time | Company creation date (Read only) |
+     * | statusUpdatedDate | Date-Time | Date of last company status update (Read only) |
+     * | lastAvatarUpdateDate | Date-Time | Date of last company avatar update (Read only) |
+     * | name | String | Company name |
+     * | country optionnel | String | Company country (ISO 3166-1 alpha3 format)<br><br>The list of allowed countries can be obtained using the API AdminService::getListOfCountries() |
+     * | street optionnel | String | Company street<br> |
+     * | city optionnel | String | Company city<br> |
+     * | state optionnel | String | When country is 'USA' or 'CAN', a state must be defined. Else it is not managed.<br><br>The list of allowed states can be obtained using the API AdminService::getListOfCountries() for the associated countries.<br><br>* List of allowed states for `USA`:<br>    * `AA`: "Armed Forces America",<br>    * `AE`: "Armed Forces",<br>    * `AP`: "Armed Forces Pacific",<br>    * `AK`: "Alaska",<br>    * `AL`: "Alabama",<br>    * `AR`: "Arkansas",<br>    * `AZ`: "Arizona",<br>    * `CA`: "California",<br>    * `CO`: "Colorado",<br>    * `CT`: "Connecticut",<br>    * `DC`: Washington DC",<br>    * `DE`: "Delaware",<br>    * `FL`: "Florida",<br>    * `GA`: "Georgia",<br>    * `GU`: "Guam",<br>    * `HI`: "Hawaii",<br>    * `IA`: "Iowa",<br>    * `ID`: "Idaho",<br>    * `IL`: "Illinois",<br>    * `IN`: "Indiana",<br>    * `KS`: "Kansas",<br>    * `KY`: "Kentucky",<br>    * `LA`: "Louisiana",<br>    * `MA`: "Massachusetts",<br>    * `MD`: "Maryland",<br>    * `ME`: "Maine",<br>    * `MI`: "Michigan",<br>    * `MN`: "Minnesota",<br>    * `MO`: "Missouri",<br>    * `MS`: "Mississippi",<br>    * `MT`: "Montana",<br>    * `NC`: "North Carolina",<br>    * `ND`: "North Dakota",<br>    * `NE`: "Nebraska",<br>    * `NH`: "New Hampshire",<br>    * `NJ`: "New Jersey",<br>    * `NM`: "New Mexico",<br>    * `NV`: "Nevada",<br>    * `NY`: "New York",<br>    * `OH`: "Ohio",<br>    * `OK`: "Oklahoma",<br>    * `OR`: "Oregon",<br>    * `PA`: "Pennsylvania",<br>    * `PR`: "Puerto Rico",<br>    * `RI`: "Rhode Island",<br>    * `SC`: "South Carolina",<br>    * `SD`: "South Dakota",<br>    * `TN`: "Tennessee",<br>    * `TX`: "Texas",<br>    * `UT`: "Utah",<br>    * `VA`: "Virginia",<br>    * `VI`: "Virgin Islands",<br>    * `VT`: "Vermont",<br>    * `WA`: "Washington",<br>    * `WI`: "Wisconsin",<br>    * `WV`: "West Virginia",<br>    * `WY`: "Wyoming"<br>* List of allowed states for `CAN`:<br>    * `AB`: "Alberta",<br>    * `BC`: "British Columbia",<br>    * `MB`: "Manitoba",<br>    * `NB`: "New Brunswick",<br>    * `NL`: "Newfoundland and Labrador",<br>    * `NS`: "Nova Scotia",<br>    * `NT`: "Northwest Territories",<br>    * `NU`: "Nunavut",<br>    * `ON`: "Ontario",<br>    * `PE`: "Prince Edward Island",<br>    * `QC`: "Quebec",<br>    * `SK`: "Saskatchewan",<br>    * `YT`: "Yukon"<br><br>Possibles values : `null`, `"AA"`, `"AE"`, `"AP"`, `"AK"`, `"AL"`, `"AR"`, `"AZ"`, `"CA"`, `"CO"`, `"CT"`, `"DC"`, `"DE"`, `"FL"`, `"GA"`, `"GU"`, `"HI"`, `"IA"`, `"ID"`, `"IL"`, `"IN"`, `"KS"`, `"KY"`, `"LA"`, `"MA"`, `"MD"`, `"ME"`, `"MI"`, `"MN"`, `"MO"`, `"MS"`, `"MT"`, `"NC"`, `"ND"`, `"NE"`, `"NH"`, `"NJ"`, `"NM"`, `"NV"`, `"NY"`, `"OH"`, `"OK"`, `"OR"`, `"PA"`, `"PR"`, `"RI"`, `"SC"`, `"SD"`, `"TN"`, `"TX"`, `"UT"`, `"VA"`, `"VI"`, `"VT"`, `"WA"`, `"WI"`, `"WV"`, `"WY"`, `"AB"`, `"BC"`, `"MB"`, `"NB"`, `"NL"`, `"NS"`, `"NT"`, `"NU"`, `"ON"`, `"PE"`, `"QC"`, `"SK"`, `"YT"` |
+     * | postalCode optionnel | String | Company postal code<br> |
+     * | currency optionnel | String | Company currency, for payment of premium offers (ISO 4217 format)  <br>For now, only USD, EUR and CNY are supported<br><br>Possibles values : `USD`, `EUR`, `CNY` |
+     * | status | String | Company status<br><br>Possibles values : `initializing`, `active`, `alerting`, `hold`, `terminated` |
+     * | visibility optionnel | string | Company visibility (define if users being in this company can be searched by users being in other companies and if the user can search users being in other companies).<br><br>* `public`: User can be searched by external users / can search external users. User can invite external users / can be invited by external users<br>* `private`: User **can't** be searched by external users (even within his organisation) / can search external users. User can invite external users / can be invited by external users<br>* `organisation`: User **can't** be searched by external users / can search external users. User can invite external users / can be invited by external users<br>* `closed`: User **can't** be searched by external users / **can't** search external users. User can invite external users / can be invited by external users<br>* `isolated`: User **can't** be searched by external users / **can't** search external users. User **can't** invite external users / **can't** be invited by external users<br>* `none`: Default value reserved for guest. User **can't** be searched by **any users** (even within the same company) / can search external users. User can invite external users / can be invited by external users<br><br>External users mean public user not being in user's company nor user's organisation nor a company visible by user's company.<br><br>Note related to organisation visibility:<br><br>* Under the same organisation, a company can choose the visibility=organisation. That means users belonging to this company are visible for users of foreign companies inside the same organisation.<br>* The visibility=organisation is same as visibility=private outside the organisation. That is to say users can't be searched outside the organisation's companies.<br><br>Default value : `private`<br><br>Possibles values : `public`, `private`, `organisation`, `closed`, `isolated` |
+     * | visibleBy | String\[\] | If visibility is private, list of companyIds for which visibility is allowed |
+     * | adminEmail optionnel | String | Company contact person email |
+     * | supportEmail optionnel | String | Company support email |
+     * | supportUrlFAQ optionnel | String | Company support URL |
+     * | companyContactId optionnel | String | User Id of a Rainbow user which is the contact for this company |
+     * | disableCCareAdminAccess optionnel | Boolean | When True, disables the access to the customer care logs for admins of this company.  <br>Note that if `disableCCareAdminAccessCustomers` is enabled on its BP company or `disableCCareAdminAccessResellers` is enabled on its BP VAD company, this setting is forced to true. |
+     * | disableCCareAdminAccessCustomers optionnel | Boolean | When True, disables the access to the customer care logs for admins of all the customers company.  <br>This setting is only applicable for BP companies (`isBP`=true)<br><br>* If the BP company is a DR or an IR, enabling this setting disables the access to the customer care logs for the admins of all its customers companies.<br>* If the BP company is a VAD, enabling this setting disables the access to the customer care logs for all the admins of its customers companies.  <br>    Note that the bp_admins/admins of all the BP IRs companies linked to this VAD still have access to the customer care logs (the setting `disableCCareAdminAccessResellers` on the BP VAD company allows to disable it). |
+     * | disableCCareAdminAccessResellers optionnel | Boolean | When True, disables the access to the customer care logs for admins of all the BP IRs companies linked to the BP VAD and their customers company.  <br>This setting is only applicable for BP VAD companies (`isBP`=true and `bpType`=`VAD`)  <br>Enabling this setting disables on the BP VAD company disables the access to the customer care logs for the bp_admins/admins of all the BP IRs linked to this VAD, and to all the admins of their customers.  <br>Note that the admins of all the customer companies directly linked to this VAD still have access to the customer care logs (the setting `disableCCareAdminAccessCustomers` on the BP VAD company allows to disable it). |
+     * | autoAcceptUserInvitations optionnel | Boolean | Allow to enable or disable the auto-acceptation of user invitations between users of this company (default true: enabled) |
+     * | userSelfRegisterEnabled | Boolean | Allow users with email domain matching 'userSelfRegisterAllowedDomains' to join the company by self-register process |
+     * | userSelfRegisterAllowedDomains | String\[\] | Allow users with email domain matching one of the values of this array to join the company by self-register process (if userSelfRegisterEnabled is true) |
+     * | slogan optionnel | String | A free string corresponding to the slogan of the company (255 char length) |
+     * | description optionnel | String | A free string that describes the company (2000 char length) |
+     * | size | String | An overview of the number of employees<br><br>Possibles values : `"self-employed"`, `"1-10 employees"`, `"11-50 employees"`, `"51-200 employees"`, `"201-500 employees"`, `"501-1000 employees"`, `"1001-5000 employees"`, `"5001-10,000 employees"`, `"10,001+ employees"` |
+     * | economicActivityClassification optionnel | String | * `A`: AGRICULTURE, FORESTRY AND FISHING<br>* `B`: MINING AND QUARRYING<br>* `C`: MANUFACTURING<br>* `D`: ELECTRICITY, GAS, STEAM AND AIR CONDITIONING SUPPLY<br>* `E`: WATER SUPPLY; SEWERAGE, WASTE MANAGEMENT AND REMEDIATION ACTIVITIES<br>* `F`: CONSTRUCTION<br>* `G`: WHOLESALE AND RETAIL TRADE; REPAIR OF MOTOR VEHICLES AND MOTORCYCLES<br>* `H`: TRANSPORTATION AND STORAGE<br>* `I`: ACCOMMODATION AND FOOD SERVICE ACTIVITIES<br>* `J`: INFORMATION AND COMMUNICATION<br>* `K`: FINANCIAL AND INSURANCE ACTIVITIES<br>* `L`: REAL ESTATE ACTIVITIES<br>* `M`: PROFESSIONAL, SCIENTIFIC AND TECHNICAL ACTIVITIES<br>* `N`: ADMINISTRATIVE AND SUPPORT SERVICE ACTIVITIES<br>* `O`: PUBLIC ADMINISTRATION AND DEFENCE; COMPULSORY SOCIAL SECURITY<br>* `P`: EDUCATION<br>* `Q`: HUMAN HEALTH AND SOCIAL WORK ACTIVITIES<br>* `R`: ARTS, ENTERTAINMENT AND RECREATION<br>* `S`: OTHER SERVICE ACTIVITIES<br>* `T`: ACTIVITIES OF HOUSEHOLDS AS EMPLOYERS; UNDIFFERENTIATED GOODS- AND SERVICES-PRODUCING ACTIVITIES OF HOUSEHOLDS FOR OWN USE<br>* `U`: ACTIVITIES OF EXTRATERRITORIAL ORGANISATIONS AND BODIES<br><br>Possibles values : `"NONE"`, `"A"`, `"B"`, `"C"`, `"D"`, `"E"`, `"F"`, `"G"`, `"H"`, `"I"`, `"J"`, `"K"`, `"L"`, `"M"`, `"N"`, `"O"`, `"P"`, `"Q"`, `"R"`, `"S"`, `"T"`, `"U"` |
+     * | giphyEnabled optionnel | Boolean | Whether or not giphy feature is enabled for users belonging to this company (possibility to use animated gifs in conversations) |
+     * | website optionnel | String | Company website URL |
+     * | organisationId | String | Optional identifier to indicate the company belongs to an organisation |
+     * | catalogId | String | Id of the catalog of Rainbow offers to which the company is linked. The catalog corresponds to the list of offers the company can subscribe. |
+     * | bpId | String | Optional identifier which links the company to the corresponding Business partner company |
+     * | adminHasRightToUpdateSubscriptions optionnel | Boolean | In the case the company is linked to a Business Partner company, indicates if the `bp_admin` allows the `company_admin` to update the subscriptions of his company (if enable, allowed operations depend of the value of `adminAllowedUpdateSubscriptionsOps`).  <br>Can only be set by `superadmin` or `bp_admin`/`bp_finance` of the related company. |
+     * | adminAllowedUpdateSubscriptionsOps optionnel | String | In the case the company is linked to a Business Partner company and `adminHasRightToUpdateSubscriptions` is enabled, indicates the update operations for which the `bp_admin` allows the `company_admin` to perform on the subscriptions of his company.<br><br>Can only be set by `superadmin` or `bp_admin`/`bp_finance` of the related company.<br><br>Possible values:<br><br>* `all`: company_admin is allowed to perform all update operations on the subscriptions of his company<br>* `increase_only`: company_admin is only allowed to increase `maxNumberUsers` on the subscriptions of his company (decrease is forbidden)<br><br>Possibles values : `all`, `increase_only` |
+     * | isBP | Boolean | Indicates if the company is a Business partner company<br><br>Default value : `false` |
+     * | bpType optionnel | String | Indicates BP Company type<br><br>* `IR`: Indirect Reseller,<br>* `VAD`: Value Added Distributor,<br>* `DR`: Direct Reseller.<br><br>Possibles values : `IR`, `VAD`, `DR` |
+     * | bpBusinessModel optionnel | String | Indicates BP business model |
+     * | bpApplicantNumber optionnel | String | Reference of the Business Partner in ALE Finance tools (SAP) |
+     * | bpCRDid optionnel | String | Reference of the Business Partner in CDR |
+     * | bpHasRightToSell optionnel | Boolean | Indicates if the Business has the right to sell |
+     * | bpHasRightToConnect optionnel | Boolean | When True, the BP can connect CPE equipment of managed companies. So when False, the "equipment" tab should be removed from the admin GUI |
+     * | bpHasRightForBYOT optionnel | Boolean | When True, the BP can create a SIP Hybrid Trunk for its managed companies (means that Bring Your Own Trunk feature is available for the BP). So when False, the "hybrid trunk" tab should be removed from the admin GUI |
+     * | preferredSipLoadBalancerId optionnel | String | This attribute is only for BP and useful only in Rainbow Hub context. It indicates preferred SIP Load Balancer identifier to be used (if any). |
+     * | bpIsContractAccepted optionnel | Boolean | Indicates if the Business has accepted the contract and can sell Rainbow offers |
+     * | bpContractAcceptationInfo optionnel | Object | If the Business has accepted the contract, indicates who accepted the contract, Only visible by `superadmin` and `support`. |
+     * | acceptationDate | Date-Time | Date of contract acceptation by the BP admin |
+     * | bpAdminId | String | User Id of the BP admin who accepted the contract |
+     * | offerType | String | Allowed company offer types<br><br>Possibles values : `freemium`, `premium` |
+     * | bpAdminLoginEmail | String | User loginEmail of the BP admin who accepted the contract |
+     * | businessSpecific optionnel | String | When the customer has subscribed to specific business offers, this field is set to the associated specific business (ex: HDS for HealthCare business specific)<br><br>Possibles values : `HDS` |
+     * | externalReference optionnel | String | Free field that BP can use to link their customers to their IS/IT tools  <br>Only applicable by `superadmin` or by `bp_admin`/`bp_finance` on one of his customer companies.<br> |
+     * | externalReference2 optionnel | String | Free field that BP can use to link their customers to their IS/IT tools  <br>Only applicable by `superadmin` or by `bp_admin`/`bp_finance` on one of his customer companies.<br> |
+     * | avatarShape optionnel | String | Company's avatar customization<br><br>Possibles values : `square`, `circle` |
+     * | allowUsersSelectTheme | Boolean | Allow users of this company to select a theme among the ones available (owned or visible by the company). |
+     * | allowUsersSelectPublicTheme | Boolean | Allow users of this company to select a public theme. |
+     * | selectedTheme optionnel | Object | Set the selected theme(s) for users of the company. |
+     * | light optionnel | String | Set the selected theme light for users of the company. |
+     * | dark optionnel | String | Set the selected theme dark for users of the company. |
+     * | adminCanSetCustomData optionnel | Boolean | Whether or not administrators can set `customData` field for their own company. |
+     * | isLockedByBp optionnel | Boolean | Whether or not BP company has locked themes so that indicates if company admin can manage themes (create/update/delete). |
+     * | superadminComment optionnel | String | Free field that only `superadmin` can see<br> |
+     * | bpBusinessType optionnel | String\[\] | Business type that can be sold by a BP.<br><br>Possibles values : `voice_by_partner`, `voice_by_ale`, `conference`, `default` |
+     * | billingModel optionnel | String | Billing model that can be subscribed for this company.<br><br>Possibles values : `monthly`, `prepaid_1y`, `prepaid_3y`, `prepaid_5y` |
+     * | office365Tenant optionnel | String | Office365 tenant configured for this company. |
+     * | office365ScopesGranted optionnel | String\[\] | Scopes granted to Rainbow for usage of Microsoft Office365 APIs.  <br>If no office365Tenant is set or if admin has not granted access of Office365 APIs to Rainbow for the configured office365Tenant, office365ScopesGranted is set to an empty Array.  <br>Otherwise, office365ScopesGranted lists the scopes requested by Rainbow to use Office365 APIs for the configured office365Tenant. This field can be used to determine if the admin must re-authenticate to Microsoft Office365 in the case new scopes are requested for Rainbow application (scopes requested for the current version of office365-portal are listed in API GET /api/rainbow/office365/v1.0/consent).<br><br>Possibles values : `directory`, `calendar` |
+     * | mobilePermanentConnectionMode | Boolean | deactivate push mode for mobile devices.  <br>When we can't rely on Internet and Google FCM services to wake-up the app or notify the app, we can fall back to a direct XMPP connection.  <br>For customers using Samsung devices with Google Play services, we must have an option on admin side to set this permanent connection mode, so that mobile apps can rely on this parameter. This option will be applied for the whole company. |
+     * | fileSharingCustomisation | String | Activate/Deactivate file sharing capability per company  <br>Define if the company can use the file sharing service then, allowed to download and share file.  <br>FileSharingCustomisation can be:<br><br>* `enabled`: Each user of the company can use the file sharing service, except when his own capability is set to 'disabled'.<br>* `disabled`: No user of the company can use the file sharing service, except when his own capability is set to 'enabled'. When one user of the company has the capability 'fileSharingCustomisation' set to 'same\_than\_company', his capability follow the company setting. |
+     * | userTitleNameCustomisation | String | Activate/Deactivate the capability for a user to modify his profile (title, firstName, lastName) per company  <br>Define if the company allows his users to change some profile data.  <br>userTitleNameCustomisation can be:<br><br>* `enabled`: Each user of the company can change some profile data, except when his own capability is set to 'disabled'.<br>* `disabled`: No user of the company can change some profile data, except when his own capability is set to 'enabled'. When one user of the company has the capability 'userTitleNameCustomisation' set to 'same\_than\_company', his capability follow the company setting. |
+     * | softphoneOnlyCustomisation | String | Activate/Deactivate the capability for an UCaas application not to offer all Rainbow services and but to focus to telephony services.  <br>Define if UCaas apps used by a user of this company must provide Softphone functions, i.e. no chat, no bubbles, no meetings, no channels, and so on.  <br>softphoneOnlyCustomisation can be:<br><br>* `enabled`: The user switch to a softphone mode only.<br>* `disabled`: The user can use telephony services, chat, bubbles, channels meeting services and so on. |
+     * | useRoomCustomisation | String | Activate/Deactivate the capability for a user to use bubbles.  <br>Define if a user can create bubbles or participate in bubbles (chat and web conference).  <br>useRoomCustomisation can be:<br><br>* `enabled`: Each user of the company can use bubbles.<br>* `disabled`: No user of the company can use bubbles. |
+     * | phoneMeetingCustomisation | String | Activate/Deactivate the capability for a user to use phone meetings (PSTN conference).  <br>Define if a user has the right to join phone meetings.  <br>phoneMeetingCustomisation can be:<br><br>* `enabled`: Each user of the company can join phone meetings.<br>* `disabled`: No user of the company can join phone meetings. |
+     * | useChannelCustomisation | String | Activate/Deactivate the capability for a user to use a channel.  <br>Define if a user has the right to create channels or be a member of channels.  <br>useChannelCustomisation can be:<br><br>* `enabled`: Each user of the company can use some channels.<br>* `disabled`: No user of the company can use some channel. |
+     * | useScreenSharingCustomisation | String | Activate/Deactivate the capability for a user to share a screen.  <br>Define if a user has the right to share his screen.  <br>useScreenSharingCustomisation can be:<br><br>* `enabled`: Each user of the company can share his screen.<br>* `disabled`: No user of the company can share his screen. |
+     * | useWebRTCVideoCustomisation | String | Activate/Deactivate the capability for a user to switch to a Web RTC video conversation.  <br>Define if a user has the right to be joined via video and to use video (start a P2P video call, add video in a P2P call, add video in a web conference call).  <br>useWebRTCVideoCustomisation can be:<br><br>* `enabled`: Each user of the company can switch to a Web RTC video conversation.<br>* `disabled`: No user of the company can switch to a Web RTC video conversation. |
+     * | useWebRTCAudioCustomisation | String | Activate/Deactivate the capability for a user to switch to a Web RTC audio conversation.  <br>Define if a user has the right to be joined via audio (WebRTC) and to use Rainbow audio (WebRTC) (start a P2P audio call, start a web conference call).  <br>useWebRTCVideoCustomisation can be:<br><br>* `enabled`: Each user of the company can switch to a Web RTC audio conversation.<br>* `disabled`: No user of the company can switch to a Web RTC audio conversation. |
+     * | instantMessagesCustomisation | String | Activate/Deactivate the capability for a user to use instant messages.  <br>Define if a user has the right to use IM, then to start a chat (P2P ou group chat) or receive chat messages and chat notifications.  <br>instantMessagesCustomisation can be:<br><br>* `enabled`: Each user of the company can use instant messages.<br>* `disabled`: No user of the company can use instant messages. |
+     * | userProfileCustomisation | String | Activate/Deactivate the capability for a user to modify his profile.  <br>Define if a user has the right to modify the globality of his profile and not only (title, firstName, lastName).  <br>userProfileCustomisation can be:<br><br>* `enabled`: Each user of the company can modify his profile.<br>* `disabled`: No user of the company can modify his profile. |
+     * | fileStorageCustomisation | String | Activate/Deactivate the capability for a user to access to Rainbow file storage.  <br>Define if a user has the right to upload/download/copy or share documents.  <br>fileStorageCustomisation can be:<br><br>* `enabled`: Each user of the company can manage and share files.<br>* `disabled`: No user of the company can manage and share files. |
+     * | overridePresenceCustomisation | String | Activate/Deactivate the capability for a user to change manually his presence.  <br>Define if a user has the right to change his presence manually or only use automatic states.  <br>overridePresenceCustomisation can be:<br><br>* `enabled`: Each user of the company can change his presence.<br>* `disabled`: No user of the company can change his presence. |
+     * | alertNotificationReception | String | Activate/Deactivate the capability for a user to receive alert notification.  <br>Define if a user has the right to receive alert notification  <br>alertNotificationReception can be:<br><br>* `enabled`: Each user of the company can receive alert notification.<br>* `disabled`: No user of the company can receive alert notification. |
+     * | alertNotificationSending | String | Activate/Deactivate the capability for a user to send alert notification.  <br>Define if a user has the right to send alert notification  <br>alertNotificationSending can be:<br><br>* `enabled`: Each user of the company can send alert notification.<br>* `disabled`: No user of the company can send alert notification. |
+     * | changeTelephonyCustomisation | String | Activate/Deactivate the ability for a user to modify some telephony settings.  <br>Define if a user has the right to modify telephony settings like forward activation ....  <br>changeTelephonyCustomisation can be:<br><br>* `enabled`: The user can modify telephony settings.<br>* `disabled`: The user can't modify telephony settings. |
+     * | changeSettingsCustomisation | String | Activate/Deactivate the ability for a user to change all client general settings.  <br>Define if a user has the right to change his client general settings.  <br>changeSettingsCustomisation can be:<br><br>* `enabled`: The user can change all client general settings.<br>* `disabled`: The user can't change any client general setting. recordingConversationCustomisation Activate/Deactivate the capability for a user to record a conversation.  <br>    Define if a user has the right to record a conversation (for P2P and multi-party calls).  <br>    recordingConversationCustomisation can be:<br>* `enabled`: The user can record a peer to peer or a multi-party call.<br>* `disabled`: The user can't record a peer to peer or a multi-party call. |
+     * | useGifCustomisation | String | Activate/Deactivate the ability for a user to Use GIFs in conversations.  <br>Define if a user has the is allowed to send animated GIFs in conversations  <br>useGifCustomisation can be:<br><br>* `enabled`: The user can send animated GIFs in conversations.<br>* `disabled`: The user can't send animated GIFs in conversations. |
+     * | useDialOutCustomisation | String | Activate/Deactivate the capability for a user to use dial out in phone meetings.  <br>Define if a user is allowed to be called by the Rainbow conference bridge.  <br>useDialOutCustomisation can be:<br><br>* `enabled`: The user can be called by the Rainbow conference bridge.<br>* `disabled`: The user can't be called by the Rainbow conference bridge. |
+     * | fileCopyCustomisation | String | Activate/Deactivate the capability for a user to copy files  <br>Define if one or all users of a company is allowed to copy any file he receives in his personal cloud space.  <br>fileCopyCustomisation can be:<br><br>* `enabled`: The user can make a copy of a file to his personal cloud space.<br>* `disabled`: The user can't make a copy of a file to his personal cloud space. |
+     * | fileTransferCustomisation | String | Activate/Deactivate the ability for a user to transfer files.  <br>Define if one or all users of a company has the right to copy a file from a conversation then share it inside another conversation.  <br>fileTransferCustomisation can be:<br><br>* `enabled`: The user can transfer a file doesn't belong to him.<br>* `disabled`: The user can't transfer a file doesn't belong to him. |
+     * | forbidFileOwnerChangeCustomisation | String | Activate/Deactivate the ability for a user to loose the ownership on one file.  <br>Define if one or all users can drop the ownership of a file to another Rainbow user of the same company  <br>forbidFileOwnerChangeCustomisation can be:<br><br>* `enabled`: The user can't give the ownership of his file.<br>* `disabled`: The user can give the ownership of his file. |
+     * | readReceiptsCustomisation | String | Activate/Deactivate the capability for a user to allow a sender to check if a chat message is read.  <br>Defines whether a peer user in a conversation allows the sender of a chat message to see if this IM is acknowledged by the peer.  <br>This right is used by Ucaas or Cpaas application to show either or not a message is acknowledged. No check is done on backend side.  <br>readReceiptsCustomisation can be:<br><br>* `enabled`: Each user of the company allow the sender to check if an IM is read.<br>* `disabled`: No user of the company allow the sender to check if an IM is read. |
+     * | useSpeakingTimeStatistics | String | Activate/Deactivate the ability for a user to see speaking time statistics..  <br>Defines whether a user has the right to see for a given meeting the speaking time for each attendee of this meeting.  <br>useSpeakingTimeStatistics can be:<br><br>* `enabled`: Each user of the company can use meeting speaking time statistics.<br>* `disabled`: No user of the company can use meeting speaking time statistics. |
+     * | eLearningCustomisation | String | Activate/Deactivate the capability for a user to participate on a E-learning training.  <br>Defines if a user can participate on an E-learning training.  <br>eLearningCustomisation can be:<br><br>* `enabled`: The user can participate on an E-learning training.<br>* `disabled`: The user can't participate on an E-learning training. |
+     * | eLearningGamificationCustomisation | String | Activate/Deactivate the capability for a user to earn badges for E-learning progress.  <br>Defines if a user can earn badges for E-learning progress.  <br>eLearningGamificationCustomisation can be:<br><br>* `enabled`: The user can earn badges for E-learning progress.<br>* `disabled`: The user can't earn badges for E-learning progress. |
+     * | meetingRecordingCustomisation | String | Activate/Deactivate the capability for a user to record a meeting.  <br>Defines if a user can record a meeting.  <br>meetingRecordingCustomisation can be:<br><br>* `enabled`: The user can record a meeting.<br>* `disabled`: The user can't record a meeting. |
+     * | useOtherPhoneMode | String | Activate/Deactivate the capability for a user to use the other phone mode.  <br>Defines if a user can use the other phone mode.  <br>useOtherPhoneMode can be:<br><br>* `enabled`: The user can use the other phone mode.<br>* `disabled`: The user can't use the other phone mode. |
+     * | useComputerMode | String | Activate/Deactivate the capability for a user to use the computer mode.  <br>Defines if a user can use the computer mode.  <br>useComputerMode can be:<br><br>* `enabled`: The user can use the computer mode.<br>* `disabled`: The user can't use the computer mode. |
+     * | useSoftPhoneMode | String | Activate/Deactivate the capability for a user to use the softphone mode.  <br>Defines if a user can use the softphone mode.  <br>useSoftPhoneMode can be:<br><br>* `enabled`: The user can use the softphone mode.<br>* `disabled`: The user can't use the softphone mode. |
+     * | imPopupDuration | Number | Defines the IM popup duration. |
+     * | canAccessWhatsNew | String | Activate/Deactivate the capability for a user to access to what's new.  <br>Defines if a user can access to what's new.  <br>canAccessWhatsNew can be:<br><br>* `enabled`: The user can access to what's new.<br>* `disabled`: The user can't access to what's new. |
+     * | canAccessFaqCustomisation | String | Activate/Deactivate the capability for a user to access to the FAQ.  <br>Defines if a user can access to the FAQ.  <br>canAccessFaqCustomisation can be:<br><br>* `enabled`: The user can access to the FAQ.<br>* `disabled`: The user can't access to the FAQ. |
+     * | canAccessHelpCenterCustomisation | String | Activate/Deactivate the capability for a user to access to Rainbow help center.  <br>Defines if a user can access to Rainbow help center.  <br>canAccesHelpCenterCustomisation can be:<br><br>* `enabled`: The user can access to Rainbow help center.<br>* `disabled`: The user can't access to Rainbow help center. |
+     * | canAccessStoreCustomisation | String | Activate/Deactivate the capability for a user to access to Rainbow store.  <br>Defines if a user can access to Rainbow store.  <br>canAccesStoreCustomisation can be:<br><br>* `enabled`: The user can access to Rainbow store.<br>* `disabled`: The user can't access to Rainbow store. |
+     * | canDownloadAppCustomisation | String | Activate/Deactivate the capability for a user to download Rainbow application.  <br>Defines if a user can download Rainbow application.  <br>canDownloadAppCustomisation can be:<br><br>* `enabled`: The user can download Rainbow application.<br>* `disabled`: The user can't download Rainbow application. |
+     * | canCallParticipantPbxNumberCustomisation | String | Select the capability for a user to call participant via a PBX number.  <br>Defines if a user can call participant via a PBX number.  <br>canCallParticipantPbxNumberCustomisation can be:<br><br>* `enabled`: The user can call participant with all number.<br>* `disabled`: The user can't call participant.<br>* `internal`: The user can call participant only with internal number.<br>* `national`: The user can call participant with national number. |
+     * | defaultLicenseGroup | String | Group of license to assign to user when finalizing his account (e.g. Enterprise, Business ...) |
+     * | defaultOptionsGroups | String\[\] | List of options to assign to user when finalizing his account (e.g. Alert ...) |
+     * | selectedThemeCustomers optionnel | Object | Set the selected theme(s) for customers of this BP company.  <br>This attribute only applies for BP companies. |
+     * | light optionnel | String | Set the selected theme light for customers of this BP company. |
+     * | dark optionnel | String | Set the selected theme dark for customers of this BP company. |
+     * | ddiReadOnly optionnel | Boolean | Indicates if admin of IR company is allowed to create or delete a DDI. Used only on IR companies. |
+     * | locked optionnel | Boolean | Allow to lock selected theme for customers. If true, customers won't be able to manage themes (create/update/delete). |
+     * | cloudPbxVoicemailToEmail optionnel | Boolean | Cloudpbx email notification type when receiving a voicemail |
+     * | allowPhoneNumbersVisibility optionnel | Boolean | Indicates if Phone numbers should be visible or not when generating Voice CDR files. Applies only on BP companies. |
+     * | cloudPbxRecordingInboundOnly optionnel | Boolean | When CloudPbx recording is set, both inbound and outbound calls will be recorded for the selected users. If cloudPbxRecordingInboundOnly is set to true, only inbound calls will be recorded |
+     * | allowDeviceFirmwareSelection optionnel | Boolean | Superadmin allows admins of the company to select a given firmware for its cloudpbx devices. |
+     * | businessData optionnel | Object | Set the businessData company. |
+     * | region optionnel | String | Set the region of the company. |
+     * | cluster optionnel | String | Set the cluster of the company. |
+     * | area optionnel | String | Set the area of the company. |
+     * | allowTeamsToDesktopSso optionnel | Boolean | Superadmin allows if Teams add-in uses sso to login in desktop app for all company users<br><br>Default value : `true` |
+     * | country optionnel | String | Set the business country of the company. |
+     * | rainbowStorageAllowedAllUsers | Boolean | In an environment where a company uses the Rainbow file server or an External file server, an administator can defines storage access rights at company level, and at user level.  <br>So he has to:<br><br>* Enable/Disable external storage for a company (see `useExternalStorage`) and configure required parameters as URLs, type, name, description (see company/settings/filestorage section) and if all company users have access to this storage by default (see `externalStorageAllowedAllUsers`).  <br>    If this storage is enabled by default, all users following the company policy will have access to the storage.<br>* Enable/Disable Rainbow storage for a company (see `useRainbowStorage`), and if all company users have access to this storage by default (see `rainbowStorageAllowedAllUsers`).<br>* Select which storage is the main one used to store photo taken from Rainbow Apps (see `mainStorage`) |
+     * | externalStorageAllowedAllUsers | Boolean | Refer to rainbowStorageAllowedAllUsers. |
+     * | useRainbowStorage | String | In an environment where a company uses the Rainbow file server and an External file server at the same time, 'useRainbowStorage' allows a user to be assigned to a file server.<br><br>* `enabled`: Assign all users to the default Rainbow File Storage.<br>* `disabled`: Unassign all users from the default Rainbow File Storage. |
+     * | useExternalStorage | String | In an environment where a company uses the Rainbow file server and an External file server at the same time, 'useExternalStorage' allows a user to be assigned to a file server.<br><br>* `enabled`: Assign all users to the External File Storage.<br>* `disabled`: Unassign all users from the External File Storage. |
+     * | mainStorage | String | In an environment where a company uses the Rainbow file server and an External file server at the same time, 'mainStorage' allows to decide which file server must be used when a user is assigned to both file servers.<br><br>* `Rainbow Storage`: Assigment to the Rainbow file server.<br>* `External Storage`: Assigment to the External file server. |
+     * | customData optionnel | Object | Company's custom data.  <br>Object with free keys/values.  <br>It is up to the client to manage the company's customData (new customData provided overwrite the existing one).  <br>  <br>Restrictions on customData Object:<br><br>* max 10 keys,<br>* max key length: 64 characters,<br>* max value length: 512 characters. |
+     * | adminServiceNotificationsLevel | String | Level of service notification that admin should see |
+     *
+     * examples of result :
+     * ```json
+     * {
+     *     "data": {
+     *         "id": "569ce8c8f9336c471b98eda1",
+     *         "creationDate": "2016-01-18T13:29:44.498Z",
+     *         "statusUpdatedDate": "2016-01-18T13:29:44.497Z",
+     *         "name": "AL-ENTERPRISE",
+     *         "street": "Sesame street",
+     *         "city": "Brooklyn",
+     *         "postalCode": "123456",
+     *         "country": "USA",
+     *         "state": "NY",
+     *         "status": "active",
+     *         "visibility": "private",
+     *         "visibleBy": [
+     *              "56fabb217d8d3ffa3d0223f8",
+     *              "56d6f00441255dd54b5b61ae"
+     *         ],
+     *         "adminEmail": "admin@company.com",
+     *         "supportEmail": "support@company.com",
+     *         "companyContactId": "588a0d902d9e7f983b8f7661",
+     *         "autoAcceptUserInvitations": true,
+     *         "userSelfRegisterEnabled": true,
+     *         "userSelfRegisterAllowedDomains": [
+     *              "@alcatel-lucent.com",
+     *              "@al-enterprise.com",
+     *              "@al-enterprise.fr",
+     *              "@al-enterprise.de"
+     *         ],
+     *         "slogan": "The slogan of my company",
+     *         "description": "A free string that describes my company",
+     *         "size" : "1001-5000 employees",
+     *         "website": "http:\\/\\/enterprise.alcatel-lucent.com",
+     *         "giphyEnabled": false,
+     *         "organisationId": "57cd58edd341df5812bbcb71",
+     *         "catalogId": "5979f63bae6056aadd1a8f17",
+     *         "bpId": null,
+     *         "externalReference": null,
+     *         "offerType": "premium",
+     *         "avatarShape": "circle",
+     *         "allowUsersSelectTheme": true,
+     *         "allowUsersSelectPublicTheme": true,
+     *         "mobilePermanentConnectionMode": false,
+     *         "customData": {},
+     *         "office365ScopesGranted": [],
+     *         "fileSharingCustomisation": "enabled",
+     *         "userTitleNameCustomisation": "enabled",
+     *         "softphoneOnlyCustomisation": "disabled",
+     *         "useRoomCustomisation": "enabled",
+     *         "phoneMeetingCustomisation": "enabled",
+     *         "useChannelCustomisation": "enabled",
+     *         "useScreenSharingCustomisation": "enabled",
+     *         "useWebRTCVideoCustomisation": "enabled",
+     *         "useWebRTCAudioCustomisation": "enabled",
+     *         "instantMessagesCustomisation": "enabled",
+     *         "userProfileCustomisation": "enabled",
+     *         "fileStorageCustomisation": "enabled",
+     *         "overridePresenceCustomisation": "enabled",
+     *         "changeTelephonyCustomisation": "enabled",
+     *         "changeSettingsCustomisation": "enabled",
+     *         "recordingConversationCustomisation": "enabled",
+     *         "useGifCustomisation": "enabled",
+     *         "useDialOutCustomisation": "enabled",
+     *         "eLearningCustomisation":  "enabled",
+     *         "eLearningGamificationCustomisation": "enabled",
+     *         "meetingRecordingCustomisation": "enabled",
+     *         "useOtherPhoneMode": "enabled",
+     *         "useComputerMode": "enabled",
+     *         "useSoftPhoneMode": "enabled",
+     *         "imPopupDuration": 3,
+     *         "canAccessWhatsNew": "enabled",
+     *         "canAccesFaqCustomisation": "enabled",
+     *         "canAccessHelpCenterCustomisation": "enabled",
+     *         "canAccessStoreCustomisation": "enabled",
+     *         "canDownloadAppCustomisation": "enabled",
+     *         "canCallParticipantPbxNumberCustomisation": "enabled",
+     *         "defaultLicenseGroup": "Enterprise",
+     *         "defaultOptionsGroups": ["Alert"],
+     *         "selectedTheme": {
+     *              "light": null,
+     *              "dark": "5ea304e4359c0e6815fc8b57",
+     *              "isLockedByBp": true
+     *         },
+     *         "businessSpecific": "UGAP",
+     *         "allowTeamsToDesktopSso": true,
+     *         "externalStorageAllowedAllUsers" : false,
+     *         "mainStorage" : "Rainbow Storage",
+     *         "rainbowStorageAllowedAllUsers" : true,
+     *         "useExternalStorage" : "disabled",
+     *         "useRainbowStorage" : "enabled",
+     *         "businessData": {
+     *              "region": "EMEA",
+     *              "cluster": "EU SOUTH",
+     *              "area": "BELUX",
+     *              "country": "BEL"
+     *         },
+     *         "useRainbowStorage" : "enabled",
+     *         "adminServiceNotificationsLevel": "high"
+     *     }
+     * }
+     * ```
+     *
+     */
+    getDefaultCompanyData(format: string, selectedThemeObj: boolean): Promise<any>;
+    /**
+     * @public
+     * @nodered true
+     * @method setCompanyAppFeatureCustomisation
+     * @instance
+     * @description
+     *     This API allows administrators to set or update the feature customisation elements for the company.
+     *
+     * These elements (e.g. conversation pane, menu pane, services) will then be available to the end user to customise their rainbow application.
+     * See supported element names in above GET request.
+     *
+     * The whole object will replace the existing one, if found.
+     * The customisation object has some limitations:
+     *
+     * * Element name can't exceed 50 characters.
+     * * Element value can't exceed 50 characters.
+     * @async
+     * @param {string} companyId Company for which update of customisation elements is requested.
+     * @param {any} appFeaturesCustomisation an object:
+     * </br>
+     * </br> {
+     * </br>     "appFeaturesCustomisation": {
+     * </br>         "featureConversationPane": "#595959",
+     * </br>         "callContact": false,
+     * </br>         "searchContact": false,
+     * </br>         "meeting": false
+     * </br>     }
+     * </br> }
+     * @category Companies and users management
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | status | Object | Update operation status message. |
+     *
+     */
+    setCompanyAppFeatureCustomisation(companyId: string, appFeaturesCustomisation: any): Promise<unknown>;
+    /**
+     * @public
+     * @nodered true
+     * @method updateCompany
+     * @instance
+     * @description
+     *   Users with superadmin role can update any company. Users with admin role (and not having superadmin role) can only update their own company.
+     * </br> Default and Terminated companies can't be renamed, and their name can't be use to rename another company
+     * </br> `Sooner or later it will be unnecessary to manage each customization parameter individually. It will be necessary to create and/or apply customization templates.</br> AdminService::getAllAvailableCustomisationTemplates().`
+     *
+     * @param {string} companyId Company unique identifier
+     * @param {any} selectedThemeObj Allows to return selectedTheme attribute as an object:
+     *  </br> * true returns selectedTheme as an object (e.g. { "light": "60104754c8fada2ad4be3e48", "dark": "5ea304e4359c0e6815fc8b57" }),
+     *  </br> * false return selectedTheme as a string.
+     * @param {string} name Company name
+     * @param {string} country Company country (ISO 3166-1 alpha3 format)
+     * @param {string} street Company street
+     * @param {string} city Company city
+     * @param {string} state When country is 'USA' or 'CAN', a state must be defined. Else it is not managed.
+     * @param {string} postalCode Company postal code
+     * @param {string} offerType Company offer type.
+     * </br> Companies with offerType=`freemium` are not able to subscribe to paid offers, they must be `premium` to do so.
+     * </br> Only `superadmin` can set offerType from `premium` to `freemium`.
+     * </br> Possibles values : `freemium`, `premium`
+     * @param {string} currency Company currency, for payment of premium offers (ISO 4217 format)
+     * </br> For now, only USD, EUR and CNY are supported
+     * </br> Only settable by `superadmin`
+     * </br> Possibles values : `USD`, `EUR`, `CNY`
+     * @param {string} status Company status.
+     * </br> If company status is `initializing`, only `superadmin` can change the status value.
+     * </br> Possibles values : `initializing`, `active`, `alerting`, `hold`, `terminated`
+     * @param {string} visibility Company visibility (define if users being in this company can be searched by users being in other companies and if the user can search users being in other companies).
+     * </br> * `public`: User can be searched by external users / can search external users. User can invite external users / can be invited by external users
+     * </br> * `private`: User **can't** be searched by external users (even within his organisation) / can search external users. User can invite external users / can be invited by external users
+     * </br> * `organization`: User **can't** be searched by external users / can search external users. User can invite external users / can be invited by external users
+     * </br> * `closed`: User **can't** be searched by external users / **can't** search external users. User can invite external users / can be invited by external users
+     * </br> * `isolated`: User **can't** be searched by external users / **can't** search external users. User **can't** invite external users / **can't** be invited by external users
+     * </br> * `hotspot`: User can be searched by hotspot attached company's users (users from any company if the user belong to the default company) / can't search any users (even in their company) or user can't invite external users / can be invited by hotspot attached company's users (users from any company if the user belong to the default company)
+     * </br>     * currently `hotspot` visibility can only be set on the default company, and with superadmin role (development of `hotspot` visibility is partially done, only for default company in the context of RQRAINB-7456)
+     * </br>
+     * </br> External users mean public user not being in user's company nor user's organisation nor a company visible by user's company.
+     * </br>
+     * </br> Note related to organisation visibility:
+     * </br>
+     * </br> * Under the same organisation, a company can choose the visibility=organisation. That means users belonging to this company are visible for users of foreign companies inside the same organisation.
+     * </br> * The visibility=organisation is same as visibility=private outside the organisation. That is to say users can't be searched outside the organisation's companies.
+     * </br>
+     * </br> Default value : `private`. Possibles values : `public`, `private`, `organization`, `closed`, `isolated`, `hotspot`
+     * @param {string[]} visibleBy If visibility is private or organisation, list of company ids for which visibility is allowed
+     * @param {string} adminEmail Company contact person email. adminEmail is case sentive. Possibles values : `"/^[a-zA-Z0-9_\+-]+(\.[a-zA-Z0-9_\+-]+)*@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.([a-zA-Z]{2,4})$/"`
+     * @param {string} supportEmail Company support email. supportEmail is case sensitive. supportEmail `should be provided if company to create is a VAD or a DR`. Possibles values : `"/^[a-zA-Z0-9_\+-]+(\.[a-zA-Z0-9_\+-]+)*@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.([a-zA-Z]{2,4})$/"`
+     * @param {string} supportUrlFAQ Company support url
+     * @param {string} companyContactId User Id of a Rainbow user which is the contact for this company
+     * @param {boolean} disableCCareAdminAccess When True, disables the access to the customer care logs for admins of this company.
+     * </br> Note that if `disableCCareAdminAccessCustomers` is enabled on its BP company or `disableCCareAdminAccessResellers` is enabled on its BP VAD company, this setting is forced to true.
+     * </br> `disableCCareAdminAccess` can only be set:
+     * </br> * by `superadmin` (all companies),
+     * </br> * by `bp_admin` or `bp_finance` for the companies he manages,
+     * </br> * by `organization_admin` for the BP companies he manages.
+     * </br> * by `organization_admin` for the companies he manages.
+     * @param {boolean} disableCCareAdminAccessCustomers When True, disables the access to the customer care logs for admins of all the customers company.
+     * </br> This setting is only applicable for BP companies (`isBP`=true)
+     * </br> * If the BP company is a DR or an IR, enabling this setting disables the access to the customer care logs for the admins of all its customers companies.
+     * </br> * If the BP company is a VAD, enabling this setting disables the access to the customer care logs for all the admins of its customers companies.
+     * </br>     Note that the bp_admins/admins of all the BP IRs companies linked to this VAD still have access to the customer care logs (the setting `disableCCareAdminAccessResellers` on the BP VAD company allows to disable it).
+     * </br>     `disableCCareAdminAccessCustomers` can only be set:
+     * </br> * by `superadmin` (all BP companies),
+     * </br> * by `bp_admin` or `bp_finance` of a BP VAD company for the BP companies he manages,
+     * </br> * by `organization_admin` for the BP companies he manages,
+     * </br> * by `company_admin` for the BP company he manages.
+     * @param {boolean} disableCCareAdminAccessResellers When True, disables the access to the customer care logs for admins of all the BP IRs companies linked to the BP VAD and their customers company.
+     * </br> This setting is only applicable for BP VAD companies (`isBP`=true and `bpType`=`VAD`)
+     * </br> Enabling this setting disables on the BP VAD company disables the access to the customer care logs for the bp_admins/admins of all the BP IRs linked to this VAD, and to all the admins of their customers.
+     * </br> Note that the admins of all the customer companies directly linked to this VAD still have access to the customer care logs (the setting `disableCCareAdminAccessCustomers` on the BP VAD company allows to disable it).
+     * </br> `disableCCareAdminAccessResellers` can only be set:
+     * </br> * by `superadmin` (all BP VAD companies),
+     * </br> * by `bp_admin` or `bp_finance` of a BP VAD company for the BP companies he manages,
+     * </br> * by `organization_admin` for the BP VAD companies he manages,
+     * </br> * by `company_admin` for the BP VAD company he manages.
+     * @param {boolean} autoAcceptUserInvitations Allow to enable or disable the auto-acceptation of user invitations between users of this company (default true: enabled). Default value : true
+     * @param {boolean} autoAddToUserNetwork Allow to enable or disable the auto addition to user's network between users of this company (default false: disabled). Default value : false
+     * @param {boolean} contentPolicyLifeTime When different from -1 it activates content removal for all user of this companies with a content lifetime equals to contentPolicyLifeTime in minutes. Default value : -1
+     * @param {boolean} documentGracePeriod When content removal is active for the organisation it represents the period in minutes where a document is still available event if it's content policy lifetime has expired * @apiParam (BodyParameters) {Boolean} [userSelfRegisterEnabled=true] Allow users with email domain matching 'userSelfRegisterAllowedDomains' to join the company by self-register process Default value : 14400
+     * @param {string[]} userSelfRegisterAllowedDomains Allow users with email domain matching one of the values of this array to join the company by self-register process (if userSelfRegisterEnabled is true)
+     * @param {string} slogan A free string corresponding to the slogan of the company
+     * @param {string} description A free string that describes the company (2000 char length)
+     * @param {string} size An overview of the number of employees. Default value : `self-employed`. Possibles values : `"self-employed"`, `"1-10 employees"`, `"11-50 employees"`, `"51-200 employees"`, `"201-500 employees"`, `"501-1000 employees"`, `"1001-5000 employees"`, `"5001-10,000 employees"`, `"10,001+ employees"`
+     * @param {string} economicActivityClassification
+     * </br> * `A`: AGRICULTURE, FORESTRY AND FISHING
+     * </br> * `B`: MINING AND QUARRYING
+     * </br> * `C`: MANUFACTURING
+     * </br> * `D`: ELECTRICITY, GAS, STEAM AND AIR CONDITIONING SUPPLY
+     * </br> * `E`: WATER SUPPLY; SEWERAGE, WASTE MANAGEMENT AND REMEDIATION ACTIVITIES
+     * </br> * `F`: CONSTRUCTION
+     * </br> * `G`: WHOLESALE AND RETAIL TRADE; REPAIR OF MOTOR VEHICLES AND MOTORCYCLES
+     * </br> * `H`: TRANSPORTATION AND STORAGE
+     * </br> * `I`: ACCOMMODATION AND FOOD SERVICE ACTIVITIES
+     * </br> * `J`: INFORMATION AND COMMUNICATION
+     * </br> * `K`: FINANCIAL AND INSURANCE ACTIVITIES
+     * </br> * `L`: REAL ESTATE ACTIVITIES
+     * </br> * `M`: PROFESSIONAL, SCIENTIFIC AND TECHNICAL ACTIVITIES
+     * </br> * `N`: ADMINISTRATIVE AND SUPPORT SERVICE ACTIVITIES
+     * </br> * `O`: PUBLIC ADMINISTRATION AND DEFENCE; COMPULSORY SOCIAL SECURITY
+     * </br> * `P`: EDUCATION
+     * </br> * `Q`: HUMAN HEALTH AND SOCIAL WORK ACTIVITIES
+     * </br> * `R`: ARTS, ENTERTAINMENT AND RECREATION
+     * </br> * `S`: OTHER SERVICE ACTIVITIES
+     * </br> * `T`: ACTIVITIES OF HOUSEHOLDS AS EMPLOYERS; UNDIFFERENTIATED GOODS- AND SERVICES-PRODUCING ACTIVITIES OF HOUSEHOLDS FOR OWN USE
+     * </br> * `U`: ACTIVITIES OF EXTRATERRITORIAL ORGANISATIONS AND BODIES
+     * </br>
+     * </br> Possibles values : `"A"`, `"B"`, `"C"`, `"D"`, `"E"`, `"F"`, `"G"`, `"H"`, `"I"`, `"J"`, `"K"`, `"L"`, `"M"`, `"N"`, `"O"`, `"P"`, `"Q"`, `"R"`, `"S"`, `"T"`, `"U"`
+     * @param {string}  website Company website url
+     * @param {boolean} giphyEnabled Whether or not giphy feature is enabled for users belonging to this company (possibility to use animated gifs in conversations). `This field is deprecated.` Manage instead **useGifCustomisation field!**
+     * @param {string} catalogId Id of the catalog of Rainbow offers to which the company is linked. The catalog corresponds to the list of offers the company can subscribe.
+     * </br> When a new company is created, if no catalogId is specified the company is automatically linked to the default catalog.
+     * </br> When a `bp_admin>` or `bp_finance>` creates a company, catalogId of this new company is automatically set to BP company's catalogId.
+     * </br> When an `organization_admin>` creates a company, catalogId of this new company is automatically set to organization_admin's company's catalogId.
+     * </br>
+     * </br> Only `superadmin` can set a different catalogId to a company.
+     * @param {boolean} adminCanSetCustomData Whether or not administrators can set customData field for their own company.
+     * </br> adminCanSetCustomData can only be set:
+     * </br>     by `superadmin` (all companies),
+     * </br>     by `bp_admin` or `bp_finance` for the companies he manages,
+     * </br>     by `organization_admin` for the companies he manages.
+     * @param {any} customData Company's custom data.
+     * </br> Object with free keys/values.
+     * </br> It is up to the client to manage the company's customData (new customData provided overwrite the existing one).
+     * </br>
+     * </br> Restrictions on customData Object:
+     * </br> - max 10 keys,
+     * </br> - max key length: 64 characters,
+     * </br> - max value length: 512 characters.
+     * </br>
+     * </br>
+     * </br> Company customData can only be created/updated by:
+     * </br> - \`superadmin\` (all companies),
+     * </br> - \`bp\_admin\` or \`bp\_finance\` for the companies he manages (except his company if its \`adminCanSetCustomData\` setting is not set to true),
+     * </br> - \`organization_admin\` for the companies he manages,
+     * </br> - \`company\_admin\` for his own company if its \`adminCanSetCustomData\` setting is set to true (setting that can only be set by a superadmin, his bp\_admin, bp\_finance or organization\_admin) or if he has the feature \`ADMIN\_CAN\_SET\_CUSTOM\_DATA\` (if the feature is enabled, it overwrites the value of the company setting).
+     * @param {string} bpId Link the company to the corresponding Business partner company.
+     * </br> `bpId` must correspond to a valid company having `isBP` equal to true.
+     * </br> Only directly settable by `superadmin`.
+     * </br> If the company is `created` by a `bp_admin` or a `bp_finance`, `bpId` is automatically set to BP company id.
+     * </br> For existing companies, `bp_admin` must use invitation mechanism to a company admin in order to request a link of this company company to his BP company.
+     *  </br> Can only be set by `superadmin` or `bp_finance` of the related company.
+     * @param {boolean} adminHasRightToUpdateSubscriptions In the case the company is linked to a Business Partner company, indicates if the `bp_finance` allows the `company_admin` to update the subscriptions of his company (if enable, allowed operations depend of the value of `adminAllowedUpdateSubscriptionsOps`).
+     * </br> Can only be set by `superadmin` or `bp_finance` of the related company.
+     * @param {string} adminAllowedUpdateSubscriptionsOps In the case the company is linked to a Business Partner company and `adminHasRightToUpdateSubscriptions` is enabled, indicates the update operations for which the `bp_finance` allows the `company_admin` to perform on the subscriptions of his company.
+     * </br> Can only be set by `superadmin` or `bp_finance` of the related company.
+     * </br> Possible values:
+     * </br> - `all: company_admin is allowed to perform all update operations on the subscriptions of his company
+     * </br> - `increase_only: company_admin is only allowed to increase` maxNumberUsers` on the subscriptions of his company (decrease is forbidden)
+     * </br> - 'monthly': company_admin is only allowed to manage monthly subscription (increase and decrease)
+     * </br>
+     * </br> Possibles values : `all`, `increase_only`, `monthly`
+     * @param {boolean} isBP Indicates if the company is a Business partner company
+     * </br> Only settable by `superadmin`
+     * @param {string} bpType Indicates BP Company type
+     * </br> - `IR`: Indirect Reseller,
+     * </br> - `VAD`: Value Added Distributor,
+     * </br> - `DR`: Direct Reseller.
+     * </br>     Only applicable if `isBP` is true.
+     * </br>     Only settable by `superadmin`.
+     * </br>
+     * </br> Possibles values : `IR`, `VAD`, `DR`
+     * @param {string} bpBusinessModel Indicates BP business model
+     * </br> Only applicable if `isBP` is true.
+     * </br> Only settable by `superadmin`.
+     * </br>
+     * </br> Possibles values : `referral`, `resell`
+     * @param {string} bpApplicantNumber Reference of the Business Partner in ALE Finance tools (SAP)
+     * </br> Only applicable if `isBP` is true and `bpType` is DR or VAD.
+     * </br> Only settable by `superadmin`.
+     * @param {string} bpCRDid Reference of the Business Partner in CDR
+     * </br> Only applicable if `isBP` is true and `bpType` is DR or VAD.
+     * </br> If `bpCRDid` is not defined, BP won't be able to sell (i.e. `bpHasRightToSell` can't be set to true)
+     * </br> Only settable by `superadmin`.
+     * @param {boolean} bpHasRightToSell Indicates if the Business has the right to sell
+     * </br> Only applicable if `isBP` is true and `bpType` is DR or VAD.
+     * </br> Only applicable if `bpCRDid` is defined.
+     * </br> Only settable by `superadmin`.
+     * @param {boolean} bpHasRightToConnect When True \[Default\], the BP can connect CPE equipment of managed companies. So when False, the "equipment" tab should be removed from the admin GUI
+     * </br> Only applicable if `isBP` is true.
+     * </br> Only settable by `superadmin`.
+     * @param {boolean} bpHasRightForBYOT When True, the BP can create a SIP Hybrid Trunk for its managed companies (means that Bring Your Own Trunk feature is available for the BP). So when False, the "hybrid trunk" tab should be removed from the admin GUI
+     * </br> Only applicable if `isBP` is true.
+     * </br> Only settable by `superadmin`.
+     * @param {string} preferredSipLoadBalancerId Indicates the identifier of the preferred SIP Load Balancer (Rainbow Hub context ; used for HybridTrunks of associated ECs)
+     * </br> Only applicable if `isBP` is true.
+     * </br> Only settable by `superadmin`.
+     * @param {boolean} bpIsContractAccepted Indicates if the Business has accepted the contract and can sell Rainbow offers
+     * </br> Should be set by `bp_admin` or `bp_finance`.
+     * </br> Only applicable if `isBP` is true.
+     * </br>
+     * </br> Default value : `false`
+     * @param {string} externalReference Free field that BP can use to link their Indirect Resellers / End Customers to their IS/IT tools
+     * </br> Only applicable by `superadmin` or by `bp_admin` or `bp_finance` on one of his Indirect Resellers / End Customers companies.
+     * @param {string} externalReference2 Free field that BP can use to link their Indirect Resellers / End Customers to their IS/IT tools
+     * </br> Only applicable by `superadmin` or by `bp_admin` or `bp_finance` on one of his Indirect Resellers / End Customers companies.
+     * @param {string} salesforceAccountId Curstomer's Salesforce reference.
+     * </br> Only settable by users with `superadmin` or `business_admin` role(s).
+     * @param {string} avatarShape Company's avatar customization
+     * @param isCentrex Indicates if the company is one tenant of a multi-tenant call server (OXE - OTEC-S or third_party) (default: false)
+     * @param {string} companyCallNumber If isCentrex = true, this is the company access number \[multi-company call + company Area, ex: 8 210, 8 211\]
+     * @param {string} superadminComment Free field that only `superadmin` can use.
+     * @param {string[]} bpBusinessType Business type(s) that can be sold by a BP. Possibles values : `voice_by_partner`, `voice_by_ale`, `conference`, `default`.
+     * @param {string} billingModel Billing model that can be subscribed for this company. Possibles values : `monthly`, `prepaid_1y`, `prepaid_3y`, `prepaid_5y`
+     * @param {boolean} allowUsersSelectTheme Allow users of this company to select a theme among the ones available (owned or visible by the company). Default value : `true`
+     * @param {boolean} allowUsersSelectPublicTheme Allow users of this company to select a public theme. Default value : `true`
+     * @param {any} selectedTheme selectedTheme Object to set the selected theme(s) for users of the company.
+     * </br> * light optionnel String Set the selected theme light for users of the company.
+     * </br> * dark optionnel String Set the selected theme dark for users of the company.
+     * @param {boolean}  mobilePermanentConnectionMode deactivate push mode for mobile devices.
+     * </br> When we can't rely on Internet and Google FCM services to wake-up the app or notify the app, we can fall back to a direct XMPP connection.
+     * </br> For customers using Samsung devices with Google Play services, we must have an option on admin side to set this permanent connection mode, so that mobile apps can rely on this parameter. This option will be applied for the whole company.
+     * </br>
+     * </br> Default value : `false`
+     * @param {string} alertNotificationReception Activate/Deactivate the capability for a user to receive alert notification.
+     * </br> Define if a user has the right to receive alert notification
+     * </br> alertNotificationReception can be:
+     * </br>
+     * </br> - `enabled`: Each user of the company can receive alert notification.
+     * </br> - `disabled`: No user of the company can receive alert notification.
+     * </br>
+     * </br> Default value : `disabled`. Possibles values : `enabled`, `disabled`
+     * @param {string} alertNotificationSending Activate/Deactivate the capability for a user to send alert notification.
+     * </br> Define if a user has the right to send alert notification
+     * </br> alertNotificationSending can be:
+     * </br>
+     * </br> - `enabled`: Each user of the company can send alert notification.
+     * </br> - `disabled`: No user of the company can send alert notification.
+     * </br>
+     * </br> Default value : `disabled`. Possibles values : `enabled`, `disabled`
+     * @param {string} useDialOutCustomisation Activate/Deactivate the capability for a user to use dial out in phone meetings.
+     * </br> Define if a user is allowed to be called by the Rainbow conference bridge.
+     * </br> useDialOutCustomisation can be:
+     * </br>
+     * </br> - `enabled`: The user can be called by the Rainbow conference bridge.
+     * </br> - `disabled`: The user can't be called by the Rainbow conference bridge.
+     * </br>
+     * </br> Default value : `enabled`. Possibles values : `enabled`, `disabled`
+     * @param {boolean} allowDeviceFirmwareSelection Superadmin allows admins of the company to select a given firmware for its cloudpbx devices. Default value : `false`
+     * @param {string} selectedDeviceFirmware Cloudpbx default device firmware
+     * </br> - `released`: Default value, device firmware will be the official released one.
+     * </br> - `latest`: Device firmware can be a more up to date binary (e.g. early adopters)
+     * </br>     If allowed by `superadmin`, `company admin` can then select the kind of firmware for all the users, or only for some of them.
+     * </br>
+     * </br> Default value : `released` Possibles values : `released`, `latest`
+     * @param {string} cloudPbxVoicemailToEmail Cloudpbx email notification type when receiving a voicemail. Default value : `none`. Possibles values : `none`, `simple`, `complete`
+     * @param {any} businessData businessData optionnel Object
+     * </br> Set the business data of the company.
+     * </br> Only settable by users with `superadmin` or `business_admin` role(s).
+     * </br>
+     * </br> region optionnel String  Set the region of the company.
+     * </br> cluster optionnel String Set the cluster of the company.
+     * </br> area optionnel String Set the area of the company.
+     * </br> country optionnel String Set the business country of the company.
+     * @param {string} defaultLicenseGroup Group of license to assign to user when finalizing his account. Should be one of offers' groupName (e.g. Enterprise, Business ...)
+     * @param {string[]} defaultOptionsGroups List of options to assign to user when finalizing his account. Should be one of offers' groupName (e.g. Alert ...)
+     * @param {any} selectedThemeCustomers selectedThemeCustomers optionnel Object
+     * </br> Set the selected theme(s) for customers of this BP company.
+     * </br> This param only applies for BP companies.
+     * </br> * light optionnel String Set the selected theme light for customers of this BP company.
+     * </br> * dark optionnel String Set the selected theme dark for customers of this BP company.
+     * </br> * locked optionnel Boolean Allow to lock selected theme for customers. If true, customers won't be able to create or set another theme that the one selected by BP.
+     * @param {boolean} allowTeamsToDesktopSso uperadmin allows if Teams add-in uses sso to login in desktop app for all company users. Default value : true
+     * @param {boolean} cloudPbxRecordingInboundOnly When CloudPbx recording is set, both inbound and outbound calls will be recorded for the selected users. If cloudPbxRecordingInboundOnly is set to true, only inbound calls will be recorded Default value : `true`
+     * @param {number} supervisionGroupMaxSize Maximum number of users a company can supervise. Default value : `1500`
+     * @param {number} supervisionGroupMaxNumber Maximum number of supervision groups a supervisor can belong to. Default value : 5
+     * @param {number} supervisionGroupMaxUsers Maximum number of users in a supervision group (supervisor included). Default value : `30`
+     * @param {string} timezone User timezone name
+     * </br> Allowed values: one of the timezone names defined in IANA tz database (https://www.iana.org/time-zones)
+     * </br> Timezone name are composed as follow: `Area/Location` (ex: Europe/Paris, America/New_York,...)
+     * @param {boolean} sendPrepaidSubscriptionsNotification Indicates if company_admin should receive email notification about prepaid subscriptions expiring soon. Used only on end customer companies
+     * @param {boolean} ddiReadOnly Indicates if admin of IR company is allowed to create or delete a DDI. Used only on IR companies.
+     * </br> This parameter can only be set by VAD `bp_admin` or `superadmin`.
+     * @param {boolean} allowPhoneNumbersVisibility Indicates if Phone numbers should be visible or not when generating Voice CDR files. Applies only on BP companies. Default value : `false`.
+     * @param {string[]} csEmailList A list of Customer Success email addresses (maximum length : 10).
+     * @param {string[]} seEmailList A list of System Engineer email addresses (maximum length : 10).
+     * @param {string[]} csmEmailList A list of Channel Sales Manager email addresses (maximum length : 10).
+     * @param {string[]} kamEmailList A list of Key Account Manager email addresses (maximum length : 10).
+     * </br> These fields can only be set by a `business_admin` or a `superadmin`.
+     * @param {string} businessSpecific Allow to specify if company has access to specific offers. Only settable by superadmin or business_admin. Possibles values : UGAP.
+     * @param {string} adminServiceNotificationsLevel Level of service notification that admin should see. Possibles values : `high`, `medium`, `low`.
+     * @category Companies and users management
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | id  | String | Company unique identifier |
+     * | creationDate | Date-Time | Company creation date (Read only) |
+     * | statusUpdatedDate | Date-Time | Date of last company status update (Read only) |
+     * | lastAvatarUpdateDate | Date-Time | Date of last company avatar update (Read only) |
+     * | name | String | Company name |
+     * | country optionnel | String | Company country (ISO 3166-1 alpha3 format)<br><br>The list of allowed countries can be obtained using the API AdminService::getListOfCountries() |
+     * | street optionnel | String | Company street<br><br>Ordre de grandeur : `0..255` |
+     * | city optionnel | String | Company city<br><br>Ordre de grandeur : `0..255` |
+     * | state optionnel | String | When country is 'USA' or 'CAN', a state must be defined. Else it is not managed.<br><br>The list of allowed states can be obtained using the API AdminService::getListOfCountries() for the associated countries.<br><br>* List of allowed states for `USA`:<br>    * `AA`: "Armed Forces America",<br>    * `AE`: "Armed Forces",<br>    * `AP`: "Armed Forces Pacific",<br>    * `AK`: "Alaska",<br>    * `AL`: "Alabama",<br>    * `AR`: "Arkansas",<br>    * `AZ`: "Arizona",<br>    * `CA`: "California",<br>    * `CO`: "Colorado",<br>    * `CT`: "Connecticut",<br>    * `DC`: Washington DC",<br>    * `DE`: "Delaware",<br>    * `FL`: "Florida",<br>    * `GA`: "Georgia",<br>    * `GU`: "Guam",<br>    * `HI`: "Hawaii",<br>    * `IA`: "Iowa",<br>    * `ID`: "Idaho",<br>    * `IL`: "Illinois",<br>    * `IN`: "Indiana",<br>    * `KS`: "Kansas",<br>    * `KY`: "Kentucky",<br>    * `LA`: "Louisiana",<br>    * `MA`: "Massachusetts",<br>    * `MD`: "Maryland",<br>    * `ME`: "Maine",<br>    * `MI`: "Michigan",<br>    * `MN`: "Minnesota",<br>    * `MO`: "Missouri",<br>    * `MS`: "Mississippi",<br>    * `MT`: "Montana",<br>    * `NC`: "North Carolina",<br>    * `ND`: "North Dakota",<br>    * `NE`: "Nebraska",<br>    * `NH`: "New Hampshire",<br>    * `NJ`: "New Jersey",<br>    * `NM`: "New Mexico",<br>    * `NV`: "Nevada",<br>    * `NY`: "New York",<br>    * `OH`: "Ohio",<br>    * `OK`: "Oklahoma",<br>    * `OR`: "Oregon",<br>    * `PA`: "Pennsylvania",<br>    * `PR`: "Puerto Rico",<br>    * `RI`: "Rhode Island",<br>    * `SC`: "South Carolina",<br>    * `SD`: "South Dakota",<br>    * `TN`: "Tennessee",<br>    * `TX`: "Texas",<br>    * `UT`: "Utah",<br>    * `VA`: "Virginia",<br>    * `VI`: "Virgin Islands",<br>    * `VT`: "Vermont",<br>    * `WA`: "Washington",<br>    * `WI`: "Wisconsin",<br>    * `WV`: "West Virginia",<br>    * `WY`: "Wyoming"<br>* List of allowed states for `CAN`:<br>    * `AB`: "Alberta",<br>    * `BC`: "British Columbia",<br>    * `MB`: "Manitoba",<br>    * `NB`: "New Brunswick",<br>    * `NL`: "Newfoundland and Labrador",<br>    * `NS`: "Nova Scotia",<br>    * `NT`: "Northwest Territories",<br>    * `NU`: "Nunavut",<br>    * `ON`: "Ontario",<br>    * `PE`: "Prince Edward Island",<br>    * `QC`: "Quebec",<br>    * `SK`: "Saskatchewan",<br>    * `YT`: "Yukon"<br><br>Possibles values : `null`, `"AA"`, `"AE"`, `"AP"`, `"AK"`, `"AL"`, `"AR"`, `"AZ"`, `"CA"`, `"CO"`, `"CT"`, `"DC"`, `"DE"`, `"FL"`, `"GA"`, `"GU"`, `"HI"`, `"IA"`, `"ID"`, `"IL"`, `"IN"`, `"KS"`, `"KY"`, `"LA"`, `"MA"`, `"MD"`, `"ME"`, `"MI"`, `"MN"`, `"MO"`, `"MS"`, `"MT"`, `"NC"`, `"ND"`, `"NE"`, `"NH"`, `"NJ"`, `"NM"`, `"NV"`, `"NY"`, `"OH"`, `"OK"`, `"OR"`, `"PA"`, `"PR"`, `"RI"`, `"SC"`, `"SD"`, `"TN"`, `"TX"`, `"UT"`, `"VA"`, `"VI"`, `"VT"`, `"WA"`, `"WI"`, `"WV"`, `"WY"`, `"AB"`, `"BC"`, `"MB"`, `"NB"`, `"NL"`, `"NS"`, `"NT"`, `"NU"`, `"ON"`, `"PE"`, `"QC"`, `"SK"`, `"YT"` |
+     * | postalCode optionnel | String | Company postal code<br><br>Ordre de grandeur : `0..64` |
+     * | currency optionnel | String | Company currency, for payment of premium offers (ISO 4217 format)  <br>For now, only USD, EUR and CNY are supported<br><br>Ordre de grandeur : `3`<br><br>Possibles values : `USD`, `EUR`, `CNY` |
+     * | status | String | Company status<br><br>Possibles values : `initializing`, `active`, `alerting`, `hold`, `terminated` |
+     * | visibility optionnel | string | Company visibility (define if users being in this company can be searched by users being in other companies and if the user can search users being in other companies).<br><br>* `public`: User can be searched by external users / can search external users. User can invite external users / can be invited by external users<br>* `private`: User **can't** be searched by external users (even within his organisation) / can search external users. User can invite external users / can be invited by external users<br>* `organisation`: User **can't** be searched by external users / can search external users. User can invite external users / can be invited by external users<br>* `closed`: User **can't** be searched by external users / **can't** search external users. User can invite external users / can be invited by external users<br>* `isolated`: User **can't** be searched by external users / **can't** search external users. User **can't** invite external users / **can't** be invited by external users<br>* `none`: Default value reserved for guest. User **can't** be searched by **any users** (even within the same company) / can search external users. User can invite external users / can be invited by external users<br><br>External users mean public user not being in user's company nor user's organisation nor a company visible by user's company.<br><br>Note related to organisation visibility:<br><br>* Under the same organisation, a company can choose the visibility=organisation. That means users belonging to this company are visible for users of foreign companies inside the same organisation.<br>* The visibility=organisation is same as visibility=private outside the organisation. That is to say users can't be searched outside the organisation's companies.<br><br>Default value : `private`<br><br>Possibles values : `public`, `private`, `organisation`, `closed`, `isolated` |
+     * | visibleBy | String\[\] | If visibility is private, list of companyIds for which visibility is allowed |
+     * | adminEmail optionnel | String | Company contact person email |
+     * | supportEmail optionnel | String | Company support email |
+     * | supportUrlFAQ optionnel | String | Company support URL |
+     * | companyContactId optionnel | String | User Id of a Rainbow user which is the contact for this company |
+     * | disableCCareAdminAccess optionnel | Boolean | When True, disables the access to the customer care logs for admins of this company.  <br>Note that if `disableCCareAdminAccessCustomers` is enabled on its BP company or `disableCCareAdminAccessResellers` is enabled on its BP VAD company, this setting is forced to true. |
+     * | disableCCareAdminAccessCustomers optionnel | Boolean | When True, disables the access to the customer care logs for admins of all the customers company.  <br>This setting is only applicable for BP companies (`isBP`=true)<br><br>* If the BP company is a DR or an IR, enabling this setting disables the access to the customer care logs for the admins of all its customers companies.<br>* If the BP company is a VAD, enabling this setting disables the access to the customer care logs for all the admins of its customers companies.  <br>    Note that the bp_admins/admins of all the BP IRs companies linked to this VAD still have access to the customer care logs (the setting `disableCCareAdminAccessResellers` on the BP VAD company allows to disable it). |
+     * | disableCCareAdminAccessResellers optionnel | Boolean | When True, disables the access to the customer care logs for admins of all the BP IRs companies linked to the BP VAD and their customers company.  <br>This setting is only applicable for BP VAD companies (`isBP`=true and `bpType`=`VAD`)  <br>Enabling this setting disables on the BP VAD company disables the access to the customer care logs for the bp_admins/admins of all the BP IRs linked to this VAD, and to all the admins of their customers.  <br>Note that the admins of all the customer companies directly linked to this VAD still have access to the customer care logs (the setting `disableCCareAdminAccessCustomers` on the BP VAD company allows to disable it). |
+     * | autoAcceptUserInvitations optionnel | Boolean | Allow to enable or disable the auto-acceptation of user invitations between users of this company (default true: enabled) |
+     * | userSelfRegisterEnabled | Boolean | Allow users with email domain matching 'userSelfRegisterAllowedDomains' to join the company by self-register process |
+     * | userSelfRegisterAllowedDomains | String\[\] | Allow users with email domain matching one of the values of this array to join the company by self-register process (if userSelfRegisterEnabled is true) |
+     * | slogan optionnel | String | A free string corresponding to the slogan of the company (255 char length) |
+     * | description optionnel | String | A free string that describes the company (2000 char length) |
+     * | size | String | An overview of the number of employees<br><br>Possibles values : `"self-employed"`, `"1-10 employees"`, `"11-50 employees"`, `"51-200 employees"`, `"201-500 employees"`, `"501-1000 employees"`, `"1001-5000 employees"`, `"5001-10,000 employees"`, `"10,001+ employees"` |
+     * | economicActivityClassification optionnel | String | * `A`: AGRICULTURE, FORESTRY AND FISHING<br>* `B`: MINING AND QUARRYING<br>* `C`: MANUFACTURING<br>* `D`: ELECTRICITY, GAS, STEAM AND AIR CONDITIONING SUPPLY<br>* `E`: WATER SUPPLY; SEWERAGE, WASTE MANAGEMENT AND REMEDIATION ACTIVITIES<br>* `F`: CONSTRUCTION<br>* `G`: WHOLESALE AND RETAIL TRADE; REPAIR OF MOTOR VEHICLES AND MOTORCYCLES<br>* `H`: TRANSPORTATION AND STORAGE<br>* `I`: ACCOMMODATION AND FOOD SERVICE ACTIVITIES<br>* `J`: INFORMATION AND COMMUNICATION<br>* `K`: FINANCIAL AND INSURANCE ACTIVITIES<br>* `L`: REAL ESTATE ACTIVITIES<br>* `M`: PROFESSIONAL, SCIENTIFIC AND TECHNICAL ACTIVITIES<br>* `N`: ADMINISTRATIVE AND SUPPORT SERVICE ACTIVITIES<br>* `O`: PUBLIC ADMINISTRATION AND DEFENCE; COMPULSORY SOCIAL SECURITY<br>* `P`: EDUCATION<br>* `Q`: HUMAN HEALTH AND SOCIAL WORK ACTIVITIES<br>* `R`: ARTS, ENTERTAINMENT AND RECREATION<br>* `S`: OTHER SERVICE ACTIVITIES<br>* `T`: ACTIVITIES OF HOUSEHOLDS AS EMPLOYERS; UNDIFFERENTIATED GOODS- AND SERVICES-PRODUCING ACTIVITIES OF HOUSEHOLDS FOR OWN USE<br>* `U`: ACTIVITIES OF EXTRATERRITORIAL ORGANISATIONS AND BODIES<br><br>Possibles values : `"NONE"`, `"A"`, `"B"`, `"C"`, `"D"`, `"E"`, `"F"`, `"G"`, `"H"`, `"I"`, `"J"`, `"K"`, `"L"`, `"M"`, `"N"`, `"O"`, `"P"`, `"Q"`, `"R"`, `"S"`, `"T"`, `"U"` |
+     * | giphyEnabled optionnel | Boolean | Whether or not giphy feature is enabled for users belonging to this company (possibility to use animated gifs in conversations) |
+     * | website optionnel | String | Company website URL |
+     * | organisationId | String | Optional identifier to indicate the company belongs to an organisation |
+     * | catalogId | String | Id of the catalog of Rainbow offers to which the company is linked. The catalog corresponds to the list of offers the company can subscribe. |
+     * | bpId | String | Optional identifier which links the company to the corresponding Business partner company |
+     * | adminHasRightToUpdateSubscriptions optionnel | Boolean | In the case the company is linked to a Business Partner company, indicates if the `bp_admin` allows the `company_admin` to update the subscriptions of his company (if enable, allowed operations depend of the value of `adminAllowedUpdateSubscriptionsOps`).  <br>Can only be set by `superadmin` or `bp_admin`/`bp_finance` of the related company. |
+     * | adminAllowedUpdateSubscriptionsOps optionnel | String | In the case the company is linked to a Business Partner company and `adminHasRightToUpdateSubscriptions` is enabled, indicates the update operations for which the `bp_admin` allows the `company_admin` to perform on the subscriptions of his company.<br><br>Can only be set by `superadmin` or `bp_admin`/`bp_finance` of the related company.<br><br>Possible values:<br><br>* `all`: company_admin is allowed to perform all update operations on the subscriptions of his company<br>* `increase_only`: company_admin is only allowed to increase `maxNumberUsers` on the subscriptions of his company (decrease is forbidden)<br><br>Possibles values : `all`, `increase_only` |
+     * | isBP | Boolean | Indicates if the company is a Business partner company<br><br>Default value : `false` |
+     * | bpType optionnel | String | Indicates BP Company type<br><br>* `IR`: Indirect Reseller,<br>* `VAD`: Value Added Distributor,<br>* `DR`: Direct Reseller.<br><br>Possibles values : `IR`, `VAD`, `DR` |
+     * | bpBusinessModel optionnel | String | Indicates BP business model |
+     * | bpApplicantNumber optionnel | String | Reference of the Business Partner in ALE Finance tools (SAP) |
+     * | bpCRDid optionnel | String | Reference of the Business Partner in CDR |
+     * | bpHasRightToSell optionnel | Boolean | Indicates if the Business has the right to sell |
+     * | bpHasRightToConnect optionnel | Boolean | When True, the BP can connect CPE equipment of managed companies. So when False, the "equipment" tab should be removed from the admin GUI |
+     * | bpHasRightForBYOT optionnel | Boolean | When True, the BP can create a SIP Hybrid Trunk for its managed companies (means that Bring Your Own Trunk feature is available for the BP). So when False, the "hybrid trunk" tab should be removed from the admin GUI |
+     * | preferredSipLoadBalancerId optionnel | String | This attribute is only for BP and useful only in Rainbow Hub context. It indicates preferred SIP Load Balancer identifier to be used (if any). |
+     * | bpIsContractAccepted optionnel | Boolean | Indicates if the Business has accepted the contract and can sell Rainbow offers |
+     * | bpContractAcceptationInfo optionnel | Object | If the Business has accepted the contract, indicates who accepted the contract, Only visible by `superadmin` and `support`. |
+     * | acceptationDate | Date-Time | Date of contract acceptation by the BP admin |
+     * | bpAdminId | String | User Id of the BP admin who accepted the contract |
+     * | offerType | String | Allowed company offer types<br><br>Possibles values : `freemium`, `premium` |
+     * | bpAdminLoginEmail | String | User loginEmail of the BP admin who accepted the contract |
+     * | businessSpecific optionnel | String | When the customer has subscribed to specific business offers, this field is set to the associated specific business (ex: HDS for HealthCare business specific)<br><br>Possibles values : `HDS` |
+     * | externalReference optionnel | String | Free field that BP can use to link their customers to their IS/IT tools  <br>Only applicable by `superadmin` or by `bp_admin`/`bp_finance` on one of his customer companies.<br><br>Ordre de grandeur : `0..64` |
+     * | externalReference2 optionnel | String | Free field that BP can use to link their customers to their IS/IT tools  <br>Only applicable by `superadmin` or by `bp_admin`/`bp_finance` on one of his customer companies.<br><br>Ordre de grandeur : `0..64` |
+     * | avatarShape optionnel | String | Company's avatar customization<br><br>Possibles values : `square`, `circle` |
+     * | allowUsersSelectTheme | Boolean | Allow users of this company to select a theme among the ones available (owned or visible by the company). |
+     * | allowUsersSelectPublicTheme | Boolean | Allow users of this company to select a public theme. |
+     * | selectedTheme optionnel | Object | Set the selected theme(s) for users of the company. |
+     * | light optionnel | String | Set the selected theme light for users of the company. |
+     * | dark optionnel | String | Set the selected theme dark for users of the company. |
+     * | adminCanSetCustomData optionnel | Boolean | Whether or not administrators can set `customData` field for their own company. |
+     * | isLockedByBp optionnel | Boolean | Whether or not BP company has locked themes so that indicates if company admin can manage themes (create/update/delete). |
+     * | superadminComment optionnel | String | Free field that only `superadmin` can see<br><br>Ordre de grandeur : `0..256` |
+     * | bpBusinessType optionnel | String\[\] | Business type that can be sold by a BP.<br><br>Possibles values : `voice_by_partner`, `voice_by_ale`, `conference`, `default` |
+     * | billingModel optionnel | String | Billing model that can be subscribed for this company.<br><br>Possibles values : `monthly`, `prepaid_1y`, `prepaid_3y`, `prepaid_5y` |
+     * | office365Tenant optionnel | String | Office365 tenant configured for this company. |
+     * | office365ScopesGranted optionnel | String\[\] | Scopes granted to Rainbow for usage of Microsoft Office365 APIs.  <br>If no office365Tenant is set or if admin has not granted access of Office365 APIs to Rainbow for the configured office365Tenant, office365ScopesGranted is set to an empty Array.  <br>Otherwise, office365ScopesGranted lists the scopes requested by Rainbow to use Office365 APIs for the configured office365Tenant. This field can be used to determine if the admin must re-authenticate to Microsoft Office365 in the case new scopes are requested for Rainbow application (scopes requested for the current version of office365-portal are listed in API GET /api/rainbow/office365/v1.0/consent).<br><br>Possibles values : `directory`, `calendar` |
+     * | mobilePermanentConnectionMode | Boolean | deactivate push mode for mobile devices.  <br>When we can't rely on Internet and Google FCM services to wake-up the app or notify the app, we can fall back to a direct XMPP connection.  <br>For customers using Samsung devices with Google Play services, we must have an option on admin side to set this permanent connection mode, so that mobile apps can rely on this parameter. This option will be applied for the whole company. |
+     * | fileSharingCustomisation | String | Activate/Deactivate file sharing capability per company  <br>Define if the company can use the file sharing service then, allowed to download and share file.  <br>FileSharingCustomisation can be:<br><br>* `enabled`: Each user of the company can use the file sharing service, except when his own capability is set to 'disabled'.<br>* `disabled`: No user of the company can use the file sharing service, except when his own capability is set to 'enabled'. When one user of the company has the capability 'fileSharingCustomisation' set to 'same\_than\_company', his capability follow the company setting. |
+     * | userTitleNameCustomisation | String | Activate/Deactivate the capability for a user to modify his profile (title, firstName, lastName) per company  <br>Define if the company allows his users to change some profile data.  <br>userTitleNameCustomisation can be:<br><br>* `enabled`: Each user of the company can change some profile data, except when his own capability is set to 'disabled'.<br>* `disabled`: No user of the company can change some profile data, except when his own capability is set to 'enabled'. When one user of the company has the capability 'userTitleNameCustomisation' set to 'same\_than\_company', his capability follow the company setting. |
+     * | softphoneOnlyCustomisation | String | Activate/Deactivate the capability for an UCaas application not to offer all Rainbow services and but to focus to telephony services.  <br>Define if UCaas apps used by a user of this company must provide Softphone functions, i.e. no chat, no bubbles, no meetings, no channels, and so on.  <br>softphoneOnlyCustomisation can be:<br><br>* `enabled`: The user switch to a softphone mode only.<br>* `disabled`: The user can use telephony services, chat, bubbles, channels meeting services and so on. |
+     * | useRoomCustomisation | String | Activate/Deactivate the capability for a user to use bubbles.  <br>Define if a user can create bubbles or participate in bubbles (chat and web conference).  <br>useRoomCustomisation can be:<br><br>* `enabled`: Each user of the company can use bubbles.<br>* `disabled`: No user of the company can use bubbles. |
+     * | phoneMeetingCustomisation | String | Activate/Deactivate the capability for a user to use phone meetings (PSTN conference).  <br>Define if a user has the right to join phone meetings.  <br>phoneMeetingCustomisation can be:<br><br>* `enabled`: Each user of the company can join phone meetings.<br>* `disabled`: No user of the company can join phone meetings. |
+     * | useChannelCustomisation | String | Activate/Deactivate the capability for a user to use a channel.  <br>Define if a user has the right to create channels or be a member of channels.  <br>useChannelCustomisation can be:<br><br>* `enabled`: Each user of the company can use some channels.<br>* `disabled`: No user of the company can use some channel. |
+     * | useScreenSharingCustomisation | String | Activate/Deactivate the capability for a user to share a screen.  <br>Define if a user has the right to share his screen.  <br>useScreenSharingCustomisation can be:<br><br>* `enabled`: Each user of the company can share his screen.<br>* `disabled`: No user of the company can share his screen. |
+     * | useWebRTCVideoCustomisation | String | Activate/Deactivate the capability for a user to switch to a Web RTC video conversation.  <br>Define if a user has the right to be joined via video and to use video (start a P2P video call, add video in a P2P call, add video in a web conference call).  <br>useWebRTCVideoCustomisation can be:<br><br>* `enabled`: Each user of the company can switch to a Web RTC video conversation.<br>* `disabled`: No user of the company can switch to a Web RTC video conversation. |
+     * | useWebRTCAudioCustomisation | String | Activate/Deactivate the capability for a user to switch to a Web RTC audio conversation.  <br>Define if a user has the right to be joined via audio (WebRTC) and to use Rainbow audio (WebRTC) (start a P2P audio call, start a web conference call).  <br>useWebRTCVideoCustomisation can be:<br><br>* `enabled`: Each user of the company can switch to a Web RTC audio conversation.<br>* `disabled`: No user of the company can switch to a Web RTC audio conversation. |
+     * | instantMessagesCustomisation | String | Activate/Deactivate the capability for a user to use instant messages.  <br>Define if a user has the right to use IM, then to start a chat (P2P ou group chat) or receive chat messages and chat notifications.  <br>instantMessagesCustomisation can be:<br><br>* `enabled`: Each user of the company can use instant messages.<br>* `disabled`: No user of the company can use instant messages. |
+     * | userProfileCustomisation | String | Activate/Deactivate the capability for a user to modify his profile.  <br>Define if a user has the right to modify the globality of his profile and not only (title, firstName, lastName).  <br>userProfileCustomisation can be:<br><br>* `enabled`: Each user of the company can modify his profile.<br>* `disabled`: No user of the company can modify his profile. |
+     * | fileStorageCustomisation | String | Activate/Deactivate the capability for a user to access to Rainbow file storage.  <br>Define if a user has the right to upload/download/copy or share documents.  <br>fileStorageCustomisation can be:<br><br>* `enabled`: Each user of the company can manage and share files.<br>* `disabled`: No user of the company can manage and share files. |
+     * | overridePresenceCustomisation | String | Activate/Deactivate the capability for a user to change manually his presence.  <br>Define if a user has the right to change his presence manually or only use automatic states.  <br>overridePresenceCustomisation can be:<br><br>* `enabled`: Each user of the company can change his presence.<br>* `disabled`: No user of the company can change his presence. |
+     * | alertNotificationReception | String | Activate/Deactivate the capability for a user to receive alert notification.  <br>Define if a user has the right to receive alert notification  <br>alertNotificationReception can be:<br><br>* `enabled`: Each user of the company can receive alert notification.<br>* `disabled`: No user of the company can receive alert notification. |
+     * | alertNotificationSending | String | Activate/Deactivate the capability for a user to send alert notification.  <br>Define if a user has the right to send alert notification  <br>alertNotificationSending can be:<br><br>* `enabled`: Each user of the company can send alert notification.<br>* `disabled`: No user of the company can send alert notification. |
+     * | changeTelephonyCustomisation | String | Activate/Deactivate the ability for a user to modify some telephony settings.  <br>Define if a user has the right to modify telephony settings like forward activation ....  <br>changeTelephonyCustomisation can be:<br><br>* `enabled`: The user can modify telephony settings.<br>* `disabled`: The user can't modify telephony settings. |
+     * | changeSettingsCustomisation | String | Activate/Deactivate the ability for a user to change all client general settings.  <br>Define if a user has the right to change his client general settings.  <br>changeSettingsCustomisation can be:<br><br>* `enabled`: The user can change all client general settings.<br>* `disabled`: The user can't change any client general setting. recordingConversationCustomisation Activate/Deactivate the capability for a user to record a conversation.  <br>    Define if a user has the right to record a conversation (for P2P and multi-party calls).  <br>    recordingConversationCustomisation can be:<br>* `enabled`: The user can record a peer to peer or a multi-party call.<br>* `disabled`: The user can't record a peer to peer or a multi-party call. |
+     * | useGifCustomisation | String | Activate/Deactivate the ability for a user to Use GIFs in conversations.  <br>Define if a user has the is allowed to send animated GIFs in conversations  <br>useGifCustomisation can be:<br><br>* `enabled`: The user can send animated GIFs in conversations.<br>* `disabled`: The user can't send animated GIFs in conversations. |
+     * | useDialOutCustomisation | String | Activate/Deactivate the capability for a user to use dial out in phone meetings.  <br>Define if a user is allowed to be called by the Rainbow conference bridge.  <br>useDialOutCustomisation can be:<br><br>* `enabled`: The user can be called by the Rainbow conference bridge.<br>* `disabled`: The user can't be called by the Rainbow conference bridge. |
+     * | fileCopyCustomisation | String | Activate/Deactivate the capability for a user to copy files  <br>Define if one or all users of a company is allowed to copy any file he receives in his personal cloud space.  <br>fileCopyCustomisation can be:<br><br>* `enabled`: The user can make a copy of a file to his personal cloud space.<br>* `disabled`: The user can't make a copy of a file to his personal cloud space. |
+     * | fileTransferCustomisation | String | Activate/Deactivate the ability for a user to transfer files.  <br>Define if one or all users of a company has the right to copy a file from a conversation then share it inside another conversation.  <br>fileTransferCustomisation can be:<br><br>* `enabled`: The user can transfer a file doesn't belong to him.<br>* `disabled`: The user can't transfer a file doesn't belong to him. |
+     * | forbidFileOwnerChangeCustomisation | String | Activate/Deactivate the ability for a user to loose the ownership on one file.  <br>Define if one or all users can drop the ownership of a file to another Rainbow user of the same company  <br>forbidFileOwnerChangeCustomisation can be:<br><br>* `enabled`: The user can't give the ownership of his file.<br>* `disabled`: The user can give the ownership of his file. |
+     * | readReceiptsCustomisation | String | Activate/Deactivate the capability for a user to allow a sender to check if a chat message is read.  <br>Defines whether a peer user in a conversation allows the sender of a chat message to see if this IM is acknowledged by the peer.  <br>This right is used by Ucaas or Cpaas application to show either or not a message is acknowledged. No check is done on backend side.  <br>readReceiptsCustomisation can be:<br><br>* `enabled`: Each user of the company allow the sender to check if an IM is read.<br>* `disabled`: No user of the company allow the sender to check if an IM is read. |
+     * | useSpeakingTimeStatistics | String | Activate/Deactivate the ability for a user to see speaking time statistics..  <br>Defines whether a user has the right to see for a given meeting the speaking time for each attendee of this meeting.  <br>useSpeakingTimeStatistics can be:<br><br>* `enabled`: Each user of the company can use meeting speaking time statistics.<br>* `disabled`: No user of the company can use meeting speaking time statistics. |
+     * | eLearningCustomisation | String | Activate/Deactivate the capability for a user to participate on a E-learning training.  <br>Defines if a user can participate on an E-learning training.  <br>eLearningCustomisation can be:<br><br>* `enabled`: The user can participate on an E-learning training.<br>* `disabled`: The user can't participate on an E-learning training. |
+     * | eLearningGamificationCustomisation | String | Activate/Deactivate the capability for a user to earn badges for E-learning progress.  <br>Defines if a user can earn badges for E-learning progress.  <br>eLearningGamificationCustomisation can be:<br><br>* `enabled`: The user can earn badges for E-learning progress.<br>* `disabled`: The user can't earn badges for E-learning progress. |
+     * | meetingRecordingCustomisation | String | Activate/Deactivate the capability for a user to record a meeting.  <br>Defines if a user can record a meeting.  <br>meetingRecordingCustomisation can be:<br><br>* `enabled`: The user can record a meeting.<br>* `disabled`: The user can't record a meeting. |
+     * | useOtherPhoneMode | String | Activate/Deactivate the capability for a user to use the other phone mode.  <br>Defines if a user can use the other phone mode.  <br>useOtherPhoneMode can be:<br><br>* `enabled`: The user can use the other phone mode.<br>* `disabled`: The user can't use the other phone mode. |
+     * | useComputerMode | String | Activate/Deactivate the capability for a user to use the computer mode.  <br>Defines if a user can use the computer mode.  <br>useComputerMode can be:<br><br>* `enabled`: The user can use the computer mode.<br>* `disabled`: The user can't use the computer mode. |
+     * | useSoftPhoneMode | String | Activate/Deactivate the capability for a user to use the softphone mode.  <br>Defines if a user can use the softphone mode.  <br>useSoftPhoneMode can be:<br><br>* `enabled`: The user can use the softphone mode.<br>* `disabled`: The user can't use the softphone mode. |
+     * | imPopupDuration | Number | Defines the IM popup duration. |
+     * | canAccessWhatsNew | String | Activate/Deactivate the capability for a user to access to what's new.  <br>Defines if a user can access to what's new.  <br>canAccessWhatsNew can be:<br><br>* `enabled`: The user can access to what's new.<br>* `disabled`: The user can't access to what's new. |
+     * | canAccessFaqCustomisation | String | Activate/Deactivate the capability for a user to access to the FAQ.  <br>Defines if a user can access to the FAQ.  <br>canAccessFaqCustomisation can be:<br><br>* `enabled`: The user can access to the FAQ.<br>* `disabled`: The user can't access to the FAQ. |
+     * | canAccessHelpCenterCustomisation | String | Activate/Deactivate the capability for a user to access to Rainbow help center.  <br>Defines if a user can access to Rainbow help center.  <br>canAccesHelpCenterCustomisation can be:<br><br>* `enabled`: The user can access to Rainbow help center.<br>* `disabled`: The user can't access to Rainbow help center. |
+     * | canAccessStoreCustomisation | String | Activate/Deactivate the capability for a user to access to Rainbow store.  <br>Defines if a user can access to Rainbow store.  <br>canAccesStoreCustomisation can be:<br><br>* `enabled`: The user can access to Rainbow store.<br>* `disabled`: The user can't access to Rainbow store. |
+     * | canDownloadAppCustomisation | String | Activate/Deactivate the capability for a user to download Rainbow application.  <br>Defines if a user can download Rainbow application.  <br>canDownloadAppCustomisation can be:<br><br>* `enabled`: The user can download Rainbow application.<br>* `disabled`: The user can't download Rainbow application. |
+     * | canCallParticipantPbxNumberCustomisation | String | Select the capability for a user to call participant via a PBX number.  <br>Defines if a user can call participant via a PBX number.  <br>canCallParticipantPbxNumberCustomisation can be:<br><br>* `enabled`: The user can call participant with all number.<br>* `disabled`: The user can't call participant.<br>* `internal`: The user can call participant only with internal number.<br>* `national`: The user can call participant with national number. |
+     * | defaultLicenseGroup | String | Group of license to assign to user when finalizing his account (e.g. Enterprise, Business ...) |
+     * | defaultOptionsGroups | String\[\] | List of options to assign to user when finalizing his account (e.g. Alert ...) |
+     * | selectedThemeCustomers optionnel | Object | Set the selected theme(s) for customers of this BP company.  <br>This attribute only applies for BP companies. |
+     * | light optionnel | String | Set the selected theme light for customers of this BP company. |
+     * | dark optionnel | String | Set the selected theme dark for customers of this BP company. |
+     * | ddiReadOnly optionnel | Boolean | Indicates if admin of IR company is allowed to create or delete a DDI. Used only on IR companies. |
+     * | locked optionnel | Boolean | Allow to lock selected theme for customers. If true, customers won't be able to manage themes (create/update/delete). |
+     * | cloudPbxVoicemailToEmail optionnel | Boolean | Cloudpbx email notification type when receiving a voicemail |
+     * | allowPhoneNumbersVisibility optionnel | Boolean | Indicates if Phone numbers should be visible or not when generating Voice CDR files. Applies only on BP companies. |
+     * | cloudPbxRecordingInboundOnly optionnel | Boolean | When CloudPbx recording is set, both inbound and outbound calls will be recorded for the selected users. If cloudPbxRecordingInboundOnly is set to true, only inbound calls will be recorded |
+     * | allowDeviceFirmwareSelection optionnel | Boolean | Superadmin allows admins of the company to select a given firmware for its cloudpbx devices. |
+     * | businessData optionnel | Object | Set the businessData company. |
+     * | region optionnel | String | Set the region of the company. |
+     * | cluster optionnel | String | Set the cluster of the company. |
+     * | area optionnel | String | Set the area of the company. |
+     * | allowTeamsToDesktopSso optionnel | Boolean | Superadmin allows if Teams add-in uses sso to login in desktop app for all company users<br><br>Default value : `true` |
+     * | country optionnel | String | Set the business country of the company. |
+     * | rainbowStorageAllowedAllUsers | Boolean | In an environment where a company uses the Rainbow file server or an External file server, an administator can defines storage access rights at company level, and at user level.  <br>So he has to:<br><br>* Enable/Disable external storage for a company (see `useExternalStorage`) and configure required parameters as URLs, type, name, description (see company/settings/filestorage section) and if all company users have access to this storage by default (see `externalStorageAllowedAllUsers`).  <br>    If this storage is enabled by default, all users following the company policy will have access to the storage.<br>* Enable/Disable Rainbow storage for a company (see `useRainbowStorage`), and if all company users have access to this storage by default (see `rainbowStorageAllowedAllUsers`).<br>* Select which storage is the main one used to store photo taken from Rainbow Apps (see `mainStorage`) |
+     * | externalStorageAllowedAllUsers | Boolean | Refer to rainbowStorageAllowedAllUsers. |
+     * | useRainbowStorage | String | In an environment where a company uses the Rainbow file server and an External file server at the same time, 'useRainbowStorage' allows a user to be assigned to a file server.<br><br>* `enabled`: Assign all users to the default Rainbow File Storage.<br>* `disabled`: Unassign all users from the default Rainbow File Storage. |
+     * | useExternalStorage | String | In an environment where a company uses the Rainbow file server and an External file server at the same time, 'useExternalStorage' allows a user to be assigned to a file server.<br><br>* `enabled`: Assign all users to the External File Storage.<br>* `disabled`: Unassign all users from the External File Storage. |
+     * | mainStorage | String | In an environment where a company uses the Rainbow file server and an External file server at the same time, 'mainStorage' allows to decide which file server must be used when a user is assigned to both file servers.<br><br>* `Rainbow Storage`: Assigment to the Rainbow file server.<br>* `External Storage`: Assigment to the External file server. |
+     * | customData optionnel | Object | Company's custom data.  <br>Object with free keys/values.  <br>It is up to the client to manage the company's customData (new customData provided overwrite the existing one).  <br>  <br>Restrictions on customData Object:<br><br>* max 10 keys,<br>* max key length: 64 characters,<br>* max value length: 512 characters. |
+     * | adminServiceNotificationsLevel | String | Level of service notification that admin should see |
+     *
+     *
+     * example of result :
+     * ```json
+     * {
+     *         "id": "569ce8c8f9336c471b98eda1",
+     *         "creationDate": "2016-01-18T13:29:44.498Z",
+     *         "statusUpdatedDate": "2016-01-18T13:29:44.497Z",
+     *         "name": "AL-ENTERPRISE",
+     *         "street": "Sesame street",
+     *         "city": "Brooklyn",
+     *         "postalCode": "123456",
+     *         "country": "USA",
+     *         "state": "NY",
+     *         "status": "active",
+     *         "visibility": "private",
+     *         "visibleBy": [
+     *              "56fabb217d8d3ffa3d0223f8",
+     *              "56d6f00441255dd54b5b61ae"
+     *         ],
+     *         "adminEmail": "admin@company.com",
+     *         "supportEmail": "support@company.com",
+     *         "companyContactId": "588a0d902d9e7f983b8f7661",
+     *         "autoAcceptUserInvitations": true,
+     *         "userSelfRegisterEnabled": true,
+     *         "userSelfRegisterAllowedDomains": [
+     *              "@alcatel-lucent.com",
+     *              "@al-enterprise.com",
+     *              "@al-enterprise.fr",
+     *              "@al-enterprise.de"
+     *         ],
+     *         "slogan": "The slogan of my company",
+     *         "description": "A free string that describes my company",
+     *         "size" : "1001-5000 employees",
+     *         "website": "http:\\/\\/enterprise.alcatel-lucent.com",
+     *         "giphyEnabled": false,
+     *         "organisationId": "57cd58edd341df5812bbcb71",
+     *         "catalogId": "5979f63bae6056aadd1a8f17",
+     *         "bpId": null,
+     *         "externalReference": null,
+     *         "offerType": "premium",
+     *         "avatarShape": "circle",
+     *         "allowUsersSelectTheme": true,
+     *         "allowUsersSelectPublicTheme": true,
+     *         "mobilePermanentConnectionMode": false,
+     *         "customData": {},
+     *         "office365ScopesGranted": [],
+     *         "fileSharingCustomisation": "enabled",
+     *         "userTitleNameCustomisation": "enabled",
+     *         "softphoneOnlyCustomisation": "disabled",
+     *         "useRoomCustomisation": "enabled",
+     *         "phoneMeetingCustomisation": "enabled",
+     *         "useChannelCustomisation": "enabled",
+     *         "useScreenSharingCustomisation": "enabled",
+     *         "useWebRTCVideoCustomisation": "enabled",
+     *         "useWebRTCAudioCustomisation": "enabled",
+     *         "instantMessagesCustomisation": "enabled",
+     *         "userProfileCustomisation": "enabled",
+     *         "fileStorageCustomisation": "enabled",
+     *         "overridePresenceCustomisation": "enabled",
+     *         "changeTelephonyCustomisation": "enabled",
+     *         "changeSettingsCustomisation": "enabled",
+     *         "recordingConversationCustomisation": "enabled",
+     *         "useGifCustomisation": "enabled",
+     *         "useDialOutCustomisation": "enabled",
+     *         "eLearningCustomisation":  "enabled",
+     *         "eLearningGamificationCustomisation": "enabled",
+     *         "meetingRecordingCustomisation": "enabled",
+     *         "useOtherPhoneMode": "enabled",
+     *         "useComputerMode": "enabled",
+     *         "useSoftPhoneMode": "enabled",
+     *         "imPopupDuration": 3,
+     *         "canAccessWhatsNew": "enabled",
+     *         "canAccesFaqCustomisation": "enabled",
+     *         "canAccessHelpCenterCustomisation": "enabled",
+     *         "canAccessStoreCustomisation": "enabled",
+     *         "canDownloadAppCustomisation": "enabled",
+     *         "canCallParticipantPbxNumberCustomisation": "enabled",
+     *         "defaultLicenseGroup": "Enterprise",
+     *         "defaultOptionsGroups": ["Alert"],
+     *         "selectedTheme": {
+     *              "light": null,
+     *              "dark": "5ea304e4359c0e6815fc8b57",
+     *              "isLockedByBp": true
+     *         },
+     *         "businessSpecific": "UGAP",
+     *         "allowTeamsToDesktopSso": true,
+     *         "externalStorageAllowedAllUsers" : false,
+     *         "mainStorage" : "Rainbow Storage",
+     *         "rainbowStorageAllowedAllUsers" : true,
+     *         "useExternalStorage" : "disabled",
+     *         "useRainbowStorage" : "enabled",
+     *         "businessData": {
+     *              "region": "EMEA",
+     *              "cluster": "EU SOUTH",
+     *              "area": "BELUX",
+     *              "country": "BEL"
+     *         },
+     *         "useRainbowStorage" : "enabled",
+     *         "adminServiceNotificationsLevel": "high"
+     *     }
+     * ```
+     *
+     */
+    updateCompany(companyId: string, selectedThemeObj: boolean, name: string, country: string, street: string, city: string, state: string, postalCode: string, offerType: string, currency: string, status: string, visibility: string, visibleBy: string[], adminEmail: string, supportEmail: string, supportUrlFAQ: string, companyContactId: string, disableCCareAdminAccess: boolean, disableCCareAdminAccessCustomers: boolean, disableCCareAdminAccessResellers: boolean, autoAcceptUserInvitations: boolean, autoAddToUserNetwork: boolean, contentPolicyLifeTime: boolean, documentGracePeriod: boolean, userSelfRegisterAllowedDomains: string[], slogan: string, description: string, size: string, economicActivityClassification: string, website: string, giphyEnabled: boolean, catalogId: string, adminCanSetCustomData: boolean, customData: any, bpId: string, adminHasRightToUpdateSubscriptions: boolean, adminAllowedUpdateSubscriptionsOps: string, isBP: boolean, bpType: string, bpBusinessModel: string, bpApplicantNumber: string, bpCRDid: string, bpHasRightToSell: boolean, bpHasRightToConnect: boolean, bpHasRightForBYOT: boolean, preferredSipLoadBalancerId: string, bpIsContractAccepted: boolean, externalReference: string, externalReference2: string, salesforceAccountId: string, avatarShape: string, isCentrex: boolean, companyCallNumber: string, superadminComment: string, bpBusinessType: string[], billingModel: string, allowUsersSelectTheme: boolean, allowUsersSelectPublicTheme: boolean, selectedTheme: any, mobilePermanentConnectionMode: boolean, alertNotificationReception: string, alertNotificationSending: string, useDialOutCustomisation: string, allowDeviceFirmwareSelection: boolean, selectedDeviceFirmware: string, cloudPbxVoicemailToEmail: string, businessData: any, defaultLicenseGroup: string, defaultOptionsGroups: string[], selectedThemeCustomers: any, allowTeamsToDesktopSso?: boolean, cloudPbxRecordingInboundOnly?: boolean, supervisionGroupMaxSize?: number, supervisionGroupMaxNumber?: number, supervisionGroupMaxUsers?: number, timezone?: string, sendPrepaidSubscriptionsNotification?: boolean, ddiReadOnly?: boolean, allowPhoneNumbersVisibility?: boolean, csEmailList?: string[], seEmailList?: string[], csmEmailList?: string[], kamEmailList?: string[], businessSpecific?: string, adminServiceNotificationsLevel?: string): Promise<any>;
+    /**
+ * @public
+ * @nodered true
+ * @method getAllUsers
+ * @instance
+ * @description
+ *      Get all users for a given admin </BR>
+ * @async
+ * @category Companies and users management
+ * @param {string} format Allows to retrieve more or less user details in response.
+ *   small: id, loginEmail, firstName, lastName, displayName, companyId, companyName, isTerminated
+ *   medium: id, loginEmail, firstName, lastName, displayName, jid_im, jid_tel, companyId, companyName, lastUpdateDate, lastAvatarUpdateDate, isTerminated, guestMode
+ *   full: all user fields
+ * @param {number} offset Allow to specify the position of first user to retrieve (first user if not specified). Warning: if offset > total, no results are returned.
+ * @param {number} limit Allow to specify the number of users to retrieve (default=100).
+ * @param {string} sortField Sort user list based on the given field (default="loginEmail").
+ * @return {Promise<Object, ErrorManager>}
+ * @fulfil {Array} - Array of Json object containing users or an error object depending on the result
+ * @category async
+ */
     getAllUsers(format?: string, offset?: number, limit?: number, sortField?: string): Promise<unknown>;
     /**
      * @public
@@ -9537,17 +10758,17 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      *
      * | Champ | Type | Description |
      * | --- | --- | --- |
-     * | id  | String | Join company invitation unique Id |
-     * | companyId | String | Id of the company for which the join company invitation is |
-     * | companyName | String | Name of the company for which the join company invitation is (not updated if company name change after invitation creation) |
-     * | invitedUserId | String | Unique Id of the Rainbow user invited to join the company (only if invited user already exists in Rainbow) |
-     * | invitedUserLoginEmail | String | Email of the Rainbow user invited to join the company |
-     * | invitingAdminId | String | Inviting company admin unique Rainbow Id |
-     * | invitingAdminLoginEmail | String | Inviting company admin loginEmail |
+     * | id  | string | Join company invitation unique Id |
+     * | companyId | string | Id of the company for which the join company invitation is |
+     * | companyName | string | Name of the company for which the join company invitation is (not updated if company name change after invitation creation) |
+     * | invitedUserId | string | Unique Id of the Rainbow user invited to join the company (only if invited user already exists in Rainbow) |
+     * | invitedUserLoginEmail | string | Email of the Rainbow user invited to join the company |
+     * | invitingAdminId | string | Inviting company admin unique Rainbow Id |
+     * | invitingAdminLoginEmail | string | Inviting company admin loginEmail |
      * | invitationDate | Date-Time | Date the join company invitation was created |
      * | lastNotificationDate | Date-Time | Date when the last email notification was sent |
-     * | requestedNotificationLanguage | String | Requested notification language (used to re-send email request in that language) |
-     * | status | String | Join company invitation status: one of `pending`, `accepted`, `auto-accepted`, `declined`, `canceled`, `failed` |
+     * | requestedNotificationLanguage | string | Requested notification language (used to re-send email request in that language) |
+     * | status | string | Join company invitation status: one of `pending`, `accepted`, `auto-accepted`, `declined`, `canceled`, `failed` |
      * | acceptationDate | Date-Time | Date when the join company invitation has been accepted by the user (if applicable) |
      * | declinationDate | Date-Time | Date when the join company invitation has been declined by the user (if applicable) |
      *
@@ -9570,17 +10791,17 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      *
      * | Champ | Type | Description |
      * | --- | --- | --- |
-     * | id  | String | Join company invitation unique Id |
-     * | companyId | String | Id of the company for which the join company invitation is |
-     * | companyName | String | Name of the company for which the join company invitation is (not updated if company name change after invitation creation) |
-     * | invitedUserId | String | Unique Id of the Rainbow user invited to join the company (only if invited user already exists in Rainbow) |
-     * | invitedUserLoginEmail | String | Email of the Rainbow user invited to join the company |
-     * | invitingAdminId | String | Inviting company admin unique Rainbow Id |
-     * | invitingAdminLoginEmail | String | Inviting company admin loginEmail |
+     * | id  | string | Join company invitation unique Id |
+     * | companyId | string | Id of the company for which the join company invitation is |
+     * | companyName | string | Name of the company for which the join company invitation is (not updated if company name change after invitation creation) |
+     * | invitedUserId | string | Unique Id of the Rainbow user invited to join the company (only if invited user already exists in Rainbow) |
+     * | invitedUserLoginEmail | string | Email of the Rainbow user invited to join the company |
+     * | invitingAdminId | string | Inviting company admin unique Rainbow Id |
+     * | invitingAdminLoginEmail | string | Inviting company admin loginEmail |
      * | invitationDate | Date-Time | Date the join company invitation was created |
      * | lastNotificationDate | Date-Time | Date when the last email notification was sent |
-     * | requestedNotificationLanguage | String | Requested notification language (used to re-send email request in that language) |
-     * | status | String | Join company invitation status: one of `pending`, `accepted`, `auto-accepted`, `declined`, `canceled`, `failed` |
+     * | requestedNotificationLanguage | string | Requested notification language (used to re-send email request in that language) |
+     * | status | string | Join company invitation status: one of `pending`, `accepted`, `auto-accepted`, `declined`, `canceled`, `failed` |
      * | acceptationDate | Date-Time | Date when the join company invitation has been accepted by the user (if applicable) |
      * | declinationDate | Date-Time | Date when the join company invitation has been declined by the user (if applicable) |
      *
@@ -9602,17 +10823,17 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      *
      * | Champ | Type | Description |
      * | --- | --- | --- |
-     * | id  | String | Join company invitation unique Id |
-     * | companyId | String | Id of the company for which the join company invitation is |
-     * | companyName | String | Name of the company for which the join company invitation is (not updated if company name change after invitation creation) |
-     * | invitedUserId | String | Unique Id of the Rainbow user invited to join the company (only if invited user already exists in Rainbow) |
-     * | invitedUserLoginEmail | String | Email of the Rainbow user invited to join the company |
-     * | invitingAdminId | String | Inviting company admin unique Rainbow Id |
-     * | invitingAdminLoginEmail | String | Inviting company admin loginEmail |
+     * | id  | string | Join company invitation unique Id |
+     * | companyId | string | Id of the company for which the join company invitation is |
+     * | companyName | string | Name of the company for which the join company invitation is (not updated if company name change after invitation creation) |
+     * | invitedUserId | string | Unique Id of the Rainbow user invited to join the company (only if invited user already exists in Rainbow) |
+     * | invitedUserLoginEmail | string | Email of the Rainbow user invited to join the company |
+     * | invitingAdminId | string | Inviting company admin unique Rainbow Id |
+     * | invitingAdminLoginEmail | string | Inviting company admin loginEmail |
      * | invitationDate | Date-Time | Date the join company invitation was created |
      * | lastNotificationDate | Date-Time | Date when the last email notification was sent |
-     * | requestedNotificationLanguage | String | Requested notification language (used to re-send email request in that language) |
-     * | status | String | Join company invitation status: one of `pending`, `accepted`, `auto-accepted`, `declined`, `canceled`, `failed` |
+     * | requestedNotificationLanguage | string | Requested notification language (used to re-send email request in that language) |
+     * | status | string | Join company invitation status: one of `pending`, `accepted`, `auto-accepted`, `declined`, `canceled`, `failed` |
      * | acceptationDate | Date-Time | Date when the join company invitation has been accepted by the user (if applicable) |
      * | declinationDate | Date-Time | Date when the join company invitation has been declined by the user (if applicable) |
      *
@@ -9637,17 +10858,17 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      * | limit | Number | Number of requested items |
      * | offset | Number | Requested position of the first item to retrieve |
      * | total | Number | Total number of items |
-     * | id  | String | Join company invitation unique Id |
-     * | companyId | String | Id of the company for which the join company invitation is |
-     * | companyName | String | Name of the company for which the join company invitation is (not updated if company name change after invitation creation) |
-     * | invitedUserId | String | Unique Id of the Rainbow user invited to join the company (only if invited user already exists in Rainbow) |
-     * | invitedUserLoginEmail | String | Email of the Rainbow user invited to join the company |
-     * | invitingAdminId | String | Inviting company admin unique Rainbow Id |
-     * | invitingAdminLoginEmail | String | Inviting company admin loginEmail |
+     * | id  | string | Join company invitation unique Id |
+     * | companyId | string | Id of the company for which the join company invitation is |
+     * | companyName | string | Name of the company for which the join company invitation is (not updated if company name change after invitation creation) |
+     * | invitedUserId | string | Unique Id of the Rainbow user invited to join the company (only if invited user already exists in Rainbow) |
+     * | invitedUserLoginEmail | string | Email of the Rainbow user invited to join the company |
+     * | invitingAdminId | string | Inviting company admin unique Rainbow Id |
+     * | invitingAdminLoginEmail | string | Inviting company admin loginEmail |
      * | invitationDate | Date-Time | Date the join company invitation was created |
      * | lastNotificationDate | Date-Time | Date when the last email notification was sent |
-     * | requestedNotificationLanguage | String | Requested notification language (used to re-send email request in that language) |
-     * | status | String | Join company invitation status: one of `pending`, `accepted`, `auto-accepted`, `declined`, `canceled`, `failed` |
+     * | requestedNotificationLanguage | string | Requested notification language (used to re-send email request in that language) |
+     * | status | string | Join company invitation status: one of `pending`, `accepted`, `auto-accepted`, `declined`, `canceled`, `failed` |
      * | acceptationDate | Date-Time | Date when the join company invitation has been accepted by the user (if applicable) |
      * | declinationDate | Date-Time | Date when the join company invitation has been declined by the user (if applicable) |
      *
@@ -9680,19 +10901,19 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      *
      * | Champ | Type | Description |
      * | --- | --- | --- |
-     * | id  | String | Join company request unique Id |
-     * | requestingUserId | String | Requesting user unique Rainbow Id |
-     * | requestingUserLoginEmail | String | Requesting user email |
-     * | requestedCompanyId | String | Unique Id of the company the requesting user wants to join |
-     * | requestedCompanyName | String | Name of the company the requesting user wants to join |
-     * | status | String | Request status: one of `pending`, `accepted`, `declined`, `canceled` |
+     * | id  | string | Join company request unique Id |
+     * | requestingUserId | string | Requesting user unique Rainbow Id |
+     * | requestingUserLoginEmail | string | Requesting user email |
+     * | requestedCompanyId | string | Unique Id of the company the requesting user wants to join |
+     * | requestedCompanyName | string | Name of the company the requesting user wants to join |
+     * | status | string | Request status: one of `pending`, `accepted`, `declined`, `canceled` |
      * | requestingDate | Date-Time | Date the request was created |
-     * | requestedNotificationLanguage | String | Requested notification language to use if language of company admin is not defined (used to re-send email request in that language) |
+     * | requestedNotificationLanguage | string | Requested notification language to use if language of company admin is not defined (used to re-send email request in that language) |
      * | lastNotificationDate | Date-Time | Date when the last email notification was sent |
      * | requestedToCompanyAdmin optionnel | Object | If the request was sent to a company administrator this field is present |
-     * | companyAdminId | String |     |
-     * | requestedCompanyInvitationId | String | If the request was sent using a JoinCompanyInvite id, this field is set with this Id |
-     * | companyAdminLoginEmail | String |     |
+     * | companyAdminId | string |     |
+     * | requestedCompanyInvitationId | string | If the request was sent using a JoinCompanyInvite id, this field is set with this Id |
+     * | companyAdminLoginEmail | string |     |
      *
      * @param {string} joinCompanyRequestId Join company request unique identifier
      */
@@ -9714,19 +10935,19 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      *
      * | Champ | Type | Description |
      * | --- | --- | --- |
-     * | id  | String | Join company request unique Id |
-     * | requestingUserId | String | Requesting user unique Rainbow Id |
-     * | requestingUserLoginEmail | String | Requesting user email |
-     * | requestedCompanyId | String | Unique Id of the company the requesting user wants to join |
-     * | requestedCompanyName | String | Name of the company the requesting user wants to join |
-     * | status | String | Request status: one of `pending`, `accepted`, `declined`, `canceled` |
+     * | id  | string | Join company request unique Id |
+     * | requestingUserId | string | Requesting user unique Rainbow Id |
+     * | requestingUserLoginEmail | string | Requesting user email |
+     * | requestedCompanyId | string | Unique Id of the company the requesting user wants to join |
+     * | requestedCompanyName | string | Name of the company the requesting user wants to join |
+     * | status | string | Request status: one of `pending`, `accepted`, `declined`, `canceled` |
      * | requestingDate | Date-Time | Date the request was created |
-     * | requestedNotificationLanguage | String | Requested notification language to use if language of company admin is not defined (used to re-send email request in that language) |
+     * | requestedNotificationLanguage | string | Requested notification language to use if language of company admin is not defined (used to re-send email request in that language) |
      * | lastNotificationDate | Date-Time | Date when the last email notification was sent |
      * | requestedToCompanyAdmin optionnel | Object | If the request was sent to a company administrator this field is present |
-     * | companyAdminId | String |     |
-     * | requestedCompanyInvitationId | String | If the request was sent using a JoinCompanyInvite id, this field is set with this Id |
-     * | companyAdminLoginEmail | String |     |
+     * | companyAdminId | string |     |
+     * | requestedCompanyInvitationId | string | If the request was sent using a JoinCompanyInvite id, this field is set with this Id |
+     * | companyAdminLoginEmail | string |     |
      *
      * @param {string} joinCompanyRequestId Join company request unique identifier
      */
@@ -9747,23 +10968,23 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      *
      * | Champ | Type | Description |
      * | --- | --- | --- |
-     * | id  | String | Join company request unique Id |
-     * | requestingUserId | String | Requesting user unique Rainbow Id |
-     * | requestingUserLoginEmail | String | Requesting user email |
-     * | requestedCompanyId | String | Unique Id of the company the requesting user wants to join |
-     * | requestedCompanyName | String | Name of the company the requesting user wants to join |
-     * | status | String | Request status: one of `pending`, `accepted`, `declined`, `canceled` |
+     * | id  | string | Join company request unique Id |
+     * | requestingUserId | string | Requesting user unique Rainbow Id |
+     * | requestingUserLoginEmail | string | Requesting user email |
+     * | requestedCompanyId | string | Unique Id of the company the requesting user wants to join |
+     * | requestedCompanyName | string | Name of the company the requesting user wants to join |
+     * | status | string | Request status: one of `pending`, `accepted`, `declined`, `canceled` |
      * | requestingDate | Date-Time | Date the request was created |
-     * | requestedNotificationLanguage | String | Requested notification language to use if language of company admin is not defined (used to re-send email request in that language) |
+     * | requestedNotificationLanguage | string | Requested notification language to use if language of company admin is not defined (used to re-send email request in that language) |
      * | lastNotificationDate | Date-Time | Date when the last email notification was sent |
      * | requestedToCompanyAdmin optionnel | Object | If the request was sent to a company administrator this field is present |
      * | data | Object\[\] | List of join company request Objects. |
      * | limit | Number | Number of requested items |
      * | offset | Number | Requested position of the first item to retrieve |
      * | total | Number | Total number of items |
-     * | companyAdminId | String |     |
-     * | requestedCompanyInvitationId | String | If the request was sent using a JoinCompanyInvite id, this field is set with this Id |
-     * | companyAdminLoginEmail | String |     |
+     * | companyAdminId | string |     |
+     * | requestedCompanyInvitationId | string | If the request was sent using a JoinCompanyInvite id, this field is set with this Id |
+     * | companyAdminLoginEmail | string |     |
      *
      * @param {string} sortField Sort items list based on the given field<br><br>Default value : `lastNotificationDate`
      * @param {string} status List all join company requests having the provided status(es). Possibles values : `=pending`, `accepted`, `declined`
@@ -9792,19 +11013,19 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      *
      * | Champ | Type | Description |
      * | --- | --- | --- |
-     * | id  | String | Join company request unique Id |
-     * | requestingUserId | String | Requesting user unique Rainbow Id |
-     * | requestingUserLoginEmail | String | Requesting user email |
-     * | requestedCompanyId | String | Unique Id of the company the requesting user wants to join |
-     * | requestedCompanyName | String | Name of the company the requesting user wants to join |
-     * | status | String | Request status: one of `pending`, `accepted`, `declined`, `canceled` |
+     * | id  | string | Join company request unique Id |
+     * | requestingUserId | string | Requesting user unique Rainbow Id |
+     * | requestingUserLoginEmail | string | Requesting user email |
+     * | requestedCompanyId | string | Unique Id of the company the requesting user wants to join |
+     * | requestedCompanyName | string | Name of the company the requesting user wants to join |
+     * | status | string | Request status: one of `pending`, `accepted`, `declined`, `canceled` |
      * | requestingDate | Date-Time | Date the request was created |
-     * | requestedNotificationLanguage | String | Requested notification language to use if language of company admin is not defined (used to re-send email request in that language) |
+     * | requestedNotificationLanguage | string | Requested notification language to use if language of company admin is not defined (used to re-send email request in that language) |
      * | lastNotificationDate | Date-Time | Date when the last email notification was sent |
      * | requestedToCompanyAdmin optionnel | Object | If the request was sent to a company administrator this field is present |
-     * | companyAdminId | String |     |
-     * | requestedCompanyInvitationId | String | If the request was sent using a JoinCompanyInvite id, this field is set with this Id |
-     * | companyAdminLoginEmail | String |     |
+     * | companyAdminId | string |     |
+     * | requestedCompanyInvitationId | string | If the request was sent using a JoinCompanyInvite id, this field is set with this Id |
+     * | companyAdminLoginEmail | string |     |
      *
      * @param {string} joinCompanyRequestId Join company request unique identifier
      */
@@ -9835,19 +11056,19 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      *
      * | Champ | Type | Description |
      * | --- | --- | --- |
-     * | id  | String | Join company request unique Id |
-     * | requestingUserId | String | Requesting user unique Rainbow Id |
-     * | requestingUserLoginEmail | String | Requesting user email |
-     * | requestedCompanyId | String | Unique Id of the company the requesting user wants to join |
-     * | requestedCompanyName | String | Name of the company the requesting user wants to join |
-     * | status | String | Request status: one of `pending`, `accepted`, `declined`, `canceled` |
+     * | id  | string | Join company request unique Id |
+     * | requestingUserId | string | Requesting user unique Rainbow Id |
+     * | requestingUserLoginEmail | string | Requesting user email |
+     * | requestedCompanyId | string | Unique Id of the company the requesting user wants to join |
+     * | requestedCompanyName | string | Name of the company the requesting user wants to join |
+     * | status | string | Request status: one of `pending`, `accepted`, `declined`, `canceled` |
      * | requestingDate | Date-Time | Date the request was created |
-     * | requestedNotificationLanguage | String | Requested notification language to use if language of company admin is not defined (used to re-send email request in that language) |
+     * | requestedNotificationLanguage | string | Requested notification language to use if language of company admin is not defined (used to re-send email request in that language) |
      * | lastNotificationDate | Date-Time | Date when the last email notification was sent |
      * | requestedToCompanyAdmin optionnel | Object | If the request was sent to a company administrator this field is present |
-     * | companyAdminId | String |     |
-     * | requestedCompanyInvitationId | String | If the request was sent using a JoinCompanyInvite id, this field is set with this Id |
-     * | companyAdminLoginEmail | String |     |
+     * | companyAdminId | string |     |
+     * | requestedCompanyInvitationId | string | If the request was sent using a JoinCompanyInvite id, this field is set with this Id |
+     * | companyAdminLoginEmail | string |     |
      *
      * @param {string} requestedCompanyId Id of the company the user wants to join.  <br>  <br>One of `requestedCompanyId`, `requestedCompanyAdminId` or `requestedCompanyLinkId` is mandatory.
      * @param {string} requestedCompanyAdminId Id of the company_admin of the company the user wants to join.  <br>  <br>One of `requestedCompanyId`, `requestedCompanyAdminId` or `requestedCompanyLinkId` is mandatory.
@@ -9855,6 +11076,623 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      * @param {string} lang Language of the email notification to use if language of company admin is not defined. <br>Language format is composed of locale using format `ISO 639-1`, with optionally the regional variation using `ISO 3166‑1 alpha-2` (separated by hyphen).  <br>Locale part is in lowercase, regional part is in uppercase. Examples: en, en-US, fr, fr-FR, fr-CA, es-ES, es-MX, ...  <br>More information about the format can be found on this [link](https://en.wikipedia.org/wiki/Language_localisation#Language_tags_and_codes).<br>Default value : `en`
      */
     requestToJoinCompany(requestedCompanyId?: string, requestedCompanyAdminId?: string, requestedCompanyLinkId?: string, lang?: string): Promise<unknown>;
+    /**
+     * @public
+     * @method getEmailTemplatesDocumentation
+     * @since 2.28.2
+     * @instance
+     * @async
+     * @category Companies Customization Emails
+     * @param {string} format Allows to retrieve only the list of templateName in the response.
+     * </br>    small : Allows to retrieve only the list of templateName in the response.
+     * </br>    full : A documentation for each allowed templates following the pattern
+     * </br> Default value : full. Possibles values : small, full
+     *
+     * @description
+     *      This API allows to get the list of public emails allowed to be customized. This is a short description of templates allowed to be customized by a customer.
+     *
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | templates | Object\[\] |     |
+     * | templateName | string | The name of the template |
+     * | relatedAPI | Object\[\] | Which Rainbow API may lead to send an email based on this template. |
+     * | verb | string | The REST API verb (POST / PUT). |
+     * | url | string | The REST API url |
+     * | allowedParameters | string\[\] | The list of parameters Rainbow currently use in it's template. ( ex: {{enduser_displayname}} ) |
+     *
+     *  </br>example of result :
+     *  ```json
+     *  {
+     *         "templates": [
+     *           {
+     *             "templateName": "enduser_invite_somebody",
+     *             "relatedAPI": [
+     *               {
+     *                 "verb": "POST",
+     *                 "url": "/api/rainbow/enduser/v1.0/users/:userId/invitations"
+     *               }
+     *             ],
+     *             "allowedParameters": [
+     *               "enduser_login",
+     *               "enduser_displayname",
+     *               "enduser_company_name",
+     *               "custom_message",
+     *               "invitationURL",
+     *               "invitationId",
+     *               "WebsiteURL",
+     *               "publicWebsiteURL"
+     *             ]
+     *           },
+     *           {
+     *             "templateName": "enduser_account_terminated",
+     *             "relatedAPI": [
+     *               {
+     *                 "verb": "DELETE",
+     *                 "url": "/api/rainbow/admin/v1.0/users/:userId"
+     *               }
+     *             ],
+     *             "allowedParameters": [
+     *               "by_displayName",
+     *               "from_companyName",
+     *               "WebsiteURL",
+     *               "publicWebsiteURL"
+     *             ]
+     *           }
+     *         ]
+     *  }
+     * ```
+     * </br>
+     */
+    getEmailTemplatesDocumentation(format?: string): Promise<unknown>;
+    /**
+     * @public
+     * @method initiateEmailTemplate
+     * @since 2.28.2
+     * @instance
+     * @async
+     * @category Companies Customization Emails
+     * @param {string} companyId Company unique identifier
+     * @param {string} templateName One of the email template allowed to be customized. **For the entire list of allowed template names, use getEmailTemplatesDocumentation API with parameter format=small**
+     * </br> Possibles values : `admin_cancel_invite_user_join_company`, `admin_invite_user_join_company`, `admin_invite_user_join_company_as_admin`, `admin_invite_user_register_and_join_company`, `admin_invite_user_register_and_join_company_as_admin`, `admin_request_company_visibility`, `bp_admin_invite_ec_admin_link_his_company_to_bp`, `ec_admin_request_bp_admin_link_his_company_to_bp`, `bp_admin_invite_ec_admin_link_his_company_to_bp_as_bp_ir`, `ec_admin_request_bp_admin_link_his_company_to_bp_as_bp_ir`, `enduser_account_creation_completed`, `enduser_account_terminated`, `enduser_account_terminated_by_himself`, `enduser_conversation_download`, `enduser_invite_somebody`, `enduser_chat_room_invite_guest`, `enduser_conference_invite_somebody`, `enduser_scheduled_conference_cancel_invite`, `enduser_scheduled_conference_invite_somebody`, `enduser_scheduled_conference_ical`, `enduser_scheduled_conference_cancel_ical`, `enduser_request_join_company`, `enduser_request_user_visibility`, `enduser_temporary_token_reset_password`, `enduser_temporary_token_self_register`, `enduser_offline_im_invite`, `enduser_guest_account_time_to_live`, `enduser_oauth_authentication_notification`
+     * @description
+     *      This API allows to create basis for the template to customize. This skeleton is linked with the company. But is not yet activated
+     * An error occurs when the template name is not allowed or when it was already created for this company.
+     *
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | templateName | string | The name of the template |
+     * | companyId | string | The companyId for which the template is dedicated. |
+     * | subject | string | The email subject content. |
+     * | mjmlFormat | string | The email content in MJML markup language.  <br>MJML is a markup language designed to reduce the pain of coding a responsive email. Refer to https://mjml.io/documentation/#mjml-guides |
+     * | textFormat | string | The email content in text format. |
+     * | isActive | Boolean | When true the custom email template is used instead of Rainbow template |
+     * | tested | Boolean | When the rendering API is used to check the custom email rendering, this boolean is set to true. Any change about template content will reset the flag. |
+     *
+     *  </br>example of result :
+     *  ```json
+     *   {
+     *          "companyId": "598857f360c749e5890ff2f9",
+     *          "templateName": "enduser_account_terminated",
+     *          "mjmlFormat": "<mjml><mj-body></mj-body></mjml>",
+     *          "subject": "{{ __({phrase: \"Your Rainbow account has been closed\", locale: locale}) | safe }}",
+     *          "textFormat": "{{ __({phrase: \"Your administrator {{by_displayName}} (from company {{from_companyName}}) has closed your Rainbow account.\", locale: locale}, {by_displayName: by_displayName, from_companyName: from_companyName}) }}\n\n{{ __({phrase: \"This operation cannot be undone, and from now on, you will no longer have access to the Rainbow service.\", locale: locale}) }}\n\n{{ __({phrase: \"Learn more\", locale: locale}) }} {{ __({phrase: \"about Rainbow\", locale: locale}) }}:\n{{ publicWebsiteURL }}\n\nCopyright © 2018 Alcatel-Lucent Enterprise",
+     *          "isActive": false,
+     *          "tested" : false
+     *  }
+     * ```
+     * </br>
+     */
+    initiateEmailTemplate(companyId: string, templateName: string): Promise<unknown>;
+    /**
+     * @public
+     * @method updateSubjectPartTemplate
+     * @since 2.28.2
+     * @instance
+     * @async
+     * @category Companies Customization Emails
+     * @param {string} companyId Company unique identifier
+     * @param {string} templateName One of the email template allowed to be customized. **For the entire list of allowed template names, use getEmailTemplatesDocumentation API with parameter format=small**
+     * </br> `enduser_invite_somebody`: User can be searched by external users / can search external users. User can invite external users / can be invited by external users
+     * </br> Possibles values : `admin_cancel_invite_user_join_company`, `admin_invite_user_join_company`, `admin_invite_user_join_company_as_admin`, `admin_invite_user_register_and_join_company`, `admin_invite_user_register_and_join_company_as_admin`, `admin_request_company_visibility`, `bp_admin_invite_ec_admin_link_his_company_to_bp`, `ec_admin_request_bp_admin_link_his_company_to_bp`, `bp_admin_invite_ec_admin_link_his_company_to_bp_as_bp_ir`, `ec_admin_request_bp_admin_link_his_company_to_bp_as_bp_ir`, `enduser_account_creation_completed`, `enduser_account_terminated`, `enduser_account_terminated_by_himself`, `enduser_conversation_download`, `enduser_invite_somebody`, `enduser_chat_room_invite_guest`, `enduser_conference_invite_somebody`, `enduser_scheduled_conference_cancel_invite`, `enduser_scheduled_conference_invite_somebody`, `enduser_scheduled_conference_ical`, `enduser_scheduled_conference_cancel_ical`, `enduser_request_join_company`, `enduser_request_user_visibility`, `enduser_temporary_token_reset_password`, `enduser_temporary_token_self_register`, `enduser_offline_im_invite`, `enduser_guest_account_time_to_live`, `enduser_oauth_authentication_notification`
+     * @param {any} body information about template. exemple : {{ __({phrase: "{{enduser_displayname}} has invited you to Alcatel-Lucent Rainbow", locale: locale}, {enduser_displayname: enduser_displayname}) | safe }}
+     * @description
+     *     This API allows to update an email template for a given company, and more precisely the subject part. An error occurs when the template name is not yet allowed or when it is not found for this company.
+     * </br> Templates needs to be scanned by an anti-virus. An error may occurs in this step.
+     * </br> A template can't be modified when is status is isActive = true (error detail 409011)
+     * </br> Users with superadmin role can handle all available email templates of any company.
+     * </br> Users with bp_admin role can only handle email templates for a company they manage (i.e. End Customer company for which bp_admin's company if the BP company).
+     * </br> Users with organization_admin role can only handle email templates for a company they manage (i.e. company linked to organization_admin's organization).
+     * </br> Users with company_admin users can only handle all available email templates of their own company.
+     *
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | templateName | string | The name of the template |
+     * | companyId | string | The companyId for which the template is dedicated. |
+     * | isActive | Boolean | When true the custom email template is used instead of Rainbow template |
+     * | tested | Boolean | When the rendering API is used to check the custom email rendering, this boolean is set to true. Any change about template content will reset the flag. |
+     * | subject | string | The email subject content. |
+     * | mjmlFormat | string | The email content in MJML markup language.  <br>MJML is a markup language designed to reduce the pain of coding a responsive email. Refer to https://mjml.io/documentation/#mjml-guides |
+     * | textFormat | string | The email content in text format. |
+     *
+     *  </br>example of result :
+     *  ```json
+     *   {
+     *      "companyId": "598857f360c749e5890ff2f9",
+     *      "templateName": "enduser_account_terminated",
+     *      "isActive": false,
+     *      "tested": false,
+     *      "mjmlFormat": "<mjml>\n\t<mj-body>\n\t\t<mj-section background-color=\"#f0f0f0\">\n\t\t\t<mj-column>\n\t\t\t\t<mj-text  font-style=\"italic\" font-size=\"20px\" color=\"#626262\">My Company<br><a href={{publicWebsiteURL }}>{{ __({phrase: \"about My Company\", locale: locale}) }}</a>\n\t\t\t\t</mj-text>\n\t\t\t</mj-column>\n\t\t</mj-section>\n\t</mj-body>\n</mjml>",
+     *      "subject": "{{ __({phrase: \"{{enduser_displayname}} has invited you to Alcatel-Lucent Rainbow\", locale: locale}, {enduser_displayname: enduser_displayname}) | safe }}",
+     *      "textFormat": "{{ __({phrase: \"You have been invited to Rainbow by {{enduser_displayname}} from {{enduser_companyName}}.\", locale: locale}, {enduser_displayname: enduser_displayname, enduser_companyName: enduser_companyName}) }}\n\n{% if custom_message %}\n    {{ custom_message }}\n{% endif %}\n\n{{ __({phrase: \"Start the discussion\", locale: locale}) }}:\n{{ invitationURL }}"
+     *  }
+     * ```
+     * </br>
+     */
+    updateSubjectPartTemplate(companyId: string, templateName: string, body: any): Promise<unknown>;
+    /**
+     * @public
+     * @method updateMjmlFormatPartTemplate
+     * @since 2.28.2
+     * @instance
+     * @async
+     * @category Companies Customization Emails
+     * @param {string} companyId Company unique identifier
+     * @param {string} templateName One of the email template allowed to be customized. **For the entire list of allowed template names, use getEmailTemplatesDocumentation API with parameter format=small**
+     * </br> `enduser_invite_somebody`: User can be searched by external users / can search external users. User can invite external users / can be invited by external users
+     * </br> Possibles values : `admin_cancel_invite_user_join_company`, `admin_invite_user_join_company`, `admin_invite_user_join_company_as_admin`, `admin_invite_user_register_and_join_company`, `admin_invite_user_register_and_join_company_as_admin`, `admin_request_company_visibility`, `bp_admin_invite_ec_admin_link_his_company_to_bp`, `ec_admin_request_bp_admin_link_his_company_to_bp`, `bp_admin_invite_ec_admin_link_his_company_to_bp_as_bp_ir`, `ec_admin_request_bp_admin_link_his_company_to_bp_as_bp_ir`, `enduser_account_creation_completed`, `enduser_account_terminated`, `enduser_account_terminated_by_himself`, `enduser_conversation_download`, `enduser_invite_somebody`, `enduser_chat_room_invite_guest`, `enduser_conference_invite_somebody`, `enduser_scheduled_conference_cancel_invite`, `enduser_scheduled_conference_invite_somebody`, `enduser_scheduled_conference_ical`, `enduser_scheduled_conference_cancel_ical`, `enduser_request_join_company`, `enduser_request_user_visibility`, `enduser_temporary_token_reset_password`, `enduser_temporary_token_self_register`, `enduser_offline_im_invite`, `enduser_guest_account_time_to_live`, `enduser_oauth_authentication_notification`
+     * @param {any} body information about template. exemple :
+     * <mjml>
+     *    <mj-body>
+     *       <mj-section background-color="#f0f0f0">
+     *          <mj-column>
+     *              <mj-text  font-style="italic" font-size="20px" color="#626262">My Company<br><a href="{{publicWebsiteURL }}">{{ __({phrase: "Learn more", locale: locale}) }}</a>
+     *              </mj-text>
+     *          </mj-column>
+     *       </mj-section>
+     *    </mj-body>
+     * </mjml>
+     * @description
+     *    This API allows to update an email template for a given company, and more precisely the text format part. An error occurs when the template name is not yet allowed or when it is not found for this company.
+     * </br> Templates needs to be scanned by an anti-virus. An error may occurs in this step.
+     * </br> The template in .mjml format has to be validated. An error may occurs when the template is not compliant with the syntax.
+     * </br> A template can't be modified when is status is isActive = true (error detail 409011)
+     * </br>
+     * </br> Users with superadmin role can handle all available email templates of any company.
+     * </br> Users with bp_admin role can only handle email templates for a company they manage (i.e. End Customer company for which bp_admin's company if the BP company).
+     * </br> Users with organization_admin role can only handle email templates for a company they manage (i.e. company linked to organization_admin's organization).
+     * </br> Users with company_admin users can only handle all available email templates of their own company.
+     *
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | templateName | string | The name of the template |
+     * | companyId | string | The companyId for which the template is dedicated. |
+     * | isActive | Boolean | When true the custom email template is used instead of Rainbow template |
+     * | tested | Boolean | When the rendering API is used to check the custom email rendering, this boolean is set to true. Any change about template content will reset the flag. |
+     * | subject | string | The email subject content. |
+     * | mjmlFormat | string | The email content in MJML markup language.  <br>MJML is a markup language designed to reduce the pain of coding a responsive email. Refer to https://mjml.io/documentation/#mjml-guides |
+     * | textFormat | string | The email content in text format. |
+     *
+     *  </br>example of result :
+     *  ```json
+     *   {
+     *      "companyId": "598857f360c749e5890ff2f9",
+     *      "templateName": "enduser_account_terminated",
+     *      "isActive": false,
+     *      "tested": false,
+     *      "mjmlFormat": "<mjml>\n\t<mj-body>\n\t\t<mj-section background-color=\"#f0f0f0\">\n\t\t\t<mj-column>\n\t\t\t\t<mj-text  font-style=\"italic\" font-size=\"20px\" color=\"#626262\">My Company<br><a href={{publicWebsiteURL }}>{{ __({phrase: \"about My Company\", locale: locale}) }}</a>\n\t\t\t\t</mj-text>\n\t\t\t</mj-column>\n\t\t</mj-section>\n\t</mj-body>\n</mjml>",
+     *      "subject": "{{ __({phrase: \"{{enduser_displayname}} has invited you to Alcatel-Lucent Rainbow\", locale: locale}, {enduser_displayname: enduser_displayname}) | safe }}",
+     *      "textFormat": "{{ __({phrase: \"You have been invited to Rainbow by {{enduser_displayname}} from {{enduser_companyName}}.\", locale: locale}, {enduser_displayname: enduser_displayname, enduser_companyName: enduser_companyName}) }}\n\n{% if custom_message %}\n    {{ custom_message }}\n{% endif %}\n\n{{ __({phrase: \"Start the discussion\", locale: locale}) }}:\n{{ invitationURL }}"
+     *  }
+     * ```
+     * </br>
+     */
+    updateMjmlFormatPartTemplate(companyId: string, templateName: string, body: any): Promise<unknown>;
+    /**
+     * @public
+     * @method updateTextFormatFormatPartTemplate
+     * @since 2.28.2
+     * @instance
+     * @async
+     * @category Companies Customization Emails
+     * @param {string} companyId Company unique identifier
+     * @param {string} templateName One of the email template allowed to be customized. **For the entire list of allowed template names, use getEmailTemplatesDocumentation API with parameter format=small**
+     * </br> `enduser_invite_somebody`: User can be searched by external users / can search external users. User can invite external users / can be invited by external users
+     * </br> Possibles values : `admin_cancel_invite_user_join_company`, `admin_invite_user_join_company`, `admin_invite_user_join_company_as_admin`, `admin_invite_user_register_and_join_company`, `admin_invite_user_register_and_join_company_as_admin`, `admin_request_company_visibility`, `bp_admin_invite_ec_admin_link_his_company_to_bp`, `ec_admin_request_bp_admin_link_his_company_to_bp`, `bp_admin_invite_ec_admin_link_his_company_to_bp_as_bp_ir`, `ec_admin_request_bp_admin_link_his_company_to_bp_as_bp_ir`, `enduser_account_creation_completed`, `enduser_account_terminated`, `enduser_account_terminated_by_himself`, `enduser_conversation_download`, `enduser_invite_somebody`, `enduser_chat_room_invite_guest`, `enduser_conference_invite_somebody`, `enduser_scheduled_conference_cancel_invite`, `enduser_scheduled_conference_invite_somebody`, `enduser_scheduled_conference_ical`, `enduser_scheduled_conference_cancel_ical`, `enduser_request_join_company`, `enduser_request_user_visibility`, `enduser_temporary_token_reset_password`, `enduser_temporary_token_self_register`, `enduser_offline_im_invite`, `enduser_guest_account_time_to_live`, `enduser_oauth_authentication_notification`
+     * @param {any} body information about template. exemple :
+     *   {{ __({phrase: "You have been invited to Rainbow by {{enduser_displayname}} from {{enduser_companyName}}.", locale: locale}, {enduser_displayname: enduser_displayname, enduser_companyName: enduser_companyName}) }}
+     *
+     * {% if custom_message %}
+     * {{ custom_message }}
+     * {% endif %}
+     *
+     * {{ __({phrase: "Start the discussion", locale: locale}) }}:
+     * {{ invitationURL }}
+     * @description
+     *    This API allows to update an email template for a given company, and more precisely the text format part. An error occurs when the template name is not yet allowed or when it is not found for this company.
+     * </br> Templates needs to be scanned by an anti-virus. An error may occurs in this step.
+     * </br> The template in .mjml format has to be validated. An error may occurs when the template is not compliant with the syntax.
+     * </br> A template can't be modified when is status is isActive = true (error detail 409011)
+     * </br>
+     * </br> Users with superadmin role can handle all available email templates of any company.
+     * </br> Users with bp_admin role can only handle email templates for a company they manage (i.e. End Customer company for which bp_admin's company if the BP company).
+     * </br> Users with organization_admin role can only handle email templates for a company they manage (i.e. company linked to organization_admin's organization).
+     * </br> Users with company_admin users can only handle all available email templates of their own company.
+     *
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | templateName | string | The name of the template |
+     * | companyId | string | The companyId for which the template is dedicated. |
+     * | isActive | Boolean | When true the custom email template is used instead of Rainbow template |
+     * | tested | Boolean | When the rendering API is used to check the custom email rendering, this boolean is set to true. Any change about template content will reset the flag. |
+     * | subject | string | The email subject content. |
+     * | mjmlFormat | string | The email content in MJML markup language.  <br>MJML is a markup language designed to reduce the pain of coding a responsive email. Refer to https://mjml.io/documentation/#mjml-guides |
+     * | textFormat | string | The email content in text format. |
+     *
+     *  </br>example of result :
+     *  ```json
+     *   {
+     *      "companyId": "598857f360c749e5890ff2f9",
+     *      "templateName": "enduser_account_terminated",
+     *      "isActive": false,
+     *      "tested": false,
+     *      "mjmlFormat": "<mjml>\n\t<mj-body>\n\t\t<mj-section background-color=\"#f0f0f0\">\n\t\t\t<mj-column>\n\t\t\t\t<mj-text  font-style=\"italic\" font-size=\"20px\" color=\"#626262\">My Company<br><a href={{publicWebsiteURL }}>{{ __({phrase: \"about My Company\", locale: locale}) }}</a>\n\t\t\t\t</mj-text>\n\t\t\t</mj-column>\n\t\t</mj-section>\n\t</mj-body>\n</mjml>",
+     *      "subject": "{{ __({phrase: \"{{enduser_displayname}} has invited you to Alcatel-Lucent Rainbow\", locale: locale}, {enduser_displayname: enduser_displayname}) | safe }}",
+     *      "textFormat": "{{ __({phrase: \"You have been invited to Rainbow by {{enduser_displayname}} from {{enduser_companyName}}.\", locale: locale}, {enduser_displayname: enduser_displayname, enduser_companyName: enduser_companyName}) }}\n\n{% if custom_message %}\n    {{ custom_message }}\n{% endif %}\n\n{{ __({phrase: \"Start the discussion\", locale: locale}) }}:\n{{ invitationURL }}"
+     *  }
+     * ```
+     * </br>
+     */
+    updateTextFormatFormatPartTemplate(companyId: string, templateName: string, body: any): Promise<unknown>;
+    /**
+     * @public
+     * @method getEmailTemplatesByCompanyId
+     * @since 2.28.2
+     * @instance
+     * @async
+     * @category Companies Customization Emails
+     * @param {string} companyId Company unique identifier
+     * @param {string} templateName Allows to get only one template by its name.
+     * @param {string} format Allows to retrieve more or less feature details in response.
+     * - small: templateName isActive
+     * - medium: templateName companyId isActive
+     * - full: all template fields (except id)
+     *
+     * </br> Default value : small, Possibles values : small, medium, full
+     * @description
+     *    This API allows to get all available email templates for a given company.
+     *
+     * </br> Users with superadmin role can get all available email templates of any company.
+     * </br> Users with bp_admin role can only get email templates for a company they manage (i.e. End Customer company for which bp_admin's company if the BP company).
+     * </br> Users with organization_admin role can only get email templates for a company they manage (i.e. company linked to organization_admin's organization).
+     * </br> Users with company_admin users can only get all available email templates of their own company.
+     *
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | - | Object | - |
+     * | templateName | string | The name of the template |
+     * | companyId | string | The companyId for which the template is dedicated. |
+     * | isActive | Boolean | When true the custom email template is used instead of Rainbow template |
+     * | tested | Boolean | When the rendering API is used to check the custom email rendering, this boolean is set to true. Any change about template content will reset the flag. |
+     * | subject | string | The email subject content. |
+     * | mjmlFormat | string | The email content in MJML markup language.  <br>MJML is a markup language designed to reduce the pain of coding a responsive email. Refer to https://mjml.io/documentation/#mjml-guides |
+     * | textFormat | string | The email content in text format. |
+     *
+     *  </br>example of result :
+     *  ```json
+     *   [{
+     *      "companyId": "598857f360c749e5890ff2f9",
+     *      "templateName": "enduser_account_terminated",
+     *      "isActive": false,
+     *      "tested": false,
+     *      "mjmlFormat": "<mjml>\n\t<mj-body>\n\t\t<mj-section background-color=\"#f0f0f0\">\n\t\t\t<mj-column>\n\t\t\t\t<mj-text  font-style=\"italic\" font-size=\"20px\" color=\"#626262\">My Company<br><a href={{publicWebsiteURL }}>{{ __({phrase: \"about My Company\", locale: locale}) }}</a>\n\t\t\t\t</mj-text>\n\t\t\t</mj-column>\n\t\t</mj-section>\n\t</mj-body>\n</mjml>",
+     *      "subject": "{{ __({phrase: \"{{enduser_displayname}} has invited you to Alcatel-Lucent Rainbow\", locale: locale}, {enduser_displayname: enduser_displayname}) | safe }}",
+     *      "textFormat": "{{ __({phrase: \"You have been invited to Rainbow by {{enduser_displayname}} from {{enduser_companyName}}.\", locale: locale}, {enduser_displayname: enduser_displayname, enduser_companyName: enduser_companyName}) }}\n\n{% if custom_message %}\n    {{ custom_message }}\n{% endif %}\n\n{{ __({phrase: \"Start the discussion\", locale: locale}) }}:\n{{ invitationURL }}"
+     *  }]
+     * ```
+     * </br>
+     */
+    getEmailTemplatesByCompanyId(companyId: string, templateName: string, format?: string): Promise<unknown>;
+    /**
+     * @public
+     * @method deleteEmailTemplate
+     * @since 2.28.3
+     * @instance
+     * @async
+     * @category Companies Customization Emails
+     * @param {string} companyId Company unique identifier
+     * @param {string} templateName One of the email template allowed to be customized. **For the entire list of allowed template names, use getEmailTemplatesDocumentation(format=small)**
+     *
+     * * `enduser_invite_somebody`: User can be searched by external users / can search external users. User can invite external users / can be invited by external users
+     *
+     * Possibles values : `admin_cancel_invite_user_join_company`, `admin_invite_user_join_company`, `admin_invite_user_join_company_as_admin`, `admin_invite_user_register_and_join_company`,
+     * </br> `admin_invite_user_register_and_join_company_as_admin`, `admin_request_company_visibility`, `bp_admin_invite_ec_admin_link_his_company_to_bp`, `ec_admin_request_bp_admin_link_his_company_to_bp`,
+     * </br> `bp_admin_invite_ec_admin_link_his_company_to_bp_as_bp_ir`, `ec_admin_request_bp_admin_link_his_company_to_bp_as_bp_ir`, `enduser_account_creation_completed`, `enduser_account_terminated`,
+     * </br> `enduser_account_terminated_by_himself`, `enduser_conversation_download`, `enduser_invite_somebody`, `enduser_chat_room_invite_guest`, `enduser_conference_invite_somebody`,
+     * </br> `enduser_scheduled_conference_cancel_invite`, `enduser_scheduled_conference_invite_somebody`, `enduser_scheduled_conference_ical`, `enduser_scheduled_conference_cancel_ical`,
+     * </br> `enduser_request_join_company`, `enduser_request_user_visibility`, `enduser_temporary_token_reset_password`, `enduser_temporary_token_self_register`, `enduser_offline_im_invite`,
+     * </br> `enduser_guest_account_time_to_live`, `enduser_oauth_authentication_notification`
+     * @description
+     *  This API allows to delete an email template for a given company. An error occurs when the template name is not yet allowed or when it is not found for this company.
+     *
+     * </br> Users with superadmin role can delete all available email templates of any company.
+     * </br> Users with bp_admin role can only delete email templates for a company they manage (i.e. End Customer company for which bp_admin's company if the BP company).
+     * </br> Users with organization_admin role can only delete email templates for a company they manage (i.e. company linked to organization_admin's organization).
+     * </br> Users with company_admin users can only delete all available email templates of their own company.
+     *
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | status | string | Delete operation status message. |
+     *
+     *  </br>example of result :
+     *  ```json
+     *  {
+     *   "status":"Email Template enduser_invite_somebody of company 5734a186070f38215854b61f successfully deleted",
+     *   "data":[]
+     *  }
+     * ```
+     * </br>
+     */
+    deleteEmailTemplate(companyId: string, templateName: string): Promise<unknown>;
+    /**
+     * @public
+     * @method deleteAvailableEmailTemplatesBycompanyId
+     * @since 2.28.3
+     * @instance
+     * @async
+     * @category Companies Customization Emails
+     * @param {string} companyId Company unique identifier
+     * @param {string} templateName One of the email template allowed to be customized. **For the entire list of allowed template names, use getEmailTemplatesDocumentation(format=small)**
+     *
+     * * `enduser_invite_somebody`: User can be searched by external users / can search external users. User can invite external users / can be invited by external users
+     *
+     * Possibles values : `admin_cancel_invite_user_join_company`, `admin_invite_user_join_company`, `admin_invite_user_join_company_as_admin`, `admin_invite_user_register_and_join_company`,
+     * </br> `admin_invite_user_register_and_join_company_as_admin`, `admin_request_company_visibility`, `bp_admin_invite_ec_admin_link_his_company_to_bp`, `ec_admin_request_bp_admin_link_his_company_to_bp`,
+     * </br> `bp_admin_invite_ec_admin_link_his_company_to_bp_as_bp_ir`, `ec_admin_request_bp_admin_link_his_company_to_bp_as_bp_ir`, `enduser_account_creation_completed`, `enduser_account_terminated`,
+     * </br> `enduser_account_terminated_by_himself`, `enduser_conversation_download`, `enduser_invite_somebody`, `enduser_chat_room_invite_guest`, `enduser_conference_invite_somebody`,
+     * </br> `enduser_scheduled_conference_cancel_invite`, `enduser_scheduled_conference_invite_somebody`, `enduser_scheduled_conference_ical`, `enduser_scheduled_conference_cancel_ical`,
+     * </br> `enduser_request_join_company`, `enduser_request_user_visibility`, `enduser_temporary_token_reset_password`, `enduser_temporary_token_self_register`, `enduser_offline_im_invite`,
+     * </br> `enduser_guest_account_time_to_live`, `enduser_oauth_authentication_notification`
+     * @description
+     *  This API allows to delete all available email templates for a given company.
+     *
+     * </br> Users with superadmin role can delete all available email templates of any company.
+     * </br> Users with bp_admin role can only delete email templates for a company they manage (i.e. End Customer company for which bp_admin's company if the BP company).
+     * </br> Users with organization_admin role can only delete email templates for a company they manage (i.e. company linked to organization_admin's organization).
+     * </br> Users with company_admin users can only delete all available email templates of their own company.
+     *
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | status | string | Delete operation status message. |
+     *
+     *  </br>example of result :
+     *  ```json
+     *  {
+     *   "status":"Email Templates of company 5734a186070f38215854b61f successfully deleted",
+     *   "data":[]
+     *  }
+     * ```
+     * </br>
+     */
+    deleteAvailableEmailTemplatesBycompanyId(companyId: string, templateName: string): Promise<unknown>;
+    /**
+     * @public
+     * @method testEmailTemplateRendering
+     * @since 2.28.3
+     * @instance
+     * @async
+     * @category Companies Customization Emails
+     * @param {string} companyId Company unique identifier
+     * @param {any} body object of the template :
+     * <div style="text-align : left">
+     * </br> {
+     * </br>   // A valid mail address.
+     * </br>   // Default value : loginEmail
+     * </br>   emailTo?: string,
+     *
+     * </br>   // A list of key/value . Data required by the template for rendering (depends of the template)
+     * </br>   inputs: object,
+     *
+     * </br>   // User language
+     * </br>   // Language format is composed of locale using format ISO 639-1, with optionally the regional variation using ISO 3166‑1 alpha-2 (separated by hyphen).
+     * </br>   // Locale part is in lowercase, regional part is in uppercase. Examples: en, en-US, fr, fr-FR, fr-CA, es-ES, es-MX, ...
+     * </br>   // More information about the format can be found on this link: https://en.wikipedia.org/wiki/Language_localisation#Language_tags_and_codes
+     * </br>   // Default value : en
+     * </br>   // Possibles values: /^([a-z]{2})(?:(?:(-)[A-Z]{2}))?$/
+     * </br>   language?: string,
+     *
+     * </br>   // One of the email template allowed to be customized.
+     * </br>   // For the entire list of allowed template names, use getEmailTemplatesDocumentation(format=small)
+     * </br>   // Possibles values :
+     * </br>   // admin_cancel_invite_user_join_company
+     * </br>   // admin_invite_user_join_company
+     * </br>   // admin_invite_user_join_company_as_admin
+     * </br>   // admin_invite_user_register_and_join_company
+     * </br>   // admin_invite_user_register_and_join_company_as_admin
+     * </br>   // admin_request_company_visibility
+     * </br>   // bp_admin_invite_ec_admin_link_his_company_to_bp
+     * </br>   // ec_admin_request_bp_admin_link_his_company_to_bp
+     * </br>   // bp_admin_invite_ec_admin_link_his_company_to_bp_as_bp_ir
+     * </br>   // ec_admin_request_bp_admin_link_his_company_to_bp_as_bp_ir
+     * </br>   // enduser_account_creation_completed
+     * </br>   // enduser_account_terminated
+     * </br>   // enduser_account_terminated_by_himself
+     * </br>   // enduser_conversation_download
+     * </br>   // enduser_invite_somebody
+     * </br>   // enduser_chat_room_invite_guest
+     * </br>   // enduser_conference_invite_somebody
+     * </br>   // enduser_scheduled_conference_cancel_invite
+     * </br>   // enduser_scheduled_conference_invite_somebody
+     * </br>   // enduser_scheduled_conference_ical
+     * </br>   // enduser_scheduled_conference_cancel_ical
+     * </br>   // enduser_request_join_company
+     * </br>   // enduser_request_user_visibility
+     * </br>   // enduser_temporary_token_reset_password
+     * </br>   // enduser_temporary_token_self_register
+     * </br>   // enduser_offline_im_invite
+     * </br>   // enduser_guest_account_time_to_live
+     * </br>   // enduser_oauth_authentication_notification
+     * </br>   templateName: string
+     * </br> }
+     * </div>
+     * @description
+     *  This API allows to check the rendering of a given email template. When a template is rendered with success (we look for Nunjucks issues), the flag 'tested' is set.
+     * tested flag is a prerequisite to be allowed to activate the template.
+     *
+     * </br> Users with superadmin role can get all available email templates of any company.
+     * </br> Users with bp_admin role can only get email templates for a company they manage (i.e. End Customer company for which bp_admin's company if the BP company).
+     * </br> Users with organization_admin role can only get email templates for a company they manage (i.e. company linked to organization_admin's organization).
+     * </br> Users with company_admin users can only get all available email templates of their own company.
+     * An specific error (500001 - Impossible to render the custom email template [templateName]. (detail : [err]) is thrown when there is some Nunjuck issue
+     *
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | status | string | operation status message. |
+     *
+     *  </br>example of result :
+     *  ```json
+     *  {
+     *  "status":"Email Template enduser_invite_somebody of company 5734a186070f38215854b61f successfully sent",
+     *  "data":[]
+     * }
+     * ```
+     * </br>
+     */
+    testEmailTemplateRendering(companyId: string, body: any): Promise<any>;
+    /**
+     * @public
+     * @method activateEmailTemplate
+     * @since 2.28.3
+     * @instance
+     * @async
+     * @category Companies Customization Emails
+     * @param {string} companyId Company unique identifier
+     * @param {string} templateName One of the email template allowed to be customized. For the entire list of allowed template names, use GET /api/rainbow/admin/v1.0/companies/customizations/emails?format=small
+     * <div style="text-align : left">
+     * </br>   Possibles values : admin_cancel_invite_user_join_company, admin_invite_user_join_company,
+     * </br>   admin_invite_user_join_company_as_admin, admin_invite_user_register_and_join_company,
+     * </br>   admin_invite_user_register_and_join_company_as_admin, admin_request_company_visibility,
+     * </br>   bp_admin_invite_ec_admin_link_his_company_to_bp, ec_admin_request_bp_admin_link_his_company_to_bp,
+     * </br>   bp_admin_invite_ec_admin_link_his_company_to_bp_as_bp_ir, ec_admin_request_bp_admin_link_his_company_to_bp_as_bp_ir,
+     * </br>   enduser_account_creation_completed, enduser_account_terminated, enduser_account_terminated_by_himself,
+     * </br>   enduser_conversation_download, enduser_invite_somebody, enduser_chat_room_invite_guest, enduser_conference_invite_somebody,
+     * </br>   enduser_scheduled_conference_cancel_invite, enduser_scheduled_conference_invite_somebody, enduser_scheduled_conference_ical,
+     * </br>   enduser_scheduled_conference_cancel_ical, enduser_request_join_company, enduser_request_user_visibility,
+     * </br>   enduser_temporary_token_reset_password, enduser_temporary_token_self_register, enduser_offline_im_invite,
+     * </br>   enduser_guest_account_time_to_live, enduser_oauth_authentication_notification
+     * </div>
+     * @description
+     * This API allows to activate an email template for a given company. An error occurs when the template name is not yet allowed or when it is not found for this company.
+     * As tested flag is a prerequisite to be allowed to activate the template, an error detail 409012 can be raised.
+     * Users with superadmin role can manage all available email templates of any company.
+     * Users with bp_admin role can only handle email templates for a company they manage (i.e. End Customer company for which bp_admin's company if the BP company).
+     * Users with organization_admin role can only handle email templates for a company they manage (i.e. company linked to organization_admin's organization).
+     * Users with company_admin users can only handle all available email templates of their own company.
+     *
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | status | string | operation status message. |
+     *
+     *  </br>example of result :
+     *  ```json
+     * {
+     *  "data": {
+     *    "companyId": "598857f360c749e5890ff2f9",
+     *    "templateName": "enduser_conversation_download",
+     *    "isActive": true,
+     *    "mjmlFormat": "<mjml>\n  <mj-body>\n    <mj-section>\n      <mj-column>\n        <mj-text font-size=\"20px\" align=\"left\" color=\"#000\">\n          {{ __({phrase: \"Please find attached messages exchanged in your conversation.\", locale: locale}) }}\n          <br/><br/> {{ __({phrase: \"Learn more\", locale: locale}) }} {{ __({phrase: \"about Rainbow\", locale: locale}) }}  \n        </mj-text>\n        <mj-text font-size=\"10px\" align=\"left\" color=\"#000\">\n          Copyright © 2018 Alcatel-Lucent Enterprise\n        </mj-text>\n      </mj-column>\n    </mj-section>\n  </mj-body>\n</mjml>",
+     *    "subject": "{{ __({phrase: \"Conversation with {{userOrRoomDisplayName}}\", locale: locale}, {userOrRoomDisplayName: userOrRoomDisplayName}) | safe }}",
+     *    "textFormat": "{{ __({phrase: \"Please find attached messages exchanged in your conversation.\", locale: locale}) }}\n\n{{ __({phrase: \"Learn more\", locale: locale}) }} {{ __({phrase: \"about Rainbow\", locale: locale}) }}:\n{{ publicWebsiteURL }}\n\nCopyright © 2018 Alcatel-Lucent Enterprise",
+     *    "tested": true
+     *  }
+     * }
+     * ```
+     * </br>
+     */
+    activateEmailTemplate(companyId: string, templateName: string): Promise<unknown>;
+    /**
+     * @public
+     * @method deactivateEmailTemplate
+     * @since 2.28.3
+     * @instance
+     * @async
+     * @category Companies Customization Emails
+     * @param {string} companyId Company unique identifier
+     * @param {string} templateName One of the email template allowed to be customized. For the entire list of allowed template names, use GET /api/rainbow/admin/v1.0/companies/customizations/emails?format=small
+     * <div style="text-align : left">
+     * </br>   Possibles values : admin_cancel_invite_user_join_company, admin_invite_user_join_company,
+     * </br>   admin_invite_user_join_company_as_admin, admin_invite_user_register_and_join_company,
+     * </br>   admin_invite_user_register_and_join_company_as_admin, admin_request_company_visibility,
+     * </br>   bp_admin_invite_ec_admin_link_his_company_to_bp, ec_admin_request_bp_admin_link_his_company_to_bp,
+     * </br>   bp_admin_invite_ec_admin_link_his_company_to_bp_as_bp_ir, ec_admin_request_bp_admin_link_his_company_to_bp_as_bp_ir,
+     * </br>   enduser_account_creation_completed, enduser_account_terminated, enduser_account_terminated_by_himself,
+     * </br>   enduser_conversation_download, enduser_invite_somebody, enduser_chat_room_invite_guest, enduser_conference_invite_somebody,
+     * </br>   enduser_scheduled_conference_cancel_invite, enduser_scheduled_conference_invite_somebody, enduser_scheduled_conference_ical,
+     * </br>   enduser_scheduled_conference_cancel_ical, enduser_request_join_company, enduser_request_user_visibility,
+     * </br>   enduser_temporary_token_reset_password, enduser_temporary_token_self_register, enduser_offline_im_invite,
+     * </br>   enduser_guest_account_time_to_live, enduser_oauth_authentication_notification
+     * </div>
+     * @description
+     * This API allows to desactivate an email template for a given company. An error occurs when the template name is not yet allowed or when it is not found for this company.
+     * As tested flag is a prerequisite to be allowed to activate the template, an error detail 409012 can be raised.
+     * Users with superadmin role can manage all available email templates of any company.
+     * Users with bp_admin role can only handle email templates for a company they manage (i.e. End Customer company for which bp_admin's company if the BP company).
+     * Users with organization_admin role can only handle email templates for a company they manage (i.e. company linked to organization_admin's organization).
+     * Users with company_admin users can only handle all available email templates of their own company.
+     *
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | status | string | operation status message. |
+     *
+     *  </br>example of result :
+     *  ```json
+     * {
+     *  "data": {
+     *    "companyId": "598857f360c749e5890ff2f9",
+     *    "templateName": "enduser_conversation_download",
+     *    "isActive": true,
+     *    "mjmlFormat": "<mjml>\n  <mj-body>\n    <mj-section>\n      <mj-column>\n        <mj-text font-size=\"20px\" align=\"left\" color=\"#000\">\n          {{ __({phrase: \"Please find attached messages exchanged in your conversation.\", locale: locale}) }}\n          <br/><br/> {{ __({phrase: \"Learn more\", locale: locale}) }} {{ __({phrase: \"about Rainbow\", locale: locale}) }}  \n        </mj-text>\n        <mj-text font-size=\"10px\" align=\"left\" color=\"#000\">\n          Copyright © 2018 Alcatel-Lucent Enterprise\n        </mj-text>\n      </mj-column>\n    </mj-section>\n  </mj-body>\n</mjml>",
+     *    "subject": "{{ __({phrase: \"Conversation with {{userOrRoomDisplayName}}\", locale: locale}, {userOrRoomDisplayName: userOrRoomDisplayName}) | safe }}",
+     *    "textFormat": "{{ __({phrase: \"Please find attached messages exchanged in your conversation.\", locale: locale}) }}\n\n{{ __({phrase: \"Learn more\", locale: locale}) }} {{ __({phrase: \"about Rainbow\", locale: locale}) }}:\n{{ publicWebsiteURL }}\n\nCopyright © 2018 Alcatel-Lucent Enterprise",
+     *    "tested": true
+     *  }
+     * }
+     * ```
+     * </br>
+     */
+    deactivateEmailTemplate(companyId: string, templateName: string): Promise<unknown>;
     /**
      * @public
      * @nodered true
@@ -10797,8 +12635,8 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      * | Champ | Type | Description |
      * | --- | --- | --- |
      * | data | Object | * check results summary |
-     * | reqId | String | * check request identifier |
-     * | mode | String | * request csv mode</BR></BR>Possible values : `user`, `device` |
+     * | reqId | string | * check request identifier |
+     * | mode | string | * request csv mode</BR></BR>Possible values : `user`, `device` |
      * | actions | Object | * actions information |
      * | add optionnel | Number | * number of user add actions |
      * | update optionnel | Number | * number of user update actions |
@@ -10807,9 +12645,9 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      * | force_attach optionnel | Number | * number of device forced pairing actions |
      * | columns | Number | * number of columns in the CSV |
      * | detach optionnel | Number | * number of device unpairing actions |
-     * | delimiter | String | * the CSV delimiter |
+     * | delimiter | string | * the CSV delimiter |
      * | profiles | Object | * the managed profiles |
-     * | name | String | * the managed profiles name |
+     * | name | string | * the managed profiles name |
      * | valid | Boolean | * the managed profiles validity |
      * | assignedBefore | Number | * the assigned number of managed profiles before this import |
      * | assignedAfter | Number | * the assigned number of managed profiles after this import has been fulfilled |
@@ -10834,8 +12672,8 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      * | Champ | Type | Description |
      * | --- | --- | --- |
      * | data | Object | * delete status |
-     * | reqId | String | * deleted reqId |
-     * | status | String | * delete status |
+     * | reqId | string | * deleted reqId |
+     * | status | string | * delete status |
      *
      */
     deleteAnImportStatusReport(reqId?: string): Promise<any>;
@@ -10861,29 +12699,29 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      * | Champ | Type | Description |
      * | --- | --- | --- |
      * | data | Object | * import report |
-     * | reqId | String | * import request identifier |
-     * | mode | String | * provisioning mode</BR></BR>Possible values : `user`, `device`, `rainbowvoice` |
-     * | status | String | * request status |
+     * | reqId | string | * import request identifier |
+     * | mode | string | * provisioning mode</BR></BR>Possible values : `user`, `device`, `rainbowvoice` |
+     * | status | string | * request status |
      * | report | Object | * request report |
-     * | status | String | * action status |
-     * | action | String | * the fulfilled action |
-     * | userId | String | * Rainbow user Id |
-     * | failingLines | String\[\] | * CSV lines that failed |
-     * | line optionnel | String | * associated CSV line in an error case |
+     * | status | string | * action status |
+     * | action | string | * the fulfilled action |
+     * | userId | string | * Rainbow user Id |
+     * | failingLines | string\[\] | * CSV lines that failed |
+     * | line optionnel | string | * associated CSV line in an error case |
      * | counters | Object | * request counters |
      * | succeeded | Integer | * '#' of succeeded action |
      * | failed | Integer | * '#' of failed action |
-     * | label | String | * description of the import |
+     * | label | string | * description of the import |
      * | total | Integer | * total '#' of actions |
-     * | userId | String | * id of the requesting user |
-     * | displayName | String | * the requesting user displayname |
-     * | companyId | String | * the default company Id |
-     * | startTime | String | * the import processing start time |
+     * | userId | string | * id of the requesting user |
+     * | displayName | string | * the requesting user displayname |
+     * | companyId | string | * the default company Id |
+     * | startTime | string | * the import processing start time |
      * | profiles | Object | * provides info about licences used |
      * | subscriberReport optionnel | Object | * provides details about subscriber action (attach, update or detach action) - only in case of rainbowvoice mode |
      * | sipDeviceReport optionnel | Object | * provides details about sip Device action (attach or detach action) - only in case of rainbowvoice mode |
      * | ddiReport optionnel | Object | * provides details about ddi action (attach or detach action) - only in case of rainbowvoice mode |
-     * | endTime | String | * the import processing end time |
+     * | endTime | string | * the import processing end time |
      *
      */
     getAnImportStatusReport(reqId?: string, format?: string): Promise<any>;
@@ -10909,13 +12747,13 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      * | Champ | Type | Description |
      * | --- | --- | --- |
      * | data | Object |     |
-     * | state | String | Import state</BR></BR>Possible values : `"Initializing"`, `"Creating"`, `"Completed successfully"`, `"Completed with failure"` |
-     * | companyId | String | Id of the company of the directory |
-     * | userId | String | Id of the requesting user |
-     * | displayName | String | Display name of the requesting user |
-     * | label | String | Description of the import |
-     * | csvHeaders | String | CSV header line (Fields names) |
-     * | startTime | String | Import processing start time |
+     * | state | string | Import state</BR></BR>Possible values : `"Initializing"`, `"Creating"`, `"Completed successfully"`, `"Completed with failure"` |
+     * | companyId | string | Id of the company of the directory |
+     * | userId | string | Id of the requesting user |
+     * | displayName | string | Display name of the requesting user |
+     * | label | string | Description of the import |
+     * | csvHeaders | string | CSV header line (Fields names) |
+     * | startTime | string | Import processing start time |
      * | created | Integer | Count of created entries |
      * | failed | Integer | Count of failed entries |
      *
@@ -10937,14 +12775,14 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      *
      * | Champ | Type | Description |
      * | --- | --- | --- |
-     * | reqId | String | * import request identifier |
-     * | status | String | * import status |
-     * | userId | String | * id of the requesting user |
-     * | displayName | String | * display name of the requesting user |
-     * | mode | String | * provisioning mode</BR></BR>Possible values : `user`, `device`, `rainbowvoice` |
-     * | label | String | * description of the import |
-     * | startTime | String | * the import processing start time |
-     * | endTime | String | * the import processing end time |
+     * | reqId | string | * import request identifier |
+     * | status | string | * import status |
+     * | userId | string | * id of the requesting user |
+     * | displayName | string | * display name of the requesting user |
+     * | mode | string | * provisioning mode</BR></BR>Possible values : `user`, `device`, `rainbowvoice` |
+     * | label | string | * description of the import |
+     * | startTime | string | * the import processing start time |
+     * | endTime | string | * the import processing end time |
      * | counters | Object | * the import processing operation status counters |
      * | data | Object\[\] | * list of company imports |
      * | succeeded | Integer | * '#' of succeeded actions |
@@ -10977,7 +12815,7 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      *
      * | Champ | Type | Description |
      * | --- | --- | --- |
-     * | status optionnel | String | Asynchronous operation status</BR></BR>Possible values : `pending` |
+     * | status optionnel | string | Asynchronous operation status</BR></BR>Possible values : `pending` |
      * | data optionnel | Object | synchronization data |
      *
      */
@@ -11008,13 +12846,13 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      * | Champ | Type | Description |
      * | --- | --- | --- |
      * | data | Object | * import summary |
-     * | reqId | String | * import request identifier |
-     * | mode | String | * provisioning mode</BR></BR>Possible values : `user`, `device` |
-     * | status | String | * Current import state, should be 'Pending' |
-     * | userId | String | * id of the requesting user |
-     * | displayName | String | * display name of the requesting user |
-     * | label | String | * description of the import |
-     * | startTime | String | * the import processing start time |
+     * | reqId | string | * import request identifier |
+     * | mode | string | * provisioning mode</BR></BR>Possible values : `user`, `device` |
+     * | status | string | * Current import state, should be 'Pending' |
+     * | userId | string | * id of the requesting user |
+     * | displayName | string | * display name of the requesting user |
+     * | label | string | * description of the import |
+     * | startTime | string | * the import processing start time |
      *
      */
     importCSVData(data?: any, companyId?: string, label?: string, noemails?: boolean, nostrict?: boolean, delimiter?: string, comment?: string): Promise<any>;
@@ -11034,7 +12872,7 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      *
      * | Champ | Type | Description |
      * | --- | --- | --- |
-     * | status | String | Asynchronous operation status</BR></BR>Possible values : `pending` |
+     * | status | string | Asynchronous operation status</BR></BR>Possible values : `pending` |
      *
      */
     startsAsynchronousGenerationOfOffice365TenantUserListSynchronization(tenant?: string): Promise<any>;
@@ -11060,7 +12898,7 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      *
      * | Champ | Type | Description |
      * | --- | --- | --- |
-     * | data | String | synchronization data. |
+     * | data | string | synchronization data. |
      *
      */
     synchronizeOffice365TenantUserList(tenant?: string, format?: string): Promise<any>;
@@ -11084,16 +12922,16 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      * | Champ | Type | Description |
      * | --- | --- | --- |
      * | data | Object | * check results summary |
-     * | reqId | String | * check request identifier |
-     * | mode | String | * request csv mode</BR></BR>Possible values : `rainbowvoide` |
+     * | reqId | string | * check request identifier |
+     * | mode | string | * request csv mode</BR></BR>Possible values : `rainbowvoide` |
      * | actions | Object | * actions information |
      * | upsert optionnel | Number | * number of user create/update actions |
      * | delete optionnel | Number | * number of user remove actions |
      * | columns | Number | * number of columns in the CSV |
      * | detach optionnel | Number | * number of device unpairing actions |
-     * | delimiter | String | * the CSV delimiter |
+     * | delimiter | string | * the CSV delimiter |
      * | profiles | Object | * the managed profiles |
-     * | name | String | * the managed profiles name |
+     * | name | string | * the managed profiles name |
      * | valid | Boolean | * the managed profiles validity |
      * | assignedBefore | Number | * the assigned number of managed profiles before this import |
      * | assignedAfter | Number | * the assigned number of managed profiles after this import has been fulfilled |
@@ -11284,18 +13122,18 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      * | Champ | Type | Description |
      * | --- | --- | --- |
      * | report | Object | * check results summary |
-     * | status | String | * status of the check csv</BR></BR>Possible values : `success`, `failure`, `pending` |
-     * | reqId | String | * check request identifier |
-     * | mode | String | * request csv mode</BR></BR>Possible values : `user`, `device` |
+     * | status | string | * status of the check csv</BR></BR>Possible values : `success`, `failure`, `pending` |
+     * | reqId | string | * check request identifier |
+     * | mode | string | * request csv mode</BR></BR>Possible values : `user`, `device` |
      * | actions | Object | * actions information |
      * | sync optionnel | Number | * number of user synchronization actions |
      * | upsert optionnel | Number | * number of user create/update actions |
      * | delete optionnel | Number | * number of user remove actions |
      * | columns | Number | * number of columns in the CSV |
      * | detach optionnel | Number | * number of device unpairing actions |
-     * | delimiter | String | * the CSV delimiter |
+     * | delimiter | string | * the CSV delimiter |
      * | profiles | Object | * the managed profiles |
-     * | name | String | * the managed profiles name |
+     * | name | string | * the managed profiles name |
      * | valid | Boolean | * the managed profiles validity |
      * | assignedBefore | Number | * the assigned number of managed profiles before this import |
      * | assignedAfter | Number | * the assigned number of managed profiles after this import has been fulfilled |
@@ -11898,8 +13736,8 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      * | Champ | Type | Description |
      * | --- | --- | --- |
      * | data | Object | response Object. |
-     * | status | String | Command operation status message. |
-     * | commandId optionnel | String | Command identifier to retrieve the report (only for "manual\_dry\_run" command). |
+     * | status | string | Command operation status message. |
+     * | commandId optionnel | string | Command identifier to retrieve the report (only for "manual\_dry\_run" command). |
      *
      */
     sendCommandToLdapConnectorUser(ldapId: string, command: string): Promise<any>;
@@ -11941,25 +13779,25 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      * | Champ | Type | Description |
      * | --- | --- | --- |
      * | data | Object | Config Object. |
-     * | id  | String | Config unique identifier. |
-     * | type | String | Config type |
-     * | companyId | String | Allows to specify for which company the connectors configuration is done.. |
+     * | id  | string | Config unique identifier. |
+     * | type | string | Config type |
+     * | companyId | string | Allows to specify for which company the connectors configuration is done.. |
      * | settings | Object | config settings |
      * | massproFromLdap | Object | list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal. |
-     * | headerName | String | headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap. |
+     * | headerName | string | headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap. |
      * | company | Object | specific settings for the company. Each key represent a setting. |
-     * | login | String | login for the ldap server. |
-     * | password | String | password for the ldap server. |
+     * | login | string | login for the ldap server. |
+     * | password | string | password for the ldap server. |
      * | synchronizationTimeInterval | Number | time interval between synchronization in hours. |
-     * | url | String | url of the ldap server. |
-     * | baseDN | String | base DN for the ldap server. |
+     * | url | string | url of the ldap server. |
+     * | baseDN | string | base DN for the ldap server. |
      * | activeFlag | Boolean | defines if the synchronization is active, or not. |
      * | nextSynchronization | Date-Time | date (ISO 8601 format) which defines when the next synchronization will be performed. |
      * | enrollmentEmailEnable | Boolean | defines if an enrollment email is sent to new users |
      * | synchronisationDiffMode | Boolean | defines if synching only users changed since last sync date |
-     * | search_rule | String | filters to use when requesting the ldap server. |
+     * | search_rule | string | filters to use when requesting the ldap server. |
      * | lastSynchronization | Date-Time | date (ISO 8601 format) when the last synchronization was performed by the ldap connector (filled by the ldap connector). |
-     * | softwareVersion | String | software Version of the ldap connector (filled by the ldap connector). |
+     * | softwareVersion | string | software Version of the ldap connector (filled by the ldap connector). |
      *
      */
     createConfigurationForLdapConnector(companyId: string, settings: object, name: string, type?: string): Promise<any>;
@@ -12054,14 +13892,14 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      *         companyId        string Allows to specify for which company the connectors configuration is done.. </BR>
      *         settings         Object config settings </BR>
      *             massproFromLdap      Object list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal. </BR>
-     *                 default  String default field name in ldap. </BR>
+     *                 default  string default field name in ldap. </BR>
      *                 mandatory optionnel      Boolean specify if field is mandatory. </BR>
      *             company      Object specific settings for the company. Each key represent a setting. </BR>
      *                  headerName      Object headerName as specified in the csv templates for the massprovisioning portal. </BR>
      *                  settingName Object name of the setting. Each key represent a setting. As of now list of setting is "login", "password", "synchronizationTimeInterval", "url". This list can evolve. </BR>
-     *                  default optionnel       String   </BR>
+     *                  default optionnel       string   </BR>
      *                  default value of the setting.  </BR>
-     *                  mandatory optionnel     String specify if field is mandatory. </BR>
+     *                  mandatory optionnel     string specify if field is mandatory. </BR>
      *          } </BR>
      * @return {Promise<any>}
      */
@@ -12255,7 +14093,7 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      *
      * | Champ | Type | Description |
      * | --- | --- | --- |
-     * | status | String | Avatar upload status message. |
+     * | status | string | Avatar upload status message. |
      *
      */
     uploadLdapAvatar(binaryImgFile: any, contentType: string, ldapId?: string): Promise<any>;
@@ -12277,7 +14115,7 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      *
      * | Champ | Type | Description |
      * | --- | --- | --- |
-     * | status | String | Avatar upload status message. |
+     * | status | string | Avatar upload status message. |
      *
      */
     deleteLdapAvatar(ldapId?: string): Promise<any>;
@@ -12313,17 +14151,17 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      * | Champ | Type | Description |
      * | --- | --- | --- |
      * | data | Object\[\] | List of connector event stored. |
-     * | id  | String | Event unique identifier. |
-     * | userId | String | User associated to the connector unique identifier. |
-     * | eventId | String | Event identifier in the connector scope |
-     * | level | String | Event level<br><br>Possibles values : `ERROR`, `WARN`, `INFO` |
-     * | category | String | Event category |
-     * | operation | String | Event operation |
-     * | description | String | Event description |
+     * | id  | string | Event unique identifier. |
+     * | userId | string | User associated to the connector unique identifier. |
+     * | eventId | string | Event identifier in the connector scope |
+     * | level | string | Event level<br><br>Possibles values : `ERROR`, `WARN`, `INFO` |
+     * | category | string | Event category |
+     * | operation | string | Event operation |
+     * | description | string | Event description |
      * | deleted | Boolean | Indicate if the event is considered as deleted |
      * | date | Date-Time | Date of event |
-     * | companyId optionnel | String | Company linked to the connector. |
-     * | systemId optionnel | String | System linked to the connector. |
+     * | companyId optionnel | string | Company linked to the connector. |
+     * | systemId optionnel | string | System linked to the connector. |
      *
      */
     createListOfEventsForConnector(events: Array<{
@@ -13104,12 +14942,12 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      * @param {string} country System country (ISO 3166-1 alpha3 format).
      * @param {string} version CCA software version
      * @param {number} serverPingTimeout CCA config data. Default value : 120
-     * @param {Array<string>} pbxMainBundlePrefix CCA config data: array of String
+     * @param {Array<string>} pbxMainBundlePrefix CCA config data: array of string
      * @param {boolean} usePbxMainBundlePrefix Whether or not pbxMainBundlePrefix is used by PCG
      * @param {Array<Object>} pbxNumberingTranslator List of several regular expressions used to validate internal or external phone numbers. Up to 100 regular expressions are allowed. (64 max char by regexp). To reset the list, use [] </BR>
-     * {String} regexpMatch A valid regular expression used to select a translator action. \d is not supported! Use (0..9) instead. </BR>
-     * {String} regexpReplace A valid dialable number. </BR>
-     * {String} description A short description of the rule. </BR>
+     * {string} regexpMatch A valid regular expression used to select a translator action. \d is not supported! Use (0..9) instead. </BR>
+     * {string} regexpReplace A valid dialable number. </BR>
+     * {string} description A short description of the rule. </BR>
      * @param {string} pbxNationalPrefix National prefix
      * @param {string} pbxInternationalPrefix International prefix
      * @param {Array<string>} searchResultOrder List of directory types to order search results: </BR>
@@ -13151,37 +14989,37 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      *
      * | Champ | Type | Description |
      * | --- | --- | --- |
-     * | id  | String | System unique identifier |
-     * | name optionnel | String | System name/description |
-     * | pbxId | String | Call Control Agent (CCA) login. |
-     * | pbxLdapId optionnel | String | custom "pbxId" declared in an external DB (ldap), used to correlate to Rainbow pbxId. |
-     * | siteId optionnel | String\[\] | Site from which the system is linked with. |
+     * | id  | string | System unique identifier |
+     * | name optionnel | string | System name/description |
+     * | pbxId | string | Call Control Agent (CCA) login. |
+     * | pbxLdapId optionnel | string | custom "pbxId" declared in an external DB (ldap), used to correlate to Rainbow pbxId. |
+     * | siteId optionnel | string\[\] | Site from which the system is linked with. |
      * | type optionnel | string | CCA type</BR></BR>Possibles values : `oxo`, `oxe`, `third_party`, `undefined` |
-     * | country optionnel | String | System country (ISO 3166-1 alpha3 format) |
-     * | version | String | CCA software version |
-     * | jid_pbxagent optionnel | String | CCA Jabber Id |
-     * | jid\_pbxagent\_password optionnel | String | CCA Jabber Id access code. The value of this field is depending on status field.</BR></BR> * `created, activating`: This is the public access code. The code must be used by the CCA for the first connection.</BR> * `activated`: This is an Hash code of the private access code, reduced to the last eight digits |
-     * | jid_pbxpcg optionnel | String | PCG Jabber Id for this system |
-     * | jid\_pbxpcg\_password optionnel | String | PCG CCA Jabber Id password for this system |
-     * | status optionnel | String | CCA status report. (read only)</BR></BR> * `created`: CCA uses a public access code to join rainbow infrastructure (see jid\_pbxagent\_password field)</BR> * `activating`: Rainbow infrastructure has proposed a private access code to replace the former public access code</BR> * `activated`: CCA has accepted the new access code, that will be used for the next initialization.</BR></BR>Default value : `created`</BR></BR>Possibles values : `"created"`, `"activating"`, `"activated"` |
+     * | country optionnel | string | System country (ISO 3166-1 alpha3 format) |
+     * | version | string | CCA software version |
+     * | jid_pbxagent optionnel | string | CCA Jabber Id |
+     * | jid\_pbxagent\_password optionnel | string | CCA Jabber Id access code. The value of this field is depending on status field.</BR></BR> * `created, activating`: This is the public access code. The code must be used by the CCA for the first connection.</BR> * `activated`: This is an Hash code of the private access code, reduced to the last eight digits |
+     * | jid_pbxpcg optionnel | string | PCG Jabber Id for this system |
+     * | jid\_pbxpcg\_password optionnel | string | PCG CCA Jabber Id password for this system |
+     * | status optionnel | string | CCA status report. (read only)</BR></BR> * `created`: CCA uses a public access code to join rainbow infrastructure (see jid\_pbxagent\_password field)</BR> * `activating`: Rainbow infrastructure has proposed a private access code to replace the former public access code</BR> * `activated`: CCA has accepted the new access code, that will be used for the next initialization.</BR></BR>Default value : `created`</BR></BR>Possibles values : `"created"`, `"activating"`, `"activated"` |
      * | serverPingTimeout optionnel | Number | CCA config data |
-     * | pbxMainBundlePrefix optionnel | String\[\] | CCA config data |
+     * | pbxMainBundlePrefix optionnel | string\[\] | CCA config data |
      * | pbxNumberingTranslator optionnel | Object\[\] | List of several regular expressions used to validate internal or external phone numbers. Up to 100 regular expressions are allowed. (64 max char by regexp). To reset the list, use \[\] |
-     * | regexpMatch optionnel | String | A valid regular expression used to select a translator action. \\d is not supported! Use (0..9) instead. |
-     * | regexpReplace optionnel | String | A valid dialable number. |
-     * | description optionnel | String | A short description of the rule * @apiSuccess {Boolean} usePbxMainBundlePrefix Whether or not pbxMainBundlePrefix is used by PCG |
-     * | pbxNationalPrefix optionnel | String | National prefix |
-     * | pbxInternationalPrefix optionnel | String | International prefix |
+     * | regexpMatch optionnel | string | A valid regular expression used to select a translator action. \\d is not supported! Use (0..9) instead. |
+     * | regexpReplace optionnel | string | A valid dialable number. |
+     * | description optionnel | string | A short description of the rule * @apiSuccess {Boolean} usePbxMainBundlePrefix Whether or not pbxMainBundlePrefix is used by PCG |
+     * | pbxNationalPrefix optionnel | string | National prefix |
+     * | pbxInternationalPrefix optionnel | string | International prefix |
      * | creationDate | Date-Time | System creation date (Read only) |
      * | statusUpdatedDate optionnel | Date-Time | Date of last system status update (Read only) |
-     * | searchResultOrder optionnel | String\[\] | List of directory types to order search results:</BR></BR>* RAINBOW: phone numbers defined in Rainbow users</BR>* LDAP: phone numbers defined in directories according to the following priority order:</BR>    * personal directory of the user</BR>    * company directory (of the company(ies) to which the PBX is linked)</BR>    * office365 directory (of the company(ies) to which the PBX is linked)</BR></BR>Possibles values : `RAINBOW`, `LDAP`, `PBX` |
+     * | searchResultOrder optionnel | string\[\] | List of directory types to order search results:</BR></BR>* RAINBOW: phone numbers defined in Rainbow users</BR>* LDAP: phone numbers defined in directories according to the following priority order:</BR>    * personal directory of the user</BR>    * company directory (of the company(ies) to which the PBX is linked)</BR>    * office365 directory (of the company(ies) to which the PBX is linked)</BR></BR>Possibles values : `RAINBOW`, `LDAP`, `PBX` |
      * | hasMediaPillar optionnel | Boolean | Indicates a mediapillar exists or not for this system |
      * | isShared optionnel | Boolean | Indicates if the system is **multi-company** (shared across multiple companies) |
      * | isCentrex optionnel | Boolean | Indicates if the system is one tenant or **multi-tenant (OXE - OTEC-S or third_party)** |
      * | isOxoManaged optionnel | Boolean | Indicates if the system is an OXO managed |
-     * | bpId optionnel | String | Identifier which links the system to the corresponding Business partner company. Obligatory when a BP admin creates a isCentrex or isShared system not yet used by a company</BR></BR>Default value : `null` |
+     * | bpId optionnel | string | Identifier which links the system to the corresponding Business partner company. Obligatory when a BP admin creates a isCentrex or isShared system not yet used by a company</BR></BR>Default value : `null` |
      * | connectionHistory | Object\[\] | history of connections. |
-     * | eventType | String | Type of connection |
+     * | eventType | string | Type of connection |
      * | eventDate | Date-Time | Date of connection |
      *
      */
@@ -13213,7 +15051,7 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      *
      * | Champ | Type | Description |
      * | --- | --- | --- |
-     * | status | String | Delete operation status message. |
+     * | status | string | Delete operation status message. |
      *
      */
     deleteSystem(systemId: string): Promise<any>;
@@ -13248,14 +15086,14 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      *
      * | Champ | Type | Description |
      * | --- | --- | --- |
-     * | timestamp | String | Moment when the last update information was taken (Unix time format). |
-     * | connection | String | Connection established indicator (only shown with the format small). |
+     * | timestamp | string | Moment when the last update information was taken (Unix time format). |
+     * | connection | string | Connection established indicator (only shown with the format small). |
      * | conf | string | Configuration channel connection established indicator. |
-     * | csta | String | Telephony channel connection established indicator. |
-     * | http optionnel | String | Http channel connection established indicator. |
-     * | xmpp | String | Authentication channel connection established indicator (only shown with the format full). |
+     * | csta | string | Telephony channel connection established indicator. |
+     * | http optionnel | string | Http channel connection established indicator. |
+     * | xmpp | string | Authentication channel connection established indicator (only shown with the format full). |
      * | connectionHistory | Object\[\] | history of connections. |
-     * | eventType | String | Type of connection |
+     * | eventType | string | Type of connection |
      * | eventDate | Date-Time | Date of connection |
      *
      */
@@ -13284,39 +15122,39 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      *
      * | Champ | Type | Description |
      * | --- | --- | --- |
-     * | activatingTransactionId | String | CCA Jabber Id |
-     * | jid\_pbxagent\_password_activating | String | CCA Jabber Id access code. The value of this field is depending on status field. The value of this field is depending on 'status' field.  </BR>\- `activating`: This is a proposal of private access code sent to CCA and not yet acknowledged.  </BR>\- `created, activated`: Empty string |
-     * | id  | String | System unique identifier |
-     * | name optionnel | String | System name/description |
-     * | pbxId | String | Call Control Agent (CCA) login. |
-     * | pbxLdapId optionnel | String | custom "pbxId" declared in an external DB (ldap), used to correlate to Rainbow pbxId. |
-     * | siteId optionnel | String\[\] | Site from which the system is linked with. |
+     * | activatingTransactionId | string | CCA Jabber Id |
+     * | jid\_pbxagent\_password_activating | string | CCA Jabber Id access code. The value of this field is depending on status field. The value of this field is depending on 'status' field.  </BR>\- `activating`: This is a proposal of private access code sent to CCA and not yet acknowledged.  </BR>\- `created, activated`: Empty string |
+     * | id  | string | System unique identifier |
+     * | name optionnel | string | System name/description |
+     * | pbxId | string | Call Control Agent (CCA) login. |
+     * | pbxLdapId optionnel | string | custom "pbxId" declared in an external DB (ldap), used to correlate to Rainbow pbxId. |
+     * | siteId optionnel | string\[\] | Site from which the system is linked with. |
      * | type optionnel | string | CCA type</BR></BR>Possibles values : `oxo`, `oxe`, `third_party`, `undefined` |
-     * | country optionnel | String | System country (ISO 3166-1 alpha3 format) |
-     * | version | String | CCA software version |
-     * | jid_pbxagent optionnel | String | CCA Jabber Id |
-     * | jid\_pbxagent\_password optionnel | String | CCA Jabber Id access code. The value of this field is depending on status field.</BR></BR> * `created, activating`: This is the public access code. The code must be used by the CCA for the first connection.</BR> * `activated`: This is an Hash code of the private access code, reduced to the last eight digits |
-     * | jid_pbxpcg optionnel | String | PCG Jabber Id for this system |
-     * | jid\_pbxpcg\_password optionnel | String | PCG CCA Jabber Id password for this system |
-     * | status optionnel | String | CCA status report. (read only)</BR></BR> * `created`: CCA uses a public access code to join rainbow infrastructure (see jid\_pbxagent\_password field)</BR> * `activating`: Rainbow infrastructure has proposed a private access code to replace the former public access code</BR> * `activated`: CCA has accepted the new access code, that will be used for the next initialization.</BR></BR>Default value : `created`</BR></BR>Possibles values : `"created"`, `"activating"`, `"activated"` |
+     * | country optionnel | string | System country (ISO 3166-1 alpha3 format) |
+     * | version | string | CCA software version |
+     * | jid_pbxagent optionnel | string | CCA Jabber Id |
+     * | jid\_pbxagent\_password optionnel | string | CCA Jabber Id access code. The value of this field is depending on status field.</BR></BR> * `created, activating`: This is the public access code. The code must be used by the CCA for the first connection.</BR> * `activated`: This is an Hash code of the private access code, reduced to the last eight digits |
+     * | jid_pbxpcg optionnel | string | PCG Jabber Id for this system |
+     * | jid\_pbxpcg\_password optionnel | string | PCG CCA Jabber Id password for this system |
+     * | status optionnel | string | CCA status report. (read only)</BR></BR> * `created`: CCA uses a public access code to join rainbow infrastructure (see jid\_pbxagent\_password field)</BR> * `activating`: Rainbow infrastructure has proposed a private access code to replace the former public access code</BR> * `activated`: CCA has accepted the new access code, that will be used for the next initialization.</BR></BR>Default value : `created`</BR></BR>Possibles values : `"created"`, `"activating"`, `"activated"` |
      * | serverPingTimeout optionnel | Number | CCA config data |
-     * | pbxMainBundlePrefix optionnel | String\[\] | CCA config data |
+     * | pbxMainBundlePrefix optionnel | string\[\] | CCA config data |
      * | pbxNumberingTranslator optionnel | Object\[\] | List of several regular expressions used to validate internal or external phone numbers. Up to 100 regular expressions are allowed. (64 max char by regexp). To reset the list, use \[\] |
-     * | regexpMatch optionnel | String | A valid regular expression used to select a translator action. \\d is not supported! Use (0..9) instead. |
-     * | regexpReplace optionnel | String | A valid dialable number. |
-     * | description optionnel | String | A short description of the rule * @apiSuccess {Boolean} usePbxMainBundlePrefix Whether or not pbxMainBundlePrefix is used by PCG |
-     * | pbxNationalPrefix optionnel | String | National prefix |
-     * | pbxInternationalPrefix optionnel | String | International prefix |
+     * | regexpMatch optionnel | string | A valid regular expression used to select a translator action. \\d is not supported! Use (0..9) instead. |
+     * | regexpReplace optionnel | string | A valid dialable number. |
+     * | description optionnel | string | A short description of the rule * @apiSuccess {Boolean} usePbxMainBundlePrefix Whether or not pbxMainBundlePrefix is used by PCG |
+     * | pbxNationalPrefix optionnel | string | National prefix |
+     * | pbxInternationalPrefix optionnel | string | International prefix |
      * | creationDate | Date-Time | System creation date (Read only) |
      * | statusUpdatedDate optionnel | Date-Time | Date of last system status update (Read only) |
-     * | searchResultOrder optionnel | String\[\] | List of directory types to order search results:</BR></BR>* RAINBOW: phone numbers defined in Rainbow users</BR>* LDAP: phone numbers defined in directories according to the following priority order:</BR>    * personal directory of the user</BR>    * company directory (of the company(ies) to which the PBX is linked)</BR>    * office365 directory (of the company(ies) to which the PBX is linked)</BR></BR>Possibles values : `RAINBOW`, `LDAP`, `PBX` |
+     * | searchResultOrder optionnel | string\[\] | List of directory types to order search results:</BR></BR>* RAINBOW: phone numbers defined in Rainbow users</BR>* LDAP: phone numbers defined in directories according to the following priority order:</BR>    * personal directory of the user</BR>    * company directory (of the company(ies) to which the PBX is linked)</BR>    * office365 directory (of the company(ies) to which the PBX is linked)</BR></BR>Possibles values : `RAINBOW`, `LDAP`, `PBX` |
      * | hasMediaPillar optionnel | Boolean | Indicates a mediapillar exists or not for this system |
      * | isShared optionnel | Boolean | Indicates if the system is **multi-company** (shared across multiple companies) |
      * | isCentrex optionnel | Boolean | Indicates if the system is one tenant or **multi-tenant (OXE - OTEC-S or third_party)** |
      * | isOxoManaged optionnel | Boolean | Indicates if the system is an OXO managed |
-     * | bpId optionnel | String | Identifier which links the system to the corresponding Business partner company. Obligatory when a BP admin creates a isCentrex or isShared system not yet used by a company</BR></BR>Default value : `null` |
+     * | bpId optionnel | string | Identifier which links the system to the corresponding Business partner company. Obligatory when a BP admin creates a isCentrex or isShared system not yet used by a company</BR></BR>Default value : `null` |
      * | connectionHistory | Object\[\] | history of connections. |
-     * | eventType | String | Type of connection |
+     * | eventType | string | Type of connection |
      * | eventDate | Date-Time | Date of connection |
      *
      */
@@ -13345,39 +15183,39 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      *
      * | Champ | Type | Description |
      * | --- | --- | --- |
-     * | activatingTransactionId | String | CCA Jabber Id |
-     * | jid\_pbxagent\_password_activating | String | CCA Jabber Id access code. The value of this field is depending on status field. The value of this field is depending on 'status' field.  </BR>\- `activating`: This is a proposal of private access code sent to CCA and not yet acknowledged.  </BR>\- `created, activated`: Empty string |
-     * | id  | String | System unique identifier |
-     * | name optionnel | String | System name/description |
-     * | pbxId | String | Call Control Agent (CCA) login. |
-     * | pbxLdapId optionnel | String | custom "pbxId" declared in an external DB (ldap), used to correlate to Rainbow pbxId. |
-     * | siteId optionnel | String\[\] | Site from which the system is linked with. |
+     * | activatingTransactionId | string | CCA Jabber Id |
+     * | jid\_pbxagent\_password_activating | string | CCA Jabber Id access code. The value of this field is depending on status field. The value of this field is depending on 'status' field.  </BR>\- `activating`: This is a proposal of private access code sent to CCA and not yet acknowledged.  </BR>\- `created, activated`: Empty string |
+     * | id  | string | System unique identifier |
+     * | name optionnel | string | System name/description |
+     * | pbxId | string | Call Control Agent (CCA) login. |
+     * | pbxLdapId optionnel | string | custom "pbxId" declared in an external DB (ldap), used to correlate to Rainbow pbxId. |
+     * | siteId optionnel | string\[\] | Site from which the system is linked with. |
      * | type optionnel | string | CCA type</BR></BR>Possibles values : `oxo`, `oxe`, `third_party`, `undefined` |
-     * | country optionnel | String | System country (ISO 3166-1 alpha3 format) |
-     * | version | String | CCA software version |
-     * | jid_pbxagent optionnel | String | CCA Jabber Id |
-     * | jid\_pbxagent\_password optionnel | String | CCA Jabber Id access code. The value of this field is depending on status field.</BR></BR> * `created, activating`: This is the public access code. The code must be used by the CCA for the first connection.</BR> * `activated`: This is an Hash code of the private access code, reduced to the last eight digits |
-     * | jid_pbxpcg optionnel | String | PCG Jabber Id for this system |
-     * | jid\_pbxpcg\_password optionnel | String | PCG CCA Jabber Id password for this system |
-     * | status optionnel | String | CCA status report. (read only)</BR></BR> * `created`: CCA uses a public access code to join rainbow infrastructure (see jid\_pbxagent\_password field)</BR> * `activating`: Rainbow infrastructure has proposed a private access code to replace the former public access code</BR> * `activated`: CCA has accepted the new access code, that will be used for the next initialization.</BR></BR>Default value : `created`</BR></BR>Possibles values : `"created"`, `"activating"`, `"activated"` |
+     * | country optionnel | string | System country (ISO 3166-1 alpha3 format) |
+     * | version | string | CCA software version |
+     * | jid_pbxagent optionnel | string | CCA Jabber Id |
+     * | jid\_pbxagent\_password optionnel | string | CCA Jabber Id access code. The value of this field is depending on status field.</BR></BR> * `created, activating`: This is the public access code. The code must be used by the CCA for the first connection.</BR> * `activated`: This is an Hash code of the private access code, reduced to the last eight digits |
+     * | jid_pbxpcg optionnel | string | PCG Jabber Id for this system |
+     * | jid\_pbxpcg\_password optionnel | string | PCG CCA Jabber Id password for this system |
+     * | status optionnel | string | CCA status report. (read only)</BR></BR> * `created`: CCA uses a public access code to join rainbow infrastructure (see jid\_pbxagent\_password field)</BR> * `activating`: Rainbow infrastructure has proposed a private access code to replace the former public access code</BR> * `activated`: CCA has accepted the new access code, that will be used for the next initialization.</BR></BR>Default value : `created`</BR></BR>Possibles values : `"created"`, `"activating"`, `"activated"` |
      * | serverPingTimeout optionnel | Number | CCA config data |
-     * | pbxMainBundlePrefix optionnel | String\[\] | CCA config data |
+     * | pbxMainBundlePrefix optionnel | string\[\] | CCA config data |
      * | pbxNumberingTranslator optionnel | Object\[\] | List of several regular expressions used to validate internal or external phone numbers. Up to 100 regular expressions are allowed. (64 max char by regexp). To reset the list, use \[\] |
-     * | regexpMatch optionnel | String | A valid regular expression used to select a translator action. \\d is not supported! Use (0..9) instead. |
-     * | regexpReplace optionnel | String | A valid dialable number. |
-     * | description optionnel | String | A short description of the rule * @apiSuccess {Boolean} usePbxMainBundlePrefix Whether or not pbxMainBundlePrefix is used by PCG |
-     * | pbxNationalPrefix optionnel | String | National prefix |
-     * | pbxInternationalPrefix optionnel | String | International prefix |
+     * | regexpMatch optionnel | string | A valid regular expression used to select a translator action. \\d is not supported! Use (0..9) instead. |
+     * | regexpReplace optionnel | string | A valid dialable number. |
+     * | description optionnel | string | A short description of the rule * @apiSuccess {Boolean} usePbxMainBundlePrefix Whether or not pbxMainBundlePrefix is used by PCG |
+     * | pbxNationalPrefix optionnel | string | National prefix |
+     * | pbxInternationalPrefix optionnel | string | International prefix |
      * | creationDate | Date-Time | System creation date (Read only) |
      * | statusUpdatedDate optionnel | Date-Time | Date of last system status update (Read only) |
-     * | searchResultOrder optionnel | String\[\] | List of directory types to order search results:</BR></BR>* RAINBOW: phone numbers defined in Rainbow users</BR>* LDAP: phone numbers defined in directories according to the following priority order:</BR>    * personal directory of the user</BR>    * company directory (of the company(ies) to which the PBX is linked)</BR>    * office365 directory (of the company(ies) to which the PBX is linked)</BR></BR>Possibles values : `RAINBOW`, `LDAP`, `PBX` |
+     * | searchResultOrder optionnel | string\[\] | List of directory types to order search results:</BR></BR>* RAINBOW: phone numbers defined in Rainbow users</BR>* LDAP: phone numbers defined in directories according to the following priority order:</BR>    * personal directory of the user</BR>    * company directory (of the company(ies) to which the PBX is linked)</BR>    * office365 directory (of the company(ies) to which the PBX is linked)</BR></BR>Possibles values : `RAINBOW`, `LDAP`, `PBX` |
      * | hasMediaPillar optionnel | Boolean | Indicates a mediapillar exists or not for this system |
      * | isShared optionnel | Boolean | Indicates if the system is **multi-company** (shared across multiple companies) |
      * | isCentrex optionnel | Boolean | Indicates if the system is one tenant or **multi-tenant (OXE - OTEC-S or third_party)** |
      * | isOxoManaged optionnel | Boolean | Indicates if the system is an OXO managed |
-     * | bpId optionnel | String | Identifier which links the system to the corresponding Business partner company. Obligatory when a BP admin creates a isCentrex or isShared system not yet used by a company</BR></BR>Default value : `null` |
+     * | bpId optionnel | string | Identifier which links the system to the corresponding Business partner company. Obligatory when a BP admin creates a isCentrex or isShared system not yet used by a company</BR></BR>Default value : `null` |
      * | connectionHistory | Object\[\] | history of connections. |
-     * | eventType | String | Type of connection |
+     * | eventType | string | Type of connection |
      * | eventDate | Date-Time | Date of connection |
      *
      */
@@ -13434,37 +15272,37 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      *
      * | Champ | Type | Description |
      * | --- | --- | --- |
-     * | id  | String | System unique identifier |
-     * | name optionnel | String | System name/description |
-     * | pbxId | String | Call Control Agent (CCA) login. |
-     * | pbxLdapId optionnel | String | custom "pbxId" declared in an external DB (ldap), used to correlate to Rainbow pbxId. |
-     * | siteId optionnel | String\[\] | Site from which the system is linked with. |
+     * | id  | string | System unique identifier |
+     * | name optionnel | string | System name/description |
+     * | pbxId | string | Call Control Agent (CCA) login. |
+     * | pbxLdapId optionnel | string | custom "pbxId" declared in an external DB (ldap), used to correlate to Rainbow pbxId. |
+     * | siteId optionnel | string\[\] | Site from which the system is linked with. |
      * | type optionnel | string | CCA type</BR></BR>Possibles values : `oxo`, `oxe`, `third_party`, `undefined` |
-     * | country optionnel | String | System country (ISO 3166-1 alpha3 format) |
-     * | version | String | CCA software version |
-     * | jid_pbxagent optionnel | String | CCA Jabber Id |
-     * | jid\_pbxagent\_password optionnel | String | CCA Jabber Id access code. The value of this field is depending on status field.</BR></BR> * `created, activating`: This is the public access code. The code must be used by the CCA for the first connection.</BR> * `activated`: This is an Hash code of the private access code, reduced to the last eight digits |
-     * | jid_pbxpcg optionnel | String | PCG Jabber Id for this system |
-     * | jid\_pbxpcg\_password optionnel | String | PCG CCA Jabber Id password for this system |
-     * | status optionnel | String | CCA status report. (read only)</BR></BR> * `created`: CCA uses a public access code to join rainbow infrastructure (see jid\_pbxagent\_password field)</BR> * `activating`: Rainbow infrastructure has proposed a private access code to replace the former public access code</BR> * `activated`: CCA has accepted the new access code, that will be used for the next initialization.</BR></BR>Default value : `created`</BR></BR>Possibles values : `"created"`, `"activating"`, `"activated"` |
+     * | country optionnel | string | System country (ISO 3166-1 alpha3 format) |
+     * | version | string | CCA software version |
+     * | jid_pbxagent optionnel | string | CCA Jabber Id |
+     * | jid\_pbxagent\_password optionnel | string | CCA Jabber Id access code. The value of this field is depending on status field.</BR></BR> * `created, activating`: This is the public access code. The code must be used by the CCA for the first connection.</BR> * `activated`: This is an Hash code of the private access code, reduced to the last eight digits |
+     * | jid_pbxpcg optionnel | string | PCG Jabber Id for this system |
+     * | jid\_pbxpcg\_password optionnel | string | PCG CCA Jabber Id password for this system |
+     * | status optionnel | string | CCA status report. (read only)</BR></BR> * `created`: CCA uses a public access code to join rainbow infrastructure (see jid\_pbxagent\_password field)</BR> * `activating`: Rainbow infrastructure has proposed a private access code to replace the former public access code</BR> * `activated`: CCA has accepted the new access code, that will be used for the next initialization.</BR></BR>Default value : `created`</BR></BR>Possibles values : `"created"`, `"activating"`, `"activated"` |
      * | serverPingTimeout optionnel | Number | CCA config data |
-     * | pbxMainBundlePrefix optionnel | String\[\] | CCA config data |
+     * | pbxMainBundlePrefix optionnel | string\[\] | CCA config data |
      * | pbxNumberingTranslator optionnel | Object\[\] | List of several regular expressions used to validate internal or external phone numbers. Up to 100 regular expressions are allowed. (64 max char by regexp). To reset the list, use \[\] |
-     * | regexpMatch optionnel | String | A valid regular expression used to select a translator action. \\d is not supported! Use (0..9) instead. |
-     * | regexpReplace optionnel | String | A valid dialable number. |
-     * | description optionnel | String | A short description of the rule * @apiSuccess {Boolean} usePbxMainBundlePrefix Whether or not pbxMainBundlePrefix is used by PCG |
-     * | pbxNationalPrefix optionnel | String | National prefix |
-     * | pbxInternationalPrefix optionnel | String | International prefix |
+     * | regexpMatch optionnel | string | A valid regular expression used to select a translator action. \\d is not supported! Use (0..9) instead. |
+     * | regexpReplace optionnel | string | A valid dialable number. |
+     * | description optionnel | string | A short description of the rule * @apiSuccess {Boolean} usePbxMainBundlePrefix Whether or not pbxMainBundlePrefix is used by PCG |
+     * | pbxNationalPrefix optionnel | string | National prefix |
+     * | pbxInternationalPrefix optionnel | string | International prefix |
      * | creationDate | Date-Time | System creation date (Read only) |
      * | statusUpdatedDate optionnel | Date-Time | Date of last system status update (Read only) |
-     * | searchResultOrder optionnel | String\[\] | List of directory types to order search results:</BR></BR>* RAINBOW: phone numbers defined in Rainbow users</BR>* LDAP: phone numbers defined in directories according to the following priority order:</BR>    * personal directory of the user</BR>    * company directory (of the company(ies) to which the PBX is linked)</BR>    * office365 directory (of the company(ies) to which the PBX is linked)</BR></BR>Possibles values : `RAINBOW`, `LDAP`, `PBX` |
+     * | searchResultOrder optionnel | string\[\] | List of directory types to order search results:</BR></BR>* RAINBOW: phone numbers defined in Rainbow users</BR>* LDAP: phone numbers defined in directories according to the following priority order:</BR>    * personal directory of the user</BR>    * company directory (of the company(ies) to which the PBX is linked)</BR>    * office365 directory (of the company(ies) to which the PBX is linked)</BR></BR>Possibles values : `RAINBOW`, `LDAP`, `PBX` |
      * | hasMediaPillar optionnel | Boolean | Indicates a mediapillar exists or not for this system |
      * | isShared optionnel | Boolean | Indicates if the system is **multi-company** (shared across multiple companies) |
      * | isCentrex optionnel | Boolean | Indicates if the system is one tenant or **multi-tenant (OXE - OTEC-S or third_party)** |
      * | isOxoManaged optionnel | Boolean | Indicates if the system is an OXO managed |
-     * | bpId optionnel | String | Identifier which links the system to the corresponding Business partner company. Obligatory when a BP admin creates a isCentrex or isShared system not yet used by a company</BR></BR>Default value : `null` |
+     * | bpId optionnel | string | Identifier which links the system to the corresponding Business partner company. Obligatory when a BP admin creates a isCentrex or isShared system not yet used by a company</BR></BR>Default value : `null` |
      * | connectionHistory | Object\[\] | history of connections. |
-     * | eventType | String | Type of connection |
+     * | eventType | string | Type of connection |
      * | eventDate | Date-Time | Date of connection |
      *
      */
@@ -13547,37 +15385,37 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      *
      * | Champ | Type | Description |
      * | --- | --- | --- |
-     * | id  | String | System unique identifier |
-     * | name optionnel | String | System name/description |
-     * | pbxId | String | Call Control Agent (CCA) login. |
-     * | pbxLdapId optionnel | String | custom "pbxId" declared in an external DB (ldap), used to correlate to Rainbow pbxId. |
-     * | siteId optionnel | String\[\] | Site from which the system is linked with. |
+     * | id  | string | System unique identifier |
+     * | name optionnel | string | System name/description |
+     * | pbxId | string | Call Control Agent (CCA) login. |
+     * | pbxLdapId optionnel | string | custom "pbxId" declared in an external DB (ldap), used to correlate to Rainbow pbxId. |
+     * | siteId optionnel | string\[\] | Site from which the system is linked with. |
      * | type optionnel | string | CCA type<br><br>Possibles values : `oxo`, `oxe`, `third_party`, `undefined` |
-     * | country optionnel | String | System country (ISO 3166-1 alpha3 format) |
-     * | version | String | CCA software version |
-     * | jid_pbxagent optionnel | String | CCA Jabber Id |
-     * | jid\_pbxagent\_password optionnel | String | CCA Jabber Id access code. The value of this field is depending on status field.<br><br>> * `created, activating`: This is the public access code. The code must be used by the CCA for the first connection.<br>> * `activated`: This is an Hash code of the private access code, reduced to the last eight digits |
-     * | jid_pbxpcg optionnel | String | PCG Jabber Id for this system |
-     * | jid\_pbxpcg\_password optionnel | String | PCG CCA Jabber Id password for this system |
-     * | status optionnel | String | CCA status report. (read only)<br><br>> * `created`: CCA uses a public access code to join rainbow infrastructure (see jid\_pbxagent\_password field)<br>> * `activating`: Rainbow infrastructure has proposed a private access code to replace the former public access code<br>> * `activated`: CCA has accepted the new access code, that will be used for the next initialization.<br><br>Default value : `created`<br><br>Possibles values : `"created"`, `"activating"`, `"activated"` |
+     * | country optionnel | string | System country (ISO 3166-1 alpha3 format) |
+     * | version | string | CCA software version |
+     * | jid_pbxagent optionnel | string | CCA Jabber Id |
+     * | jid\_pbxagent\_password optionnel | string | CCA Jabber Id access code. The value of this field is depending on status field.<br><br>> * `created, activating`: This is the public access code. The code must be used by the CCA for the first connection.<br>> * `activated`: This is an Hash code of the private access code, reduced to the last eight digits |
+     * | jid_pbxpcg optionnel | string | PCG Jabber Id for this system |
+     * | jid\_pbxpcg\_password optionnel | string | PCG CCA Jabber Id password for this system |
+     * | status optionnel | string | CCA status report. (read only)<br><br>> * `created`: CCA uses a public access code to join rainbow infrastructure (see jid\_pbxagent\_password field)<br>> * `activating`: Rainbow infrastructure has proposed a private access code to replace the former public access code<br>> * `activated`: CCA has accepted the new access code, that will be used for the next initialization.<br><br>Default value : `created`<br><br>Possibles values : `"created"`, `"activating"`, `"activated"` |
      * | serverPingTimeout optionnel | Number | CCA config data |
-     * | pbxMainBundlePrefix optionnel | String\[\] | CCA config data |
+     * | pbxMainBundlePrefix optionnel | string\[\] | CCA config data |
      * | pbxNumberingTranslator optionnel | Object\[\] | List of several regular expressions used to validate internal or external phone numbers. Up to 100 regular expressions are allowed. (64 max char by regexp). To reset the list, use \[\] |
-     * | regexpMatch optionnel | String | A valid regular expression used to select a translator action. \\d is not supported! Use (0..9) instead. |
-     * | regexpReplace optionnel | String | A valid dialable number. |
-     * | description optionnel | String | A short description of the rule * @apiSuccess {Boolean} usePbxMainBundlePrefix Whether or not pbxMainBundlePrefix is used by PCG |
-     * | pbxNationalPrefix optionnel | String | National prefix |
-     * | pbxInternationalPrefix optionnel | String | International prefix |
+     * | regexpMatch optionnel | string | A valid regular expression used to select a translator action. \\d is not supported! Use (0..9) instead. |
+     * | regexpReplace optionnel | string | A valid dialable number. |
+     * | description optionnel | string | A short description of the rule * @apiSuccess {Boolean} usePbxMainBundlePrefix Whether or not pbxMainBundlePrefix is used by PCG |
+     * | pbxNationalPrefix optionnel | string | National prefix |
+     * | pbxInternationalPrefix optionnel | string | International prefix |
      * | creationDate | Date-Time | System creation date (Read only) |
      * | statusUpdatedDate optionnel | Date-Time | Date of last system status update (Read only) |
-     * | searchResultOrder optionnel | String\[\] | List of directory types to order search results:<br><br>* RAINBOW: phone numbers defined in Rainbow users<br>* LDAP: phone numbers defined in directories according to the following priority order:<br>    * personal directory of the user<br>    * company directory (of the company(ies) to which the PBX is linked)<br>    * office365 directory (of the company(ies) to which the PBX is linked)<br><br>Possibles values : `RAINBOW`, `LDAP`, `PBX` |
+     * | searchResultOrder optionnel | string\[\] | List of directory types to order search results:<br><br>* RAINBOW: phone numbers defined in Rainbow users<br>* LDAP: phone numbers defined in directories according to the following priority order:<br>    * personal directory of the user<br>    * company directory (of the company(ies) to which the PBX is linked)<br>    * office365 directory (of the company(ies) to which the PBX is linked)<br><br>Possibles values : `RAINBOW`, `LDAP`, `PBX` |
      * | hasMediaPillar optionnel | Boolean | Indicates a mediapillar exists or not for this system |
      * | isShared optionnel | Boolean | Indicates if the system is **multi-company** (shared across multiple companies) |
      * | isCentrex optionnel | Boolean | Indicates if the system is one tenant or **multi-tenant (OXE - OTEC-S or third_party)** |
      * | isOxoManaged optionnel | Boolean | Indicates if the system is an OXO managed |
-     * | bpId optionnel | String | Identifier which links the system to the corresponding Business partner company. Obligatory when a BP admin creates a isCentrex or isShared system not yet used by a company<br><br>Default value : `null` |
+     * | bpId optionnel | string | Identifier which links the system to the corresponding Business partner company. Obligatory when a BP admin creates a isCentrex or isShared system not yet used by a company<br><br>Default value : `null` |
      * | connectionHistory | Object\[\] | history of connections. |
-     * | eventType | String | Type of connection |
+     * | eventType | string | Type of connection |
      * | eventDate | Date-Time | Date of connection |
      *
      */
@@ -13611,32 +15449,32 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      *
      *    | Champ | Type | Description |
      *    | --- | --- | --- |
-     *    | id  | String | Phone number unique identifier |
-     *    | shortNumber | String | Short phone number (corresponds to the number monitored by PCG).  </BR>Only usable within the same PBX.  </BR>shortNumber can contain alpha-numeric characters and some special characters. The regular expression validating the shortNumber data is the following: `/^[0-9A-Za-z #\-\+\*\(\)\./]{1,32}$/` |
-     *    | internalNumber | String | Internal phone number.  </BR>Usable within a PBX group.  </BR>internalNumber can contain alpha-numeric characters and some special characters. The regular expression validating the internalNumber data is the following: `/^[0-9A-Za-z #\-\+\*\(\)\./]{1,32}$/` |
-     *    | voiceMailNumber optionnel | String | Voice mail phone number  </BR>voiceMailNumber can contain alpha-numeric characters and some special characters. The regular expression validating the voiceMailNumber data is the following: `/^[0-9A-Za-z #\-\+\*\(\)\./]{1,32}$/` |
-     *    | number optionnel | String | DDI phone number |
-     *    | numberE164 optionnel | String | E.164 phone number (computed by server if number is set) |
-     *    | pbxUserId | String | Pbx's user Id |
-     *    | userId optionnel | String | Rainbow userId to which the phone number is linked |
-     *    | jid_im | String | jid_im of the Rainbow user to which the phone number is linked |
-     *    | jid_tel | String | jid_tel of the Rainbow user to which the phone number is linked |
-     *    | jid_password | String | jid_password of the Rainbow user to which the phone number is linked |
-     *    | rainbowNumber optionnel | String | Rainbow number of the Rainbow user to which the phone number is linked |
-     *    | country optionnel | String | Phone number country (ISO 3166-1 alpha3 format)  </BR>Country field is automatically computed using the following algorithm:</BR></BR>* If `number` is provided and is in E164 format, `country` is computed from this E164 number</BR>* Else if phoneNumber is assigned to a user, user's `country` is used</BR>* Else, system's `country` is used |
-     *    | type optionnel | String | Phone number type, one of `home`, `work`, `other` |
-     *    | deviceType optionnel | String | Phone number device type, one of `landline`, `mobile`, `fax`, `other` |
-     *    | isFromSystem optionnel | String | Boolean indicating if the phoneNumber is linked to a system (pbx) |
-     *    | pbxId | String | pbx unique identifier |
-     *    | firstName | String | firstname |
-     *    | lastName | String | lastname |
-     *    | deviceName | String | devicename |
-     *    | systemId optionnel | String | System unique identifier |
+     *    | id  | string | Phone number unique identifier |
+     *    | shortNumber | string | Short phone number (corresponds to the number monitored by PCG).  </BR>Only usable within the same PBX.  </BR>shortNumber can contain alpha-numeric characters and some special characters. The regular expression validating the shortNumber data is the following: `/^[0-9A-Za-z #\-\+\*\(\)\./]{1,32}$/` |
+     *    | internalNumber | string | Internal phone number.  </BR>Usable within a PBX group.  </BR>internalNumber can contain alpha-numeric characters and some special characters. The regular expression validating the internalNumber data is the following: `/^[0-9A-Za-z #\-\+\*\(\)\./]{1,32}$/` |
+     *    | voiceMailNumber optionnel | string | Voice mail phone number  </BR>voiceMailNumber can contain alpha-numeric characters and some special characters. The regular expression validating the voiceMailNumber data is the following: `/^[0-9A-Za-z #\-\+\*\(\)\./]{1,32}$/` |
+     *    | number optionnel | string | DDI phone number |
+     *    | numberE164 optionnel | string | E.164 phone number (computed by server if number is set) |
+     *    | pbxUserId | string | Pbx's user Id |
+     *    | userId optionnel | string | Rainbow userId to which the phone number is linked |
+     *    | jid_im | string | jid_im of the Rainbow user to which the phone number is linked |
+     *    | jid_tel | string | jid_tel of the Rainbow user to which the phone number is linked |
+     *    | jid_password | string | jid_password of the Rainbow user to which the phone number is linked |
+     *    | rainbowNumber optionnel | string | Rainbow number of the Rainbow user to which the phone number is linked |
+     *    | country optionnel | string | Phone number country (ISO 3166-1 alpha3 format)  </BR>Country field is automatically computed using the following algorithm:</BR></BR>* If `number` is provided and is in E164 format, `country` is computed from this E164 number</BR>* Else if phoneNumber is assigned to a user, user's `country` is used</BR>* Else, system's `country` is used |
+     *    | type optionnel | string | Phone number type, one of `home`, `work`, `other` |
+     *    | deviceType optionnel | string | Phone number device type, one of `landline`, `mobile`, `fax`, `other` |
+     *    | isFromSystem optionnel | string | Boolean indicating if the phoneNumber is linked to a system (pbx) |
+     *    | pbxId | string | pbx unique identifier |
+     *    | firstName | string | firstname |
+     *    | lastName | string | lastname |
+     *    | deviceName | string | devicename |
+     *    | systemId optionnel | string | System unique identifier |
      *    | isMonitored | Boolean | Specifies if the PhoneNumber is monitored by agent (i.e. telephony events are notified to Rainbow user through XMPP) |
      *    | isNomadic optionnel | Boolean | Specifies if Nomadic set is selected. |
      *    | isVoipNomadic optionnel | Boolean | Specifies if Nomadic destination is VoIP. |
      *    | isNomadicModeInitialized optionnel | Boolean | Nomadic feature: when true, at least one login or logout has been done. PCG reserved. |
-     *    | userType optionnel | String | The userType is ACD data from the OXE. PCG reserved. |
+     *    | userType optionnel | string | The userType is ACD data from the OXE. PCG reserved. |
      *
      *
      */
@@ -13736,32 +15574,32 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      *
      * | Champ | Type | Description |
      * | --- | --- | --- |
-     * | id  | String | Phone number unique identifier |
-     * | shortNumber | String | Short phone number (corresponds to the number monitored by PCG).  </BR>Only usable within the same PBX.  </BR>shortNumber can contain alpha-numeric characters and some special characters. The regular expression validating the shortNumber data is the following: `/^[0-9A-Za-z #\-\+\*\(\)\./]{1,32}$/` |
-     * | internalNumber | String | Internal phone number.  </BR>Usable within a PBX group.  </BR>internalNumber can contain alpha-numeric characters and some special characters. The regular expression validating the internalNumber data is the following: `/^[0-9A-Za-z #\-\+\*\(\)\./]{1,32}$/` |
-     * | voiceMailNumber optionnel | String | Voice mail phone number  </BR>voiceMailNumber can contain alpha-numeric characters and some special characters. The regular expression validating the voiceMailNumber data is the following: `/^[0-9A-Za-z #\-\+\*\(\)\./]{1,32}$/` |
-     * | number optionnel | String | DDI phone number |
-     * | numberE164 optionnel | String | E.164 phone number (computed by server if number is set) |
-     * | pbxUserId | String | Pbx's user Id |
-     * | userId optionnel | String | Rainbow userId to which the phone number is linked |
-     * | jid_im | String | jid_im of the Rainbow user to which the phone number is linked |
-     * | jid_tel | String | jid_tel of the Rainbow user to which the phone number is linked |
-     * | jid_password | String | jid_password of the Rainbow user to which the phone number is linked |
-     * | rainbowNumber optionnel | String | Rainbow number of the Rainbow user to which the phone number is linked |
-     * | country optionnel | String | Phone number country (ISO 3166-1 alpha3 format)  </BR>Country field is automatically computed using the following algorithm:</BR></BR>* If `number` is provided and is in E164 format, `country` is computed from this E164 number</BR>* Else if phoneNumber is assigned to a user, user's `country` is used</BR>* Else, system's `country` is used |
-     * | type optionnel | String | Phone number type, one of `home`, `work`, `other` |
-     * | deviceType optionnel | String | Phone number device type, one of `landline`, `mobile`, `fax`, `other` |
-     * | isFromSystem optionnel | String | Boolean indicating if the phoneNumber is linked to a system (pbx) |
-     * | pbxId | String | pbx unique identifier |
-     * | firstName | String | firstname |
-     * | lastName | String | lastname |
-     * | deviceName | String | devicename |
-     * | systemId optionnel | String | System unique identifier |
+     * | id  | string | Phone number unique identifier |
+     * | shortNumber | string | Short phone number (corresponds to the number monitored by PCG).  </BR>Only usable within the same PBX.  </BR>shortNumber can contain alpha-numeric characters and some special characters. The regular expression validating the shortNumber data is the following: `/^[0-9A-Za-z #\-\+\*\(\)\./]{1,32}$/` |
+     * | internalNumber | string | Internal phone number.  </BR>Usable within a PBX group.  </BR>internalNumber can contain alpha-numeric characters and some special characters. The regular expression validating the internalNumber data is the following: `/^[0-9A-Za-z #\-\+\*\(\)\./]{1,32}$/` |
+     * | voiceMailNumber optionnel | string | Voice mail phone number  </BR>voiceMailNumber can contain alpha-numeric characters and some special characters. The regular expression validating the voiceMailNumber data is the following: `/^[0-9A-Za-z #\-\+\*\(\)\./]{1,32}$/` |
+     * | number optionnel | string | DDI phone number |
+     * | numberE164 optionnel | string | E.164 phone number (computed by server if number is set) |
+     * | pbxUserId | string | Pbx's user Id |
+     * | userId optionnel | string | Rainbow userId to which the phone number is linked |
+     * | jid_im | string | jid_im of the Rainbow user to which the phone number is linked |
+     * | jid_tel | string | jid_tel of the Rainbow user to which the phone number is linked |
+     * | jid_password | string | jid_password of the Rainbow user to which the phone number is linked |
+     * | rainbowNumber optionnel | string | Rainbow number of the Rainbow user to which the phone number is linked |
+     * | country optionnel | string | Phone number country (ISO 3166-1 alpha3 format)  </BR>Country field is automatically computed using the following algorithm:</BR></BR>* If `number` is provided and is in E164 format, `country` is computed from this E164 number</BR>* Else if phoneNumber is assigned to a user, user's `country` is used</BR>* Else, system's `country` is used |
+     * | type optionnel | string | Phone number type, one of `home`, `work`, `other` |
+     * | deviceType optionnel | string | Phone number device type, one of `landline`, `mobile`, `fax`, `other` |
+     * | isFromSystem optionnel | string | Boolean indicating if the phoneNumber is linked to a system (pbx) |
+     * | pbxId | string | pbx unique identifier |
+     * | firstName | string | firstname |
+     * | lastName | string | lastname |
+     * | deviceName | string | devicename |
+     * | systemId optionnel | string | System unique identifier |
      * | isMonitored | Boolean | Specifies if the PhoneNumber is monitored by agent (i.e. telephony events are notified to Rainbow user through XMPP) |
      * | isNomadic optionnel | Boolean | Specifies if Nomadic set is selected. |
      * | isVoipNomadic optionnel | Boolean | Specifies if Nomadic destination is VoIP. |
      * | isNomadicModeInitialized optionnel | Boolean | Nomadic feature: when true, at least one login or logout has been done. PCG reserved. |
-     * | userType optionnel | String | The userType is ACD data from the OXE. PCG reserved. |
+     * | userType optionnel | string | The userType is ACD data from the OXE. PCG reserved. |
      *
      *
      */
@@ -14170,12 +16008,12 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      *
      * | Champ | Type | Description |
      * | --- | --- | --- |
-     * | isoAlpha3Code | String | Country ISO 3166-1 alpha-2 code |
-     * | isoAlpha2Code | String | Country ISO 3166-1 alpha-3 code |
-     * | fullname | String | Country full name |
+     * | isoAlpha3Code | string | Country ISO 3166-1 alpha-2 code |
+     * | isoAlpha2Code | string | Country ISO 3166-1 alpha-3 code |
+     * | fullname | string | Country full name |
      * | states optionnel | Object\[\] | List of states handled for this country.<br><br>Only available for countries `CAN`and `USA`. |
-     * | isoAlpha2Code | String | State ISO 3166-1 alpha-2 code |
-     * | fullname | String | State full name |
+     * | isoAlpha2Code | string | State ISO 3166-1 alpha-2 code |
+     * | fullname | string | State full name |
      *
      */
     getListOfCountries(): Promise<any>;
@@ -14194,7 +16032,7 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      *
      * | Champ | Type | Description |
      * | --- | --- | --- |
-     * | status | String | trusted app delete status message. |
+     * | status | string | trusted app delete status message. |
      *
      */
     deleteTrustedApplication(appId: string): Promise<any>;
@@ -14213,7 +16051,7 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      *
      * | Champ | Type | Description |
      * | --- | --- | --- |
-     * | status | String | Trusted applications delete status message. |
+     * | status | string | Trusted applications delete status message. |
      *
      */
     deleteAllTrustedApplications(): Promise<any>;
@@ -14232,7 +16070,7 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      *
      * | Champ | Type | Description |
      * | --- | --- | --- |
-     * | status | String | status message. |
+     * | status | string | status message. |
      *
      */
     disableMultifactorAuthentication(): Promise<any>;
@@ -14265,10 +16103,10 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      *
      * | Champ | Type | Description |
      * | --- | --- | --- |
-     * | mfaType | String | type of multifactor |
-     * | mfaSecret | String | secret of TOTP multifactor |
-     * | otpAuthUrl | String | OTP auth url computed from secret (see https://github.com/google/google-authenticator/wiki/Key-Uri-Format) |
-     * | qrcode | String | QR code generated from OTP Url |
+     * | mfaType | string | type of multifactor |
+     * | mfaSecret | string | secret of TOTP multifactor |
+     * | otpAuthUrl | string | OTP auth url computed from secret (see https://github.com/google/google-authenticator/wiki/Key-Uri-Format) |
+     * | qrcode | string | QR code generated from OTP Url |
      *
      */
     getMultifactorInformation(): Promise<any>;
@@ -14288,8 +16126,8 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      *
      * | Champ | Type | Description |
      * | --- | --- | --- |
-     * | mfaType | String | type of multifactor |
-     * | mfaRecoveryCode | String | recovery code used as default multifactor authentication |
+     * | mfaType | string | type of multifactor |
+     * | mfaRecoveryCode | string | recovery code used as default multifactor authentication |
      *
      */
     verifyMultifactorInformation(token: string): Promise<any>;
@@ -14308,8 +16146,8 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      *
      * | Champ | Type | Description |
      * | --- | --- | --- |
-     * | status | String | status message |
-     * | mfaRecoveryCode | String | new recovery code |
+     * | status | string | status message |
+     * | mfaRecoveryCode | string | new recovery code |
      *
      */
     resetRecoveryCodeForMultifactorAuthentication(): Promise<any>;
@@ -14352,8 +16190,8 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      *
      * | Champ | Type | Description |
      * | --- | --- | --- |
-     * | userId | String | User unique identifier |
-     * | loginEmail | String | User email address (used for login) |
+     * | userId | string | User unique identifier |
+     * | loginEmail | string | User email address (used for login) |
      *
      */
     addAdministratorToGroup(userId: string): Promise<unknown>;
@@ -14372,7 +16210,7 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      *
      * | Champ | Type | Description |
      * | --- | --- | --- |
-     * | status | String | Delete operation status message. |
+     * | status | string | Delete operation status message. |
      *
      */
     removeAdministratorFromGroup(userId: string): Promise<unknown>;
@@ -14392,34 +16230,34 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      *
      * | Champ | Type | Description |
      * | --- | --- | --- |
-     * | id  | String | Logs context unique identifier. |
-     * | type | String | Initial scenario<br><br>* `feedback`: The customer submits an issue<br>* `ask`: A bot or an admin has contacted a customer to complete an issue |
-     * | permission | String | User has currently accepted to provide his logs. Default value ('declined' when type is `ask`, `granted` when type is 'feedback'<br><br>* `declined`<br>* `granted`<br><br>Default value: `declined` when type is `ask`, `granted` when type is `feedback` |
-     * | userId | String | Unique identifier of the customer (user or Rainbow Tv) |
-     * | userDisplayName | String | Display name of the customer (user or Rainbow Tv) |
-     * | companyId | String | Unique identifier of the userId 's Company |
-     * | companyName | String | Name of the userId 's Company |
-     * | originatorId | String | When type is `ask`, an admin or a bot userId. |
+     * | id  | string | Logs context unique identifier. |
+     * | type | string | Initial scenario<br><br>* `feedback`: The customer submits an issue<br>* `ask`: A bot or an admin has contacted a customer to complete an issue |
+     * | permission | string | User has currently accepted to provide his logs. Default value ('declined' when type is `ask`, `granted` when type is 'feedback'<br><br>* `declined`<br>* `granted`<br><br>Default value: `declined` when type is `ask`, `granted` when type is `feedback` |
+     * | userId | string | Unique identifier of the customer (user or Rainbow Tv) |
+     * | userDisplayName | string | Display name of the customer (user or Rainbow Tv) |
+     * | companyId | string | Unique identifier of the userId 's Company |
+     * | companyName | string | Name of the userId 's Company |
+     * | originatorId | string | When type is `ask`, an admin or a bot userId. |
      * | problemNumber | Number | Ticket number (integer incremented per company) |
      * | creationDate | Date-Time | Logs context creation date |
      * | occurrenceDate | Date-Time | Date when the issue occurred |
-     * | occurrenceDateTimezone | String | Timezone name when the issue occurred.<br><br>Allowed values: one of the timezone names defined in [IANA tz database](https://www.iana.org/time-zones).  <br>Timezone name are composed as follow: `Area/Location` (ex: Europe/Paris, America/New_York,...) |
-     * | description | String | Issue description |
-     * | resourceId | String | When type is `ask`, this is the resource of the device from which we need to get logs (in case of multi-devices configuration) |
-     * | externalRef | String | Free field |
-     * | device | String | Device type<br><br>Note: `room` corresponds to Rainbow Room<br><br>Possibles values : `android`, `desktop`, `ios`, `room`, `web` |
-     * | version | String | Device version |
+     * | occurrenceDateTimezone | string | Timezone name when the issue occurred.<br><br>Allowed values: one of the timezone names defined in [IANA tz database](https://www.iana.org/time-zones).  <br>Timezone name are composed as follow: `Area/Location` (ex: Europe/Paris, America/New_York,...) |
+     * | description | string | Issue description |
+     * | resourceId | string | When type is `ask`, this is the resource of the device from which we need to get logs (in case of multi-devices configuration) |
+     * | externalRef | string | Free field |
+     * | device | string | Device type<br><br>Note: `room` corresponds to Rainbow Room<br><br>Possibles values : `android`, `desktop`, `ios`, `room`, `web` |
+     * | version | string | Device version |
      * | deviceDetails optionnel | Object | When relevant, optional details regarding the device on which the issue occurred |
      * | hardware optionnel | Object | When relevant, details regarding the hardware of the device on which the issue occurred |
-     * | manufacturer optionnel | String | When relevant, manufacturer of the device on which the issue occurred<br> |
-     * | model optionnel | String | When relevant, model of the device on which the issue occurred<br> |
+     * | manufacturer optionnel | string | When relevant, manufacturer of the device on which the issue occurred<br> |
+     * | model optionnel | string | When relevant, model of the device on which the issue occurred<br> |
      * | os optionnel | Object | When relevant, details regarding the Operating System on which the issue occurred |
-     * | name optionnel | String | When relevant, name of the Operating System on which the issue occurred<br> |
-     * | version optionnel | String | When relevant, version of the Operating System on which the issue occurred<br> |
+     * | name optionnel | string | When relevant, name of the Operating System on which the issue occurred<br> |
+     * | version optionnel | string | When relevant, version of the Operating System on which the issue occurred<br> |
      * | browser optionnel | Object | When relevant, details regarding the browser on which the issue occurred |
-     * | attachments | String\[\] | An Array of file descriptor Id<br><br>* To belong as logs context attachment, a file descriptor must contain the field tags.purpose with the value `log` |
-     * | name optionnel | String | When relevant, name of the browser on which the issue occurred<br> |
-     * | version optionnel | String | When relevant, name of the browser on which the issue occurred<br> |
+     * | attachments | string\[\] | An Array of file descriptor Id<br><br>* To belong as logs context attachment, a file descriptor must contain the field tags.purpose with the value `log` |
+     * | name optionnel | string | When relevant, name of the browser on which the issue occurred<br> |
+     * | version optionnel | string | When relevant, name of the browser on which the issue occurred<br> |
      *
      */
     getIssue(logId: string): Promise<unknown>;
@@ -14432,10 +16270,10 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      * @category Customer Care - Logs
      * @param {number} limit Allow to specify the number of issues to retrieve. Default value : 100
      * @param {number} offset Allow to specify the position of first issue to retrieve (first issue if not specified). Warning: if offset > total, no results are returned. Default value : 0
-     * @param {String} sortField Sort issues list based on the given field. Default value : creationDate. Possibles values : creationDate.
+     * @param {string} sortField Sort issues list based on the given field. Default value : creationDate. Possibles values : creationDate.
      * @param {number} sortOrder Specify sort order when sorting issues list. Default value : -1. Possibles values : -1, 1.
-     * @param {String} companyId Allows to filter issues list on the companyId(s) provided in this option. companyId parameter is optional: if companyId is not provided, all the issues created by users belonging to companies that the administrator manage are returned. If provided, the logged in user must have administration rights on the requested companyId(s).
-     * @param {String} bpId Allows to filter issues list on all the companyId(s) being linked to the BP company provided in this option. </br>
+     * @param {string} companyId Allows to filter issues list on the companyId(s) provided in this option. companyId parameter is optional: if companyId is not provided, all the issues created by users belonging to companies that the administrator manage are returned. If provided, the logged in user must have administration rights on the requested companyId(s).
+     * @param {string} bpId Allows to filter issues list on all the companyId(s) being linked to the BP company provided in this option. </br>
      * For the case of BP companies with bpType= VAD, the query parameter customerCategory allows to specify the kind of companies for which the issues are requested (see more details in the doc of customerCategory parameter). </br>
      * The list of returned issues depends on the bpType of the BP company selected by the parameter bpId and on the requested customerCategory: </br>
      * * if bpId corresponds to a BP company with bpType=VAD, the API will return: </br>
@@ -14547,34 +16385,34 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      *
      * | Champ | Type | Description |
      * | --- | --- | --- |
-     * | id  | String | Logs context unique identifier. |
-     * | type | String | Initial scenario<br><br>* `feedback`: The customer submits an issue<br>* `ask`: A bot or an admin has contacted a customer to complete an issue |
-     * | permission | String | User has currently accepted to provide his logs. Default value ('declined' when type is `ask`, `granted` when type is 'feedback'<br><br>* `declined`<br>* `granted`<br><br>Default value: `declined` when type is `ask`, `granted` when type is `feedback` |
-     * | userId | String | Unique identifier of the customer (user or Rainbow Tv) |
-     * | userDisplayName | String | Display name of the customer (user or Rainbow Tv) |
-     * | companyId | String | Unique identifier of the userId 's Company |
-     * | companyName | String | Name of the userId 's Company |
-     * | originatorId | String | When type is `ask`, an admin or a bot userId. |
+     * | id  | string | Logs context unique identifier. |
+     * | type | string | Initial scenario<br><br>* `feedback`: The customer submits an issue<br>* `ask`: A bot or an admin has contacted a customer to complete an issue |
+     * | permission | string | User has currently accepted to provide his logs. Default value ('declined' when type is `ask`, `granted` when type is 'feedback'<br><br>* `declined`<br>* `granted`<br><br>Default value: `declined` when type is `ask`, `granted` when type is `feedback` |
+     * | userId | string | Unique identifier of the customer (user or Rainbow Tv) |
+     * | userDisplayName | string | Display name of the customer (user or Rainbow Tv) |
+     * | companyId | string | Unique identifier of the userId 's Company |
+     * | companyName | string | Name of the userId 's Company |
+     * | originatorId | string | When type is `ask`, an admin or a bot userId. |
      * | problemNumber | Number | Ticket number (integer incremented per company) |
      * | creationDate | Date-Time | Logs context creation date |
      * | occurrenceDate | Date-Time | Date when the issue occurred |
-     * | occurrenceDateTimezone | String | Timezone name when the issue occurred.<br><br>Allowed values: one of the timezone names defined in [IANA tz database](https://www.iana.org/time-zones).  <br>Timezone name are composed as follow: `Area/Location` (ex: Europe/Paris, America/New_York,...) |
-     * | description | String | Issue description |
-     * | resourceId | String | When type is `ask`, this is the resource of the device from which we need to get logs (in case of multi-devices configuration) |
-     * | externalRef | String | Free field |
-     * | device | String | Device type<br><br>Note: `room` corresponds to Rainbow Room<br><br>Possibles values : `android`, `desktop`, `ios`, `room`, `web` |
-     * | version | String | Device version |
+     * | occurrenceDateTimezone | string | Timezone name when the issue occurred.<br><br>Allowed values: one of the timezone names defined in [IANA tz database](https://www.iana.org/time-zones).  <br>Timezone name are composed as follow: `Area/Location` (ex: Europe/Paris, America/New_York,...) |
+     * | description | string | Issue description |
+     * | resourceId | string | When type is `ask`, this is the resource of the device from which we need to get logs (in case of multi-devices configuration) |
+     * | externalRef | string | Free field |
+     * | device | string | Device type<br><br>Note: `room` corresponds to Rainbow Room<br><br>Possibles values : `android`, `desktop`, `ios`, `room`, `web` |
+     * | version | string | Device version |
      * | deviceDetails optionnel | Object | When relevant, optional details regarding the device on which the issue occurred |
      * | hardware optionnel | Object | When relevant, details regarding the hardware of the device on which the issue occurred |
-     * | manufacturer optionnel | String | When relevant, manufacturer of the device on which the issue occurred<br> |
-     * | model optionnel | String | When relevant, model of the device on which the issue occurred<br> |
+     * | manufacturer optionnel | string | When relevant, manufacturer of the device on which the issue occurred<br> |
+     * | model optionnel | string | When relevant, model of the device on which the issue occurred<br> |
      * | os optionnel | Object | When relevant, details regarding the Operating System on which the issue occurred |
-     * | name optionnel | String | When relevant, name of the Operating System on which the issue occurred<br> |
-     * | version optionnel | String | When relevant, version of the Operating System on which the issue occurred<br> |
+     * | name optionnel | string | When relevant, name of the Operating System on which the issue occurred<br> |
+     * | version optionnel | string | When relevant, version of the Operating System on which the issue occurred<br> |
      * | browser optionnel | Object | When relevant, details regarding the browser on which the issue occurred |
-     * | attachments | String\[\] | An Array of file descriptor Id<br><br>* To belong as logs context attachment, a file descriptor must contain the field tags.purpose with the value `log` |
-     * | name optionnel | String | When relevant, name of the browser on which the issue occurred<br> |
-     * | version optionnel | String | When relevant, name of the browser on which the issue occurred<br> |
+     * | attachments | string\[\] | An Array of file descriptor Id<br><br>* To belong as logs context attachment, a file descriptor must contain the field tags.purpose with the value `log` |
+     * | name optionnel | string | When relevant, name of the browser on which the issue occurred<br> |
+     * | version optionnel | string | When relevant, name of the browser on which the issue occurred<br> |
      *
      */
     getListOfIssues(limit: number, offset: number, sortField: string, sortOrder: number, companyId: string, bpId: string, customerCategory: string, name: string, version: string, device: string, fromCreationDate: string, toCreationDate: string, fromOccurrenceDate: string, toOccurrenceDate: string, format?: string): Promise<unknown>;
@@ -14599,34 +16437,34 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      *
      * | Champ | Type | Description |
      * | --- | --- | --- |
-     * | id  | String | Logs context unique identifier. |
-     * | type | String | Initial scenario<br><br>* `feedback`: The customer submits an issue<br>* `ask`: A bot or an admin has contacted a customer to complete an issue |
-     * | permission | String | User has currently accepted to provide his logs. Default value ('declined' when type is `ask`, `granted` when type is 'feedback'<br><br>* `declined`<br>* `granted`<br><br>Default value: `declined` when type is `ask`, `granted` when type is `feedback` |
-     * | userId | String | Unique identifier of the customer (user or Rainbow Tv) |
-     * | userDisplayName | String | Display name of the customer (user or Rainbow Tv) |
-     * | companyId | String | Unique identifier of the userId 's Company |
-     * | companyName | String | Name of the userId 's Company |
-     * | originatorId | String | When type is `ask`, an admin or a bot userId. |
+     * | id  | string | Logs context unique identifier. |
+     * | type | string | Initial scenario<br><br>* `feedback`: The customer submits an issue<br>* `ask`: A bot or an admin has contacted a customer to complete an issue |
+     * | permission | string | User has currently accepted to provide his logs. Default value ('declined' when type is `ask`, `granted` when type is 'feedback'<br><br>* `declined`<br>* `granted`<br><br>Default value: `declined` when type is `ask`, `granted` when type is `feedback` |
+     * | userId | string | Unique identifier of the customer (user or Rainbow Tv) |
+     * | userDisplayName | string | Display name of the customer (user or Rainbow Tv) |
+     * | companyId | string | Unique identifier of the userId 's Company |
+     * | companyName | string | Name of the userId 's Company |
+     * | originatorId | string | When type is `ask`, an admin or a bot userId. |
      * | problemNumber | Number | Ticket number (integer incremented per company) |
      * | creationDate | Date-Time | Logs context creation date |
      * | occurrenceDate | Date-Time | Date when the issue occurred |
-     * | occurrenceDateTimezone | String | Timezone name when the issue occurred.<br><br>Allowed values: one of the timezone names defined in [IANA tz database](https://www.iana.org/time-zones).  <br>Timezone name are composed as follow: `Area/Location` (ex: Europe/Paris, America/New_York,...) |
-     * | description | String | Issue description |
-     * | resourceId | String | When type is `ask`, this is the resource of the device from which we need to get logs (in case of multi-devices configuration) |
-     * | externalRef | String | Free field |
-     * | device | String | Device type<br><br>Note: `room` corresponds to Rainbow Room<br><br>Possibles values : `android`, `desktop`, `ios`, `room`, `web` |
-     * | version | String | Device version |
+     * | occurrenceDateTimezone | string | Timezone name when the issue occurred.<br><br>Allowed values: one of the timezone names defined in [IANA tz database](https://www.iana.org/time-zones).  <br>Timezone name are composed as follow: `Area/Location` (ex: Europe/Paris, America/New_York,...) |
+     * | description | string | Issue description |
+     * | resourceId | string | When type is `ask`, this is the resource of the device from which we need to get logs (in case of multi-devices configuration) |
+     * | externalRef | string | Free field |
+     * | device | string | Device type<br><br>Note: `room` corresponds to Rainbow Room<br><br>Possibles values : `android`, `desktop`, `ios`, `room`, `web` |
+     * | version | string | Device version |
      * | deviceDetails optionnel | Object | When relevant, optional details regarding the device on which the issue occurred |
      * | hardware optionnel | Object | When relevant, details regarding the hardware of the device on which the issue occurred |
-     * | manufacturer optionnel | String | When relevant, manufacturer of the device on which the issue occurred<br> |
-     * | model optionnel | String | When relevant, model of the device on which the issue occurred<br> |
+     * | manufacturer optionnel | string | When relevant, manufacturer of the device on which the issue occurred<br> |
+     * | model optionnel | string | When relevant, model of the device on which the issue occurred<br> |
      * | os optionnel | Object | When relevant, details regarding the Operating System on which the issue occurred |
-     * | name optionnel | String | When relevant, name of the Operating System on which the issue occurred<br> |
-     * | version optionnel | String | When relevant, version of the Operating System on which the issue occurred<br> |
+     * | name optionnel | string | When relevant, name of the Operating System on which the issue occurred<br> |
+     * | version optionnel | string | When relevant, version of the Operating System on which the issue occurred<br> |
      * | browser optionnel | Object | When relevant, details regarding the browser on which the issue occurred |
-     * | attachments | String\[\] | An Array of file descriptor Id<br><br>* To belong as logs context attachment, a file descriptor must contain the field tags.purpose with the value `log` |
-     * | name optionnel | String | When relevant, name of the browser on which the issue occurred<br> |
-     * | version optionnel | String | When relevant, name of the browser on which the issue occurred<br> |
+     * | attachments | string\[\] | An Array of file descriptor Id<br><br>* To belong as logs context attachment, a file descriptor must contain the field tags.purpose with the value `log` |
+     * | name optionnel | string | When relevant, name of the browser on which the issue occurred<br> |
+     * | version optionnel | string | When relevant, name of the browser on which the issue occurred<br> |
      *
      */
     getListOfIssuesForUser(userId: string, format?: string): Promise<unknown>;
@@ -14647,34 +16485,34 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      *
      * | Champ | Type | Description |
      * | --- | --- | --- |
-     * | id  | String | Logs context unique identifier. |
-     * | type | String | Initial scenario<br><br>* `feedback`: The customer submits an issue<br>* `ask`: A bot or an admin has contacted a customer to complete an issue |
-     * | permission | String | User has currently accepted to provide his logs. Default value ('declined' when type is `ask`, `granted` when type is 'feedback'<br><br>* `declined`<br>* `granted`<br><br>Default value: `declined` when type is `ask`, `granted` when type is `feedback` |
-     * | userId | String | Unique identifier of the customer (user or Rainbow Tv) |
-     * | userDisplayName | String | Display name of the customer (user or Rainbow Tv) |
-     * | companyId | String | Unique identifier of the userId 's Company |
-     * | companyName | String | Name of the userId 's Company |
-     * | originatorId | String | When type is `ask`, an admin or a bot userId. |
+     * | id  | string | Logs context unique identifier. |
+     * | type | string | Initial scenario<br><br>* `feedback`: The customer submits an issue<br>* `ask`: A bot or an admin has contacted a customer to complete an issue |
+     * | permission | string | User has currently accepted to provide his logs. Default value ('declined' when type is `ask`, `granted` when type is 'feedback'<br><br>* `declined`<br>* `granted`<br><br>Default value: `declined` when type is `ask`, `granted` when type is `feedback` |
+     * | userId | string | Unique identifier of the customer (user or Rainbow Tv) |
+     * | userDisplayName | string | Display name of the customer (user or Rainbow Tv) |
+     * | companyId | string | Unique identifier of the userId 's Company |
+     * | companyName | string | Name of the userId 's Company |
+     * | originatorId | string | When type is `ask`, an admin or a bot userId. |
      * | problemNumber | Number | Ticket number (integer incremented per company) |
      * | creationDate | Date-Time | Logs context creation date |
      * | occurrenceDate | Date-Time | Date when the issue occurred |
-     * | occurrenceDateTimezone | String | Timezone name when the issue occurred.<br><br>Allowed values: one of the timezone names defined in [IANA tz database](https://www.iana.org/time-zones).  <br>Timezone name are composed as follow: `Area/Location` (ex: Europe/Paris, America/New_York,...) |
-     * | description | String | Issue description |
-     * | resourceId | String | When type is `ask`, this is the resource of the device from which we need to get logs (in case of multi-devices configuration) |
-     * | externalRef | String | Free field |
-     * | device | String | Device type<br><br>Note: `room` corresponds to Rainbow Room<br><br>Possibles values : `android`, `desktop`, `ios`, `room`, `web` |
-     * | version | String | Device version |
+     * | occurrenceDateTimezone | string | Timezone name when the issue occurred.<br><br>Allowed values: one of the timezone names defined in [IANA tz database](https://www.iana.org/time-zones).  <br>Timezone name are composed as follow: `Area/Location` (ex: Europe/Paris, America/New_York,...) |
+     * | description | string | Issue description |
+     * | resourceId | string | When type is `ask`, this is the resource of the device from which we need to get logs (in case of multi-devices configuration) |
+     * | externalRef | string | Free field |
+     * | device | string | Device type<br><br>Note: `room` corresponds to Rainbow Room<br><br>Possibles values : `android`, `desktop`, `ios`, `room`, `web` |
+     * | version | string | Device version |
      * | deviceDetails optionnel | Object | When relevant, optional details regarding the device on which the issue occurred |
      * | hardware optionnel | Object | When relevant, details regarding the hardware of the device on which the issue occurred |
-     * | manufacturer optionnel | String | When relevant, manufacturer of the device on which the issue occurred<br> |
-     * | model optionnel | String | When relevant, model of the device on which the issue occurred<br> |
+     * | manufacturer optionnel | string | When relevant, manufacturer of the device on which the issue occurred<br> |
+     * | model optionnel | string | When relevant, model of the device on which the issue occurred<br> |
      * | os optionnel | Object | When relevant, details regarding the Operating System on which the issue occurred |
-     * | name optionnel | String | When relevant, name of the Operating System on which the issue occurred<br> |
-     * | version optionnel | String | When relevant, version of the Operating System on which the issue occurred<br> |
+     * | name optionnel | string | When relevant, name of the Operating System on which the issue occurred<br> |
+     * | version optionnel | string | When relevant, version of the Operating System on which the issue occurred<br> |
      * | browser optionnel | Object | When relevant, details regarding the browser on which the issue occurred |
-     * | attachments | String\[\] | An Array of file descriptor Id<br><br>* To belong as logs context attachment, a file descriptor must contain the field tags.purpose with the value `log` |
-     * | name optionnel | String | When relevant, name of the browser on which the issue occurred<br> |
-     * | version optionnel | String | When relevant, name of the browser on which the issue occurred<br> |
+     * | attachments | string\[\] | An Array of file descriptor Id<br><br>* To belong as logs context attachment, a file descriptor must contain the field tags.purpose with the value `log` |
+     * | name optionnel | string | When relevant, name of the browser on which the issue occurred<br> |
+     * | version optionnel | string | When relevant, name of the browser on which the issue occurred<br> |
      *
      */
     getIssueForUser(userId: string, logId: string): Promise<any>;
@@ -14709,14 +16547,14 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      * @param {string} version Device version
      * @param {object} deviceDetails When relevant, optional details regarding the device on which the issue occurred </BR>
      * * hardware optionnel Object When relevant, details regarding the hardware of the device on which the issue occurred </BR>
-     * * manufacturer optionnel String When relevant, manufacturer of the device on which the issue occurred </BR>
-     * * model optionnel String When relevant, model of the device on which the issue occurred </BR>
+     * * manufacturer optionnel string When relevant, manufacturer of the device on which the issue occurred </BR>
+     * * model optionnel string When relevant, model of the device on which the issue occurred </BR>
      * * os optionnel Object When relevant, details regarding the Operating System on which the issue occurred </BR>
-     * * name optionnel String When relevant, name of the Operating System on which the issue occurred </BR>
-     * * version optionnel String When relevant, version of the Operating System on which the issue occurred </BR>
+     * * name optionnel string When relevant, name of the Operating System on which the issue occurred </BR>
+     * * version optionnel string When relevant, version of the Operating System on which the issue occurred </BR>
      * * browser optionnel Object When relevant, details regarding the browser on which the issue occurred </BR>
-     * * name optionnel String When relevant, name of the browser on which the issue occurred </BR>
-     * * version optionnel String When relevant, name of the browser on which the issue occurred </BR>
+     * * name optionnel string When relevant, name of the browser on which the issue occurred </BR>
+     * * version optionnel string When relevant, name of the browser on which the issue occurred </BR>
      * @description
      *     This API allows to Initialise a context to submit logs. This logs context may contains all fields necessary to finally build a ticket to submit an issue. </BR>
      * </BR>
@@ -14744,25 +16582,25 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      *
      * | Champ | Type | Description |
      * | --- | --- | --- |
-     * | id  | String | Logs context unique identifier. |
-     * | type | String | Initial scenario<br><br>* `feedback`: The customer submits an issue<br>* `ask`: A bot or an admin has contacted a customer to complete an issue |
-     * | permission | String | User has currently accepted to provide his logs. Default value ('declined' when type is `ask`, `granted` when type is 'feedback'<br><br>* `declined`<br>* `granted`<br><br>Default value: `declined` when type is `ask`, `granted` when type is `feedback` |
-     * | userId | String | Unique identifier of the customer (user or Rainbow Tv) |
-     * | userDisplayName | String | Display name of the customer (user or Rainbow Tv) |
-     * | companyId | String | Unique identifier of the userId 's Company |
-     * | companyName | String | Name of the userId 's Company |
-     * | originatorId | String | When type is `ask`, an admin or a bot userId. |
+     * | id  | string | Logs context unique identifier. |
+     * | type | string | Initial scenario<br><br>* `feedback`: The customer submits an issue<br>* `ask`: A bot or an admin has contacted a customer to complete an issue |
+     * | permission | string | User has currently accepted to provide his logs. Default value ('declined' when type is `ask`, `granted` when type is 'feedback'<br><br>* `declined`<br>* `granted`<br><br>Default value: `declined` when type is `ask`, `granted` when type is `feedback` |
+     * | userId | string | Unique identifier of the customer (user or Rainbow Tv) |
+     * | userDisplayName | string | Display name of the customer (user or Rainbow Tv) |
+     * | companyId | string | Unique identifier of the userId 's Company |
+     * | companyName | string | Name of the userId 's Company |
+     * | originatorId | string | When type is `ask`, an admin or a bot userId. |
      * | problemNumber | Number | Ticket number (integer incremented per company) |
      * | creationDate | Date-Time | Logs context creation date |
      * | occurrenceDate | Date-Time | Date when the issue occurred |
-     * | occurrenceDateTimezone | String | Timezone name when the issue occurred.<br><br>Allowed values: one of the timezone names defined in [IANA tz database](https://www.iana.org/time-zones).  <br>Timezone name are composed as follow: `Area/Location` (ex: Europe/Paris, America/New_York,...) |
-     * | description | String | Issue description |
-     * | resourceId | String | When type is `ask`, this is the resource of the device from which we need to get logs (in case of multi-devices configuration) |
-     * | externalRef | String | Free field |
-     * | device | String | Device type<br><br>Note: `room` corresponds to Rainbow Room<br><br>Possibles values : `android`, `desktop`, `ios`, `room`, `web` |
-     * | version | String | Device version |
+     * | occurrenceDateTimezone | string | Timezone name when the issue occurred.<br><br>Allowed values: one of the timezone names defined in [IANA tz database](https://www.iana.org/time-zones).  <br>Timezone name are composed as follow: `Area/Location` (ex: Europe/Paris, America/New_York,...) |
+     * | description | string | Issue description |
+     * | resourceId | string | When type is `ask`, this is the resource of the device from which we need to get logs (in case of multi-devices configuration) |
+     * | externalRef | string | Free field |
+     * | device | string | Device type<br><br>Note: `room` corresponds to Rainbow Room<br><br>Possibles values : `android`, `desktop`, `ios`, `room`, `web` |
+     * | version | string | Device version |
      * | deviceDetails optionnel | Object | When relevant, optional details regarding the device on which the issue occurred |
-     * | attachments | String\[\] | An Array of file descriptor Id<br><br>* To belong as logs context attachment, a file descriptor must contain the field tags.purpose with the value `log` |
+     * | attachments | string\[\] | An Array of file descriptor Id<br><br>* To belong as logs context attachment, a file descriptor must contain the field tags.purpose with the value `log` |
      *
      */
     initiateLogsContext(userId: string, occurrenceDate: string, occurrenceDateTimezone: string, type: string, description: string, resourceId: string, externalRef: string, device: string, attachments: Array<string>, version: string, deviceDetails: any): Promise<unknown>;
@@ -14790,14 +16628,14 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      * @param {string} version Device version
      * @param {object} deviceDetails When relevant, optional details regarding the device on which the issue occurred
      * * hardware optionnel Object When relevant, details regarding the hardware of the device on which the issue occurred
-     * * manufacturer optionnel String When relevant, manufacturer of the device on which the issue occurred
-     * * model optionnel String When relevant, model of the device on which the issue occurred
+     * * manufacturer optionnel string When relevant, manufacturer of the device on which the issue occurred
+     * * model optionnel string When relevant, model of the device on which the issue occurred
      * * os optionnel Object When relevant, details regarding the Operating System on which the issue occurred
-     * * name optionnel String When relevant, name of the Operating System on which the issue occurred
-     * * version optionnel String When relevant, version of the Operating System on which the issue occurred
+     * * name optionnel string When relevant, name of the Operating System on which the issue occurred
+     * * version optionnel string When relevant, version of the Operating System on which the issue occurred
      * * browser optionnel Object When relevant, details regarding the browser on which the issue occurred
-     * * name optionnel String When relevant, name of the browser on which the issue occurred
-     * * version optionnel String When relevant, name of the browser on which the issue occurred
+     * * name optionnel string When relevant, name of the browser on which the issue occurred
+     * * version optionnel string When relevant, name of the browser on which the issue occurred
      * @description
      *     This API allows to completethe logs context. </BR>
      *     When an Admin or Emily bot ask to manage a user, this user must complete the logs context with all awaited data. </BR>
@@ -14887,7 +16725,7 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      *
      * | Champ | Type | Description |
      * | --- | --- | --- |
-     * | status | String | Delete operation status message. |
+     * | status | string | Delete operation status message. |
      *
      */
     cancelOrCloseLogsSubmission(userId: string, logId: string): Promise<unknown>;
@@ -14922,25 +16760,25 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      *
      * | Champ | Type | Description |
      * | --- | --- | --- |
-     * | id  | String | Logs context unique identifier. |
-     * | type | String | Initial scenario<br><br>* `feedback`: The customer submits an issue<br>* `ask`: A bot or an admin has contacted a customer to complete an issue |
-     * | permission | String | User has currently accepted to provide his logs. Default value ('declined' when type is `ask`, `granted` when type is 'feedback'<br><br>* `declined`<br>* `granted`<br><br>Default value: `declined` when type is `ask`, `granted` when type is `feedback` |
-     * | userId | String | Unique identifier of the customer (user or Rainbow Tv) |
-     * | userDisplayName | String | Display name of the customer (user or Rainbow Tv) |
-     * | companyId | String | Unique identifier of the userId 's Company |
-     * | companyName | String | Name of the userId 's Company |
-     * | originatorId | String | When type is `ask`, an admin or a bot userId. |
+     * | id  | string | Logs context unique identifier. |
+     * | type | string | Initial scenario<br><br>* `feedback`: The customer submits an issue<br>* `ask`: A bot or an admin has contacted a customer to complete an issue |
+     * | permission | string | User has currently accepted to provide his logs. Default value ('declined' when type is `ask`, `granted` when type is 'feedback'<br><br>* `declined`<br>* `granted`<br><br>Default value: `declined` when type is `ask`, `granted` when type is `feedback` |
+     * | userId | string | Unique identifier of the customer (user or Rainbow Tv) |
+     * | userDisplayName | string | Display name of the customer (user or Rainbow Tv) |
+     * | companyId | string | Unique identifier of the userId 's Company |
+     * | companyName | string | Name of the userId 's Company |
+     * | originatorId | string | When type is `ask`, an admin or a bot userId. |
      * | problemNumber | Number | Ticket number (integer incremented per company) |
      * | creationDate | Date-Time | Logs context creation date |
      * | occurrenceDate | Date-Time | Date when the issue occurred |
-     * | occurrenceDateTimezone | String | Timezone name when the issue occurred.<br><br>Allowed values: one of the timezone names defined in [IANA tz database](https://www.iana.org/time-zones).  <br>Timezone name are composed as follow: `Area/Location` (ex: Europe/Paris, America/New_York,...) |
-     * | description | String | Issue description |
-     * | resourceId | String | When type is `ask`, this is the resource of the device from which we need to get logs (in case of multi-devices configuration) |
-     * | externalRef | String | Free field |
-     * | device | String | Device type<br><br>Note: `room` corresponds to Rainbow Room<br><br>Possibles values : `android`, `desktop`, `ios`, `room`, `web` |
-     * | version | String | Device version |
+     * | occurrenceDateTimezone | string | Timezone name when the issue occurred.<br><br>Allowed values: one of the timezone names defined in [IANA tz database](https://www.iana.org/time-zones).  <br>Timezone name are composed as follow: `Area/Location` (ex: Europe/Paris, America/New_York,...) |
+     * | description | string | Issue description |
+     * | resourceId | string | When type is `ask`, this is the resource of the device from which we need to get logs (in case of multi-devices configuration) |
+     * | externalRef | string | Free field |
+     * | device | string | Device type<br><br>Note: `room` corresponds to Rainbow Room<br><br>Possibles values : `android`, `desktop`, `ios`, `room`, `web` |
+     * | version | string | Device version |
      * | deviceDetails optionnel | Object | When relevant, optional details regarding the device on which the issue occurred |
-     * | attachments | String\[\] | An Array of file descriptor Id<br><br>* To belong as logs context attachment, a file descriptor must contain the field tags.purpose with the value `log` |
+     * | attachments | string\[\] | An Array of file descriptor Id<br><br>* To belong as logs context attachment, a file descriptor must contain the field tags.purpose with the value `log` |
      *
      */
     acknowledgeLogsRequest(userId: string, logId: string): Promise<unknown>;
@@ -14978,25 +16816,25 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      *
      * | Champ | Type | Description |
      * | --- | --- | --- |
-     * | id  | String | Logs context unique identifier. |
-     * | type | String | Initial scenario<br><br>* `feedback`: The customer submits an issue<br>* `ask`: A bot or an admin has contacted a customer to complete an issue |
-     * | permission | String | User has currently accepted to provide his logs. Default value ('declined' when type is `ask`, `granted` when type is 'feedback'<br><br>* `declined`<br>* `granted`<br><br>Default value: `declined` when type is `ask`, `granted` when type is `feedback` |
-     * | userId | String | Unique identifier of the customer (user or Rainbow Tv) |
-     * | userDisplayName | String | Display name of the customer (user or Rainbow Tv) |
-     * | companyId | String | Unique identifier of the userId 's Company |
-     * | companyName | String | Name of the userId 's Company |
-     * | originatorId | String | When type is `ask`, an admin or a bot userId. |
+     * | id  | string | Logs context unique identifier. |
+     * | type | string | Initial scenario<br><br>* `feedback`: The customer submits an issue<br>* `ask`: A bot or an admin has contacted a customer to complete an issue |
+     * | permission | string | User has currently accepted to provide his logs. Default value ('declined' when type is `ask`, `granted` when type is 'feedback'<br><br>* `declined`<br>* `granted`<br><br>Default value: `declined` when type is `ask`, `granted` when type is `feedback` |
+     * | userId | string | Unique identifier of the customer (user or Rainbow Tv) |
+     * | userDisplayName | string | Display name of the customer (user or Rainbow Tv) |
+     * | companyId | string | Unique identifier of the userId 's Company |
+     * | companyName | string | Name of the userId 's Company |
+     * | originatorId | string | When type is `ask`, an admin or a bot userId. |
      * | problemNumber | Number | Ticket number (integer incremented per company) |
      * | creationDate | Date-Time | Logs context creation date |
      * | occurrenceDate | Date-Time | Date when the issue occurred |
-     * | occurrenceDateTimezone | String | Timezone name when the issue occurred.<br><br>Allowed values: one of the timezone names defined in [IANA tz database](https://www.iana.org/time-zones).  <br>Timezone name are composed as follow: `Area/Location` (ex: Europe/Paris, America/New_York,...) |
-     * | description | String | Issue description |
-     * | resourceId | String | When type is `ask`, this is the resource of the device from which we need to get logs (in case of multi-devices configuration) |
-     * | externalRef | String | Free field |
-     * | device | String | Device type<br><br>Note: `room` corresponds to Rainbow Room<br><br>Possibles values : `android`, `desktop`, `ios`, `room`, `web` |
-     * | version | String | Device version |
+     * | occurrenceDateTimezone | string | Timezone name when the issue occurred.<br><br>Allowed values: one of the timezone names defined in [IANA tz database](https://www.iana.org/time-zones).  <br>Timezone name are composed as follow: `Area/Location` (ex: Europe/Paris, America/New_York,...) |
+     * | description | string | Issue description |
+     * | resourceId | string | When type is `ask`, this is the resource of the device from which we need to get logs (in case of multi-devices configuration) |
+     * | externalRef | string | Free field |
+     * | device | string | Device type<br><br>Note: `room` corresponds to Rainbow Room<br><br>Possibles values : `android`, `desktop`, `ios`, `room`, `web` |
+     * | version | string | Device version |
      * | deviceDetails optionnel | Object | When relevant, optional details regarding the device on which the issue occurred |
-     * | attachments | String\[\] | An Array of file descriptor Id<br><br>* To belong as logs context attachment, a file descriptor must contain the field tags.purpose with the value `log` |
+     * | attachments | string\[\] | An Array of file descriptor Id<br><br>* To belong as logs context attachment, a file descriptor must contain the field tags.purpose with the value `log` |
      *
      */
     rejectLogsRequest(userId: string, logId: string): Promise<unknown>;
@@ -15021,14 +16859,14 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      * @param {string} version Device version
      * @param {object} deviceDetails When relevant, optional details regarding the device on which the issue occurred
      * * hardware optionnel Object When relevant, details regarding the hardware of the device on which the issue occurred
-     * * manufacturer optionnel String When relevant, manufacturer of the device on which the issue occurred
-     * * model optionnel String When relevant, model of the device on which the issue occurred
+     * * manufacturer optionnel string When relevant, manufacturer of the device on which the issue occurred
+     * * model optionnel string When relevant, model of the device on which the issue occurred
      * * os optionnel Object When relevant, details regarding the Operating System on which the issue occurred
-     * * name optionnel String When relevant, name of the Operating System on which the issue occurred
-     * * version optionnel String When relevant, version of the Operating System on which the issue occurred
+     * * name optionnel string When relevant, name of the Operating System on which the issue occurred
+     * * version optionnel string When relevant, version of the Operating System on which the issue occurred
      * * browser optionnel Object When relevant, details regarding the browser on which the issue occurred
-     * * name optionnel String When relevant, name of the browser on which the issue occurred
-     * * version optionnel String When relevant, name of the browser on which the issue occurred
+     * * name optionnel string When relevant, name of the browser on which the issue occurred
+     * * version optionnel string When relevant, name of the browser on which the issue occurred
      * @param {string} typeOfLog is Initial scenario<br><br>* `feedback`: The customer submits an issue<br>* `ask`: A bot or an admin has contacted a customer to complete an issue
      * @description
      *     This API allows to store files in rainbow, and then to complete the logs context with it and provided informations. </BR>
@@ -15063,25 +16901,25 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      *
      * | Champ | Type | Description |
      * | --- | --- | --- |
-     * | id  | String | Logs context unique identifier. |
-     * | type | String | Initial scenario<br><br>* `feedback`: The customer submits an issue<br>* `ask`: A bot or an admin has contacted a customer to complete an issue |
-     * | permission | String | User has currently accepted to provide his logs. Default value ('declined' when type is `ask`, `granted` when type is 'feedback'<br><br>* `declined`<br>* `granted`<br><br>Default value: `declined` when type is `ask`, `granted` when type is `feedback` |
-     * | userId | String | Unique identifier of the customer (user or Rainbow Tv) |
-     * | userDisplayName | String | Display name of the customer (user or Rainbow Tv) |
-     * | companyId | String | Unique identifier of the userId 's Company |
-     * | companyName | String | Name of the userId 's Company |
-     * | originatorId | String | When type is `ask`, an admin or a bot userId. |
+     * | id  | string | Logs context unique identifier. |
+     * | type | string | Initial scenario<br><br>* `feedback`: The customer submits an issue<br>* `ask`: A bot or an admin has contacted a customer to complete an issue |
+     * | permission | string | User has currently accepted to provide his logs. Default value ('declined' when type is `ask`, `granted` when type is 'feedback'<br><br>* `declined`<br>* `granted`<br><br>Default value: `declined` when type is `ask`, `granted` when type is `feedback` |
+     * | userId | string | Unique identifier of the customer (user or Rainbow Tv) |
+     * | userDisplayName | string | Display name of the customer (user or Rainbow Tv) |
+     * | companyId | string | Unique identifier of the userId 's Company |
+     * | companyName | string | Name of the userId 's Company |
+     * | originatorId | string | When type is `ask`, an admin or a bot userId. |
      * | problemNumber | Number | Ticket number (integer incremented per company) |
      * | creationDate | Date-Time | Logs context creation date |
      * | occurrenceDate | Date-Time | Date when the issue occurred |
-     * | occurrenceDateTimezone | String | Timezone name when the issue occurred.<br><br>Allowed values: one of the timezone names defined in [IANA tz database](https://www.iana.org/time-zones).  <br>Timezone name are composed as follow: `Area/Location` (ex: Europe/Paris, America/New_York,...) |
-     * | description | String | Issue description |
-     * | resourceId | String | When type is `ask`, this is the resource of the device from which we need to get logs (in case of multi-devices configuration) |
-     * | externalRef | String | Free field |
-     * | device | String | Device type<br><br>Note: `room` corresponds to Rainbow Room<br><br>Possibles values : `android`, `desktop`, `ios`, `room`, `web` |
-     * | version | String | Device version |
+     * | occurrenceDateTimezone | string | Timezone name when the issue occurred.<br><br>Allowed values: one of the timezone names defined in [IANA tz database](https://www.iana.org/time-zones).  <br>Timezone name are composed as follow: `Area/Location` (ex: Europe/Paris, America/New_York,...) |
+     * | description | string | Issue description |
+     * | resourceId | string | When type is `ask`, this is the resource of the device from which we need to get logs (in case of multi-devices configuration) |
+     * | externalRef | string | Free field |
+     * | device | string | Device type<br><br>Note: `room` corresponds to Rainbow Room<br><br>Possibles values : `android`, `desktop`, `ios`, `room`, `web` |
+     * | version | string | Device version |
      * | deviceDetails optionnel | Object | When relevant, optional details regarding the device on which the issue occurred |
-     * | attachments | String\[\] | An Array of file descriptor Id<br><br>* To belong as logs context attachment, a file descriptor must contain the field tags.purpose with the value `log` |
+     * | attachments | string \[\] | An Array of file descriptor Id<br><br>* To belong as logs context attachment, a file descriptor must contain the field tags.purpose with the value `log` |
      *
      */
     adminOrBotAddAdditionalFiles(userId: string, logId: string, attachments: Array<string>, conversationId: string, fileName: string): Promise<unknown>;
@@ -15100,8 +16938,9 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      *
      *
      * example of result :
+     * ```json
      * {
-     * "jid_im": \[
+     * "jid_im": [
      * {
      * "resource": "web\_win\_1.67.2_P0EnyMvN",
      * "date": "2020-02-11T17:45:18.231395Z"
@@ -15110,8 +16949,9 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      * "resource": "web\_win\_1.67.2_ajqyiThi",
      * "date": "2020-02-11T17:31:31.409537Z",
      * "show": "xa", "status": "away"
-     * } \]
+     * } ]
      * }
+     * ```
      *
      */
     getListOfResourcesForUser(userId: string): Promise<unknown>;
@@ -15142,6 +16982,7 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      *
      *
      * example of result :
+     * ```json
      * {
      * "externalRef": "xxxxxxx",
      * "internalRef": "xxxxxxx",
@@ -15149,8 +16990,9 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      * "description": "Hello Houston, we've got a problem.",
      * "additionalDescription": "my phone neither",
      * "resource": "web\_win\_xxxxx",
-     * "logs": \[\]
+     * "logs": []
      * }
+     * ```
      *
      */
     createAnAtriumTicket(userId: string, subject: string, description: string, additionalDescription: string, resource: string, externalRef: string, logs: Array<string>): Promise<unknown>;
@@ -15182,6 +17024,7 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      *
      *
      * example of result :
+     * ```json
      * {
      * "externalRef": "xxxxxxx",
      * "internalRef": "xxxxxxx",
@@ -15189,8 +17032,9 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      * "description": "Hello Houston, we've got a problem.",
      * "additionalDescription": "my phone neither",
      * "resource": "web\_win\_xxxxx",
-     * "logs": \[\]
+     * "logs": []
      * }
+     * ```
      *
      */
     updateAnAtriumTicket(userId: string, ticketId: string, subject: string, description: string, additionalDescription: string, resource: string, externalRef: string, logs: Array<string>): Promise<unknown>;
@@ -15209,6 +17053,7 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      *
      *
      * example of result :
+     * ```json
      * {
      * "externalRef": "xxxxxxx",
      * "internalRef": "xxxxxxx",
@@ -15216,8 +17061,9 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      * "description": "Hello Houston, we've got a problem.",
      * "additionalDescription": "my phone neither",
      * "resource": "web\_win\_xxxxx",
-     * "logs": \[\]
+     * "logs": []
      * }
+     * ```
      *
      */
     deleteAnAtriumTicketInformation(userId: string, ticketId: string): Promise<unknown>;
@@ -15242,6 +17088,7 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      *
      *
      * example of result :
+     * ```json
      * {
      * "externalRef": "xxxxxxx",
      * "internalRef": "xxxxxxx",
@@ -15249,8 +17096,9 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      * "description": "Hello Houston, we've got a problem.",
      * "additionalDescription": "my phone neither",
      * "resource": "web\_win\_xxxxx",
-     * "logs": \[\]
+     * "logs": []
      * }
+     * ```
      *
      */
     readAnAtriumTicketInformation(userId: string, ticketId: string): Promise<unknown>;
@@ -15268,7 +17116,8 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      *
      *
      * example of result :
-     * \[
+     * ```json
+     * [
      * {
      * "externalRef": "xxxxxxx",
      * "internalRef": "xxxxxxx",
@@ -15276,7 +17125,7 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      * "description": "Where is the volume button of my iphone?",
      * "additionalDescription": "Where is my rainbow icon on my mac? ",
      * "resource": "web\_win\_xxxxx",
-     * "logs": \[\]
+     * "logs": []
      * },
      * {
      * "externalRef": "xxxxxxx",
@@ -15285,10 +17134,630 @@ import { Core } from 'lib/Core.js'; enum OFFERTYPES {
      * "description": "I forgot to turn on my iphone, the screen stay in black, I disappointed to not receive any Rainbow notification.",
      * "resource": "web\_win\_xxxxx"
      * }
-     * \]
+     * ]
+     * ```
      *
      */
     readAllTicketsOnASameCompany(userId: string): Promise<unknown>;
+    /**
+     * @public
+     * @method createCloudPBXGroup
+     * @since 2.28.2
+     * @instance
+     * @async
+     * @category Companies Cloudpbx Groups (Rainbow Voice)
+     * @param {string} companyId company id unique identifier. Default value is the connected user's company.
+     * @param {HuntingGroup} huntingGroup (in RainbowVoiceCloudPBX type's file ) informations for the creation of the Hunting Group.
+     * @description
+     * This API allows to create a new cloud PBX Group.
+     * <br/> A group is a container for some Rainbow Users (e.g. 'Hunting Group'). Only company admin or superadmin can create a group.
+     * <br/>Inside a group, members can have the following possible roles:
+     * <ul>
+     *      <li><b>manager</b>: User has been given control on the group (can add / remove members, or change order in serial group)</li>
+     *      <li><b>agent</b>: User is a member of a 'default' or 'hg_attendant' hunting group, and will participate in the call distribution (if status is 'active')</li>
+     *      <li><b>leader</b>: User is a member of a 'manager_assistant' hunting group, and can receive calls as the <b><i>first</i></b> member in that group (if its status is 'active')</li>
+     *      <li><b>assistant</b>: User is a member of a 'manager_assistant' hunting group, and can receive calls after the leader (if its status is 'active'). Assistant has the right to control its leader filtering status</li>
+     * </ul>
+     * <br/>Members can cumulate roles: <br/>
+     * <ul>
+     *     <li>In 'default' or 'hg_attendant' members can be at the same time manager (i.e. managing members) and agent (participate in call distribution)</li>
+     *     <li>In 'manager_assistant' group, members can't cumulate 'leader' and 'assistant' roles. Only one member can have the 'leader' role in a group (and not in other groups !). Manager role can be added to any member</li>
+     * </ul>
+     * <br/>When a hunting group is created, members are set as active by default and eligible to call distribution. This behavior can be overridden by setting member status to 'idle'.
+     * <br/>Some checks are performed while requesting a group creation:
+     * <ul>
+     *     <li>Phone number (shortNumber) must be unique</li>
+     *     <li>External Number is the public phone of the group. If used, It must be retrieved from the cloud PBX provisioned DDI numbers</li>
+     *     <li>Creator of the hunting group must be superadmin or a company admin</li>
+     *     <li>Members must have an associated Cloud PBX subscriber (except manager of the hunting group)</li>
+     *     <li>Name of the group must contain only letters, digits or '-', '_'</li>
+     * </ul>
+     * <br/><br/>The status of the member can take the following possible values for a 'default' or 'hg_attendant' hunting_group:
+     * <ul>
+     *     <li><b>active</b>: An <b>active</b> agent will participate in call distribution. <b>active</b> manager is meaningless (except if roles also include agent).</li>
+     *     <li><b>idle</b>: An <b>idle</b> agent does not participate in call distribution, but is 'declared' as a member of the group. He can then join the group to participate in call distribution
+     *     (his status will be updated to <b>active</b> after joining the group). Leaving a group is also supported (status then changed from <b>active</b> to <b>idle</b>). See Voice portal for join/leave.
+     * </ul>
+     * <br/>In 'manager_assistant' hunting group, some specificities:
+     * <ul>
+     *     <li>The <b>active</b> status set on an assistant means this one is ready to receive manager's call, if this one has set filtering on, or has not replied to the call</li>
+     *     <li>The <b>active</b> status set on a leader (i.e. filtering status activated) means the leader has delegated the call processing to the assistant(s) declared in the group</li>
+     *     <li>A 'manager_assistant' hunting group is not allowed to be empty (must have at least one member with 'active' status)</li>
+     *     <li>A 'manager_assistant' hunting group can only have a serial policy, with the extra constraint to have the leader in first position></li>
+     * </ul>
+     * <br/><br/> The order of the members inside the group can be important, as for the serial or circular hunting group type this reflects the order of ringing of the members.
+     * <br/> Once a hunting group has been created, it is then possible to associate a public number to it, so that it can be called from public network. Refer to the group update operation.
+     * <br/>
+     * <br/> A specific and Unique (for a Cloud PBX) hunting group for managing Emergency Calls can be created by setting the attribute <b>isEmergencyGroup</b>.
+     * <br/> This emergency group is Unique for a cloud PBX; its policy is <b>parallel</b> and no public number can be associated
+     * <br/> Once activated (see rvcpprovisioning documentation - section "<i>Cloud PBX / Update a Cloud PBX</i>") ; emergency calls (done without outgoing prefix) will be redirected first to this Emergency Group
+     * <br/> Forwards (busy ; no-reply ; unavailable) are automatically managed onto the first emergency number (main emergency number in the list)
+     * <br/> Note that this attribute <b>isEmergencyGroup</b> cannot be updated
+     *
+     *
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Field                                      | Type                                             | Description                                                               |
+     * |--------------------------------------------|--------------------------------------------------|---------------------------------------------------------------------------|
+     * | id                                    | string                                       | Group unique identifier                                                   |
+     * | name                                  | string                                       | Group name - displayed on the caller phone set for hunting group type     |
+     * | shortNumber                           | string                                       | Short phone number of the hunting group                                   |
+     * | externalNumber                        | string                                       | Public phone number on which the hunting group can be joined              |
+     * | externalNumberId                      | string                                       | Identifier of the public phone number of the hunting group                 |
+     * | roomId                                | string                                       | Identifier of the hunting group associated room                           |
+     * | phoneNumberId                         | string                                       | Identifier of the hunting group phone number                              |
+     * | createdBy                             | string                                       | Group creator identifier                                                  |
+     * | policy                                | HuntingGroupPolicy                          | Group policy of the hunting group.                                        |
+     * | timeout                               | 5-30                                         | Group timeout in seconds - specific to serial or circular group policy    |
+     * | type                                  | HuntingGroupType                            | Group type. DEPRECATED manager_assistant - see subType 'manager_assistant' |
+     * | subType                               | HuntingGroupSubType                         | Hunting group sub type.                                                   |
+     * | isRecordingActivated                  | Boolean                                     | Indicates if the recording is activated on the hunting group              |
+     * | recordingProfile                     | HuntingGroupProfiles                        | Recording profile of the hunting group.                                   |
+     * | isEmergencyGroup                      | Boolean                                     | Indicates if this hunting group is the emergency group for the associated Cloud PBX |
+     * | isEmptyAllowed                       | Boolean                                     | Indicates if the last active member can leave the hunting group or not   |
+     * | isDDIUpdateByManagerAllowed          | Boolean                                     | Indicates if changing the DDI of this hunting group by a manager is allowed or not |
+     * | companyId                            | string                                       | Identifier of the company owning the hunting group                        |
+     * | subscriberId                         | string                                       | Associated subscriber Id of the hunting group                             |
+     * | systemId                             | string                                       | Cloud PBX System unique identifier                                        |
+     * | members                              | Array                                        | List of group members                                                     |
+     * | members.memberId                     | string                                       | Member (user) unique identifier                                           |
+     * | members.displayName                  | string                                       | Member display name                                                       |
+     * | members.roles                        | HuntingGroupMemberRole                      | Member role inside the group. Possible values: manager, agent, leader, assistant |
+     * | members.status                       | HuntingGroupMemberStatus                    | Member status inside the group.                                           |
+     * | members.connected                    | HuntingGroupMemberConnection                | Hunting group member connected status inside the group. If status active and connected or deskphone, member could answer a group call |
+     * | analyticSettings                     | Object                                      | Group analytic settings                                                   |
+     * | analyticSettings.isManagersAllowedToSeeMembersAnalytics | Boolean                     | Are group managers allowed to see members analytics                      |
+     *
+     *  example of result :
+     *  ```json
+     *  {
+     *          "id": "5cd545b3a07de465fbc3fcda",
+     *          "name": "Group_1",
+     *          "type": "hunting_group",
+     *          "subType": "default",
+     *          "createdBy": "5cd5443fd9736d8431b5c185",
+     *          "policy": "serial",
+     *          "shortNumber": "81002",
+     *          "externalNumberId": "5cd5443fd9736d8431b5c987",
+     *          "externalNumber": "+33298564112",
+     *          "phoneNumberId": "5cd5443fd9736d8431b5c988",
+     *          "timeout": 10,
+     *          "isEmergencyGroup": false,
+     *          "isEmptyAllowed": true,
+     *          "isDDIUpdateByManagerAllowed": true,
+     *          "companyId": "5dcd8dcec7e1620643a2045e",
+     *          "subscriberId": 147,
+     *          "systemId": "5de6a632c21aa17bab337347",
+     *          "members": [
+     *              {"memberId": "5cd545b3a07de465fb123456", "displayName": "Alice Donner", "roles": ["agent"], "status": "active", "connected": "connected"},
+     *              {"memberId": "5cd545b3a07de465fb123457", "displayName": "Bob the DIY man", "roles": ["agent"], "status": "active", "connected": "disconnected"},
+     *              {"memberId": "5cd545b3a07de465fb123458", "displayName": "Carole Bouquet", "roles": ["manager", "agent"], "status": "active", "connected": "deskphone"}
+     *          ],
+     *          "isRecordingActivated": false,
+     *          "recordingProfile": "none",
+     *          "analyticSettings": {
+     *              "isManagersAllowedToSeeMembersAnalytics": true
+     *          }
+     *  }
+     * ```
+     *
+     * </br>
+     */
+    createCloudPBXGroup(companyId: string, huntingGroup: HuntingGroup): Promise<any>;
+    /**
+     * @public
+     * @method deleteCloudPBXGroup
+     * @since 2.28.2
+     * @instance
+     * @async
+     * @category Companies Cloudpbx Groups (Rainbow Voice)
+     * @param {string} companyId company id unique identifier. Default value is the connected user's company.
+     * @param {string} groupId Unique identifier of the Cloud PBX group to delete.
+     * @description
+     *      This API allows to delete a cloud PBX Group.
+     *
+     * @return {Promise<any>} - result
+     *
+     *
+     * </br> example of result :
+     * ```json
+     *  {
+     *     "status": "Cloud PBX group 56c5c19f94141765119f896c successfully deleted",
+     *     "data":[]
+     *  }
+     *  ```
+     * </br>
+     *
+     */
+    deleteCloudPBXGroup(companyId: string, groupId: string): Promise<any>;
+    /**
+     * @public
+     * @method getCloudPBXGroup
+     * @since 2.28.2
+     * @instance
+     * @async
+     * @category Companies Cloudpbx Groups (Rainbow Voice)
+     * @param {string} companyId company id unique identifier. Default value is the connected user's company.
+     * @param {string} groupId Unique identifier of the Cloud PBX group to retrieve.
+     * @description
+     *      This API allows to get data of a Cloud PBX group
+     *
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Field                                      | Type                                             | Description                                                               |
+     * |--------------------------------------------|--------------------------------------------------|---------------------------------------------------------------------------|
+     * | id                                    | string                                       | Group unique identifier                                                   |
+     * | name                                  | string                                       | Group name - displayed on the caller phone set for hunting group type     |
+     * | shortNumber                           | string                                       | Short phone number of the hunting group                                   |
+     * | externalNumber                        | string                                       | Public phone number on which the hunting group can be joined              |
+     * | externalNumberId                      | string                                       | Identifier of the public phone number of the hunting group                 |
+     * | roomId                                | string                                       | Identifier of the hunting group associated room                           |
+     * | phoneNumberId                         | string                                       | Identifier of the hunting group phone number                              |
+     * | createdBy                             | string                                       | Group creator identifier                                                  |
+     * | policy                                | HuntingGroupPolicy                          | Group policy of the hunting group.                                        |
+     * | timeout                               | 5-30                                         | Group timeout in seconds - specific to serial or circular group policy    |
+     * | type                                  | HuntingGroupType                            | Group type. DEPRECATED manager_assistant - see subType 'manager_assistant' |
+     * | subType                               | HuntingGroupSubType                         | Hunting group sub type.                                                   |
+     * | isRecordingActivated                  | Boolean                                     | Indicates if the recording is activated on the hunting group              |
+     * | recordingProfile                     | HuntingGroupProfiles                        | Recording profile of the hunting group.                                   |
+     * | isEmergencyGroup                      | Boolean                                     | Indicates if this hunting group is the emergency group for the associated Cloud PBX |
+     * | isEmptyAllowed                       | Boolean                                     | Indicates if the last active member can leave the hunting group or not   |
+     * | isDDIUpdateByManagerAllowed          | Boolean                                     | Indicates if changing the DDI of this hunting group by a manager is allowed or not |
+     * | companyId                            | string                                       | Identifier of the company owning the hunting group                        |
+     * | subscriberId                         | string                                       | Associated subscriber Id of the hunting group                             |
+     * | systemId                             | string                                       | Cloud PBX System unique identifier                                        |
+     * | members                              | Array                                        | List of group members                                                     |
+     * | members.memberId                     | string                                       | Member (user) unique identifier                                           |
+     * | members.displayName                  | string                                       | Member display name                                                       |
+     * | members.roles                        | HuntingGroupMemberRole                      | Member role inside the group. Possible values: manager, agent, leader, assistant |
+     * | members.status                       | HuntingGroupMemberStatus                    | Member status inside the group.                                           |
+     * | members.connected                    | HuntingGroupMemberConnection                | Hunting group member connected status inside the group. If status active and connected or deskphone, member could answer a group call |
+     * | analyticSettings                     | Object                                      | Group analytic settings                                                   |
+     * | analyticSettings.isManagersAllowedToSeeMembersAnalytics | Boolean                     | Are group managers allowed to see members analytics                      |
+     *
+     *  </br>example of result :
+     *  ```json
+     *  {
+     *          "id": "5cd545b3a07de465fbc3fcda",
+     *          "name": "Group_1",
+     *          "type": "hunting_group",
+     *          "subType": "default",
+     *          "createdBy": "5cd5443fd9736d8431b5c185",
+     *          "policy": "serial",
+     *          "shortNumber": "81002",
+     *          "externalNumberId": "5cd5443fd9736d8431b5c987",
+     *          "externalNumber": "+33298564112",
+     *          "phoneNumberId": "5cd5443fd9736d8431b5c988",
+     *          "timeout": 10,
+     *          "isEmergencyGroup": false,
+     *          "isEmptyAllowed": true,
+     *          "isDDIUpdateByManagerAllowed": true,
+     *          "companyId": "5dcd8dcec7e1620643a2045e",
+     *          "subscriberId": 147,
+     *          "systemId": "5de6a632c21aa17bab337347",
+     *          "members": [
+     *              {"memberId": "5cd545b3a07de465fb123456", "displayName": "Alice Donner", "roles": ["agent"], "status": "active", "connected": "connected"},
+     *              {"memberId": "5cd545b3a07de465fb123457", "displayName": "Bob the DIY man", "roles": ["agent"], "status": "active", "connected": "disconnected"},
+     *              {"memberId": "5cd545b3a07de465fb123458", "displayName": "Carole Bouquet", "roles": ["manager", "agent"], "status": "active", "connected": "deskphone"}
+     *          ],
+     *          "isRecordingActivated": false,
+     *          "recordingProfile": "none",
+     *          "analyticSettings": {
+     *              "isManagersAllowedToSeeMembersAnalytics": true
+     *          }
+     *  }
+     *  ```
+     * </br>
+     */
+    getCloudPBXGroup(companyId: string, groupId: string): Promise<any>;
+    /**
+     * @public
+     * @method getAllCloudPBXGroups
+     * @since 2.28.2
+     * @instance
+     * @async
+     * @category Companies Cloudpbx Groups (Rainbow Voice)
+     * @param {string} companyId Company unique identifier (like 569ce8c8f9336c471b98eda1).
+     * @param {string} [sortField=name] - Sort items list based on the given field.
+     * @param {string} [name] - Filter groups whose name contains the given filter.
+     * @param {string} [shortNumber] - Filter groups whose short phone number contains the given filter.
+     * @param {string} [externalNumber] - Filter groups whose external number contains the given filter.
+     * @param {string} [memberId] - Filter groups containing the given member.
+     * @param {string} [type] - Filter groups according to its type.
+     *                                   Can be one of the following values: call_queue, hunting_group, manager_assistant,
+     *                                   or a comma-separated list of these values.
+     * @param {number} limit Allow to specify the number of items to retrieve. Default value : 100.
+     * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Default value : 0 .
+     * @param {number} sortOrder Specify order when sorting items list. Default value : 1. Possibles values : -1, 1  .
+     * @description
+     *      This API allows to get all the groups of a Cloud PBX for a given company.
+     *
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Field                                      | Type                                             | Description                                                               |
+     * |--------------------------------------------|--------------------------------------------------|---------------------------------------------------------------------------|
+     *      | data                           | Object[]                                                  | List of groups                                                                                   |
+     *      | data.id                        | string                                                    | Hunting group unique identifier                                                                  |
+     *      | data.name                      | string                                                    | Hunting group name - displayed on the caller phone set                                           |
+     *      | data.type                      | HuntingGroupType             | Group type. DEPRECATED manager_assistant - see subType 'manager_assistant'                        |
+     *      | data.subType                   | HuntingGroupSubType         | Hunting group sub type                                                                           |
+     *      | data.policy                    | HuntingGroupPolicy                       | Hunting group policy                                                                             |
+     *      | data.shortNumber               | string                                                    | Hunting group short phone number                                                                 |
+     *      | data.externalNumber            | string                                                    | Hunting group public phone number                                                                |
+     *      | data.nbMembers                 | string                                                    | Number of members in the hunting group                                                          |
+     *      | data.isRecordingActivated     | Boolean                                                   | Indicates if the recording activated in the hunting group                                       |
+     *      | data.recordingProfile          | HuntingGroupProfiles          | Recording profile of the hunting group                                                           |
+     *      | data.isEmergencyGroup         | Boolean                                                   | Indicates if this hunting group is the emergency group for the associated Cloud PBX              |
+     *      | data.isEmptyAllowed           | Boolean                                                   | Indicates if the last active member can leave the hunting group or not                           |
+     *      | data.isDDIUpdateByManagerAllowed | Boolean                                                  | Indicates if changing the DDI of this hunting group by a manager is allowed or not               |
+     *      | data.phoneNumberId            | string                                                    | Hunting group phone number unique identifier                                                     |
+     *      | data.analyticSettings         | Object                                                    | Hunting group analytic settings                                                                  |
+     *      | data.analyticSettings.isManagersAllowedToSeeMembersAnalytics | Boolean                                        | Are group managers allowed to see members analytics                                              |
+     *
+     *  </br>example of result :
+     *  ```json
+     *  {
+     *     "data": [
+     *         {
+     *             "id": "5cd545b3a07de465fbc3fcda",
+     *             "name": "Group_1",
+     *             "type": "hunting_group",
+     *             "subType": "hg_attendant",
+     *             "policy": "serial",
+     *             "shortNumber": 81002,
+     *             "externalNumber": "+33298564112",
+     *             "isRecordingActivated": false,
+     *             "recordingProfile": "none",
+     *             "isEmergencyGroup": false,
+     *             "isEmptyAllowed": false,
+     *             "isDDIUpdateByManagerAllowed": true
+     *        },
+     *        {
+     *             "type": "hunting_group",
+     *             "subType": "manager_assistant",
+     *             "isEmergencyGroup": false,
+     *             "isRecordingActivated": false,
+     *             "recordingProfile": "none",
+     *             "isEmptyAllowed": true,
+     *             "isDDIUpdateByManagerAllowed": true,
+     *             "name": "POL_GP6_HG",
+     *             "policy": "serial",
+     *             "phoneNumberId": "6311b6e9fec56c1edc7f6086",
+     *             "roomId": "6311babcfec56c1edc7f608a",
+     *             "id": "6311b808fec56c1edc7f6089",
+     *             "shortNumber": "90026",
+     *             "externalNumber": null,
+     *             "nbMembers": 3
+     *        },
+     *        {
+     *             "type": "manager_assistant",
+     *             "isEmergencyGroup": false,
+     *             "isRecordingActivated": false,
+     *             "recordingProfile": "none",
+     *             "isEmptyAllowed": true,
+     *             "name": "POL_MA1",
+     *             "id": "631200038bbd9b06452167c1",
+     *             "nbMembers": 2
+     *        }
+     *    ],
+     *    "limit": 100,
+     *    "offset": 0,
+     *    "total": 3
+     *  }
+     *  ```
+     * </br>
+     */
+    getAllCloudPBXGroups(companyId?: string, sortField?: string, name?: string, shortNumber?: string, externalNumber?: string, memberId?: string, type?: string, limit?: number, offset?: number, sortOrder?: number): Promise<unknown>;
+    /**
+     * @public
+     * @method getMembersOfCloudPBXGroups
+     * @since 2.28.2
+     * @instance
+     * @async
+     * @category Companies Cloudpbx Groups (Rainbow Voice)
+     * @param {string} companyId Company unique identifier (like 569ce8c8f9336c471b98eda1).
+     * @param {number} limit Allow to specify the number of items to retrieve. Default value : 100.
+     * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Default value : 0 .
+     * @param {string} [sortField] - Sort items list based on the given field. Default value : displayName. Possibles values : displayName, lastName, firstName
+     * @param {number} sortOrder Specify order when sorting items list. Default value : 1. Possibles values : -1, 1  .
+     * @param {string} [displayName] - Filter groups whose display name contains the given filter.
+     * @param {string} [internalNumber] - Filter members whose internal phone number contain the given filter.
+     * @description
+     *      This API allows to get all the group members of a Cloud PBX for a given company.
+     *
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Field                  | Type        | Description                                     |
+     * |------------------------|-------------|-------------------------------------------------|
+     * | data                   | Object[]    | List of group members                          |
+     * | data.id                | string      | Member identifier                              |
+     * | data.firstName         | string      | Member firstName                               |
+     * | data.lastName          | string      | Member lastName                                |
+     * | data.internalNumber    | string      | Member internal number (cloud PBX extension)   |
+     * | data.lastAvatarUpdateDate | string   | Member last avatar update date                 |
+     * | data.groups            | Object[]    | List of groups the member belong to            |
+     * | data.groups.id         | string      | Group identifier                               |
+     * | data.groups.name       | string      | Group name                                     |
+     *
+     *  </br>example of result :
+     *  ```json
+     *  {
+     *     "data": [
+     *          { "id": "63a075137a218ec55b19a99f", "firstName": "Bob", "lastName": "Patol", "internalNumber": "90002", "lastAvatarUpdateDate": null,
+     *              "groups": [
+     *                  {"id": "63bbe773343b506650ca5258", "name": "POL_CQ1" }
+     *               ]
+     *          },
+     *          { "id": "63a0752d7a218ec55b19a9c0", "firstName": "Carol", "lastName": "Patol", "internalNumber": "90003", "lastAvatarUpdateDate": null,
+     *              "groups": [
+     *                  { "id": "63bbe773343b506650ca5258", "name": "POL_CQ1" }
+     *              ]
+     *           },
+     *           { "id": "63a0754a7a218ec55b19a9e1", "firstName": "Dave", "lastName": "Patol", "internalNumber": "90004", "lastAvatarUpdateDate": "2023-02-16T14:00:52.564Z",
+     *              "groups": [
+     *                  { "id": "63bd7df89c9f5b1191d84df1", "name": "POL_GP2" }
+     *              ]
+     *           },
+     *           { "id": "63a075d17a218ec55b19aaad", "firstName": "Fiona", "lastName": "Patol", "internalNumber": "90006", "lastAvatarUpdateDate": null,
+     *              "groups": [
+     *                  { "id": "63bd7df89c9f5b1191d84df1", "name": "POL_GP2" },
+     *                  { "id": "63ebbe028f09ed5503274e63", "name": "POL_GP3" }
+     *              ]
+     *           }
+     *     ]
+     *  }
+     *  ```
+     * </br>
+     */
+    getMembersOfCloudPBXGroups(companyId?: string, limit?: number, offset?: number, sortField?: string, sortOrder?: number, displayName?: string, internalNumber?: string): Promise<unknown>;
+    /**
+     * @public
+     * @method updateCloudPBXGroup
+     * @since 2.28.2
+     * @instance
+     * @async
+     * @category Companies Cloudpbx Groups (Rainbow Voice)
+     * @param {string} companyId Company unique identifier (like 569ce8c8f9336c471b98eda1).
+     * @param {string} groupId Unique identifier of the Cloud PBX group to update.
+     * @param {string} [name] - Hunting group name - displayed on the caller phone set.
+     * @param {HuntingGroupPolicy} [policy="parallel"] - Hunting group policy - parallel only for hg_attendant subType, serial only for manager_assistant subType.
+     * @param {Number} [timeout=10] - Timeout after which the next member of the hunting group will be selected (ringing) - applicable to group with serial or circular policy.
+     * @param {string} [externalNumberId] - Identifier of the public phone number assigned to the hunting group.
+     * @param {Boolean} [isEmptyAllowed=true] - Indicates if the last active member can leave the hunting group or not.
+     * @param {Boolean} [isDDIUpdateByManagerAllowed=true] - Indicates if changing the DDI of this hunting group by a manager is allowed or not.
+     * @param {Object[]} members - List of group members. In case of serial hunting group policy, the order is the ringing order, for hg_attendant hunting group only Voice Attendant users.
+     * @param {string} members.memberId - Member (user) unique identifier.
+     * @param {HuntingGroupMemberRole[]} [members.roles=['agent']] - Member roles inside the group.
+     * @param {(HuntingGroupMemberStatus)} [members.status="active"] - Member status inside the group.
+     * @description
+     *      This API allows to modify settings of a PBX group.
+     * </br> Modification can be done on the following settings of a group:
+     * </br>
+     * </br>     Hunting group name
+     * </br>     Hunting group policy: parallel, serial or circular. Only 'default' hunting group can change its policy
+     * </br>     Hunting group timeout (for serial or circular group, in seconds)
+     * </br>     Members of the group (list of members, ordered in case of serial or circular hunting group or assistants of manager_assistant group)
+     * </br>     Empty group allowed (or not)
+     * </br>     Manager allowed or not to change the DDI of the group
+     * </br>
+     * </br>
+     * </br> Company admin, or superadmin can modify the whole parameters of a group, while a manager of a group can only manage the members of a group (add / remove members, change members order for a hunting group with policy set to serial).
+     * </br>
+     * </br>
+     * </br> An external phone number can also be assigned to a hunting group, so that it can be joined from public network.
+     * </br> To assign such a number, the following steps should be performed:
+     * </br>
+     * </br>     Retrieve the list of available phone numbers: (list DDI numbers from RVCP Provisioning portal)
+     * </br>     Provide the externalNumberId of the selected phone number in the body of this update request
+     * </br>
+     * </br>
+     * </br>
+     * </br> Please note that attributes group type and isEmergencyGroup cannot be changed.
+     * </br>
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Field                  | Type                                          | Description                                                                                         |
+     * |------------------------|-----------------------------------------------|-----------------------------------------------------------------------------------------------------|
+     * | id                | string                                        | Hunting group unique identifier                                                                    |
+     * | name              | string                                        | Hunting group name - displayed on the caller phone set                                             |
+     * | shortNumber       | string                                        | Hunting group short phone number                                                                   |
+     * | externalNumber    | string                                        | Public phone number of the hunting group                                                           |
+     * | externalNumberId  | string                                        | Identifier of the hunting group public phone number                                                 |
+     * | roomId            | string                                        | Identifier of the hunting group associated room                                                     |
+     * | phoneNumberId     | string                                        | Identifier of the hunting group phone number                                                        |
+     * | createdBy         | string                                        | Hunting group creator identifier                                                                   |
+     * | policy            | HuntingGroupPolicy           | Group policy                                                                                       |
+     * | timeout           | Number (5-30)                                 | Hunting group timeout in seconds - for serial or circular hunting group policy                       |
+     * | isRecordingActivated | Boolean                                    | Indicate if the recording activated on the hunting group                                           |
+     * | recordingProfile  | HuntingGroupProfiles | Recording profile of the hunting group                                                          |
+     * | isEmergencyGroup  | Boolean                                       | Indicates if this group is the emergency group for the associated Cloud PBX                         |
+     * | isEmptyAllowed    | Boolean                                       | Indicates if the last active member can leave the group or not                                      |
+     * | isDDIUpdateByManagerAllowed | Boolean                                | Indicates if changing the DDI of this hunting group by a manager is allowed or not                   |
+     * | type              | HuntingGroupType    | Group type -- DEPRECATED manager_assistant - see subType manager_assistant                          |
+     * | subType           | HuntingGroupSubType | Hunting group sub type                                                                       |
+     * | companyId         | string                                        | Identifier of the company owning the hunting group                                                 |
+     * | subscriberId      | string                                        | Associated subscriber Id of the hunting group                                                       |
+     * | systemId          | string                                        | Cloud PBX System unique identifier (like 569ce8c8f9336c471b98eda1)                                  |
+     * | members           | Object[]                                      | List of group members.                                                                            |
+     * | members.memberId  | string                                        | Member (user) unique identifier                                                                   |
+     * | members.displayName | string                                      | Member display name                                                                               |
+     * | members.roles     | string []                                      | Member role inside the group (default: '["agent"]')                                                |
+     * | members.status    | HuntingGroupMemberStatus                        | Member status inside the group (default: active)                                                   |
+     * | members.connected | HuntingGroupMemberConnection | Hunting group member connected status inside the group                                        |
+     * | analyticSettings  | Object                                        | Group analytic settings                                                                            |
+     * | analyticSettings.isManagersAllowedToSeeMembersAnalytics | Boolean | Are group managers allowed to see members analytics                                                |
+     *
+     *  </br>example of result :
+     *  ```json
+     *  {
+     *           "id": "5cd545b3a07de465fbc3fcda",
+     *           "name": "Group_1",
+     *           "type": "hunting_group",
+     *           "subType": "default",
+     *           "createdBy": "5cd5443fd9736d8431b5c185",
+     *           "policy": "serial",
+     *           "shortNumber": "81002",
+     *           "externalNumberId": "5cd5443fd9736d8431b5c987",
+     *           "externalNumber": "+33298564112",
+     *           "phoneNumberId": "5cd5443fd9736d8431b5c988",
+     *           "timeout": 10,
+     *           "isEmergencyGroup": false,
+     *           "isEmptyAllowed": false,
+     *           "isDDIUpdateByManagerAllowed": true,
+     *           "companyId": "5dcd8dcec7e1620643a2045e",
+     *           "subscriberId": 147,
+     *           "systemId": "5de6a632c21aa17bab337347",
+     *           "members": [
+     *               {"memberId": "5cd545b3a07de465fb123456", "displayName": "Alice Donner", "roles": ["agent"], "status": "active", "connected": "connected"},
+     *               {"memberId": "5cd545b3a07de465fb123457", "displayName": "Bob the DIY man", "roles": ["agent"], "status": "active", "connected": "connected"},
+     *               {"memberId": "5cd545b3a07de465fb123458", "displayName": "Carole Bouquet", "roles": ["manager", "agent"], "status": "active", "connected": "connected"}
+     *           ],
+     *           "roomId": "5de6a632c21aa10987456321a",
+     *           "isRecordingActivated": false,
+     *           "recordingProfile": "none",
+     *           "analyticSettings": {
+     *               "isManagersAllowedToSeeMembersAnalytics": true
+     *           }
+     *  }
+     *  ```
+     * </br>
+     */
+    updateCloudPBXGroup(companyId?: string, groupId?: string, name?: string, policy?: "serial" | "parallel" | "circular", timeout?: number, externalNumberId?: string, isEmptyAllowed?: boolean, isDDIUpdateByManagerAllowed?: boolean, members?: {
+        memberId: string;
+        roles?: ("manager" | "agent" | "leader" | "assistant")[];
+        status?: "active" | "idle";
+    }[]): Promise<any>;
+    /**
+     * @public
+     * @method updateCloudPBXHuntingGroupAnalyticsConfiguration
+     * @since 2.28.2
+     * @instance
+     * @async
+     * @category Companies Cloudpbx Groups (Rainbow Voice)
+     * @param {string} companyId Company unique identifier (like 569ce8c8f9336c471b98eda1).
+     * @param {string} groupId Unique identifier of the Cloud PBX group to update.
+     * @param {Boolean} [isManagersAllowedToSeeMembersAnalytics=true] - Set if a group manager is allowed to see members analytics.
+     * @description
+     *      This API allows to modify analytics settings of a PBX hunting group.
+     * @return {Promise<any>} - result
+     *
+     *
+     *
+     *  </br>example of result :
+     *  ```json
+     *  {
+     *  }
+     * ```
+     * </br>
+     */
+    updateCloudPBXHuntingGroupAnalyticsConfiguration(companyId?: string, groupId?: string, isManagersAllowedToSeeMembersAnalytics?: boolean): Promise<unknown>;
+    /**
+     * @public
+     * @method updateCloudPBXHuntingGroupRecordingConfiguration
+     * @since 2.28.2
+     * @instance
+     * @async
+     * @category Companies Cloudpbx Groups (Rainbow Voice)
+     * @param {string} companyId Company unique identifier (like 569ce8c8f9336c471b98eda1).
+     * @param {string} groupId Unique identifier of the Cloud PBX group to update.
+     * @param {string} recordingProfile Selection of the hunting group recording profile. Possibles values : all, external_only, internal_only, none
+     * @description
+     *      This API allows to modify recording settings of a PBX hunting group.
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Field                  | Type                                          | Description                                                                                         |
+     * |------------------------|-----------------------------------------------|-----------------------------------------------------------------------------------------------------|
+     * | id                | string                                        | Hunting group unique identifier                                                                    |
+     * | name              | string                                        | Hunting group name - displayed on the caller phone set                                             |
+     * | shortNumber       | string                                        | Hunting group short phone number                                                                   |
+     * | externalNumber    | string                                        | Public phone number of the hunting group                                                           |
+     * | externalNumberId  | string                                        | Identifier of the hunting group public phone number                                                 |
+     * | roomId            | string                                        | Identifier of the hunting group associated room                                                     |
+     * | phoneNumberId     | string                                        | Identifier of the hunting group phone number                                                        |
+     * | createdBy         | string                                        | Hunting group creator identifier                                                                   |
+     * | policy            | HuntingGroupPolicy           | Group policy                                                                                       |
+     * | timeout           | Number (5-30)                                 | Hunting group timeout in seconds - for serial or circular hunting group policy                       |
+     * | isRecordingActivated | Boolean                                    | Indicate if the recording activated on the hunting group                                           |
+     * | recordingProfile  | HuntingGroupProfiles | Recording profile of the hunting group                                                          |
+     * | isEmergencyGroup  | Boolean                                       | Indicates if this group is the emergency group for the associated Cloud PBX                         |
+     * | isEmptyAllowed    | Boolean                                       | Indicates if the last active member can leave the group or not                                      |
+     * | isDDIUpdateByManagerAllowed | Boolean                                | Indicates if changing the DDI of this hunting group by a manager is allowed or not                   |
+     * | type              | HuntingGroupType    | Group type -- DEPRECATED manager_assistant - see subType manager_assistant                          |
+     * | subType           | HuntingGroupSubType | Hunting group sub type                                                                       |
+     * | companyId         | string                                        | Identifier of the company owning the hunting group                                                 |
+     * | subscriberId      | string                                        | Associated subscriber Id of the hunting group                                                       |
+     * | systemId          | string                                        | Cloud PBX System unique identifier (like 569ce8c8f9336c471b98eda1)                                  |
+     * | members           | Object[]                                      | List of group members.                                                                            |
+     * | members.memberId  | string                                        | Member (user) unique identifier                                                                   |
+     * | members.displayName | string                                      | Member display name                                                                               |
+     * | members.roles     | string []                                      | Member role inside the group (default: '["agent"]')                                                |
+     * | members.status    | HuntingGroupMemberStatus                        | Member status inside the group (default: active)                                                   |
+     * | members.connected | HuntingGroupMemberConnection | Hunting group member connected status inside the group                                        |
+     * | analyticSettings  | Object                                        | Group analytic settings                                                                            |
+     * | analyticSettings.isManagersAllowedToSeeMembersAnalytics | Boolean | Are group managers allowed to see members analytics                                                |
+     *
+     *  </br>example of result :
+     * ```json
+     *   {
+     *          "id": "5cd545b3a07de465fbc3fcda",
+     *          "name": "Group_1",
+     *          "type": "hunting_group",
+     *          "subType": "default",
+     *          "createdBy": "5cd5443fd9736d8431b5c185",
+     *          "policy": "serial",
+     *          "shortNumber": "81002",
+     *          "externalNumberId": "5cd5443fd9736d8431b5c987",
+     *          "externalNumber": "+33298564112",
+     *          "phoneNumberId": "5cd5443fd9736d8431b5c988",
+     *          "timeout": 10,
+     *          "isEmergencyGroup": false,
+     *          "isEmptyAllowed": false,
+     *          "isDDIUpdateByManagerAllowed": true,
+     *          "companyId": "5dcd8dcec7e1620643a2045e",
+     *          "subscriberId": 147,
+     *          "systemId": "5de6a632c21aa17bab337347",
+     *          "members": [
+     *              {"memberId": "5cd545b3a07de465fb123456", "displayName": "Alice Donner", "roles": ["agent"], "status": "active", "connected": "connected"},
+     *              {"memberId": "5cd545b3a07de465fb123457", "displayName": "Bob the DIY man", "roles": ["agent"], "status": "active", "connected": "connected"},
+     *              {"memberId": "5cd545b3a07de465fb123458", "displayName": "Carole Bouquet", "roles": ["manager", "agent"], "status": "active", "connected": "connected"}
+     *          ],
+     *          "roomId": "5de6a632c21aa10987456321a",
+     *          "isRecordingActivated": false,
+     *          "recordingProfile": "none",
+     *          "analyticSettings": {
+     *              "isManagersAllowedToSeeMembersAnalytics": true
+     *          }
+     *   }
+     * ```
+     * </br>
+     */
+    updateCloudPBXHuntingGroupRecordingConfiguration(companyId?: string, groupId?: string, recordingProfile?: string): Promise<unknown>;
 }
 export { AdminService as AdminService, OFFERTYPES, CLOUDPBXCLIOPTIONPOLICY };
 
@@ -15925,9 +18394,12 @@ import { DataStoreType } from 'lib/config/config'; class Options {
         autoLoadConversations: boolean;
         autoLoadConversationHistory: boolean;
         autoLoadContacts: boolean;
+        forceHistoryGetContactFromServer: boolean;
         enableCarbon: boolean;
         enablesendurgentpushmessages: boolean;
         useMessageEditionAndDeletionV2: boolean;
+        storeMessagesInConversation: boolean;
+        maxMessagesStoredInConversation: number;
     };
     _getApplicationsOptions(): {
         appID: string;
@@ -19003,7 +21475,7 @@ import { Conversation } from 'lib/common/models/Conversation';
 import { EventEmitter } from 'events';
 import { Logger } from 'lib/common/Logger';
 import { Core } from 'lib/Core';
-import { GenericService } from 'lib/services/GenericService'; class FileStorage extends GenericService {
+import { GenericService } from 'lib/services/GenericService'; function FileUpdated(input: any): void; class FileStorage extends GenericService {
     private _fileServerService;
     private _conversations;
     fileDescriptors: any;
@@ -19931,7 +22403,7 @@ import { GenericService } from 'lib/services/GenericService'; class FileStorage 
      */
     extractFileIdFromUrl(url: any): any;
 }
-export { FileStorage as FileStorageService };
+export { FileStorage as FileStorageService, FileUpdated as FileUpdated };
 
 }
 declare module 'lib/common/models/webConferenceParticipant' {
@@ -20256,11 +22728,13 @@ export {}; class ConversationEventHandler extends GenericHandler {
     private _bubbleService;
     private _contactsService;
     private _presenceService;
+    private storeMessagesInConversation;
+    private maxMessagesStoredInConversation;
     static getClassName(): string;
     getClassName(): string;
     static getAccessorName(): string;
     getAccessorName(): string;
-    constructor(xmppService: XMPPService, conversationService: any, fileStorageService: any, fileServerService: any, bubbleService: any, contactsService: any, presenceService: any);
+    constructor(xmppService: XMPPService, conversationService: any, imOptions: any, fileStorageService: any, fileServerService: any, bubbleService: any, contactsService: any, presenceService: any);
     private createSessionParticipantFromElem;
     parseConferenceV2UpdatedEvent(stanza: any, id: any, node: any): Promise<void>;
     onChatMessageReceived(msg: any, stanza: Element): Promise<void>;
@@ -20307,13 +22781,15 @@ import { GenericHandler } from 'lib/connection/XMPPServiceHandler/GenericHandler
     FIN_MAM: any;
     _conversationService: ConversationsService;
     private _contactsService;
+    forceHistoryGetContactFromServer: boolean;
+    private _options;
     static getClassName(): string;
     getClassName(): string;
     static getAccessorName(): string;
     getAccessorName(): string;
-    constructor(xmppService: XMPPService, conversationService: ConversationsService, contactsService: ContactsService);
+    constructor(xmppService: XMPPService, conversationService: ConversationsService, contactsService: ContactsService, options: any);
     onMamMessageReceived(msg: any, stanza: any): boolean;
-    onHistoryMessageReceived(msg: any, stanza: any): boolean;
+    onHistoryMessageReceived(msg: any, stanza: any): Promise<boolean>;
     onWebrtcHistoryMessageReceived(stanza: any, conversation: any): boolean;
 }
 export { ConversationHistoryHandler };
@@ -20330,11 +22806,12 @@ import { Core } from 'lib/Core';
 import { Message } from 'lib/common/models/Message';
 import { Bubble } from 'lib/common/models/Bubble';
 import { GenericService } from 'lib/services/GenericService'; class ConversationsService extends GenericService {
+    get pendingMessages(): any;
     private _contactsService;
     private _fileStorageService;
     private _fileServerService;
     private _presenceService;
-    private pendingMessages;
+    private _pendingMessages;
     private _conversationEventHandler;
     private _conversationHandlerToken;
     private _conversationHistoryHandlerToken;
@@ -20353,6 +22830,7 @@ import { GenericService } from 'lib/services/GenericService'; class Conversation
     private nbMaxConversations;
     private autoLoadConversations;
     private autoLoadConversationHistory;
+    private storeMessagesInConversation;
     get startConfig(): {
         start_up: boolean;
         optional: boolean;
@@ -20437,7 +22915,26 @@ import { GenericService } from 'lib/services/GenericService'; class Conversation
      * @fulfil {Conversation[]} - Array of Conversation object
      * @category async
      */
-    loadConversationHistory(conversation: any, pageSize?: number): Promise<any>;
+    loadConversationHistory(conversation: any, pageSize?: number): Promise<Conversation>;
+    /**
+     * @public
+     * @nodered true
+     * @method loadConversationHistoryAsync
+     * @instance
+     * @category MESSAGES
+     * @description
+     *    Retrieve the remote history of a specific conversation asynchronously. The result only said that the request has succesfully started (or not).
+     *    </br>The result of the loading process is sent with the event `rainbow_onloadConversationHistoryCompleted`<br>
+     * @param {Conversation} conversation Conversation to retrieve
+     * @param {string} pageSize number of message in each page to retrieve messages.
+     * @async
+     * @return {Promise<{code:number,label:string}>}
+     * @category async
+     */
+    loadConversationHistoryAsync(conversation: Conversation, pageSize?: number): Promise<{
+        code: number;
+        label: string;
+    }>;
     /**
      * @private
      * @method loadEveryConversationsHistory
@@ -20582,7 +23079,7 @@ import { GenericService } from 'lib/services/GenericService'; class Conversation
     sendCorrectedChatMessage(conversation: Conversation, data: string, origMsgId: string, content?: {
         message: string;
         type: string;
-    }): Promise<any>;
+    }): Promise<Message>;
     /**
      * @public
      * @since 1.58
@@ -21042,6 +23539,8 @@ import { LevelLogs } from 'lib/common/LevelLogs.js'; class S2SServiceEventHandle
     private xmppUtils;
     private _conversations;
     private shouldSendReadReceipt;
+    private storeMessagesInConversation;
+    private maxMessagesStoredInConversation;
     static getClassName(): string;
     getClassName(): string;
     static getAccessorName(): string;
@@ -24334,6 +26833,7 @@ import { LevelLogs } from 'lib/common/LevelLogs'; class HTTPService extends Leve
     private reqAgentHttp;
     private reqAgentHttps;
     useRequestRateLimiter: boolean;
+    apiHeadersConfiguration: any[];
     static getClassName(): string;
     getClassName(): string;
     static getAccessorName(): string;
@@ -24359,6 +26859,11 @@ import { LevelLogs } from 'lib/common/LevelLogs'; class HTTPService extends Leve
     tokenExpirationControl(bodyjs: {
         errorCode: number;
         errorDetails: string;
+    }): void;
+    addAdditionalHeaders(httpConfig: {
+        URL: string;
+        method: string;
+        headers: any;
     }): void;
     getUrlRaw(url: any, headers: any, params: any): Promise<any>;
     _getUrlRaw(url: any, headers: any, params: any): Promise<any>;
@@ -24503,7 +27008,8 @@ import { Core } from 'lib/Core';
 import { RESTConferenceV2 } from 'lib/connection/RestServices/RESTConferenceV2';
 import { RESTWebinar } from 'lib/connection/RestServices/RESTWebinar';
 import { GenericRESTService } from 'lib/connection/GenericRESTService';
-import { TaskInput } from 'lib/services/TasksService.js'; enum MEDIATYPE {
+import { TaskInput } from 'lib/services/TasksService.js';
+import { HuntingGroup } from 'lib/common/models/RainbowVoiceCloudPBX.js'; enum MEDIATYPE {
     WEBRTC = "webrtc",
     PstnAudio = "pstnAudio",
     WEBRTCSHARINGONLY = "webrtcSharingOnly"
@@ -24571,6 +27077,8 @@ import { TaskInput } from 'lib/services/TasksService.js'; enum MEDIATYPE {
     private reconnectInProgress;
     private _options;
     private timeOutManager;
+    protected apiConfigTTL: number;
+    protected apiConfigTTLTimeout: any;
     static getClassName(): string;
     getClassName(): string;
     static getAccessorName(): string;
@@ -24588,6 +27096,24 @@ import { TaskInput } from 'lib/services/TasksService.js'; enum MEDIATYPE {
     set authRest(value: any);
     setconnectionS2SInfo(_connectionS2SInfo: any): void;
     askTokenOnBehalf(loginEmail: any, password: any): Promise<unknown>;
+    /**
+     * @public
+     * @method getApiConfigurationFromServer
+     * @since 2.30.0
+     * @instance
+     * @async
+     * @category CONVERSATIONS
+     * @description
+     * This API returns settings applying to Rainbow APIs. </br>
+     * The first use case of these settings is the configuration of rules allowing to force the clients to use a specific region for some API calls in Rainbow multi-region deployment (to avoid some clustering issues or increase performances).</br>
+     * The `additionalHeaders` Array specifies that given header(s) have to be added by the clients when calling APIs being specified in the associated `match` Object (list of APIs with `method` and `url`).</br>
+     * The data returned by this API comes from server configuration and can evolve, therefore the clients should periodically refresh the settings kept in their cache. A ttl (time to live) field is returned, indicating the periodicity the clients should refresh their cache.</br>
+     *
+     * @return {Promise<any>} - result
+     *
+     *
+     */
+    getApiConfigurationFromServer(): Promise<unknown>;
     signout(): Promise<unknown>;
     startTokenSurvey(): Promise<void>;
     _renewAuthToken(): void;
@@ -24697,6 +27223,8 @@ import { TaskInput } from 'lib/services/TasksService.js'; enum MEDIATYPE {
     setBubbleAutoRegister(bubbleId: string, autoRegister?: string): Promise<unknown>;
     setBubbleTopic(bubbleId: any, topic: any): Promise<unknown>;
     setBubbleName(bubbleId: any, name: any): Promise<unknown>;
+    getBubbleLastActivityDate(bubble: any): number;
+    sortByDate(dateA: any, dateB: any): number;
     getBubbles(format?: string, unsubscribed?: boolean): Promise<unknown>;
     getBubble(bubbleId: string, context?: string, format?: string, unsubscribed?: boolean, nbUsersToKeep?: number): Promise<unknown>;
     getBubbleByJid(bubbleJid: string, format?: string, unsubscribed?: boolean, nbUsersToKeep?: number): Promise<unknown>;
@@ -24717,7 +27245,7 @@ import { TaskInput } from 'lib/services/TasksService.js'; enum MEDIATYPE {
     acceptInvitationToJoinBubble(bubbleId: any): Promise<unknown>;
     declineInvitationToJoinBubble(bubbleId: any): Promise<unknown>;
     deleteUserFromBubble(bubbleId: any): Promise<unknown>;
-    inviteUser(email: any, companyId: any, language: any, message: any): Promise<unknown>;
+    inviteUser(email: any, _companyId: any, language: any, message: any): Promise<unknown>;
     setAvatarRoom(bubbleid: any, binaryData: any): Promise<unknown>;
     deleteAvatarRoom(roomId: any): Promise<unknown>;
     getBubblesConsumption(): Promise<unknown>;
@@ -24751,19 +27279,360 @@ import { TaskInput } from 'lib/services/TasksService.js'; enum MEDIATYPE {
     getUserSettings(): Promise<unknown>;
     updateUserSettings(settings: any): Promise<unknown>;
     getServerCapabilities(): Promise<unknown>;
-    createAJoinCompanyLink(companyId: string, description?: string, isEnabled?: boolean, expirationDate?: string, maxNumberUsers?: number): Promise<unknown>;
-    deleteAJoinCompanyLink(companyId: string, joinCompanyLinkId: string): Promise<unknown>;
-    getAJoinCompanyLink(companyId: string, joinCompanyLinkId: string): Promise<unknown>;
-    getAllJoinCompanyLinks(companyId: any, format?: string, createdByAdminId?: string, isEnabled?: boolean, fromExpirationDate?: string, toExpirationDate?: string, fromNbUsersRegistered?: string, toNbUsersRegistered?: string, limit?: number, offset?: number, sortField?: string, sortOrder?: number): Promise<unknown>;
-    updateAJoinCompanyLink(companyId: string, joinCompanyLinkId: string, description: string, isEnabled: boolean, expirationDate: string, maxNumberUsers: number): Promise<unknown>;
-    createCompanyFromDefault(name: any, visibility?: string, country?: string, state?: string, slogan?: string, description?: string, size?: string, economicActivityClassification?: string, website?: string, avatarShape?: string, giphyEnabled?: boolean): Promise<unknown>;
-    getAllCompaniesVisibleByUser(format?: string, sortField?: string, limit?: number, offset?: number, sortOrder?: number, name?: string, status?: string, visibility?: string, organisationId?: string, isBP?: boolean, hasBP?: boolean, bpType?: string): Promise<unknown>;
-    getCompanyAdministrators(companyId: string, format?: string, limit?: number, offset?: number): Promise<unknown>;
     getAllCompanies(format?: string, sortField?: string, bpId?: string, catalogId?: string, offerId?: string, offerCanBeSold?: boolean, externalReference?: string, externalReference2?: string, salesforceAccountId?: string, selectedAppCustomisationTemplate?: string, selectedThemeObj?: boolean, offerGroupName?: string, limit?: number, offset?: number, sortOrder?: number, name?: string, status?: string, visibility?: string, organisationId?: string, isBP?: boolean, hasBP?: boolean, bpType?: string): Promise<unknown>;
     createCompany(name: any, country: any, state: any, offerType: any): Promise<unknown>;
     getCompany(companyId: any): Promise<unknown>;
     deleteCompany(companyId: any): Promise<unknown>;
     getCompanyInfos(companyId: any, format: string, selectedThemeObj: boolean, name: string, status: string, visibility: string, organisationId: string, isBP: boolean, hasBP: boolean, bpType: string): Promise<unknown>;
+    getCompaniesBPBusinessType(): Promise<unknown>;
+    getCompanyAppFeatureCustomisation(_companyId: string): Promise<unknown>;
+    getCompanyServiceDescriptionFile(_companyId: string): Promise<unknown>;
+    getDefaultCompanyData(format: string, selectedThemeObj: boolean): Promise<unknown>;
+    setCompanyAppFeatureCustomisation(_companyId: string, appFeaturesCustomisation: any): Promise<unknown>;
+    /**
+     * Parameters for updating company details.
+     * @param _companyId
+     * @param selectedThemeObj Allows to return selectedTheme attribute as an object:
+     * - true returns selectedTheme as an object (e.g. { "light": "60104754c8fada2ad4be3e48", "dark": "5ea304e4359c0e6815fc8b57" }),
+     * - false return selectedTheme as a string.
+     *
+     * The list of allowed countries can be obtained using the API [GET /api/rainbow/enduser/v1.0/countries](/enduser/#api-countries-getCountries)
+     *
+     * The `country` value which is provided at company creation is used to determine the location (data-center)
+     * where all the data related to this company will be stored. The data-center closest to the company's `country` is
+     * used.
+     *
+     * ⚠ Warning: the location of the company's data can't be changed after the company creation. The `country` value
+     * can be updated, but the data will remain in the data-center selected during the company creation.
+     *
+     * Once the company is created, the location where the data are stored is indicated in the field `dataLocation`
+     * returned by the API [GET /api/rainbow/admin/v1.0/companies/:companyId](#api-companies-GetCompaniesId).
+     *
+     * If no `country` is provided, the default value is `"FRA"`, meaning that the company data are stored in French
+     * data-center.
+     *
+     * The list of allowed states can be obtained using the API [GET /api/rainbow/enduser/v1.0/countries](/enduser/#api-countries-getCountries) for the associated countries.
+     *
+     * - List of allowed states for `USA`:
+     *   - `AA`: "Armed Forces America",
+     *   - `AE`: "Armed Forces",
+     *   - `AP`: "Armed Forces Pacific",
+     *   - `AK`: "Alaska",
+     *   - `AL`: "Alabama",
+     *   - `AR`: "Arkansas",
+     *   - `AZ`: "Arizona",
+     *   - `CA`: "California",
+     *   - `CO`: "Colorado",
+     *   - `CT`: "Connecticut",
+     *   - `DC`: Washington DC",
+     *   - `DE`: "Delaware",
+     *   - `FL`: "Florida",
+     *   - `GA`: "Georgia",
+     *   - `GU`: "Guam",
+     *   - `HI`: "Hawaii",
+     *   - `IA`: "Iowa",
+     *   - `ID`: "Idaho",
+     *   - `IL`: "Illinois",
+     *   - `IN`: "Indiana",
+     *   - `KS`: "Kansas",
+     *   - `KY`: "Kentucky",
+     *   - `LA`: "Louisiana",
+     *   - `MA`: "Massachusetts",
+     *   - `MD`: "Maryland",
+     *   - `ME`: "Maine",
+     *   - `MI`: "Michigan",
+     *   - `MN`: "Minnesota",
+     *   - `MO`: "Missouri",
+     *   - `MS`: "Mississippi",
+     *   - `MT`: "Montana",
+     *   - `NC`: "North Carolina",
+     *   - `ND`: "North Dakota",
+     *   - `NE`: "Nebraska",
+     *   - `NH`: "New Hampshire",
+     *   - `NJ`: "New Jersey",
+     *   - `NM`: "New Mexico",
+     *   - `NV`: "Nevada",
+     *   - `NY`: "New York",
+     *   - `OH`: "Ohio",
+     *   - `OK`: "Oklahoma",
+     *   - `OR`: "Oregon",
+     *   - `PA`: "Pennsylvania",
+     *   - `PR`: "Puerto Rico",
+     *   - `RI`: "Rhode Island",
+     *   - `SC`: "South Carolina",
+     *   - `SD`: "South Dakota",
+     *   - `TN`: "Tennessee",
+     *   - `TX`: "Texas",
+     *   - `UT`: "Utah",
+     *   - `VA`: "Virginia",
+     *   - `VI`: "Virgin Islands",
+     *   - `VT`: "Vermont",
+     *   - `WA`: "Washington",
+     *   - `WI`: "Wisconsin",
+     *   - `WV`: "West Virginia",
+     *   - `WY`: "Wyoming"
+     * - List of allowed states for `CAN`:
+     *   - `AB`: "Alberta",
+     *   - `BC`: "British Columbia",
+     *   - `MB`: "Manitoba",
+     *   - `NB`: "New Brunswick",
+     *   - `NL`: "Newfoundland and Labrador",
+     *   - `NS`: "Nova Scotia",
+     *   - `NT`: "Northwest Territories",
+     *   - `NU`: "Nunavut",
+     *   - `ON`: "Ontario",
+     *   - `PE`: "Prince Edward Island",
+     *   - `QC`: "Quebec",
+     *   - `SK`: "Saskatchewan",
+     *   - `YT`: "Yukon"
+     * <br/> For now, only USD, EUR and CNY are supported
+     * <br/> Only settable by `superadmin`
+     * - `public`: User can be searched by external users / can search external users. User can invite external users / can be invited by external users
+     * - `private`: User **can't** be searched by external users (even within his organisation) / can search external users. User can invite external users / can be invited by external users
+     * - `organization`: User **can't** be searched by external users / can search external users. User can invite external users / can be invited by external users
+     * - `closed`: User **can't** be searched by external users / **can't** search external users. User can invite external users / can be invited by external users
+     * - `isolated`: User **can't** be searched by external users / **can't** search external users. User **can't** invite external users / **can't** be invited by external users
+     * - `hotspot`: User can be searched by hotspot attached company's users (users from any company if the user belong to the default company) / can't search any users (even in their company) | user can't invite external users / can be invited by hotspot attached company's users (users from any company if the user belong to the default company)
+     *   - currently `hotspot` visibility can only be set on the default company, and with superadmin role (development of `hotspot` visibility is partially done, only for default company in the context of RQRAINB-7456)
+     *
+     * External users mean public user not being in user's company nor user's organisation nor a company visible by user's company.
+     *
+     * Note related to organisation visibility:
+     * - Under the same organisation, a company can choose the visibility=organisation. That means users belonging to this company are visible for users of foreign companies inside the same organisation.
+     * - The visibility=organisation is same as visibility=private outside the organisation. That is to say users can't be searched outside the organisation's companies.
+     * <br/> adminEmail is case sentive.
+     * - supportEmail is case sensitive.
+     * - supportEmail `should be provided if company to create is a VAD or a DR`
+     * <br/> Note that if `disableCCareAdminAccessCustomers` is enabled on its BP company or `disableCCareAdminAccessResellers` is enabled on its BP VAD company, this setting is forced to true.
+     * <br/> `disableCCareAdminAccess` can only be set:
+     *   - by `superadmin` (all companies),
+     *   - by `bp_admin` or `bp_finance` for the companies he manages,
+     *   - by `organization_admin` for the BP companies he manages.
+     *   - by `organization_admin` for the companies he manages.
+     * <br/> This setting is only applicable for BP companies (`isBP`=true)
+     *  - If the BP company is a DR or an IR, enabling this setting disables the access to the customer care logs for the admins of all its customers companies.
+     *  - If the BP company is a VAD, enabling this setting disables the access to the customer care logs for all the admins of its customers companies.\
+     *    Note that the bp_admins/admins of all the BP IRs companies linked to this VAD still have access to the customer care logs (the setting `disableCCareAdminAccessResellers` on the BP VAD company allows to disable it).
+     * <br/> `disableCCareAdminAccessCustomers` can only be set:
+     *   - by `superadmin` (all BP companies),
+     *   - by `bp_admin` or `bp_finance` of a BP VAD company for the BP companies he manages,
+     *   - by `organization_admin` for the BP companies he manages,
+     *   - by `company_admin` for the BP company he manages.
+     * <br/> This setting is only applicable for BP VAD companies (`isBP`=true and `bpType`=`VAD`)
+     * <br/> Enabling this setting disables on the BP VAD company disables the access to the customer care logs for the bp_admins/admins of all the BP IRs linked to this VAD, and to all the admins of their customers.
+     * <br/> Note that the admins of all the customer companies directly linked to this VAD still have access to the customer care logs (the setting `disableCCareAdminAccessCustomers` on the BP VAD company allows to disable it).
+     * <br/> `disableCCareAdminAccessResellers` can only be set:
+     *   - by `superadmin` (all BP VAD companies),
+     *   - by `bp_admin` or `bp_finance` of a BP VAD company for the BP companies he manages,
+     *   - by `organization_admin` for the BP VAD companies he manages,
+     *   - by `company_admin` for the BP VAD company he manages.
+     * An overview of the number of employees
+     * - `A`: AGRICULTURE, FORESTRY AND FISHING
+     * - `B`: MINING AND QUARRYING
+     * - `C`: MANUFACTURING
+     * - `D`: ELECTRICITY, GAS, STEAM AND AIR CONDITIONING SUPPLY
+     * - `E`: WATER SUPPLY; SEWERAGE, WASTE MANAGEMENT AND REMEDIATION ACTIVITIES
+     * - `F`: CONSTRUCTION
+     * - `G`: WHOLESALE AND RETAIL TRADE; REPAIR OF MOTOR VEHICLES AND MOTORCYCLES
+     * - `H`: TRANSPORTATION AND STORAGE
+     * - `I`: ACCOMMODATION AND FOOD SERVICE ACTIVITIES
+     * - `J`: INFORMATION AND COMMUNICATION
+     * - `K`: FINANCIAL AND INSURANCE ACTIVITIES
+     * - `L`: REAL ESTATE ACTIVITIES
+     * - `M`: PROFESSIONAL, SCIENTIFIC AND TECHNICAL ACTIVITIES
+     * - `N`: ADMINISTRATIVE AND SUPPORT SERVICE ACTIVITIES
+     * - `O`: PUBLIC ADMINISTRATION AND DEFENCE; COMPULSORY SOCIAL SECURITY
+     * - `P`: EDUCATION
+     * - `Q`: HUMAN HEALTH AND SOCIAL WORK ACTIVITIES
+     * - `R`: ARTS, ENTERTAINMENT AND RECREATION
+     * - `S`: OTHER SERVICE ACTIVITIES
+     * - `T`: ACTIVITIES OF HOUSEHOLDS AS EMPLOYERS; UNDIFFERENTIATED GOODS- AND SERVICES-PRODUCING ACTIVITIES OF HOUSEHOLDS FOR OWN USE
+     * - `U`: ACTIVITIES OF EXTRATERRITORIAL ORGANISATIONS AND BODIES
+     * `This field is deprecated.` Manage instead <b>useGifCustomisation field!</b>
+     * <br/> When a new company is created, if no catalogId is specified the company is automatically linked to the default catalog.
+     * <br/> When a `bp_admin>` or `bp_finance>` creates a company, catalogId of this new company is automatically set to BP company's catalogId.
+     * <br/> When an `organization_admin>` creates a company, catalogId of this new company is automatically set to organization_admin's company's catalogId.
+     * <br/>
+     * <br/> Only `superadmin` can set a different catalogId to a company.
+     * <br/> `adminCanSetCustomData` can only be set:
+     *   - by `superadmin` (all companies),
+     *   - by `bp_admin` or `bp_finance` for the companies he manages,
+     *   - by `organization_admin` for the companies he manages.
+     * <br/> Object with free keys/values.
+     * <br/> It is up to the client to manage the company's customData (new customData provided overwrite the existing one).
+     * <br/><br/> Restrictions on customData Object:
+     * <ul>
+     *      <li>max 10 keys,</li>
+     *      <li>max key length: 64 characters,</li>
+     *      <li>max value length: 512 characters.</li>
+     * </ul>
+     * <br/><br/> Company customData can only be created/updated by:
+     * <ul>
+     *      <li>`superadmin` (all companies),</li>
+     *      <li>`bp_admin` or `bp_finance` for the companies he manages (except his company if its `adminCanSetCustomData` setting is not set to true),</li>
+     *      <li>`organization_admin` for the companies he manages,</li>
+     *      <li>`company_admin` for his own company if its `adminCanSetCustomData` setting is set to true (setting that can only be set by a superadmin, his bp_admin, bp_finance or organization_admin)
+     *     or if he has the feature `ADMIN_CAN_SET_CUSTOM_DATA` (if the feature is enabled, it overwrites the value of the company setting).</li>
+     * </ul>
+     * <br/> `bpId` must correspond to a valid company having `isBP` equal to true.
+     * <br/> Only directly settable by `superadmin`.
+     * <br/> If the company is <b>created</b> by a `bp_admin` or a `bp_finance`, `bpId` is automatically set to
+     * BP company `id`.
+     * <br/> For existing companies, `bp_admin` must use invitation mechanism to a company admin in order
+     * to request a link of this company company to his BP company.
+     * `bp_finance` allows the `company_admin` to update the subscriptions of his company (if enable, allowed operations depend of the value of `adminAllowedUpdateSubscriptionsOps`).
+     * <br/> Can only be set by `superadmin` or `bp_finance` of the related company.
+     * indicates the update operations for which the `bp_finance` allows the `company_admin` to perform on the subscriptions of his company.
+     * <br/> Can only be set by `superadmin` or `bp_finance` of the related company.
+     * <br/> Possible values:
+     * - `all: company_admin is allowed to perform all update operations on the subscriptions of his company
+     * - `increase_only: company_admin is only allowed to increase `maxNumberUsers` on the subscriptions of his company (decrease is forbidden)
+     * - 'monthly': company_admin is only allowed to manage monthly subscription (increase and decrease)
+     * <br/> Only settable by `superadmin`
+     * - `IR`: Indirect Reseller,
+     * - `VAD`: Value Added Distributor,
+     * - `DR`: Direct Reseller.
+     * <br/> Only applicable if `isBP` is true.
+     * <br/> Only settable by `superadmin`.
+     * <br/> Only applicable if `isBP` is true.
+     * <br/> Only settable by `superadmin`.
+     * <br/> Only applicable if `isBP` is true and `bpType` is DR or VAD.
+     * <br/> Only settable by `superadmin`.
+     * <br/> Only applicable if `isBP` is true and `bpType` is DR or VAD.
+     * <br/> If `bpCRDid` is not defined, BP won't be able to sell (i.e. `bpHasRightToSell` can't be set to true)
+     * <br/> Only settable by `superadmin`.
+     * <br/> Only applicable if `isBP` is true and `bpType` is DR or VAD.
+     * <br/> Only applicable if `bpCRDid` is defined.
+     * <br/> Only settable by `superadmin`.
+     * <br/> Only applicable if `isBP` is true.
+     * <br/> Only settable by `superadmin`.
+     * <br/> Only applicable if `isBP` is true.
+     * <br/> Only settable by `superadmin`.
+     <br/> Only applicable if `isBP` is true.
+     <br/> Only settable by `superadmin`.
+     * <br/> Should be set by `bp_admin` or `bp_finance`.
+     * <br/> Only applicable if `isBP` is true.
+     * <br/> Only applicable by `superadmin` or by `bp_admin` or `bp_finance` on one of his Indirect Resellers / End Customers companies.
+     * <br/> Only applicable by `superadmin` or by `bp_admin` or `bp_finance` on one of his Indirect Resellers / End Customers companies.
+     * <br/> Only settable by users with `superadmin` or `business_admin` role(s).
+     * When we can't rely on Internet and Google FCM services to wake-up the app or notify the app, we can fall back to a direct XMPP connection.</br>
+     * For customers using Samsung devices with Google Play services, we must have an option on admin side to set this permanent connection mode, so that mobile apps can rely on this parameter. This option will be applied for the whole company.
+     * <br/> Define if a user has the right to receive alert notification
+     * <br/> alertNotificationReception can be:
+     * - `enabled`: Each user of the company can receive alert notification.
+     * - `disabled`: No user of the company can receive alert notification.
+     * <br/> Define if a user has the right to send alert notification
+     * <br/> alertNotificationSending can be:
+     * - `enabled`: Each user of the company can send alert notification.
+     * - `disabled`: No user of the company can send alert notification.
+     * <br/> Define if a user is allowed to be called by the Rainbow conference bridge.
+     * <br/> useDialOutCustomisation can be:
+     * - `enabled`: The user can be called by the Rainbow conference bridge.
+     * - `disabled`: The user can't be called by the Rainbow conference bridge.
+     * - `released`: Default value, device firmware will be the official released one.
+     * - `latest`: Device firmware can be a more up to date binary (e.g. early adopters)
+     * <br/> If allowed by `superadmin`, `company admin` can then select the kind of firmware for all the users, or only for some of them.
+     * <br/> Only settable by users with `superadmin` or `business_admin` role(s).
+     * <br/> This param only applies for BP companies.
+
+     * @param name
+     * @param country
+     * @param street
+     * @param city
+     * @param state
+     * @param postalCode
+     * @param currency
+     * @param status Company status. If company status is `initializing`, only `superadmin` can change the status value.
+     * @param offerType Company offer type. Companies with offerType=`freemium` are not able to subscribe to paid offers, they must be `premium` to do so.
+     * @param visibility
+     * @param visibleBy
+     * @param adminEmail
+     * @param supportEmail
+     * @param supportUrlFAQ
+     * @param companyContactId
+     * @param disableCCareAdminAccess
+     * @param disableCCareAdminAccessCustomers
+     * @param disableCCareAdminAccessResellers
+     * @param autoAcceptUserInvitations
+     * @param autoAddToUserNetwork
+     * @param contentPolicyLifeTime
+     * @param documentGracePeriod
+     * @param userSelfRegisterAllowedDomains
+     * @param slogan
+     * @param description
+     * @param size
+     * @param economicActivityClassification
+     * @param website
+     * @param giphyEnabled
+     * @param catalogId Id of the catalog of Rainbow offers to which the company is linked. Only `superadmin` can change the catalogId of a company.
+     * @param adminCanSetCustomData
+     * @param customData
+     * @param bpId
+     * @param adminHasRightToUpdateSubscriptions
+     * @param adminAllowedUpdateSubscriptionsOps
+     * @param isBP
+     * @param bpType
+     * @param bpBusinessModel
+     * @param bpApplicantNumber
+     * @param bpCRDid
+     * @param bpHasRightToSell
+     * @param bpHasRightToConnect
+     * @param bpHasRightForBYOT
+     * @param preferredSipLoadBalancerId
+     * @param bpIsContractAccepted
+     * @param externalReference
+     * @param externalReference2
+     * @param salesforceAccountId
+     * @param avatarShape
+     * @param isCentrex
+     * @param companyCallNumber
+     * @param superadminComment
+     * @param bpBusinessType
+     * @param billingModel
+     * @param allowUsersSelectTheme Allow users of this company to select a theme among the ones available (owned or visible by the company).
+     * @param allowUsersSelectPublicTheme Allow users of this company to select a public theme.
+     * @param selectedTheme
+     * @param mobilePermanentConnectionMode
+     * @param alertNotificationReception
+     * @param alertNotificationSending
+     * @param useDialOutCustomisation
+     * @param allowDeviceFirmwareSelection
+     * @param selectedDeviceFirmware
+     * @param cloudPbxVoicemailToEmail
+     * @param businessData
+     * @param defaultLicenseGroup
+     * @param defaultOptionsGroups
+     * @param selectedThemeCustomers
+     * @param allowTeamsToDesktopSso
+     * @param cloudPbxRecordingInboundOnly When CloudPbx recording is set, both inbound and outbound calls will be recorded for the selected users. If cloudPbxRecordingInboundOnly is set to true, only inbound calls will be recorded.
+     * @param supervisionGroupMaxSize Maximum number of users a company can supervise.
+     * @param supervisionGroupMaxNumber Maximum number of supervision groups a supervisor can belong to.
+     * @param supervisionGroupMaxUsers Maximum number of users in a supervision group (supervisor included).
+     * @param timezone User timezone name.
+     * @param sendPrepaidSubscriptionsNotification Indicates if company_admin should receive email notification about prepaid subscriptions expiring soon. Used only on end customer companies.
+     * @param ddiReadOnly Indicates if admin of IR company is allowed to create or delete a DDI. Used only on IR companies.
+     * @param allowPhoneNumbersVisibility Indicates if Phone numbers should be visible or not when generating Voice CDR files. Applies only on BP companies.
+     * @param csEmailList A list of Customer Success email addresses (maximum length : 10).
+     * @param seEmailList A list of System Engineer email addresses (maximum length : 10).
+     * @param csmEmailList A list of Channel Sales Manager email addresses (maximum length : 10).
+     * @param kamEmailList A list of Key Account Manager email addresses (maximum length : 10).
+     * @param businessSpecific Allow to specify if company has access to specific offers. Only settable by superadmin or business_admin.
+     * @param adminServiceNotificationsLevel Level of service notification that admin should see.
+     */
+    updateCompany(_companyId: string, selectedThemeObj: boolean, name: string, country: string, street: string, city: string, state: string, postalCode: string, offerType: string, currency: string, status: string, visibility: string, visibleBy: string[], adminEmail: string, supportEmail: string, supportUrlFAQ: string, companyContactId: string, disableCCareAdminAccess: boolean, disableCCareAdminAccessCustomers: boolean, disableCCareAdminAccessResellers: boolean, autoAcceptUserInvitations: boolean, autoAddToUserNetwork: boolean, contentPolicyLifeTime: boolean, documentGracePeriod: boolean, userSelfRegisterAllowedDomains: string[], slogan: string, description: string, size: string, economicActivityClassification: string, website: string, giphyEnabled: boolean, catalogId: string, adminCanSetCustomData: boolean, customData: any, bpId: string, adminHasRightToUpdateSubscriptions: boolean, adminAllowedUpdateSubscriptionsOps: string, isBP: boolean, bpType: string, bpBusinessModel: string, bpApplicantNumber: string, bpCRDid: string, bpHasRightToSell: boolean, bpHasRightToConnect: boolean, bpHasRightForBYOT: boolean, preferredSipLoadBalancerId: string, bpIsContractAccepted: boolean, externalReference: string, externalReference2: string, salesforceAccountId: string, avatarShape: string, isCentrex: boolean, companyCallNumber: string, superadminComment: string, bpBusinessType: string[], billingModel: string, allowUsersSelectTheme: boolean, allowUsersSelectPublicTheme: boolean, selectedTheme: any, mobilePermanentConnectionMode: boolean, alertNotificationReception: string, alertNotificationSending: string, useDialOutCustomisation: string, allowDeviceFirmwareSelection: boolean, selectedDeviceFirmware: string, cloudPbxVoicemailToEmail: string, businessData: any, defaultLicenseGroup: string, defaultOptionsGroups: string[], selectedThemeCustomers: any, allowTeamsToDesktopSso?: boolean, cloudPbxRecordingInboundOnly?: boolean, supervisionGroupMaxSize?: number, supervisionGroupMaxNumber?: number, supervisionGroupMaxUsers?: number, timezone?: string, sendPrepaidSubscriptionsNotification?: boolean, ddiReadOnly?: boolean, allowPhoneNumbersVisibility?: boolean, csEmailList?: string[], seEmailList?: string[], csmEmailList?: string[], kamEmailList?: string[], businessSpecific?: string, adminServiceNotificationsLevel?: string): Promise<any>;
+    createRainbowMultifactorAuthenticationServerConfiguration(_companyId: string, enabledForAllCompanyUsers: boolean, mfaName: string, mfaType: string, mfaPolicy: string, rememberDaysApplication: string, mfaCanBeDisabled: boolean): Promise<unknown>;
+    deleteRainbowMultifactorConfiguration(_companyId: string, mfaId: string): Promise<unknown>;
+    getRainbowMultifactorConfiguration(_companyId: string, mfaId: string): Promise<unknown>;
+    getAllRainbowMultifactorConfiguration(_companyId: string, format?: string): Promise<unknown>;
+    updateRainbowMultifactorAuthenticationConfiguration(_companyId: string, mfaId: string, enabledForAllCompanyUsers: boolean, mfaName: string, mfaType: string, mfaPolicy: string, rememberDaysApplication: string, mfaCanBeDisabled: boolean): Promise<unknown>;
+    createAJoinCompanyLink(_companyId: string, description?: string, isEnabled?: boolean, expirationDate?: string, maxNumberUsers?: number): Promise<unknown>;
+    deleteAJoinCompanyLink(_companyId: string, joinCompanyLinkId: string): Promise<unknown>;
+    getAJoinCompanyLink(companyId: string, joinCompanyLinkId: string): Promise<unknown>;
+    getAllJoinCompanyLinks(_companyId: any, format?: string, createdByAdminId?: string, isEnabled?: boolean, fromExpirationDate?: string, toExpirationDate?: string, fromNbUsersRegistered?: string, toNbUsersRegistered?: string, limit?: number, offset?: number, sortField?: string, sortOrder?: number): Promise<unknown>;
+    updateAJoinCompanyLink(_companyId: string, joinCompanyLinkId: string, description: string, isEnabled: boolean, expirationDate: string, maxNumberUsers: number): Promise<unknown>;
+    createCompanyFromDefault(name: any, visibility?: string, country?: string, state?: string, slogan?: string, description?: string, size?: string, economicActivityClassification?: string, website?: string, avatarShape?: string, giphyEnabled?: boolean): Promise<unknown>;
+    getAllCompaniesVisibleByUser(format?: string, sortField?: string, limit?: number, offset?: number, sortOrder?: number, name?: string, status?: string, visibility?: string, organisationId?: string, isBP?: boolean, hasBP?: boolean, bpType?: string): Promise<unknown>;
+    getCompanyAdministrators(companyId: string, format?: string, limit?: number, offset?: number): Promise<unknown>;
     setVisibilityForCompany(companyId: any, visibleByCompanyId: any): Promise<unknown>;
     acceptJoinCompanyInvitation(invitationId: string): Promise<unknown>;
     declineJoinCompanyInvitation(invitationId: string): Promise<unknown>;
@@ -24774,6 +27643,16 @@ import { TaskInput } from 'lib/services/TasksService.js'; enum MEDIATYPE {
     getAllJoinCompanyRequests(sortField: string, status: string, format?: string, limit?: number, offset?: number, sortOrder?: number): Promise<unknown>;
     resendJoinCompanyRequest(joinCompanyRequestId: string): Promise<unknown>;
     requestToJoinCompany(requestedCompanyId?: string, requestedCompanyAdminId?: string, requestedCompanyLinkId?: string, lang?: string): Promise<unknown>;
+    getEmailTemplatesDocumentation(format: string): Promise<unknown>;
+    initiateEmailTemplate(_companyId: string, templateName: string): Promise<unknown>;
+    updateSubjectPartTemplate(_companyId: string, templateName: string, body: any): Promise<unknown>;
+    updateMjmlFormatPartTemplate(_companyId: string, templateName: string, body: any): Promise<unknown>;
+    updateTextFormatFormatPartTemplate(_companyId: string, templateName: string, body: any): Promise<unknown>;
+    getEmailTemplatesByCompanyId(_companyId: string, templateName: string, format: any): Promise<unknown>;
+    deleteEmailTemplate(_companyId: string, templateName: string): Promise<unknown>;
+    deleteAvailableEmailTemplatesBycompanyId(_companyId: string, templateName: string): Promise<unknown>;
+    testEmailTemplateRendering(_companyId: string, body: any): Promise<any>;
+    activateDesactivateEmailTemplate(_companyId: string, templateName: string, isActive: any): Promise<unknown>;
     applyCustomisationTemplates(name: string, companyId: string, userId: string): Promise<unknown>;
     createCustomisationTemplate(name: string, ownedByCompany: string, visibleBy: Array<string>, instantMessagesCustomisation: string, useGifCustomisation: string, fileSharingCustomisation: string, fileStorageCustomisation: string, phoneMeetingCustomisation: string, useDialOutCustomisation: string, useChannelCustomisation: string, useRoomCustomisation: string, useScreenSharingCustomisation: string, useWebRTCAudioCustomisation: string, useWebRTCVideoCustomisation: string, recordingConversationCustomisation: string, overridePresenceCustomisation: string, userProfileCustomisation: string, userTitleNameCustomisation: string, changeTelephonyCustomisation: string, changeSettingsCustomisation: string, fileCopyCustomisation: string, fileTransferCustomisation: string, forbidFileOwnerChangeCustomisation: string, readReceiptsCustomisation: string, useSpeakingTimeStatistics: string): Promise<unknown>;
     deleteCustomisationTemplate(templateId: any): Promise<unknown>;
@@ -25071,6 +27950,18 @@ import { TaskInput } from 'lib/services/TasksService.js'; enum MEDIATYPE {
     getCloudPBXDeviceModels(systemId: string): Promise<unknown>;
     getCloudPBXTrafficBarringOptions(systemId: string): Promise<unknown>;
     getCloudPBXEmergencyNumbersAndEmergencyOptions(systemId: string): Promise<unknown>;
+    createCloudPBXGroup(_companyId: string, huntingGroup: HuntingGroup): Promise<unknown>;
+    deleteCloudPBXGroup(_companyId: string, groupId: string): Promise<unknown>;
+    getCloudPBXGroup(_companyId: string, groupId: string): Promise<unknown>;
+    getAllCloudPBXGroups(_companyId?: string, sortField?: string, name?: string, shortNumber?: string, externalNumber?: string, memberId?: string, type?: string, limit?: number, offset?: number, sortOrder?: number): Promise<unknown>;
+    getMembersOfCloudPBXGroups(_companyId?: string, limit?: number, offset?: number, sortField?: string, sortOrder?: number, displayName?: string, internalNumber?: string): Promise<unknown>;
+    updateCloudPBXGroup(_companyId?: string, groupId?: string, name?: string, policy?: "serial" | "parallel" | "circular", timeout?: number, externalNumberId?: string, isEmptyAllowed?: boolean, isDDIUpdateByManagerAllowed?: boolean, members?: {
+        memberId: string;
+        roles?: ("manager" | "agent" | "leader" | "assistant")[];
+        status?: "active" | "idle";
+    }[]): Promise<unknown>;
+    updateCloudPBXHuntingGroupAnalyticsConfiguration(_companyId?: string, groupId?: string, isManagersAllowedToSeeMembersAnalytics?: boolean): Promise<unknown>;
+    updateCloudPBXHuntingGroupRecordingConfiguration(_companyId?: string, groupId?: string, recordingProfile?: string): Promise<unknown>;
     CreateCloudPBXSIPDevice(systemId: string, description: string, deviceTypeId: string, macAddress: string): Promise<unknown>;
     factoryResetCloudPBXSIPDevice(systemId: string, deviceId: string): Promise<unknown>;
     getCloudPBXSIPDeviceById(systemId: string, deviceId: string): Promise<unknown>;
@@ -25350,6 +28241,7 @@ import { TaskInput } from 'lib/services/TasksService.js'; enum MEDIATYPE {
     deleteTask(taskId: string): Promise<unknown>;
     deleteCategoryFromTasks(categoryId: string): Promise<unknown>;
     updateTask(taskId: string, task: TaskInput): Promise<unknown>;
+    getApisSettings(): Promise<unknown>;
 }
 export { RESTService, MEDIATYPE, GuestParams };
 
@@ -25583,6 +28475,7 @@ import { LevelLogs } from 'lib/common/LevelLogs.js'; class GenericService extend
     setStarted(): void;
     setInitialized(): void;
     setStopped(): void;
+    callRestMethod(methodName: string, lesarguments: any): Promise<unknown>;
 }
 export { GenericService as GenericService };
 
@@ -25665,6 +28558,7 @@ interface TaskInput {
      * @public
      * @nodered true
      * @method addTask
+     * @since 2.28.0
      * @instance
      * @param {TaskInput} task The task to create.
      * @description
@@ -25680,6 +28574,7 @@ interface TaskInput {
      * @public
      * @nodered true
      * @method createTaskcategory
+     * @since 2.28.0
      * @instance
      * @param {string} category The category to create.
      * @description
@@ -25693,6 +28588,7 @@ interface TaskInput {
     /**
      * @public
      * @nodered true
+     * @since 2.28.0
      * @method createOrUpdatePropertiesTaskByCategoryId
      * @instance
      * @param {string} categoryId The id of the category where the property must be added.
@@ -25709,6 +28605,7 @@ interface TaskInput {
      * @public
      * @nodered true
      * @method getTaskById
+     * @since 2.28.0
      * @instance
      * @param {string} taskId The id of the task to search.
      * @description
@@ -25723,6 +28620,7 @@ interface TaskInput {
      * @public
      * @nodered true
      * @method getTasksByCategoryId
+     * @since 2.28.0
      * @instance
      * @param {string} categoryId allows to retrieve only todos in that category by Id.
      * @param {boolean} [force=false] True to force a request to the server
@@ -25739,6 +28637,7 @@ interface TaskInput {
      * @public
      * @nodered true
      * @method getTasks
+     * @since 2.28.0
      * @instance
      * @param {string} categoryId allows to retrieve only todos in that category by Id.
      * @param {boolean} [force=false] True to force a request to the server
@@ -25755,6 +28654,7 @@ interface TaskInput {
      * @public
      * @nodered true
      * @method getAllCategories
+     * @since 2.28.0
      * @param {boolean} [force=false] True to force a request to the server
      * @instance
      * @description
@@ -25770,6 +28670,7 @@ interface TaskInput {
      * @public
      * @nodered true
      * @method deletePropertiesFromCategoriesTasks
+     * @since 2.28.0
      * @param {string} categoriId category unique identifier of the properties to delete.
      * @instance
      * @description
@@ -25784,6 +28685,7 @@ interface TaskInput {
      * @public
      * @nodered true
      * @method deleteTask
+     * @since 2.28.0
      * @param {string} taskId the id of the task to delete from server and cache.
      * @instance
      * @description
@@ -25798,6 +28700,7 @@ interface TaskInput {
      * @public
      * @nodered true
      * @method deleteCategoryFromTasks
+     * @since 2.28.0
      * @param {string} categoryId the id of the category to delete from server and cache.
      * @instance
      * @description
@@ -25812,6 +28715,7 @@ interface TaskInput {
      * @public
      * @nodered true
      * @method updateTask
+     * @since 2.28.0
      * @instance
      * @param  {string} category The category to create.
      * @param {TaskInput} task The properties to be updated.
@@ -25935,9 +28839,9 @@ import { LogLevelAreas } from 'lib/common/LevelLogs.js'; class NodeSDK {
      * //Keep sockets around in a pool to be used by other requests in the future. Default = false</BR>
      * keepAlive: true, // ?: boolean or undefined;</BR>
      * </BR>
-     * //When using HTTP KeepAlive, how often to send TCP KeepAlive packets over sockets being kept alive. Default = 1000.</BR>
+     * //When using HTTP KeepAlive, how often to send TCP KeepAlive packets over sockets being kept alive. Default = 4301.</BR>
      * //Only relevant if keepAlive is set to true.</BR>
-     * keepAliveMsecs: 15001, // ?: number or undefined;</BR>
+     * keepAliveMsecs: 4301, // ?: number or undefined;</BR>
      * </BR>
      * Maximum number of sockets to allow per host. Default for Node 0.10 is 5, default for Node 0.12 is Infinity</BR>
      * maxSockets: 26, // ?: number or undefined;</BR>
@@ -25986,6 +28890,8 @@ import { LogLevelAreas } from 'lib/common/LevelLogs.js'; class NodeSDK {
      * @param {string} options.testOutdatedVersion true, Parameter to verify at startup if the current SDK Version is the lastest published on npmjs.com.
      * @param {string} options.testDNSentry true, Parameter to verify at startup/reconnection that the rainbow server DNS entry name is available.
      * @param {string} options.httpoverxmppserver false, Activate the treatment of Http over Xmpp requests (xep0332).
+     * @param {number} options.intervalBetweenCleanMemoryCache 21600000 (6 hours), There is a cleannig process to reduce memory use and this option allow to modify the interval between it.
+     * @param {string} options.requestsRate.useRequestRateLimiter true, // Allows to use the rate limit of the http requests to server.
      * @param {string} options.requestsRate.maxReqByIntervalForRequestRate 600, // nb requests during the interval of the rate limit of the http requests to server.
      * @param {string} options.requestsRate.intervalForRequestRate 60, // nb of seconds used for the calcul of the rate limit of the rate limit of the http requests to server.
      * @param {string} options.requestsRate.timeoutRequestForRequestRate 600 // nb seconds Request stay in queue before being rejected if queue is full of the rate limit of the http requests to server.
@@ -25994,22 +28900,27 @@ import { LogLevelAreas } from 'lib/common/LevelLogs.js'; class NodeSDK {
      * @param {string} options.im.sendMessageToConnectedUser false, Forbid the SDK to send a message to the connected user it self. This is to avoid bot loopback.
      * @param {string} options.im.conversationsRetrievedFormat "small", Set the size of the conversation's content retrieved from server. Can be `small`, `medium`, `full`.
      * @param {string} options.im.storeMessages false, Tell the server to store the message for delay distribution and also for history. Please avoid to set it to true for a bot which will not read anymore the messages. It is a better way to store it in your own CPaaS application.
+     * @param {boolean} options.im.copyMessage to manage if the Messages hint should not be copied to others resources (https://xmpp.org/extensions/xep-0334.html#no-copy) . The default value is true.
      * @param {string} options.im.nbMaxConversations 15, Parameter to set the maximum number of conversations to keep (defaut value to 15). Old ones are remove from XMPP server with the new method `ConversationsService::removeOlderConversations`.
      * @param {string} options.im.rateLimitPerHour 1000, Parameter to set the maximum of "message" stanza sent to server by hour. Default value is 1000.
      * @param {string} options.im.messagesDataStore Parameter to override the storeMessages parameter of the SDK to define the behaviour of the storage of the messages (Enum DataStoreType in lib/config/config , default value "DataStoreType.UsestoreMessagesField" so it follows the storeMessages behaviour).<br>
-     *                          DataStoreType.NoStore Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.<br>
-     *                          DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).<br>
-     *                          DataStoreType.StoreTwinSide The messages are fully stored.<br>
-     *                          DataStoreType.UsestoreMessagesField to follow the storeMessages SDK's parameter behaviour.
+     *                         DataStoreType.NoStore "no-store" Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.<br>
+     *                          DataStoreType.NoPermanentStore "no-permanent-store" Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).<br>
+     *                          DataStoreType.StoreTwinSide "storetwinside" The messages are fully stored.<br>
+     *                          DataStoreType.UsestoreMessagesField "OldstoreMessagesUsed" to follow the storeMessages SDK's parameter behaviour.
      * @param {boolean} options.im.autoInitialGetBubbles to allow automatic opening of the bubbles the user is in. Default value is true.
      * @param {string} options.im.autoInitialBubblePresence to allow automatic opening of conversation to the bubbles with sending XMPP initial presence to the room. Default value is true.
      * @param {number} options.im.maxBubbleJoinInProgress to define the maximum of simultaneous "send initial presence of the bubbles".
      * @param {boolean} options.im.autoInitialBubbleFormat to allow modify format of data received at getting the bubbles. Default value is true.
      * @param {boolean} options.im.autoInitialBubbleUnsubscribed to allow get the bubbles when the user is unsubscribed form it. Default value is true.
-     * @param {string} options.im.autoLoadConversations to activate the retrieve of conversations from the server. The default value is true.
-     * @param {string} options.im.autoLoadConversationHistory to activate the retrieve of conversation's messages from the server. The default value is false.
-     * @param {string} options.im.autoLoadContacts to activate the retrieve of contacts from roster from the server. The default value is true.
+     * @param {boolean} options.im.autoLoadConversations to activate the retrieve of conversations from the server. The default value is true.
+     * @param {boolean} options.im.autoLoadConversationHistory to activate the retrieve of conversation's messages from the server. The default value is false.
+     * @param {boolean} options.im.autoLoadContacts to activate the retrieve of contacts from roster from the server. The default value is true.
+     * @param {boolean} options.im.forceHistoryGetContactFromServer Allows to force to retrieve information about contacts when history messages are getted from server.
+     * @param {boolean} options.im.enableCarbon to manage carbon copy of message (https://xmpp.org/extensions/xep-0280.html). The default value is true.     * @param {string} options.im.enablesendurgentpushmessages permit to add <retry-push xmlns='urn:xmpp:hints'/> tag to allows the server sending this messge in push with a small ttl (meaning urgent for apple/google backend) and retry sending it 10 times to increase probability that it is received by mobile device. The default value is false.
      * @param {string} options.im.enablesendurgentpushmessages permit to add <retry-push xmlns='urn:xmpp:hints'/> tag to allows the server sending this messge in push with a small ttl (meaning urgent for apple/google backend) and retry sending it 10 times to increase probability that it is received by mobile device. The default value is false.
+     * @param {string} options.im.storeMessagesInConversation Allows to store messages in conversation cache if true else the conversation.messages property stay empty. The default value is true.
+     * @param {string} options.im.maxMessagesStoredInConversation Allows to store messages in conversation with a maximum entries. The default value is 1000. Note: `storeMessagesInConversation` needs to be setted to true to be relevant.
      * @param {Object} options.servicesToStart <br>
      *    Services to start. This allows to start the SDK with restricted number of services, so there are less call to API.<br>
      *    Take care, severals services are linked, so disabling a service can disturb an other one.<br>

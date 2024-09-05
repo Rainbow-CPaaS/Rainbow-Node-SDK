@@ -10,9 +10,23 @@
 <body>
   <div class="mermaid">
 classDiagram
+class Task
+class Task
 class Settings
+class GroupMember
+class HuntingGroup
+class PresenceRainbow
+class PresenceInfo
 class Message
 class Invitation
+class GeoLoc
+class FileViewer
+class FileViewer
+class FileDescriptor
+class FileDescriptor
+class Thumbnail
+class Favorite
+class ErrorManager
 class Conversation
 class Contact
 class Channel
@@ -21,9 +35,20 @@ class Appreciations
 class Call
 class Call
 class Bubble
+class AlertTemplatesData
+class AlertTemplate
+class AlertMessageInfo
+class AlertMessage
+class AlertFiltersData
+class AlertFilter
+class AlertDevicesData
+class AlertDevice
+class AlertsData
+class Alert
 class Events
 class NodeSDK
 class SDK
+class TasksService
 class TelephonyService
 class Settings
 class s2s
@@ -45,6 +70,11 @@ class AdminService
 AdminService : Promise.Object, ErrorManager : getRainbowSupportBotService()
 AdminService : Promise.Object, ErrorManager : getABotServiceData(string)
 AdminService : Promise.Object, ErrorManager : getAllBotServices(string, number, number, string, number)
+AdminService : Promise.any : createRainbowMultifactorAuthenticationServerConfiguration(string, Boolean, string, string, string, Number, Boolean)
+AdminService : Promise.any : deleteRainbowMultifactorConfiguration(string, string)
+AdminService : Promise.any : getRainbowMultifactorConfiguration(string, string)
+AdminService : Promise.any : getAllRainbowMultifactorConfiguration(string, string)
+AdminService : Promise.any : updateRainbowMultifactorAuthenticationConfiguration(string, string, boolean, string, string, string, string, boolean)
 AdminService : Promise.Object, ErrorManager : createAJoinCompanyLink(string, string, boolean, string, number)
 AdminService : Promise.Object, ErrorManager : deleteAJoinCompanyLink(string, string)
 AdminService : Promise.Object, ErrorManager : getAJoinCompanyLink(string, string)
@@ -63,6 +93,12 @@ AdminService : Promise.Object, ErrorManager : changePasswordForUser(string, stri
 AdminService : Promise.Object, ErrorManager : updateInformationForUser(Object, string)
 AdminService : Promise.Object, ErrorManager : deleteUser(string)
 AdminService : Promise.Object, ErrorManager : getAllCompanies(string, string, string, string, string, boolean, string, string, string, string, boolean, string, number, number, number, string, string, string, string, boolean, boolean, string)
+AdminService : Promise.any : getCompaniesBPBusinessType()
+AdminService : Promise.any : getCompanyAppFeatureCustomisation(string)
+AdminService : Promise.any : getCompanyServiceDescriptionFile(string)
+AdminService : Promise.any : getDefaultCompanyData(string, string)
+AdminService : Promise.any : setCompanyAppFeatureCustomisation(string, any)
+AdminService : Promise.any : updateCompany(string, any, string, string, string, string, string, string, string, string, string, string, string[], string, string, string, string, boolean, boolean, boolean, boolean, boolean, boolean, boolean, string[], string, string, string, string, string, boolean, string, boolean, any, string, boolean, string, boolean, string, string, string, string, boolean, boolean, boolean, string, boolean, string, string, string, string, , string, string, string[], string, boolean, boolean, any, boolean, string, string, string, boolean, string, string, any, string, string[], any, boolean, boolean, number, number, number, string, boolean, boolean, boolean, string[], string[], string[], string[], string, string)
 AdminService : Promise.Object, ErrorManager : getAllUsers(string, number, number, string)
 AdminService : Promise.any, ErrorManager : getAllUsersByFilter(number, number, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, boolean, string, string, string, string, string, string, string, string)
 AdminService : Promise.Object, ErrorManager : getAllUsersByCompanyId(string, number, number, string, string)
@@ -78,13 +114,24 @@ AdminService : Promise.any : getJoinCompanyRequest(string)
 AdminService : Promise.any : getAllJoinCompanyRequests(string, string, string, number, number, number)
 AdminService : Promise.any : resendJoinCompanyRequest(string)
 AdminService : Promise.any : requestToJoinCompany(string, string, string, string)
-AdminService : Promise.Object, Error : applyCustomisationTemplates(string, string, string)
-AdminService : Promise.Object, Error : createCustomisationTemplate(string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string)
-AdminService : Promise.Object, Error : deleteCustomisationTemplate(string)
-AdminService : Promise.Object, Error : getAllAvailableCustomisationTemplates(string, string, number, number, string, number)
-AdminService : Promise.Object, Error : getAllAvailableCustomisationTemplates(string)
-AdminService : Promise.Object, Error : updateCustomisationTemplate(string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string)
-AdminService : Promise.Object, Error : askTokenOnBehalf(string, string)
+AdminService : Promise.any : getEmailTemplatesDocumentation(string)
+AdminService : Promise.any : initiateEmailTemplate(string, string)
+AdminService : Promise.any : updateSubjectPartTemplate(string, string, any)
+AdminService : Promise.any : updateMjmlFormatPartTemplate(string, string, any)
+AdminService : Promise.any : updateTextFormatFormatPartTemplate(string, string, any)
+AdminService : Promise.any : getEmailTemplatesByCompanyId(string, string, string)
+AdminService : Promise.any : deleteEmailTemplate(string, string)
+AdminService : Promise.any : deleteAvailableEmailTemplatesBycompanyId(string, string)
+AdminService : Promise.any : testEmailTemplateRendering(string, any)
+AdminService : Promise.any : activateEmailTemplate(string, string)
+AdminService : Promise.any : deactivateEmailTemplate(string, string)
+AdminService : Promise.any : applyCustomisationTemplates(string, string, string)
+AdminService : Promise.any : createCustomisationTemplate(string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string)
+AdminService : Promise.any : deleteCustomisationTemplate(string)
+AdminService : Promise.any : getAllAvailableCustomisationTemplates(string, string, number, number, string, number)
+AdminService : Promise.any : getAllAvailableCustomisationTemplates(string)
+AdminService : Promise.any : updateCustomisationTemplate(string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string)
+AdminService : Promise.any : askTokenOnBehalf(string, string)
 AdminService : Promise.any : getUserPresenceInformation(string)
 AdminService : Promise.any[] : retrieveAllOffersOfCompanyById(string)
 AdminService : Promise.any[] : retrieveAllSubscriptionsOfCompanyById(string, string)
@@ -126,17 +173,17 @@ AdminService : Promise.any : retrieveRainbowEntriesList(string, string, boolean)
 AdminService : Promise.{id: string, companyId: string, loginEmail: string, password: string} : ActivateALdapConnectorUser()
 AdminService : Promise.{status: string} : deleteLdapConnector(string)
 AdminService : Promise.any : retrieveAllLdapConnectorUsersData(string, string, number, number, string, number)
-AdminService : Promise.{Object} : sendCommandToLdapConnectorUser(string, string)
-AdminService : Promise.{Object} : createConfigurationForLdapConnector(string, string, Object, string, Object, string, Object, string, string, number, string, string, string, boolean, string, string)
+AdminService : Promise.any : sendCommandToLdapConnectorUser(string, string)
+AdminService : Promise.any : createConfigurationForLdapConnector(string, string, Object, string, Object, string, Object, string, string, number, string, string, string, boolean, string, string)
 AdminService : Promise.{status: string} : deleteLdapConnectorConfig(string)
-AdminService : Promise.{Object} : retrieveLdapConnectorConfig(string)
-AdminService : Promise.{Object} : retrieveLdapConnectorConfigTemplate(string)
-AdminService : Promise.{Object} : retrieveLdapConnectorAllConfigTemplates()
-AdminService : Promise.{Object} : retrieveLdapConnectorAllConfigs(string)
-AdminService : Promise.{Object} : retrieveLDAPConnectorConfigByLdapConfigId(string)
-AdminService : Promise.{Object} : updateConfigurationForLdapConnector(string, boolean, string, Object, Object, string, Object, string, string, Number, string, string, boolean, boolean, boolean, string, string, string, string)
-AdminService : Promise.{Object} : uploadLdapAvatar(binary, string)
-AdminService : Promise.{Object} : deleteLdapAvatar()
+AdminService : Promise.any : retrieveLdapConnectorConfig(string)
+AdminService : Promise.any : retrieveLdapConnectorConfigTemplate(string)
+AdminService : Promise.any : retrieveLdapConnectorAllConfigTemplates()
+AdminService : Promise.any : retrieveLdapConnectorAllConfigs(string)
+AdminService : Promise.any : retrieveLDAPConnectorConfigByLdapConfigId(string)
+AdminService : Promise.any : updateConfigurationForLdapConnector(string, boolean, string, Object, Object, string, Object, string, string, Number, string, string, boolean, boolean, boolean, string, string, string, string)
+AdminService : Promise.any : uploadLdapAvatar(any, string, string)
+AdminService : Promise.any : deleteLdapAvatar(string)
 AdminService : Promise.any : createListOfEventsForConnector(any)
 AdminService : Promise.any : getCloudPbxById(string)
 AdminService : Promise.any : updateCloudPBX(string, string, string, string, string, string, boolean, boolean, string, string, string, number, number, number, boolean)
@@ -222,7 +269,7 @@ AdminService : Promise.any : getCustomerCareAdministratorsGroup()
 AdminService : Promise.any : addAdministratorToGroup(string)
 AdminService : Promise.any : removeAdministratorFromGroup(string)
 AdminService : Promise.any : getIssue(string)
-AdminService : Promise.any : getListOfIssues(number, number, String, number, String, String, string, string, string, string, string, string, string, string, string)
+AdminService : Promise.any : getListOfIssues(number, number, string, number, string, string, string, string, string, string, string, string, string, string, string)
 AdminService : Promise.any : getListOfIssuesForUser(string, string)
 AdminService : Promise.any : getIssueForUser(string, string)
 AdminService : Promise.any : initiateLogsContext(string, string, string, string, string, string, string, string, string[], string, object)
@@ -238,6 +285,14 @@ AdminService : Promise.any : updateAnAtriumTicket(string, string, string, string
 AdminService : Promise.any : deleteAnAtriumTicketInformation(string, string)
 AdminService : Promise.any : readAnAtriumTicketInformation(string)
 AdminService : Promise.any : readAllTicketsOnASameCompany(string)
+AdminService : Promise.any : createCloudPBXGroup(string, HuntingGroup)
+AdminService : Promise.any : deleteCloudPBXGroup(string, string)
+AdminService : Promise.any : getCloudPBXGroup(string, string)
+AdminService : Promise.any : getAllCloudPBXGroups(string, string, string, string, string, string, string, number, number, number)
+AdminService : Promise.any : getMembersOfCloudPBXGroups(string, number, number, string, number, string, string)
+AdminService : Promise.any : updateCloudPBXGroup(string, string, string, HuntingGroupPolicy, Number, string, Boolean, Boolean, Object[], string, HuntingGroupMemberRole[], HuntingGroupMemberStatus)
+AdminService : Promise.any : updateCloudPBXHuntingGroupAnalyticsConfiguration(string, string, Boolean)
+AdminService : Promise.any : updateCloudPBXHuntingGroupRecordingConfiguration(string, string, string)
 AlertsService : Promise.any : markAlertMessageAsRead(string, string)
 AlertsService : Promise.AlertDevice : createDevice(AlertDevice)
 AlertsService : Promise.AlertDevice : updateDevice(AlertDevice)
@@ -471,6 +526,7 @@ ContactsService : Promise.any : deletePersonalDirectoryEntry(string)
 ConversationsService : Promise.Conversation[] : ackAllMessages(string, boolean)
 ConversationsService : Promise.Conversation[] : getHistoryPage(Conversation, number)
 ConversationsService : Promise.Conversation[] : loadConversationHistory(Conversation, string)
+ConversationsService : Promise.{code:number, label:string} : loadConversationHistoryAsync(Conversation, string)
 ConversationsService : Promise.any : getOneMessageFromConversationId(string, string, string)
 ConversationsService : Object : getTheNumberOfHitsOfASubstringInAllUsersconversations(string, string, number, boolean)
 ConversationsService : Promise.any : getContactsMessagesFromConversationId(string)
@@ -647,11 +703,23 @@ TelephonyService : Promise : deleteAVoiceMessageFromPbx(string)
 TelephonyService : Promise : getAVoiceMessageFromPbx(string, string, string)
 TelephonyService : Promise : getDetailedListOfVoiceMessages()
 TelephonyService : Promise : getNumbersOfVoiceMessages()
-SDK : void : constructor(Object, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, boolean, string, number, boolean, boolean, string, string, string, string, Object)
+TasksService : Promise.Task, ErrorManager : addTask(TaskInput)
+TasksService : Promise.any, ErrorManager : createTaskcategory(string)
+TasksService : Promise.any, ErrorManager : createOrUpdatePropertiesTaskByCategoryId(string, any)
+TasksService : Promise.Task, ErrorManager : getTaskById(string)
+TasksService : Promise.Task, ErrorManager : getTasksByCategoryId(string, boolean)
+TasksService : Promise.Task, ErrorManager : getTasks(string, boolean)
+TasksService : Promise.any, ErrorManager : getAllCategories(boolean)
+TasksService : Promise.boolean, ErrorManager : deletePropertiesFromCategoriesTasks(string)
+TasksService : Promise.boolean, ErrorManager : deleteTask(string)
+TasksService : Promise.boolean, ErrorManager : deleteCategoryFromTasks(string)
+TasksService : Promise.any, ErrorManager : updateTask(string, TaskInput)
+SDK : void : constructor(Object, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, string, boolean, boolean, string, string, LogLevelAreas, string, string, string, string, string, string, string, number, string, string, string, string, string, string, string, string, string, boolean, string, string, string, boolean, string, number, boolean, boolean, string, string, string, boolean, boolean, string, string, string, Object)
 NodeSDK : void : start(String)
 NodeSDK : void : start()
 NodeSDK : void : setRenewedToken()
 NodeSDK : void : stop()
+SDK : ImsService : {LogLevelAreas} getAreasLogs()
 NodeSDK [1] --> [1] ImsService
 NodeSDK : ImsService : im
 NodeSDK [1] --> [1] ChannelsService
@@ -678,6 +746,8 @@ NodeSDK : String : version
 NodeSDK : ConnectedUser : connectedUser
 NodeSDK [1] --> [1] TelephonyService
 NodeSDK : TelephonyService : telephony
+NodeSDK [1] --> [1] TasksService
+NodeSDK : TasksService : tasks
 NodeSDK [1] --> [1] CallLogService
 NodeSDK : CallLogService : calllog
 NodeSDK [1] --> [1] FavoritesService
@@ -708,6 +778,7 @@ Events ::event : rainbow_oncontactpresencechanged
 Events ::event : rainbow_onpresencechanged
 Events ::event : rainbow_onconversationremoved
 Events ::event : rainbow_onconversationchanged
+Events ::event : rainbow_onloadConversationHistoryCompleted
 Events ::event : rainbow_onallmessagedremovedfromconversationreceived
 Events ::event : rainbow_onchatstate
 Events ::event : rainbow_oncontactinformationchanged
@@ -785,6 +856,9 @@ Events ::event : rainbow_onrbvoicerawevent
 Events ::event : rainbow_onjoincompanyinvitereceived
 Events ::event : rainbow_onjoincompanyrequestreceived
 Events ::event : rainbow_onlogsconfig
+Events ::event : rainbow_ontaskcreated
+Events ::event : rainbow_ontaskupdated
+Events ::event : rainbow_ontaskdeleted
 Events : Object : onLog(string, function)
 Events : Object : removeLogListener(string, function)
 Events : Object : on(string, function)
@@ -799,6 +873,86 @@ Events ::event : rainbow_onreconnecting
 Events ::event : rainbow_onfailed
 Events ::event : rainbow_onerror
 Events ::event : rainbow_onready
+Alert : string : id
+Alert : string : name
+Alert : string : description
+Alert : string : status
+Alert : string : templateId
+Alert : string : filterId
+Alert : string : companyId
+Alert : string : startDate
+Alert : string : expirationDate
+AlertsData : number : total
+AlertsData : number : limit
+AlertsData : number : offset
+AlertDevice : string : id
+AlertDevice : string : name
+AlertDevice : string : type
+AlertDevice : string : userId
+AlertDevice : string : companyId
+AlertDevice : string : jid_im
+AlertDevice : string : jid_resource
+AlertDevice : string : creationDate
+AlertDevice : List.<string> : ipAddresses
+AlertDevice : List.<string> : macAddresses
+AlertDevice : List.<string> : tags
+AlertDevice : string : geolocation
+AlertDevice : string : domainUsername
+AlertDevice : string : description
+AlertDevicesData : number : total
+AlertDevicesData : number : limit
+AlertDevicesData : number : offset
+AlertFilter : string : id
+AlertFilter : string : name
+AlertFilter : string : companyId
+AlertFilter : List.<string> : tags
+AlertFiltersData : number : total
+AlertFiltersData : number : limit
+AlertFiltersData : number : offset
+AlertMessage : string : id
+AlertMessage : string : toJid
+AlertMessage : string : fromJid
+AlertMessage : string : fromResource
+AlertMessage : string : identifier
+AlertMessage : string : sender
+AlertMessage : string : sent
+AlertMessage : string : status
+AlertMessage : string : msgType
+AlertMessage : string : references
+AlertMessage : string : scope
+AlertMessage [1] --> [1] AlertMessageInfo
+AlertMessage : AlertMessageInfo : info
+AlertMessageInfo : string : category
+AlertMessageInfo : string : event
+AlertMessageInfo : string : urgency
+AlertMessageInfo : string : certainty
+AlertMessageInfo : string : expires
+AlertMessageInfo : string : senderName
+AlertMessageInfo : string : headline
+AlertMessageInfo : string : description
+AlertMessageInfo : string : descriptionMimeType
+AlertMessageInfo : string : instruction
+AlertMessageInfo : string : contact
+AlertTemplate : string : id
+AlertTemplate : string : name
+AlertTemplate : string : companyId
+AlertTemplate : string : event
+AlertTemplate : string : description
+AlertTemplate : string : mimeType
+AlertTemplate : string : senderName
+AlertTemplate : string : headline
+AlertTemplate : string : instruction
+AlertTemplate : string : contact
+AlertTemplate : string : type
+AlertTemplate : string : status
+AlertTemplate : string : scope
+AlertTemplate : string : category
+AlertTemplate : string : urgency
+AlertTemplate : string : severity
+AlertTemplate : string : certainty
+AlertTemplatesData : number : total
+AlertTemplatesData : number : limit
+AlertTemplatesData : number : offset
 Bubble : string : id
 Bubble : string : name
 Bubble : string : topic
@@ -827,6 +981,8 @@ Bubble : string : containerId
 Bubble : string : containerName
 Bubble : string : status
 Bubble : InitialPresence : _initialPresence
+Bubble : string[] : allNames
+Bubble : string[] : participantNames
 Bubble : String : Privilege
 Bubble : String : History
 Call : Object : status
@@ -995,6 +1151,21 @@ Contact : string : eLearningGamificationCustomisation
 Contact : boolean : useRoomAsRBVoiceUser
 Contact : boolean : useWebRTCAudioAsRBVoiceUser
 Contact : Object : msTeamsPresence
+Contact : boolean : useWebRTCOnlyIfMobileLoggedCustomisation
+Contact : boolean : meetingRecordingCustomisation
+Contact : boolean : useOtherPhoneMode
+Contact : boolean : useComputerMode
+Contact : boolean : useSoftPhoneMode
+Contact : boolean : imPopupDuration
+Contact : boolean : canAccessWhatsNew
+Contact : boolean : canAccessFaqCustomisation
+Contact : boolean : canAccessHelpCenterCustomisation
+Contact : boolean : canAccessStoreCustomisation
+Contact : boolean : canDownloadAppCustomisation
+Contact : string : canCallParticipantPbxNumberCustomisation
+Contact : boolean : useExternalStorage
+Contact : boolean : useRainbowStorage
+Contact : string : mainStorage
 Contact : string : displayName
 Conversation : string : id
 Conversation : string : dbId
@@ -1023,6 +1194,24 @@ Conversation : ConferenceSession : pstnConferenceSession
 Conversation : ConferenceSession : webConferenceSession
 Conversation : number : Type
 Conversation : Object : Status
+FileDescriptor : string : id
+FileDescriptor : string : url
+FileDescriptor : string : ownerId
+FileDescriptor : string : fileName
+FileDescriptor : string : extension
+FileDescriptor : string : typeMIME
+FileDescriptor : ThumbnailPlaceholder : thumbnailPlaceholder
+FileDescriptor : string : size
+FileDescriptor : Object : registrationDate
+FileDescriptor : Object : uploadedDate
+FileDescriptor : any[] : viewers
+FileDescriptor : number : orientation
+FileDescriptor : string : md5sum
+FileDescriptor : string : applicationId
+FileViewer : String : viewerId
+FileViewer : string : type
+FileViewer [1] --> [1] Contact
+FileViewer : Contact : contact
 Invitation : string : id
 Invitation : string : invitedUserId
 Invitation : string : invitedUserEmail
@@ -1084,10 +1273,29 @@ Message : boolean : modified
 Message : Object : Type
 Message : number : ReceiptStatus
 Message : string : Side
+Settings [1] --> [1] PresenceRainbow
 Settings : PresenceRainbow : presence
 Settings : boolean : displayNameOrderFirstNameFirst
 Settings : string : activeAlarm
 Settings : string : activeNotif
+Task : Task : create(, , , , , , , , , , )
+Task : string : id
+Task : string : title
+Task : number : creationDate
+Task : boolean : done
+Task : boolean : personalNote
+Task : string : peerId
+Task : string : peerJid
+Task : string : conversationJid
+Task : number : messageId
+Task : string : messageTimestamp
+Task : string : text
+Task : string : position
+Task : string : category
+Task : string : categoryId
+Task : string : type
+Task : void : ChannelFactory()
+Task : void : updateChannel()
 @@</div><!--MERMAID-->
 
 <footer>

@@ -509,6 +509,7 @@ class Options {
             autoLoadConversations: true,
             autoLoadConversationHistory: false,
             autoLoadContacts: true,
+            autoLoadCallLog: false,
             forceHistoryGetContactFromServer: false,
             enableCarbon: true,
             enablesendurgentpushmessages: false,
@@ -540,6 +541,7 @@ class Options {
         optionsIM.autoLoadConversations = isDefined(this._options.im.autoLoadConversations) ? this._options.im.autoLoadConversations : config.im.autoLoadConversations;
         optionsIM.autoLoadConversationHistory = (this._options.im.autoLoadConversationHistory == true) ? this._options.im.autoLoadConversationHistory : config.im.autoLoadConversationHistory;
         optionsIM.autoLoadContacts = (this._options.im.autoLoadContacts == false) ? this._options.im.autoLoadContacts : config.im.autoLoadContacts;
+        optionsIM.autoLoadCallLog = isDefined(this._options.im.autoLoadCallLog) ? this._options.im.autoLoadCallLog : config.im.autoLoadCallLog;
         optionsIM.forceHistoryGetContactFromServer = (this._options.im.forceHistoryGetContactFromServer == true) ? this._options.im.forceHistoryGetContactFromServer : config.im.forceHistoryGetContactFromServer;
         optionsIM.enableCarbon = (this._options.im.enableCarbon == false) ? this._options.im.enableCarbon : config.im.enableCarbon;
         optionsIM.enablesendurgentpushmessages = (this._options.im.enablesendurgentpushmessages == true) ? this._options.im.enablesendurgentpushmessages : config.im.enablesendurgentpushmessages;

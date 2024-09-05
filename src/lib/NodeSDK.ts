@@ -139,11 +139,12 @@ let LOG_ID = "NodeSDK/IDX";
  * @property {boolean} options.im.autoLoadConversations to activate the retrieve of conversations from the server. The default value is true.
  * @property {boolean} options.im.autoLoadConversationHistory to activate the retrieve of conversation's messages from the server. The default value is false.
  * @property {boolean} options.im.autoLoadContacts to activate the retrieve of contacts from roster from the server. The default value is true.
+ * @property {boolean} options.im.autoLoadCallLog to activate the retrieve of calllog from the server. The default value is false.
  * @property {boolean} options.im.forceHistoryGetContactFromServer Allows to force to retrieve information about contacts when history messages are getted from server.
  * @property {boolean} options.im.enableCarbon to manage carbon copy of message (https://xmpp.org/extensions/xep-0280.html). The default value is true.
- * @property {string} options.im.enablesendurgentpushmessages permit to add <retry-push xmlns='urn:xmpp:hints'/> tag to allows the server sending this messge in push with a small ttl (meaning urgent for apple/google backend) and retry sending it 10 times to increase probability that it is received by mobile device. The default value is false.
- * @property {string} options.im.storeMessagesInConversation Allows to store messages in conversation cache if true else the conversation.messages property stay empty. The default value is true.
- * @property {string} options.im.maxMessagesStoredInConversation Allows to store messages in conversation with a maximum entries. The default value is 1000. Note: `storeMessagesInConversation` needs to be setted to true to be relevant.
+ * @property {boolean} options.im.enablesendurgentpushmessages permit to add <retry-push xmlns='urn:xmpp:hints'/> tag to allows the server sending this messge in push with a small ttl (meaning urgent for apple/google backend) and retry sending it 10 times to increase probability that it is received by mobile device. The default value is false.
+ * @property {boolean} options.im.storeMessagesInConversation Allows to store messages in conversation cache if true else the conversation.messages property stay empty. The default value is true.
+ * @property {number} options.im.maxMessagesStoredInConversation Allows to store messages in conversation with a maximum entries. The default value is 1000. Note: `storeMessagesInConversation` needs to be setted to true to be relevant.
  * @property {Object} options.servicesToStart <br>
  *    Services to start. This allows to start the SDK with restricted number of services, so there are less call to API.<br>
  *    Take care, severals services are linked, so disabling a service can disturb an other one.<br>
@@ -450,51 +451,52 @@ class NodeSDK {
      * @param {string} options.proxy.protocol "http", The proxy protocol (note http is used to https also).
      * @param {string} options.proxy.user "proxyuser", The proxy username.
      * @param {string} options.proxy.password "XXXXX", The proxy password.
-     * @param {string} options.logs.enableConsoleLogs false, Activate logs on the console.
-     * @param {string} options.logs.enableFileLogs false, Activate the logs in a file.
+     * @param {boolean} options.logs.enableConsoleLogs false, Activate logs on the console.
+     * @param {boolean} options.logs.enableFileLogs false, Activate the logs in a file.
      * @param {boolean} options.logs.enableEventsLogs: false, Activate the logs to be raised from the events service (with `onLog` listener). Used for logs in connection node in red node contrib.
      * @param {boolean} options.logs.enableEncryptedLogs: true, Activate the encryption of stanza in logs.
-     * @param {string} options.logs.color true, Activate the ansii color in the log (more humain readable, but need a term console or reader compatible (ex : vim + AnsiEsc module)). 
+     * @param {boolean} options.logs.color true, Activate the ansii color in the log (more humain readable, but need a term console or reader compatible (ex : vim + AnsiEsc module)).
      * @param {string} options.logs.level "info", The level of logs. The value can be "error", "warn", "info", "trace", "http", "xmpp", "debug", "internalerror", "internal". These Severities of levels are shown in an inclusive order, so "error" level only show "error" logs, "warn" level only show "error" and "warn" levels, and so on.
      * @param {LogLevelAreas} options.logs.areas Areas allow to override the log level for specifics limited area of code.
      * @param {string} options.logs.customLabel "MyRBProject", A label inserted in every lines of the logs. It is usefull if you use multiple SDK instances at a same time. It allows to separate logs in console.
      * @param {string} options.logs.file.path "c:/temp/", Path to the log file.
      * @param {string} options.logs.file.customFileName "R-SDK-Node-MyRBProject", A label inserted in the name of the log file.
      * @param {string} options.logs.file.zippedArchive false Can activate a zip of file. It needs CPU process, so avoid it.
-     * @param {string} options.testOutdatedVersion true, Parameter to verify at startup if the current SDK Version is the lastest published on npmjs.com.
-     * @param {string} options.testDNSentry true, Parameter to verify at startup/reconnection that the rainbow server DNS entry name is available.
-     * @param {string} options.httpoverxmppserver false, Activate the treatment of Http over Xmpp requests (xep0332).
+     * @param {boolean} options.testOutdatedVersion true, Parameter to verify at startup if the current SDK Version is the lastest published on npmjs.com.
+     * @param {boolean} options.testDNSentry true, Parameter to verify at startup/reconnection that the rainbow server DNS entry name is available.
+     * @param {boolean} options.httpoverxmppserver false, Activate the treatment of Http over Xmpp requests (xep0332).
      * @param {number} options.intervalBetweenCleanMemoryCache 21600000 (6 hours), There is a cleannig process to reduce memory use and this option allow to modify the interval between it.
      * @param {string} options.requestsRate.useRequestRateLimiter true, // Allows to use the rate limit of the http requests to server.
      * @param {string} options.requestsRate.maxReqByIntervalForRequestRate 600, // nb requests during the interval of the rate limit of the http requests to server.
      * @param {string} options.requestsRate.intervalForRequestRate 60, // nb of seconds used for the calcul of the rate limit of the rate limit of the http requests to server.
      * @param {string} options.requestsRate.timeoutRequestForRequestRate 600 // nb seconds Request stay in queue before being rejected if queue is full of the rate limit of the http requests to server.
-     * @param {string} options.im.sendReadReceipt true, Allow to automatically send back a 'read' status of the received message. Usefull for Bots.
+     * @param {boolean} options.im.sendReadReceipt true, Allow to automatically send back a 'read' status of the received message. Usefull for Bots.
      * @param {string} options.im.messageMaxLength 1024, Maximum size of messages send by rainbow. Note that this value should not be modified without ALE Agreement.
-     * @param {string} options.im.sendMessageToConnectedUser false, Forbid the SDK to send a message to the connected user it self. This is to avoid bot loopback.
+     * @param {boolean} options.im.sendMessageToConnectedUser false, Forbid the SDK to send a message to the connected user it self. This is to avoid bot loopback.
      * @param {string} options.im.conversationsRetrievedFormat "small", Set the size of the conversation's content retrieved from server. Can be `small`, `medium`, `full`.
      * @param {string} options.im.storeMessages false, Tell the server to store the message for delay distribution and also for history. Please avoid to set it to true for a bot which will not read anymore the messages. It is a better way to store it in your own CPaaS application.
      * @param {boolean} options.im.copyMessage to manage if the Messages hint should not be copied to others resources (https://xmpp.org/extensions/xep-0334.html#no-copy) . The default value is true.
      * @param {string} options.im.nbMaxConversations 15, Parameter to set the maximum number of conversations to keep (defaut value to 15). Old ones are remove from XMPP server with the new method `ConversationsService::removeOlderConversations`.
-     * @param {string} options.im.rateLimitPerHour 1000, Parameter to set the maximum of "message" stanza sent to server by hour. Default value is 1000.
+     * @param {number} options.im.rateLimitPerHour 1000, Parameter to set the maximum of "message" stanza sent to server by hour. Default value is 1000.
      * @param {string} options.im.messagesDataStore Parameter to override the storeMessages parameter of the SDK to define the behaviour of the storage of the messages (Enum DataStoreType in lib/config/config , default value "DataStoreType.UsestoreMessagesField" so it follows the storeMessages behaviour).<br>
      *                         DataStoreType.NoStore "no-store" Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.<br>
      *                          DataStoreType.NoPermanentStore "no-permanent-store" Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).<br>
      *                          DataStoreType.StoreTwinSide "storetwinside" The messages are fully stored.<br>
      *                          DataStoreType.UsestoreMessagesField "OldstoreMessagesUsed" to follow the storeMessages SDK's parameter behaviour.
      * @param {boolean} options.im.autoInitialGetBubbles to allow automatic opening of the bubbles the user is in. Default value is true.
-     * @param {string} options.im.autoInitialBubblePresence to allow automatic opening of conversation to the bubbles with sending XMPP initial presence to the room. Default value is true.
+     * @param {boolean} options.im.autoInitialBubblePresence to allow automatic opening of conversation to the bubbles with sending XMPP initial presence to the room. Default value is true.
      * @param {number} options.im.maxBubbleJoinInProgress to define the maximum of simultaneous "send initial presence of the bubbles".
      * @param {boolean} options.im.autoInitialBubbleFormat to allow modify format of data received at getting the bubbles. Default value is true.
      * @param {boolean} options.im.autoInitialBubbleUnsubscribed to allow get the bubbles when the user is unsubscribed form it. Default value is true.
-     * @param {string} options.im.autoLoadConversations to activate the retrieve of conversations from the server. The default value is true. 
-     * @param {string} options.im.autoLoadConversationHistory to activate the retrieve of conversation's messages from the server. The default value is false.
-     * @param {string} options.im.autoLoadContacts to activate the retrieve of contacts from roster from the server. The default value is true.
+     * @param {boolean} options.im.autoLoadConversations to activate the retrieve of conversations from the server. The default value is true.
+     * @param {boolean} options.im.autoLoadConversationHistory to activate the retrieve of conversation's messages from the server. The default value is false.
+     * @param {boolean} options.im.autoLoadContacts to activate the retrieve of contacts from roster from the server. The default value is true.
+     * @param {boolean} options.im.autoLoadCallLog to activate the retrieve of calllog from the server. The default value is false.
      * @param {boolean} options.im.forceHistoryGetContactFromServer Allows to force to retrieve information about contacts when history messages are getted from server.
      * @param {boolean} options.im.enableCarbon to manage carbon copy of message (https://xmpp.org/extensions/xep-0280.html). The default value is true.     * @param {string} options.im.enablesendurgentpushmessages permit to add <retry-push xmlns='urn:xmpp:hints'/> tag to allows the server sending this messge in push with a small ttl (meaning urgent for apple/google backend) and retry sending it 10 times to increase probability that it is received by mobile device. The default value is false.
-     * @param {string} options.im.enablesendurgentpushmessages permit to add <retry-push xmlns='urn:xmpp:hints'/> tag to allows the server sending this messge in push with a small ttl (meaning urgent for apple/google backend) and retry sending it 10 times to increase probability that it is received by mobile device. The default value is false.
-     * @param {string} options.im.storeMessagesInConversation Allows to store messages in conversation cache if true else the conversation.messages property stay empty. The default value is true.
-     * @param {string} options.im.maxMessagesStoredInConversation Allows to store messages in conversation with a maximum entries. The default value is 1000. Note: `storeMessagesInConversation` needs to be setted to true to be relevant.
+     * @param {boolean} options.im.enablesendurgentpushmessages permit to add <retry-push xmlns='urn:xmpp:hints'/> tag to allows the server sending this messge in push with a small ttl (meaning urgent for apple/google backend) and retry sending it 10 times to increase probability that it is received by mobile device. The default value is false.
+     * @param {boolean} options.im.storeMessagesInConversation Allows to store messages in conversation cache if true else the conversation.messages property stay empty. The default value is true.
+     * @param {number} options.im.maxMessagesStoredInConversation Allows to store messages in conversation with a maximum entries. The default value is 1000. Note: `storeMessagesInConversation` needs to be setted to true to be relevant.
      * @param {Object} options.servicesToStart <br>
      *    Services to start. This allows to start the SDK with restricted number of services, so there are less call to API.<br>
      *    Take care, severals services are linked, so disabling a service can disturb an other one.<br>

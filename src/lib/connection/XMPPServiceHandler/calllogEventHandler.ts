@@ -1,7 +1,7 @@
 "use strict";
 import {accessSync} from "fs";
 import {XMPPService} from "../XMPPService";
-import {logEntryExit} from "../../common/Utils";
+import {findAllPropInJSONByPropertyNameByXmlNS, logEntryExit} from "../../common/Utils";
 
 export {};
 
@@ -93,6 +93,49 @@ class CallLogEventHandler extends GenericHandler {
 
     }
 
+    //region Events Handlers
+
+    async onMessageReceived(msg, stanzaTab) {
+        let that = this;
+        let stanza = stanzaTab[0];
+        let prettyStanza = stanzaTab[1];
+        let jsonStanza = stanzaTab[2];
+
+        that._logger.log(that.INTERNAL, LOG_ID + "(onMessageReceived) _entering_ : ", msg, prettyStanza);
+        try {
+            let stanzaElem = stanza;
+            that._logger.log(that.DEBUG, LOG_ID + "(onMessageReceived) jsonStanza : ", jsonStanza);
+
+            if (findAllPropInJSONByPropertyNameByXmlNS(jsonStanza,"result", that.IQ_CALLLOG, 1)) { // "jabber:iq:telephony:call_log"
+                that._logger.log(that.DEBUG, LOG_ID + "(onMessageReceived) found a property 'result' in jsonStanza.");
+                that.onIqCallLogReceived(msg, stanzaTab);
+            }
+
+            if (findAllPropInJSONByPropertyNameByXmlNS(jsonStanza,"deleted_call_log", that.IQ_CALLOG_NOTIFICATION, 1)) { // "jabber:iq:telephony:call_log"
+                that._logger.log(that.DEBUG, LOG_ID + "(onMessageReceived) found a property 'deleted_call_log' in jsonStanza.");
+                that.onIqCallLogNotificationReceived(msg, stanzaTab);
+            }
+
+            if (findAllPropInJSONByPropertyNameByXmlNS(jsonStanza,"updated_call_log", that.IQ_CALLOG_NOTIFICATION, 1)) { // "jabber:iq:notification:telephony:call_log"
+                that._logger.log(that.DEBUG, LOG_ID + "(onMessageReceived) found a property 'updated_call_log' in jsonStanza.");
+                that.onIqCallLogNotificationReceived(msg, stanzaTab);
+            }
+
+            if (findAllPropInJSONByPropertyNameByXmlNS(jsonStanza,"read", that.CALLLOG_ACK, 1)) { // "jabber:iq:notification:telephony:call_log"
+                that._logger.log(that.DEBUG, LOG_ID + "(onMessageReceived) found a property 'read' in jsonStanza.");
+                that.onCallLogAckReceived(msg, stanzaTab);
+            }
+
+        } catch (error) {
+            // that._logger.log(that.ERROR, LOG_ID + "(onMessageReceived) CATCH Error !!! -- failure -- ");
+            that._logger.log(that.ERROR, LOG_ID + "(onMessageReceived) CATCH Error !!! -- failure -- : ", error);
+            //return true;
+        }
+
+        that._logger.log(that.DEBUG, LOG_ID + "(onMessageReceived) _exiting_");
+        return true;
+    }
+
     onIqCallLogReceived (msg, stanzaTab) {
         let that = this;
         let stanza = stanzaTab[0];
@@ -180,6 +223,26 @@ class CallLogEventHandler extends GenericHandler {
         return true;
     };
 
+    onIqResultReceived (msg, stanzaTab) {
+        let that = this;
+        let stanza = stanzaTab[0];
+        let prettyStanza = stanzaTab[1];
+        let jsonStanza = stanzaTab[2];
+
+        try {
+            that._logger.log(that.INTERNAL, LOG_ID + "(onIqResultReceived) _entering_", msg, "\n", prettyStanza);
+
+            if (findAllPropInJSONByPropertyNameByXmlNS(jsonStanza, "query", that.IQ_CALLLOG, 1)) { // "jabber:iq:telephony:call_log"
+                that._logger.log(that.DEBUG, LOG_ID + "(onIqResultReceived) found a property in jsonStanza  : ", jsonStanza);
+                that.onIqCallLogReceived(msg, stanzaTab);
+            }
+
+        } catch (err) {
+            // that._logger.log(that.ERROR, LOG_ID + "(onIqResultReceived) CATCH ErrorManager !!! ");
+            that._logger.log(that.ERROR, LOG_ID + "(onIqResultReceived) CATCH ErrorManager !!! : ", err);
+        }
+    };
+
     async onIqCallLogNotificationReceived (msg, stanzaTab) {
         let that = this;
         let stanza = stanzaTab[0];
@@ -236,6 +299,8 @@ class CallLogEventHandler extends GenericHandler {
             return true;
         }
     };
+
+    //endregion Events Handlers
 
     /**
      * Method isMediaPillarJid

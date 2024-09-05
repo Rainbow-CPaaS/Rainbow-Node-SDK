@@ -128,6 +128,9 @@ class RpcoverxmppEventHandler extends GenericHandler {
                     case "deleted":
                         // One treatment is in calllogEventHandler
                         break;
+                    case "fin":
+                        // The treatment is in ConversationHistoryHandler
+                        break;
                     /*case "default":
                         that._logger.log(that.WARN, LOG_ID + "(onIqResultReceived) - not managed - 'stanza'", node.getName());
                         break; //*/

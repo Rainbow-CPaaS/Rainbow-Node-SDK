@@ -108,7 +108,18 @@ class ChannelEventHandler extends GenericHandler {
         let stanza = stanzaTab[0];
         let prettyStanza = stanzaTab[1];
         let jsonStanza = stanzaTab[2];
-
+/*
+ <message
+  xmlns="jabber:client" xml:lang="en" to="98091bcde14d4eadac763d9cc0851719@openrainbow.net" from="pcloud_channels_4@openrainbow.net/568609553786869444554092965" type="management" id="89d61026-02a0-45ce-912d-a9c2486235b2_13603">
+  <channel
+    xmlns="jabber:iq:configuration" channelid="66d9cf1a9d26c83635bc90a6" action="add">
+    <name>tes...nel</name>
+    <category>glo...ews</category>
+    <type>o...r</type>
+    <comments>e...e</comments>
+  </channel>
+</message>
+// */
         try {
             that._logger.log(that.INTERNAL, LOG_ID + "(onManagementMessageReceived) _entering_ : ", msg, prettyStanza);
             let children = stanza.children;

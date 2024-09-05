@@ -654,6 +654,7 @@ let urlS2S;
             "autoLoadConversations": true,
             "autoLoadConversationHistory": false,
             "autoLoadContacts": true,
+            "autoLoadCallLog": false,
             "enableCarbon": true,
             "enablesendurgentpushmessages": true,
             //"useMessageEditionAndDeletionV2": false
@@ -684,7 +685,7 @@ let urlS2S;
                 "start_up": true,
             },
             "calllog": {
-                "start_up": false,
+                "start_up": true,
             },
             "favorites": {
                 "start_up": true,
@@ -6576,6 +6577,12 @@ let urlS2S;
         //endregion BUBBLES CONTAINERS
 
         //region CallLog
+
+        testgetCallLogHistoryPage() {
+            //let mycalllog = mycalllogs ? mycalllogs.callLogs[0]:{};
+            //let utc = new Date().toJSON().replace(/-/g, "_");
+            rainbowSDK.calllog.getCallLogHistoryPage();
+        }
 
         testDeleteOneCallLog() {
             let mycalllog = mycalllogs ? mycalllogs.callLogs[0]:{};

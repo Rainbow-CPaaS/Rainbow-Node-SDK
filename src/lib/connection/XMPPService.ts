@@ -23,6 +23,8 @@ import {domainToASCII} from "url";
 import { HttpoverxmppEventHandler } from "./XMPPServiceHandler/httpoverxmppEventHandler";
 import { RpcoverxmppEventHandler } from "./XMPPServiceHandler/rpcoverxmppEventHandler";
 import {Core} from "../Core.js";
+import {ConversationHistoryHandler} from "./XMPPServiceHandler/conversationHistoryHandler.js";
+import {CallLogEventHandler} from "./XMPPServiceHandler/calllogEventHandler.js";
 
 const packageVersion = require("../../package");
 const url = require('url');
@@ -153,6 +155,8 @@ class XMPPService extends GenericService {
         public IQEventHandler: any;
         public httpoverxmppEventHandler: HttpoverxmppEventHandler;
         public rpcoverxmppEventHandler: RpcoverxmppEventHandler;
+        public conversationHistoryHandler: ConversationHistoryHandler;
+        public calllogEventHandler: CallLogEventHandler;
         public xmppUtils : XMPPUTils;
     private shouldSendMessageToConnectedUser: any;
     private storeMessages: boolean;
@@ -291,6 +295,8 @@ class XMPPService extends GenericService {
                 that.IQEventHandler = new IQEventHandler(that);
                 that.httpoverxmppEventHandler = new HttpoverxmppEventHandler(that, that._rest, that._options);
                 that.rpcoverxmppEventHandler = new RpcoverxmppEventHandler(that, that._rest, that._options, that._core._rpcoverxmpp);
+                that.conversationHistoryHandler = that._core.conversations.conversationHistoryHandler;
+                that.calllogEventHandler = that._core.calllog.calllogEventHandler;
 
                 that.IQEventHandlerToken = [
                     PubSub.subscribe(that.hash + "." + that.IQEventHandler.IQ_GET, that.IQEventHandler.onIqGetSetReceived.bind(that.IQEventHandler)),
@@ -310,8 +316,10 @@ class XMPPService extends GenericService {
                 that.IQEventHandlerToken.push(PubSub.subscribe(that.hash + "." + that.rpcoverxmppEventHandler.IQ_GET, that.rpcoverxmppEventHandler.onIqGetSetReceived.bind(that.rpcoverxmppEventHandler)));
                 that.IQEventHandlerToken.push(PubSub.subscribe(that.hash + "." + that.rpcoverxmppEventHandler.IQ_SET, that.rpcoverxmppEventHandler.onIqGetSetReceived.bind(that.rpcoverxmppEventHandler)));
                 that.IQEventHandlerToken.push(PubSub.subscribe(that.hash + "." + that.rpcoverxmppEventHandler.IQ_RESULT, that.rpcoverxmppEventHandler.onIqResultReceived.bind(that.rpcoverxmppEventHandler)));
-                
-                
+
+                that.IQEventHandlerToken.push(PubSub.subscribe(that.hash + "." + that.conversationHistoryHandler.IQ_RESULT, that.conversationHistoryHandler.onIqResultReceived.bind(that.conversationHistoryHandler)));
+                that.IQEventHandlerToken.push(PubSub.subscribe(that.hash + "." + that.calllogEventHandler.IQ_RESULT, that.calllogEventHandler.onIqResultReceived.bind(that.calllogEventHandler)));
+
                 that.startOrResetIdleTimer();
                 //resolve(undefined);
             } else {
@@ -523,11 +531,12 @@ class XMPPService extends GenericService {
         that._logger.log(that.DEBUG, LOG_ID + "(handleXMPPConnection) event - STANZA_EVENT : eventId ", eventId);
         let delivered = PubSub.publish(eventId, [stanza, prettyStanza, jsonStanza]);
 
+        /*
         stanza.children.forEach((child) => {
             let eventIdForChilds = that.hash + "." + child.getNS() + "." + child.getName() + (child.attrs.type ? "." + child.attrs.type : "");
             that._logger.log(that.DEBUG, LOG_ID + "(handleXMPPConnection) event - STANZA_EVENT : eventIdForChilds : ", eventIdForChilds);
             delivered |= PubSub.publish(eventIdForChilds,  [stanza, prettyStanza, jsonStanza]);
-        });
+        }); // */
 
         if (!delivered) {
             that._logger.log(that.ERROR, LOG_ID + "(handleXMPPConnection) event - STANZA_EVENT : " + STANZA_EVENT + " not managed | ", stanza.getNS() + "." + stanza.getName() + (stanza.attrs.type ? "." + stanza.attrs.type : ""));

@@ -39,10 +39,15 @@ const TYPE_GROUPCHAT = "groupchat";
 
 @logEntryExit(LOG_ID)
 class ConversationHistoryHandler  extends GenericHandler {
-        public MESSAGE_MAM: any;
+    public MESSAGE: string;
+    public IQ_GET: any;
+    public IQ_SET: any;
+    public IQ_RESULT: any;
+    public IQ_ERROR: any;
+        /* public MESSAGE_MAM: any;
         public FIN_MAM: any;
         public MESSAGE_MAM_BULK: any;
-        public FIN_MAM_BULK: any;
+        public FIN_MAM_BULK: any; // */
         public _conversationService: ConversationsService;
         private _contactsService : ContactsService;
     public forceHistoryGetContactFromServer : boolean;
@@ -59,10 +64,16 @@ class ConversationHistoryHandler  extends GenericHandler {
     constructor(xmppService : XMPPService, conversationService : ConversationsService, contactsService : ContactsService, options : any) {
          super( xmppService);
 
-        this.MESSAGE_MAM = "urn:xmpp:mam:1.result";
+        this.MESSAGE = "jabber:client.message";
+        /* this.MESSAGE_MAM = "urn:xmpp:mam:1.result";
         this.FIN_MAM = "urn:xmpp:mam:1.fin";
         this.MESSAGE_MAM_BULK = "urn:xmpp:mam:1:bulk.results";
-        this.FIN_MAM_BULK = "urn:xmpp:mam:1:bulk.fin";
+        this.FIN_MAM_BULK = "urn:xmpp:mam:1:bulk.fin"; // */
+
+        this.IQ_GET = "jabber:client.iq.get";
+        this.IQ_SET = "jabber:client.iq.set";
+        this.IQ_RESULT = "jabber:client.iq.result";
+        this.IQ_ERROR = "jabber:client.iq.error";
 
         this._conversationService = conversationService;
         this._contactsService = contactsService;
@@ -192,6 +203,78 @@ class ConversationHistoryHandler  extends GenericHandler {
         }
 
     }
+
+    async onMessageReceived(msg, stanzaTab) {
+        let that = this;
+        let stanza = stanzaTab[0];
+        let prettyStanza = stanzaTab[1];
+        let jsonStanza = stanzaTab[2];
+
+        that._logger.log(that.INTERNAL, LOG_ID + "(onMessageReceived) _entering_ : ", msg, prettyStanza);
+        try {
+            let stanzaElem = stanza;
+            that._logger.log(that.DEBUG, LOG_ID + "(onMessageReceived) jsonStanza : ", jsonStanza);
+
+            if (findAllPropInJSONByPropertyNameByXmlNS(jsonStanza,"results", "urn:xmpp:mam:1:bulk",1) || findAllPropInJSONByPropertyNameByXmlNS(jsonStanza,"result", "urn:xmpp:mam:1",1)) {
+                that._logger.log(that.DEBUG, LOG_ID + "(onMessageReceived) found a property in jsonStanza  : ", jsonStanza);
+                that.onMamMessageReceived(msg, stanzaTab);
+            }
+
+        } catch (error) {
+            // that._logger.log(that.ERROR, LOG_ID + "(onMessageReceived) CATCH Error !!! -- failure -- ");
+            that._logger.log(that.ERROR, LOG_ID + "(onMessageReceived) CATCH Error !!! -- failure -- : ", error);
+            //return true;
+        }
+
+        that._logger.log(that.DEBUG, LOG_ID + "(onMessageReceived) _exiting_");
+        return true;
+    }
+
+    onIqResultReceived (msg, stanzaTab) {
+        let that = this;
+        let stanza = stanzaTab[0];
+        let prettyStanza = stanzaTab[1];
+        let jsonStanza = stanzaTab[2];
+
+        try {
+            that._logger.log(that.INTERNAL, LOG_ID + "(onIqResultReceived) _entering_", msg, "\n", prettyStanza);
+            let children = stanza.children;
+            children.forEach((node) => {
+                switch (node.getName()) {
+                    case "query":
+                        // The treatment is in iqEventHandler
+                        break;
+                    case "resp":
+                        // One treatment is in HttpoverxmppEventHandler
+                        break;
+                    case "bind":
+                        // The treatment is in iqEventHandler
+                        //that._logger.log(that.INFO, LOG_ID + "(onIqResultReceived) - 'stanza'", node.getName());
+                        break;
+                    case "pbxagentstatus":
+                        // The treatment is in telephonyEventHandler
+                        //that._onIqGetPbxAgentStatusReceived(stanza, node);
+                        break;
+                    case "deleted":
+                        // One treatment is in calllogEventHandler
+                        break;
+                    case "fin":
+                        that._logger.log(that.DEBUG, LOG_ID + "(onIqResultReceived) - 'stanza'", node.getName());
+                        that.onMamMessageReceived(msg, stanzaTab);
+                        break;
+                    /*case "default":
+                        that._logger.log(that.WARN, LOG_ID + "(onIqResultReceived) - not managed - 'stanza'", node.getName());
+                        break; //*/
+                    default:
+                        that._logger.log(that.WARN, LOG_ID + "(onIqResultReceived) - child not managed for iq - 'stanza'", node.getName());
+                        that._logger.log(that.INTERNAL, LOG_ID + "(onIqResultReceived) - child not managed for iq - 'stanza' name : ", node.getName(), ", stanza : ",  "\n", prettyStanza, " node : ", node);
+                }
+            });
+        } catch (err) {
+            // that._logger.log(that.ERROR, LOG_ID + "(onIqResultReceived) CATCH ErrorManager !!! ");
+            that._logger.log(that.ERROR, LOG_ID + "(onIqResultReceived) CATCH ErrorManager !!! : ", err);
+        }
+    };
 
     async onHistoryMessageReceived (msg, stanzaTab, conversation) {
         let that = this;
