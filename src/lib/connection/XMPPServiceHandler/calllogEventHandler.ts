@@ -1,7 +1,7 @@
 "use strict";
 import {accessSync} from "fs";
 import {XMPPService} from "../XMPPService";
-import {findAllPropInJSONByPropertyNameByXmlNS, logEntryExit} from "../../common/Utils";
+import {findAllPropInJSONByPropertyNameByXmlNS, getObjectFromVariable, logEntryExit} from "../../common/Utils";
 
 export {};
 
@@ -106,7 +106,7 @@ class CallLogEventHandler extends GenericHandler {
             let stanzaElem = stanza;
             that._logger.log(that.DEBUG, LOG_ID + "(onMessageReceived) jsonStanza : ", jsonStanza);
 
-            let jsonStanzaMessage=jsonStanza?.message;
+            let jsonStanzaMessage=getObjectFromVariable(jsonStanza?.message);
             //for (let key in jsonStanzaMessage) {
             Object.entries(jsonStanzaMessage).forEach(([key, value] : any) => // : [key, value]
             {
@@ -133,29 +133,6 @@ class CallLogEventHandler extends GenericHandler {
                 }
                 //}
             });
-
-            /*
-            if (findAllPropInJSONByPropertyNameByXmlNS(jsonStanza,"result", that.IQ_CALLLOG, 1)) { // "jabber:iq:telephony:call_log"
-                that._logger.log(that.DEBUG, LOG_ID + "(onMessageReceived) found a property 'result' in jsonStanza.");
-                that.onIqCallLogReceived(msg, stanzaTab);
-            }
-
-            if (findAllPropInJSONByPropertyNameByXmlNS(jsonStanza,"deleted_call_log", that.IQ_CALLOG_NOTIFICATION, 1)) { // "jabber:iq:telephony:call_log"
-                that._logger.log(that.DEBUG, LOG_ID + "(onMessageReceived) found a property 'deleted_call_log' in jsonStanza.");
-                that.onIqCallLogNotificationReceived(msg, stanzaTab);
-            }
-
-            if (findAllPropInJSONByPropertyNameByXmlNS(jsonStanza,"updated_call_log", that.IQ_CALLOG_NOTIFICATION, 1)) { // "jabber:iq:notification:telephony:call_log"
-                that._logger.log(that.DEBUG, LOG_ID + "(onMessageReceived) found a property 'updated_call_log' in jsonStanza.");
-                that.onIqCallLogNotificationReceived(msg, stanzaTab);
-            }
-
-            if (findAllPropInJSONByPropertyNameByXmlNS(jsonStanza,"read", that.CALLLOG_ACK, 1)) { // "jabber:iq:notification:telephony:call_log"
-                that._logger.log(that.DEBUG, LOG_ID + "(onMessageReceived) found a property 'read' in jsonStanza.");
-                that.onCallLogAckReceived(msg, stanzaTab);
-            }
-            // */
-
         } catch (error) {
             // that._logger.log(that.ERROR, LOG_ID + "(onMessageReceived) CATCH Error !!! -- failure -- ");
             that._logger.log(that.ERROR, LOG_ID + "(onMessageReceived) CATCH Error !!! -- failure -- : ", error);

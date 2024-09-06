@@ -23,6 +23,7 @@ const xml = require("@xmpp/xml");
 import {Message} from "../../common/models/Message";
 import {
     findAllPropInJSONByPropertyName, findAllPropInJSONByPropertyNameByXmlNS,
+    getObjectFromVariable,
     getTextFromJSONProperty, isDefined, logEntryExit, msToTime
 } from "../../common/Utils";
 import {ConversationsService} from "../../services/ConversationsService";
@@ -215,10 +216,30 @@ class ConversationHistoryHandler  extends GenericHandler {
             let stanzaElem = stanza;
             that._logger.log(that.DEBUG, LOG_ID + "(onMessageReceived) jsonStanza : ", jsonStanza);
 
+            let jsonStanzaMessage=getObjectFromVariable(jsonStanza?.message);
+            //for (let key in jsonStanzaMessage) {
+            Object.entries(jsonStanzaMessage).forEach(([key, value] : any) => // : [key, value]
+            {
+                //if (jsonStanza.hasOwnProperty(key)) {
+                if (key==="results" && value?.$attrs?.xmlns==="urn:xmpp:mam:1:bulk") {
+                    that._logger.log(that.DEBUG, LOG_ID + "(onMessageReceived) found a property 'result' in jsonStanza.");
+                    that.onMamMessageReceived(msg, stanzaTab);
+                    return;
+                }
+                if (key==="result" && value?.$attrs?.xmlns==="urn:xmpp:mam:1") {
+                    that._logger.log(that.DEBUG, LOG_ID + "(onMessageReceived) found a property 'deleted_call_log' in jsonStanza.");
+                    that.onMamMessageReceived(msg, stanzaTab);
+                    return;
+                }
+                //}
+            });
+
+            /*
             if (findAllPropInJSONByPropertyNameByXmlNS(jsonStanza,"results", "urn:xmpp:mam:1:bulk",1) || findAllPropInJSONByPropertyNameByXmlNS(jsonStanza,"result", "urn:xmpp:mam:1",1)) {
                 that._logger.log(that.DEBUG, LOG_ID + "(onMessageReceived) found a property in jsonStanza  : ", jsonStanza);
                 that.onMamMessageReceived(msg, stanzaTab);
             }
+            // */
 
         } catch (error) {
             // that._logger.log(that.ERROR, LOG_ID + "(onMessageReceived) CATCH Error !!! -- failure -- ");
@@ -238,36 +259,14 @@ class ConversationHistoryHandler  extends GenericHandler {
 
         try {
             that._logger.log(that.INTERNAL, LOG_ID + "(onIqResultReceived) _entering_", msg, "\n", prettyStanza);
-            let children = stanza.children;
-            children.forEach((node) => {
-                switch (node.getName()) {
-                    case "query":
-                        // The treatment is in iqEventHandler
-                        break;
-                    case "resp":
-                        // One treatment is in HttpoverxmppEventHandler
-                        break;
-                    case "bind":
-                        // The treatment is in iqEventHandler
-                        //that._logger.log(that.INFO, LOG_ID + "(onIqResultReceived) - 'stanza'", node.getName());
-                        break;
-                    case "pbxagentstatus":
-                        // The treatment is in telephonyEventHandler
-                        //that._onIqGetPbxAgentStatusReceived(stanza, node);
-                        break;
-                    case "deleted":
-                        // One treatment is in calllogEventHandler
-                        break;
-                    case "fin":
-                        that._logger.log(that.DEBUG, LOG_ID + "(onIqResultReceived) - 'stanza'", node.getName());
-                        that.onMamMessageReceived(msg, stanzaTab);
-                        break;
-                    /*case "default":
-                        that._logger.log(that.WARN, LOG_ID + "(onIqResultReceived) - not managed - 'stanza'", node.getName());
-                        break; //*/
-                    default:
-                        that._logger.log(that.WARN, LOG_ID + "(onIqResultReceived) - child not managed for iq - 'stanza'", node.getName());
-                        that._logger.log(that.INTERNAL, LOG_ID + "(onIqResultReceived) - child not managed for iq - 'stanza' name : ", node.getName(), ", stanza : ",  "\n", prettyStanza, " node : ", node);
+            let jsonStanzaIq=getObjectFromVariable(jsonStanza?.iq);
+            //for (let key in jsonStanzaMessage) {
+            Object.entries(jsonStanzaIq).forEach(([key, value] : any) => // : [key, value]
+            {
+                if (key==="fin" && value?.$attrs?.xmlns==="urn:xmpp:mam:1:bulk") {
+                    that._logger.log(that.DEBUG, LOG_ID + "(onIqResultReceived) found a property 'result' in jsonStanza.");
+                    that.onMamMessageReceived(msg, stanzaTab);
+                    return;
                 }
             });
         } catch (err) {

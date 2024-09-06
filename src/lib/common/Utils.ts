@@ -727,7 +727,15 @@ async function getJsonFromXML(xml : string) {
 }
 
 function getTextFromJSONProperty(property){
-    return isObject(property)?property?._: (isString(property)?property:property) ;
+    return (isObject(property)?property?._: (isString(property)?property:property));
+}
+
+function getValueFromVariable(variable, defaultValue){
+    return (isObject(variable)?variable:{});
+}
+
+function getObjectFromVariable(variable){
+    return getValueFromVariable(variable, {});
 }
 
 type JsonObject = { [key: string]: any };
@@ -969,6 +977,8 @@ export let objToExport = {
     randomString,
     getJsonFromXML,
     getTextFromJSONProperty,
+    getValueFromVariable,
+    getObjectFromVariable,
     findAllPropInJSONByPropertyName,
     findAllPropInJSONByPropertyNameByXmlNS,
     callerName,
@@ -1018,6 +1028,8 @@ export {
     randomString,
     getJsonFromXML,
     getTextFromJSONProperty,
+    getValueFromVariable,
+    getObjectFromVariable,
     findAllPropInJSONByPropertyName,
     findAllPropInJSONByPropertyNameByXmlNS,
     callerName,
@@ -1066,6 +1078,8 @@ export default {
     randomString,
     getJsonFromXML,
     getTextFromJSONProperty,
+    getValueFromVariable,
+    getObjectFromVariable,
     findAllPropInJSONByPropertyName,
     findAllPropInJSONByPropertyNameByXmlNS,
     callerName,
