@@ -106,6 +106,35 @@ class CallLogEventHandler extends GenericHandler {
             let stanzaElem = stanza;
             that._logger.log(that.DEBUG, LOG_ID + "(onMessageReceived) jsonStanza : ", jsonStanza);
 
+            let jsonStanzaMessage=jsonStanza?.message;
+            //for (let key in jsonStanzaMessage) {
+            Object.entries(jsonStanzaMessage).forEach(([key, value] : any) => // : [key, value]
+            {
+                //if (jsonStanza.hasOwnProperty(key)) {
+                if (key==="result" && value?.$attrs?.xmlns===that.IQ_CALLLOG) {
+                    that._logger.log(that.DEBUG, LOG_ID + "(onMessageReceived) found a property 'result' in jsonStanza.");
+                    that.onIqCallLogReceived(msg, stanzaTab);
+                    return;
+                }
+                if (key==="deleted_call_log" && value?.$attrs?.xmlns===that.IQ_CALLOG_NOTIFICATION) {
+                    that._logger.log(that.DEBUG, LOG_ID + "(onMessageReceived) found a property 'deleted_call_log' in jsonStanza.");
+                    that.onIqCallLogNotificationReceived(msg, stanzaTab);
+                    return;
+                }
+                if (key==="updated_call_log" && value?.$attrs?.xmlns===that.IQ_CALLOG_NOTIFICATION) {
+                    that._logger.log(that.DEBUG, LOG_ID + "(onMessageReceived) found a property 'updated_call_log' in jsonStanza.");
+                    that.onIqCallLogNotificationReceived(msg, stanzaTab);
+                    return;
+                }
+                if (key==="read" && value?.$attrs?.xmlns===that.CALLLOG_ACK) {
+                    that._logger.log(that.DEBUG, LOG_ID + "(onMessageReceived) found a property 'read' in jsonStanza.");
+                    that.onCallLogAckReceived(msg, stanzaTab);
+                    return;
+                }
+                //}
+            });
+
+            /*
             if (findAllPropInJSONByPropertyNameByXmlNS(jsonStanza,"result", that.IQ_CALLLOG, 1)) { // "jabber:iq:telephony:call_log"
                 that._logger.log(that.DEBUG, LOG_ID + "(onMessageReceived) found a property 'result' in jsonStanza.");
                 that.onIqCallLogReceived(msg, stanzaTab);
@@ -125,6 +154,7 @@ class CallLogEventHandler extends GenericHandler {
                 that._logger.log(that.DEBUG, LOG_ID + "(onMessageReceived) found a property 'read' in jsonStanza.");
                 that.onCallLogAckReceived(msg, stanzaTab);
             }
+            // */
 
         } catch (error) {
             // that._logger.log(that.ERROR, LOG_ID + "(onMessageReceived) CATCH Error !!! -- failure -- ");
