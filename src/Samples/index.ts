@@ -3148,6 +3148,13 @@ let urlS2S;
 
         // region Channels
 
+        tesgetAllOwnedChannels() {
+            let mychannels = rainbowSDK.channels.getAllOwnedChannels();
+            //let mychannel = mychannels ? mychannels[0]:null;
+            //let utc = new Date().toJSON().replace(/-/g, "_");
+            _logger.log("debug", "MAIN - updateChannelDescription - mychannels : ", mychannels);
+        }
+
         testChannelImage() {
             let mychannels = rainbowSDK.channels.getAllOwnedChannels();
             let mychannel = mychannels ? mychannels[0]:null;
