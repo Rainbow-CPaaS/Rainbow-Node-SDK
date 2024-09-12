@@ -84,7 +84,7 @@
     "rainbow_hub_sheets_generation": "git+https://github.com/Rainbow-CPaaS/Rainbow-Hub-Sheets-Generation.git",
     "sitemap": "^7.1.1",
     "tsx": "^4.6.2",
-    "typescript": "5.3.3",
+    "typescript": "^5.6.2",
     "yamljs": "^0.3.0"
   },
   "dependencies": {

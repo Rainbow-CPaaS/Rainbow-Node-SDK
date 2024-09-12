@@ -1637,7 +1637,7 @@ safeJsonParse(str) {
                                                         bodyjs.errorMsg = response.body;
                                                     }
                                                     let msg = response.statusMessage ? response.statusMessage:bodyjs ? bodyjs.errorMsg || "":"";
-                                                    let errorMsgDetail = bodyjs ? bodyjs.errorDetails + (bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode:"" || ""):"";
+                                                    let errorMsgDetail = bodyjs ? bodyjs.errorDetails + (bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode:""):"";
                                                     errorMsgDetail = errorMsgDetail ? errorMsgDetail:bodyjs ? bodyjs.errorMsg || "":"";
                                                     //that.tokenExpirationControl(bodyjs);
                                                     reject({
@@ -1791,7 +1791,7 @@ safeJsonParse(str) {
                                         bodyjs.errorMsg = response.body;
                                     }
                                     let msg = response.statusMessage ? response.statusMessage : bodyjs ? bodyjs.errorMsg || "" : "";
-                                    let errorMsgDetail = bodyjs ? bodyjs.errorDetails + (bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode : "" || "") : "";
+                                    let errorMsgDetail = bodyjs ? bodyjs.errorDetails + (bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode : "" ) : "";
                                     errorMsgDetail = errorMsgDetail ? errorMsgDetail : bodyjs ? bodyjs.errorMsg || "" : "";
                                     that.tokenExpirationControl(bodyjs);
                                     return reject({
@@ -1962,7 +1962,7 @@ safeJsonParse(str) {
                                                     bodyjs.errorMsg = response.body;
                                                 }
                                                 let msg = (response && response.statusMessage) ? response.statusMessage:bodyjs ? bodyjs.errorMsg || "":"";
-                                                let errorMsgDetail = bodyjs ? bodyjs.errorDetails + (bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode:"" || ""):"";
+                                                let errorMsgDetail = bodyjs ? bodyjs.errorDetails + (bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode:"" ):"";
                                                 errorMsgDetail = errorMsgDetail ? errorMsgDetail:bodyjs ? bodyjs.errorMsg || "":"";
                                                 that.tokenExpirationControl(bodyjs);
                                                 let responseRequest = {
@@ -2143,7 +2143,7 @@ safeJsonParse(str) {
                                                     bodyjs.errorMsg = response.body;
                                                 }
                                                 let msg = response.statusMessage ? response.statusMessage:bodyjs ? bodyjs.errorMsg || "":"";
-                                                let errorMsgDetail = bodyjs ? bodyjs.errorDetails + (bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode:"" || ""):"";
+                                                let errorMsgDetail = bodyjs ? bodyjs.errorDetails + (bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode:""):"";
                                                 errorMsgDetail = errorMsgDetail ? errorMsgDetail:bodyjs ? bodyjs.errorMsg || "":"";
                                                 that.tokenExpirationControl(bodyjs);
                                                 responseRequest = {
@@ -2444,7 +2444,7 @@ safeJsonParse(str) {
                                                     errorDetails = util.inspect(errorDetails, false, 4, true);
                                                 }
                                             }
-                                            let errorMsgDetail = bodyjs ? errorDetails + (bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode:"" || ""):"";
+                                            let errorMsgDetail = bodyjs ? errorDetails + (bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode:""):"";
                                             errorMsgDetail = errorMsgDetail ? errorMsgDetail:bodyjs ? bodyjs.errorMsg || "":"";
 
                                             that.tokenExpirationControl(bodyjs);
@@ -2589,7 +2589,7 @@ safeJsonParse(str) {
                                         errorDetails = util.inspect(errorDetails, false, 4, true);
                                     }
                                 }
-                                let errorMsgDetail = bodyjs ? errorDetails + (bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode : "" || "") : "";
+                                let errorMsgDetail = bodyjs ? errorDetails + (bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode : "") : "";
                                 errorMsgDetail = errorMsgDetail ? errorMsgDetail : bodyjs ? bodyjs.errorMsg || "" : "";
 
                                 that.tokenExpirationControl(bodyjs);
@@ -2785,7 +2785,7 @@ safeJsonParse(str) {
                                                     errorDetails = util.inspect(errorDetails, false, 4, true);
                                                 }
                                             }
-                                            let errorMsgDetail = bodyjs ? errorDetails + (bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode:"" || ""):"";
+                                            let errorMsgDetail = bodyjs ? errorDetails + (bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode:""):"";
                                             errorMsgDetail = errorMsgDetail ? errorMsgDetail:bodyjs ? bodyjs.errorMsg || "":"";
 
                                             that.tokenExpirationControl(bodyjs);
@@ -2930,7 +2930,7 @@ safeJsonParse(str) {
                                 that._logger.warn("warn", LOG_ID + "(head) HTTP response.code != 200 ");
                                 that._logger.warn("internal", LOG_ID + "(head) HTTP response.code != 200 , body : ", bodyjs);
                                 let msg = response.statusMessage ? response.statusMessage : bodyjs ? bodyjs.errorMsg || "" : "";
-                                let errorMsgDetail = bodyjs ? bodyjs.errorDetails + (bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode : "" || "") : "";
+                                let errorMsgDetail = bodyjs ? bodyjs.errorDetails + (bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode:"") : "";
                                 errorMsgDetail = errorMsgDetail ? errorMsgDetail : bodyjs ? bodyjs.errorMsg || "" : "";
 
                                 that.tokenExpirationControl(bodyjs);
@@ -3131,7 +3131,7 @@ safeJsonParse(str) {
                                             that._logger.warn("warn", LOG_ID + "(patch) HTTP response.code != 200 ");
                                             that._logger.warn("internalerror", LOG_ID + "(patch) HTTP response.code != 200 , body : ", bodyjs);
                                             let msg = response.statusMessage ? response.statusMessage:bodyjs ? bodyjs.errorMsg || "":"";
-                                            let errorMsgDetail = bodyjs ? bodyjs.errorDetails + (bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode:"" || ""):"";
+                                            let errorMsgDetail = bodyjs ? bodyjs.errorDetails + (bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode:""):"";
                                             errorMsgDetail = errorMsgDetail ? errorMsgDetail:bodyjs ? bodyjs.errorMsg || "":"";
 
                                             that.tokenExpirationControl(bodyjs);
@@ -3289,7 +3289,7 @@ safeJsonParse(str) {
                                 that._logger.warn("warn", LOG_ID + "(patch) HTTP response.code != 200 ");
                                 that._logger.warn("internalerror", LOG_ID + "(patch) HTTP response.code != 200 , body : ", bodyjs);
                                 let msg = response.statusMessage ? response.statusMessage : bodyjs ? bodyjs.errorMsg || "" : "";
-                                let errorMsgDetail = bodyjs ? bodyjs.errorDetails + (bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode : "" || "") : "";
+                                let errorMsgDetail = bodyjs ? bodyjs.errorDetails + (bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode:"") : "";
                                 errorMsgDetail = errorMsgDetail ? errorMsgDetail : bodyjs ? bodyjs.errorMsg || "" : "";
 
                                 that.tokenExpirationControl(bodyjs);
@@ -3499,7 +3499,7 @@ safeJsonParse(str) {
                                                     errorDetails = util.inspect(errorDetails, false, 4, true);
                                                 }
                                             }
-                                            let errorMsgDetail = bodyjs ? errorDetails + (bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode:"" || ""):"";
+                                            let errorMsgDetail = bodyjs ? errorDetails + (bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode:""):"";
                                             errorMsgDetail = errorMsgDetail ? errorMsgDetail:bodyjs ? bodyjs.errorMsg || "":"";
 
                                             that.tokenExpirationControl(bodyjs);
@@ -3640,7 +3640,7 @@ safeJsonParse(str) {
                                 that._logger.warn("warn", LOG_ID + "(put) HTTP response.code != 200 ");
                                 that._logger.warn("internalerror", LOG_ID + "(put) HTTP response.code != 200 , body : ", bodyjs);
                                 let msg = response.statusMessage ? response.statusMessage : bodyjs ? bodyjs.errorMsg || "" : "";
-                                let errorMsgDetail = bodyjs ? bodyjs.errorDetails + (bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode : "" || "") : "";
+                                let errorMsgDetail = bodyjs ? bodyjs.errorDetails + (bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode:"") : "";
                                 errorMsgDetail = errorMsgDetail ? errorMsgDetail : bodyjs ? bodyjs.errorMsg || "" : "";
 
                                 that.tokenExpirationControl(bodyjs);
@@ -3978,7 +3978,7 @@ safeJsonParse(str) {
                                                     errorDetails = util.inspect(errorDetails, false, 4, true);
                                                 }
                                             }
-                                            let errorMsgDetail = bodyjs ? errorDetails + (bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode:"" || ""):"";
+                                            let errorMsgDetail = bodyjs ? errorDetails + (bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode:""):"";
                                             errorMsgDetail = errorMsgDetail ? errorMsgDetail:bodyjs ? bodyjs.errorMsg || "":"";
 
                                             that.tokenExpirationControl(bodyjs);
