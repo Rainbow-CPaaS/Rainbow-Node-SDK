@@ -114,7 +114,7 @@ class StateManager {
                                 that.eventEmitter.publish(state, data);
                             }
                             resolve(undefined);
-                        }, 100, "(transitTo) setTimeout set state : " + that.state);
+                        }, 100/* , "(transitTo) setTimeout set state : " + that.state */);
                     } catch (err) {
                         that.logger.log("warn", LOG_ID + "(transitTo) CATCH Error !!! error : ", err);
                     }
