@@ -1863,6 +1863,17 @@ let urlS2S;
             });
         }
 
+        testsearchUserByPhonenumberALE() {
+            // To be used vith vincent.berder on openrainbow.com
+            let contactphone = "21885240"; // 21885240 is Thierry Peyrebesse
+            //let contactphone = encodeURIComponent("+33298483031") ; // 23031 is vincent01 +33298483031
+            rainbowSDK.contacts.searchUserByPhonenumber(contactphone).then(contact => {
+                _logger.log("debug", "MAIN - [testsearchUserByPhonenumberALE    ] ::  contact : ", contact);
+            }).catch((err) => {
+                _logger.log("error", "MAIN - [testsearchUserByPhonenumberALE    ] :: catch reject contact : ", err);
+            });
+        }
+
         testsearchUserByPhonenumber() {
             // To be used vith vincent05 on vberder.openrainbow.org
             let contactphone = "23031"; // 23031 is vincent01 +33298483031
@@ -2096,8 +2107,9 @@ let urlS2S;
             // Retrieve the associated conversation
             let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
             //let now = new Date().getTime();
+            let usebulk = false;
             // get messages which are not events
-            let msgNotEvents = await rainbowSDK.conversations.getContactsMessagesFromConversationId(conversation.id);
+            let msgNotEvents = await rainbowSDK.conversations.getContactsMessagesFromConversationId(conversation.id, usebulk);
             _logger.log("debug", "MAIN - testgetContactsMessagesFromConversationId - result getContactsMessagesFromConversationId : ", msgNotEvents);
 
         }
@@ -4621,6 +4633,12 @@ let urlS2S;
                 _logger.log("debug", "MAIN - testDeleteBubble resultDelete : ", resultDelete); //logger.colors.green(JSON.stringify(result)));
             });
         }
+
+       async testdeleteAllBubbles() {
+        //let bubbles = await rainbowSDK.bubbles.getAllOwnedBubbles();
+        //_logger.log("debug", "MAIN - testdeleteAllBubbles bubbles : ", bubbles); //logger.colors.green(JSON.stringify(result)));
+        rainbowSDK.bubbles.deleteAllBubbles();
+    }
 
         async testDeleteBubble_ByBubbleId(bubbleId) {
             let bubble = await rainbowSDK.bubbles.getBubbleById(bubbleId);

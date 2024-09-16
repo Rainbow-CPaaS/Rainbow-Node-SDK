@@ -1970,9 +1970,9 @@ class Bubbles extends GenericService {
          * @description
          *    Delete all existing owned bubbles <br>
          *    Return a promise <br>
-         * @return {Object} Nothing or an error object depending on the result
+         * @return {void} Nothing or an error object depending on the result
          */
-        deleteAllBubbles() {
+        deleteAllBubbles(): void  {
             let that = this;
             that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteAllBubbles) .");
 
@@ -2958,18 +2958,20 @@ class Bubbles extends GenericService {
                 let isActive = false;
                 let isInvited = false;
   //              bubble.users.forEach(function (user) {
-                for (const user of bubble.users) {
-                        
-                    if (user.userId===contact.id) {
-                        switch (user.status) {
-                            case "invited":
-                                isInvited = true;
-                                break;
-                            case "accepted":
-                                isActive = true;
-                                break;
-                            default:
-                                break;
+                if (bubble.users) {
+                    for (const user of bubble.users) {
+
+                        if (user.userId === contact.id) {
+                            switch (user.status) {
+                                case "invited":
+                                    isInvited = true;
+                                    break;
+                                case "accepted":
+                                    isActive = true;
+                                    break;
+                                default:
+                                    break;
+                            }
                         }
                     }
                 }

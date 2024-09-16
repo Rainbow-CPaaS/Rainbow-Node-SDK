@@ -222,12 +222,12 @@ class ConversationHistoryHandler  extends GenericHandler {
             {
                 //if (jsonStanza.hasOwnProperty(key)) {
                 if (key==="results" && value?.$attrs?.xmlns==="urn:xmpp:mam:1:bulk") {
-                    that._logger.log(that.DEBUG, LOG_ID + "(onMessageReceived) found a property 'result' in jsonStanza.");
+                    that._logger.log(that.DEBUG, LOG_ID + "(onMessageReceived) found a property 'results' in jsonStanza. (So it is bulk)");
                     that.onMamMessageReceived(msg, stanzaTab);
                     return;
                 }
                 if (key==="result" && value?.$attrs?.xmlns==="urn:xmpp:mam:1") {
-                    that._logger.log(that.DEBUG, LOG_ID + "(onMessageReceived) found a property 'deleted_call_log' in jsonStanza.");
+                    that._logger.log(that.DEBUG, LOG_ID + "(onMessageReceived) found a property 'result' in jsonStanza. (So it is a single message)");
                     that.onMamMessageReceived(msg, stanzaTab);
                     return;
                 }
@@ -263,7 +263,7 @@ class ConversationHistoryHandler  extends GenericHandler {
             //for (let key in jsonStanzaMessage) {
             Object.entries(jsonStanzaIq).forEach(([key, value] : any) => // : [key, value]
             {
-                if (key==="fin" && value?.$attrs?.xmlns==="urn:xmpp:mam:1:bulk") {
+                if (key==="fin" && ( value?.$attrs?.xmlns==="urn:xmpp:mam:1:bulk" || value?.$attrs?.xmlns==="urn:xmpp:mam:1")) {
                     that._logger.log(that.DEBUG, LOG_ID + "(onIqResultReceived) found a property 'result' in jsonStanza.");
                     that.onMamMessageReceived(msg, stanzaTab);
                     return;
