@@ -772,7 +772,10 @@ function findAllPropInJSONByPropertyName(obj: JsonObject, propertyName: string, 
 
     search(obj, 0);
     if (results.length === 1) {
-        results[0].length = 1;
+//        console.log("(findAllPropInJSONByPropertyName) results[0] : ", results[0]);
+        if (typeof results[0] === 'object' && results[0] !== null) {
+            results[0].length = 1;
+        }
         return results[0];
     }
     return results;

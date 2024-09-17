@@ -24,7 +24,7 @@ import {Message} from "../../common/models/Message";
 import {
     findAllPropInJSONByPropertyName, findAllPropInJSONByPropertyNameByXmlNS,
     getObjectFromVariable,
-    getTextFromJSONProperty, isDefined, logEntryExit, msToTime
+    getTextFromJSONProperty, isDefined, isString, logEntryExit, msToTime
 } from "../../common/Utils";
 import {ConversationsService} from "../../services/ConversationsService";
 import {ContactsService} from "../../services/ContactsService";
@@ -727,6 +727,7 @@ class ConversationHistoryHandler  extends GenericHandler {
                                 // stanzaData.mentions = [];
 
                                 if (mentionElmt.length > 0) {
+                                   that._logger.log(that.DEBUG, LOG_ID + "(onChatMessageReceived) mentionElmt : ", mentionElmt);
                                     const mentionJidElem = findAllPropInJSONByPropertyName(mentionElmt, "jid");
                                     if (Array.isArray(mentionJidElem)) {
                                         mentionJidElem.forEach((content) => {
@@ -745,6 +746,10 @@ class ConversationHistoryHandler  extends GenericHandler {
                                             }
 //                                                that._logger.log(that.DEBUG, LOG_ID + "(onChatMessageReceived) message - mention : ", mention, ", that.jid_im  : ", that.jid_im , ", mention['jid'] : ", mention['jid']);
                                         });
+                                    } else if (isString(mentionJidElem)) {
+                                        const mention = {};
+                                        mention['jid'] = mentionJidElem;
+                                        mentions.push(mention);
                                     } else {
                                         const mention = {};
                                         mention['jid'] = getTextFromJSONProperty(mentionJidElem);

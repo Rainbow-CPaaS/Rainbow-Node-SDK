@@ -21,7 +21,7 @@ import {
     flattenObject,
     getJsonFromXML,
     isString,
-    findAllPropInJSONByPropertyNameByXmlNS
+    findAllPropInJSONByPropertyNameByXmlNS, findAllPropInJSONByPropertyName
 } from "../lib/common/Utils";
 import {TimeOutManager} from "../lib/common/TimeOutManager";
 import set = Reflect.set;
@@ -6273,6 +6273,17 @@ let urlS2S;
             _logger.log("debug", "MAIN - testfindAllPropInJSONByPropertyNameByXmlNS : ", oobElmt);
         }
 
+        async testfindAllPropInJSONByPropertyName() {
+            let jsonMessage : any = {
+                '$attrs': { xmlns: 'urn:xmpp:attention:0' },
+                jid: '4c4400e242b946b08f79c2ee01c2f044@openrainbow.net',
+                length: 1
+            };
+
+            let oobElmt = findAllPropInJSONByPropertyName(jsonMessage, "jid") ; //? jsonMessage?.x //: undefined; // stanzaMessage?.getChild("x", "jabber:x:oob");
+            _logger.log("debug", "MAIN - testfindAllPropInJSONByPropertyName : ", oobElmt);
+        }
+
         async testloadConversationHistoryAsyncBubbleTestBubbleBot2023_03_13T16() {
             // To be used with user vincent00 on .Net
             let that = this;
@@ -6297,7 +6308,17 @@ let urlS2S;
             let that = this;
             let bubbles = rainbowSDK.bubbles.getAllActiveBubbles();
 
-            for (const bubble of bubbles) {
+            rainbowSDK.events.on("rainbow_onloadConversationHistoryCompleted", (conversationHistoryUpdated) => {
+                // do something when the SDK has been started
+                _logger.log("info", "MAIN - (rainbow_onloadConversationHistoryCompleted) - rainbow conversation history loaded completed, conversationHistoryUpdated?.messages?.length : ", conversationHistoryUpdated?.messages?.length);
+                for (let i = 0; i < conversationHistoryUpdated?.messages?.length; i++) {
+                    let msg = conversationHistoryUpdated?.messages[i];
+                    _logger.log("info", "MAIN - testloadConversationHistoryAsyncBubbleByJid conversationHistoryUpdated.messages[" + i + "] id : ", msg.id, ", fromJid : ", msg.fromJid, ", date : ", msg.date, ", content : ", msg.content);
+                }
+                // */
+            });
+
+                for (const bubble of bubbles) {
                 //if (bubble.name.indexOf("testBubbleEvents")!= -1) {
                // if (bubble.name.indexOf("bulleDeTest")!= -1) {
                 if (bubble.name.indexOf("bulle1")!= -1) {
@@ -6379,7 +6400,7 @@ let urlS2S;
                         _logger.log("debug", "MAIN - testGetHistoryPageBubble - getConversationHistoryMaxime, conversation : ", conversation, ", status : ", conversation.status);
                     }); // */
                     startDate = new Date();
-                    let useBulk = true;
+                    let useBulk = false;
 
                     rainbowSDK.conversations.loadConversationHistoryAsync(conversation, 100, useBulk).then((running) => {
                         _logger.log("info", "MAIN - testloadConversationHistoryAsyncBubbleByJid loadConversationHistoryAsync running : ", running);
