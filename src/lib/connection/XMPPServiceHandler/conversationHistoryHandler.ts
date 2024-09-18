@@ -145,7 +145,8 @@ class ConversationHistoryHandler  extends GenericHandler {
                     let startDate :any = new Date();
                     // Get associated conversation
                     let conversation = this._conversationService.getConversationById(queryId);
-
+                    // For test let bubble = {"id":"room_53851c7c4a554cb79815209cc1dda5db@muc.openrainbow.net", "jid":"room_53851c7c4a554cb79815209cc1dda5db@muc.openrainbow.net"};
+                    // For Test conversation = Conversation.createBubbleConversation(bubble, that._logger, that._options._imOptions);
                     that.onHistoryMessageReceived(msg, stanzaTab, conversation);
                     let stopDate :any = new Date();
                     let startDuration = Math.round(stopDate - startDate);
