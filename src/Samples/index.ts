@@ -21,7 +21,7 @@ import {
     flattenObject,
     getJsonFromXML,
     isString,
-    findAllPropInJSONByPropertyNameByXmlNS, findAllPropInJSONByPropertyName
+    findAllPropInJSONByPropertyNameByXmlNS, findAllPropInJSONByPropertyName, getTextFromJSONProperty
 } from "../lib/common/Utils";
 import {TimeOutManager} from "../lib/common/TimeOutManager";
 import set = Reflect.set;
@@ -6284,6 +6284,17 @@ let urlS2S;
             _logger.log("debug", "MAIN - testfindAllPropInJSONByPropertyName : ", oobElmt);
         }
 
+        async testgetTextFromJSONProperty() {
+            let jsonMessage : any = {
+                '$attrs': { xmlns: 'urn:xmpp:attention:0' },
+                jid: '4c4400e242b946b08f79c2ee01c2f044@openrainbow.net',
+                length: 1
+            };
+
+            let  attention = getTextFromJSONProperty(jsonMessage.attention)==="true" ? true:false;
+            _logger.log("debug", "MAIN - testgetTextFromJSONProperty : ", attention);
+        }
+
         async testloadConversationHistoryAsyncBubbleTestBubbleBot2023_03_13T16() {
             // To be used with user vincent00 on .Net
             let that = this;
@@ -8239,6 +8250,45 @@ let urlS2S;
             let stanzaStr = "<presence from='3ae059e2a91c40d9bdd7df0eedc911ca@openrainbow.com'> <x xmlns='vcard-temp:x:update'>    <avatar/> </x>    <actor xmlns='jabber:iq:configuration'/x>   </presence>";
             let stanza = prettydata.xmlmin(stanzaStr);
             _logger.log("debug", "MAIN - testmockUploadLdapAvatarPresence stanza : ", stanza);
+            await rainbowSDK._core._xmpp.mockStanza(stanza);
+        }
+
+        async testmockMessagHistorye() {
+            let stanza = "<message \n" +
+                "   xmlns=\"jabber:client\" to=\"5269c5dc1db14fa2a32ab63d6ed632de@openrainbow.net/node_tU86TIyv\" from=\"room_53851c7c4a554cb79815209cc1dda5db@muc.openrainbow.net\">\n" +
+                "   <result id=\"1726593839466176\" queryid=\"id:6s36T16irRroom_53851c7c4a554cb79815209cc1dda5db@muc.openrainbow.net\" \n" +
+                "     xmlns=\"urn:xmpp:mam:1\">\n" +
+                "     <forwarded \n" +
+                "       xmlns=\"urn:xmpp:forward:0\">\n" +
+                "       <message xml:lang=\"en\" from=\"room_53851c7c4a554cb79815209cc1dda5db@muc.openrainbow.net/e7f6f82264264b94af88bf4230cde0d1@openrainbow.net/node_MJU0bTzD\" type=\"groupchat\" id=\"node_e4463373-829b-4b90-840e-fc8b9e3d62e396\" \n" +
+                "         xmlns=\"jabber:client\">\n" +
+                "         <ack recv=\"false\" read=\"false\" \n" +
+                "           xmlns=\"urn:xmpp:receipts\"/>\n" +
+                "           <x \n" +
+                "             xmlns=\"http://jabber.org/protocol/muc#user\">\n" +
+                "             <item jid=\"5269c5dc1db14fa2a32ab63d6ed632de@openrainbow.net\"/>\n" +
+                "           </x>\n" +
+                "           <archived stamp=\"2024-09-17T17:23:59.466176Z\" by=\"room_53851c7c4a554cb79815209cc1dda5db@muc.openrainbow.net\" id=\"1726593839466176\" \n" +
+                "             xmlns=\"urn:xmpp:mam:tmp\"/>\n" +
+                "             <stanza-id by=\"room_53851c7c4a554cb79815209cc1dda5db@muc.openrainbow.net\" id=\"1726593839466176\" \n" +
+                "               xmlns=\"urn:xmpp:sid:0\"/>\n" +
+                "               <request \n" +
+                "                 xmlns=\"urn:xmpp:receipts\">\n" +
+                "                 <active \n" +
+                "                   xmlns=\"http://jabber.org/protocol/chatstates\"/>\n" +
+                "                 </request>\n" +
+                "                 <mention \n" +
+                "                   xmlns=\"urn:xmpp:attention:0\">\n" +
+                "                   <jid>[glo:doloresContact.jid]</jid>\n" +
+                "                 </mention>\n" +
+                "                 <body xml:lang=\"en\">Hello Dolores from this bubble!</body>\n" +
+                "                 <subject xml:lang=\"en\">helloDoloresSubject</subject>\n" +
+                "               </message>\n" +
+                "               <delay from=\"muc.openrainbow.net\" stamp=\"2024-09-17T17:23:59.466176Z\" \n" +
+                "                 xmlns=\"urn:xmpp:delay\"/>\n" +
+                "               </forwarded>\n" +
+                "             </result>\n" +
+                "           </message>";
             await rainbowSDK._core._xmpp.mockStanza(stanza);
         }
 

@@ -750,6 +750,10 @@ class ConversationHistoryHandler  extends GenericHandler {
                                         const mention = {};
                                         mention['jid'] = mentionJidElem;
                                         mentions.push(mention);
+                                        if (that.jid_im==mention['jid']) {
+//                                                that._logger.log(that.DEBUG, LOG_ID + "(onChatMessageReceived) message - attention found in mention.");
+                                            attention = true;
+                                        }
                                     } else {
                                         const mention = {};
                                         mention['jid'] = getTextFromJSONProperty(mentionJidElem);
