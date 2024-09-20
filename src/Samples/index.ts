@@ -3768,6 +3768,34 @@ let urlS2S;
             });
         }
 
+        testretrieveSentFiles() {
+            _logger.log("debug", "Main - testretrieveSentFiles - file - ");
+            let loginEmail = "vincent02@vbe.test.openrainbow.net";
+
+            rainbowSDK.contacts.getContactByLoginEmail(loginEmail).then((contact: any) => {
+                if (contact) {
+                    _logger.log("debug", "MAIN - [testretrieveSentFiles    ] :: getContactByLoginEmail result : ", contact);
+                    rainbowSDK.fileStorage.retrieveSentFiles(contact.id).then((fileDescriptorsReceived) => {
+                        _logger.log("debug", "Main - testretrieveSentFiles, retrieveSentFiles - result : ", fileDescriptorsReceived);
+                    });
+                }
+            });
+        }
+
+        testretrieveSentFiles_adminbot2() {
+            _logger.log("debug", "Main - testretrieveSentFiles - file - ");
+            let loginEmail = "mailto:representaive2@al-mydemo.com";
+
+            //rainbowSDK.contacts.getContactByLoginEmail(loginEmail).then((contact: any) => {
+              //  if (contact) {
+                   // _logger.log("debug", "MAIN - [testretrieveSentFiles    ] :: getContactByLoginEmail result : ", contact);
+                    rainbowSDK.fileStorage.retrieveSentFiles("5bc462d10ea5fc3e2d1384c7").then((fileDescriptorsReceived) => {
+                        _logger.log("debug", "Main - testretrieveSentFiles, retrieveSentFiles - result : ", fileDescriptorsReceived);
+                    });
+//                }
+ //           });
+        }
+
         async testgetFileDescriptorsByCompanyId() {
             // to be used with vincentbp@vbe.test.openrainbow.net on vberder AIO.
             _logger.log("debug", "MAIN - testgetFileDescriptorsByCompanyId. ");

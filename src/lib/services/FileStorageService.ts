@@ -1564,7 +1564,7 @@ class FileStorage extends GenericService{
      * @return {Promise<FileDescriptor[]>} : list of sent files descriptors
      *
      */
-    retrieveSentFiles(peerId : string, fileName : string , extension : string, typeMIME : string, purpose : string, isUploaded : boolean, path : string, limit : number = 1000, offset : number = 0, sortField : string, sortOrder : number = 1, format : string = "full") {
+    retrieveSentFiles(peerId : string, fileName : string = undefined, extension : string= undefined, typeMIME : string= undefined, purpose : string= undefined, isUploaded : boolean= undefined, path : string= undefined, limit : number = 1000, offset : number = 0, sortField : string= undefined, sortOrder : number = 1, format : string = "full") {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(retrieveSentFiles) peerId : ", that._logger.stripStringForLogs(peerId));
 
