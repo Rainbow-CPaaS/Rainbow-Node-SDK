@@ -6439,7 +6439,7 @@ let urlS2S;
                         _logger.log("debug", "MAIN - testGetHistoryPageBubble - getConversationHistoryMaxime, conversation : ", conversation, ", status : ", conversation.status);
                     }); // */
                     startDate = new Date();
-                    let useBulk = false;
+                    let useBulk = true;
 
                     rainbowSDK.conversations.loadConversationHistoryAsync(conversation, 100, useBulk).then((running) => {
                         _logger.log("info", "MAIN - testloadConversationHistoryAsyncBubbleByJid loadConversationHistoryAsync running : ", running);
