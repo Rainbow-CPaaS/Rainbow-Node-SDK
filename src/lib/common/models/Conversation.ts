@@ -24,7 +24,10 @@ class MessagesQueue extends FIFOQueue<Message> {
     isFull: () => boolean;
     //updateMessageIfExistsElseEnqueueIt: (message: any, forceDequeueIfFull?: boolean) => Message;
     updateMessageIfExistsElseEnqueueIt: (message: any, forceDequeueIfFull?: boolean) => Message;
-    removeMessage: (message: any, forceDequeueIfFull?: boolean) => Message;
+    removeMessage: (message: any) => Message;
+    removeMessageById: (messageId: string) => Message;
+    replaceMessage: (messageOld: any, messageNew : Message) => Message;
+    replaceMessageById: (idMessageOld: string, messageNew : Message) => Message;
 
     constructor(_logger: any, _maxSize : number = 100) {
         super(_logger, (_logger) => {
@@ -127,19 +130,19 @@ class MessagesQueue extends FIFOQueue<Message> {
             return messageObj;
         };
 
-        this.removeMessage = (message: any, forceDequeueIfFull: boolean = false): Message => {
+        this.removeMessage = (message: any): Message => {
             let that: any = this;
             let timestamp = (new Date()).toUTCString();
             let result: any;
             let messageObj: Message;
             try {
                 let id = randomUUID();
-                that.logger.log("debug", LOG_ID + "(removeMessage) - timestamp : ", timestamp, " - id : ", id, " - removeMessage Message");
+                that.logger.log("debug", LOG_ID + "(removeMessage) - timestamp : ", timestamp, " - id : ", id, " - removeMessage Message.id", message?.id);
                 that.rwlock.writeLock(() => {
                     try {
                         //deferedItem.start.bind(deferedItem)();
                         //await pause(that.timeBetweenXmppRequests);
-                        that.logger.log("debug", LOG_ID + "(removeMessage) - id : ", id, " - removeMessage will start.");
+                      //  that.logger.log("debug", LOG_ID + "(removeMessage) - id : ", id, " - removeMessage will start.");
                         // Check if this message already exist in message store
                         let messageIndice = that.findIndex(function (item, index, tab) {
                             return item.id===message.id
@@ -151,7 +154,7 @@ class MessagesQueue extends FIFOQueue<Message> {
                         } else {
                             messageObj = undefined;
                         }
-                        that.logger.log("debug", LOG_ID + "(removeMessage) - id : ", id, " - splice started and finished.");
+                      //  that.logger.log("debug", LOG_ID + "(removeMessage) - id : ", id, " - splice started and finished.");
                     } catch (err) {
                         that.logger.log("error", LOG_ID + "(removeMessage) - id : ", id, " - CATCH Error !!! in lock, error : ", err);
                     }
@@ -164,6 +167,55 @@ class MessagesQueue extends FIFOQueue<Message> {
                 throw error;
             }
             return messageObj;
+        };
+
+        this.removeMessageById = (messageId: string): Message => {
+            return this.removeMessage({"id": messageId});
+        }
+
+        this.replaceMessage = (messageOld: any, messageNew : Message): Message => {
+            let that: any = this;
+            let timestamp = (new Date()).toUTCString();
+            let result: any;
+            let messageObj: Message;
+            try {
+                let id = randomUUID();
+                that.logger.log("debug", LOG_ID + "(replaceMessage) - timestamp : ", timestamp, " - id : ", id, " - removeMessage messageOld.id", messageOld?.id, ", messageNew.id", messageNew?.id);
+                that.rwlock.writeLock(() => {
+                    try {
+                        //deferedItem.start.bind(deferedItem)();
+                        //await pause(that.timeBetweenXmppRequests);
+                      //  that.logger.log("debug", LOG_ID + "(replaceMessage) - id : ", id, " - replaceMessage will start.");
+                        // Check if this message already exist in message store
+                        let messageIndice = that.findIndex(function (item, index, tab) {
+                            return item.id===messageOld.id
+                        });
+                        if (messageIndice!= -1) {
+                            // update the already existing message and return this new value.
+                            that[messageIndice] = messageNew;
+                            messageObj = that[messageIndice];
+                            //let messageDeleted = super.splice(messageIndice, 1);
+                            //messageObj = messageDeleted.length > 0 ? messageDeleted[0]:undefined;
+                        } else {
+                            messageObj = undefined;
+                        }
+                      //  that.logger.log("debug", LOG_ID + "(replaceMessage) - id : ", id, " - replaceMessage started and finished.");
+                    } catch (err) {
+                        that.logger.log("error", LOG_ID + "(replaceMessage) - id : ", id, " - CATCH Error !!! in lock, error : ", err);
+                    }
+                    //await pause(that.timeBetweenXmppRequests);
+                    that.rwlock.unlock();
+                });
+            } catch (err) {
+                let error = {err: err};
+                that.logger.log("error", LOG_ID + "(replaceMessage) - timestamp : ", timestamp, " - CATCH Error !!! error : ", error);
+                throw error;
+            }
+            return messageObj;
+        };
+
+        this.replaceMessageById = (idMessageOld: string, messageNew : Message): Message => {
+            return this.replaceMessage({"id":idMessageOld}, messageNew);
         };
 
         //region FIFOQueue

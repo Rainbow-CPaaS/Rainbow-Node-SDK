@@ -24,7 +24,7 @@ import {Message} from "../../common/models/Message";
 import {
     findAllPropInJSONByPropertyName, findAllPropInJSONByPropertyNameByXmlNS,
     getObjectFromVariable,
-    getTextFromJSONProperty, isDefined, isString, logEntryExit, msToTime
+    getTextFromJSONProperty, getAttrFromJSONObj, isDefined, isString, logEntryExit, msToTime
 } from "../../common/Utils";
 import {ConversationsService} from "../../services/ConversationsService";
 import {ContactsService} from "../../services/ContactsService";
@@ -428,7 +428,6 @@ class ConversationHistoryHandler  extends GenericHandler {
                     let modifiedMsg: boolean = false;
                     let mentions: Array<Object> = [];
 
-
 //                        that._logger.log(that.DEBUG, LOG_ID + "(onHistoryMessageReceived) message - before treat answeredMsg.");
                     if (jsonMessage?.answeredMsg) {
                         //if (stanzaMessage?.getChild( "answeredMsg")) {
@@ -671,24 +670,27 @@ class ConversationHistoryHandler  extends GenericHandler {
                                 }
 
                                 let outgoingMessage = that._contactsService.isUserContactJid(fromJid);
-                                let conversationId = outgoingMessage ? toJid:(jsonStanza?.$attrs?.type===TYPE_GROUPCHAT ? fromBubbleJid:fromJid);
+                                //let conversationId = outgoingMessage ? toJid:(jsonStanza?.$attrs?.type===TYPE_GROUPCHAT ? fromBubbleJid:fromJid);
 
                                 //let replaceElmt = stanzaMessage.find("replace"); //findAllPropInJSONByPropertyName
+
                                 let replaceElmt = findAllPropInJSONByPropertyName(jsonMessage, "replace");
                                 if (replaceElmt.length > 0) {
 
                                     let replaceMessageId = replaceElmt?.$attrs?.id;
 
                                     if (replaceMessageId) {
+                                        messageId = replaceMessageId;
                                         //data.replaceMessageId = replaceMessageId;
-                                        let conversation = that._conversationService.getConversationById(conversationId);
-                                        if (conversation) {
+                                        // let conversation = that._conversationService.getConversationById(conversationId);
+                                        /*if (conversation) {
                                             originalMessageReplaced = conversation.getMessageById(replaceMessageId);
+                                        //    conversation.messages.removeMessage(originalMessageReplaced);
                                         } else {
 //                                                that._logger.log(that.WARN, LOG_ID + "(onHistoryMessageReceived) This is a replace msg but no conversation found for the original msg id. So store an empty msg to avoid the lost of information.", replaceMessageId);
                                             originalMessageReplaced = {};
                                             originalMessageReplaced.id = replaceMessageId;
-                                        }
+                                        } // */
                                         //data.originalMessageReplaced.replacedByMessage = data;
                                         // Set modified / deleted properties
                                         if (!body || body==="") {
@@ -699,21 +701,29 @@ class ConversationHistoryHandler  extends GenericHandler {
                                     }
                                 }
 
-                                //let forwardedElmt = stanzaMessage.find("forwarded");
+                                /*let forwardedElmtXml = stanzaMessage.find("forwarded");
+                                if (forwardedElmtXml && forwardedElmtXml.length > 0) {
+                                  that._logger.log(that.INFO, LOG_ID + "(onHistoryMessageReceived) forwardedElmt found. messageId : ", messageId);
+                                } //*/
+
                                 let forwardedElmt = findAllPropInJSONByPropertyName(jsonMessage, "forwarded");
                                 if (forwardedElmt && forwardedElmt.length > 0 && forwardedElmt?.$attrs?.xmlns==="urn:xmpp:forward:0") {
                                     isForwarded = true;
                                     let msg = forwardedElmt?.message;
+                                    // that._logger.log(that.DEBUG, LOG_ID + "(onChatMessageReceived) messageId : ", messageId, ", forwardedElmt?.message : ", msg);
                                     forwardedMsg = {
                                         "origMsgId": msg?.$attrs?.id,
                                         "fromJid": msg?.$attrs?.from,
                                         "to": msg?.$attrs?.to,
                                         "type": msg?.$attrs?.type,
                                         "body": getTextFromJSONProperty(msg?.body),
-                                        "lang": msg?.body?.$attrs["xml:lang"]
+                                        "lang": getAttrFromJSONObj(msg?.body, "xml:lang")
                                     };
+                                    body = forwardedMsg.body;
+                                    lang = forwardedMsg.lang;
+
 //                                        that._logger.log(that.INTERNAL, LOG_ID + "(onChatMessageReceived) message - forwardedMsg.");
-//                                        that._logger.log(that.INTERNAL, LOG_ID + "(onChatMessageReceived) message - forwardedMsg : ", forwardedMsg);
+                                //    that._logger.log(that.DEBUG, LOG_ID + "(onChatMessageReceived) message - forwardedMsg : ", forwardedMsg);
                                 }
 
                                 //deletedMsg = stanzaMessage.find("delete").length > 0 ||  stanzaMessage.find("deleted").length > 0;
@@ -728,7 +738,7 @@ class ConversationHistoryHandler  extends GenericHandler {
                                 // stanzaData.mentions = [];
 
                                 if (mentionElmt.length > 0) {
-                                   that._logger.log(that.DEBUG, LOG_ID + "(onChatMessageReceived) mentionElmt : ", mentionElmt);
+                                   //that._logger.log(that.DEBUG, LOG_ID + "(onChatMessageReceived) mentionElmt : ", mentionElmt);
                                     const mentionJidElem = findAllPropInJSONByPropertyName(mentionElmt, "jid");
                                     if (Array.isArray(mentionJidElem)) {
                                         mentionJidElem.forEach((content) => {
@@ -880,8 +890,8 @@ class ConversationHistoryHandler  extends GenericHandler {
                             //that._logger.log(that.DEBUG, LOG_ID + "(onHistoryMessageReceived) with message text, message : id : ", message.id, ", fromJid : ", message.fromJid, ", date : ", message.date, ", content : ", message.content);
                             //conversation.historyMessages.push(message);
 
-                            let messageUpdated = false;
                             /*
+                            let messageUpdated = false;
                             conversation.messages.forEach((elmt: Message) => {
                                 if ((isDefined(elmt.id) && isDefined(message.id) && elmt.id === message.id) ||
                                     (isDefined(elmt.historyIndex) && isDefined(elmt.historyIndex) && elmt.historyIndex === message.historyIndex)) {
@@ -900,15 +910,22 @@ class ConversationHistoryHandler  extends GenericHandler {
                                     elmt.updateMessage(message);
                                     messageUpdated = true;
                                 }
-                            } // */
-                            if (!messageUpdated) {
+                            }
+                            //if (!messageUpdated) {
+                            // */
+                            let messageExisting = conversation.getMessageById(messageId);
+                            if (!messageExisting) {
                                 //that._logger.log(that.DEBUG, LOG_ID + "(onHistoryMessageReceived) msg id : ", historyFirstElement.id, ", message not updated from history, so added it to conversation.messages.length : ", conversation?.messages?.length, ", conversation.messages.toSmallString() : ", that._logger.colors.yellow(conversation.messages.toSmallString()));
                                 //conversation.messages.unshift.call(conversation.messages, [historyFirstElement]);
                                 //  conversation.messages.unshift.apply(conversation.messages, [historyFirstElement]);
                                 conversation.messages.unshift(message);
-                                //that._logger.log(that.INTERNAL, LOG_ID + "(onHistoryMessageReceived) msg id : ", historyFirstElement.id, ", message not updated from history, so added it to conversation.messages.length : ", conversation?.messages?.length, ", conversation.messages.toSmallString() : ", that._logger.colors.yellow(conversation.messages.toSmallString()));
+                                // that._logger.log(that.INTERNAL, LOG_ID + "(onHistoryMessageReceived) add message in history id : ", message.id);
                             } else {
 //                                    that._logger.log(that.DEBUG, LOG_ID + "(onHistoryMessageReceived) msg id : ", message.id, ", message updated from history.");
+                                    //that._logger.log(that.DEBUG, LOG_ID + "(onHistoryMessageReceived) msg id : ", message.id, ", message already existing in history, so it has to be replaced.");
+                                    //conversation.messages.replaceMessageById(messageId, message);
+                                    conversation.messages.removeMessageById(messageId);
+                                    conversation.messages.unshift(message);
                             }
 
 

@@ -2355,7 +2355,7 @@ let urlS2S;
             _logger.log("debug", "MAIN - testMessagesQueue after update message (id=MSG2) msgQueue.toSmallString() : ", msgQueue.toSmallString());
 
             // remove a message
-            msgQueue.removeMessage(msg2, true);
+            msgQueue.removeMessage(msg2);
             _logger.log("debug", "MAIN - testMessagesQueue after removeMessage (id=MSG2) msgQueue : ", msgQueue);
 
             let msgIter = {id: "MSGiter", content: "messageIter"};
@@ -6323,6 +6323,23 @@ let urlS2S;
             _logger.log("debug", "MAIN - testgetTextFromJSONProperty : ", attention);
         }
 
+        async testgetTextFromJSONProperty_forwardedElmt_message() {
+            let jsonMessage : any = {
+                '$attrs': {
+                    xmlns: 'jabber:client',
+                    to: 'b1e0d314a3a54bbd84c40c638976fab4@openrainbow.com',
+                    from: 'b3d12420fd21425eb34506a40253ec75@openrainbow.com',
+                    id: 'web_26ce9774-c3a4-463c-8d13-84f2f7146b292',
+                    'xml:lang': 'fr',
+                    type: 'groupchat'
+                },
+                body: 'Hi All, Voip calls are not working. when make call it shows dialing but not reaching to the destination.'
+            };
+
+            let  result = getTextFromJSONProperty(jsonMessage.body);
+            _logger.log("debug", "MAIN - testgetTextFromJSONProperty_forwardedElmt_message - result : ", result);
+        }
+
         async testloadConversationHistoryAsyncBubbleTestBubbleBot2023_03_13T16() {
             // To be used with user vincent00 on .Net
             let that = this;
@@ -6441,7 +6458,7 @@ let urlS2S;
                     startDate = new Date();
                     let useBulk = true;
 
-                    rainbowSDK.conversations.loadConversationHistoryAsync(conversation, 100, useBulk).then((running) => {
+                    rainbowSDK.conversations.loadConversationHistoryAsync(conversation, 400, useBulk).then((running) => {
                         _logger.log("info", "MAIN - testloadConversationHistoryAsyncBubbleByJid loadConversationHistoryAsync running : ", running);
 
                       /*

@@ -727,7 +727,24 @@ async function getJsonFromXML(xml : string) {
 }
 
 function getTextFromJSONProperty(property){
-    return (isObject(property)?property?._: (isString(property)?property:property));
+    let result = "";
+    if (isObject(property)) {
+      result = property?._;
+    } else
+    if (isString(property)) {
+      result = property;
+    } else {
+        result = property;
+    }
+    return result;
+}
+
+function getAttrFromJSONObj(obj, name){
+    let result = undefined; //  msg?.body?.$attrs["xml:lang"]
+    if (obj && isObject(obj) && obj.$attrs) {
+      result = obj.$attrs[name];
+    }
+    return result;
 }
 
 function getValueFromVariable(variable, defaultValue){
@@ -980,6 +997,7 @@ export let objToExport = {
     randomString,
     getJsonFromXML,
     getTextFromJSONProperty,
+    getAttrFromJSONObj,
     getValueFromVariable,
     getObjectFromVariable,
     findAllPropInJSONByPropertyName,
@@ -1031,6 +1049,7 @@ export {
     randomString,
     getJsonFromXML,
     getTextFromJSONProperty,
+    getAttrFromJSONObj,
     getValueFromVariable,
     getObjectFromVariable,
     findAllPropInJSONByPropertyName,
@@ -1081,6 +1100,7 @@ export default {
     randomString,
     getJsonFromXML,
     getTextFromJSONProperty,
+    getAttrFromJSONObj,
     getValueFromVariable,
     getObjectFromVariable,
     findAllPropInJSONByPropertyName,
