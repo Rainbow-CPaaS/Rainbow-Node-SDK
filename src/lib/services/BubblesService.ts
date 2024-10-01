@@ -1764,22 +1764,28 @@ class Bubbles extends GenericService {
          *  Create a new bubble <br>
          * @param {string} name  The name of the bubble to create
          * @param {string} description  The description of the bubble to create
-         * @param {boolean} withHistory If true, a newcomer will have the complete messages history since the beginning of the bubble. False if omitted
+         * @param {string } history (optional) Determines the amount of history available to new users. Default is "all". Allowed values: "none", "all", "number".
+         * @param {number} p_number (optional) Number of messages to retrieve when history="number". Default is 0.
+         * @param {string} visibility (optional) Group visibility for search, either "private" or "public". Default is "private".
+         * @param {boolean} disableNotifications (optional) If true, no notifications will be sent. Default is false.
+         * @param {string} autoRegister (optional) Determines behavior for public links. Default is "unlock". Allowed values: "unlock", "lock".
+         * @param {boolean} autoAcceptInvitation (optional) If true, participants are automatically added to the room. Default is false.
+         * @param {boolean} muteUponEntry (optional) Automatically mutes participants when they join the conference. Default is false.
+         * @param {boolean} playEntryTone (optional) Plays a sound when a participant enters the conference. Default is true.
          * @async
          * @return {Promise<Bubble, ErrorManager>}
          * @fulfil {Bubble} - Bubble object, else an ErrorManager object
-    
          */
-        async createBubble(name, description, withHistory = false) {
+        async createBubble(name: string, description: string, history:any="all", p_number : number=0, visibility : string="private", disableNotifications : boolean=false, autoRegister:string = 'unlock', autoAcceptInvitation:boolean = false, muteUponEntry:boolean=false, playEntryTone:boolean=true) {
             let that = this;
-            that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(createBubble) name : ",  that._logger.stripStringForLogs(name), ", description : ",  that._logger.stripStringForLogs(description), ", withHistory : ", withHistory);
+            that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(createBubble) name : ",  that._logger.stripStringForLogs(name), ", description : ",  that._logger.stripStringForLogs(description), ", history : ", history);
             
             return new Promise((resolve, reject) => {
 
                 that._logger.log(that.DEBUG, LOG_ID + "(createBubble) enterring.");
 
-                if (typeof withHistory==="undefined") {
-                    withHistory = false;
+                if (typeof history==="undefined") {
+                    history = "none";
                 }
     
                 if (!name) {
@@ -1793,8 +1799,8 @@ class Bubbles extends GenericService {
                     reject(ErrorManager.getErrorManager().BAD_REQUEST);
                     return;
                 }
-    
-                that._rest.createBubble(name, description, withHistory).then(async (bubble: any) => {
+
+                that._rest.createBubble(name, description, history, p_number, visibility, disableNotifications, autoRegister, autoAcceptInvitation, muteUponEntry, playEntryTone).then(async (bubble: any) => {
                     that._logger.log(that.DEBUG, LOG_ID + "(createBubble) creation successfull");
                     // that._logger.log(that.INTERNAL, LOG_ID + "(createBubble) creation successfull, bubble", bubble);
     
