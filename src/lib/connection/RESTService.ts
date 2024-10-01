@@ -2928,25 +2928,36 @@ Request Method: PUT
 
     //region Bubbles
 
-    createBubble(name, description, withHistory) {
+    createBubble(name:string, description: string, history:any="all", p_number : number=0, visibility : string="private", disableNotifications : boolean=false, autoRegister:string = 'unlock', autoAcceptInvitation:boolean = false, muteUponEntry:boolean=false, playEntryTone:boolean=true) {
         let that = this;
         return new Promise(function (resolve, reject) {
-            let history = "none";
-            if (withHistory) {
-                history = "all";
+            let historyStr = history;
+            if (history === true) {
+                historyStr = "all";
+            } else {
+                historyStr = "none";
             }
 
-            that.logger.log("debug", LOG_ID + "(createBubble) will call POST request.");
+            let body: any = {
+                name: name,
+                topic: description,
+                history: historyStr
+            };
+            addPropertyToObj(body, "number", p_number, false);
+            addPropertyToObj(body, "visibility", visibility, false);
+            addPropertyToObj(body, "disableNotifications", disableNotifications, false);
+            addPropertyToObj(body, "autoRegister", autoRegister, false);
+            addPropertyToObj(body, "autoAcceptInvitation", autoAcceptInvitation, false);
+            addPropertyToObj(body, "muteUponEntry", muteUponEntry, false);
+            addPropertyToObj(body, "playEntryTone", playEntryTone, false);
 
-            that.http.post("/api/rainbow/enduser/v1.0/rooms", that.getRequestHeader(), {
-                        name: name,
-                        topic: description,
-                        history: history
-                    }
+            that._logger.log("debug", LOG_ID + "(createBubble) will call POST request.");
+
+            that.http.post("/api/rainbow/enduser/v1.0/rooms", that.getRequestHeader(), body
                     , undefined).then(function (json) {
                 that.logger.log("debug", LOG_ID + "(createBubble) successfull");
-                that.logger.log("internal", LOG_ID + "(createBubble) REST result : ", json.data);
-                resolve(json.data);
+                that.logger.log("internal", LOG_ID + "(createBubble) REST result : ", json);
+                resolve(json?.data);
             }).catch(function (err) {
                 that.logger.log("error", LOG_ID, "(createBubble) error");
                 that.logger.log("internalerror", LOG_ID, "(createBubble) error : ", err);
