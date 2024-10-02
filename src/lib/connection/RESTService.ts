@@ -3032,7 +3032,7 @@ Request Method: PUT
             let historyStr = history;
             if (history === true) {
                 historyStr = "all";
-            } else {
+            } else if (history === false) {
                 historyStr = "none";
             }
 
