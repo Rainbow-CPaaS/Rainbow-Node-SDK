@@ -3174,6 +3174,8 @@ Request Method: PUT
     }
 
     getBubbles(format: string = "small", unsubscribed: boolean = false) {
+        // API https://api.openrainbow.org/enduser/#api-rooms-getRooms
+        // GET /api/rainbow/enduser/v1.0/rooms
         let that = this;
         let getSetOfBubbles = (page, max, bubbles) => {
             return new Promise((resolve, reject) => {
