@@ -66,7 +66,7 @@ let conf =  {
                     /**
                      * Maximum number of sockets to allow per host. Default for Node 0.10 is 5, default for Node 0.12 is Infinity
                      */
-                    maxSockets: 25, // ?: number | undefined;
+                    maxSockets: Infinity, // ?: number | undefined;
                     /**
                      * Maximum number of sockets allowed for all hosts in total. Each request will use a new socket until the maximum is reached. Default: Infinity.
                      */
@@ -78,16 +78,16 @@ let conf =  {
                     /**
                      * Socket timeout in milliseconds. This will set the timeout after the socket is connected.
                      */
-                    timeout: 60000, // ?: number | undefined;
+                    timeout: 120002, // ?: number | undefined;
                 },
                 gotRequestOptions : {
                     timeout: { // This object describes the maximum allowed time for particular events.
-                        lookup: 1800, // lookup: 100, Starts when a socket is assigned.  Ends when the hostname has been resolved.
-                        connect: 10250, // connect: 50, Starts when lookup completes.  Ends when the socket is fully connected.
-                        secureConnect: 10250, // secureConnect: 50, Starts when connect completes. Ends when the handshake process completes.
+                        lookup: 100, // lookup: 100, Starts when a socket is assigned.  Ends when the hostname has been resolved.
+                        connect: 100, // connect: 50, Starts when lookup completes.  Ends when the socket is fully connected.
+                        secureConnect: 100, // secureConnect: 50, Starts when connect completes. Ends when the handshake process completes.
                         socket: 10000, // socket: 1000, Starts when the socket is connected. Resets when new data is transferred.
-                        send: 180000, // send: 10000, // Starts when the socket is connected. Ends when all data have been written to the socket.
-                        response: 10000 // response: 1000 // Starts when request has been flushed. Ends when the headers are received.
+                        send: 120002, // send: 10000, // Starts when the socket is connected. Ends when all data have been written to the socket.
+                        response: 120002 // response: 1000 // Starts when request has been flushed. Ends when the headers are received.
                     }
                 }
             }
