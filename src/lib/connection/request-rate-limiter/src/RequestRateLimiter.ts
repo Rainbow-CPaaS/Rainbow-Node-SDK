@@ -1,6 +1,9 @@
 import LeakyBucket from './leakybucket';
 import BackoffError from './BackoffError';
+import {EventEmitter} from "events";
+//import util from "util";
 //import logd from 'logd';
+const util = require("util");
 
 //const log = logd.module('request-rate-limiter');
 
@@ -12,7 +15,7 @@ export default class RequestRateLimiter {
     private timeout: number;
     public bucket: any;
     private requestHandler: any;
-
+    private _eventEmitter: EventEmitter;
 
 
     /**
@@ -23,7 +26,7 @@ export default class RequestRateLimiter {
      * timeout: no request will stay in the queue any longer than the timeout. if the queue is full, the requst will be rejected
      * 
     */
-    constructor({
+    constructor(_eventEmitter : EventEmitter,{
         backoffTime = 10,
         requestRate = 60,
         interval = 60,
@@ -34,6 +37,7 @@ export default class RequestRateLimiter {
         this.interval = interval;
         this.timeout = timeout;
 
+        this._eventEmitter = _eventEmitter;
   //      log.info(`Setting up a request rate limiter with the request rate ${requestRate}, an interval of ${interval}, a timeout of ${timeout} and a backoff time of ${backoffTime}`);
 
         // the leaky bucket is used to limit the requests and allow
@@ -66,6 +70,9 @@ export default class RequestRateLimiter {
     */
     async request(requestConfig) {
         //log.info(`throttling request`);
+        let that = this;
+        let dateEnqueued = new Date();
+        let iterBackOff = 0;
 
         // execute the request. if the request handler returns an instance 
         // of the BackoffError the request will be re-enqueued
@@ -84,6 +91,10 @@ export default class RequestRateLimiter {
                 if (err instanceof BackoffError) {
                  //   log.debug(`Backing off for ${this.backoffTime}`);
 
+                    iterBackOff++;
+                    that._eventEmitter.emit("evt_internal_429BackoffError", {request:requestConfig, error:err, dateEnqueued, iterBackOff});
+
+                    // console.log("err : ", util.inspect(err, false, 4, true));
                     // wait as long as is required by the backoffTime
                     // config value
                     this.bucket.pause(this.backoffTime);

@@ -187,6 +187,7 @@ class Emitter extends EventEmitterClass{
  * @fires Events#rainbow_ontaskcreated
  * @fires Events#rainbow_ontaskupdated
  * @fires Events#rainbow_ontaskdeleted
+ * @fires Events#rainbow_on429BackoffError
  */
 class Events {
     get logEmitter(): EventEmitter {
@@ -304,7 +305,8 @@ class Events {
         "rainbow_onlogsconfig",
         "rainbow_ontaskcreated",
         "rainbow_ontaskupdated",
-        "rainbow_ontaskdeleted"
+        "rainbow_ontaskdeleted",
+        "rainbow_on429BackoffError"
  ];
     public  waitBeforeBubblePresenceSend = false;
 
@@ -1573,6 +1575,17 @@ class Events {
              *      Fired when a task is suppressed to the loggued in user.
              */
             that.publishEvent("taskdeleted", data);
+        });
+
+        this._evReceiver.on("evt_internal_429BackoffError", function (data) {
+            /**
+             * @event Events#rainbow_on429BackoffError
+             * @public
+             * @param { request, error } data The request and the error raised by backoff
+             * @description
+             *      Fired when a request initialy failed and is trying to be retreated by backoff process.
+             */
+            that.publishEvent("429BackoffError", data);
         });
 
 

@@ -395,7 +395,7 @@ safeJsonParse(str) {
     }
 
 
-    getUrlRaw(url, headers: any = {}, params): Promise<any> {
+    getUrlRaw(url, headers: any = {}, params, nbRetryBeforeFailed : number = 2, timeBetweenRetry = 1000): Promise<any> {
         let that = this;
         let req : RequestForQueue = new RequestForQueue();
         req.method = that._getUrlRaw.bind(this);
@@ -406,11 +406,11 @@ safeJsonParse(str) {
         if (that.useRequestRateLimiter) {
             return that.httpManager.add(req);
         } else {
-            return that._getUrlRaw(url, headers, params);
+            return that._getUrlRaw(url, headers, params, nbRetryBeforeFailed, timeBetweenRetry);
         }
     }
 
-    _getUrlRaw(url, headers: any = {}, params): Promise<any> {
+    _getUrlRaw(url, headers: any = {}, params, nbRetryBeforeFailed : number = 0, timeBetweenRetry = 1000): Promise<any> {
 
         let that = this;
 
@@ -428,6 +428,7 @@ safeJsonParse(str) {
                 that._logger.log(that.INTERNAL, LOG_ID + "(_getUrlRaw) url : ", urlEncoded, ", headers : ", headers, ", params : ", params);
 
                 if (that._options.restOptions.useGotLibForHttp) {
+                    let attemptCount = 0;
                     const newAliveAgent: any = () => {
                         let req = {
                             prefixUrl: "",
@@ -444,9 +445,7 @@ safeJsonParse(str) {
                             headers,
                             searchParams: params,
                             retry: {
-                                limit: 0,
-                                //limit: nbTryBeforeFailed,
-                                //limit: 1,
+                                limit: nbRetryBeforeFailed,
                                 // calculateDelay: ({retryObject}) => {
                                 //     /* interface RetryObject {
                                 //         attemptCount: number;
@@ -460,7 +459,15 @@ safeJsonParse(str) {
                                 //     return timeBetweenRetry;
                                 // },
                                 //calculateDelay: ({computedValue}) => computedValue,
-                                calculateDelay:  ({computedValue}) => computedValue / 10,
+                                calculateDelay:  ({computedValue}) => {
+                                    let noise = 100;
+                                    //let computedValueCalculated = ((2 ** (attemptCount - 1)) * 1000) + noise;
+                                    let shouldBeRun = (nbRetryBeforeFailed - attemptCount)> 1 ? 1 : 0;
+                                    let computedValueCalculated = (shouldBeRun * (timeBetweenRetry + noise));
+                                    attemptCount++;
+                                    that._logger.warn("warn", LOG_ID + "(get) (calculateDelay) retry HTTP GET, nbRetryBeforeFailed : ", nbRetryBeforeFailed, ",attemptCount : ", attemptCount, ", timeBetweenRetry : ", timeBetweenRetry, "ms , computedValue : ", computedValue,", computedValueCalculated : ", computedValueCalculated);
+                                    return computedValueCalculated;
+                                },
                                 methods: [
                                     'GET',
                                     'PUT',
@@ -652,7 +659,7 @@ safeJsonParse(str) {
         });
     }
 
-    headUrlRaw(url, headers: any = {}): Promise<any> {
+    headUrlRaw(url, headers: any = {}, nbRetryBeforeFailed : number = 2, timeBetweenRetry = 1000): Promise<any> {
         let that = this;
         let req : RequestForQueue = new RequestForQueue();
         req.method = that._headUrlRaw.bind(this);
@@ -663,11 +670,11 @@ safeJsonParse(str) {
         if (that.useRequestRateLimiter) {
             return that.httpManager.add(req);
         } else {
-            return that._headUrlRaw(url, headers);
+            return that._headUrlRaw(url, headers, nbRetryBeforeFailed, timeBetweenRetry);
         }
     }
 
-    _headUrlRaw(url, headers: any = {}): Promise<any> {
+    _headUrlRaw(url, headers: any = {}, nbRetryBeforeFailed : number = 0, timeBetweenRetry = 1000): Promise<any> {
         let that = this;
 
         return new Promise(function (resolve, reject) {
@@ -687,6 +694,7 @@ safeJsonParse(str) {
 
 
                 if (that._options.restOptions.useGotLibForHttp) {
+                    let attemptCount = 0;
                     const newAliveAgent: any = () => {
                         let req = {
                             prefixUrl: "",
@@ -704,8 +712,7 @@ safeJsonParse(str) {
                             //body,
                             //searchParams: params,
                             retry: {
-                                limit: 0,
-                                //limit: 1,
+                                limit: nbRetryBeforeFailed,
                                 // calculateDelay: ({retryObject}) => {
                                 //     /* interface RetryObject {
                                 //         attemptCount: number;
@@ -719,7 +726,15 @@ safeJsonParse(str) {
                                 //     return 1000;
                                 // },
                                 //calculateDelay: ({computedValue}) => computedValue,
-                                calculateDelay:  ({computedValue}) => computedValue / 10,
+                                calculateDelay:  ({computedValue}) => {
+                                    let noise = 100;
+                                    //let computedValueCalculated = ((2 ** (attemptCount - 1)) * 1000) + noise;
+                                    let shouldBeRun = (nbRetryBeforeFailed - attemptCount)> 1 ? 1 : 0;
+                                    let computedValueCalculated = (shouldBeRun * (timeBetweenRetry + noise));
+                                    attemptCount++;
+                                    that._logger.warn("warn", LOG_ID + "(get) (calculateDelay) retry HTTP GET, nbRetryBeforeFailed : ", nbRetryBeforeFailed, ",attemptCount : ", attemptCount, ", timeBetweenRetry : ", timeBetweenRetry, "ms , computedValue : ", computedValue,", computedValueCalculated : ", computedValueCalculated);
+                                    return computedValueCalculated;
+                                },
                                 methods: [
                                     'GET',
                                     'PUT',
@@ -930,6 +945,7 @@ safeJsonParse(str) {
                 that._logger.log(that.INTERNAL, LOG_ID + "(_postUrlRaw) url : ", urlEncoded, ", headers : ", headers, ", body : ", body);
 
                 if (that._options.restOptions.useGotLibForHttp) {
+                    let attemptCount = 0;
                     const newAliveAgent: any = () => {
                         let req = {
                             prefixUrl: "",
@@ -1107,6 +1123,7 @@ safeJsonParse(str) {
                 let body = data;
                 //that._logger.log(that.INTERNAL, LOG_ID + "(_putUrlRaw) url : ", urlEncoded);
                 if (that._options.restOptions.useGotLibForHttp) {
+                    let attemptCount = 0;
                     const newAliveAgent: any = () => {
                         let req = {
                             prefixUrl: "",
@@ -1242,7 +1259,7 @@ safeJsonParse(str) {
         });
     }
 
-    deleteUrlRaw(url, headers: any = {}, data : Object = undefined): Promise<any> {
+    deleteUrlRaw(url, headers: any = {}, data : Object = undefined, nbRetryBeforeFailed : number = 0, timeBetweenRetry = 1000): Promise<any> {
         let that = this;
         let req : RequestForQueue = new RequestForQueue();
         req.method = that._deleteUrlRaw.bind(this);
@@ -1253,12 +1270,12 @@ safeJsonParse(str) {
         if (that.useRequestRateLimiter) {
             return that.httpManager.add(req);
         } else {
-            return that._deleteUrlRaw(url, headers, data);
+            return that._deleteUrlRaw(url, headers, data, nbRetryBeforeFailed, timeBetweenRetry);
         }
 
     }
 
-    _deleteUrlRaw(url, headers: any = {}, data : Object = undefined): Promise<any> {
+    _deleteUrlRaw(url, headers: any = {}, data : Object = undefined, nbRetryBeforeFailed : number = 0, timeBetweenRetry = 1000): Promise<any> {
 
         let that = this;
 
@@ -1280,6 +1297,7 @@ safeJsonParse(str) {
                 that._logger.log(that.INTERNAL, LOG_ID + "(_deleteUrlRaw) url : ", urlEncoded, ", headers : ", headers, ", body : ", body);
 
                 if (that._options.restOptions.useGotLibForHttp) {
+                    let attemptCount = 0;
                     const newAliveAgent: any = () => {
                         let req: any = {
                             prefixUrl: "",
@@ -1297,8 +1315,7 @@ safeJsonParse(str) {
                             // body,
                             //searchParams: params,
                             retry: {
-                                limit: 0,
-                                //limit: 1,
+                                limit: nbRetryBeforeFailed,
                                 // calculateDelay: ({retryObject}) => {
                                 //     /* interface RetryObject {
                                 //         attemptCount: number;
@@ -1312,7 +1329,15 @@ safeJsonParse(str) {
                                 //     return 1000;
                                 // },
                                 //calculateDelay: ({computedValue}) => computedValue,
-                                calculateDelay:  ({computedValue}) => computedValue / 10,
+                                calculateDelay:  ({computedValue}) => {
+                                    let noise = 100;
+                                    //let computedValueCalculated = ((2 ** (attemptCount - 1)) * 1000) + noise;
+                                    let shouldBeRun = (nbRetryBeforeFailed - attemptCount)> 1 ? 1 : 0;
+                                    let computedValueCalculated = (shouldBeRun * (timeBetweenRetry + noise));
+                                    attemptCount++;
+                                    that._logger.warn("warn", LOG_ID + "(get) (calculateDelay) retry HTTP GET, nbRetryBeforeFailed : ", nbRetryBeforeFailed, ",attemptCount : ", attemptCount, ", timeBetweenRetry : ", timeBetweenRetry, "ms , computedValue : ", computedValue,", computedValueCalculated : ", computedValueCalculated);
+                                    return computedValueCalculated;
+                                },
                                 methods: [
                                     'GET',
                                     'PUT',
@@ -1499,7 +1524,7 @@ safeJsonParse(str) {
         });
     }
 
-    getUrlJson(url, headers: any = {}, params): Promise<any> {
+    getUrlJson(url, headers: any = {}, params, nbRetryBeforeFailed : number = 2, timeBetweenRetry = 1000): Promise<any> {
         let that = this;
         let req : RequestForQueue = new RequestForQueue();
         req.method = that._getUrlJson.bind(this);
@@ -1510,11 +1535,11 @@ safeJsonParse(str) {
         if (that.useRequestRateLimiter) {
             return that.httpManager.add(req);
         } else {
-            return that._getUrlJson(url, headers, params);
+            return that._getUrlJson(url, headers, params, nbRetryBeforeFailed, timeBetweenRetry);
         }
     }
 
-    _getUrlJson(url, headers: any = {}, params): Promise<any> {
+    _getUrlJson(url, headers: any = {}, params, nbRetryBeforeFailed : number = 0, timeBetweenRetry = 1000): Promise<any> {
 
         let that = this;
 
@@ -1533,6 +1558,7 @@ safeJsonParse(str) {
                 that._logger.log(that.INTERNAL, LOG_ID + "(_getUrlJson) url : ", urlEncoded, ", headers : ", headers, ", params : ", params);
 
                 if (that._options.restOptions.useGotLibForHttp) {
+                    let attemptCount = 0;
                     const newAliveAgent: any = () => {
                         let req = {
                             prefixUrl: "",
@@ -1549,9 +1575,7 @@ safeJsonParse(str) {
                             headers,
                             searchParams: params,
                             retry: {
-                                //limit: 0,
-                                //limit: nbTryBeforeFailed,
-                                limit: 1,
+                                limit: nbRetryBeforeFailed,
                                 // calculateDelay: ({retryObject}) => {
                                 //     /* interface RetryObject {
                                 //         attemptCount: number;
@@ -1565,7 +1589,15 @@ safeJsonParse(str) {
                                 //     return timeBetweenRetry;
                                 // },
                                 // calculateDelay: ({computedValue}) => computedValue,
-                                calculateDelay:  ({computedValue}) => computedValue / 10,
+                                calculateDelay:  ({computedValue}) => {
+                                    let noise = 100;
+                                    //let computedValueCalculated = ((2 ** (attemptCount - 1)) * 1000) + noise;
+                                    let shouldBeRun = (nbRetryBeforeFailed - attemptCount)> 1 ? 1 : 0;
+                                    let computedValueCalculated = (shouldBeRun * (timeBetweenRetry + noise));
+                                    attemptCount++;
+                                    that._logger.warn("warn", LOG_ID + "(get) (calculateDelay) retry HTTP GET, nbRetryBeforeFailed : ", nbRetryBeforeFailed, ",attemptCount : ", attemptCount, ", timeBetweenRetry : ", timeBetweenRetry, "ms , computedValue : ", computedValue,", computedValueCalculated : ", computedValueCalculated);
+                                    return computedValueCalculated;
+                                },
                                 methods: [
                                     'GET',
                                     'PUT',
@@ -1821,7 +1853,7 @@ safeJsonParse(str) {
         });
     }
 
-    get(url, headers: any = {}, params, responseType = "", nbTryBeforeFailed : number = 0, timeBetweenRetry = 1000): Promise<any> {
+    get(url, headers: any = {}, params, responseType = "", nbRetryBeforeFailed : number = 0, timeBetweenRetry = 1000): Promise<any> {
         let that = this;
         let req : RequestForQueue = new RequestForQueue();
         req.method = that._get.bind(this);
@@ -1833,11 +1865,11 @@ safeJsonParse(str) {
         if (that.useRequestRateLimiter) {
             return that.httpManager.add(req);
         } else {
-            return that._get(url, headers, params, responseType, nbTryBeforeFailed, timeBetweenRetry);
+            return that._get(url, headers, params, responseType, nbRetryBeforeFailed, timeBetweenRetry);
         }
     }
 
-    _get(url,headers: any = {}, params, responseType = "", nbTryBeforeFailed : number = 0, timeBetweenRetry = 1000): Promise<any> {
+    _get(url,headers: any = {}, params, responseType = "", nbRetryBeforeFailed : number = 2, timeBetweenRetry = 1000): Promise<any> {
         let that = this;
 
         return new Promise(async function (resolve, reject) {
@@ -1858,6 +1890,7 @@ safeJsonParse(str) {
                 if (headers.Accept && headers?.Accept?.indexOf("json") > -1) {
 
                     if (that._options.restOptions.useGotLibForHttp) {
+                        let attemptCount = 0;
                         const newAliveAgent: any = () => {
                             let req = {
                                 prefixUrl: "",
@@ -1876,9 +1909,7 @@ safeJsonParse(str) {
                                 headers,
                                 searchParams: params,
                                 retry: {
-                                    limit: 1,
-                                    //limit: nbTryBeforeFailed,
-                                    //limit: 1,
+                                    limit: nbRetryBeforeFailed,
                                     // calculateDelay: ({retryObject}) => {
                                     //     /* interface RetryObject {
                                     //         attemptCount: number;
@@ -1892,7 +1923,16 @@ safeJsonParse(str) {
                                     //     return timeBetweenRetry;
                                     // },
                                     //calculateDelay: ({computedValue}) => computedValue,
-                                    calculateDelay:  ({computedValue}) => computedValue / 10,
+                                    //calculateDelay:  ({computedValue}) => computedValue / 10,
+                                    calculateDelay:  ({computedValue}) => {
+                                        let noise = 100;
+                                        //let computedValueCalculated = ((2 ** (attemptCount - 1)) * 1000) + noise;
+                                        let shouldBeRun = (nbRetryBeforeFailed - attemptCount)> 1 ? 1 : 0;
+                                        let computedValueCalculated = (shouldBeRun * (timeBetweenRetry + noise));
+                                        attemptCount++;
+                                        that._logger.warn("warn", LOG_ID + "(get) (calculateDelay) retry HTTP GET, nbRetryBeforeFailed : ", nbRetryBeforeFailed, ",attemptCount : ", attemptCount, ", timeBetweenRetry : ", timeBetweenRetry, "ms , computedValue : ", computedValue,", computedValueCalculated : ", computedValueCalculated);
+                                        return computedValueCalculated;
+                                    },
                                     methods: [
                                         'GET',
                                         'PUT',
@@ -2086,7 +2126,7 @@ safeJsonParse(str) {
 
                     let responseRequest :any =  null; //Promise.reject({statusCode: -100, id:1});
 
-                    for (let i = 0; i < nbTryBeforeFailed + 1 ; i++) {
+                    for (let i = 0; i < nbRetryBeforeFailed + 1 ; i++) {
                         let responsePromRequest : any = new Promise(function(resolve2, reject2) {
                             let request = Request(req, (error, response, body) => {
                                 that._logger.log(that.DEBUG, LOG_ID + "(get) done.");
@@ -2203,12 +2243,12 @@ safeJsonParse(str) {
                         if (statusCodeHttpType > 0 && statusCodeHttpType < 4) {
                             return resolve (responseRequest);
                         } else {
-                            that.httpManager._logger.log("warn", LOG_ID + "(MyRequestHandler::request) The req method call ERROR. req.url : ", req.url, ", Iter ", i + 1,"/", nbTryBeforeFailed, ", responseRequest : ", responseRequest);
-                            if ( (i ) < nbTryBeforeFailed) {
-                                that.httpManager._logger.log("debug", LOG_ID + "(_get) The req method call ERROR. req.url : ", req.url, ", Iter ", i + 1,"/", nbTryBeforeFailed, " nbTryBeforeFailed, Will retry the request process in ", timeBetweenRetry, " milliseconds. statusCodeHttpType : ", statusCodeHttpType);
+                            that.httpManager._logger.log("warn", LOG_ID + "(MyRequestHandler::request) The req method call ERROR. req.url : ", req.url, ", Iter ", i + 1,"/", nbRetryBeforeFailed, ", responseRequest : ", responseRequest);
+                            if ( (i ) < nbRetryBeforeFailed) {
+                                that.httpManager._logger.log("debug", LOG_ID + "(_get) The req method call ERROR. req.url : ", req.url, ", Iter ", i + 1,"/", nbRetryBeforeFailed, " nbRetryBeforeFailed, Will retry the request process in ", timeBetweenRetry, " milliseconds. statusCodeHttpType : ", statusCodeHttpType);
                                 await pause(timeBetweenRetry).catch((res) => {return res; });
                             } else {
-                                that.httpManager._logger.log("debug", LOG_ID + "(_get) The req method call ERROR. req.url : ", req.url, ", Iter ", i + 1,"/", nbTryBeforeFailed, " nbTryBeforeFailed, Stop retry the request process and return the error. statusCodeHttpType : ", statusCodeHttpType);
+                                that.httpManager._logger.log("debug", LOG_ID + "(_get) The req method call ERROR. req.url : ", req.url, ", Iter ", i + 1,"/", nbRetryBeforeFailed, " nbRetryBeforeFailed, Stop retry the request process and return the error. statusCodeHttpType : ", statusCodeHttpType);
                                 let res = responseRequest;
                                 return reject (res);
                             }
@@ -2282,7 +2322,7 @@ safeJsonParse(str) {
         });
     }
 
-    post(url, headers: any = {}, data, contentType): Promise<any> {
+    post(url, headers: any = {}, data, contentType, nbRetryBeforeFailed : number = 0, timeBetweenRetry = 1000): Promise<any> {
         let that = this;
         let req : RequestForQueue = new RequestForQueue();
         req.method = that._post.bind(this);
@@ -2293,11 +2333,11 @@ safeJsonParse(str) {
         if (that.useRequestRateLimiter) {
             return that.httpManager.add(req);
         } else {
-            return that._post(url, headers, data, contentType);
+            return that._post(url, headers, data, contentType, nbRetryBeforeFailed, timeBetweenRetry);
         }
     }
 
-    _post(url, headers: any = {}, data, contentType): Promise<any> {
+    _post(url, headers: any = {}, data, contentType, nbRetryBeforeFailed : number = 0, timeBetweenRetry = 1000): Promise<any> {
         let that = this;
 
         return new Promise(function (resolve, reject) {
@@ -2331,6 +2371,7 @@ safeJsonParse(str) {
 
 
             if (that._options.restOptions.useGotLibForHttp) {
+                let attemptCount = 0;
                 const newAliveAgent: any = () => {
                     let req = {
                         prefixUrl: "",
@@ -2348,8 +2389,7 @@ safeJsonParse(str) {
                         body,
                         //searchParams: params,
                         retry: {
-                            //limit: 0,
-                            limit: 1,
+                            limit: nbRetryBeforeFailed,
                             // calculateDelay: ({retryObject}) => {
                             //     /* interface RetryObject {
                             //         attemptCount: number;
@@ -2363,7 +2403,15 @@ safeJsonParse(str) {
                             //     return 1000;
                             // },
                             // calculateDelay: ({computedValue}) => computedValue,
-                            calculateDelay:  ({computedValue}) => computedValue / 10,
+                            calculateDelay:  ({computedValue}) => {
+                                let noise = 100;
+                                //let computedValueCalculated = ((2 ** (attemptCount - 1)) * 1000) + noise;
+                                let shouldBeRun = (nbRetryBeforeFailed - attemptCount)> 1 ? 1 : 0;
+                                let computedValueCalculated = (shouldBeRun * (timeBetweenRetry + noise));
+                                attemptCount++;
+                                that._logger.warn("warn", LOG_ID + "(get) (calculateDelay) retry HTTP GET, nbRetryBeforeFailed : ", nbRetryBeforeFailed, ",attemptCount : ", attemptCount, ", timeBetweenRetry : ", timeBetweenRetry, "ms , computedValue : ", computedValue,", computedValueCalculated : ", computedValueCalculated);
+                                return computedValueCalculated;
+                            },
                             methods: [
                                 'GET',
                                 'PUT',
@@ -2638,7 +2686,7 @@ safeJsonParse(str) {
         });
     }
 
-    head(url, headers: any = {}): Promise<any> {
+    head(url, headers: any = {}, nbRetryBeforeFailed : number = 2, timeBetweenRetry = 1000): Promise<any> {
         let that = this;
         let req : RequestForQueue = new RequestForQueue();
         req.method = that._head.bind(this);
@@ -2649,11 +2697,11 @@ safeJsonParse(str) {
         if (that.useRequestRateLimiter) {
             return that.httpManager.add(req);
         } else {
-            return that._head(url, headers);
+            return that._head(url, headers, nbRetryBeforeFailed, timeBetweenRetry);
         }
     }
 
-    _head(url, headers: any = {}): Promise<any> {
+    _head(url, headers: any = {}, nbRetryBeforeFailed : number = 0, timeBetweenRetry = 1000): Promise<any> {
         let that = this;
 
         return new Promise(function (resolve, reject) {
@@ -2672,6 +2720,7 @@ safeJsonParse(str) {
 
 
             if (that._options.restOptions.useGotLibForHttp) {
+                let attemptCount = 0;
                 const newAliveAgent: any = () => {
                     let req = {
                         prefixUrl: "",
@@ -2689,8 +2738,7 @@ safeJsonParse(str) {
                         //body,
                         //searchParams: params,
                         retry: {
-                            limit: 0,
-                            //limit: 1,
+                            limit: nbRetryBeforeFailed,
                             // calculateDelay: ({retryObject}) => {
                             //     /* interface RetryObject {
                             //         attemptCount: number;
@@ -2704,7 +2752,15 @@ safeJsonParse(str) {
                             //     return 1000;
                             // },
                             //calculateDelay: ({computedValue}) => computedValue,
-                            calculateDelay:  ({computedValue}) => computedValue / 10,
+                            calculateDelay:  ({computedValue}) => {
+                                let noise = 100;
+                                //let computedValueCalculated = ((2 ** (attemptCount - 1)) * 1000) + noise;
+                                let shouldBeRun = (nbRetryBeforeFailed - attemptCount)> 1 ? 1 : 0;
+                                let computedValueCalculated = (shouldBeRun * (timeBetweenRetry + noise));
+                                attemptCount++;
+                                that._logger.warn("warn", LOG_ID + "(get) (calculateDelay) retry HTTP GET, nbRetryBeforeFailed : ", nbRetryBeforeFailed, ",attemptCount : ", attemptCount, ", timeBetweenRetry : ", timeBetweenRetry, "ms , computedValue : ", computedValue,", computedValueCalculated : ", computedValueCalculated);
+                                return computedValueCalculated;
+                            },
                             methods: [
                                 'GET',
                                 'PUT',
@@ -2979,7 +3035,7 @@ safeJsonParse(str) {
         });
     }
 
-    patch(url, headers: any = {}, data, type): Promise<any> {
+    patch(url, headers: any = {}, data, type, nbRetryBeforeFailed : number = 0, timeBetweenRetry = 1000): Promise<any> {
         let that = this;
         let req : RequestForQueue = new RequestForQueue();
         req.method = that._patch.bind(this);
@@ -2990,11 +3046,11 @@ safeJsonParse(str) {
         if (that.useRequestRateLimiter) {
             return that.httpManager.add(req);
         } else {
-            return that._patch(url, headers,data, type);
+            return that._patch(url, headers,data, type, nbRetryBeforeFailed, timeBetweenRetry);
         }
     }
 
-    _patch(url, headers: any = {}, data, type): Promise<any> {
+    _patch(url, headers: any = {}, data, type, nbRetryBeforeFailed : number = 0, timeBetweenRetry = 1000): Promise<any> {
         let that = this;
 
         return new Promise(function (resolve, reject) {
@@ -3027,6 +3083,7 @@ safeJsonParse(str) {
             }
 
             if (that._options.restOptions.useGotLibForHttp) {
+                let attemptCount = 0;
                 const newAliveAgent: any = () => {
                     let req: any = {
                         prefixUrl: "",
@@ -3044,8 +3101,7 @@ safeJsonParse(str) {
                         // body,
                         //searchParams: params,
                         retry: {
-                            limit: 0,
-                            //limit: 1,
+                            limit: nbRetryBeforeFailed,
                             // calculateDelay: ({retryObject}) => {
                             //     /* interface RetryObject {
                             //         attemptCount: number;
@@ -3059,7 +3115,15 @@ safeJsonParse(str) {
                             //     return 1000;
                             // },
                             //calculateDelay: ({computedValue}) => computedValue,
-                            calculateDelay:  ({computedValue}) => computedValue / 10,
+                            calculateDelay:  ({computedValue}) => {
+                                let noise = 100;
+                                //let computedValueCalculated = ((2 ** (attemptCount - 1)) * 1000) + noise;
+                                let shouldBeRun = (nbRetryBeforeFailed - attemptCount)> 1 ? 1 : 0;
+                                let computedValueCalculated = (shouldBeRun * (timeBetweenRetry + noise));
+                                attemptCount++;
+                                that._logger.warn("warn", LOG_ID + "(get) (calculateDelay) retry HTTP GET, nbRetryBeforeFailed : ", nbRetryBeforeFailed, ",attemptCount : ", attemptCount, ", timeBetweenRetry : ", timeBetweenRetry, "ms , computedValue : ", computedValue,", computedValueCalculated : ", computedValueCalculated);
+                                return computedValueCalculated;
+                            },
                             methods: [
                                 'GET',
                                 'PUT',
@@ -3338,7 +3402,7 @@ safeJsonParse(str) {
         });
     }
 
-    put(url, headers: any = {}, data, type): Promise<any> {
+    put(url, headers: any = {}, data, type, nbRetryBeforeFailed : number = 0, timeBetweenRetry = 1000): Promise<any> {
         let that = this;
         let req : RequestForQueue = new RequestForQueue();
         req.method = that._put.bind(this);
@@ -3349,11 +3413,11 @@ safeJsonParse(str) {
         if (that.useRequestRateLimiter) {
             return that.httpManager.add(req);
         } else {
-            return that._put(url, headers,data, type);
+            return that._put(url, headers,data, type, nbRetryBeforeFailed, timeBetweenRetry);
         }
     }
 
-    _put(url, headers: any = {}, data, type): Promise<any> {
+    _put(url, headers: any = {}, data, type, nbRetryBeforeFailed : number = 0, timeBetweenRetry = 1000): Promise<any> {
         let that = this;
 
         return new Promise(function (resolve, reject) {
@@ -3386,6 +3450,7 @@ safeJsonParse(str) {
             }
 
             if (that._options.restOptions.useGotLibForHttp) {
+                let attemptCount = 0;
                 const newAliveAgent: any = () => {
                     let req = {
                         prefixUrl: "",
@@ -3403,8 +3468,7 @@ safeJsonParse(str) {
                         body,
                         //searchParams: params,
                         retry: {
-                            //limit: 0,
-                            limit: 1,
+                            limit: nbRetryBeforeFailed,
                             // calculateDelay: ({retryObject}) => {
                             //     /* interface RetryObject {
                             //         attemptCount: number;
@@ -3418,7 +3482,15 @@ safeJsonParse(str) {
                             //     return 1000;
                             // },
                             //calculateDelay: ({computedValue}) => computedValue,
-                            calculateDelay:  ({computedValue}) => computedValue / 10,
+                            calculateDelay:  ({computedValue}) => {
+                                let noise = 100;
+                                //let computedValueCalculated = ((2 ** (attemptCount - 1)) * 1000) + noise;
+                                let shouldBeRun = (nbRetryBeforeFailed - attemptCount)> 1 ? 1 : 0;
+                                let computedValueCalculated = (shouldBeRun * (timeBetweenRetry + noise));
+                                attemptCount++;
+                                that._logger.warn("warn", LOG_ID + "(get) (calculateDelay) retry HTTP GET, nbRetryBeforeFailed : ", nbRetryBeforeFailed, ",attemptCount : ", attemptCount, ", timeBetweenRetry : ", timeBetweenRetry, "ms , computedValue : ", computedValue,", computedValueCalculated : ", computedValueCalculated);
+                                return computedValueCalculated;
+                            },
                             methods: [
                                 'GET',
                                 'PUT',
@@ -3723,6 +3795,7 @@ safeJsonParse(str) {
 
             that._logger.log(that.INTERNAL, LOG_ID + "(_putBuffer) url : ", urlEncoded);
             if (that._options.restOptions.useGotLibForHttp) {
+                let attemptCount = 0;
                 const newAliveAgent: any = () => {
                     let req = {
                         prefixUrl: "",
@@ -3861,6 +3934,7 @@ safeJsonParse(str) {
             headers["user-agent"] = USER_AGENT;
 
             if (that._options.restOptions.useGotLibForHttp) {
+                let attemptCount = 0;
                 const newAliveAgent: any = () => {
                     let req = {
                         prefixUrl: "",
@@ -3893,7 +3967,15 @@ safeJsonParse(str) {
                             //     return 1000;
                             // },
                             //calculateDelay: ({computedValue}) => computedValue,
-                            calculateDelay:  ({computedValue}) => computedValue / 10,
+                            calculateDelay:  ({computedValue}) => {
+                                let noise = 100;
+                                //let computedValueCalculated = ((2 ** (attemptCount - 1)) * 1000) + noise;
+                                let shouldBeRun = (nbRetryBeforeFailed - attemptCount)> 1 ? 1 : 0;
+                                let computedValueCalculated = (shouldBeRun * (timeBetweenRetry + noise));
+                                attemptCount++;
+                                that._logger.warn("warn", LOG_ID + "(get) (calculateDelay) retry HTTP GET, nbRetryBeforeFailed : ", nbRetryBeforeFailed, ",attemptCount : ", attemptCount, ", timeBetweenRetry : ", timeBetweenRetry, "ms , computedValue : ", computedValue,", computedValueCalculated : ", computedValueCalculated);
+                                return computedValueCalculated;
+                            },
                             methods: [
                                 'GET',
                                 'PUT',
@@ -4231,6 +4313,7 @@ safeJsonParse(str) {
             that._logger.log(that.INTERNAL, LOG_ID + "(delete) url : ", urlEncoded, ", headers : ", headers, ", body : ", body);
 
             if (that._options.restOptions.useGotLibForHttp) {
+                let attemptCount = 0;
                 const newAliveAgent: any = () => {
                     let req: any = {
                         prefixUrl: "",
@@ -4263,7 +4346,15 @@ safeJsonParse(str) {
                             //     return 1000;
                             // },
                             //calculateDelay: ({computedValue}) => computedValue,
-                            calculateDelay:  ({computedValue}) => computedValue / 10,
+                            calculateDelay:  ({computedValue}) => {
+                                let noise = 100;
+                                //let computedValueCalculated = ((2 ** (attemptCount - 1)) * 1000) + noise;
+                                let shouldBeRun = (nbRetryBeforeFailed - attemptCount)> 1 ? 1 : 0;
+                                let computedValueCalculated = (shouldBeRun * (timeBetweenRetry + noise));
+                                attemptCount++;
+                                that._logger.warn("warn", LOG_ID + "(get) (calculateDelay) retry HTTP GET, nbRetryBeforeFailed : ", nbRetryBeforeFailed, ",attemptCount : ", attemptCount, ", timeBetweenRetry : ", timeBetweenRetry, "ms , computedValue : ", computedValue,", computedValueCalculated : ", computedValueCalculated);
+                                return computedValueCalculated;
+                            },
                             methods: [
                                 'GET',
                                 'PUT',

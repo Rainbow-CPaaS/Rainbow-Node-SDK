@@ -55,6 +55,8 @@ import * as path from "path";
 const prettydata = require("../lib/connection/pretty-data").pd;
 import mime from 'mime';
 
+import * as nock from 'nock'
+
 //const MockServer = require("mock-socket").Server;
 //const WS = require("mock-socket").WebSocket;
 
@@ -290,45 +292,45 @@ let urlS2S;
         "rest": {
             "useRestAtStartup": true,
             "useGotLibForHttp": true,
-            "gotOptions": {
-                agentOptions: {
-                    /**
-                     * Keep sockets around in a pool to be used by other requests in the future. Default = false
-                     */
-                    keepAlive: true, // ?: boolean | undefined;
-                    /**
-                     * When using HTTP KeepAlive, how often to send TCP KeepAlive packets over sockets being kept alive. Default = 1000.
-                     * Only relevant if keepAlive is set to true.
-                     */
-                    keepAliveMsecs: 4302, // ?: number | undefined;
-                    /**
-                     * Maximum number of sockets to allow per host. Default for Node 0.10 is 5, default for Node 0.12 is Infinity
-                     */
-                    maxSockets: Infinity, // ?: number | undefined;
-                    /**
-                     * Maximum number of sockets allowed for all hosts in total. Each request will use a new socket until the maximum is reached. Default: Infinity.
-                     */
-                    maxTotalSockets: Infinity, // ?: number | undefined;
-                    /**
-                     * Maximum number of sockets to leave open in a free state. Only relevant if keepAlive is set to true. Default = 256.
-                     */
-                    maxFreeSockets: 1002, // ?: number | undefined;
-                    /**
-                     * Socket timeout in milliseconds. This will set the timeout after the socket is connected.
-                     */
-                    timeout: 120002, // ?: number | undefined;
-                },
-                gotRequestOptions: {
-                    timeout: { // This object describes the maximum allowed time for particular events.
-                        lookup: 5252, // lookup: 100, Starts when a socket is assigned.  Ends when the hostname has been resolved.
-                        connect: 10252, // connect: 50, Starts when lookup completes.  Ends when the socket is fully connected.
-                        secureConnect: 10252, // secureConnect: 50, Starts when connect completes. Ends when the handshake process completes.
-                        socket: 120002, // socket: 1000, Starts when the socket is connected. Resets when new data is transferred.
-                        send: 120002, // send: 10000, // Starts when the socket is connected. Ends when all data have been written to the socket.
-                        response: 120002 // response: 1000 // Starts when request has been flushed. Ends when the headers are received.
-                    }
-                } // */
-            }
+            // "gotOptions": {
+            //     agentOptions: {
+            //         /**
+            //          * Keep sockets around in a pool to be used by other requests in the future. Default = false
+            //          */
+            //         keepAlive: true, // ?: boolean | undefined;
+            //         /**
+            //          * When using HTTP KeepAlive, how often to send TCP KeepAlive packets over sockets being kept alive. Default = 1000.
+            //          * Only relevant if keepAlive is set to true.
+            //          */
+            //         keepAliveMsecs: 4302, // ?: number | undefined;
+            //         /**
+            //          * Maximum number of sockets to allow per host. Default for Node 0.10 is 5, default for Node 0.12 is Infinity
+            //          */
+            //         maxSockets: Infinity, // ?: number | undefined;
+            //         /**
+            //          * Maximum number of sockets allowed for all hosts in total. Each request will use a new socket until the maximum is reached. Default: Infinity.
+            //          */
+            //         maxTotalSockets: Infinity, // ?: number | undefined;
+            //         /**
+            //          * Maximum number of sockets to leave open in a free state. Only relevant if keepAlive is set to true. Default = 256.
+            //          */
+            //         maxFreeSockets: 1002, // ?: number | undefined;
+            //         /**
+            //          * Socket timeout in milliseconds. This will set the timeout after the socket is connected.
+            //          */
+            //         timeout: 120002, // ?: number | undefined;
+            //     },
+            //     gotRequestOptions: {
+            //         timeout: { // This object describes the maximum allowed time for particular events.
+            //             lookup: 5252, // lookup: 100, Starts when a socket is assigned.  Ends when the hostname has been resolved.
+            //             connect: 10252, // connect: 50, Starts when lookup completes.  Ends when the socket is fully connected.
+            //             secureConnect: 10252, // secureConnect: 50, Starts when connect completes. Ends when the handshake process completes.
+            //             socket: 120002, // socket: 1000, Starts when the socket is connected. Resets when new data is transferred.
+            //             send: 120002, // send: 10000, // Starts when the socket is connected. Ends when all data have been written to the socket.
+            //             response: 120002 // response: 1000 // Starts when request has been flushed. Ends when the headers are received.
+            //         }
+            //     } // */
+            //}
         }, // */
         "credentials": {
             "login": "",  // The Rainbow email account to use
@@ -855,6 +857,10 @@ let urlS2S;
     });
     rainbowSDK.events.on("rainbow_onvoicemessageupdated", (data) => {
         _logger.log("debug", "MAIN - (rainbow_onvoicemessageupdated) - rainbow voice message updated.", data);
+    });
+
+    rainbowSDK.events.on("rainbow_on429BackoffError", (data) => {
+        _logger.log("debug", "MAIN - (rainbow_on429BackoffError) - rainbow http code 429 raised, backoff.", data);
     });
 
     rainbowSDK.events.on("rainbow_onbubblepresencechanged", (data) => {
@@ -10008,6 +10014,58 @@ let urlS2S;
 
                 });
             }
+        }
+
+        async testGotRequest() {
+            let url = "/api/rainbow/enduser/v1.0/settings/apis";
+            // Mock API response
+            //nock("https://some.api").get(url).reply(200, { "data": {"stuff": "happened" }});
+            //notok nock("https://some.api").get(url).reply(500, { "code": 500, "error":"error", "data": {"stuff": "happened", "errorDetails":500, "errorDetailsCode": "error details code." }});
+            //notok nock("https://some.api").get(url).replyWithError({code: 'ETIMEDOUT', "errorDetails":500, "errorDetailsCode": "error details code."});
+            //nock("https://some.api").get(url).replyWithError({code: 'ETIMEDOUT'});
+            //notok nock("https://some.api").get(/.*/).delayConnection(500).replyWithError({code: 'ETIMEDOUT'});
+            /*
+            nock("https://some.api").get(url).delayConnection(500).replyWithError({code: 'ETIMEDOUT', "errorMessage":"ETIMEDOUT"});
+            nock("https://some.api").get(url).delayConnection(500).replyWithError({code: 'ETIMEDOUT', "errorMessage":"ETIMEDOUT"});
+            nock("https://some.api").get(url).delayConnection(500).replyWithError({code: 'ETIMEDOUT', "errorMessage":"ETIMEDOUT"});
+            // */
+
+            //nock("https://some.api").get(url).delayConnection(500).reply(429,{code: 429, "errorMessage":'Too Many Requests (HAP429).\n'});
+            nock("https://some.api").get(url).delayConnection(500).reply(429,{code: 429, "errorMessage":'Too Many Requests (HAP429).\n'});
+            //nock("https://some.api").get(url).delayConnection(500).reply(429,{code: 429, "errorMessage":'Too Many Requests (HAP429).\n'});
+
+            //nock("https://some.api").get(url).delayConnection(500).reply(501,{code: 501, "errorMessage":'Internal Error Server 501.\n'});
+            nock("https://some.api").get(url).reply(200, { "data": {"stuff": "happened" }});
+            // */
+            //notok nock("https://some.api").get(url).delayConnection(500).reply(200, {"code": 'ETIMEDOUT'});
+            _logger.log("info", "MAIN - (testGotRequest) - nock.activeMocks() : ", nock.activeMocks());
+
+            rainbowSDK._core._http.serverURL = "https://some.api:443";
+
+            await rainbowSDK._core._http.start() ;
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            /*
+            addParamToUrl(urlParamsTab, "callerNumber", callerNumber );
+             // */
+            url = urlParamsTab[0];
+
+            _logger.log("info", "MAIN - (testGotRequest) (getApisSettings) REST url : ", url);
+            let headers = rainbowSDK._core._rest.getRequestHeader();
+
+            let nbTryBeforeFailed:number = 0, timeBetweenRetry :number=1000;
+            let res = await rainbowSDK._core._http.get(url, headers, undefined,"",  nbTryBeforeFailed, timeBetweenRetry).then((json) => {
+                _logger.log("info", "MAIN - (testGotRequest) (getApisSettings) successfull");
+                _logger.log("info", "MAIN - (testGotRequest) (getApisSettings) REST result : ", json);
+                return (json?.data);
+            }).catch(function (err) {
+                _logger.log("error", "MAIN - (testGotRequest) (getApisSettings) error");
+                _logger.log("error", "MAIN - (testGotRequest) (getApisSettings) error : ", err);
+                return (err);
+            });
+            _logger.log("info", "MAIN - (testGotRequest) - res : ", _logger.stripStringForLogs(res));
+            nock.cleanAll();
+            nock.restore();
         }
 
         async test5Start() {

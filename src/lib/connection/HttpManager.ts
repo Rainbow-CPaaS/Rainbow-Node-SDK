@@ -134,7 +134,7 @@ class HttpManager extends LevelLogs{
         return new Promise(function (resolve, reject) {
             try {
                 that._core = _core;
-                that.limiter = new RequestRateLimiter({
+                that.limiter = new RequestRateLimiter(that._eventEmitter, {
                     backoffTime: 10,
                     requestRate: _options.requestsRate.maxReqByIntervalForRequestRate,
                     interval: _options.requestsRate.intervalForRequestRate, // Seconds
