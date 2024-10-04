@@ -3966,8 +3966,8 @@ safeJsonParse(str) {
                             //     //return retryObject;
                             //     return 1000;
                             // },
-                            //calculateDelay: ({computedValue}) => computedValue,
-                            calculateDelay:  ({computedValue}) => {
+                            calculateDelay: ({computedValue}) => computedValue,
+                            /*calculateDelay:  ({computedValue}) => {
                                 let noise = 100;
                                 //let computedValueCalculated = ((2 ** (attemptCount - 1)) * 1000) + noise;
                                 let shouldBeRun = (nbRetryBeforeFailed - attemptCount)> 1 ? 1 : 0;
@@ -3975,7 +3975,7 @@ safeJsonParse(str) {
                                 attemptCount++;
                                 that._logger.warn("warn", LOG_ID + "(get) (calculateDelay) retry HTTP GET, nbRetryBeforeFailed : ", nbRetryBeforeFailed, ",attemptCount : ", attemptCount, ", timeBetweenRetry : ", timeBetweenRetry, "ms , computedValue : ", computedValue,", computedValueCalculated : ", computedValueCalculated);
                                 return computedValueCalculated;
-                            },
+                            }, // */
                             methods: [
                                 'GET',
                                 'PUT',
@@ -4345,8 +4345,8 @@ safeJsonParse(str) {
                             //     //return retryObject;
                             //     return 1000;
                             // },
-                            //calculateDelay: ({computedValue}) => computedValue,
-                            calculateDelay:  ({computedValue}) => {
+                            calculateDelay: ({computedValue}) => computedValue,
+                            /* calculateDelay:  ({computedValue}) => {
                                 let noise = 100;
                                 //let computedValueCalculated = ((2 ** (attemptCount - 1)) * 1000) + noise;
                                 let shouldBeRun = (nbRetryBeforeFailed - attemptCount)> 1 ? 1 : 0;
@@ -4354,7 +4354,7 @@ safeJsonParse(str) {
                                 attemptCount++;
                                 that._logger.warn("warn", LOG_ID + "(get) (calculateDelay) retry HTTP GET, nbRetryBeforeFailed : ", nbRetryBeforeFailed, ",attemptCount : ", attemptCount, ", timeBetweenRetry : ", timeBetweenRetry, "ms , computedValue : ", computedValue,", computedValueCalculated : ", computedValueCalculated);
                                 return computedValueCalculated;
-                            },
+                            }, // */
                             methods: [
                                 'GET',
                                 'PUT',
