@@ -1,4 +1,4 @@
-// Jenkinsfile-sts file for the production of sts delivery version with the jenkins job : "CPaaS-SDK-Node-SDK-sts"
+// Jenkinsfile file for the production of STS/LTS delivery version with the jenkins job : "rainbow-cpaas/node-sdk-projects/Rainbow-Node-SDK"
 
 @Library('rainbow-shared-library') _
 //@Library('rainbow-shared-library@hubSearchIndex') _
@@ -18,7 +18,7 @@ pipeline {
     agent {
         label {
                   label "docker-slave-cpaas-bullseye"
-                  customWorkspace "/home/jenkins/workspace/SDK-Node-SDK-sts_delivery"
+                  customWorkspace "/home/jenkins/workspace/SDK-Node-SDK-${env.BRANCH_NAME}"
         }        
     }
     options {
@@ -32,13 +32,13 @@ pipeline {
     }
     
     parameters {
-        string(name: 'RAINBOWNODESDKVERSION', defaultValue: '1.87.0-test.16', description: 'What is the version of the STS SDK to build?')
-        booleanParam(name: 'SENDEMAIL', defaultValue: false, description: 'Send email after of the sts SDK built?')
+        string(name: 'RAINBOWNODESDKVERSION', defaultValue: '2.0.0-lts.0', description: 'What is the version of the STS/LTS SDK to build?')
+        booleanParam(name: 'SENDEMAIL', defaultValue: false, description: 'Send email after of the STS/LTS SDK built?')
         booleanParam(name: 'SENDEMAILTOVBERDER', defaultValue: false, description: 'Send email after of the lts SDK built to vincent.berder@al-enterprise.com only ?')
-        booleanParam(name: 'DEBUGINTERNAL', defaultValue: true, description: 'Should this STS version be compiled with internal debug ?')
+        booleanParam(name: 'DEBUGINTERNAL', defaultValue: true, description: 'Should this STS/LTS version be compiled with internal debug ?')
         booleanParam(name: 'LTSBETA', defaultValue: false, description: 'Should this STS version be also an LTS BETA Version ?')
-        booleanParam(name: 'PUBLISHONNPMJSWITHSTSTAG', defaultValue: false, description: 'Publish this STS version to npmjs with the tag \"sts\" else with \".net\" tag ?')
-        booleanParam(name: 'PUBLISHTONPMANDSETTAGINGIT', defaultValue: true, description: 'Publish the sts SDK built to npmjs and save the tag/branch to GIT.')
+        booleanParam(name: 'PUBLISHONNPMJSWITHSTSTAG', defaultValue: false, description: 'Publish this STS/LTS version to npmjs with the tag \"sts\" else with \".net\" tag ?')
+        booleanParam(name: 'PUBLISHTONPMANDSETTAGINGIT', defaultValue: true, description: 'Publish the sts SDK/LTS built to npmjs and save the tag/branch to GIT.')
         //string(name: 'PERSON', defaultValue: 'Mr Jenkins', description: 'Who should I say hello to?')
         //text(name: 'BIOGRAPHY', defaultValue: '', description: 'Enter some information about the person')
         //booleanParam(name: 'TOGGLE', defaultValue: true, description: 'Toggle this value')
@@ -64,22 +64,33 @@ pipeline {
                  //} 
                         
                  when {
-                    allOf {
-                        branch "STSDelivery"; 
-                        triggeredBy 'user'
-                    }
-                 }
+                      anyOf {
+                        allOf {
+                            branch "STSDelivery";
+                            triggeredBy 'user'
+                        }
+                        allOf {
+                            branch "LTSDelivery";
+                            triggeredBy 'user'
+                        }
+                      }
                  steps {
-                    echo "Parameters to build the Rainbow-Node-SDK : ${params.RAINBOWNODESDKVERSION} ! with send email : ${params.SENDEMAIL} and is LTSBETA : ${params.LTSBETA}"
+                    echo "Parameters to build from branch ${env.BRANCH_NAME} the Rainbow-Node-SDK : ${params.RAINBOWNODESDKVERSION} ! with send email : ${params.SENDEMAIL} and is LTSBETA : ${params.LTSBETA}"
                     sh 'echo "Service user is $MJAPIKEY_USR , password is $MJAPIKEY_PSW"'
                  }
             }
             stage('Checkout') {
                 when {
-                    allOf {
-                        branch "STSDelivery"; 
-                        triggeredBy 'user'
-                    }
+                      anyOf {
+                        allOf {
+                            branch "STSDelivery";
+                            triggeredBy 'user'
+                        }
+                        allOf {
+                            branch "LTSDelivery";
+                            triggeredBy 'user'
+                        }
+                      }
                 }
                 steps{
                     echo "Clean ${env.workspace} customWorkspace before build"
@@ -146,8 +157,16 @@ pipeline {
 // */
             stage('WhenJenkinsfileChanged') {
                 when {
+                      anyOf {
                     allOf {
-                        branch "STSDelivery"; 
+                        branch "STSDelivery";
+                        //triggeredBy 'UpstreamCause'
+                        //triggeredBy "[[_class:jenkins.branch.BranchIndexingCause, shortDescription:Branch indexing]]"
+                        triggeredBy cause: 'BranchIndexingCause' , detail: "Branch indexing"// cause($class: 'jenkins.branch.BranchIndexingCause')
+                        //triggeredBy cause : 'jenkins.branch.BranchIndexingCause' // cause($class: 'jenkins.branch.BranchIndexingCause')
+                    }
+                    allOf {
+                        branch "LTSDelivery";
                         //triggeredBy 'UpstreamCause'
                         //triggeredBy "[[_class:jenkins.branch.BranchIndexingCause, shortDescription:Branch indexing]]"
                         triggeredBy cause: 'BranchIndexingCause' , detail: "Branch indexing"// cause($class: 'jenkins.branch.BranchIndexingCause')
@@ -204,10 +223,16 @@ pipeline {
 
             stage('Build') {
                 when {
-                    allOf {
-                        branch "STSDelivery"; 
-                        triggeredBy 'user'
-                    }
+                      anyOf {
+                        allOf {
+                            branch "STSDelivery";
+                            triggeredBy 'user'
+                        }
+                        allOf {
+                            branch "LTSDelivery";
+                            triggeredBy 'user'
+                        }
+                      }
                 }
                 steps{
                     echo "Build the sources and doc files of the Rainbow-Node-SDK."
@@ -336,10 +361,16 @@ pipeline {
               
             stage('Build Documentation from Rainbow Node SDK') {
                 when {
-                    allOf {
-                        branch "STSDelivery"; 
-                        triggeredBy 'user'
-                    }
+                      anyOf {
+                        allOf {
+                            branch "STSDelivery";
+                            triggeredBy 'user'
+                        }
+                        allOf {
+                            branch "LTSDelivery";
+                            triggeredBy 'user'
+                        }
+                      }
                 }
                 steps{
                     sh script: """
@@ -358,10 +389,16 @@ pipeline {
               
             stage('Documentation Packaging') {
                 when {
-                    allOf {
-                        branch "STSDelivery"; 
-                        triggeredBy 'user'
-                    }
+                      anyOf {
+                        allOf {
+                            branch "STSDelivery";
+                            triggeredBy 'user'
+                        }
+                        allOf {
+                            branch "LTSDelivery";
+                            triggeredBy 'user'
+                        }
+                      }
                 }
                 steps { 
                     script   {
