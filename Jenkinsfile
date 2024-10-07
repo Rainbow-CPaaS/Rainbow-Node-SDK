@@ -80,7 +80,6 @@ pipeline {
                       anyOf {
                         allOf {
                             branch "STSDelivery";
-                            triggeredBy 'BuildUpstreamCause'
                         }
                         allOf {
                             branch "LTSDelivery";
@@ -109,6 +108,17 @@ pipeline {
                  //}
 
                  when {
+                      anyOf {
+                        allOf {
+                            branch "STSDelivery";
+                        }
+                        allOf {
+                            branch "LTSDelivery";
+                        }
+                     }
+                 }
+
+                 /*when {
                       anyOf {
                         allOf {
                             branch "STSDelivery";
@@ -158,8 +168,16 @@ pipeline {
                             branch "LTSDelivery";
                             triggeredBy 'TimerTrigger'
                         }
+                        allOf {
+                            branch "STSDelivery";
+                            triggeredBy 'BuildUpstreamCause'
+                        }
+                        allOf {
+                            branch "LTSDelivery";
+                            triggeredBy 'BuildUpstreamCause'
+                        }
                       }
-                 }
+                 } // */
                  steps {
                     echo "Parameters to build from branch ${env.BRANCH_NAME} : "
                     echo "Rainbow-Node-SDK : ${params.RAINBOWNODESDKVERSION}"
