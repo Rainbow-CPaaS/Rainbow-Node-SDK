@@ -76,8 +76,15 @@ pipeline {
     }
     stages {
             stage('Init') {
-
                  when {
+                      anyOf {
+                        allOf {
+                            branch "STSDelivery";
+                        }
+                        allOf {
+                            branch "LTSDelivery";
+                        }
+                     }
                  }
                  steps {
                         BUILD_TRIGGER_BY = currentBuild.getBuildCauses()[0].shortDescription + " / " + currentBuild.getBuildCauses()[0].userId
