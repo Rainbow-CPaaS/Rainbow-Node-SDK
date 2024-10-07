@@ -97,11 +97,19 @@ pipeline {
                         }
                         allOf {
                             branch "STSDelivery";
+                            triggeredBy 'scm'
+                        }
+                        allOf {
+                            branch "LTSDelivery";
+                            triggeredBy 'user'
+                        }
+                        allOf {
+                            branch "STSDelivery";
                             triggeredBy 'timer'
                         }
                         allOf {
                             branch "LTSDelivery";
-                            triggeredBy 'timer'
+                            triggeredBy 'scm'
                         }
                       }
                  }
