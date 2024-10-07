@@ -74,6 +74,7 @@ pipeline {
                             triggeredBy 'user'
                         }
                       }
+                 }
                  steps {
                     echo "Parameters to build from branch ${env.BRANCH_NAME} the Rainbow-Node-SDK : ${params.RAINBOWNODESDKVERSION} ! with send email : ${params.SENDEMAIL} and is LTSBETA : ${params.LTSBETA}"
                     sh 'echo "Service user is $MJAPIKEY_USR , password is $MJAPIKEY_PSW"'
