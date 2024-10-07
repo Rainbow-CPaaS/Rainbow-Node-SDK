@@ -14,6 +14,26 @@ Map defaults = [
 
 def DOC_PATH = ''
 
+def getReleaseName(upper) {
+    println "getReleaseName - upper : " + upper;
+    if ( "${env.BRANCH_NAME}" == "STSDelivery" && upper)  {
+        echo "getReleaseName() will return STS"
+        return "STS";
+    }
+    if ( "${env.BRANCH_NAME}" == "STSDelivery" && !upper)  {
+        echo "getReleaseName() will return sts"
+        return "sts";
+    }
+    if ( "${env.BRANCH_NAME}" == "LTSDelivery" && upper)  {
+        echo "getReleaseName() will return LTS"
+        return "LTS";
+    }
+    if ( "${env.BRANCH_NAME}" == "LTSDelivery" && !upper)  {
+        echo "getReleaseName() will return lts"
+        return "lts";
+    }
+}
+
 pipeline {
     agent {
         label {
@@ -46,6 +66,8 @@ pipeline {
         //password(name: 'PASSWORD', defaultValue: 'SECRET', description: 'Enter a password')
     }
      environment {
+                RELEASENAMEUPPERNAME = getReleaseName(true) // 'Name of the release in UPPPERCASE.')
+                RELEASENAMELOWERNAME = getReleaseName(false) // 'Name of the release in LOWERCASE.')
                 MJAPIKEY = credentials('2f8c39d0-35d5-4b67-a68a-f60aaa7084ad') // 6f119214480245deed79c5a45c59bae6/****** (MailJet API Key to post emails)
                 NPMJSAUTH = credentials('6ba55a5f-c0fa-41c3-b5dd-0c0f62ee22b5') // npmjs /****** (npmjs auth token to publish vberder)
                 GITLABVBERDER = credentials('b04ca5f5-3666-431d-aaf4-c6c239121510') // gitlab credential of vincent berder.
@@ -72,6 +94,14 @@ pipeline {
                         allOf {
                             branch "LTSDelivery";
                             triggeredBy 'user'
+                        }
+                        allOf {
+                            branch "STSDelivery";
+                            triggeredBy 'timer'
+                        }
+                        allOf {
+                            branch "LTSDelivery";
+                            triggeredBy 'timer'
                         }
                       }
                  }
