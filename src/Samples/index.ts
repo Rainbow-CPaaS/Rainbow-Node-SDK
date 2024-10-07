@@ -23,6 +23,7 @@ import {
     isString,
     findAllPropInJSONByPropertyNameByXmlNS, findAllPropInJSONByPropertyName, getTextFromJSONProperty
 } from "../lib/common/Utils";
+import {XMPPUTils} from "../lib/common/XMPPUtils";
 import {TimeOutManager} from "../lib/common/TimeOutManager";
 import set = Reflect.set;
 import {url} from "inspector";
@@ -43,7 +44,7 @@ import {Server as MockServer, WebSocket as WS} from 'mock-socket';
 import {v4 as uuidv4} from 'uuid';
 
 const xml = require("@xmpp/xml");
-
+const xmppUtils = XMPPUTils.getXMPPUtils();
 import moment from 'moment';
 //const moment = global.get('moment');
 import serialize from 'safe-stable-stringify' ;
@@ -56,6 +57,9 @@ const prettydata = require("../lib/connection/pretty-data").pd;
 import mime from 'mime';
 
 import * as nock from 'nock'
+
+import * as ini from 'ini';
+//const ini = require('ini')
 
 //const MockServer = require("mock-socket").Server;
 //const WS = require("mock-socket").WebSocket;
@@ -10066,6 +10070,51 @@ let urlS2S;
             _logger.log("info", "MAIN - (testGotRequest) - res : ", _logger.stripStringForLogs(res));
             nock.cleanAll();
             nock.restore();
+        }
+
+        async testUserAppDataPath() {
+            let userAPPDATAPath = process.env.APPDATA || (process.platform == 'darwin' ? process.env.HOME + '/Library/Preferences' : process.env.HOME + "/.local/share") ;
+            _logger.log("debug", "MAIN - (testUserAppDataPath) - userAPPDATAPath : ", userAPPDATAPath, ", process.env.HOME : ", process.env.HOME);
+
+            function loadConfigFromIniFile(userHomePath) {
+                let config :any = {};
+                try {
+                    let readResult = fs.readFileSync(userHomePath + '/config.ini', 'utf-8');
+                        config = ini.parse(readResult);
+                        _logger.log("debug", "MAIN - (testUserAppDataPath) loadConfigFromIniFile - config : ", config, ", config.XMPP.xmppRessourceName : ", config?.XMPP?.xmppRessourceName);
+                } catch (err) {
+                    _logger.log("warn", "MAIN - (testUserAppDataPath) loadConfigFromIniFile - err : ", err);
+                    if (err.code === 'ENOENT') {
+                        let generatedRandomId = xmppUtils.generateRandomID();
+                        config["xmppRessourceName"] = generatedRandomId;
+                        fs.writeFileSync(userHomePath + '/config.ini', ini.stringify(config, {section: 'XMPP'}));
+                    }
+                }
+                return config;
+            }
+
+            try {
+                if (userAPPDATAPath) {
+                    userAPPDATAPath += "/Rainbow/RainbowNodeSdkDir";
+                    _logger.log("debug", "MAIN - (testUserAppDataPath) - userAPPDATAPath : ", userAPPDATAPath);
+                    if (!fs.existsSync(userAPPDATAPath)) {
+                        _logger.log("debug", "MAIN - (testUserAppDataPath) - does not exists and can not be created, so can do the treatment.");
+                        if (fs.mkdirSync(userAPPDATAPath, {recursive: true})) {
+                            _logger.log("debug", "MAIN - (testUserAppDataPath) - mkdirSync succeed, so can do the treatment.");
+                            loadConfigFromIniFile(userAPPDATAPath);
+                        } else {
+                            _logger.log("error", "MAIN - (testUserAppDataPath) - mkdirSync failed and can not be created, so can do the treatment.");
+                        }
+                    } else {
+                        _logger.log("debug", "MAIN - (testUserAppDataPath) - exists, so can do the treatment.");
+                        loadConfigFromIniFile(userAPPDATAPath);
+                    }
+                } else {
+
+                }
+            } catch (err) {
+                if (err.code !== 'EEXIST') throw err
+            }
         }
 
         async test5Start() {

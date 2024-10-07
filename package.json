@@ -113,6 +113,7 @@
     "highland": "^2.13.5",
     "https-proxy-agent": "7.0.2",
     "humanize-number": "0.0.2",
+    "ini": "^5.0.0",
     "inquirer": "9.2.12",
     "jimp": "^0.22.10",
     "jsdoc-x": "^4.1.0",

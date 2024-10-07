@@ -16,6 +16,9 @@ const utilTypes = require('util').types
 const xml2js = require('xml2js');
 const util = require("util");
 
+const fs = require('fs');
+const ini = require('ini');
+
 let makeId = (n) => {
   let text = "";
   let possible = "abcdefghijklmnopqrstuvwxyz0123456789";
@@ -961,6 +964,58 @@ function formattStringOnNbChars(variableString, nbChars = 50) {
     return formattedString;
 }
 
+function loadConfigFromIniFile() {
+    let config :any = {"RAINBOWSDKNODE":{}};
+    try {
+        let userAPPDATAPath = process.env.APPDATA || (process.platform == 'darwin' ? process.env.HOME + '/Library/Preferences' : process.env.HOME + "/.local/share") ;
+
+        try {
+            if (userAPPDATAPath) {
+                userAPPDATAPath += "/Rainbow/RainbowNodeSdkDir";
+                if (!fs.existsSync(userAPPDATAPath)) {
+                    if (fs.mkdirSync(userAPPDATAPath, {recursive: true})) {
+                    } else {
+                    }
+                } else {
+                }
+            } else {
+
+            }
+        } catch (err) {
+            if (err.code !== 'EEXIST') throw err;
+        }
+
+        let readResult = fs.readFileSync(userAPPDATAPath + '/config.ini', 'utf-8');
+        config = ini.parse(readResult);
+    } catch (err) {
+    }
+    return config?.RAINBOWSDKNODE;
+}
+
+function saveConfigFromIniFile(config: any) {
+    try {
+        let userAPPDATAPath = process.env.APPDATA || (process.platform == 'darwin' ? process.env.HOME + '/Library/Preferences' : process.env.HOME + "/.local/share") ;
+
+        try {
+            if (userAPPDATAPath) {
+                userAPPDATAPath += "/Rainbow/RainbowNodeSdkDir";
+                if (!fs.existsSync(userAPPDATAPath)) {
+                    if (fs.mkdirSync(userAPPDATAPath, {recursive: true})) {
+                        fs.writeFileSync(userAPPDATAPath + '/config.ini', ini.stringify(config, {section: 'RAINBOWSDKNODE'}));
+                    } else {
+                    }
+                } else {
+                    fs.writeFileSync(userAPPDATAPath + '/config.ini', ini.stringify(config, {section: 'RAINBOWSDKNODE'}));
+                }
+            } else {
+            }
+        } catch (err) {
+            if (err.code !== 'EEXIST') throw err
+        }
+    } catch (err) {
+    }
+}
+
 export let objToExport = {
     makeId,
     createPassword,
@@ -1009,6 +1064,8 @@ export let objToExport = {
     msToTime,
     flattenObject,
     formattStringOnNbChars,
+    loadConfigFromIniFile,
+    saveConfigFromIniFile,
     safeJsonParse
 };
 
@@ -1061,6 +1118,8 @@ export {
     msToTime,
     flattenObject,
     formattStringOnNbChars,
+    loadConfigFromIniFile,
+    saveConfigFromIniFile,
     safeJsonParse
 };
 
@@ -1112,5 +1171,7 @@ export default {
     msToTime,
     flattenObject,
     formattStringOnNbChars,
+    loadConfigFromIniFile,
+    saveConfigFromIniFile,
     safeJsonParse
 };

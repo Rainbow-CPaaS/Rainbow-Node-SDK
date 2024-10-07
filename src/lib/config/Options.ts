@@ -6,7 +6,10 @@ export {};
 
 //const config = require("./config");
 import {config, DataStoreType} from "./config";
-import {isDefined} from "../common/Utils.js";
+import {isDefined, loadConfigFromIniFile, saveConfigFromIniFile} from "../common/Utils.js";
+import {XMPPUTils} from "../common/XMPPUtils";
+
+const xmppUtils = XMPPUTils.getXMPPUtils();
 
 const LOG_ID = "OPTIONS - ";
 
@@ -33,7 +36,8 @@ class Options {
     private _concurrentRequests: number;
     private _intervalBetweenCleanMemoryCache: number;
     private _requestsRate: any;
-    
+    private _configIniData: any;
+
     constructor(_options: any, _logger: Logger) {
         this._logger = _logger;
         this._options = _options;
@@ -47,9 +51,11 @@ class Options {
         this._autoReconnectIgnoreErrors = false;
         this._httpoverxmppserver = false;
         this._intervalBetweenCleanMemoryCache = 1000 * 60 * 60 * 6; // Every 6 hours
+        this._configIniData = {};
     }
 
     parse() {
+        this._configIniData = loadConfigFromIniFile();
         if (!this._options) {
             this._logger.log("error", LOG_ID + "(constructor) No 'options' parameter. Can't sign-in. Check the documentation to configure it");
             this._hasCredentials = false;
@@ -101,6 +107,7 @@ class Options {
         this._intervalBetweenCleanMemoryCache = this._getintervalBetweenCleanMemoryCache();
         //this._concurrentRequests = this._getConcurrentRequestsOption();
         this._requestsRate = this._getRequestsRateOption();
+        saveConfigFromIniFile(this._configIniData);
     }
 
     get testOutdatedVersion(): boolean {
@@ -328,6 +335,13 @@ class Options {
             }
             if (this._options.xmpp.xmppRessourceName) {
                 xmppOptions.xmppRessourceName = this._options.xmpp.xmppRessourceName;
+            }
+            if (this._configIniData.xmppRessourceName) {
+                xmppOptions.xmppRessourceName = this._configIniData.xmppRessourceName;
+            }
+            if (!xmppOptions.xmppRessourceName) {
+                xmppOptions.xmppRessourceName = xmppUtils.generateRandomID();
+                this._configIniData.xmppRessourceName = xmppOptions.xmppRessourceName;
             }
             if (this._options.xmpp.raiseLowLevelXmppOutReq) {
                 xmppOptions.raiseLowLevelXmppOutReq = this._options.xmpp.raiseLowLevelXmppOutReq;
