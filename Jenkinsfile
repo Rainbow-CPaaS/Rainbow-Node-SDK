@@ -75,6 +75,15 @@ pipeline {
                 APP = credentials('25181a6c-2586-477d-9b95-0a1cc456c831') // (Rainbow Official Vberder AppId).
     }
     stages {
+            stage('Init') {
+
+                 when {
+                 }
+                 steps {
+                        BUILD_TRIGGER_BY = currentBuild.getBuildCauses()[0].shortDescription + " / " + currentBuild.getBuildCauses()[0].userId
+                        echo "${BUILD_TRIGGER_BY}"
+                 }
+            }
             stage('Show for parameters') {
                  //input {
                  //  message "parameters?"
@@ -83,8 +92,8 @@ pipeline {
                  //        string(name: 'RAINBOWNODESDKVERSION', defaultValue: '1.87.0', description: 'What is the version of the STS SDK to build?')
                  //        booleanParam(name: 'SENDEMAIL', defaultValue: false, description: 'Send email after of the STS SDK built?')
                  //    }
-                 //} 
-                        
+                 //}
+
                  when {
                       anyOf {
                         allOf {
