@@ -80,6 +80,7 @@ pipeline {
                       anyOf {
                         allOf {
                             branch "STSDelivery";
+                            triggeredBy 'BuildUpstreamCause'
                         }
                         allOf {
                             branch "LTSDelivery";
@@ -88,11 +89,13 @@ pipeline {
                  }
                  steps {
                     script {
-                        //BUILD_TRIGGER_BY = currentBuild.getBuildCauses()[0].shortDescription + " / " + currentBuild.getBuildCauses()[0].userId
+                        BUILD_TRIGGER_BY = currentBuild.getBuildCauses()[0].shortDescription + " / " + currentBuild.getBuildCauses()[1].shortDescription
                         //BUILD_TRIGGER_BY = currentBuild.getBuildCauses()[0]
-                        BUILD_TRIGGER_BY = currentBuild.getBuildCauses()
+                        //BUILD_TRIGGER_BY = currentBuild.getBuildCauses()
+                        CAUSE = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')
                     }
                     echo "BUILD_TRIGGER_BY : ${BUILD_TRIGGER_BY}"
+                    echo "userName: ${CAUSE.userName}"
                  }
             }
             stage('Show for parameters') {
