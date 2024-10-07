@@ -17,19 +17,19 @@ def DOC_PATH = ''
 def getReleaseName(upper) {
     println "getReleaseName - upper : " + upper;
     if ( "${env.BRANCH_NAME}" == "STSDelivery" && upper)  {
-        echo "getReleaseName() will return STS"
+       // echo "getReleaseName() will return STS"
         return "STS";
     }
     if ( "${env.BRANCH_NAME}" == "STSDelivery" && !upper)  {
-        echo "getReleaseName() will return sts"
+        //echo "getReleaseName() will return sts"
         return "sts";
     }
     if ( "${env.BRANCH_NAME}" == "LTSDelivery" && upper)  {
-        echo "getReleaseName() will return LTS"
+        //echo "getReleaseName() will return LTS"
         return "LTS";
     }
     if ( "${env.BRANCH_NAME}" == "LTSDelivery" && !upper)  {
-        echo "getReleaseName() will return lts"
+        //echo "getReleaseName() will return lts"
         return "lts";
     }
 }
