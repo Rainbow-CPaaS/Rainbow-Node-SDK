@@ -106,7 +106,19 @@ pipeline {
                       }
                  }
                  steps {
-                    echo "Parameters to build from branch ${env.BRANCH_NAME} the Rainbow-Node-SDK : ${params.RAINBOWNODESDKVERSION} ! with send email : ${params.SENDEMAIL} and is LTSBETA : ${params.LTSBETA}"
+                    echo "Parameters to build from branch ${env.BRANCH_NAME} : "
+                    echo "Rainbow-Node-SDK : ${params.RAINBOWNODESDKVERSION}"
+                    echo "SENDEMAIL : ${params.SENDEMAIL}"
+                    echo "SENDEMAILTOVBERDER : ${params.SENDEMAILTOVBERDER}"
+                    echo "DEBUGINTERNAL : ${params.DEBUGINTERNAL}"
+                    echo "LTSBETA : ${params.LTSBETA} "
+                    echo "PUBLISHONNPMJSWITHSTSTAG : ${params.PUBLISHONNPMJSWITHSTSTAG} "
+                    echo "PUBLISHTONPMANDSETTAGINGIT : ${params.PUBLISHTONPMANDSETTAGINGIT} "
+
+                    echo "Environment variables to build from branch ${env.BRANCH_NAME} : "
+                    echo "RELEASENAMEUPPERNAME : ${env.RELEASENAMEUPPERNAME}"
+                    echo "RELEASENAMELOWERNAME : ${env.RELEASENAMELOWERNAME}"
+
                     sh 'echo "Service user is $MJAPIKEY_USR , password is $MJAPIKEY_PSW"'
                  }
             }
