@@ -73,7 +73,6 @@ pipeline {
                 GITLABVBERDER = credentials('b04ca5f5-3666-431d-aaf4-c6c239121510') // gitlab credential of vincent berder.
                 VBERDERRB = credentials('5bf46f68-1d87-4091-9aba-c337198503c8') // (vberder - OFFICIAL).
                 APP = credentials('25181a6c-2586-477d-9b95-0a1cc456c831') // (Rainbow Official Vberder AppId).
-                BUILD_TRIGGER_BY = currentBuild.getBuildCauses()[0].shortDescription + " / " + currentBuild.getBuildCauses()[0].userId
     }
     stages {
             stage('Init') {
@@ -88,7 +87,8 @@ pipeline {
                      }
                  }
                  steps {
-                        echo "BUILD_TRIGGER_BY : ${env.BUILD_TRIGGER_BY}"
+                    def BUILD_TRIGGER_BY = currentBuild.getBuildCauses()[0].shortDescription + " / " + currentBuild.getBuildCauses()[0].userId
+                    echo "BUILD_TRIGGER_BY : ${BUILD_TRIGGER_BY}"
                  }
             }
             stage('Show for parameters') {
