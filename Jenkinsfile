@@ -157,20 +157,21 @@ pipeline {
 // */
             stage('WhenJenkinsfileChanged') {
                 when {
-                      anyOf {
-                    allOf {
-                        branch "STSDelivery";
-                        //triggeredBy 'UpstreamCause'
-                        //triggeredBy "[[_class:jenkins.branch.BranchIndexingCause, shortDescription:Branch indexing]]"
-                        triggeredBy cause: 'BranchIndexingCause' , detail: "Branch indexing"// cause($class: 'jenkins.branch.BranchIndexingCause')
-                        //triggeredBy cause : 'jenkins.branch.BranchIndexingCause' // cause($class: 'jenkins.branch.BranchIndexingCause')
-                    }
-                    allOf {
-                        branch "LTSDelivery";
-                        //triggeredBy 'UpstreamCause'
-                        //triggeredBy "[[_class:jenkins.branch.BranchIndexingCause, shortDescription:Branch indexing]]"
-                        triggeredBy cause: 'BranchIndexingCause' , detail: "Branch indexing"// cause($class: 'jenkins.branch.BranchIndexingCause')
-                        //triggeredBy cause : 'jenkins.branch.BranchIndexingCause' // cause($class: 'jenkins.branch.BranchIndexingCause')
+                    anyOf {
+                        allOf {
+                            branch "STSDelivery";
+                            //triggeredBy 'UpstreamCause'
+                            //triggeredBy "[[_class:jenkins.branch.BranchIndexingCause, shortDescription:Branch indexing]]"
+                            triggeredBy cause: 'BranchIndexingCause' , detail: "Branch indexing"// cause($class: 'jenkins.branch.BranchIndexingCause')
+                            //triggeredBy cause : 'jenkins.branch.BranchIndexingCause' // cause($class: 'jenkins.branch.BranchIndexingCause')
+                        }
+                        allOf {
+                            branch "LTSDelivery";
+                            //triggeredBy 'UpstreamCause'
+                            //triggeredBy "[[_class:jenkins.branch.BranchIndexingCause, shortDescription:Branch indexing]]"
+                            triggeredBy cause: 'BranchIndexingCause' , detail: "Branch indexing"// cause($class: 'jenkins.branch.BranchIndexingCause')
+                            //triggeredBy cause : 'jenkins.branch.BranchIndexingCause' // cause($class: 'jenkins.branch.BranchIndexingCause')
+                        }
                     }
                 }
                 steps{
@@ -314,7 +315,7 @@ pipeline {
                         
                         
                     #echo ---------- STEP commit : 
-                    git reset --hard origin/${env.BRANCH_NAME}
+                    git reset --hard "origin/${env.BRANCH_NAME}"
                     npm version "${RAINBOWNODESDKVERSION}"  --allow-same-version
                                                 
                     echo ---------- STEP whoami :
