@@ -66,6 +66,7 @@ pipeline {
         //password(name: 'PASSWORD', defaultValue: 'SECRET', description: 'Enter a password')
     }
      environment {
+                RELEASENAMEENUM = {"STS":"STS", "LTS":"LTS", "sts":"sts", "lts":"lts"} // Enum of possible release name values.
                 RELEASENAMEUPPERNAME = getReleaseName(true) // 'Name of the release in UPPPERCASE.')
                 RELEASENAMELOWERNAME = getReleaseName(false) // 'Name of the release in LOWERCASE.')
                 MJAPIKEY = credentials('2f8c39d0-35d5-4b67-a68a-f60aaa7084ad') // 6f119214480245deed79c5a45c59bae6/****** (MailJet API Key to post emails)
@@ -193,6 +194,20 @@ pipeline {
                     echo "RELEASENAMELOWERNAME : ${env.RELEASENAMELOWERNAME}"
 
                     sh 'echo "Service user is $MJAPIKEY_USR , password is $MJAPIKEY_PSW"'
+
+                    if [ "${RELEASENAMELOWERNAME}" = "${RELEASENAMEENUM}.sts" ]; then
+                        echo "Lower Release Name is ${RELEASENAMEENUM}.sts"
+                    fi
+                    if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM}.STS" ]; then
+                        echo "Release Name is ${RELEASENAMEENUM}.STS"
+                    fi
+                    if [ "${RELEASENAMELOWERNAME}" = "${RELEASENAMEENUM}.lts" ]; then
+                        echo "Release Name is ${RELEASENAMEENUM}.lts"
+                    fi
+                    if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM}.LTS" ]; then
+                        echo "Release Name is ${RELEASENAMEENUM}.LTS"
+                    fi
+
                  }
             }
             stage('Checkout') {
