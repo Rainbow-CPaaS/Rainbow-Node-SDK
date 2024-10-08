@@ -14,11 +14,11 @@ Map defaults = [
 
 def DOC_PATH = ''
 
-enum RELEASENAMEENUM = {
-STS,
-LTS,
-sts,
-lts
+enum RELEASENAMEENUM {
+    STS,
+    LTS,
+    sts,
+    lts
 } // Enum of possible release name values.
 
 def getReleaseName(upper) {
