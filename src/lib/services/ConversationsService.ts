@@ -51,7 +51,8 @@ const API_ID = "API_CALL - ";
  *   - Get all conversations or get a conversation by Id, bubbleID or bubbleJid <br>
  *   - Retrieve all information linked to that conversation, <br>
  * <br>
- *   */
+ *
+ */
 class ConversationsService extends GenericService {
     get conversationHistoryHandler(): ConversationHistoryHandler {
         return this._conversationHistoryHandler;

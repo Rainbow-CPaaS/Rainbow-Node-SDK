@@ -1581,7 +1581,7 @@ class Events {
             /**
              * @event Events#rainbow_on429BackoffError
              * @public
-             * @param { request, error } data The request and the error raised by backoff
+             * @param { request | error } data The request and the error raised by backoff
              * @description
              *      Fired when a request initialy failed and is trying to be retreated by backoff process.
              */

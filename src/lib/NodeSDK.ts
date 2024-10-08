@@ -362,10 +362,13 @@ function unhandledRejection(reason, p) {
  *
  *      Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
  */
+class SDK {
+    constructor() {}
+}
 
 /**
- *
- * @name NodeSDK 
+ * @public
+ * @name NodeSDK
  * @class
  * @description
  * NodeSDK Class
@@ -589,7 +592,6 @@ class NodeSDK {
      *    The token must be empty to signin with credentials.<br>
      *    The SDK is disconnected when the renew of the token had expired (No initial signin possible with out credentials.)<br>
      *    There is a sample using the oauth and sdk at https://github.com/Rainbow-CPaaS/passport-rainbow-oauth2-with-rainbow-node-sdk-example <br>
-     * @memberof NodeSDK
      */
     start(token ? : string) {
         let that = this;
@@ -634,12 +636,11 @@ class NodeSDK {
 
     /**
      * @public
-     * @method start
+     * @method startWSOnly
      * @instance
      * @description
      *    Start the SDK with only XMPP link<br>
-     *    Note :<br>
-     * @memberof NodeSDK
+     *
      */
     startWSOnly(token, userInfos) {
         let that = this;
@@ -686,12 +687,11 @@ class NodeSDK {
     }
 
     /**
-     * @private
+     * @public
      * @method startCLI
      * @instance
      * @description
-     *      Start the SDK in CLI mode
-     * @memberof NodeSDK
+     *      Start the SDK in CLI Mode
      */
     startCLI() {
         let that = this;
@@ -714,12 +714,11 @@ class NodeSDK {
     }
 
     /**
-     * @private
+     * @public
      * @method siginCLI
      * @instance
      * @description
-     *      Sign-in in CLI
-     * @memberof NodeSDK
+     *      Sign-in in CLI Mode (without the XMPP link)
      */
     signinCLI() {
         let that = this;
@@ -746,22 +745,21 @@ class NodeSDK {
      * @method setRenewedToken
      * @instance
      * @description
-     *    Set the token renewed externaly of the SDK. This is for oauth authentication.
-     * @memberof NodeSDK
+     *    Set the token renewed externaly of the SDK. This is for oauth authentication.</br>
+     *   Note: An event #rainbow_onusertokenrenewfailed is fired when an oauth token is expired.</br>
+     *      The application must refresh the token and send it back to SDK with `setRenewedToken` API.
      */
     setRenewedToken(strToken) {
         let that = this;
         return that._core.setRenewedToken(strToken);
     }
-    
-    
+
     /**
      * @public
      * @method stop
      * @instance
      * @description
      *    Stop the SDK
-     * @memberof NodeSDK
      */
     stop() {
         let that = this;
