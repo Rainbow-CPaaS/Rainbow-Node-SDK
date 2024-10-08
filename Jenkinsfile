@@ -201,18 +201,20 @@ pipeline {
 
                     sh 'echo "Service user is $MJAPIKEY_USR , password is $MJAPIKEY_PSW"'
 
-                    if [ "${RELEASENAMELOWERNAME}" = "${RELEASENAMEENUM}.sts" ]; then
-                        echo "Lower Release Name is ${RELEASENAMEENUM}.sts"
-                    fi
-                    if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM}.STS" ]; then
-                        echo "Release Name is ${RELEASENAMEENUM}.STS"
-                    fi
-                    if [ "${RELEASENAMELOWERNAME}" = "${RELEASENAMEENUM}.lts" ]; then
-                        echo "Release Name is ${RELEASENAMEENUM}.lts"
-                    fi
-                    if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM}.LTS" ]; then
-                        echo "Release Name is ${RELEASENAMEENUM}.LTS"
-                    fi
+                    sh script: """
+                        if [ "${RELEASENAMELOWERNAME}" = "${RELEASENAMEENUM}.sts" ]; then
+                            echo "Lower Release Name is ${RELEASENAMEENUM}.sts"
+                        fi
+                        if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM}.STS" ]; then
+                            echo "Release Name is ${RELEASENAMEENUM}.STS"
+                        fi
+                        if [ "${RELEASENAMELOWERNAME}" = "${RELEASENAMEENUM}.lts" ]; then
+                            echo "Release Name is ${RELEASENAMEENUM}.lts"
+                        fi
+                        if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM}.LTS" ]; then
+                            echo "Release Name is ${RELEASENAMEENUM}.LTS"
+                        fi
+                    """
 
                  }
             }
