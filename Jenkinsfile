@@ -14,6 +14,13 @@ Map defaults = [
 
 def DOC_PATH = ''
 
+enum RELEASENAMEENUM = {
+STS,
+LTS,
+sts,
+lts
+} // Enum of possible release name values.
+
 def getReleaseName(upper) {
     println "getReleaseName - upper : " + upper;
     if ( "${env.BRANCH_NAME}" == "STSDelivery" && upper)  {
@@ -66,7 +73,6 @@ pipeline {
         //password(name: 'PASSWORD', defaultValue: 'SECRET', description: 'Enter a password')
     }
      environment {
-                RELEASENAMEENUM = {"STS":"STS", "LTS":"LTS", "sts":"sts", "lts":"lts"} // Enum of possible release name values.
                 RELEASENAMEUPPERNAME = getReleaseName(true) // 'Name of the release in UPPPERCASE.')
                 RELEASENAMELOWERNAME = getReleaseName(false) // 'Name of the release in LOWERCASE.')
                 MJAPIKEY = credentials('2f8c39d0-35d5-4b67-a68a-f60aaa7084ad') // 6f119214480245deed79c5a45c59bae6/****** (MailJet API Key to post emails)
