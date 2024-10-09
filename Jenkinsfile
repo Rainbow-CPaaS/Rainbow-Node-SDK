@@ -400,7 +400,13 @@ pipeline {
                     #git branch "delivered${RAINBOWNODESDKVERSION}" 
                     #git checkout "delivered${RAINBOWNODESDKVERSION}"
                     #git push  --set-upstream origin "delivered${RAINBOWNODESDKVERSION}"
-                        
+
+                    if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM.LTS}" ]; then
+                        ${PUBLISHTONPMANDSETTAGINGIT} && git branch "delivered${RAINBOWNODESDKVERSION}"
+                        ${PUBLISHTONPMANDSETTAGINGIT} && git checkout "delivered${RAINBOWNODESDKVERSION}"
+                        ${PUBLISHTONPMANDSETTAGINGIT} && git push  --set-upstream origin "delivered${RAINBOWNODESDKVERSION}"
+                    fi
+
                     #echo "registry=https://10.10.13.10:4873/
                     #//10.10.13.10:4873/:_authToken=\"bqyuhm71xMxSA8+6hA3rdg==\"" >> ~/.npmrc
                         
@@ -446,15 +452,19 @@ pipeline {
                         echo "Build sources with Internal DEBUG removed."
                         echo ---------- STEP grunt : 
                         echo Sub Step 1 : To compil the sources
-                        grunt 
+                        grunt --verbose
                         echo Sub Step 2 : To prepare the sources + doc for package
-                        grunt delivery 
+                        grunt delivery --verbose
                     fi
                         
                         
                         
                     #echo ---------- STEP commit : 
-                    git reset --hard "origin/${env.BRANCH_NAME}"
+                    if [ "${PUBLISHTONPMANDSETTAGINGIT}" = "true" ]; then
+                        git reset --hard "origin/delivered${RAINBOWNODESDKVERSION}"
+                    else
+                        git reset --hard "origin/${env.BRANCH_NAME}"
+                    fi
                     npm version "${RAINBOWNODESDKVERSION}"  --allow-same-version
                                                 
                     echo ---------- STEP whoami :
@@ -470,29 +480,51 @@ pipeline {
 
                     echo ---------- STEP publish :
                     if [ "${PUBLISHTONPMANDSETTAGINGIT}" = "true" ]; then
-                        if [ "${PUBLISHONNPMJSWITHSTSTAG}" = "true" ]; then
-                            echo "Publish on npmjs with tag."
-                            npm publish --tag sts
-                        else
-                            echo "Publish on npmjs with node .net tag."
-                            npm publish --tag .net
+                        if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM.LTS}" ]; then
+                            ${PUBLISHTONPMANDSETTAGINGIT} && npm publish
+                        fi
+                        if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM.STS}" ]; then
+                            if [ "${PUBLISHONNPMJSWITHSTSTAG}" = "true" ]; then
+                                echo "Publish on npmjs with tag."
+                                npm publish --tag sts
+                            else
+                                echo "Publish on npmjs with node .net tag."
+                                npm publish --tag .net
+                            fi
                         fi
                     fi
                         
                     echo ---------- PUSH tags AND files :
-                    ${PUBLISHTONPMANDSETTAGINGIT} && git tag -a ${RAINBOWNODESDKVERSION} -m "${RAINBOWNODESDKVERSION} is a sts version."
-                    ${PUBLISHTONPMANDSETTAGINGIT} && git push  origin HEAD:${env.BRANCH_NAME}
-                    ${PUBLISHTONPMANDSETTAGINGIT} && git push --tags origin HEAD:${env.BRANCH_NAME}
+                    if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM.STS}" ]; then
+                        ${PUBLISHTONPMANDSETTAGINGIT} && git tag -a ${RAINBOWNODESDKVERSION} -m "${RAINBOWNODESDKVERSION} is a ${RELEASENAMELOWERNAME} version."
+                        ${PUBLISHTONPMANDSETTAGINGIT} && git push  origin HEAD:${env.BRANCH_NAME}
+                        ${PUBLISHTONPMANDSETTAGINGIT} && git push --tags origin HEAD:${env.BRANCH_NAME}
+                    fi
+                    if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM.LTS}" ]; then
+                        ${PUBLISHTONPMANDSETTAGINGIT} && git tag -a ${RAINBOWNODESDKVERSION} -m "${RAINBOWNODESDKVERSION} is a ${RELEASENAMELOWERNAME} version."
+                        ${PUBLISHTONPMANDSETTAGINGIT} && git push  origin "HEAD:delivered${RAINBOWNODESDKVERSION}"
+                        ${PUBLISHTONPMANDSETTAGINGIT} && git push --tags origin "HEAD:delivered${RAINBOWNODESDKVERSION}"
+                    fi
 
                     echo ---------- send emails getDebianArtifacts parameters setted :
                     export MJ_APIKEY_PUBLIC="${MJAPIKEY_USR}" 
                     export MJ_APIKEY_PRIVATE="${MJAPIKEY_PSW}"
-                    ${SENDEMAIL} && npm run-script sendmailPreProduction
-                    ${SENDEMAIL} && node mailing/postChangeLogInChannel.js host=official login=${VBERDERRB_USR} password=${VBERDERRB_PSW} appID=${APP_USR} appSecret=${APP_PSW}
+                    if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM.STS}" ]; then
+                        ${SENDEMAIL} && npm run-script sendmailPreProduction
+                        ${SENDEMAIL} && node mailing/postChangeLogInChannel.js host=official login=${VBERDERRB_USR} password=${VBERDERRB_PSW} appID=${APP_USR} appSecret=${APP_PSW}
 
-                    # To send the mailing only to vincent.berder@al-enterprise.com . 
-                    ${SENDEMAILTOVBERDER} && npm run-script sendmailProductionTest
-                    ${SENDEMAILTOVBERDER} && node mailing/postChangeLogInChannel.js host=official login=${VBERDERRB_USR} password=${VBERDERRB_PSW} appID=${APP_USR} appSecret=${APP_PSW}  channelName=RNodeSdkChangeLog 
+                        # To send the mailing only to vincent.berder@al-enterprise.com .
+                        ${SENDEMAILTOVBERDER} && npm run-script sendmailProductionTest
+                        ${SENDEMAILTOVBERDER} && node mailing/postChangeLogInChannel.js host=official login=${VBERDERRB_USR} password=${VBERDERRB_PSW} appID=${APP_USR} appSecret=${APP_PSW}  channelName=RNodeSdkChangeLog
+                    fi
+
+                    if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM.LTS}" ]; then
+                        ${SENDEMAIL} && npm run-script sendmailProduction
+                        ${SENDEMAIL} && node mailing/postChangeLogInChannel.js host=official login=${VBERDERRB_USR} password=${VBERDERRB_PSW} appID=${APP_USR} appSecret=${APP_PSW}
+
+                        # To send the mailing only to vincent.berder@al-enterprise.com .
+                        ${SENDEMAILTOVBERDER} && npm run-script sendmailProductionTest
+                    fi
                         
                     more ~/.npmrc.sav > ~/.npmrc
                 """
@@ -515,12 +547,21 @@ pipeline {
                 steps{
                     sh script: """
                         echo "Build Documentation from Makefile"
-                        make allsts
-                        echo "{ 
-                         \\"lts\\": false,
-                         \\"ltsbeta\\": ${LTSBETA},
-                         \\"sts\\": true
-                        }" > ./doc/sdk/node/sts/version.json
+                        make all${RELEASENAMELOWERNAME}
+                        if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM.STS}" ]; then
+                            echo "{
+                             \\"lts\\": false,
+                             \\"ltsbeta\\": ${LTSBETA},
+                             \\"sts\\": true
+                            }" > ./doc/sdk/node/${RELEASENAMELOWERNAME}/version.json
+                        fi
+                        if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM.LTS}" ]; then
+                            echo "{
+                             \\"lts\\": true,
+                             \\"ltsbeta\\": false,
+                             \\"sts\\": false
+                            }" > ./doc/sdk/node/${RELEASENAMELOWERNAME}/version.json
+                        fi
                     """
                                   
                     //stash includes: 'doc/sdk/node/**/*.*, doc/sdk/node/index.yml, doc/sdk/node/sitemap.yml', name: 'docfiles'
@@ -557,25 +598,25 @@ pipeline {
                                 mkdir -p Documentation
                                 cp -R doc debian Documentation/
                      
-                                echo "update files with doc/sdk/node path which should be doc/sdk/node/sts into the folder Documentation ."
-                                sed "s/otlite-sdk-node-doc/otlite-sdk-node-doc-sts/" debian/control |tee "${workspace}/Documentation/debian/control"      
-                                sed "s/\\/usr\\/share\\/sdkdoc\\/node\\/sitemap.xml/\\/usr\\/share\\/sdkdoc\\/node\\/sts\\/sitemap.xml/" debian/postinst |tee "${workspace}/Documentation/debian/postinst"      
+                                echo "update files with doc/sdk/node path which should be doc/sdk/node/${RELEASENAMELOWERNAME} into the folder Documentation ."
+                                sed "s/otlite-sdk-node-doc/otlite-sdk-node-doc-${RELEASENAMELOWERNAME}/" debian/control |tee "${workspace}/Documentation/debian/control"
+                                sed "s/\\/usr\\/share\\/sdkdoc\\/node\\/sitemap.xml/\\/usr\\/share\\/sdkdoc\\/node\\/${RELEASENAMELOWERNAME}\\/sitemap.xml/" debian/postinst |tee "${workspace}/Documentation/debian/postinst"
                                 # more Documentation/debian/control
-                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "guide/RainbowNodeSDKNews.md"  |tee "Documentation/doc/sdk/node/sts/guides/RainbowNodeSDKNews.md"
-                                # more Documentation/doc/sdk/node/sts/guides/RainbowNodeSDKNews.md
-                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "guide/Answering_chat_message.md" |tee  "Documentation/doc/sdk/node/sts/guides/Answering_chat_message.md"
-                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "guide/Connecting_to_Rainbow_S2S_Mode.md"  |tee "Documentation/doc/sdk/node/sts/guides/Connecting_to_Rainbow_S2S_Mode.md"
-                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "guide/Connecting_to_Rainbow_XMPP_Mode.md"  |tee "Documentation/doc/sdk/node/sts/guides/Connecting_to_Rainbow_XMPP_Mode.md"
-                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "guide/Development_Kit.md"  |tee "Documentation/doc/sdk/node/sts/guides/Development_Kit.md"
-                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "guide/Getting_Started.md"  |tee "Documentation/doc/sdk/node/sts/guides/Getting_Started.md"
-                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "guide/Legals.md"  |tee "Documentation/doc/sdk/node/sts/guides/Legals.md"
-                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "guide/Managing_bubbles.md"  |tee "Documentation/doc/sdk/node/sts/guides/Managing_bubbles.md"
-                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "guide/Managing_conferences.md"  |tee "Documentation/doc/sdk/node/sts/guides/Managing_conferences.md"
-                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "guide/Managing_RPCoverXMPP.md"  |tee "Documentation/doc/sdk/node/sts/guides/Managing_RPCoverXMPP.md"
-                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "build/What_is_new_generated.md"  |tee "Documentation/doc/sdk/node/sts/guides/What_is_new.md"                      
+                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "guide/RainbowNodeSDKNews.md"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/RainbowNodeSDKNews.md"
+                                # more Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/RainbowNodeSDKNews.md
+                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "guide/Answering_chat_message.md" |tee  "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/Answering_chat_message.md"
+                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "guide/Connecting_to_Rainbow_S2S_Mode.md"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/Connecting_to_Rainbow_S2S_Mode.md"
+                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "guide/Connecting_to_Rainbow_XMPP_Mode.md"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/Connecting_to_Rainbow_XMPP_Mode.md"
+                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "guide/Development_Kit.md"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/Development_Kit.md"
+                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "guide/Getting_Started.md"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/Getting_Started.md"
+                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "guide/Legals.md"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/Legals.md"
+                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "guide/Managing_bubbles.md"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/Managing_bubbles.md"
+                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "guide/Managing_conferences.md"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/Managing_conferences.md"
+                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "guide/Managing_RPCoverXMPP.md"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/Managing_RPCoverXMPP.md"
+                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "build/What_is_new_generated.md"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/What_is_new.md"
                                  
-                                sed "s/ref:doc\\/sdk\\/node\\//ref:doc\\/sdk\\/node\\/sts\\//g" "index.yml"  |tee "Documentation/doc/sdk/node/sts/index.yml"                      
-                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "sitemap.xml"  |tee "Documentation/doc/sdk/node/sts/sitemap.xml"                      
+                                sed "s/ref:doc\\/sdk\\/node\\//ref:doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "index.yml"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/index.yml"
+                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "sitemap.xml"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/sitemap.xml"
                                 
 
                                 """
@@ -608,12 +649,12 @@ pipeline {
                                 sh script: """
                                 # cd "${workspace}/Documentation"
                                 sudo npm install npm -g
-                                npm exec -- developers_searchindex --docPath Documentation/doc/sdk/node/sts
+                                npm exec -- developers_searchindex --docPath Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}
                                 # sh "npx developers_searchindex --docPath build/doc/hub"
                                 # ls -la build/doc/hub
                                 """
 
-                                // generateHubV2DocumentationSearchIndex("Documentation/doc/sdk/node/sts", "DocumentationFolder")
+                                // generateHubV2DocumentationSearchIndex("Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}", "DocumentationFolder")
                             } catch (Exception e) {
                                 echo "Failure: ${currentBuild.result}: ${e}"
                             }
