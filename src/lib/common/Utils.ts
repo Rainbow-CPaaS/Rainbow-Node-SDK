@@ -1016,6 +1016,21 @@ function saveConfigFromIniFile(config: any) {
     }
 }
 
+// Function to write the array to a file
+function writeArrayToFile(array:Array<any>, path : string) {
+    const data = array.join('\n'); // Convert array to string with newlines
+    fs.writeFileSync(path, data, 'utf8');
+    //console.log('Array written to file');
+}
+
+// Function to read the array from the file
+function readArrayFromFile(path : string) {
+    const data = fs.readFileSync(path, 'utf8');
+    const array = data.split('\n'); // Convert string back to array
+    //console.log('Array read from file:', array);
+    return array;
+}
+
 export let objToExport = {
     makeId,
     createPassword,
@@ -1066,7 +1081,9 @@ export let objToExport = {
     formattStringOnNbChars,
     loadConfigFromIniFile,
     saveConfigFromIniFile,
-    safeJsonParse
+    safeJsonParse,
+    writeArrayToFile,
+    readArrayFromFile
 };
 
 module.exports = objToExport;
@@ -1120,7 +1137,9 @@ export {
     formattStringOnNbChars,
     loadConfigFromIniFile,
     saveConfigFromIniFile,
-    safeJsonParse
+    safeJsonParse,
+    writeArrayToFile,
+    readArrayFromFile
 };
 
 export default {
@@ -1173,5 +1192,7 @@ export default {
     formattStringOnNbChars,
     loadConfigFromIniFile,
     saveConfigFromIniFile,
-    safeJsonParse
+    safeJsonParse,
+    writeArrayToFile,
+    readArrayFromFile
 };

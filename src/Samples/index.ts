@@ -21,7 +21,11 @@ import {
     flattenObject,
     getJsonFromXML,
     isString,
-    findAllPropInJSONByPropertyNameByXmlNS, findAllPropInJSONByPropertyName, getTextFromJSONProperty
+    findAllPropInJSONByPropertyNameByXmlNS,
+    findAllPropInJSONByPropertyName,
+    getTextFromJSONProperty,
+    writeArrayToFile,
+    readArrayFromFile
 } from "../lib/common/Utils";
 import {XMPPUTils} from "../lib/common/XMPPUtils";
 import {TimeOutManager} from "../lib/common/TimeOutManager";
@@ -111,6 +115,11 @@ import {inspect, toUSVString} from "util";
 
 //const inquirer = require("inquirer");
 import inquirer from "inquirer";
+import inquirerPrompt from 'inquirer-autocomplete-prompt';
+import { search, Separator } from '@inquirer/prompts';
+import figures from '@inquirer/figures'
+import chalk from 'chalk'
+
 import * as util from "util";
 import {Message} from "../lib/common/models/Message.js";
 import {catchError} from "rxjs";
@@ -10807,27 +10816,138 @@ let urlS2S;
         let tests = new Tests();
         let testsFunctions = findTests(tests);
 
+        //testsFunctions.unshift(["testsFunction", "exit", "by", "stop", "start", "help"]);
+
+        testsFunctions.unshift(["testsFunction"]);
+        testsFunctions.unshift(["exit"]);
+        testsFunctions.unshift(["by"]);
+        testsFunctions.unshift(["eval:"]);
+        testsFunctions.unshift(["stop"]);
+        testsFunctions.unshift(["history"]);
+        testsFunctions.unshift(["search"]);
+        testsFunctions.unshift(["start"]);
+        testsFunctions.unshift(["help"]);
+        // */
         _logger.log("info", "MAIN - findTests : ", testsFunctions);
         _logger.log("info", "MAIN - NodeJS process memory : ", v8.getHeapStatistics().heap_size_limit/(1024*1024));
+
+        let questions : any = [
+            {
+                type: "autocomplete",
+                name: "cmd",
+                message: "Command> ",
+                choices: testsFunctions,
+                source: async (input) => {
+                    //console.log("input : ",  util.inspect(input, false, 4, true));
+                    if (!input) {
+                        //console.log("input empty, return empty Array.");
+                        return [];
+                    }
+                    //const filteredCountries = await searchCountries(input)
+                    return testsFunctions.map(testFunction => {
+                        return {
+                            value: `${testFunction}`,
+                            description: `${testFunction} is a a tes function.`
+                        }
+                    });
+                },
+                suggestOnly: true,
+                // default:"start",
+                pageSize:10
+            }
+        ];
+// */
+/*
         let questions = [
             {
                 type: "input",
                 name: "cmd",
                 message: "Command> ",
-                choices: testsFunctions
+                choices: testsFunctions,
             }
         ];
+// */
+
+        let searchQuestion : any =
+            {
+                message: "Search> ",
+                choices: testsFunctions,
+                source: async (input, { signal }) => {
+                    if (!input) {
+                        //console.log("input empty, return empty Array.");
+                        return [];
+                    }
+                    //console.log("input : ",  util.inspect(input, false, 4, true));
+                    //const filteredCountries = await searchCountries(input)
+                    return testsFunctions.filter((functionName) => {
+                        // console.log("filter input : " + input + " in functionName : " + functionName);
+                        return (functionName.indexOf(input) != -1);
+                    } ).map(testFunction => {
+                        return {
+                            //value: testFunction + "()",
+                            value: testFunction,
+                            description: `${testFunction} is a test function.\n`
+                        }
+                    });
+                },
+                pageSize:10,
+                theme:{
+                    icon: {
+                        cursor: figures.pointerSmall
+                    },
+                    style: {
+                        disabled: (text: string) => chalk.dim(`- ${text}`),
+                        searchTerm: (text: string) => chalk.cyan(text),
+                        description: (text: string) => chalk.yellowBright(text)
+                    },
+                    helpMode: 'auto'
+                }
+            }; // */
+
+        let historyFound : Array<any> = loadHistory();
+
+        let historyQuestion : any = [
+            {
+                type: "autocomplete",
+                name: "historyCmd",
+                message: "History> ",
+                choices: historyFound,
+                source: async (input) => {
+                    //console.log("input : ",  util.inspect(input, false, 4, true));
+                    if (!input) {
+                        //console.log("input empty, return empty Array.");
+                        return [];
+                    }
+                    //const filteredCountries = await searchCountries(input)
+                    return historyFound.map(testFunction => {
+                        return {
+                            value: `${testFunction}`,
+                            description: `${testFunction} is a a tes function.`
+                        }
+                    });
+                },
+                suggestOnly: true,
+                // default:"start",
+                pageSize:10
+            }]; // */
+
+        inquirer.registerPrompt('autocomplete', inquirerPrompt);
 
         function enterCmd() {
             _logger.log("info", "MAIN - commandLineInteraction (help, start, stop, by, exit, testsFunction), enter a command to eval : "); //logger.colors.green(JSON.stringify(result)));
-            inquirer.prompt(questions).then(answers => {
-                //console.log(`Hi ${answers.cmd}!`);
-                _logger.log("info", "MAIN - cmd entered : ", answers.cmd); //logger.colors.green(JSON.stringify(result)));
+            //let result = search(searchQuestion).then(answers => {
+            inquirer.prompt(questions).then(async answers => {
+                //console.log(`Hi ${cmd}!`);
+                let cmd = Array.isArray(answers)?answers[0]:answers?.cmd;
+                //let cmd = answers.cmd;
+                _logger.log("info", "MAIN - answers entered : ",  util.inspect(answers, false, 4, true)); //logger.colors.green(JSON.stringify(result)));
+                _logger.log("info", "MAIN - cmd entered : ", cmd); //logger.colors.green(JSON.stringify(result)));
                 try {
-                    switch (answers.cmd) {
+                    switch (cmd) {
                         case "exit":
                         case "by":
                             _logger.log("info", "MAIN - exit."); //logger.colors.green(JSON.stringify(result)));
+                            writeHistory(historyFound);
                             if (rainbowSDK) {
                                 rainbowSDK.stop().then(() => {
                                     process.exit(0);
@@ -10847,30 +10967,53 @@ let urlS2S;
                             enterCmd();
                             break;
                         case "start":
+                            addStringToHistoryMemory(historyFound, cmd);
                             _logger.log("info", "MAIN - run cmd : tests.start()"); //logger.colors.green(JSON.stringify(result)));
                             eval("tests.start()");
                             enterCmd();
                             break;
+                        case "search":
+                            //addStringToHistoryMemory(historyFound, cmd);
+                            _logger.log("info", "MAIN - run cmd : search"); //logger.colors.green(JSON.stringify(result)));
+                            await search(searchQuestion).then(answers => {
+                                _logger.log("info", "MAIN - search : answers : ", _logger.colors.warn(answers)); //logger.colors.green(JSON.stringify(result)));
+                                questions[0].default=answers;
+                            });
+                            enterCmd();
+                            break;
+                        case "history":
+                            _logger.log("info", "MAIN - run cmd : history"); //logger.colors.green(JSON.stringify(result)));
+                            await inquirer.prompt(historyQuestion).then(async answers => {
+                            // await search(historyQuestion).then(answers => {
+                                _logger.log("info", "MAIN - history : answers?.historyCmd : ", _logger.colors.warn(answers?.historyCmd)); //logger.colors.green(JSON.stringify(result)));
+                                questions[0].default=answers?.historyCmd;
+                            });
+                            enterCmd();
+                            break;
                         case "startstop":
+                            //addStringToHistoryMemory(historyFound, cmd);
                             _logger.log("info", "MAIN - run cmd : tests.startstop()"); //logger.colors.green(JSON.stringify(result)));
                             eval("tests.startstop()");
                             enterCmd();
                             break;
                         case "stop":
+                            //addStringToHistoryMemory(historyFound, cmd);
                             _logger.log("info", "MAIN - run cmd : tests.stop()"); //logger.colors.green(JSON.stringify(result)));
                             eval("tests.stop()");
                             enterCmd();
                             break;
                         default:
-                            _logger.log("info", "MAIN - run cmd : ", answers.cmd); //logger.colors.green(JSON.stringify(result)));
-                            if (answers.cmd) {
-                                if (answers.cmd?.indexOf("eval:")===0) {
-                                    let cmdStr = answers.cmd.substring("eval:".length);
-                                    _logger.log("info", "MAIN - run eval cmdStr : ", answers.cmd); //logger.colors.green(JSON.stringify(result)));
+                            questions[0].default=cmd;
+                            addStringToHistoryMemory(historyFound, cmd);
+                            _logger.log("info", "MAIN - run cmd : ", cmd); //logger.colors.green(JSON.stringify(result)));
+                            if (cmd) {
+                                if (cmd?.indexOf("eval:")===0) {
+                                    let cmdStr = cmd.substring("eval:".length);
+                                    _logger.log("info", "MAIN - run eval cmdStr : ", cmd); //logger.colors.green(JSON.stringify(result)));
                                     eval(cmdStr);
                                 } else {
-                                    let cmdStr = (answers.cmd + "").indexOf("tests.")===0 ? answers.cmd:"tests." + answers.cmd
-                                    _logger.log("info", "MAIN - run cmdStr : ", answers.cmd); //logger.colors.green(JSON.stringify(result)));
+                                    let cmdStr = (cmd + "").indexOf("tests.")===0 ? cmd:"tests." + cmd
+                                    _logger.log("info", "MAIN - run cmdStr : ", cmd); //logger.colors.green(JSON.stringify(result)));
                                     eval(cmdStr);
                                 }
                             }
@@ -10878,14 +11021,14 @@ let urlS2S;
                             break;
                     }
                     /*
-                    if (answers.cmd==="by") {
+                    if (cmd==="by") {
                        _logger.log("debug", "MAIN - exit."); //logger.colors.green(JSON.stringify(result)));
                         rainbowSDK.stop().then(() => {
                             process.exit(0);
                         });
                     } else {
-                       _logger.log("debug", "MAIN - run cmd : ", answers.cmd); //logger.colors.green(JSON.stringify(result)));
-                        eval(answers.cmd);
+                       _logger.log("debug", "MAIN - run cmd : ", cmd); //logger.colors.green(JSON.stringify(result)));
+                        eval(cmd);
                         enterCmd();
                     }
                     // */
@@ -10942,7 +11085,7 @@ let urlS2S;
                                     };
                                     list[item.methodName] = item;
                                     // */
-                                    tests.push(property);
+                                    tests.push(property+"()");
                                 }
                             }
                         }
@@ -10983,7 +11126,7 @@ let urlS2S;
                                             };
                                             list[item.methodName] = item;
                                             // */
-                                        tests.push(property);
+                                        tests.push(property+"()");
                                     }
                                 }
                             }
@@ -10997,6 +11140,104 @@ let urlS2S;
         return tests;
     }
 
+    function addStringToHistoryMemory(arr:Array<any>, str) {
+        if (Array.isArray(arr) && !arr.includes(str)) {
+            arr.push(str);
+            //console.log(`Added: ${str}`);
+        } else {
+            //console.log(`String "${str}" already exists in the array.`);
+        }
+    }
+
+    function loadHistory(){
+        let userAPPDATAPath = process.env.APPDATA || (process.platform == 'darwin' ? process.env.HOME + '/Library/Preferences' : process.env.HOME + "/.local/share") ;
+        _logger.log("debug", "MAIN - (loadHistory) - userAPPDATAPath : ", userAPPDATAPath, ", process.env.HOME : ", process.env.HOME);
+        let historyResult = [];
+        function loadHistoryFromFile(userHomePath) {
+            let history :any = [];
+            try {
+                //let readResult = fs.readFileSync(userHomePath + '/history.ini', 'utf-8');
+                //history = ini.parse(readResult);
+                history = readArrayFromFile(userHomePath + '/history.txt')
+                _logger.log("debug", "MAIN - (loadHistory) loadHistoryFromFile - history : ", history);
+            } catch (err) {
+                _logger.log("warn", "MAIN - (loadHistory) loadHistoryFromFile - err : ", err);
+               /* if (err.code === 'ENOENT') {
+                    let generatedRandomId = xmppUtils.generateRandomID();
+                    history["xmppRessourceName"] = generatedRandomId;
+                    fs.writeFileSync(userHomePath + '/history.ini', ini.stringify(history, {section: 'HISTORY'}));
+                }*/
+            }
+            return history;
+        }
+
+        try {
+            if (userAPPDATAPath) {
+                userAPPDATAPath += "/Rainbow/RainbowNodeSdkDir";
+                _logger.log("debug", "MAIN - (loadHistory) - userAPPDATAPath : ", userAPPDATAPath);
+                if (!fs.existsSync(userAPPDATAPath)) {
+                    _logger.log("debug", "MAIN - (loadHistory) - does not exists and can not be created, so can do the treatment.");
+                    if (fs.mkdirSync(userAPPDATAPath, {recursive: true})) {
+                        _logger.log("debug", "MAIN - (loadHistory) - mkdirSync succeed, so can do the treatment.");
+                        historyResult = loadHistoryFromFile(userAPPDATAPath);
+                    } else {
+                        _logger.log("error", "MAIN - (loadHistory) - mkdirSync failed and can not be created, so can do the treatment.");
+                    }
+                } else {
+                    _logger.log("debug", "MAIN - (loadHistory) - exists, so can do the treatment.");
+                    historyResult = loadHistoryFromFile(userAPPDATAPath);
+                }
+            } else {
+
+            }
+            return historyResult;
+        } catch (err) {
+            if (err.code !== 'EEXIST') throw err
+        }
+    }
+
+    function writeHistory(history){
+        let userAPPDATAPath = process.env.APPDATA || (process.platform == 'darwin' ? process.env.HOME + '/Library/Preferences' : process.env.HOME + "/.local/share") ;
+        _logger.log("debug", "MAIN - (writeHistory) - userAPPDATAPath : ", userAPPDATAPath, ", process.env.HOME : ", process.env.HOME);
+        function writeHistoryInFile(userHomePath : any) {
+            try {
+                writeArrayToFile(history, userHomePath + '/history.txt');
+                _logger.log("debug", "MAIN - (writeHistory) writeHistoryInFile - history : ", history);
+            } catch (err) {
+                _logger.log("warn", "MAIN - (writeHistory) writeHistoryInFile - err : ", err);
+               /* if (err.code === 'ENOENT') {
+                    let generatedRandomId = xmppUtils.generateRandomID();
+                    history["xmppRessourceName"] = generatedRandomId;
+                    fs.writeFileSync(userHomePath + '/history.ini', ini.stringify(history, {section: 'HISTORY'}));
+                }*/
+            }
+            return history;
+        }
+
+        try {
+            if (userAPPDATAPath) {
+                userAPPDATAPath += "/Rainbow/RainbowNodeSdkDir";
+                _logger.log("debug", "MAIN - (writeHistory) - userAPPDATAPath : ", userAPPDATAPath);
+                if (!fs.existsSync(userAPPDATAPath)) {
+                    _logger.log("debug", "MAIN - (writeHistory) - does not exists and can not be created, so can do the treatment.");
+                    if (fs.mkdirSync(userAPPDATAPath, {recursive: true})) {
+                        _logger.log("debug", "MAIN - (writeHistory) - mkdirSync succeed, so can do the treatment.");
+                        writeHistoryInFile(userAPPDATAPath);
+                    } else {
+                        _logger.log("error", "MAIN - (writeHistory) - mkdirSync failed and can not be created, so can do the treatment.");
+                    }
+                } else {
+                    _logger.log("debug", "MAIN - (writeHistory) - exists, so can do the treatment.");
+                    writeHistoryInFile(userAPPDATAPath);
+                }
+            } else {
+
+            }
+        } catch (err) {
+            if (err.code !== 'EEXIST') throw err
+        }
+    }
+    
     commandLineInteraction();
 
 })();
