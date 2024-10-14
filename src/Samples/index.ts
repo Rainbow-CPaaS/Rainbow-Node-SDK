@@ -10818,8 +10818,8 @@ let urlS2S;
 
         //testsFunctions.unshift(["testsFunction", "exit", "by", "stop", "start", "help"]);
 
-        testsFunctions.unshift(["testsFunction"]);
         testsFunctions.unshift(["exit"]);
+        testsFunctions.unshift(["quit"]);
         testsFunctions.unshift(["by"]);
         testsFunctions.unshift(["eval:"]);
         testsFunctions.unshift(["stop"]);
@@ -10853,7 +10853,13 @@ let urlS2S;
                 },
                 suggestOnly: true,
                 // default:"start",
-                pageSize:10
+                pageSize:10,
+                validate: function (val) {
+                    if (!val) {
+                        return 'Please provide a key'
+                    }
+                    return true
+                }
             }
         ];
 // */
@@ -10934,7 +10940,7 @@ let urlS2S;
         inquirer.registerPrompt('autocomplete', inquirerPrompt);
 
         function enterCmd() {
-            _logger.log("info", "MAIN - commandLineInteraction (help, start, stop, by, exit, testsFunction), enter a command to eval : "); //logger.colors.green(JSON.stringify(result)));
+            _logger.log("info", "MAIN - commandLineInteraction (help, start, stop, by, quit, exit, search, history), enter a command to eval : "); //logger.colors.green(JSON.stringify(result)));
             //let result = search(searchQuestion).then(answers => {
             inquirer.prompt(questions).then(async answers => {
                 //console.log(`Hi ${cmd}!`);
@@ -10945,6 +10951,7 @@ let urlS2S;
                 try {
                     switch (cmd) {
                         case "exit":
+                        case "quit":
                         case "by":
                             _logger.log("info", "MAIN - exit."); //logger.colors.green(JSON.stringify(result)));
                             writeHistory(historyFound);
@@ -10970,6 +10977,13 @@ let urlS2S;
                             addStringToHistoryMemory(historyFound, cmd);
                             _logger.log("info", "MAIN - run cmd : tests.start()"); //logger.colors.green(JSON.stringify(result)));
                             eval("tests.start()");
+                            enterCmd();
+                            break;
+                        case "cls":
+                        case "clear":
+                            //addStringToHistoryMemory(historyFound, cmd);
+                            _logger.log("info", "MAIN - run cmd : clear"); //logger.colors.green(JSON.stringify(result)));
+                            console.clear();
                             enterCmd();
                             break;
                         case "search":
