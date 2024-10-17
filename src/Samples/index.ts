@@ -70,6 +70,8 @@ import * as ini from 'ini';
 
 // global.it = () => {return true};
 
+import { readFile } from 'fs/promises';
+
 // @ts-ignore
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) {
@@ -110,7 +112,7 @@ import Bubble_1 from "../lib/common/models/Bubble";
 import * as Utils from "../lib/common/Utils";
 import fs = require("fs");
 //import fileapi from "file-api";
-let fileapi = require('file-api');
+//let fileapi = require('file-api');
 import {inspect, toUSVString} from "util";
 
 //const inquirer = require("inquirer");
@@ -1228,7 +1230,23 @@ let urlS2S;
             // let pathJson = path.join(__dirname,'../node_modules/rainbow-node-sdk/build/JSONDOCS/BubblesService.json');
             console.log("Rainbow pathJson : ", pathJson);
             //const path = require("path");
-            let bubblesServiceDocJSONTab = require(pathJson);
+            //let bubblesServiceDocJSONTab = require(pathJson);
+            let fileStats = fs.statSync(pathJson);
+            let fd = fs.openSync(pathJson, "r+");
+            let sizeToRead = fileStats.size;
+            let buf = Buffer.alloc(sizeToRead);
+            fs.readSync(fd, buf, 0, sizeToRead, null);
+            console.log("(testloadDocJSON) Buffer : ", buf);
+            let bubblesServiceDocJSONTab = JSON.parse(buf.toString());
+            console.log("(testloadDocJSON) JSON(Buffer) - bubblesServiceDocJSONTab : ", bubblesServiceDocJSONTab);
+
+            /* ESM Code
+            let bubblesServiceDocJSONTab = JSON.parse(
+                await readFile(
+                    new URL(pathJson, import.meta.url)
+                )
+            );
+            // */
 
             //console.log("Rainbow BubblesService JSON : ", util.inspect(bubblesServiceDocJSONTab));
             for (let i = 0; i < bubblesServiceDocJSONTab.length; i++) {
@@ -1256,7 +1274,15 @@ let urlS2S;
             let pathJson = path.join(__dirname, '../build/JSONDOCS/NodeSDK.json');
             console.log("Rainbow pathJson : ", pathJson);
             //const path = require("path");
-            let NodeSDKServiceDocJSONTab = require(pathJson);
+            //let NodeSDKServiceDocJSONTab = require(pathJson);
+            let fileStats = fs.statSync(pathJson);
+            let fd = fs.openSync(pathJson, "r+");
+            let sizeToRead = fileStats.size;
+            let buf = Buffer.alloc(sizeToRead);
+            fs.readSync(fd, buf, 0, sizeToRead, null);
+            console.log("(testloadDocJSONServices) Buffer : ", buf);
+            let NodeSDKServiceDocJSONTab = JSON.parse(buf.toString());
+            console.log("(testloadDocJSONServices) JSON(Buffer) - NodeSDKServiceDocJSONTab : ", NodeSDKServiceDocJSONTab);
 
             // console.log("Rainbow BubblesService JSON : ", util.inspect(NodeSDKServiceDocJSONTab));
             // console.log("Rainbow BubblesService JSON : ", util.inspect(NodeSDKServiceDocJSONTab));
@@ -4799,7 +4825,7 @@ let urlS2S;
             let that = this;
             let file = null;
             let strMessage = "message for the file";
-            file = new fileapi.File({
+            file = new FileUpdated({
                 //            path: "c:\\temp\\15777240.jpg",   // path of file to read
                 path: "c:\\temp\\IMG_20131005_173918.jpg",
                 //path: "c:\\temp\\Rainbow_log_test.log",   // path of file to read
