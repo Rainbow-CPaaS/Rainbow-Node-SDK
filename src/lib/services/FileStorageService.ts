@@ -5,7 +5,7 @@ export {};
 
 import {XMPPService} from "../connection/XMPPService";
 import {RESTService} from "../connection/RESTService";
-import * as fileapi from "file-api";
+//import * as fileapi from "file-api";
 import {Observable} from 'rxjs';
 import {FileViewerElementFactory as fileViewerElementFactory} from "../common/models/FileViewer";
 import {FileDescriptor, fileDescriptorFactory} from "../common/models/FileDescriptor";
