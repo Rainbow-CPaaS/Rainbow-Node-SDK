@@ -756,6 +756,19 @@ class NodeSDK {
 
     /**
      * @public
+     * @method setCredentialPassword
+     * @instance
+     * @description
+     *    Set the password credential of the Bot for the login.</br>
+     *    Note: The SDK use this password in the next connection/reconnection.
+     */
+    setCredentialPassword(strPassword) {
+        let that = this;
+        return that._core.setCredentialPassword(strPassword);
+    }
+
+    /**
+     * @public
      * @method stop
      * @instance
      * @description

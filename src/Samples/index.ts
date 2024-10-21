@@ -10414,6 +10414,10 @@ let urlS2S;
             }); // */
         }
 
+        testsetCredentialPassword() {
+            rainbowSDK.setCredentialPassword("Password_123");
+        }
+
         start() {
             rainbowSDK.start(token).then(async (result: any) => {
 //Promise.resolve({}).then(async(result: any) => {
