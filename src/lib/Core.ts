@@ -757,6 +757,12 @@ class Core {
         //return await self.signin(false, strToken);
     }
 
+    async setCredentialPassword (strPassword : string) {
+        let that = this;
+        that._logger.log(that.INFO, LOG_ID +  "(setCredentialPassword) strPassword : ", strPassword);
+        that._rest.setCredentialPassword(strPassword);
+    }
+
     onTokenRenewed() {
         let that = this;
         that.logger.log("info", LOG_ID +  "(onTokenRenewed) token successfully renewed");
