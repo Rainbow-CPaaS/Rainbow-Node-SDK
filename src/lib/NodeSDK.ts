@@ -793,6 +793,25 @@ class NodeSDK {
         });
     }
 
+    /**
+     * @public
+     * @method destroy
+     * @instance
+     * @description
+     *    This method should be called before the bot to point to the SDK's instance to remove listener of "process" object. </br>
+     *    And then avoid the error `MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 11 SIGINT listeners added to [process]. Use emitter.setMaxListeners() to increase limit` when the SDK is instantiated and removed more than
+     *    10 times.
+     *
+     */
+    destroy() {
+        process.removeListener("SIGINT", this.stopProcess());
+        process.removeListener("SIGQUIT", this.stopProcess());
+        process.removeListener("SIGTERM", this.stopProcess());
+        process.removeListener("unhandledRejection", unhandledRejection);
+        process.removeListener("warning", warning);
+        process.removeListener("uncaughtException", uncaughtException);
+    }
+
     stopProcess() {
         let self = this;
         // console.log("stopProcess.");
