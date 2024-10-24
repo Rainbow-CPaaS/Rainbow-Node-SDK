@@ -9,7 +9,7 @@ import {ErrorManager} from "../common/ErrorManager";
 import {Conversation} from "../common/models/Conversation";
 import {Call} from "../common/models/Call";
 import * as moment from 'moment';
-import {Deferred, logEntryExit} from "../common/Utils";
+import {Deferred, isDefined, logEntryExit} from "../common/Utils";
 import * as PubSub from "pubsub-js";
 import {ConversationEventHandler} from "../connection/XMPPServiceHandler/conversationEventHandler";
 import {ConversationHistoryHandler} from "../connection/XMPPServiceHandler/conversationHistoryHandler";
@@ -1821,9 +1821,9 @@ class ConversationsService extends GenericService {
      */
     getConversationByDbId(dbId : string) {
         let that = this;
-        if (that.conversations) {
+        if (that.conversations && isDefined(dbId)) {
             for (let key in that.conversations) {
-                if (that.conversations.hasOwnProperty(key) && that.conversations[key].dbId === dbId) {
+                if (that.conversations.hasOwnProperty(key) && that.conversations[key].dbId === dbId ) {
                     return that.conversations[key];
                 }
             }
