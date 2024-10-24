@@ -113,7 +113,7 @@ module.exports = function(grunt) {
                         result = _.find(docs, { longname: 'Code.ignored' });
                         expect(result).toBeUndefined();
                         // */
-
+/*
                         let sdkPublic = [];
                         let serviceType = "NodeSDK";
                         grunt.log.writeln(">> Will get API Methods names from Service : " + serviceType);
@@ -141,7 +141,7 @@ module.exports = function(grunt) {
                         }
                         grunt.log.writeln(">> sdkPublic : ", sdkPublic) ;
 
-
+// */
                     }).catch(err => {
                         //console.log("error : ",  err.stack);
                         grunt.log.writeln(">> error src : " + fileInputName + " to dest : " + fileDestName, ", error : ", err);

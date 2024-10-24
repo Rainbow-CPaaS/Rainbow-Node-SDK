@@ -4,7 +4,7 @@ declare module 'lib/common/Utils' {
     reject: any;
     promise: any;
     constructor();
-} let isSuperAdmin: (roles: any) => boolean; let anonymizePhoneNumber: (number: any) => any; let equalIgnoreCase: (s1: string, s2: string) => boolean; let isNullOrEmpty: (value: any) => boolean; let isNumber: (data: any) => boolean; let setTimeoutPromised: (timeOutMs: any) => Promise<any>; let pause: (timeOutMs: any) => Promise<any>; function until(conditionFunction: Function, labelOfWaitingCondition: string, waitMsTimeBeforeReject?: number): Promise<unknown>; function doWithinInterval({ promise, timeout, error }: {
+} let isSuperAdmin: (roles: any) => boolean; let anonymizePhoneNumber: (number: any) => any; let equalIgnoreCase: (s1: string, s2: string) => boolean; let isNullOrEmpty: (value: any) => boolean; let isDefined: (value: any) => boolean; let isNumber: (data: any) => boolean; let setTimeoutPromised: (timeOutMs: any) => Promise<any>; let pause: (timeOutMs: any) => Promise<any>; function until(conditionFunction: Function, labelOfWaitingCondition: string, waitMsTimeBeforeReject?: number): Promise<unknown>; function doWithinInterval({ promise, timeout, error }: {
     promise: any;
     timeout: any;
     error: any;
@@ -19,6 +19,7 @@ export let objToExport: {
     anonymizePhoneNumber: (number: any) => any;
     equalIgnoreCase: (s1: string, s2: string) => boolean;
     isNullOrEmpty: (value: any) => boolean;
+    isDefined: (value: any) => boolean;
     isNumber: (data: any) => boolean;
     Deferred: typeof Deferred;
     isSuperAdmin: (roles: any) => boolean;
@@ -46,13 +47,14 @@ export let objToExport: {
     functionSignature: typeof functionSignature;
     traceExecutionTime: typeof traceExecutionTime;
 };
-export { makeId, createPassword, isAdmin, anonymizePhoneNumber, equalIgnoreCase, isNullOrEmpty, isNumber, Deferred, isSuperAdmin, setTimeoutPromised, until, orderByFilter, isStart_upService, isStarted, logEntryExit, resizeImage, getBinaryData, getRandomInt, pause, stackTrace, addDaysToDate, addParamToUrl, cleanEmptyMembersFromObject, resolveDns, isPromise, doWithinInterval, addPropertyToObj, generateRamdomEmail, getJsonFromXML, functionName, functionSignature, traceExecutionTime }; const _default: {
+export { makeId, createPassword, isAdmin, anonymizePhoneNumber, equalIgnoreCase, isNullOrEmpty, isDefined, isNumber, Deferred, isSuperAdmin, setTimeoutPromised, until, orderByFilter, isStart_upService, isStarted, logEntryExit, resizeImage, getBinaryData, getRandomInt, pause, stackTrace, addDaysToDate, addParamToUrl, cleanEmptyMembersFromObject, resolveDns, isPromise, doWithinInterval, addPropertyToObj, generateRamdomEmail, getJsonFromXML, functionName, functionSignature, traceExecutionTime }; const _default: {
     makeId: (n: any) => string;
     createPassword: (size: any) => string;
     isAdmin: (roles: any) => boolean;
     anonymizePhoneNumber: (number: any) => any;
     equalIgnoreCase: (s1: string, s2: string) => boolean;
     isNullOrEmpty: (value: any) => boolean;
+    isDefined: (value: any) => boolean;
     isNumber: (data: any) => boolean;
     Deferred: typeof Deferred;
     isSuperAdmin: (roles: any) => boolean;
@@ -406,6 +408,7 @@ declare module 'lib/common/XMPPUtils' {
      *    A String containing the bare JID.
      */
     getBareJidFromJid(jid: any): any;
+    offendXml(element: any): any;
 }
 export let xu: XMPPUTils;
 
@@ -615,6 +618,7 @@ declare module 'lib/config/config' {
             maxIdleTimer: number;
             maxPingAnswerTimer: number;
             xmppRessourceName: any;
+            maxPendingAsyncLockXmppQueue: number;
         };
         s2s: {
             hostCallback: string;
@@ -640,6 +644,7 @@ declare module 'lib/config/config' {
             maxIdleTimer: number;
             maxPingAnswerTimer: number;
             xmppRessourceName: any;
+            maxPendingAsyncLockXmppQueue: number;
         };
         s2s: {
             hostCallback: string;
@@ -665,6 +670,7 @@ declare module 'lib/config/config' {
             maxIdleTimer: number;
             maxPingAnswerTimer: number;
             xmppRessourceName: any;
+            maxPendingAsyncLockXmppQueue: number;
         };
         s2s: {
             hostCallback: string;
@@ -709,6 +715,7 @@ declare module 'lib/config/config' {
         enableCarbon: boolean;
         enablesendurgentpushmessages: boolean;
         useMessageEditionAndDeletionV2: boolean;
+        storeMessagesInConversation: boolean;
     };
     mode: string;
     concurrentRequests: number;
@@ -842,8 +849,7 @@ export { conf as config, DataStoreType };
 
 }
 declare module 'lib/common/Logger' {
-	/// <reference types="node" />
-export {}; class Logger {
+	export {}; class Logger {
     private enableEncryptedLogs;
     logLevel: string;
     get logEventEmitter(): NodeJS.EventEmitter;
@@ -999,6 +1005,7 @@ export {}; class XmppClient {
     logger: any;
     xmppQueue: any;
     timeBetweenXmppRequests: any;
+    maxPendingAsyncLockXmppQueue: any;
     username: any;
     password: any;
     socketClosed: boolean;
@@ -1016,7 +1023,7 @@ export {}; class XmppClient {
         prom: Deferred;
     }>;
     constructor(...args: any[]);
-    init(_logger: any, _eventemitter: any, _timeBetweenXmppRequests: any, _storeMessages: any, _rateLimitPerHour: any, _messagesDataStore: any, _copyMessage: any, _enablesendurgentpushmessages: any): Promise<void>;
+    init(_logger: any, _eventemitter: any, _timeBetweenXmppRequests: any, _storeMessages: any, _rateLimitPerHour: any, _messagesDataStore: any, _copyMessage: any, _enablesendurgentpushmessages: any, _maxPendingAsyncLockXmppQueue: any): Promise<void>;
     onIqErrorReceived(msg: any, stanza: any): void;
     iqGetEventPing(ctx: any): {};
     iqSetEventRoster(ctx: any): {};
@@ -1572,8 +1579,7 @@ export { Favorite };
 
 }
 declare module 'lib/services/FavoritesService' {
-	/// <reference types="node" />
-import { Logger } from 'lib/common/Logger';
+	import { Logger } from 'lib/common/Logger';
 export {};
 import { Favorite } from 'lib/common/models/Favorite';
 import { EventEmitter } from 'events';
@@ -1953,8 +1959,7 @@ export { createPromiseQueue };
 
 }
 declare module 'lib/services/ProfilesService' {
-	/// <reference types="node" />
-import { GenericService } from 'lib/services/GenericService';
+	import { GenericService } from 'lib/services/GenericService';
 export {};
 import { EventEmitter } from 'events';
 import { Logger } from 'lib/common/Logger'; const FeaturesEnum: {
@@ -2473,8 +2478,7 @@ export { Conference };
 
 }
 declare module 'lib/common/BubblesManager' {
-	/// <reference types="node" />
-import { Bubble } from 'lib/common/models/Bubble';
+	import { Bubble } from 'lib/common/models/Bubble';
 import { Logger } from 'lib/common/Logger';
 import { EventEmitter } from 'events';
 import { Core } from 'lib/Core';
@@ -2641,9 +2645,7 @@ export { FileDescriptorFactory as fileDescriptorFactory, FileDescriptor };
 
 }
 declare module 'lib/services/FileServerService' {
-	/// <reference types="node" />
-/// <reference types="node" />
-import { Observable } from 'rxjs';
+	import { Observable } from 'rxjs';
 export {};
 import { Logger } from 'lib/common/Logger';
 import { EventEmitter } from 'events';
@@ -2815,8 +2817,7 @@ export { FileServer as FileServerService };
 
 }
 declare module 'lib/services/FileStorageService' {
-	/// <reference types="node" />
-export {};
+	export {};
 import { Observable } from 'rxjs';
 import { FileDescriptor } from 'lib/common/models/FileDescriptor';
 import { EventEmitter } from 'events';
@@ -3988,9 +3989,10 @@ export {}; class ConversationEventHandler extends GenericHandler {
     private _bubbleService;
     private _contactsService;
     private _presenceService;
+    private storeMessagesInConversation;
     static getClassName(): string;
     getClassName(): string;
-    constructor(xmppService: XMPPService, conversationService: any, fileStorageService: any, fileServerService: any, bubbleService: any, contactsService: any, presenceService: any);
+    constructor(xmppService: XMPPService, conversationService: any, storeMessagesInConversation: any, fileStorageService: any, fileServerService: any, bubbleService: any, contactsService: any, presenceService: any);
     private createSessionParticipantFromElem;
     parseConferenceV2UpdatedEvent(stanza: any, id: any, node: any): Promise<void>;
     onChatMessageReceived(msg: any, stanza: Element): Promise<void>;
@@ -4053,9 +4055,9 @@ export { shortnameToUnicode };
 
 }
 declare module 'lib/services/ConversationsService' {
-	/// <reference types="node" />
-export {};
+	export {};
 import { Conversation } from 'lib/common/models/Conversation';
+import { ConversationEventHandler } from 'lib/connection/XMPPServiceHandler/conversationEventHandler';
 import { Logger } from 'lib/common/Logger';
 import { EventEmitter } from 'events';
 import { Contact } from 'lib/common/models/Contact';
@@ -4063,6 +4065,7 @@ import { Core } from 'lib/Core';
 import { Message } from 'lib/common/models/Message';
 import { Bubble } from 'lib/common/models/Bubble';
 import { GenericService } from 'lib/services/GenericService'; class ConversationsService extends GenericService {
+    get conversationEventHandler(): ConversationEventHandler;
     private _contactsService;
     private _fileStorageService;
     private _fileServerService;
@@ -4086,6 +4089,7 @@ import { GenericService } from 'lib/services/GenericService'; class Conversation
     private nbMaxConversations;
     private autoLoadConversations;
     private autoLoadConversationHistory;
+    private storeMessagesInConversation;
     get startConfig(): {
         start_up: boolean;
         optional: boolean;
@@ -4755,8 +4759,7 @@ export { ConversationsService as ConversationsService };
 
 }
 declare module 'lib/services/BubblesService' {
-	/// <reference types="node" />
-import { List } from 'ts-generic-collections-linq';
+	import { List } from 'ts-generic-collections-linq';
 import { Bubble } from 'lib/common/models/Bubble';
 import { EventEmitter } from 'events';
 import { Logger } from 'lib/common/Logger';
@@ -5398,13 +5401,19 @@ export {}; class Bubbles extends GenericService {
      *  Create a new bubble <br>
      * @param {string} name  The name of the bubble to create
      * @param {string} description  The description of the bubble to create
-     * @param {boolean} withHistory If true, a newcomer will have the complete messages history since the beginning of the bubble. False if omitted
+     * @param {string } history (optional) Determines the amount of history available to new users. Default is "all". Allowed values: "none", "all", "number".
+     * @param {number} p_number (optional) Number of messages to retrieve when history="number". Default is 0.
+     * @param {string} visibility (optional) Group visibility for search, either "private" or "public". Default is "private".
+     * @param {boolean} disableNotifications (optional) If true, no notifications will be sent. Default is false.
+     * @param {string} autoRegister (optional) Determines behavior for public links. Default is "unlock". Allowed values: "unlock", "lock".
+     * @param {boolean} autoAcceptInvitation (optional) If true, participants are automatically added to the room. Default is false.
+     * @param {boolean} muteUponEntry (optional) Automatically mutes participants when they join the conference. Default is false.
+     * @param {boolean} playEntryTone (optional) Plays a sound when a participant enters the conference. Default is true.
      * @async
      * @return {Promise<Bubble, ErrorManager>}
      * @fulfil {Bubble} - Bubble object, else an ErrorManager object
-
      */
-    createBubble(name: any, description: any, withHistory?: boolean): Promise<unknown>;
+    createBubble(name: string, description: string, history?: any, p_number?: number, visibility?: string, disableNotifications?: boolean, autoRegister?: string, autoAcceptInvitation?: boolean, muteUponEntry?: boolean, playEntryTone?: boolean): Promise<unknown>;
     /**
      * @public
      * @nodered true
@@ -7207,8 +7216,7 @@ export { Bubbles as BubblesService };
 
 }
 declare module 'lib/services/GroupsService' {
-	/// <reference types="node" />
-import { GenericService } from 'lib/services/GenericService';
+	import { GenericService } from 'lib/services/GenericService';
 export {};
 import { Logger } from 'lib/common/Logger';
 import { EventEmitter } from 'events';
@@ -7483,8 +7491,7 @@ export { GroupsService as GroupsService };
 
 }
 declare module 'lib/services/InvitationsService' {
-	/// <reference types="node" />
-export {};
+	export {};
 import { EventEmitter } from 'events';
 import { Logger } from 'lib/common/Logger';
 import { Core } from 'lib/Core';
@@ -7519,7 +7526,7 @@ import { GenericService } from 'lib/services/GenericService'; class InvitationsS
     /** EVENT HANDLING STUFF                                   **/
     /************************************************************/
     attachHandlers(): void;
-    onRosterChanged(data: any): Promise<unknown>;
+    onRosterChanged(data: any): void;
     onOpenInvitationManagementUpdate(openInvitation: any): Promise<boolean>;
     onInvitationsManagementUpdate(userInvite: any): Promise<boolean>;
     onJoinCompanyInviteManagementMessageReceived(joincompanyinvite: any): Promise<boolean>;
@@ -8055,8 +8062,7 @@ export { InvitationsService };
 
 }
 declare module 'lib/services/ContactsService' {
-	/// <reference types="node" />
-import { Contact } from 'lib/common/models/Contact';
+	import { Contact } from 'lib/common/models/Contact';
 import { EventEmitter } from 'events';
 import { Logger } from 'lib/common/Logger';
 import { Core } from 'lib/Core';
@@ -9442,8 +9448,7 @@ export { PresenceEventHandler };
 
 }
 declare module 'lib/services/SettingsService' {
-	/// <reference types="node" />
-import { GenericService } from 'lib/services/GenericService';
+	import { GenericService } from 'lib/services/GenericService';
 export {};
 import { EventEmitter } from 'events';
 import { Logger } from 'lib/common/Logger';
@@ -9519,8 +9524,7 @@ export { Settings as SettingsService };
 
 }
 declare module 'lib/services/PresenceService' {
-	/// <reference types="node" />
-import { Logger } from 'lib/common/Logger';
+	import { Logger } from 'lib/common/Logger';
 import { EventEmitter } from 'events';
 import { Core } from 'lib/Core';
 import { PresenceLevel, PresenceRainbow } from 'lib/common/models/PresenceRainbow';
@@ -10319,8 +10323,7 @@ export { BackoffError, RequestRequestHandler, MockRequestHandler, RequestRateLim
 
 }
 declare module 'lib/common/TimeOutManager' {
-	/// <reference types="node" />
-export {}; class ItemForTimeOutQueue {
+	export {}; class ItemForTimeOutQueue {
     private defered;
     private itemFunction;
     id: string;
@@ -10368,8 +10371,7 @@ export { TimeOutManager };
 
 }
 declare module 'lib/connection/HttpManager' {
-	/// <reference types="node" />
-import { EventEmitter } from 'events';
+	import { EventEmitter } from 'events';
 import { Core } from 'lib/Core';
 import { Logger } from 'lib/common/Logger';
 import RequestRateLimiter from 'lib/connection/request-rate-limiter/index';
@@ -10624,8 +10626,7 @@ export { RESTWebinar };
 
 }
 declare module 'lib/connection/RESTService' {
-	/// <reference types="node" />
-import { RESTTelephony } from 'lib/connection/RestServices/RESTTelephony';
+	import { RESTTelephony } from 'lib/connection/RestServices/RESTTelephony';
 import { HTTPService } from 'lib/connection/HttpService';
 import EventEmitter = NodeJS.EventEmitter;
 import { Logger } from 'lib/common/Logger';
@@ -10704,6 +10705,7 @@ import { GenericRESTService } from 'lib/connection/GenericRESTService'; enum MED
     static getClassName(): string;
     getClassName(): string;
     constructor(_options: any, evtEmitter: EventEmitter, _logger: Logger, core: Core);
+    setCredentialPassword(strPassword: string): Promise<void>;
     get userId(): any;
     get loggedInUser(): any;
     start(http: any): Promise<any[]>;
@@ -10819,7 +10821,7 @@ import { GenericRESTService } from 'lib/connection/GenericRESTService'; enum MED
      * @return {Promise<unknown>}
      */
     getMediaPillarInfo(): Promise<unknown>;
-    createBubble(name: any, description: any, withHistory: any): Promise<unknown>;
+    createBubble(name: string, description: string, history?: any, p_number?: number, visibility?: string, disableNotifications?: boolean, autoRegister?: string, autoAcceptInvitation?: boolean, muteUponEntry?: boolean, playEntryTone?: boolean): Promise<unknown>;
     updateRoomData(bubbleId: string, data: any): Promise<unknown>;
     setBubbleVisibility(bubbleId: any, visibility: any): Promise<unknown>;
     setBubbleAutoRegister(bubbleId: string, autoRegister?: string): Promise<unknown>;
@@ -11176,6 +11178,8 @@ import { GenericRESTService } from 'lib/connection/GenericRESTService'; enum MED
     retrieveLdapConnectorAllConfigs(companyId: string): Promise<unknown>;
     retrieveLDAPConnectorConfigByLdapConfigId(ldapConfigId: string): Promise<unknown>;
     updateConfigurationForLdapConnector(ldapConfigId: string, settings: any, strict: boolean, name: string): Promise<unknown>;
+    uploadLdapAvatar(binaryImgFile: string, contentType?: string, ldapId?: string): Promise<unknown>;
+    deleteLdapAvatar(ldapId?: string): Promise<unknown>;
     createListOfEventsForConnector(events: Array<{
         eventId: string;
         level: string;
@@ -11487,6 +11491,7 @@ import { Core } from 'lib/Core'; class S2SServiceEventHandler {
     private xmppUtils;
     private _conversations;
     private shouldSendReadReceipt;
+    private storeMessagesInConversation;
     static getClassName(): string;
     getClassName(): string;
     constructor(_im: any, _application: any, _eventEmitter: any, _logger: any, _hostCallback: any);
@@ -11530,8 +11535,7 @@ export { ProxyImpl };
 
 }
 declare module 'lib/services/S2SService' {
-	/// <reference types="node" />
-import { EventEmitter } from 'events';
+	import { EventEmitter } from 'events';
 import { Logger } from 'lib/common/Logger';
 import { ProxyImpl } from 'lib/ProxyImpl';
 import { GenericService } from 'lib/services/GenericService'; class S2SService extends GenericService {
@@ -11735,8 +11739,7 @@ export { S2SService, ROOMROLE };
 
 }
 declare module 'lib/services/GenericService' {
-	/// <reference types="node" />
-import { XMPPService } from 'lib/connection/XMPPService';
+	import { XMPPService } from 'lib/connection/XMPPService';
 export {};
 import { Logger } from 'lib/common/Logger';
 import { S2SService } from 'lib/services/S2SService';
@@ -11830,8 +11833,7 @@ export { RPCManager, RPCmethod };
 
 }
 declare module 'lib/services/RPCoverXMPPService' {
-	/// <reference types="node" />
-import { EventEmitter } from 'events';
+	import { EventEmitter } from 'events';
 import { Logger } from 'lib/common/Logger';
 import { Core } from 'lib/Core';
 import { GenericService } from 'lib/services/GenericService';
@@ -12013,6 +12015,7 @@ import { RpcoverxmppEventHandler } from 'lib/connection/XMPPServiceHandler/rpcov
     shouldSendReadReceipt: any;
     useXMPP: any;
     timeBetweenXmppRequests: any;
+    maxPendingAsyncLockXmppQueue: any;
     isReconnecting: any;
     maxAttempts: any;
     idleTimer: any;
@@ -12115,8 +12118,7 @@ export { XMPPService, NameSpacesLabels };
 
 }
 declare module 'lib/services/ImsService' {
-	/// <reference types="node" />
-export {};
+	export {};
 import { Logger } from 'lib/common/Logger';
 import { EventEmitter } from 'events';
 import { Core } from 'lib/Core';
@@ -12379,7 +12381,7 @@ import { Message } from 'lib/common/models/Message'; class ImsService extends Ge
      * @param {String} [content.type=text/markdown] The content message type
      * @param {String} [content.message] The content message body
      * @param {String} [subject] The message subject
-     * @param {array} mentions array containing a list of JID of contact to mention or a string containing a sigle JID of the contact.
+     * @param {array} mentions array containing a list of JID of contact to mention or a string containing a single JID of the contact.
      * @param {string} urgency The urgence of the message. Value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
@@ -12526,8 +12528,7 @@ export { ChannelEventHandler };
 
 }
 declare module 'lib/services/ChannelsService' {
-	/// <reference types="node" />
-import { Contact } from 'lib/common/models/Contact';
+	import { Contact } from 'lib/common/models/Contact';
 import { Appreciation, Channel } from 'lib/common/models/Channel';
 import { EventEmitter } from 'events';
 import { Logger } from 'lib/common/Logger';
@@ -13512,8 +13513,7 @@ export { TelephonyEventHandler };
 
 }
 declare module 'lib/services/TelephonyService' {
-	/// <reference types="node" />
-export {};
+	export {};
 import { Call } from 'lib/common/models/Call';
 import { EventEmitter } from 'events';
 import { Logger } from 'lib/common/Logger';
@@ -14265,8 +14265,7 @@ export { TelephonyService as TelephonyService };
 
 }
 declare module 'lib/services/AdminService' {
-	/// <reference types="node" />
-export {};
+	export {};
 import { EventEmitter } from 'events';
 import { Logger } from 'lib/common/Logger';
 import { Contact } from 'lib/common/models/Contact';
@@ -18337,6 +18336,77 @@ import { GenericService } from 'lib/services/GenericService'; enum OFFERTYPES {
     updateConfigurationForLdapConnector(ldapConfigId: string, settings: any, strict: boolean, name: string): Promise<unknown>;
     /**
      * @public
+     * @method uploadLdapAvatar
+     * @since 2.25.2-lts.3
+     * @instance
+     * @async
+     * @category AD/LDAP - LDAP APIs to use
+     * @param {any} binaryImgFile File to be sent
+     * @param {string} contentType to specify the content type of data. image/jpeg or image/png. Possibles values : image/jpeg, image/png
+     * @param {string} ldapId user unique identifier in ldap
+     * @description
+     *      This API can be used to upload avatar image for logged in user.</BR>
+     *      Rules:</BR>
+     *      Avatar file has to be sent directly in http body (no JSon).</BR>
+     *      Only jpeg, jpg and png files are supported. Appropriate content-type has to be set (image/jpeg or image/png).</BR>
+     *      If user already has an avatar, the existing one is overwritten.</BR>
+     *      By default, avatar file size is limited to 4194304 bytes (4 MB) (this limit can be changed by integration team in enduser portal config file).</BR>
+     *      When an avatar is uploaded, the field lastAvatarUpdateDate of the user is updated to the current date.</BR>
+     *      User vCard is also updated: the PHOTO element is set with avatar filename (i.e. user id) in base64 and the LASTAVATARUPDATE element is set to the current date.  </BR>
+     *
+     *      a 'rainbow_onXXX' event is raised when updated. The parameter configId can be used to retrieve the updated configuration.
+     * @example
+     * const mime = require('mime');
+     * const fs = require("fs");
+     * testuploadLdapAvatar() {
+     *      let that = this;
+     *      let pathImg = "c:\\temp\\IMG_20131005_173918.jpg";
+     *
+     *      let fd = fs.openSync(pathImg, "r+");
+     *      let fileStats = fs.statSync(pathImg);
+     *      let sizeToRead = fileStats.size;
+     *      let buf = new Buffer(sizeToRead);
+     *      fs.readSync(fd, buf, 0, sizeToRead, null);
+     *      let fileType = mime.lookup(pathImg);
+
+     *      rainbowSDK.admin.uploadLdapAvatar(buf, fileType).then((result) => {
+     *          ...
+     *      });
+     * }
+     * @return {Promise<{Object}>} -
+     * </BR>
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | status | String | Avatar upload status message. |
+     *
+     */
+    uploadLdapAvatar(binaryImgFile: any, contentType: string, ldapId?: string): Promise<unknown>;
+    /**
+     * @public
+     * @method deleteLdapAvatar
+     * @since 2.25.2-lts.3
+     * @instance
+     * @param {string} ldapId user unique identifier in ldap
+     * @async
+     * @category AD/LDAP - LDAP APIs to use
+     * @description
+     *      This API can be used to delete avatar image for logged in user. </BR>
+     *      When an avatar is deleted, the field lastAvatarUpdateDate of the user is set to null. </BR>
+     *      User vCard is also updated: the PHOTO element is removed and the LASTAVATARUPDATE element is set to empty.   </BR>
+     * @return {Promise<{Object}>} -
+     * </BR>
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | status | String | Avatar upload status message. |
+     *
+     */
+    deleteLdapAvatar(ldapId?: string): Promise<unknown>;
+    /**
+     * @public
      * @method createListOfEventsForConnector
      * @since 2.14.0
      * @instance
@@ -21435,8 +21505,7 @@ export { CallLogEventHandler };
 
 }
 declare module 'lib/services/CallLogService' {
-	/// <reference types="node" />
-import { GenericService } from 'lib/services/GenericService';
+	import { GenericService } from 'lib/services/GenericService';
 export {};
 import { EventEmitter } from 'events';
 import { Logger } from 'lib/common/Logger';
@@ -21570,9 +21639,6 @@ import { Core } from 'lib/Core'; class CallLogService extends GenericService {
      * @return {Boolean} True if the call logs have been retrieved. False elsewhere.
      */
     isInitialized(): boolean;
-    /*********************************************************/
-    /**                  EVENT HANDLERS                     **/
-    /*********************************************************/
     onCallLogUpdated(calllogs: any): Promise<void>;
     onCallLogAckReceived(calllogs: any): Promise<void>;
     /*********************************************************/
@@ -21590,8 +21656,7 @@ export { CallLogService };
 
 }
 declare module 'lib/common/Events' {
-	/// <reference types="node" />
-export {};
+	export {};
 import { EventEmitter } from 'events';
 import { Core } from 'lib/Core';
 import { Logger } from 'lib/common/Logger'; class Events {
@@ -21631,7 +21696,7 @@ import { Logger } from 'lib/common/Logger'; class Events {
      * @description
      *      Unsubscribe to an event raised when a log is done.
      */
-    removeLogListener(event: any, callback: any): EventEmitter;
+    removeLogListener(event: any, callback: any): EventEmitter<[never]>;
     /**
      * @method on
      * @public
@@ -21777,6 +21842,7 @@ import { DataStoreType } from 'lib/config/config'; class Options {
         maxIdleTimer: number;
         maxPingAnswerTimer: number;
         xmppRessourceName: any;
+        maxPendingAsyncLockXmppQueue: number;
     };
     _getS2SOptions(): {
         hostCallback: string;
@@ -21819,6 +21885,7 @@ import { DataStoreType } from 'lib/config/config'; class Options {
         enableCarbon: boolean;
         enablesendurgentpushmessages: boolean;
         useMessageEditionAndDeletionV2: boolean;
+        storeMessagesInConversation: boolean;
     };
     _getApplicationsOptions(): {
         appID: string;
@@ -21973,8 +22040,7 @@ export { AlertTemplate, AlertTemplatesData };
 
 }
 declare module 'lib/services/AlertsService' {
-	/// <reference types="node" />
-import { Logger } from 'lib/common/Logger';
+	import { Logger } from 'lib/common/Logger';
 export {};
 import { Alert, AlertsData } from 'lib/common/models/Alert';
 import { EventEmitter } from 'events';
@@ -22642,8 +22708,7 @@ export { WebinarEventHandler };
 
 }
 declare module 'lib/services/WebinarsService' {
-	/// <reference types="node" />
-import { EventEmitter } from 'events';
+	import { EventEmitter } from 'events';
 import { Logger } from 'lib/common/Logger';
 import { Core } from 'lib/Core';
 import { GenericService } from 'lib/services/GenericService';
@@ -22902,8 +22967,7 @@ export { RBVoiceEventHandler };
 
 }
 declare module 'lib/services/RBVoiceService' {
-	/// <reference types="node" />
-import { EventEmitter } from 'events';
+	import { EventEmitter } from 'events';
 import { Logger } from 'lib/common/Logger';
 import { Core } from 'lib/Core';
 import { GenericService } from 'lib/services/GenericService';
@@ -24391,8 +24455,7 @@ export { RBVoiceService as RBVoiceService };
 
 }
 declare module 'lib/services/HTTPoverXMPPService' {
-	/// <reference types="node" />
-import { EventEmitter } from 'events';
+	import { EventEmitter } from 'events';
 import { Logger } from 'lib/common/Logger';
 import { Core } from 'lib/Core';
 import { GenericService } from 'lib/services/GenericService';
@@ -24544,8 +24607,7 @@ export { HTTPoverXMPP as HTTPoverXMPP };
 
 }
 declare module 'lib/Core' {
-	/// <reference types="node" />
-import { XMPPService } from 'lib/connection/XMPPService';
+	import { XMPPService } from 'lib/connection/XMPPService';
 import { RESTService } from 'lib/connection/RESTService';
 import { HTTPService } from 'lib/connection/HttpService';
 import { ImsService } from 'lib/services/ImsService';
@@ -24620,6 +24682,7 @@ import { RPCoverXMPPService } from 'lib/services/RPCoverXMPPService.js'; class C
     _signinWSOnly(forceStopXMPP: any, token: any, userInfos: any): Promise<unknown>;
     _retrieveInformation(): Promise<unknown>;
     setRenewedToken(strToken: string): Promise<void>;
+    setCredentialPassword(strPassword: string): Promise<void>;
     onTokenRenewed(): void;
     onTokenExpired(): void;
     _tokenSurvey(): void;
@@ -24712,6 +24775,7 @@ import { RPCoverXMPPService } from 'lib/services/RPCoverXMPPService.js'; class N
      * @param {string} options.xmpp.raiseLowLevelXmppOutReq enable the raise of event "rainbow_onxmmprequestsent" when a data is sent in xmpp pipe.
      * @param {string} options.xmpp.maxIdleTimer to define the delay without xmpp exchange after which a ping is sent to server.
      * @param {string} options.xmpp.maxPingAnswerTimer to define the time to wait the xmpp ping response.
+     * @param {string} options.xmpp.maxPendingAsyncLockXmppQueue the number of xmpp requests waiting for sending.
      * @param {string} options.s2s.hostCallback "http://3d260881.ngrok.io", S2S Callback URL used to receive events on internet.
      * @param {string} options.s2s.locallistenningport "4000", Local port where the events must be forwarded from S2S Callback Web server.
      * @param {string} options.rest.useRestAtStartup enable the REST requests to the rainbow server at startup (used with startWSOnly method). default value is true.
@@ -24737,6 +24801,7 @@ import { RPCoverXMPPService } from 'lib/services/RPCoverXMPPService.js'; class N
      * @param {string} options.testOutdatedVersion true, Parameter to verify at startup if the current SDK Version is the lastest published on npmjs.com.
      * @param {string} options.testDNSentry true, Parameter to verify at startup/reconnection that the rainbow server DNS entry name is available.
      * @param {string} options.httpoverxmppserver false, Activate the treatment of Http over Xmpp requests (xep0332).
+     * @param {number} options.intervalBetweenCleanMemoryCache 21600000 (6 hours), There is a cleannig process to reduce memory use and this option allow to modify the interval between it.
      * @param {string} options.requestsRate.maxReqByIntervalForRequestRate 600, // nb requests during the interval of the rate limit of the http requests to server.
      * @param {string} options.requestsRate.intervalForRequestRate 60, // nb of seconds used for the calcul of the rate limit of the rate limit of the http requests to server.
      * @param {string} options.requestsRate.timeoutRequestForRequestRate 600 // nb seconds Request stay in queue before being rejected if queue is full of the rate limit of the http requests to server.
@@ -24745,6 +24810,7 @@ import { RPCoverXMPPService } from 'lib/services/RPCoverXMPPService.js'; class N
      * @param {string} options.im.sendMessageToConnectedUser false, Forbid the SDK to send a message to the connected user it self. This is to avoid bot loopback.
      * @param {string} options.im.conversationsRetrievedFormat "small", Set the size of the conversation's content retrieved from server. Can be `small`, `medium`, `full`.
      * @param {string} options.im.storeMessages false, Tell the server to store the message for delay distribution and also for history. Please avoid to set it to true for a bot which will not read anymore the messages. It is a better way to store it in your own CPaaS application.
+     * @param {boolean} options.im.copyMessage to manage if the Messages hint should not be copied to others resources (https://xmpp.org/extensions/xep-0334.html#no-copy) . The default value is true.
      * @param {string} options.im.nbMaxConversations 15, Parameter to set the maximum number of conversations to keep (defaut value to 15). Old ones are remove from XMPP server with the new method `ConversationsService::removeOlderConversations`.
      * @param {string} options.im.rateLimitPerHour 1000, Parameter to set the maximum of "message" stanza sent to server by hour. Default value is 1000.
      * @param {string} options.im.messagesDataStore Parameter to override the storeMessages parameter of the SDK to define the behaviour of the storage of the messages (Enum DataStoreType in lib/config/config , default value "DataStoreType.UsestoreMessagesField" so it follows the storeMessages behaviour).<br>
@@ -24759,7 +24825,9 @@ import { RPCoverXMPPService } from 'lib/services/RPCoverXMPPService.js'; class N
      * @param {string} options.im.autoLoadConversations to activate the retrieve of conversations from the server. The default value is true.
      * @param {string} options.im.autoLoadConversationHistory to activate the retrieve of conversation's messages from the server. The default value is false.
      * @param {string} options.im.autoLoadContacts to activate the retrieve of contacts from roster from the server. The default value is true.
+     * @param {boolean} options.im.enableCarbon to manage carbon copy of message (https://xmpp.org/extensions/xep-0280.html). The default value is true.     * @param {string} options.im.enablesendurgentpushmessages permit to add <retry-push xmlns='urn:xmpp:hints'/> tag to allows the server sending this messge in push with a small ttl (meaning urgent for apple/google backend) and retry sending it 10 times to increase probability that it is received by mobile device. The default value is false.
      * @param {string} options.im.enablesendurgentpushmessages permit to add <retry-push xmlns='urn:xmpp:hints'/> tag to allows the server sending this messge in push with a small ttl (meaning urgent for apple/google backend) and retry sending it 10 times to increase probability that it is received by mobile device. The default value is false.
+     * @param {string} options.im.storeMessagesInConversation Allows to store messages in conversation cache if true else the conversation.messages property stay empty. The default value is true.
      * @param {Object} options.servicesToStart <br>
      *    Services to start. This allows to start the SDK with restricted number of services, so there are less call to API.<br>
      *    Take care, severals services are linked, so disabling a service can disturb an other one.<br>
@@ -24850,6 +24918,15 @@ import { RPCoverXMPPService } from 'lib/services/RPCoverXMPPService.js'; class N
     setRenewedToken(strToken: any): Promise<void>;
     /**
      * @public
+     * @method setCredentialPassword
+     * @instance
+     * @description
+     *    Set the password credential of the Bot for the login.</br>
+     *    Note: The SDK use this password in the next connection/reconnection.
+     */
+    setCredentialPassword(strPassword: any): Promise<void>;
+    /**
+     * @public
      * @method stop
      * @instance
      * @description
@@ -24857,6 +24934,17 @@ import { RPCoverXMPPService } from 'lib/services/RPCoverXMPPService.js'; class N
      * @memberof NodeSDK
      */
     stop(): Promise<unknown>;
+    /**
+     * @public
+     * @method destroy
+     * @instance
+     * @description
+     *    This method should be called before the bot to point to the SDK's instance to remove listener of "process" object. </br>
+     *    And then avoid the error `MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 11 SIGINT listeners added to [process]. Use emitter.setMaxListeners() to increase limit` when the SDK is instantiated and removed more than
+     *    10 times.
+     *
+     */
+    destroy(): void;
     stopProcess(): () => Promise<never>;
     /**
      * @public
