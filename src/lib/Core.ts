@@ -759,7 +759,7 @@ class Core {
 
     async setCredentialPassword (strPassword : string) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID +  "(setCredentialPassword) strPassword : ", strPassword);
+        //that.logger.log("internal", LOG_ID +  "(setCredentialPassword) strPassword : ", strPassword);
         that._rest.setCredentialPassword(strPassword);
     }
 

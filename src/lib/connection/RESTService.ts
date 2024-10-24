@@ -2959,7 +2959,7 @@ Request Method: PUT
             addPropertyToObj(body, "muteUponEntry", muteUponEntry, false);
             addPropertyToObj(body, "playEntryTone", playEntryTone, false);
 
-            that._logger.log("debug", LOG_ID + "(createBubble) will call POST request.");
+            that.logger.log("debug", LOG_ID + "(createBubble) will call POST request.");
 
             that.http.post("/api/rainbow/enduser/v1.0/rooms", that.getRequestHeader(), body
                     , undefined).then(function (json) {
