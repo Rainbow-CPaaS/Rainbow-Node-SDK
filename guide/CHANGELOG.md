@@ -6,6 +6,22 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+### [2.25.2-lts.11] - 2024-10-24
+#### Removed
+-   None
+
+#### Fixed
+-   Fix doc for SDK's options.
+
+#### Added
+-   Add extract SDK's options for building a JSON doc ("tasks/generateJsDocToJSON.js").
+-   Add method  setCredentialPassword on SDK to Set the password credential of the Bot for the login. Note: The SDK use this password in the next connection/reconnection.
+-   Add method destroy() on SDK. This method should be called before the bot to point to the SDK's instance to remove listener of "process" object.
+
+#### Changed
+-   Update default value of "rateLimitPerHour" parameter to 10000.
+-   Update createBubble with new parameters, and update "withHistory" parameter to "history" parameter to folow the string type. Note that for compatibility, if a boolean is provided then the API still have the same behaviour.
+
 ### [2.25.2-lts.10] - 2024-05-31
 #### Removed
 -   None
