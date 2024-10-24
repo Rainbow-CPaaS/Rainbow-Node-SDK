@@ -366,7 +366,7 @@ class RESTService extends GenericRESTService {
 
     async setCredentialPassword (strPassword : string) {
         let that = this;
-        that._logger.log(that.INFO, LOG_ID +  "(setCredentialPassword) strPassword : ", strPassword);
+        //that.logger.log("internal", LOG_ID +  "(setCredentialPassword) strPassword : ", strPassword);
         this._options.credentials.password = strPassword;
         this.credentialsRest = this._options.credentials;
         this.authRest = btoa(this.credentials.login + ":" + this.credentials.password);
