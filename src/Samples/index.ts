@@ -6618,6 +6618,19 @@ let urlS2S;
             _logger.log("debug", "MAIN - testgetMyProfiles - getMyProfiles, result : ", result);
         }
 
+        async testgetMyInformations() {
+            //let contactEmailToSearch = "vincent00@vbe.test.openrainbow.net";
+            //let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+            /*
+        rainbowSDK.admin.retrieveUserSubscriptions(connectedUser.id).then(async function (result) {
+           _logger.log("debug", "MAIN - testretrieveUserSubscriptions - retrieveUserSubscriptions, result : ", result);
+        });
+        // */
+
+            let result = await rainbowSDK.contacts.getMyInformations();
+            _logger.log("debug", "MAIN - testgetMyInformations - getMyInformations, result : ", result);
+        }
+
         //region test Methodes
 
         teststripStringForLogs() {

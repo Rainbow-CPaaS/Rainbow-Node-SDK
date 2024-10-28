@@ -9,7 +9,7 @@ import src from "../../index.js";
 
 const config = require ("../config/config");
 import {atob} from "atob";
-import {isArray, isObject} from "node:util";
+import {isArray} from "node:util";
 const Jimp = require('jimp');
 const dns = require('dns')
 const utilTypes = require('util').types
@@ -18,6 +18,10 @@ const util = require("util");
 
 const fs = require('fs');
 const ini = require('ini');
+
+function isObject (value) {
+    return (value !== null && typeof value === 'object');
+}
 
 let makeId = (n) => {
   let text = "";
