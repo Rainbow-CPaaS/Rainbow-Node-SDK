@@ -25,7 +25,7 @@ import {
     findAllPropInJSONByPropertyName,
     getTextFromJSONProperty,
     writeArrayToFile,
-    readArrayFromFile
+    readArrayFromFile, addParamToUrl
 } from "../lib/common/Utils";
 import {XMPPUTils} from "../lib/common/XMPPUtils";
 import {TimeOutManager} from "../lib/common/TimeOutManager";
@@ -1551,6 +1551,43 @@ let urlS2S;
                 _logger.log("debug", "MAIN - [getContactByLoginEmail    ] ::  contact : ", contact);
             }).catch((err) => {
                 _logger.log("error", "MAIN - [getContactByLoginEmail    ] :: catch reject contact : ", err);
+            });
+        }
+
+        async testgetContactByLoginEmail_vincent00() {
+            let that = this;
+            let contactLogin = "vincent00@vbe.test.openrainbow.net";
+            // Token expired on vberder AIO for user vincent01
+            let token = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb3VudFJlbmV3ZWQiOjAsIm1heFRva2VuUmVuZXciOjEsInVzZXIiOnsiaWQiOiI1YmJkYzM4MTJjZjQ5NmMwN2RkODkxMjgiLCJsb2dpbkVtYWlsIjoidmluY2VudDAxQHZiZS50ZXN0Lm9wZW5yYWluYm93Lm5ldCJ9LCJlbnZpcm9ubWVudCI6eyJlbnZpcm9ubWVudE5hbWUiOiJkZXZlbG9wbWVudCIsImVudmlyb25tZW50QXBpVXJsIjoiaHR0cHM6Ly92YmVyZGVyLm9wZW5yYWluYm93Lm9yZyJ9LCJhcHAiOnsiaWQiOiIyNzAzM2IxMDAxYmQxMWU4ODQzZDZmMDAxMzRlNTE4OSIsIm5hbWUiOiJSYWluYm93IG9mZmljaWFsIFdlYiBhcHBsaWNhdGlvbiJ9LCJpYXQiOjE3MzAxMjY5MzAsImV4cCI6MTczMDEyNzE3MH0.mUkmBXjdhyNVvsMILuC9n7Njqj0-BoGNmewtzZVRf48m0cc36KGmJJmJbc9qocOVhl1_meTIROSRkCbd6j1b0aC7dkNv-bSCrVuy8jfrQo4Ih44wQLLdtWBox5xL4RFkuT18hL6SG_eiVDH8f7cawnEdwMcMkQqfpYsoCNvOaBFFPcphm9DkcFEGOcS3OqVCYfn5rfi8Zj9lc9vLSpPfM8bh1Ji_HQMtUolEFyaadBWXZHFsLpgYonujkvAG6LvBEUtNLHbfqI9XAIHcbAm7C7Qr-e86f1piw3AmMhEIF7FDJTFOvrcXT6VcHARuDRi5vcRkaLhX0qfEMvSGNYI20g';
+
+            let sortOrder: number = 1, limit: number = 100, offset: number = 0;
+            let LOG_ID = "SAMPLES/tests";
+
+            let url = "/api/rainbow/enduser/v1.0/users/loginEmails";
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+
+            addParamToUrl(urlParamsTab, "sortOrder", sortOrder);
+            addParamToUrl(urlParamsTab, "limit", limit);
+            addParamToUrl(urlParamsTab, "offset", offset);
+            url = urlParamsTab[0];
+
+            let filter: any = {};
+            addPropertyToObj(filter, "loginEmail", contactLogin, false);
+
+            //that._logger.log(that.INTERNAL, LOG_ID + "(testgetContactByLoginEmail_vincent00) with params : ", { "loginEmail": email });
+
+            let headers = rainbowSDK._core._rest.getRequestHeader();
+            headers["authorization"] = 'Bearer ' + token;
+
+            await rainbowSDK._core._rest.http.post(url, headers, filter, undefined).then(function (json) {
+                _logger.log("debug", LOG_ID + "(testgetContactByLoginEmail_vincent00) successfull");
+                _logger.log("debug", LOG_ID + "(testgetContactByLoginEmail_vincent00) REST result : ", json);
+                //resolve(json?.data);
+            }).catch(function (err) {
+                _logger.log("error", LOG_ID, "(testgetContactByLoginEmail_vincent00) error");
+                _logger.log("error", LOG_ID, "(testgetContactByLoginEmail_vincent00) error : ", err);
+                //return reject(err);
             });
         }
 
