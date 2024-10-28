@@ -7497,10 +7497,15 @@ kamEmailList?: string[], businessSpecific?: string, adminServiceNotificationsLev
         let authStatus = false;
 
         try {
-            let authenticationValidator = await that.http.get("/api/rainbow/authentication/v1.0/validator", that.getRequestHeader(), undefined);
-            that._logger.log(that.DEBUG, LOG_ID + "(checkRESTAuthentication) REST authentication authenticationValidator : ", authenticationValidator);
-            if (authenticationValidator.status==="OK") {
-                authStatus = true;
+            if (!that.http) {
+                that._logger.log(that.DEBUG, LOG_ID + "(checkRESTAuthentication) REST that.http undefined.");
+                authStatus = false;
+            } else {
+                let authenticationValidator = await that.http.get("/api/rainbow/authentication/v1.0/validator", that.getRequestHeader(), undefined);
+                that._logger.log(that.DEBUG, LOG_ID + "(checkRESTAuthentication) REST authentication authenticationValidator : ", authenticationValidator);
+                if (authenticationValidator.status==="OK") {
+                    authStatus = true;
+                }
             }
         } catch (err) {
             that._logger.log(that.DEBUG, LOG_ID + "(checkRESTAuthentication) REST authentication check authenticationValidator failed : ", err);

@@ -1208,6 +1208,7 @@ class Core extends LevelLogs{
     }
 
     async getConnectionStatus():Promise<{
+        serviceStatus:any,
         restStatus:boolean,
         xmppStatus:boolean,
         s2sStatus:boolean,
@@ -1224,6 +1225,77 @@ class Core extends LevelLogs{
         let xmppStatus: boolean = false;
         // Test S2S connection
         let s2sStatus: boolean = false;
+        let serviceStatus:{
+            "admin": {
+                "started": boolean
+            },
+            "alerts": {
+                "started": boolean
+            },
+            "bubbles": {
+                "started": boolean
+            },
+            "calllog": {
+                "started": boolean
+            },
+            "channels": {
+                "started": boolean
+            },
+            "contacts": {
+                "started": boolean
+            },
+            "conversations": {
+                "started": boolean
+            },
+            "favorites": {
+                "started": boolean
+            },
+            "fileServer": {
+                "started": boolean
+            },
+            "fileStorage": {
+                "started": boolean
+            },
+            "groups": {
+                "started": boolean
+            },
+            "httpoverxmpp": {
+                "started": boolean
+            },
+            "im": {
+                "started": boolean
+            },
+            "invitation": {
+                "started": boolean
+            },
+            "presence": {
+                "started": boolean
+            },
+            "profiles": {
+                "started": boolean
+            },
+            "rbvoice": {
+                "started": boolean
+            },
+            "rpcoverxmpp": {
+                "started": boolean
+            },
+            "s2s": {
+                "started": boolean
+            },
+            "settings": {
+                "started": boolean
+            },
+            "tasks": {
+                "started": boolean
+            },
+            "telephony": {
+                "started": boolean
+            },
+            "webinar": {
+                "started": boolean
+            }
+        } ;
 
         return new Promise(async (resolve, reject) => {
             // Test REST connection
@@ -1235,10 +1307,11 @@ class Core extends LevelLogs{
             // Test XMPP connection
             try {
                 xmppStatus = that._xmpp ? await that._xmpp.sendPing().then((result) => {
-                    that._logger.log(that.DEBUG, LOG_ID + "(getConnectionStatus) set xmppStatus to true. result : ", result);
                     if (result && result.code===1) {
+                        that._logger.log(that.DEBUG, LOG_ID + "(getConnectionStatus) set xmppStatus to true. result : ", result);
                         return true;
                     } else {
+                        that._logger.log(that.INFO, LOG_ID + "(getConnectionStatus) set xmppStatus to false. result : ", result);
                         return false;
                     }
                 }):false;
@@ -1279,7 +1352,84 @@ class Core extends LevelLogs{
                 that._logger.log(that.ERROR, LOG_ID + "(getConnectionStatus) CATCH Error - testing http status : ", err);
             }
 
+            try {
+                serviceStatus = {
+                        "admin": {
+                            "started": that._admin._started
+                        },
+                        "alerts": {
+                            "started": that._alerts._started
+                        },
+                        "bubbles": {
+                            "started": that._bubbles._started
+                        },
+                        "calllog": {
+                            "started": that._calllog._started
+                        },
+                        "channels": {
+                            "started": that._channels._started
+                        },
+                        "contacts": {
+                            "started": that._contacts._started
+                        },
+                        "conversations": {
+                            "started": that._conversations._started
+                        },
+                        "favorites": {
+                            "started": that._favorites._started
+                        },
+                        "fileServer": {
+                            "started": that._fileServer._started
+                        },
+                        "fileStorage": {
+                            "started": that._fileStorage._started
+                        },
+                        "groups": {
+                            "started": that._groups._started
+                        },
+                        "httpoverxmpp": {
+                            "started": that._httpoverxmpp._started
+                        },
+                        "im": {
+                            "started": that._im._started
+                        },
+                        "invitation": {
+                            "started": that._invitations._started
+                        },
+                        "presence": {
+                            "started": that._presence._started
+                        },
+                        "profiles": {
+                            "started": that._profiles._started
+                        },
+                        "rbvoice": {
+                            "started": that._rbvoice._started
+                        },
+                        "rpcoverxmpp": {
+                            "started": that._rpcoverxmpp._started
+                        },
+                        "s2s": {
+                            "started": that._s2s._started
+                        },
+                        "settings": {
+                            "started": that._settings._started
+                        },
+                        "tasks": {
+                            "started": that._tasks._started
+                        },
+                        "telephony": {
+                            "started": that._telephony._started
+                        },
+                        "webinar": {
+                            "started": that._webinars._started
+                        }
+                    } ;
+            } catch (err) {
+                that._logger.log(that.ERROR, LOG_ID + "(getConnectionStatus) CATCH Error - testing Services status : ", err);
+            }
+
             return resolve({
+                serviceStatus,
                 restStatus,
                 xmppStatus,
                 s2sStatus,
