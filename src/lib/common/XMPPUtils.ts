@@ -164,7 +164,7 @@ export class XMPPUTils {
 
     // Presence resource is provided by MS-Teams.
     isFromPresenceJid(fullJid) { 
-        return ((fullJid.indexOf("tel_") === 0) && this.getResourceFromFullJID(fullJid) == "presence");
+        return ((fullJid.indexOf("tel_") === 0 || fullJid.indexOf("pcloud_msteamspresence_") === 0) && this.getResourceFromFullJID(fullJid) == "presence");
     }
 
     getResourceFromFullJID(fullJid) {
