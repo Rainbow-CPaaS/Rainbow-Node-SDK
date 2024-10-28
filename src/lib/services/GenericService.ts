@@ -21,7 +21,7 @@ class GenericService {
     protected _useS2S: boolean;
     protected _eventEmitter: EventEmitter;
     protected _rest: RESTService;
-    protected _started: boolean;
+    public _started: boolean;
     protected _initialized: boolean;
     
     protected _startConfig: {

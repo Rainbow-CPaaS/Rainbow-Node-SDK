@@ -176,10 +176,10 @@ class HttpManager {
 
         try {
             httpStatus.nbHttpAdded = that.nbHttpAdded;
-            httpStatus.httpQueueSize = that.limiter.bucket.length;
+            httpStatus.httpQueueSize = that?.limiter?.bucket ? that?.limiter?.bucket.length : 0;
             httpStatus.nbRunningReq = that.nbRunningReq;
-            httpStatus.maxSimultaneousRequests = that.limiter.bucket.capacity;
-            httpStatus.nbReqInQueue = that.limiter.bucket.length;
+            httpStatus.maxSimultaneousRequests = that?.limiter?.bucket ? that?.limiter?.bucket.capacity : 0;
+            httpStatus.nbReqInQueue = that?.limiter?.bucket ? that?.limiter?.bucket.length : 0;
             httpStatus.retryAfterTime = that.retryAfterTime ;
             httpStatus.retryAfterEndTime = that.retryAfterEndTime;
             httpStatus.retryAfterStartTime = that.retryAfterStartTime;
