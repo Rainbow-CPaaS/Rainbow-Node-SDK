@@ -8269,12 +8269,30 @@ kamEmailList?: string[], businessSpecific?: string, adminServiceNotificationsLev
     //endregion conference
 
     //region Offers and subscriptions
-    retrieveAllCompanyOffers(companyId: string) {
+    retrieveAllCompanyOffers(companyId: string,   format: string = "small", name?: string, canBeSold?: boolean, autoSubscribe?: boolean, isExclusive?: boolean, isPrepaid?: boolean, profileId?: boolean, offerReference?: boolean, sapReference?: boolean, limit: number = 100, offset: number = 0, sortField: string = "name", sortOrder: number = 1) {
         let that = this;
         return new Promise(function (resolve, reject) {
             that._logger.log(that.INTERNAL, LOG_ID + "(retrieveAllCompanyOffers) REST companyId : ", companyId);
 
-            that.http.get("/api/rainbow/subscription/v1.0/companies/" + companyId + "/offers", that.getRequestHeader(), undefined).then((json) => {
+            let url: string = "/api/rainbow/subscription/v1.0/companies/" + companyId + "/offers";
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "format", format);
+            addParamToUrl(urlParamsTab, "name", name);
+            addParamToUrl(urlParamsTab, "canBeSold", canBeSold);
+            addParamToUrl(urlParamsTab, "autoSubscribe", autoSubscribe);
+            addParamToUrl(urlParamsTab, "isExclusive", isExclusive);
+            addParamToUrl(urlParamsTab, "isPrepaid", isPrepaid);
+            addParamToUrl(urlParamsTab, "profileId", profileId);
+            addParamToUrl(urlParamsTab, "offerReference", offerReference);
+            addParamToUrl(urlParamsTab, "sapReference", sapReference);
+            addParamToUrl(urlParamsTab, "limit", limit);
+            addParamToUrl(urlParamsTab, "offset", offset);
+            addParamToUrl(urlParamsTab, "sortField", sortField);
+            addParamToUrl(urlParamsTab, "sortOrder", sortOrder);
+            url = urlParamsTab[0];
+
+            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
                 that._logger.log(that.DEBUG, LOG_ID + "(retrieveAllCompanyOffers) successfull");
                 that._logger.log(that.INTERNAL, LOG_ID + "(retrieveAllCompanyOffers) REST result : ", json);
                 resolve(json?.data);

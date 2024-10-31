@@ -6130,18 +6130,31 @@ class AdminService extends GenericService {
      * @async
      * @category Offers and Subscriptions.
      * @param {string} companyId Id of the company to be retrieve the offers.
+     * @param {string} [format="small"] - Allows retrieving different levels of offer details. Options: 'small', 'medium', 'full'.
+     * @param {string} [name] - Filters the offer list by name.
+     * @param {boolean} [canBeSold] - Filters offer list by 'canBeSold' field.
+     * @param {boolean} [autoSubscribe] - Filters offer list by 'autoSubscribe' field.
+     * @param {boolean} [isExclusive] - Filters offer list by 'isExclusive' field.
+     * @param {boolean} [isPrepaid] - Filters offer list by 'isPrepaid' field.
+     * @param {boolean} [profileId] - Filters offer list by 'profileId' field.
+     * @param {boolean} [offerReference] - Filters offer list by 'offerReference' field.
+     * @param {boolean} [sapReference] - Filters offer list by 'sapReference' field.
+     * @param {number} [limit=100] - Specifies the number of offers to retrieve.
+     * @param {number} [offset=0] - Specifies the starting position of offers to retrieve.
+     * @param {string} [sortField="name"] - Field to sort the offers by. Options: '_id', 'name'.
+     * @param {number} [sortOrder=1] - Order for sorting. Options: 1 (ascending), -1 (descending).
      * @description
      *      Method to retrieve all the offers of one company on server. </BR>
      * @return {Promise<Array<any>>}
      */
-    retrieveAllOffersOfCompanyById(companyId?: string) : Promise<Array<any>> {
+    retrieveAllOffersOfCompanyById(companyId?: string,   format: string = "small", name: string = undefined, canBeSold: boolean = undefined, autoSubscribe: boolean = undefined, isExclusive: boolean = undefined, isPrepaid: boolean = undefined, profileId: boolean = undefined, offerReference: boolean = undefined, sapReference: boolean = undefined, limit: number = 100, offset: number = 0, sortField: string = "name", sortOrder: number = 1) : Promise<Array<any>> {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(retrieveAllOffersOfCompanyById) companyId : ", that._logger.stripStringForLogs(companyId));
 
         return new Promise(function (resolve, reject) {
             try {
                 companyId = companyId? companyId : that._rest.account.companyId;
-                that._rest.retrieveAllCompanyOffers(companyId).then((result: any) => {
+                that._rest.retrieveAllCompanyOffers(companyId,  format, name, canBeSold, autoSubscribe, isExclusive, isPrepaid, profileId, offerReference, sapReference, limit, offset, sortField, sortOrder).then((result: any) => {
                     that._logger.log(that.DEBUG, LOG_ID + "(retrieveAllOffersOfCompanyById) Successfully get all infos");
                     that._logger.log(that.INTERNAL, LOG_ID + "(retrieveAllOffersOfCompanyById) : result : ", result);
                     resolve(result);
@@ -6541,6 +6554,50 @@ class AdminService extends GenericService {
                 }).catch(function (err) {
                     that._logger.log(that.INTERNALERROR, LOG_ID + "(unSubscribeCompanyToOfferById) ErrorManager when put infos", err);
                     that._logger.log(that.ERROR, LOG_ID + "(unSubscribeCompanyToOfferById) ErrorManager when put infos");
+                    return reject(err);
+                });
+            } catch (err) {
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @nodered true
+     * @method unSubscribeCompanyToSubscription
+     * @since 1.73
+     * @instance
+     * @async
+     * @category Offers and Subscriptions.
+     * @param {string} subscriptionId Id of the subscriptions to unsubscribe.
+     * @param {string} companyId Id of the company of the subscription.
+     * @description
+     *      Method to unsubscribe one company to one subscription. </BR>
+     * @return {Promise<any>}
+     */
+    unSubscribeCompanyToSubscription(subscriptionId : string, companyId? : string): Promise<any> {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(unSubscribeCompanyToSubscription) companyId : ", that._logger.stripStringForLogs(companyId), ", subscriptionId : ", that._logger.stripStringForLogs(subscriptionId));
+
+        return new Promise(async (resolve, reject) => {
+            try {
+                if (!subscriptionId) {
+                    that._logger.log(that.WARN, LOG_ID + "(unSubscribeCompanyToSubscription) bad or empty 'subscriptionId' parameter");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(unSubscribeCompanyToSubscription) bad or empty 'subscriptionId' parameter : ", subscriptionId);
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    return;
+                }
+
+                companyId = companyId? companyId : that._rest.account.companyId;
+
+                that._rest.unSubscribeCompanyToSubscription(companyId, subscriptionId ).then((result: any) => {
+                    that._logger.log(that.DEBUG, LOG_ID + "(unSubscribeCompanyToSubscription) Successfully unsubscribe.");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(unSubscribeCompanyToSubscription) : result : ", result);
+                    resolve(result);
+                }).catch(function (err) {
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(unSubscribeCompanyToSubscription) ErrorManager when put infos", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(unSubscribeCompanyToSubscription) ErrorManager when put infos");
                     return reject(err);
                 });
             } catch (err) {
