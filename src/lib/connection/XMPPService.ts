@@ -816,6 +816,9 @@ class XMPPService extends GenericService {
                         case "see-other-host":
                             that._logger.log(that.WARN, LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : FATAL condition : ", err.condition, " is not supported the SDK");
                         case "conflict":
+                            if (err.condition === "Replaced by new connection") {
+                                that._logger.log(that.WARN, LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : FATAL no reconnection this error is generated if another clients starts new session with same resource as existing client (since each client must have unique resource if new clients connects with resource that existing session already used, that old session will be terminated) for condition : ", err.condition, ", error : ", err);
+                            }
                         case "policy-violation":
                             if (err.condition == "policy-violation" && err.text!="has been kicked") {
                                 that._logger.log(that.WARN, LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : Not fatal for condition : ", err.condition, " because text is different than \"Max sessions reached\", error : ", err);
