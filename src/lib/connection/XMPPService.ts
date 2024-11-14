@@ -116,7 +116,8 @@ const NameSpacesLabels = {
     "XmppHttpNS" : "urn:xmpp:http",
     "protocolShimNS" : "http://jabber.org/protocol/shim",
     "XmppFraming": "urn:ietf:params:xml:ns:xmpp-framing",
-    "RPC": "jabber:iq:rpc"
+    "RPC": "jabber:iq:rpc",
+    "RainbowCpaaSMessage":"jabber:iq:rainbow:cpaas:message"
 };
 
 @logEntryExit(LOG_ID)
@@ -1798,6 +1799,53 @@ class XMPPService extends GenericService {
             });
         }
         that._logger.log(that.WARN, LOG_ID + "(markMessageAsRead) No XMPP connection...");
+        return Promise.resolve(null);
+    }
+
+    async sendApplicationMessageAsync(jid, type, element :Element) {
+        let that = this;
+        if (that.useXMPP) {
+            let id = that.xmppUtils.getUniqueMessageId();
+
+            if (!that.shouldSendMessageToConnectedUser && that.jid_im == jid) {
+                return Promise.reject("Can not send a message to the connected user : " + that.jid_im);
+            }
+
+            // Remove resource if exists
+            jid = that.xmppUtils.getBareJIDFromFullJID(jid);
+
+            let stanza = xml("message", {
+                "from": that.fullJid,
+                //"from": that.jid_im,
+                "to": jid,
+                "xmlns": NameSpacesLabels.ClientNameSpace,
+                "type": type, //TYPE_CHAT or TYPE_GROUPCHAT
+                "id": id
+            }, xml("rainbow-cpaas", {
+                "xmlns": NameSpacesLabels.RainbowCpaaSMessage
+            }, element));
+
+            stanza.append(xml("request", {
+                    "xmlns": NameSpacesLabels.ReceiptsNameSpace
+                }));
+            if (that.copyMessage == false) {
+                stanza.append(xml("no-copy", {
+                    "xmlns": NameSpacesLabels.HintsNameSpace
+                }));
+            }
+
+            that._logger.log(that.INTERNAL, LOG_ID + "(sendApplicationMessageAsync) send - 'message'", stanza.toString());
+            return new Promise((resolve, reject) => {
+                that.xmppClient.send(stanza).then(() => {
+                    that._logger.log(that.DEBUG, LOG_ID + "(sendApplicationMessageAsync) sent");
+                    resolve({"from": that.jid_im, "to": jid, "type": type, "id": id, "date": new Date(), element: element});
+                }).catch((err) => {
+                    return reject(err);
+                });
+            });
+        }
+
+        that._logger.log(that.WARN, LOG_ID + "(sendApplicationMessageAsync) No XMPP connection...");
         return Promise.resolve(null);
     }
 

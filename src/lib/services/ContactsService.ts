@@ -213,6 +213,7 @@ class ContactsService extends GenericService {
         // this._eventEmitter.on("evt_internal_userinviteaccepted", this._onUserInviteAccepted.bind(this));
         // this._eventEmitter.on("evt_internal_userinvitecanceled", this._onUserInviteCanceled.bind(this));
         this._eventEmitter.on("evt_internal_onrosters", this._onRostersUpdate.bind(this));
+        this._eventEmitter.on("evt_internal_rainbowcpaasreceived", this._onrainbowcpaasreceived.bind(this));
 
     }
 
@@ -3850,6 +3851,40 @@ class ContactsService extends GenericService {
                 that._logger.log(that.DEBUG, LOG_ID + "(_onRostersUpdate) Ignore telephonny events.");
             }
         });
+    }
+
+    /**
+     * @private
+     * @method _onrainbowcpaasreceived
+     * @instance
+     * @param {Object} contacts contains a contact list with updated elements
+     * @description
+     *      Method called when the roster _contacts is updated <br>
+     */
+    _onrainbowcpaasreceived(rainbowcpaasdata) {
+        let that = this;
+        /*
+        rainbowcpaasdata =  {
+            fromJid: 'room_b56aa4ae592e4ee2b9efbf85f9c6170c@muc.openrainbow.net/adcf613d42984a79a7bebccc80c2b65e@openrainbow.net',
+            resource: 'node_b2LSBeVK',
+            toJid: '98091bcde14d4eadac763d9cc0851719@openrainbow.net/node_b2LSBeVK',
+            type: 'groupchat',
+            id: 'node_3fa7ece2-7a3f-4a45-a202-820a8e8ad1f684',
+            lang: '',
+            date: 2024-11-12T09:30:46.534Z,
+            fromBubbleJid: 'room_b56aa4ae592e4ee2b9efbf85f9c6170c@muc.openrainbow.net/adcf613d42984a79a7bebccc80c2b65e@openrainbow.net',
+            rainbowCpaas: {
+                instance: {
+                    '$attrs': { xmlns: 'tests:rainbownodesdk', id: 1731403838752 },
+                    displayName: 'My displayName',
+                    description: 'My description'
+                }
+            }
+        }
+        // */
+        that._logger.log(that.INTERNAL, LOG_ID + "(_rainbowcpaasreceived) enter rainbowcpaasdata : ", rainbowcpaasdata);
+
+        this._eventEmitter.emit("evt_internal_onrainbowcpaasreceived", rainbowcpaasdata);
     }
 
     //endregion Events

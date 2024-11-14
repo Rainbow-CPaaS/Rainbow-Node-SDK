@@ -1,5 +1,6 @@
 "use strict";
 import {ConversationsService} from "./ConversationsService";
+const Element = require('ltx').Element;
 
 export {};
 
@@ -1084,6 +1085,116 @@ class ImsService extends GenericService{
 
     //endregion Ims TYPING
 
+    //region Ims Application Messages
+
+    /**
+     * @public
+     * @nodered true
+     * @method sendApplicationMessageContactJid
+     * @instance
+     * @async
+     * @category Ims Application Messages
+     * @description
+     * Sends a message to a Contact Jid that is ignored in the UCaaS app's message stream
+     * (e.g., in Rainbow Web Client, Desktop, Android, or iOS).
+     * Useful for bots to communicate with other bots in the same conversation
+     * without involving other users via the default application.
+     *
+     * @param jid - The Contact Jid to which the message is sent
+     * @param xmlElements - List of XML elements to create
+     * @return {Promise<any>} - that resolves on success
+     *
+     *
+     * exemple:
+     *
+     * ```
+     *
+     *  const Element = require('ltx').Element;
+     *  let contactEmailToSearch = "xxx@xxx.com";
+     *  // Retrieve a contact by its id
+     *  let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+     *  // Retrieve the associated conversation
+     *  let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
+     *  let now = new Date().getTime();
+     *  let xmlElements = new Element('instance', {'xmlns': 'tests:rainbownodesdk', 'id': now });
+     *  xmlElements.cnode(new Element('displayName').t("My displayName"));
+     *  xmlElements.cnode(new Element('description').t("My description"));
+     *  // Send message
+     *  let msgSent = await rainbowSDK.im.sendApplicationMessageContactJid(contact.jid, xmlElements);
+     *
+     * ```
+     *
+     */
+    async sendApplicationMessageContactJid(jid: any, xmlElements: Element): Promise<boolean> {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendApplicationMessageContactJid) is conversation defined : ", isDefined(jid), " is xmlElements defined : ", isDefined(xmlElements));
+        return new Promise(async (resolve, reject) => {
+            let type = "chat";
+            // const TYPE_CHAT = "chat";
+            // const TYPE_GROUPCHAT = "groupchat";
+            if (!isDefined(xmlElements)) {
+                return reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'xmlElements' is missing or null"}));
+            }
+
+            if (!isDefined(jid)) {
+                return reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'jid' is missing or null"}));
+            }
+
+            try {
+                const result = await that._xmpp.sendApplicationMessageAsync(jid, type, xmlElements);
+                return result ;
+            } catch (error) {
+                return reject( error);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @nodered true
+     * @method sendApplicationMessageBubbleJid
+     * @instance
+     * @async
+     * @category Ims Application Messages
+     * @description
+     * Sends a message to a Bubble Jid that is ignored in the UCaaS app's message stream
+     * (e.g., in Rainbow Web Client, Desktop, Android, or iOS).
+     * Useful for bots to communicate with other bots in the same conversation
+     * without involving other users via the default application.
+     *
+     * @param jid - The Bubble Jid to which the message is sent
+     * @param xmlElements - List of XML elements to create
+     * @return {Promise<any>} - that resolves on success
+     *
+     *
+     *
+     */
+    async sendApplicationMessageBubbleJid(jid: any, xmlElements: Element): Promise<boolean> {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendApplicationMessageBubbleJid) is conversation defined : ", isDefined(jid), " is xmlElements defined : ", isDefined(xmlElements));
+        return new Promise(async (resolve, reject) => {
+            let type = "groupchat";
+            // const TYPE_CHAT = "chat";
+            // const TYPE_GROUPCHAT = "groupchat";
+
+            if (!isDefined(xmlElements)) {
+                return reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'xmlElements' is missing or null"}));
+            }
+
+            if (!isDefined(jid)) {
+                return reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'jid' is missing or null"}));
+            }
+
+            try {
+                const result = await that._xmpp.sendApplicationMessageAsync(jid, type, xmlElements);
+                return result ;
+            } catch (error) {
+                return reject( error);
+            }
+        });
+    }
+
+    //endregion Ims Application Messages
 }
 
 module.exports.ImsService = ImsService;

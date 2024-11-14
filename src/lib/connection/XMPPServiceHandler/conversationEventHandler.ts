@@ -450,6 +450,8 @@ class ConversationEventHandler extends GenericHandler {
 
             let mentions = [];
 
+            let rainbowCpaas = undefined;
+
             voiceMessage = stanza.find("voicemessage").text();
             historyIndex = id;
             for (const node of children) {
@@ -1032,6 +1034,15 @@ class ConversationEventHandler extends GenericHandler {
 
                         break;
                     }
+                    case "rainbow-cpaas": {
+                        let xmlNodeStr = node ? node.toString():"<xml></xml>";
+                        let jsonNode = await getJsonFromXML(xmlNodeStr);
+                        that._logger.log(that.INTERNAL, LOG_ID + "(onChatMessageReceived) id : ", id, ", JSON rainbow-cpaas : ", "\n", jsonNode);
+                        rainbowCpaas = jsonNode["rainbow-cpaas"];
+                        delete rainbowCpaas["$attrs"];
+                        that._logger.log(that.INTERNAL, LOG_ID + "(onChatMessageReceived) id : ", id, ", JSON rainbow-cpaas : ", "\n", rainbowCpaas);
+                        break;
+                    }
                     default:
                         that._logger.log(that.ERROR, LOG_ID + "(onChatMessageReceived) id : ", id, ", unmanaged chat message node : ", node.getName());
                         that._logger.log(that.ERROR, LOG_ID + "(onChatMessageReceived) id : ", id, ", unmanaged chat message node : ", node.getName(), "\n", stanza.root ? prettydata.xml(stanza.root().toString()):stanza);
@@ -1188,7 +1199,8 @@ class ConversationEventHandler extends GenericHandler {
                     attachIndex,
                     attachNumber,
                     deleted : false,
-                    modified : false
+                    modified : false,
+                    rainbowCpaas
                 };
 
                 if (eventName) {
@@ -1249,7 +1261,7 @@ class ConversationEventHandler extends GenericHandler {
                     that._logger.log(that.INTERNAL, LOG_ID + "(onChatMessageReceived) id : ", id, ", This is a replace msg, so set data.originalMessageReplaced.replacedByMessage : ", replaceMessageId);
                     data.originalMessageReplaced.replacedByMessage = data;
                 } else {
-                    if (!hasATextMessage && !isForwarded && !deletedMsg && !modifiedMsg) {
+                    if (!hasATextMessage && !isForwarded && !deletedMsg && !modifiedMsg && !rainbowCpaas) {
                         that._logger.log(that.DEBUG, LOG_ID + "(onChatMessageReceived) id : ", id, ", with No message text, so ignore it! hasATextMessage : ", hasATextMessage);
                         return;
                     } else {
@@ -1268,11 +1280,36 @@ class ConversationEventHandler extends GenericHandler {
                 data.isMarkdown = false;
                 if (data.alternativeContent && data.alternativeContent.length > 0) {
                     data.isMarkdown = (data.alternativeContent[0]).type==="text/markdown";
-                }                
+                }
 
-                //let dataMessage : Message = await Message.create(data.id, data.type, data.date, data.fromJid, data.side, data.content, null, data.answeredMsg, data.answererdMsgId,data.answeredMsgDate, data.answeredMsgStamp, data.);
-                //let dataMessage : Message = await Message.create(data.id, data.type, data.date, data.fromJid, Message.Side.LEFT, data.content, null, data.answeredMsg, data.answeredMsgId,data.answeredMsgDate, data.answeredMsgStamp, data.isMarkdown, data.subject, data.attention, data.geoloc, data.alternativeContent);
-                let dataMessage: Message = await Message.create(
+                if (rainbowCpaas) {
+
+                    let dataRainbowCpaas = {
+                        "fromJid": data.fromJid,
+                        "resource": data.resource,
+                        "toJid": data.toJid,
+                        "type": messageType,
+                        "id": stanza.attrs.id,
+                        "lang": lang,
+                        "date": timestamp,
+                        "fromBubbleJid": null,
+                        "rainbowCpaas": data.rainbowCpaas
+                    };
+
+                    if (stanza.attrs.type===TYPE_CHAT) {
+
+                    }
+                    if (stanza.attrs.type===TYPE_GROUPCHAT) {
+                        dataRainbowCpaas["fromBubbleJid"] = data.fromJid;
+                    }
+
+                    that._logger.log(that.INTERNAL, LOG_ID + "(onChatMessageReceived) with dataRainbowCpaas : ", dataRainbowCpaas);
+                    that.eventEmitter.emit("evt_internal_rainbowcpaasreceived", dataRainbowCpaas);
+                } else {
+
+                    //let dataMessage : Message = await Message.create(data.id, data.type, data.date, data.fromJid, data.side, data.content, null, data.answeredMsg, data.answererdMsgId,data.answeredMsgDate, data.answeredMsgStamp, data.);
+                    //let dataMessage : Message = await Message.create(data.id, data.type, data.date, data.fromJid, Message.Side.LEFT, data.content, null, data.answeredMsg, data.answeredMsgId,data.answeredMsgDate, data.answeredMsgStamp, data.isMarkdown, data.subject, data.attention, data.geoloc, data.alternativeContent);
+                    let dataMessage: Message = await Message.create(
                         null,
                         null,
                         data.id,
@@ -1324,13 +1361,14 @@ class ConversationEventHandler extends GenericHandler {
                         data.forwardedMsg,
                         data.deleted,
                         data.modified
-                );
-                that._logger.log(that.INTERNAL, LOG_ID + "(_onMessageReceived) with dataMessage Message : ", dataMessage);
-                dataMessage.updateMessage(data);
-                that._logger.log(that.INTERNAL, LOG_ID + "(_onMessageReceived) with dataMessage updated Message : ", dataMessage);
+                    );
+                    that._logger.log(that.INTERNAL, LOG_ID + "(onChatMessageReceived) with dataMessage Message : ", dataMessage);
+                    dataMessage.updateMessage(data);
+                    that._logger.log(that.INTERNAL, LOG_ID + "(onChatMessageReceived) with dataMessage updated Message : ", dataMessage);
 
-                await that._onMessageReceived(conversationId, dataMessage);
-                //that._onMessageReceived(conversationId, data);
+                    await that._onMessageReceived(conversationId, dataMessage);
+                    //that._onMessageReceived(conversationId, data);
+                }
             } else {
                 that._logger.log(that.DEBUG, LOG_ID + "(onChatMessageReceived) We are the sender, so ignore it.");
                 that._logger.log(that.INTERNAL, LOG_ID + "(onChatMessageReceived) We are the sender, so ignore it : ", "\n", stanza.root ? prettydata.xml(stanza.root().toString()):stanza);

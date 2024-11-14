@@ -72,6 +72,8 @@ import * as ini from 'ini';
 
 import { readFile } from 'fs/promises';
 
+const Element = require('ltx').Element;
+
 // @ts-ignore
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) {
@@ -136,8 +138,8 @@ import * as v8 from "v8";
     output: process.stdout
 }); // */
 
-//let rainbowMode = "s2s" ;
-let rainbowMode = "xmpp";
+let rainbowMode = "s2s" ;
+//let rainbowMode = "xmpp";
 
 let ngrok = require('ngrok');
 //import ngrok from 'ngrok';
@@ -398,7 +400,7 @@ let urlS2S;
                 "http": true,
             },
             "filter": "",
-           // "areas": logLevelAreas,
+            "areas": logLevelAreas,
             /*,
             "areas" : {
                 "admin": {
@@ -1183,6 +1185,10 @@ let urlS2S;
 
     rainbowSDK.events.on("rainbow_ontaskdeleted", async function (data: any) {
         _logger.log("debug", "MAIN - (rainbow_ontaskdeleted) data : ", data);
+    });
+
+    rainbowSDK.events.on("rainbow_onrainbowcpaasreceived", async function (data: any) {
+        _logger.log("debug", "MAIN - (rainbow_onrainbowcpaasreceived) data : ", data);
     });
 
     class Tests {
@@ -2340,39 +2346,81 @@ let urlS2S;
             // let conversationWithMessagesRemoved = await rainbowSDK.conversations.removeAllMessages(conversation);
             //_logger.log("debug", "MAIN - testsendMessageToConversationForContact - conversation with messages removed : ", conversationWithMessagesRemoved);
     }
-/*
-    testeventrainbow_onconversationchanged() {
-        _logger.log("info", "MAIN - (testeventrainbow_onconversationchanged) started.");
-        rainbowSDK.events.on("rainbow_onconversationchanged", async function (conversation) {
-            try {
-                _logger.log("debug", "MAIN - (testeventrainbow_onconversationchanged) rainbow_onconversationchanged conversation.name : ", conversation.name, ", conversation.id : ", conversation.id, ", conversation.messages.length : ", conversation?.messages?.length);
-            } catch (err) {
-                _logger.log("error", "MAIN - (testeventrainbow_onconversationchanged) rainbow_onconversationchanged CATCH Error !!!");
-            }
-        });
-    }
 
-    async  testsendMessageToConversationForContactSeveralTimes(contactEmailToSearch = "vincent03@vbe.test.openrainbow.net", nbMsgToSend = 2, removeAllMessagesBeforeSend = false) {
+    async  testsendApplicationMessageContactJid() {
         //let that = this;
+        let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
         // Retrieve a contact by its id
         let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
         // Retrieve the associated conversation
         let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
-        if (removeAllMessagesBeforeSend && conversation?.id) {
-            await rainbowSDK.conversations.deleteAllMessageInOneToOneConversation(conversation);
-        }
-        let msgsSent = [];
-        for (let i = 1; i <= nbMsgToSend; i++) {
+        let now = new Date().getTime();
+        let xmlElements = new Element('instance', {'xmlns': 'tests:rainbownodesdk', 'id': now });
+        xmlElements.cnode(new Element('displayName').t("My displayName"));
+        xmlElements.cnode(new Element('description').t("My description"));
+        // Send message
+        let msgSent = await rainbowSDK.im.sendApplicationMessageContactJid(contact.jid, xmlElements);
+        //_logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
+        //_logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
+        //a rainbow_onrainbowcpaasreceived event should be received on other side.
+    }
+
+    async  testsendApplicationMessageBubbleJid() {
+        //let that = this;
+        _logger.log("debug", "MAIN - testsendApplicationMessageBubbleJid - getAll bubbles : ", rainbowSDK.bubbles.getAll());
+
+        //let bubbles = rainbowSDK.bubbles.getAllOwnedBubbles();
+        let bubbles = rainbowSDK.bubbles.getAllActiveBubbles();
+        _logger.log("debug", "MAIN - testsendApplicationMessageBubbleJid - getAllOwnedBubbles bubble : ", bubbles);
+        let bubble = bubbles.find(element => element.name==="bulle1")
+        _logger.log("debug", "MAIN - testsendApplicationMessageBubbleJid -  bubble \"bulle1\" : ", bubble);
+        if (bubble) {
+            let bubbleJid = bubble.jid;
             let now = new Date().getTime();
+            let xmlElements = new Element('instance', {'xmlns': 'tests:rainbownodesdk', 'id': now});
+            xmlElements.cnode(new Element('displayName').t("My displayName"));
+            xmlElements.cnode(new Element('description').t("My description"));
             // Send message
-            //let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "hello num " + i + " from node : " + now, "FR", null, "Le sujet de node : " + now, "middle");
-            let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "hello num " + i + " from node : " + now, "FR", null, "Le sujet de node : " + now);
-            // _logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
-            // _logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
-            msgsSent.push(msgSent);
-            _logger.log("debug", "MAIN - testsendMessageToConversationForContact - wait for message to be in conversation : ", msgSent);
-            await pause(300);
-            // */
+            let msgSent = await rainbowSDK.im.sendApplicationMessageBubbleJid(bubbleJid, xmlElements);
+            //_logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
+            //_logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
+            //a rainbow_onrainbowcpaasreceived event should be received on other side.
+        }
+    }
+
+        /*
+            testeventrainbow_onconversationchanged() {
+                _logger.log("info", "MAIN - (testeventrainbow_onconversationchanged) started.");
+                rainbowSDK.events.on("rainbow_onconversationchanged", async function (conversation) {
+                    try {
+                        _logger.log("debug", "MAIN - (testeventrainbow_onconversationchanged) rainbow_onconversationchanged conversation.name : ", conversation.name, ", conversation.id : ", conversation.id, ", conversation.messages.length : ", conversation?.messages?.length);
+                    } catch (err) {
+                        _logger.log("error", "MAIN - (testeventrainbow_onconversationchanged) rainbow_onconversationchanged CATCH Error !!!");
+                    }
+                });
+            }
+
+            async  testsendMessageToConversationForContactSeveralTimes(contactEmailToSearch = "vincent03@vbe.test.openrainbow.net", nbMsgToSend = 2, removeAllMessagesBeforeSend = false) {
+                //let that = this;
+                // Retrieve a contact by its id
+                let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+                // Retrieve the associated conversation
+                let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
+                if (removeAllMessagesBeforeSend && conversation?.id) {
+                    await rainbowSDK.conversations.deleteAllMessageInOneToOneConversation(conversation);
+                }
+                let msgsSent = [];
+                for (let i = 1; i <= nbMsgToSend; i++) {
+                    let now = new Date().getTime();
+                    // Send message
+                    //let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "hello num " + i + " from node : " + now, "FR", null, "Le sujet de node : " + now, "middle");
+                    let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "hello num " + i + " from node : " + now, "FR", null, "Le sujet de node : " + now);
+                    // _logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
+                    // _logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
+                    msgsSent.push(msgSent);
+                    _logger.log("debug", "MAIN - testsendMessageToConversationForContact - wait for message to be in conversation : ", msgSent);
+                    await pause(300);
+                    // */
             /* await Utils.until(() => {
                 return conversation.getMessageById(msgSent.id)!==undefined;
             }, "Wait for message to be added in conversation num : " + i);
