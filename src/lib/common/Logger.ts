@@ -643,7 +643,8 @@ class Logger {
                 args[k] = util.inspect(args[k], options);
             }
         }
-        let str = args.join(delemiter);
+        //let str =  Array.prototype.join.call(args, delemiter);
+        let str =  args.join(delemiter);
         return str;
     }
 
