@@ -10,9 +10,10 @@ import src from "../../index.js";
 const config = require ("../config/config");
 import {atob} from "atob";
 import {isArray} from "node:util";
-const Jimp = require('jimp');
-const dns = require('dns')
-const utilTypes = require('util').types
+import { Jimp } from "jimp";
+import { JimpMime } from "jimp";
+const dns = require('dns');
+const utilTypes = require('util').types;
 const xml2js = require('xml2js');
 const util = require("util");
 
@@ -541,23 +542,11 @@ function resizeImage (avatarImg, maxWidth, maxHeight) {
         Jimp.read(avatarImg) // this can be url or local location
             .then(image => {
                 // logger.log("debug", "(resizeImage) image : ", image);
-                image.resize(maxHeight, maxWidth) // jimp.AUTO automatically sets the width so that the image doesnot looks odd
+                return resolve(
+                    image.resize({"w":maxHeight, "h":maxWidth}) // , "mode":Jimp.RESIZE_BEZIER
                     // @ts-ignore
-                    .getBase64(Jimp.AUTO, (err, res) => {
-                        // logger.log("debug", "(setAvatarBubble) getBase64 : ", res);
-                        /*
-                        const buf = new Buffer(
-                            res.replace(/^data:image\/\w+;base64,/, ""),
-                            "base64"
-                        );
-                        let data = {
-                            Body: buf,
-                            ContentEncoding: "base64",
-                            ContentType: "image/jpeg"
-                        };
-                        // */
-                        return resolve(res);
-                    });
+                    .getBase64(JimpMime.jpeg)
+                    );
             })
             .catch(err => {
                 console.log("error", "(resizeImage) Error : ", err);

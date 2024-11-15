@@ -138,8 +138,8 @@ import * as v8 from "v8";
     output: process.stdout
 }); // */
 
-let rainbowMode = "s2s" ;
-//let rainbowMode = "xmpp";
+//let rainbowMode = "s2s" ;
+let rainbowMode = "xmpp";
 
 let ngrok = require('ngrok');
 //import ngrok from 'ngrok';
@@ -4973,15 +4973,28 @@ let urlS2S;
             //});
         }
 
-        testupdateAvatarForBubble() {
-            let result = rainbowSDK.bubbles.getAllOwnedBubbles();
-            _logger.log("debug", "MAIN - testupdateAvatarForBubble - result : ", result, "nb owned bulles : ", result ? result.length:0);
-            rainbowSDK.bubbles.updateAvatarForBubble("c:\\temp\\IMG_20131005_173918.jpg", result[0]);
+        async testupdateAvatarForBubble() {
+            try {
+                // vincent00 on .net use bubble : testBotDescription_2024/02/07T15:18:39.669Z
+                /*let result = rainbowSDK.bubbles.getAllOwnedBubbles();
+                _logger.log("debug", "MAIN - testupdateAvatarForBubble - result : ", result, "nb owned bulles : ", result ? result.length:0);
+                rainbowSDK.bubbles.updateAvatarForBubble("c:\\temp\\IMG_20131005_173918.jpg", result[0]);
+                // */
+                let bubbles = rainbowSDK.bubbles.getAllActiveBubbles();
+                _logger.log("debug", "MAIN - testupdateAvatarForBubble - getAllActiveBubbles bubble.length : ", bubbles ? bubbles.length:0);
+                let bubble = bubbles.find(element => element.name==="testBotName_2024/02/07T15:18:39.669ZGuestUser")
+                _logger.log("debug", "MAIN - testupdateAvatarForBubble -  bubble \"testBotName_2024/02/07T15:18:39.669ZGuestUser\" : ", bubble);
+                //let resultOfUpdateAvatarBubble = await rainbowSDK.bubbles.updateAvatarForBubble("c:\\temp\\IMG_20131005_173918.jpg", bubble);
+                let resultOfUpdateAvatarBubble = await rainbowSDK.bubbles.updateAvatarForBubble("c:\\temp\\infini.png", bubble);
+                _logger.log("debug", "MAIN - testupdateAvatarForBubble - resultOfUpdateAvatarBubble : ", resultOfUpdateAvatarBubble);
+            } catch (err) {
+                _logger.log("debug", "MAIN - testupdateAvatarForBubble - CATCH Error !!! error : ", err);
+            }
         }
 
         testgetAllOwnedBubbles() {
             let result = rainbowSDK.bubbles.getAllOwnedBubbles();
-            _logger.log("debug", "MAIN - testupdateAvatarForBubble - result : ", result, "nb owned bulles : ", result ? result.length:0);
+            _logger.log("debug", "MAIN - testgetAllOwnedBubbles - result : ", result, "nb owned bulles : ", result ? result.length:0);
         }
 
         testdeleteAllMessagesInRoomConversationFromModerator() {
