@@ -4984,8 +4984,8 @@ let urlS2S;
                 _logger.log("debug", "MAIN - testupdateAvatarForBubble - getAllActiveBubbles bubble.length : ", bubbles ? bubbles.length:0);
                 let bubble = bubbles.find(element => element.name==="testBotName_2024/02/07T15:18:39.669ZGuestUser")
                 _logger.log("debug", "MAIN - testupdateAvatarForBubble -  bubble \"testBotName_2024/02/07T15:18:39.669ZGuestUser\" : ", bubble);
-                //let resultOfUpdateAvatarBubble = await rainbowSDK.bubbles.updateAvatarForBubble("c:\\temp\\IMG_20131005_173918.jpg", bubble);
-                let resultOfUpdateAvatarBubble = await rainbowSDK.bubbles.updateAvatarForBubble("c:\\temp\\infini.png", bubble);
+                let resultOfUpdateAvatarBubble = await rainbowSDK.bubbles.updateAvatarForBubble("c:\\temp\\IMG_20131005_173918.jpg", bubble);
+                //let resultOfUpdateAvatarBubble = await rainbowSDK.bubbles.updateAvatarForBubble("c:\\temp\\infini.png", bubble);
                 _logger.log("debug", "MAIN - testupdateAvatarForBubble - resultOfUpdateAvatarBubble : ", resultOfUpdateAvatarBubble);
             } catch (err) {
                 _logger.log("debug", "MAIN - testupdateAvatarForBubble - CATCH Error !!! error : ", err);
