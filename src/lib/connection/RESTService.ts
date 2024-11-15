@@ -617,12 +617,12 @@ class RESTService extends GenericRESTService {
 
                 that.http.apiHeadersConfiguration = httpUrls;
 
-                that.apiConfigTTL = apiSettings?.ttl;
+                that.apiConfigTTL = (apiSettings?.ttl > 10) ? (apiSettings?.ttl - 5) : (apiSettings?.ttl - 1);
                 if (that.apiConfigTTL) {
                     that.apiConfigTTLTimeout = setTimeout(() => {
                         that.apiConfigTTL = 0;
                         that.getApiConfigurationFromServer();
-                    }, that.apiConfigTTL * 1000);
+                    }, that.apiConfigTTL  * 1000 * 60);
                 }
             }).catch((error) => {
                 that._logger.log(that.WARN, LOG_ID + "(getApiConfigurationFromServer) Failed to retrieve API settings : ", error);
