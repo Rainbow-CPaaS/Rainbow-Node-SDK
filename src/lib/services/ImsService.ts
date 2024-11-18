@@ -1142,7 +1142,7 @@ class ImsService extends GenericService{
 
             try {
                 const result = await that._xmpp.sendApplicationMessageAsync(jid, type, xmlElements);
-                return result ;
+                return resolve(result);
             } catch (error) {
                 return reject( error);
             }
@@ -1187,7 +1187,7 @@ class ImsService extends GenericService{
 
             try {
                 const result = await that._xmpp.sendApplicationMessageAsync(jid, type, xmlElements);
-                return result ;
+                return resolve(result);
             } catch (error) {
                 return reject( error);
             }
