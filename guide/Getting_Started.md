@@ -232,7 +232,7 @@ let options = {
                               // DataStoreType.UsestoreMessagesField to follow the storeMessages SDK's parameter behaviour. 
         "autoInitialGetBubbles": true,
         "autoInitialBubblePresence": true,
-        "autoInitialBubbleFormat": "small",
+        "autoInitialBubbleFormat": "full",
         "autoInitialBubbleUnsubscribed": true,
         "autoLoadConversations": true,
         "autoLoadConversationHistory" : false,
