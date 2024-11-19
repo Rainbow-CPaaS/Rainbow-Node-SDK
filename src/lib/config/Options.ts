@@ -492,7 +492,7 @@ class Options {
             messagesDataStore: DataStoreType.UsestoreMessagesField,
             autoInitialGetBubbles: true,
             autoInitialBubblePresence: true,
-            "autoInitialBubbleFormat": "small",
+            "autoInitialBubbleFormat": "full",
             "autoInitialBubbleUnsubscribed": false,
             autoLoadConversations: true,
             autoLoadConversationHistory: false,
