@@ -220,7 +220,7 @@ let urlS2S;
     logLevelAreas.webinars.api = true;
     logLevelAreas.webinars.level = LEVELSNAMES.ERROR;
     logLevelAreas.core.level = LEVELSNAMES.ERROR;
-    logLevelAreas.bubblemanager.level = LEVELSNAMES.ERROR;
+    logLevelAreas.bubblesmanager.level = LEVELSNAMES.ERROR;
     logLevelAreas.httpmanager.level = LEVELSNAMES.ERROR;
     logLevelAreas.httpservice.level = LEVELSNAMES.ERROR;
     logLevelAreas.rest.level = LEVELSNAMES.ERROR;
@@ -263,7 +263,7 @@ let urlS2S;
     logLevelAreas.conversationhistory.level = LEVELSNAMES.INTERNAL;
     // */
 
-    //logLevelAreas.bubblemanager.level = LEVELSNAMES.INTERNAL;
+    //logLevelAreas.bubblesmanager.level = LEVELSNAMES.INTERNAL;
 
     logLevelAreas.fileServer.api = true;
     logLevelAreas.fileServer.level = LEVELSNAMES.INTERNAL;
@@ -278,6 +278,9 @@ let urlS2S;
         logLevelAreas.s2s.level = LEVELSNAMES.INTERNAL;
         logLevelAreas.s2sevent.level = LEVELSNAMES.INTERNAL;
     }
+
+    logLevelAreas.bubblesmanager.level = LEVELSNAMES.INTERNAL;
+
 // */
 // Define your configuration
     let options: any = {
@@ -537,7 +540,7 @@ let urlS2S;
                     "category": "lawlayer",
                     "level": "debug"
                 },
-                'bubblemanager': {
+                'bubblesmanager': {
                     "category": "lawlayer",
                     "level": "error"
                 },

@@ -69,7 +69,7 @@ class BubblesManager extends LevelLogs {
         return BubblesManager.getClassName();
     }
 
-    static getAccessorName(){ return 'bubblemanager'; }
+    static getAccessorName(){ return 'bubblesmanager'; }
     getAccessorName(){ return BubblesManager.getAccessorName(); }
 
     constructor(_eventEmitter: EventEmitter, _logger: Logger) {

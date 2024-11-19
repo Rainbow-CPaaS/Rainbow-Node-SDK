@@ -168,7 +168,7 @@ interface LogLevelAreasInterface {
  version: Service;
  webinars: Service;
  core: LawLayer;
- bubblemanager: LawLayer;
+ bubblesmanager: LawLayer;
  httpmanager: LawLayer;
  httpservice: LawLayer;
  rest: LawLayer;
@@ -331,7 +331,7 @@ class LogLevelAreas implements LogLevelAreasInterface  {
          "category": "lawlayer",
          "level": level
      };
-     this.bubblemanager = {
+     this.bubblesmanager = {
          "category": "lawlayer",
          "level": level
      };
@@ -597,12 +597,12 @@ class LogLevelAreas implements LogLevelAreasInterface  {
     }
 
     showBubblesLogs(level : LEVELSNAMES = LEVELSNAMES.XMPP, api : boolean = true) {
-        this.bubblemanager.level = level;
+        this.bubblesmanager.level = level;
         this.bubbles.level = level;
         this.bubbles.api = api;
     }
     hideBubblesLogs(level : LEVELSNAMES = LEVELSNAMES.ERROR, api : boolean = false) {
-        this.bubblemanager.level = level;
+        this.bubblesmanager.level = level;
         this.bubbles.level = level;
         this.bubbles.api = api;
     }
@@ -663,7 +663,7 @@ class LogLevelAreas implements LogLevelAreasInterface  {
          version : this.version,
          webinars : this.webinars,
          core:  this.core,
-         bubblemanager:  this.bubblemanager,
+         bubblesmanager:  this.bubblesmanager,
          httpmanager:  this.httpmanager,
          httpservice:  this.httpservice,
          rest:  this.rest,
@@ -720,11 +720,11 @@ class LogLevelAreas implements LogLevelAreasInterface  {
   this._alerts = value;
  }
 
- get bubblemanager(): LawLayer {
+ get bubblesmanager(): LawLayer {
   return this._bubblemanager;
  }
 
- set bubblemanager(value: LawLayer) {
+ set bubblesmanager(value: LawLayer) {
   this._bubblemanager = value;
  }
 
