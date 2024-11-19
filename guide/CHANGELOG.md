@@ -12,10 +12,14 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   None
 
 #### Fixed
--   Fix loading message history
+-   Fix loading message history.
 -   Remove child event in XMPPService in fn_STANZA_EVENT callback. To increase speed of treatment.
--   Fix default values of FileStorageService::retrieveSentFiles
--   Fix `NodeSDK` java doc
+-   Fix default values of FileStorageService::retrieveSentFiles.
+-   Fix `NodeSDK` java doc.
+-   Fix doc "autoInitialBubbleFormat" : "full".
+-   Fix spelling of label `bubblemanager` to `bubblesmanager` for logs.
+-   Fix the `ttl` usfor renew of get `settings`.
+-   Fix rainbowSDK.bubbles.updateAvatarForBubble because the Jimp library API changed.
 
 #### Added
 -   Add options to SDK {boolean} options.im.autoLoadCallLog to activate the retrieve of calllog from the server. The default value is false.
@@ -24,6 +28,10 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add Utils::loadConfigFromIniFile Utils::saveConfigFromIniFile to manage a config.ini file in $USERDATA$/Rainbow/RainbowNodeSdkDir directory.
 -   Add `setCredentialPassword` API to set the password credential of the Bot for the login.
 -   Add method `destroy()` on SDK. This method should be called before the bot to point to the SDK's instance to remove listener of "process" object.
+-   Add `ImsService::sendApplicationMessageContactJid` API method to Sends a message to a Contact Jid that is ignored in the UCaaS app's message stream.
+-   Add `ImsService::sendApplicationMessageBubbleJid` API method to Sends a message to a bubbleJid that is ignored in the UCaaS app's message stream.
+-   Add `rainbow_onrainbowcpaasreceived` event Fired when a `rainbow-cpaas` event is receveid for a private data exchange.
+-   Add a log for `Replaced by new connection` xmpp error.
 
 #### Changed
 -   Update `createBubble` with new parameters, and update "withHistory" parameter to "history" parameter to fllow ths string type. Note that for compatibility, if a boolean is provided then the API still have the same behaviour.
@@ -31,7 +39,10 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Replace old `Jenkinsfile-lts.groovy` and `Jenkinsfile-sts.groovy` with a merged `Jenkinsfile` file for new jenkins server.
 -   Update got network lib default config value.
 -   Update `HttpService` methods to use a param nbRetryBeforeFailed to use the `retry` mechanism of got library.
--   Update 'xmppRessourceName' Option to be store in config.ini file to keep the same ressource name when a new SDK is constructed. So a user can only be connected one times on one computer. Note that the ressource name will be the same if few users has an instance of SDK.
+-   Update `xmppRessourceName` Option to be store in config.ini file to keep the same ressource name when a new SDK is constructed. So a user can only be connected one times on one computer. Note that the ressource name will be the same if few users has an instance of SDK.
+-   Update `AdminService::retrieveAllOffersOfCompanyById` with parameters to filter the search.
+-   Update method to find if the presence for teams in `isFromPresenceJid`.
+-   Update of `getConnectionStatus()` API with `serviceStatus` to give the started status of SDK's services.
 
 ### [2.30.0] - 2024-07-03
 #### Removed
