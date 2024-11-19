@@ -518,7 +518,7 @@ class Options {
             autoInitialGetBubbles: true,
             autoInitialBubblePresence: true,
             maxBubbleJoinInProgress: 10,
-            "autoInitialBubbleFormat": "small",
+            "autoInitialBubbleFormat": "full",
             "autoInitialBubbleUnsubscribed": false,
             autoLoadConversations: true,
             autoLoadConversationHistory: false,
