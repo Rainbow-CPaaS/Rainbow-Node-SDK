@@ -58,7 +58,7 @@ doclts:
 	mkdir -p doc/sdk/node/lts/api && \
 	cp build/*.md doc/sdk/node/lts/api && \
 	cp build/*.xml doc/sdk/node/lts/api && \
-	cp build/*.cdx doc/sdk/node/sts/api && \
+	cp build/*.cdx doc/sdk/node/lts/api && \
 	mkdir -p doc/sdk/node/lts/guides && \
 	cp guide/*.md doc/sdk/node/lts/guides && \
 	grunt generatemermaid
