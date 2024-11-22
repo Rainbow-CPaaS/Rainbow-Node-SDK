@@ -96,7 +96,7 @@ pipeline {
                  steps {
                     echo "Init started."
                     script {
-                            def BuildCauses0=currentBuild.getBuildCauses()[0]
+                            /*def BuildCauses0=currentBuild.getBuildCauses()[0]
                             def BuildCauses1=currentBuild.getBuildCauses()[1]
                             echo 'currentBuild.getBuildCauses() : ' currentBuild.getBuildCauses()
                             (BuildCauses0 == null || BuildCauses0.isEmpty()) ? echo 'BuildCauses0 is defined' : echo 'BuildCauses0 is not defined'
@@ -105,9 +105,11 @@ pipeline {
                                 echo 'starting build ...'
                                 BUILD_TRIGGER_BY = BuildCauses0.shortDescription + " / " + BuildCauses1.shortDescription
                             } else {
+                            // */
                                 echo 'skipping BUILD_TRIGGER_BY retrieve. Set it to empty.'
                                 BUILD_TRIGGER_BY = ""
-                            }
+                           /* }
+                           // */
                         //BUILD_TRIGGER_BY = currentBuild.getBuildCauses()[0]
                         //BUILD_TRIGGER_BY = currentBuild.getBuildCauses()
                         CAUSE = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')
