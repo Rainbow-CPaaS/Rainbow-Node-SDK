@@ -96,7 +96,17 @@ pipeline {
                  steps {
                     echo "Init started."
                     script {
-                        BUILD_TRIGGER_BY = currentBuild.getBuildCauses()[0].shortDescription + " / " + currentBuild.getBuildCauses()[1].shortDescription
+                            def BuildCauses0=currentBuild.getBuildCauses()[0]
+                            def BuildCauses1=currentBuild.getBuildCauses()[1]
+                            (BuildCauses0 == null || BuildCauses0.isEmpty()) ? println('BuildCauses0 is defined') : println('BuildCauses0 is not defined')
+                            (BuildCauses1 == null || BuildCauses1.isEmpty()) ? println('BuildCauses1 is defined') : println('BuildCauses1 is not defined')
+                            if ((BuildCauses0 == null || BuildCauses0.isEmpty()) && (BuildCauses1 == null || BuildCauses1.isEmpty()) {
+                                echo 'starting build ...'
+                                BUILD_TRIGGER_BY = BuildCauses0.shortDescription + " / " + BuildCauses1.shortDescription
+                            } else {
+                                echo 'skipping BUILD_TRIGGER_BY retrieve. Set it to empty.'
+                                BUILD_TRIGGER_BY = ""
+                            }
                         //BUILD_TRIGGER_BY = currentBuild.getBuildCauses()[0]
                         //BUILD_TRIGGER_BY = currentBuild.getBuildCauses()
                         CAUSE = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')
