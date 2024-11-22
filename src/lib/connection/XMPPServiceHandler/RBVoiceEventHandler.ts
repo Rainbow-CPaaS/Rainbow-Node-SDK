@@ -27,21 +27,24 @@ const LOG_ID = "XMPP/HNDL/RBVOICE - ";
 
 @logEntryExit(LOG_ID)
 class RBVoiceEventHandler extends GenericHandler {
-	public MESSAGE: any;
-	public MESSAGE_MANAGEMENT: any;
-	public MESSAGE_ERROR: any;
-	public MESSAGE_HEADLINE: any;
-	public IQ_RESULT: any;
-	public IQ_ERROR: any;
-	private _core : Core;
-	public rbVoiceService: RBVoiceService;
-	public contactsService: ContactsService;
-	public promiseQueue: any;
-	public _profilesService: ProfilesService;
-    public xmppUtils: XMPPUTils;	
+        public MESSAGE: any;
+        public MESSAGE_MANAGEMENT: any;
+        public MESSAGE_ERROR: any;
+        public MESSAGE_HEADLINE: any;
+        public IQ_RESULT: any;
+        public IQ_ERROR: any;
+        private _core : Core;
+        public rbVoiceService: RBVoiceService;
+        public contactsService: ContactsService;
+        public promiseQueue: any;
+        public _profilesService: ProfilesService;
+    public xmppUtils: XMPPUTils;        
 
     static getClassName(){ return 'RBVoiceEventHandler'; }
     getClassName(){ return RBVoiceEventHandler.getClassName(); }
+
+    static getAccessorName(){ return 'rbvoiceevent'; }
+    getAccessorName(){ return RBVoiceEventHandler.getAccessorName(); }
 
     constructor(xmppService : XMPPService, core: Core) {
         super(xmppService);
@@ -68,8 +71,7 @@ class RBVoiceEventHandler extends GenericHandler {
         this._core = core;
         this.contactsService = core.contacts;
         this._profilesService = core.profiles;
-        this.promiseQueue = PromiseQueue.createPromiseQueue(that.logger);
-
+        this.promiseQueue = PromiseQueue.createPromiseQueue(that._logger);
     }
 
     onIqResultReceived (msg, stanza) {
@@ -78,7 +80,7 @@ class RBVoiceEventHandler extends GenericHandler {
         children.forEach((node) => {
             switch (node.getName()) {
                 case "default":
-                    //that.logger.log("warn", LOG_ID + "(handleXMPPConnection, onIqResultReceived) not managed - 'stanza'", node.getName());
+                    //that._logger.log(that.WARN, LOG_ID + "(handleXMPPConnection, onIqResultReceived) not managed - 'stanza'", node.getName());
                     break;
                 default:
                 //that
@@ -88,34 +90,42 @@ class RBVoiceEventHandler extends GenericHandler {
         });
     };
 
-    onErrorMessageReceived (msg, stanza) {
+    onErrorMessageReceived (msg, stanzaTab) {
         let that = this;
+        let stanza = stanzaTab[0];
+        let prettyStanza = stanzaTab[1];
+        let jsonStanza = stanzaTab[2];
 
         try {
             if (stanza.getChild('no-store') != undefined){
-                // // Treated in conversation handler that.logger.log("error", LOG_ID + "(onErrorMessageReceived) The 'to' of the message can not received the message");
+                // // Treated in conversation handler that._logger.log(that.ERROR, LOG_ID + "(onErrorMessageReceived) The 'to' of the message can not received the message");
             } else {
-                //  that.logger.log("error", LOG_ID + "(onErrorMessageReceived) something goes wrong...");
-                that.logger.log("error", LOG_ID + "(onErrorMessageReceived) something goes wrong... : ", msg, "\n", stanza?.root ? prettydata.xml(stanza?.root().toString()) : stanza);
+                //that._logger.log(that.ERROR, LOG_ID + "(onErrorMessageReceived) something goes wrong...");
+                that._logger.log(that.ERROR, LOG_ID + "(onErrorMessageReceived) something goes wrong... : ", msg, "\n", prettyStanza);
                 that.eventEmitter.emit("evt_internal_xmpperror", msg);
             }
         } catch (err) {
-            //  that.logger.log("error", LOG_ID + "(onErrorMessageReceived) CATCH Error !!! ");
-            that.logger.log("error", LOG_ID + "(onErrorMessageReceived) CATCH Error !!! : ", err);
+            // that._logger.log(that.ERROR, LOG_ID + "(onErrorMessageReceived) CATCH Error !!! ");
+            that._logger.log(that.ERROR, LOG_ID + "(onErrorMessageReceived) CATCH Error !!! : ", err);
         }
     };
 
-    async onMessageReceived(msg, stanza) {
+    async onMessageReceived(msg, stanzaTab) {
         let that = this;
+        let stanza = stanzaTab[0];
+        let prettyStanza = stanzaTab[1];
+        let jsonStanza = stanzaTab[2];
 
-        that.logger.log("internal", LOG_ID + "(onMessageReceived) _entering_ : ", msg, stanza?.root ? prettydata.xml(stanza?.root().toString()):stanza);
+        that._logger.log(that.INTERNAL, LOG_ID + "(onMessageReceived) _entering_ : ", msg, prettyStanza);
         try {
             let stanzaElem = stanza;
             //let that = this;
 
-            let xmlNodeStr = stanza ? stanza.toString():"<xml></xml>";
+            /*let xmlNodeStr = stanza ? stanza.toString():"<xml></xml>";
             let reqObj = await getJsonFromXML(xmlNodeStr);
-            that.logger.log("internal", LOG_ID + "(onMessageReceived) reqObj : ", reqObj);
+            that._logger.log(that.DEBUG, LOG_ID + "(onMessageReceived) reqObj : ", reqObj);
+            // */
+            that._logger.log(that.DEBUG, LOG_ID + "(onMessageReceived) jsonStanza : ", jsonStanza);
 
             // Ignore "Offline" message
             let delay = stanzaElem.getChild("delay");
@@ -127,26 +137,29 @@ class RBVoiceEventHandler extends GenericHandler {
             let to = stanza.attrs.to;
 
         } catch (error) {
-            //  that.logger.log("error", LOG_ID + "(onMessageReceived) CATCH Error !!! -- failure -- ");
-            that.logger.log("error", LOG_ID + "(onMessageReceived) CATCH Error !!! -- failure -- : ", error);
+            // that._logger.log(that.ERROR, LOG_ID + "(onMessageReceived) CATCH Error !!! -- failure -- ");
+            that._logger.log(that.ERROR, LOG_ID + "(onMessageReceived) CATCH Error !!! -- failure -- : ", error);
             //return true;
         }
 
-        that.logger.log("debug", LOG_ID + "(onMessageReceived) _exiting_");
+        that._logger.log(that.DEBUG, LOG_ID + "(onMessageReceived) _exiting_");
         return true;
     }
 
-    async onManagementMessageReceived(msg, stanza) {
+    async onManagementMessageReceived(msg, stanzaTab) {
         let that = this;
+        let stanza = stanzaTab[0];
+        let prettyStanza = stanzaTab[1];
+        let jsonStanza = stanzaTab[2];
 
-        that.logger.log("internal", LOG_ID + "(onManagementMessageReceived) _entering_ : ", msg, stanza?.root ? prettydata.xml(stanza?.root().toString()):stanza);
+        that._logger.log(that.INTERNAL, LOG_ID + "(onManagementMessageReceived) _entering_ : ", msg, prettyStanza);
         try {
             let stanzaElem = stanza;
             //let that = this;
 
             let xmlNodeStr = stanza ? stanza.toString():"<xml></xml>";
             let reqObj = await getJsonFromXML(xmlNodeStr);
-            that.logger.log("internal", LOG_ID + "(onManagementMessageReceived) reqObj : ", reqObj);
+            that._logger.log(that.DEBUG, LOG_ID + "(onManagementMessageReceived) reqObj : ", reqObj);
 
             // Ignore "Offline" message
             let delay = stanzaElem.getChild("delay");
@@ -158,25 +171,28 @@ class RBVoiceEventHandler extends GenericHandler {
             let to = stanza.attrs.to;
 
         } catch (error) {
-            //  that.logger.log("error", LOG_ID + "(onManagementMessageReceived) CATCH Error !!! -- failure -- ");
-            that.logger.log("error", LOG_ID + "(onManagementMessageReceived) CATCH Error !!! -- failure -- : ", error);
+            // that._logger.log(that.ERROR, LOG_ID + "(onManagementMessageReceived) CATCH Error !!! -- failure -- ");
+            that._logger.log(that.ERROR, LOG_ID + "(onManagementMessageReceived) CATCH Error !!! -- failure -- : ", error);
             //return true;
         }
 
-        that.logger.log("debug", LOG_ID + "(onManagementMessageReceived) _exiting_");
+        that._logger.log(that.DEBUG, LOG_ID + "(onManagementMessageReceived) _exiting_");
         return true;
     }
     
-    async onHeadlineMessageReceived(msg, stanza) {
+    async onHeadlineMessageReceived(msg, stanzaTab) {
         let that = this;
+        let stanza = stanzaTab[0];
+        let prettyStanza = stanzaTab[1];
+        let jsonStanza = stanzaTab[2];
 
-        that.logger.log("internal", LOG_ID + "(onHeadlineMessageReceived) _entering_ : ", msg, stanza?.root ? prettydata.xml(stanza?.root().toString()):stanza);
+        that._logger.log(that.INTERNAL, LOG_ID + "(onHeadlineMessageReceived) _entering_ : ", msg, prettyStanza);
         try {
             let stanzaElem = stanza;
             //let that = this;
-            let xmlNodeStr = stanza ? stanza.toString():"<xml></xml>";
-            let stanzaObj = await getJsonFromXML(xmlNodeStr);
-            that.logger.log("internal", LOG_ID + "(onHeadlineMessageReceived) stanzaObj : ", stanzaObj);
+            //let xmlNodeStr = stanza ? stanza.toString():"<xml></xml>";
+            let stanzaObj = jsonStanza; //await getJsonFromXML(xmlNodeStr);
+            that._logger.log(that.DEBUG, LOG_ID + "(onHeadlineMessageReceived) stanzaObj : ", stanzaObj);
 
             if (stanzaObj && stanzaObj.message) {
                 let from = stanzaObj.message.$attrs.from;
@@ -189,12 +205,12 @@ class RBVoiceEventHandler extends GenericHandler {
             }
             
         } catch (error) {
-            // that.logger.log("error", LOG_ID + "(onHeadlineMessageReceived) CATCH Error !!! -- failure -- ");
-            that.logger.log("error", LOG_ID + "(onHeadlineMessageReceived) CATCH Error !!! -- failure -- : ", error);
+            // that._logger.log(that.ERROR, LOG_ID + "(onHeadlineMessageReceived) CATCH Error !!! -- failure -- ");
+            that._logger.log(that.ERROR, LOG_ID + "(onHeadlineMessageReceived) CATCH Error !!! -- failure -- : ", error);
             //return true;
         }
 
-        that.logger.log("debug", LOG_ID + "(onHeadlineMessageReceived) _exiting_");
+        that._logger.log(that.DEBUG, LOG_ID + "(onHeadlineMessageReceived) _exiting_");
         return true;
     }
     

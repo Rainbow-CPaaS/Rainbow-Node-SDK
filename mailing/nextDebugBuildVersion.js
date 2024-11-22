@@ -120,7 +120,7 @@ options.logs.customLabel = options.credentials.login;
 // Instantiate the SDK
 let rainbowSDK = new RainbowSDK(options);
 
-let logger = rainbowSDK._core.logger;
+let logger = rainbowSDK._core._logger;
 
 logger.log("debug", "MAIN - nextDailyBuildVersion started ", logger.colors.green("Hello")); //logger.colors.green(JSON.stringify(result)));
 let content = fs.readFileSync(path.join(__dirname, "../package.json"));

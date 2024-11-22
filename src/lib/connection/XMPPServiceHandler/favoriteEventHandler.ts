@@ -45,6 +45,9 @@ class FavoriteEventHandler extends GenericHandler {
     static getClassName(){ return 'FavoriteEventHandler'; }
     getClassName(){ return FavoriteEventHandler.getClassName(); }
 
+    static getAccessorName(){ return 'favoriteevent'; }
+    getAccessorName(){ return FavoriteEventHandler.getAccessorName(); }
+
     constructor(xmppService, channelsService) {
         super(xmppService);
 
@@ -67,9 +70,9 @@ class FavoriteEventHandler extends GenericHandler {
         /*
         this.findChildren = (element) => {
             try {
-                that.logger.log("debug", LOG_ID + "(findChildren) _entering_");
-                that.logger.log("internal", LOG_ID + "(findChildren) _entering_", element);
-                that.logger.log("error", LOG_ID + "(findChildren) findChildren element : ", element, " name : ", element.getName());
+                that._logger.log(that.DEBUG, LOG_ID + "(findChildren) _entering_");
+                that._logger.log(that.INTERNAL, LOG_ID + "(findChildren) _entering_", element);
+                that._logger.log(that.ERROR, LOG_ID + "(findChildren) findChildren element : ", element, " name : ", element.getName());
                 let json = {};
                 //let result = null;
                 let children = element.children;
@@ -79,20 +82,20 @@ class FavoriteEventHandler extends GenericHandler {
                     children.forEach((elemt) => {
                         // @ts-ignore
                         if (typeof elemt.children === Array) {
-                            that.logger.log("error", LOG_ID + "(findChildren)  children.forEach Array : ", element, ", elemt : ", elemt);
+                            that._logger.log(that.ERROR, LOG_ID + "(findChildren)  children.forEach Array : ", element, ", elemt : ", elemt);
                             childrenJson[elemt.getName()] = elemt.children[0];
                         }
-                        that.logger.log("error", LOG_ID + "(findChildren)  children.forEach element : ", element, ", elemt : ", elemt);
+                        that._logger.log(that.ERROR, LOG_ID + "(findChildren)  children.forEach element : ", element, ", elemt : ", elemt);
                         childrenJson[elemt.getName()] = this.findChildren(elemt);
                     });
                     return json;
                 } else {
-                    that.logger.log("error", LOG_ID + "(findChildren)  No children element : ", element);
+                    that._logger.log(that.ERROR, LOG_ID + "(findChildren)  No children element : ", element);
                     return element.getText();
                 }
                 //return result;
             } catch (err) {
-                that.logger.log("error", LOG_ID + "(findChildren) CATCH Error !!! : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(findChildren) CATCH Error !!! : ", err);
             }
         };
 
@@ -100,11 +103,14 @@ class FavoriteEventHandler extends GenericHandler {
 
     }
 
-    onManagementMessageReceived (msg, stanza) {
+    onManagementMessageReceived (msg, stanzaTab) {
         let that = this;
+        let stanza = stanzaTab[0];
+        let prettyStanza = stanzaTab[1];
+        let jsonStanza = stanzaTab[2];
 
         try {
-            that.logger.log("internal", LOG_ID + "(onManagementMessageReceived) _entering_ : ", msg, stanza?.root ? prettydata.xml(stanza?.root().toString()) : stanza);
+            that._logger.log(that.INTERNAL, LOG_ID + "(onManagementMessageReceived) _entering_ : ", msg, prettyStanza);
             let children = stanza.children;
             children.forEach(function (node) {
                 switch (node.getName()) {
@@ -170,21 +176,24 @@ class FavoriteEventHandler extends GenericHandler {
                     case "logs":
                         // treated in conversationEventHandler
                         break;
+                    case "todo":
+                        // treated in tasksEventHandler
+                        break;
                     default:
-                        that.logger.log("error", LOG_ID + "(onManagementMessageReceived) unmanaged management message node " + node.getName());
+                        that._logger.log(that.ERROR, LOG_ID + "(onManagementMessageReceived) unmanaged management message node " + node.getName());
                         break;
                 }
             });
         } catch (err) {
-            //  that.logger.log("error", LOG_ID + "(onManagementMessageReceived) CATCH Error !!! ");
-            that.logger.log("error", LOG_ID + "(onManagementMessageReceived) CATCH Error !!! : ", err);
+            // that._logger.log(that.ERROR, LOG_ID + "(onManagementMessageReceived) CATCH Error !!! ");
+            that._logger.log(that.ERROR, LOG_ID + "(onManagementMessageReceived) CATCH Error !!! : ", err);
         }
     };
 
     onFavoriteManagementMessageReceived (stanza) {
         let that = this;
 
-        that.logger.log("internal", LOG_ID + "(onFavoriteManagementMessageReceived) _entering_ : ", "\n", stanza?.root ? prettydata.xml(stanza?.root().toString()) : stanza);
+        that._logger.log(that.INTERNAL, LOG_ID + "(onFavoriteManagementMessageReceived) _entering_ : ", "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
 
         try {
             let stanzaElem = stanza;
@@ -212,8 +221,8 @@ class FavoriteEventHandler extends GenericHandler {
             }
             return true;
         } catch (err) {
-            //  that.logger.log("error", LOG_ID + "(onFavoriteManagementMessageReceived) -- failure -- ");
-            that.logger.log("error", LOG_ID + "(onFavoriteManagementMessageReceived) -- failure -- : ", err.message);
+            // that._logger.log(that.ERROR, LOG_ID + "(onFavoriteManagementMessageReceived) -- failure -- ");
+            that._logger.log(that.ERROR, LOG_ID + "(onFavoriteManagementMessageReceived) -- failure -- : ", err.message);
             return true;
         }
 
@@ -226,20 +235,23 @@ class FavoriteEventHandler extends GenericHandler {
     onReceiptMessageReceived (msg, stanza) {
     };
 
-    onErrorMessageReceived (msg, stanza) {
+    onErrorMessageReceived (msg, stanzaTab) {
         let that = this;
+        let stanza = stanzaTab[0];
+        let prettyStanza = stanzaTab[1];
+        let jsonStanza = stanzaTab[2];
 
         try {
             if (stanza.getChild('no-store') != undefined){
-                // // Treated in conversation handler that.logger.log("error", LOG_ID + "(onErrorMessageReceived) The 'to' of the message can not received the message");
+                // // Treated in conversation handler that._logger.log(that.ERROR, LOG_ID + "(onErrorMessageReceived) The 'to' of the message can not received the message");
             } else {
-                //  that.logger.log("error", LOG_ID + "(onErrorMessageReceived) something goes wrong...");
-                that.logger.log("error", LOG_ID + "(onErrorMessageReceived) something goes wrong... : ", msg, "\n", stanza?.root ? prettydata.xml(stanza?.root().toString()) : stanza);
+                // that._logger.log(that.ERROR, LOG_ID + "(onErrorMessageReceived) something goes wrong...");
+                that._logger.log(that.ERROR, LOG_ID + "(onErrorMessageReceived) something goes wrong... : ", msg, "\n", prettyStanza);
                 that.eventEmitter.emit("evt_internal_xmpperror", msg);
             }
         } catch (err) {
-            //  that.logger.log("error", LOG_ID + "(onErrorMessageReceived) CATCH Error !!! ");
-            that.logger.log("error", LOG_ID + "(onErrorMessageReceived) CATCH Error !!! : ", err);
+            // that._logger.log(that.ERROR, LOG_ID + "(onErrorMessageReceived) CATCH Error !!! ");
+            that._logger.log(that.ERROR, LOG_ID + "(onErrorMessageReceived) CATCH Error !!! : ", err);
         }
     };
 

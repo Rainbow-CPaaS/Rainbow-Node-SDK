@@ -1,11 +1,15 @@
 "use strict";
 import {Logger} from "../common/Logger";
+import { updateObjectPropertiesFromAnOtherObject } from "../common/Utils";
 
 export {};
 
 //const config = require("./config");
 import {config, DataStoreType} from "./config";
-import {isDefined} from "../common/Utils.js";
+import {isDefined, loadConfigFromIniFile, saveConfigFromIniFile} from "../common/Utils.js";
+import {XMPPUTils} from "../common/XMPPUtils";
+
+const xmppUtils = XMPPUTils.getXMPPUtils();
 
 const LOG_ID = "OPTIONS - ";
 
@@ -32,7 +36,8 @@ class Options {
     private _concurrentRequests: number;
     private _intervalBetweenCleanMemoryCache: number;
     private _requestsRate: any;
-    
+    private _configIniData: any;
+
     constructor(_options: any, _logger: Logger) {
         this._logger = _logger;
         this._options = _options;
@@ -46,9 +51,11 @@ class Options {
         this._autoReconnectIgnoreErrors = false;
         this._httpoverxmppserver = false;
         this._intervalBetweenCleanMemoryCache = 1000 * 60 * 60 * 6; // Every 6 hours
+        this._configIniData = {};
     }
 
     parse() {
+        this._configIniData = loadConfigFromIniFile();
         if (!this._options) {
             this._logger.log("error", LOG_ID + "(constructor) No 'options' parameter. Can't sign-in. Check the documentation to configure it");
             this._hasCredentials = false;
@@ -60,7 +67,7 @@ class Options {
         }
 
         if (!this._options.proxy) {
-            this._logger.log("info", LOG_ID + "(constructor) 'proxy' property is not defined. Use default: no proxy. Check the documentation to enable it");
+            this._logger.log("debug", LOG_ID + "(constructor) 'proxy' property is not defined. Use default: no proxy. Check the documentation to enable it");
             this._options.proxy = {host: "", protocol: "http", port: 80, user : undefined, password : undefined, secureProtocol: undefined};
         }
 
@@ -100,6 +107,7 @@ class Options {
         this._intervalBetweenCleanMemoryCache = this._getintervalBetweenCleanMemoryCache();
         //this._concurrentRequests = this._getConcurrentRequestsOption();
         this._requestsRate = this._getRequestsRateOption();
+        saveConfigFromIniFile(this._configIniData);
     }
 
     get testOutdatedVersion(): boolean {
@@ -202,8 +210,9 @@ class Options {
         return this._concurrentRequests;
     }
 
-    get requestsRate(): { 
-        "maxReqByIntervalForRequestRate": number, 
+    get requestsRate(): {
+        "useRequestRateLimiter": number,
+        "maxReqByIntervalForRequestRate": number,
         "intervalForRequestRate": number, 
         "timeoutRequestForRequestRate": number } {
         return this._requestsRate;
@@ -327,8 +336,12 @@ class Options {
             if (this._options.xmpp.xmppRessourceName) {
                 xmppOptions.xmppRessourceName = this._options.xmpp.xmppRessourceName;
             }
-            if (this._options.xmpp.xmppRessourceName) {
-                xmppOptions.xmppRessourceName = this._options.xmpp.xmppRessourceName;
+            if (this._configIniData.xmppRessourceName) {
+                xmppOptions.xmppRessourceName = this._configIniData.xmppRessourceName;
+            }
+            if (!xmppOptions.xmppRessourceName) {
+                xmppOptions.xmppRessourceName = xmppUtils.generateRandomID();
+                this._configIniData.xmppRessourceName = xmppOptions.xmppRessourceName;
             }
             if (this._options.xmpp.raiseLowLevelXmppOutReq) {
                 xmppOptions.raiseLowLevelXmppOutReq = this._options.xmpp.raiseLowLevelXmppOutReq;
@@ -345,6 +358,12 @@ class Options {
             if (this._options.xmpp.maxPingAnswerTimer) {
                 xmppOptions.maxPingAnswerTimer = this._options.xmpp.maxPingAnswerTimer;
             }
+              /*
+        let paramArray = [];
+        paramArray.push(xmppOptions);
+
+        updateObjectPropertiesFromAnOtherObject(paramArray, this._options.xmpp);
+        // */
         }
         return xmppOptions;
     }
@@ -381,7 +400,13 @@ class Options {
         let restOptions = config.any.rest;
 
         if ("rest" in this._options) {
-            restOptions = this._options.rest;
+
+            let restArray = [];
+            restArray.push(restOptions);
+
+            updateObjectPropertiesFromAnOtherObject(restArray, this._options.rest);
+
+            //restOptions = this._options.rest;
         }
         return restOptions;
     }
@@ -445,31 +470,31 @@ class Options {
             proxyOptions.host = this._options.proxy.host;
         }
         if (!("port" in this._options.proxy)) {
-            this._logger.log("info", LOG_ID + "(constructor) 'port' property is not defined. Use default 80");
+            this._logger.log("debug", LOG_ID + "(constructor) 'port' property is not defined. Use default 80");
         }
         else {
             proxyOptions.port = this._options.proxy.port;
         }
         if (!("protocol" in this._options.proxy)) {
-            this._logger.log("info", LOG_ID + "(constructor) 'protocol' property not defined. Use default 'http'");
+            this._logger.log("debug", LOG_ID + "(constructor) 'protocol' property not defined. Use default 'http'");
         }
         else {
             proxyOptions.protocol = this._options.proxy.protocol;
         }
         if (!("user" in this._options.proxy)) {
-            this._logger.log("info", LOG_ID + "(constructor) 'user' property not defined. No authentication. ");
+            this._logger.log("debug", LOG_ID + "(constructor) 'user' property not defined. No authentication. ");
         }
         else {
             proxyOptions.user = this._options.proxy.user;
         }
         if (!("password" in this._options.proxy)) {
-            this._logger.log("info", LOG_ID + "(constructor) 'password' property not defined. No authentication.");
+            this._logger.log("debug", LOG_ID + "(constructor) 'password' property not defined. No authentication.");
         }
         else {
             proxyOptions.password = this._options.proxy.password;
         }
         if (!("secureProtocol" in this._options.proxy)) {
-            this._logger.log("info", LOG_ID + "(constructor) 'secureProtocol' property not defined. No SSL3.");
+            this._logger.log("debug", LOG_ID + "(constructor) 'secureProtocol' property not defined. No SSL3.");
         }
         else {
             proxyOptions.secureProtocol = this._options.proxy.secureProtocol;
@@ -492,19 +517,23 @@ class Options {
             messagesDataStore: DataStoreType.UsestoreMessagesField,
             autoInitialGetBubbles: true,
             autoInitialBubblePresence: true,
+            maxBubbleJoinInProgress: 10,
             "autoInitialBubbleFormat": "full",
             "autoInitialBubbleUnsubscribed": false,
             autoLoadConversations: true,
             autoLoadConversationHistory: false,
             autoLoadContacts: true,
+            autoLoadCallLog: false,
+            forceHistoryGetContactFromServer: false,
             enableCarbon: true,
             enablesendurgentpushmessages: false,
             useMessageEditionAndDeletionV2: true,
-            storeMessagesInConversation: true
+            storeMessagesInConversation: true,
+            maxMessagesStoredInConversation: 1000
         };
 
         if (!("sendReadReceipt" in this._options.im)) {
-            this._logger.log("info", LOG_ID + "(constructor) 'sendReadReceipt' property is not defined. Use default true");
+            this._logger.log("debug", LOG_ID + "(constructor) 'sendReadReceipt' property is not defined. Use default true");
         }
         else {
                 optionsIM.sendReadReceipt = this._options.im.sendReadReceipt;
@@ -520,15 +549,19 @@ class Options {
         optionsIM.messagesDataStore = this._options.im.messagesDataStore ? this._options.im.messagesDataStore : config.im.messagesDataStore;
         optionsIM.autoInitialGetBubbles = (this._options.im.autoInitialGetBubbles == false) ? this._options.im.autoInitialGetBubbles : config.im.autoInitialGetBubbles;
         optionsIM.autoInitialBubblePresence = (this._options.im.autoInitialBubblePresence == false) ? this._options.im.autoInitialBubblePresence : config.im.autoInitialBubblePresence;
+        optionsIM.maxBubbleJoinInProgress = (this._options.im.maxBubbleJoinInProgress ) ? this._options.im.maxBubbleJoinInProgress : config.im.maxBubbleJoinInProgress;
         optionsIM.autoInitialBubbleFormat = this._options.im.autoInitialBubbleFormat ? this._options.im.autoInitialBubbleFormat : config.im.autoInitialBubbleFormat;
         optionsIM.autoInitialBubbleUnsubscribed = (this._options.im.autoInitialBubbleUnsubscribed == false) ? this._options.im.autoInitialBubbleUnsubscribed : config.im.autoInitialBubbleUnsubscribed;
         optionsIM.autoLoadConversations = isDefined(this._options.im.autoLoadConversations) ? this._options.im.autoLoadConversations : config.im.autoLoadConversations;
         optionsIM.autoLoadConversationHistory = (this._options.im.autoLoadConversationHistory == true) ? this._options.im.autoLoadConversationHistory : config.im.autoLoadConversationHistory;
         optionsIM.autoLoadContacts = (this._options.im.autoLoadContacts == false) ? this._options.im.autoLoadContacts : config.im.autoLoadContacts;
+        optionsIM.autoLoadCallLog = isDefined(this._options.im.autoLoadCallLog) ? this._options.im.autoLoadCallLog : config.im.autoLoadCallLog;
+        optionsIM.forceHistoryGetContactFromServer = (this._options.im.forceHistoryGetContactFromServer == true) ? this._options.im.forceHistoryGetContactFromServer : config.im.forceHistoryGetContactFromServer;
         optionsIM.enableCarbon = (this._options.im.enableCarbon == false) ? this._options.im.enableCarbon : config.im.enableCarbon;
         optionsIM.enablesendurgentpushmessages = (this._options.im.enablesendurgentpushmessages == true) ? this._options.im.enablesendurgentpushmessages : config.im.enablesendurgentpushmessages;
         optionsIM.useMessageEditionAndDeletionV2 = (this._options.im.useMessageEditionAndDeletionV2 == false) ? this._options.im.useMessageEditionAndDeletionV2 : config.im.useMessageEditionAndDeletionV2;
         optionsIM.storeMessagesInConversation = (this._options.im.storeMessagesInConversation == false) ? this._options.im.storeMessagesInConversation : config.im.storeMessagesInConversation;
+        optionsIM.maxMessagesStoredInConversation = this._options.im.maxMessagesStoredInConversation ? this._options.im.maxMessagesStoredInConversation : config.im.maxMessagesStoredInConversation;
 
         return optionsIM;
     }

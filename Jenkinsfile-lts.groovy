@@ -1,6 +1,7 @@
 // Jenkinsfile-lts file for the production of lts delivery version with the jenkins job : "CPaaS-SDK-Node-SDK-lts"
 
-@Library('rainbow-shared-library@hubSearchIndex') _
+@Library('rainbow-shared-library') _
+//@Library('rainbow-shared-library@hubSearchIndex') _
 import groovy.transform.Field
 
 // Map with the default values
@@ -23,7 +24,11 @@ pipeline {
     options {
         timeout(time: 1, unit: 'HOURS') 
         disableConcurrentBuilds()
-        //withCredentials() 
+        //withCredentials()
+           buildDiscarder(logRotator(
+                numToKeepStr: '30',
+                artifactNumToKeepStr: '30'
+           ))
     }
     
     parameters {
@@ -281,6 +286,9 @@ pipeline {
                       
                     cp -R build/JSONDOCS guide/JSONDOCS
 
+                    echo ---------- Generate the Cyclone DX file :
+                    cyclonedx-npm --ignore-npm-errors --output-file build/rainbownodesdk.cdx
+
                     echo ---------- STEP publish :
                     ${PUBLISHTONPMANDSETTAGINGIT} && npm publish
                         
@@ -383,11 +391,28 @@ pipeline {
                                 echo "Build Hub V2 search index : "
                                    // unstash 'DocumentationFolder'
                                    sh script: """
-                                 # echo "folder where run the Build Hub V2 search index."
-                                 # pwd 
-                                 # ls 
-                                """
-                                 generateHubV2DocumentationSearchIndex("Documentation/doc/sdk/node/lts", "DocumentationFolder")
+                                      # echo "folder where run the Build Hub V2 search index."
+                                      # pwd
+                                      # ls
+                                     """
+                                     // unstash "withBuildDir"
+
+                                     echo "Installation of developers_searchindex HUB V2 search library."
+                                     sh """
+                                     cd "${workspace}/Documentation"
+                                     npm install developers_searchindex --registry https://nexus.openrainbow.io/repository/npm-dev
+                                     npm list developers_searchindex
+                                     """
+
+                                     echo "build hub doc"
+                                     sh script: """
+                                     # cd "${workspace}/Documentation"
+                                     sudo npm install npm -g
+                                     npm exec -- developers_searchindex --docPath Documentation/doc/sdk/node/lts
+                                     # sh "npx developers_searchindex --docPath build/doc/hub"
+                                     # ls -la build/doc/hub
+                                   """
+                              //   generateHubV2DocumentationSearchIndex("Documentation/doc/sdk/node/lts", "DocumentationFolder")
                             } catch (Exception e) {
                                 echo "Failure: ${currentBuild.result}: ${e}"
                             }
@@ -399,7 +424,10 @@ pipeline {
                                 sh script: """
                                     #find Documentation/
                                     #cd "${workspace}/Documentation"
+                                    # apt-key adv --keyserver dl.google.com/linux/chrome/deb --recv-keys E88979FB9B30ACF2 2> /dev/null
+                                    # apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 78BD65473CB3BD13 2> /dev/null
                                     sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E88979FB9B30ACF2
+
                                 """
                                 
                                 debianBuild(

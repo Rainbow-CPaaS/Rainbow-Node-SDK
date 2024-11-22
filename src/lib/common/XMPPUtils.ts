@@ -94,6 +94,20 @@ export class XMPPUTils {
         return fullJid;
     }
 
+    getRoomJIDWithOutDomainFromFullJID(fullJid) {
+        let index = 0;
+
+        if (fullJid.indexOf("tel_") === 0) {
+            index = 4;
+        }
+
+        if (fullJid.includes("@")) {
+            fullJid = fullJid.substring(index, fullJid.lastIndexOf("@"));
+        }
+
+        return fullJid;
+    }
+
     getDomainFromFullJID(fullJid) {
         let domain = "";
 
@@ -150,7 +164,7 @@ export class XMPPUTils {
 
     // Presence resource is provided by MS-Teams.
     isFromPresenceJid(fullJid) { 
-        return ((fullJid.indexOf("tel_") === 0) && this.getResourceFromFullJID(fullJid) == "presence");
+        return ((fullJid.indexOf("tel_") === 0 || fullJid.indexOf("pcloud_msteamspresence_") === 0) && this.getResourceFromFullJID(fullJid) == "presence");
     }
 
     getResourceFromFullJID(fullJid) {

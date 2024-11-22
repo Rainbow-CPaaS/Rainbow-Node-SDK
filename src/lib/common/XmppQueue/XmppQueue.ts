@@ -79,23 +79,22 @@ class ItemForQueue {
 class XmppQueue {
 	public logger: any;
 	private timeBetweenXmppRequests: number;
-	private maxPendingAsyncLockXmppQueue: number;
 	public requestsToSend: any;
 	//private items : List<ItemForQueue>;
     private lockEngine: any;
     private lockKey = "LOCK_XMMP_QUEUE";
 
-    constructor(_logger, timeBetweenXmppRequests: number = 20, maxPendingAsyncLockXmppQueue: number = 10000) {
+    constructor(_logger, timeBetweenXmppRequests) {
         let that = this;
         that.logger = _logger; // Temp to be changed
         that.timeBetweenXmppRequests = timeBetweenXmppRequests;
-        that.maxPendingAsyncLockXmppQueue = maxPendingAsyncLockXmppQueue;
         that.requestsToSend = Promise.resolve(undefined);
         //that.items = new List<ItemForQueue>();
         // timeout: 5000, Specify timeout - max amount of time an item can remain in the queue before acquiring the lock 
         // maxPending: 1000, Set max pending tasks - max number of tasks allowed in the queue at a time
         // maxOccupationTime : 3000 Specify max occupation time - max amount of time allowed between entering the queue and completing execution
-        that.lockEngine = new AsyncLock({timeout: 3 * 60 * 1000, maxPending: maxPendingAsyncLockXmppQueue, maxOccupationTime : 5 * 60 * 1000});
+        //that.lockEngine = new AsyncLock({timeout: 3 * 60 * 1000, maxPending: 10, maxOccupationTime : 5 * 60 * 1000});
+        that.lockEngine = new AsyncLock({timeout: 3 * 60 * 1000, maxPending: 5000, maxOccupationTime : 5 * 60 * 1000});
     }
 
     addPromise(promiseFactory) {
@@ -230,13 +229,18 @@ class XmppQueue {
         let that = this;
         let resultLock = "Lock failed.";
         try {
-            that.logger.log("internal", LOG_ID + "(lock) - id : ", id, " - will acquire lock the ", that.lockKey);
+            that.logger.log("internal", LOG_ID + "(lock) - id : ", id, " - will acquire lock the ", that.lockKey, ", that.lockEngine.queues.LOCK_XMMP_QUEUE?.length : ", that.lockEngine.queues.LOCK_XMMP_QUEUE?.length);
+            //that.logger.log("internal", LOG_ID + "(lock) - id : ", id, " - will acquire lock the ", that.lockKey, ", that.lockEngine.queues.length : ", that.lockEngine.queues?.length);
             await that.lockEngine.acquire(that.lockKey, async () => {
                 // that._logger.log("debug", LOG_ID + "(lock) lock the ", that.lockKey);
                 that.logger.log("internal", LOG_ID + "(lock) - id : ", id, " - lock the ", that.lockKey);
                 let result = undefined;
                 try {
+                    let dateBefore = new Date();
+                    that.logger.log("internal", LOG_ID + "(lock) - id : ", id, " - lock the ", that.lockKey, ", before call function at : ", dateBefore.toLocaleDateString() + " " + dateBefore.toLocaleTimeString() + ":" + dateBefore.getMilliseconds() + " [" + dateBefore.valueOf() + "]" );
                     result = await fn(); // async work
+                    let dateAfter = new Date();
+                    that.logger.log("internal", LOG_ID + "(lock) - id : ", id, " - lock the ", that.lockKey, ", after call function at : ", dateAfter.toLocaleDateString() + " " + dateAfter.toLocaleTimeString() + ":" + dateAfter.getMilliseconds() + " [" + dateAfter.valueOf() + "]", " : ", "" + (dateAfter.valueOf() - dateBefore.valueOf()) );
                     return result;
                 } catch (err3) {
                     that.logger.log("error", LOG_ID + "(lock) - id : ", id, " - CATCH Error !!! error at run : ", that.lockKey, ", error : ", err3);

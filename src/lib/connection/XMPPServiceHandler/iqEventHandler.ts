@@ -14,20 +14,23 @@ const LOG_ID = "XMPP/HNDL/IQ - ";
 
 @logEntryExit(LOG_ID)
 class IQEventHandler extends GenericHandler {
-	public IQ_GET: any;
-	public IQ_SET: any;
-	public IQ_RESULT: any;
-	public IQ_ERROR: any;
-	/*public onIqGetReceived: any;
-	public onIqResultReceived: any;
-	public _onIqGetPingReceived: any;
-	public _onIqGetQueryReceived: any;
-	public _onIqGetPbxAgentStatusReceived: any;
+        public IQ_GET: any;
+        public IQ_SET: any;
+        public IQ_RESULT: any;
+        public IQ_ERROR: any;
+        /*public onIqGetReceived: any;
+        public onIqResultReceived: any;
+        public _onIqGetPingReceived: any;
+        public _onIqGetQueryReceived: any;
+        public _onIqGetPbxAgentStatusReceived: any;
 
-	 */
+         */
 
     static getClassName(){ return 'IQEventHandler'; }
     getClassName(){ return IQEventHandler.getClassName(); }
+
+    static getAccessorName(){ return 'iqevent'; }
+    getAccessorName(){ return IQEventHandler.getAccessorName(); }
 
     constructor(xmppService : XMPPService) {
         super( xmppService);
@@ -41,15 +44,18 @@ class IQEventHandler extends GenericHandler {
     }
 
 
-    onIqGetSetReceived (msg, stanza) {
+    onIqGetSetReceived (msg, stanzaTab) {
         let that = this;
+        let stanza = stanzaTab[0];
+        let prettyStanza = stanzaTab[1];
+        let jsonStanza = stanzaTab[2];
         try {
-            that.logger.log("internal", LOG_ID + "(onIqGetSetReceived) _entering_ : ", msg, stanza?.root ? prettydata.xml(stanza?.root().toString()) : stanza);
+            that._logger.log(that.INTERNAL, LOG_ID + "(onIqGetSetReceived) _entering_ : ", msg, prettyStanza);
             let children = stanza.children;
             children.forEach((node) => {
                 switch (node.getName()) {
                     case "query":
-                        that.logger.log("internal", LOG_ID + "(onIqGetSetReceived) query : ", msg, stanza);
+                        that._logger.log(that.INTERNAL, LOG_ID + "(onIqGetSetReceived) query : ", msg, stanza);
                         that._onIqGetQueryReceived(stanza, node);
                         break;
                     case "ping":
@@ -62,27 +68,37 @@ class IQEventHandler extends GenericHandler {
                         // The treatment is in HttpoverxmppEventHandler
                         break;
                     case "default":
-                        that.logger.log("internal", LOG_ID + "(onIqGetSetReceived) default : ", msg, stanza?.root ? prettydata.xml(stanza?.root().toString()) : stanza);
-                        that.logger.log("warn", LOG_ID + "(onIqGetSetReceived) not managed - 'stanza'", node.getName());
+                        that._logger.log(that.INTERNAL, LOG_ID + "(onIqGetSetReceived) default : ", msg, prettyStanza);
+                        that._logger.log(that.WARN, LOG_ID + "(onIqGetSetReceived) not managed - 'stanza'", node.getName());
+                        break;
+                    case "fin":
+                        // The treatment is in ConversationHistoryHandler
+                        break;
+                    case "default":
+                        that._logger.log(that.INTERNAL, LOG_ID + "(onIqGetSetReceived) default : ", msg, prettyStanza);
+                        that._logger.log(that.WARN, LOG_ID + "(onIqGetSetReceived) not managed - 'stanza'", node.getName());
                         break;
                     default:
-                        that.logger.log("internal", LOG_ID + "(onIqGetSetReceived) _entering_ : ", msg, stanza?.root ? prettydata.xml(stanza?.root().toString()) : stanza);
-                        that.logger.log("warn", LOG_ID + "(onIqGetSetReceived) child not managed for iq - 'stanza'", node.getName());
-                        that.logger.log("internal", LOG_ID + "(onIqGetSetReceived) child not managed for iq - 'stanza' name : ", node.getName(), ",stanza : ",  "\n", stanza?.root ? prettydata.xml(stanza?.root().toString()) : stanza, " node : ", node);
+                        that._logger.log(that.INTERNAL, LOG_ID + "(onIqGetSetReceived) _entering_ : ", msg, prettyStanza);
+                        that._logger.log(that.WARN, LOG_ID + "(onIqGetSetReceived) child not managed for iq - 'stanza'", node.getName());
+                        that._logger.log(that.INTERNAL, LOG_ID + "(onIqGetSetReceived) child not managed for iq - 'stanza' name : ", node.getName(), ",stanza : ",  "\n", prettyStanza, " node : ", node);
 
                 }
             });
         } catch (err) {
-            that.logger.log("error", LOG_ID + "(onIqGetSetReceived) CATCH ErrorManager !!! ");
-            that.logger.log("error", LOG_ID + "(onIqGetSetReceived) CATCH ErrorManager !!! : ", err);
+            // that._logger.log(that.ERROR, LOG_ID + "(onIqGetSetReceived) CATCH ErrorManager !!! ");
+            that._logger.log(that.ERROR, LOG_ID + "(onIqGetSetReceived) CATCH ErrorManager !!! : ", err);
         }
     };
 
-    onIqResultReceived (msg, stanza) {
+    onIqResultReceived (msg, stanzaTab) {
         let that = this;
+        let stanza = stanzaTab[0];
+        let prettyStanza = stanzaTab[1];
+        let jsonStanza = stanzaTab[2];
 
         try {
-            that.logger.log("internal", LOG_ID + "(onIqResultReceived) _entering_", msg, "\n", stanza?.root ? prettydata.xml(stanza?.root().toString()) : stanza);
+            that._logger.log(that.INTERNAL, LOG_ID + "(onIqResultReceived) _entering_", msg, "\n", prettyStanza);
             let children = stanza.children;
             children.forEach((node) => {
                 switch (node.getName()) {
@@ -93,7 +109,7 @@ class IQEventHandler extends GenericHandler {
                         // The treatment is in HttpoverxmppEventHandler
                         break;
                     case "bind":
-                        that.logger.log("debug", LOG_ID + "(onIqResultReceived)  - 'stanza'", node.getName());
+                        that._logger.log(that.INFO, LOG_ID + "(onIqResultReceived)  - 'stanza' ", node.getName());
                         break;
                     case "pbxagentstatus":
                         // The treatment is in telephonyEventHandler
@@ -103,11 +119,11 @@ class IQEventHandler extends GenericHandler {
                         // One treatment is in calllogEventHandler
                         break;
                     case "default":
-                        that.logger.log("warn", LOG_ID + "(onIqResultReceived) - not managed - 'stanza'", node.getName());
+                        that._logger.log(that.WARN, LOG_ID + "(onIqResultReceived) - not managed - 'stanza'", node.getName());
                         break;
                     default:
-                        that.logger.log("warn", LOG_ID + "(onIqResultReceived) - child not managed for iq - 'stanza'", node.getName());
-                        that.logger.log("internal", LOG_ID + "(onIqResultReceived) - child not managed for iq - 'stanza' name : ", node.getName(), ", stanza : ",  "\n", stanza?.root ? prettydata.xml(stanza?.root().toString()) : stanza, " node : ", node);
+                        that._logger.log(that.WARN, LOG_ID + "(onIqResultReceived) - child not managed for iq - 'stanza'", node.getName());
+                        that._logger.log(that.INTERNAL, LOG_ID + "(onIqResultReceived) - child not managed for iq - 'stanza' name : ", node.getName(), ", stanza : ",  "\n", prettyStanza, " node : ", node);
                 }
             });
             if (stanza.attrs.id === "enable_xmpp_carbon") {
@@ -117,8 +133,8 @@ class IQEventHandler extends GenericHandler {
                 that.eventEmitter.emit("rainbow_oncarbondisabled");
             }
         } catch (err) {
-            //  that.logger.log("error", LOG_ID + "(onIqResultReceived) CATCH ErrorManager !!! ");
-            that.logger.log("error", LOG_ID + "(onIqResultReceived) CATCH ErrorManager !!! : ", err);
+            // that._logger.log(that.ERROR, LOG_ID + "(onIqResultReceived) CATCH ErrorManager !!! ");
+            that._logger.log(that.ERROR, LOG_ID + "(onIqResultReceived) CATCH ErrorManager !!! : ", err);
         }
     };
 
@@ -143,7 +159,7 @@ class IQEventHandler extends GenericHandler {
             }
         });
 
-        that.logger.log("debug", LOG_ID + "(_onIqGetPbxAgentStatusReceived) (handleXMPPConnection) _onIqGetPbxAgentStatusReceived - 'pbxagentstatus'", pbxagentstatus.toString());
+        that._logger.log(that.DEBUG, LOG_ID + "(_onIqGetPbxAgentStatusReceived) (handleXMPPConnection) _onIqGetPbxAgentStatusReceived - 'pbxagentstatus'", pbxagentstatus.toString());
         that.eventEmitter.emit("rainbow_onpbxagentstatusreceived_xmpp", pbxagentstatus);
     };
 
@@ -151,20 +167,20 @@ class IQEventHandler extends GenericHandler {
         let that = this;
 
         try {
-            // that.logger.log("debug", LOG_ID + "(_onIqGetPingReceived) _entering_");
-            //that.logger.log("internal", LOG_ID + "(_onIqGetPingReceived) _entering_", stanza, node);
+            // that._logger.log(that.DEBUG, LOG_ID + "(_onIqGetPingReceived) _entering_");
+            //that._logger.log(that.INTERNAL, LOG_ID + "(_onIqGetPingReceived) _entering_", stanza, node);
             let stanzaResponse = xml("iq", {
                 "to": stanza.attrs.from,
                 "id": stanza.attrs.id,
                 "xmlns": stanza.getNS(),
                 "type": "result"
             });
-            that.logger.log("debug", LOG_ID + "(_onIqGetPingReceived) (handleXMPPConnection) send ping answer - 'stanza' for Rainbow Node SDK version : ", that.logger.colors.magenta(packageVersion.version));
+            that._logger.log(that.DEBUG, LOG_ID + "(_onIqGetPingReceived) (handleXMPPConnection) send ping answer - 'stanza' for Rainbow Node SDK version : ", that._logger.colors.magenta(packageVersion.version));
 //        .log("info", LOG_ID + "(handleXMPPConnection) answered - 'stanza'", stanzaResponse.toString(), " for Rainbow Node SDK version : ", packageVersion.version);
             that.xmppClient.send(stanzaResponse);
         } catch (err) {
-            // that.logger.log("error", LOG_ID + "(_onIqGetPingReceived) (handleXMPPConnection) CATCH ErrorManager !!! ");
-            that.logger.log("error", LOG_ID + "(_onIqGetPingReceived) (handleXMPPConnection) CATCH ErrorManager !!! : ", err);
+            // that._logger.log(that.ERROR, LOG_ID + "(_onIqGetPingReceived) (handleXMPPConnection) CATCH ErrorManager !!! ");
+            that._logger.log(that.ERROR, LOG_ID + "(_onIqGetPingReceived) (handleXMPPConnection) CATCH ErrorManager !!! : ", err);
         }
 
     };
@@ -173,7 +189,7 @@ class IQEventHandler extends GenericHandler {
         let that = this;
 
         try {
-            that.logger.log("internal", LOG_ID + "(_onIqGetQueryReceived) _entering_ : ", "\n", stanza?.root ? prettydata.xml(stanza?.root().toString()) : stanza, "\n", node.root ? prettydata.xml(node.root().toString()) : node);
+            that._logger.log(that.INTERNAL, LOG_ID + "(_onIqGetQueryReceived) _entering_ : ", "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza, "\n", node.root ? prettydata.xml(node.root().toString()) : node);
             if (node.attrs.xmlns === "jabber:iq:roster") {
                 let contacts = [];
                 let subchildren = node.children;
@@ -186,12 +202,12 @@ class IQEventHandler extends GenericHandler {
                         });
                     }
                 });
-                that.logger.log("debug", LOG_ID + "(_onIqGetQueryReceived) (handleXMPPConnection) XMPP Rosters received length : ", contacts.length);
+                that._logger.log(that.INFO, LOG_ID + "(_onIqGetQueryReceived) (handleXMPPConnection) XMPP Rosters received length : ", contacts.length);
                 that.eventEmitter.emit("evt_internal_onrosters", contacts);
             }
         } catch (err) {
-            // that.logger.log("error", LOG_ID + "(_onIqGetQueryReceived) (handleXMPPConnection) CATCH ErrorManager !!! ");
-            that.logger.log("error", LOG_ID + "(_onIqGetQueryReceived) (handleXMPPConnection) CATCH ErrorManager !!! : ", err);
+            // that._logger.log(that.ERROR, LOG_ID + "(_onIqGetQueryReceived) (handleXMPPConnection) CATCH ErrorManager !!! ");
+            that._logger.log(that.ERROR, LOG_ID + "(_onIqGetQueryReceived) (handleXMPPConnection) CATCH ErrorManager !!! : ", err);
         }
     };
 

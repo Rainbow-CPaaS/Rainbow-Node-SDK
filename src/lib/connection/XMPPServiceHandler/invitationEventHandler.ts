@@ -36,6 +36,9 @@ class InvitationEventHandler extends GenericHandler {
     static getClassName(){ return 'InvitationEventHandler'; }
     getClassName(){ return InvitationEventHandler.getClassName(); }
 
+    static getAccessorName(){ return 'invitationevent'; }
+    getAccessorName(){ return InvitationEventHandler.getAccessorName(); }
+
     constructor(xmppService, invitationService) {
         super(xmppService);
 
@@ -52,10 +55,14 @@ class InvitationEventHandler extends GenericHandler {
 
     }
 
-    onManagementMessageReceived (msg, stanza) {
+    onManagementMessageReceived (msg, stanzaTab) {
         let that = this;
+        let stanza = stanzaTab[0];
+        let prettyStanza = stanzaTab[1];
+        let jsonStanza = stanzaTab[2];
+
         try {
-            that.logger.log("internal", LOG_ID + "(onManagementMessageReceived) _entering_ : ", msg, stanza?.root ? prettydata.xml(stanza?.root().toString()) : stanza);
+            that._logger.log(that.INTERNAL, LOG_ID + "(onManagementMessageReceived) _entering_ : ", msg, prettyStanza);
             let children = stanza.children;
             children.forEach(function (node) {
                 switch (node.getName()) {
@@ -130,50 +137,53 @@ class InvitationEventHandler extends GenericHandler {
                     case "logs":
                         // treated in conversationEventHandler
                         break;
+                    case "todo":
+                        // treated in tasksEventHandler
+                        break;
                     default:
-                        that.logger.log("error", LOG_ID + "(onManagementMessageReceived) unmanaged management message node " + node.getName());
+                        that._logger.log(that.ERROR, LOG_ID + "(onManagementMessageReceived) unmanaged management message node " + node.getName());
                         break;
                 }
             });
         } catch (err) {
-            that.logger.log("error", LOG_ID + "(onManagementMessageReceived) CATCH Error !!! ");
-            that.logger.log("error", LOG_ID + "(onManagementMessageReceived) CATCH Error !!! : ", err);
+            // that._logger.log(that.ERROR, LOG_ID + "(onManagementMessageReceived) CATCH Error !!! ");
+            that._logger.log(that.ERROR, LOG_ID + "(onManagementMessageReceived) CATCH Error !!! : ", err);
         }
     }
 
     /*this.onHeadlineMessageReceived = (msg, stanza) => {
         try {
-            that.logger.log("internal", LOG_ID + "(onHeadlineMessageReceived) _entering_ : ", msg, stanza);
-            that.logger.log("debug", LOG_ID + "(onHeadlineMessageReceived) channel message received");
+            that._logger.log(that.INTERNAL, LOG_ID + "(onHeadlineMessageReceived) _entering_ : ", msg, stanza);
+            that._logger.log(that.INFO, LOG_ID + "(onHeadlineMessageReceived) channel message received");
 
-            that.logger.log("debug", LOG_ID + "(onHeadlineMessageReceived) channel message received");
+            that._logger.log(that.INFO, LOG_ID + "(onHeadlineMessageReceived) channel message received");
 
             let eventNode = stanza.children[0];
             if (!eventNode) {
-                that.logger.log("error", LOG_ID + "(onHeadlineMessageReceived) ERROR in onHeadlineMessageReceived eventNode is empty");
-                that.logger.log("internal", LOG_ID + ", stanza: " + stanza);
-                that.logger.log("internal", LOG_ID + util.inspect(stanza));
+                that._logger.log(that.ERROR, LOG_ID + "(onHeadlineMessageReceived) ERROR in onHeadlineMessageReceived eventNode is empty");
+                that._logger.log(that.INTERNAL, LOG_ID + ", stanza: " + stanza);
+                that._logger.log(that.INTERNAL, LOG_ID + util.inspect(stanza));
                 return;
             }
             let items = eventNode.children[0];
             if (!items) {
-                that.logger.log("error", LOG_ID + "(onHeadlineMessageReceived) ERROR in onHeadlineMessageReceived items is empty");
-                that.logger.log("internal", LOG_ID + util.inspect(eventNode));
-                that.logger.log("internal", LOG_ID + ", stanza: " + stanza);
+                that._logger.log(that.ERROR, LOG_ID + "(onHeadlineMessageReceived) ERROR in onHeadlineMessageReceived items is empty");
+                that._logger.log(that.INTERNAL, LOG_ID + util.inspect(eventNode));
+                that._logger.log(that.INTERNAL, LOG_ID + ", stanza: " + stanza);
                 return;
             }
             let item = items.children[0];
             if (!item) {
-                that.logger.log("error", LOG_ID + "(onHeadlineMessageReceived) ERROR in onHeadlineMessageReceived item is empty");
-                that.logger.log("internal", LOG_ID + util.inspect(items));
-                that.logger.log("internal", LOG_ID + ", stanza: " + stanza);
+                that._logger.log(that.ERROR, LOG_ID + "(onHeadlineMessageReceived) ERROR in onHeadlineMessageReceived item is empty");
+                that._logger.log(that.INTERNAL, LOG_ID + util.inspect(items));
+                that._logger.log(that.INTERNAL, LOG_ID + ", stanza: " + stanza);
                 return;
             }
             let entry = item.children[0];
             if (!entry) {
-                that.logger.log("debug", LOG_ID + "(onHeadlineMessageReceived) onHeadlineMessageReceived entry is empty");
-                that.logger.log("internal", LOG_ID + util.inspect(item));
-                that.logger.log("internal", LOG_ID + ", stanza: " + stanza);
+                that._logger.log(that.DEBUG, LOG_ID + "(onHeadlineMessageReceived) onHeadlineMessageReceived entry is empty");
+                that._logger.log(that.INTERNAL, LOG_ID + util.inspect(item));
+                that._logger.log(that.INTERNAL, LOG_ID + ", stanza: " + stanza);
                 //return;
             }
 
@@ -181,11 +191,11 @@ class InvitationEventHandler extends GenericHandler {
                 case "retract": {
                     let messageId = item.attrs ? item.attrs.id || null : null;
                     if (messageId === null) {
-                        that.logger.log("error", LOG_ID + "(onHeadlineMessageReceived) channel retract received, but id is empty. So ignored.");
+                        that._logger.log(that.ERROR, LOG_ID + "(onHeadlineMessageReceived) channel retract received, but id is empty. So ignored.");
                     } else {
                         let message = { messageId: null};
                         message.messageId = item.attrs.id;
-                        that.logger.log("debug", LOG_ID + "(onHeadlineMessageReceived) channel retract received, for messageId " + message.messageId);
+                        that._logger.log(that.DEBUG, LOG_ID + "(onHeadlineMessageReceived) channel retract received, for messageId " + message.messageId);
                         that.eventEmitter.emit("evt_internal_channelmessagedeletedreceived", message);
                     }
                 }
@@ -206,10 +216,10 @@ class InvitationEventHandler extends GenericHandler {
                         let images = entry.getChildren("images");
                         if (Array.isArray(images)) {
                             images.forEach((image) => {
-                                //that.logger.log("debug", LOG_ID + "(handleXMPPConnection) channel entry images.", image);
+                                //that._logger.log(that.INFO, LOG_ID + "(handleXMPPConnection) channel entry images.", image);
                                 let id = image.getChild("id") ? image.getChild("id").getText() || null : null;
                                 if (id === null) {
-                                    that.logger.log("error", LOG_ID + "(onHeadlineMessageReceived) channel image entry received, but image id empty. So ignored.");
+                                    that._logger.log(that.ERROR, LOG_ID + "(onHeadlineMessageReceived) channel image entry received, but image id empty. So ignored.");
                                 } else {
                                     message.images.push(id);
                                 }
@@ -218,26 +228,26 @@ class InvitationEventHandler extends GenericHandler {
 
                         that.eventEmitter.emit("evt_internal_channelitemreceived", message);
                     } else {
-                        that.logger.log("error", LOG_ID + "(onHeadlineMessageReceived) channel entry received, but empty. It can not be parsed, so ignored.");
-                        that.logger.log("error", LOG_ID + "(onHeadlineMessageReceived) channel entry received, but empty. It can not be parsed, so ignored. : ", stanza);
+                        that._logger.log(that.ERROR, LOG_ID + "(onHeadlineMessageReceived) channel entry received, but empty. It can not be parsed, so ignored.");
+                        that._logger.log(that.ERROR, LOG_ID + "(onHeadlineMessageReceived) channel entry received, but empty. It can not be parsed, so ignored. : ", stanza);
                     }
                 }
                     break;
                 default: {
-                    that.logger.log("debug", LOG_ID + "(onHeadlineMessageReceived) channel unknown event " + item.name + " received");
+                    that._logger.log(that.DEBUG, LOG_ID + "(onHeadlineMessageReceived) channel unknown event " + item.name + " received");
                 }
                     break;
 
             }
         } catch (err) {
-            that.logger.log("error", LOG_ID + "(onHeadlineMessageReceived) CATCH Error !!! ");
-            that.logger.log("error", LOG_ID + "(onHeadlineMessageReceived) CATCH Error !!! : ", err);
+            that._logger.log(that.ERROR, LOG_ID + "(onHeadlineMessageReceived) CATCH Error !!! ");
+            that._logger.log(that.ERROR, LOG_ID + "(onHeadlineMessageReceived) CATCH Error !!! : ", err);
         }
     };// */
 
     onInvitationManagementMessageReceived (stanza) {
         let that = this;
-        that.logger.log("internal", LOG_ID + "(onInvitationManagementMessageReceived) stanza : ", "\n", stanza?.root ? prettydata.xml(stanza?.root().toString()) : stanza);
+        that._logger.log(that.INTERNAL, LOG_ID + "(onInvitationManagementMessageReceived) stanza : ", "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
 
         try {
             let userInviteElem = stanza; //.find("userinvite");
@@ -256,19 +266,19 @@ class InvitationEventHandler extends GenericHandler {
                 that.eventEmitter.emit("evt_internal_invitationsManagementUpdate", invitation);
                 return true;
             } else {
-                //  that.logger.log("error", LOG_ID + "(onInvitationManagementMessageReceived) userInvite empty.");
-                that.logger.log("error", LOG_ID + "(onInvitationManagementMessageReceived) userInvite empty : ", stanza);
+                // that._logger.log(that.ERROR, LOG_ID + "(onInvitationManagementMessageReceived) userInvite empty.");
+                that._logger.log(that.ERROR, LOG_ID + "(onInvitationManagementMessageReceived) userInvite empty : ", stanza);
             }
         } catch (err) {
-            //  that.logger.log("error", LOG_ID + "(onInvitationManagementMessageReceived) CATCH Error !!! ");
-            that.logger.log("error", LOG_ID + "(onInvitationManagementMessageReceived) CATCH Error !!! : ", err);
+            // that._logger.log(that.ERROR, LOG_ID + "(onInvitationManagementMessageReceived) CATCH Error !!! ");
+            that._logger.log(that.ERROR, LOG_ID + "(onInvitationManagementMessageReceived) CATCH Error !!! : ", err);
             return true;
         }
     }
     
     onJoinCompanyInviteManagementMessageReceived (stanza) {
         let that = this;
-        that.logger.log("internal", LOG_ID + "(onJoinCompanyInviteManagementMessageReceived) stanza : ", "\n", stanza?.root ? prettydata.xml(stanza?.root().toString()) : stanza);
+        that._logger.log(that.INTERNAL, LOG_ID + "(onJoinCompanyInviteManagementMessageReceived) stanza : ", "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
 
         try {
             let joincompanyinviteElem = stanza; //.find("userinvite");
@@ -287,19 +297,19 @@ class InvitationEventHandler extends GenericHandler {
                 that.eventEmitter.emit("evt_internal_joinCompanyInvitationManagementUpdate", invitation);
                 return true;
             } else {
-                //  that.logger.log("error", LOG_ID + "(onJoinCompanyInviteManagementMessageReceived) joincompanyinvite empty.");
-                that.logger.log("error", LOG_ID + "(onJoinCompanyInviteManagementMessageReceived) joincompanyinvite empty : ", stanza);
+                // that._logger.log(that.ERROR, LOG_ID + "(onJoinCompanyInviteManagementMessageReceived) joincompanyinvite empty.");
+                that._logger.log(that.ERROR, LOG_ID + "(onJoinCompanyInviteManagementMessageReceived) joincompanyinvite empty : ", stanza);
             }
         } catch (err) {
-            //  that.logger.log("error", LOG_ID + "(onJoinCompanyInviteManagementMessageReceived) CATCH Error !!! ");
-            that.logger.log("error", LOG_ID + "(onJoinCompanyInviteManagementMessageReceived) CATCH Error !!! : ", err);
+            // that._logger.log(that.ERROR, LOG_ID + "(onJoinCompanyInviteManagementMessageReceived) CATCH Error !!! ");
+            that._logger.log(that.ERROR, LOG_ID + "(onJoinCompanyInviteManagementMessageReceived) CATCH Error !!! : ", err);
             return true;
         }
     }
 
     onJoinCompanyRequestManagementMessageReceived (stanza) {
         let that = this;
-        that.logger.log("internal", LOG_ID + "(onJoinCompanyRequestManagementMessageReceived) stanza : ", "\n", stanza?.root ? prettydata.xml(stanza?.root().toString()) : stanza);
+        that._logger.log(that.INTERNAL, LOG_ID + "(onJoinCompanyRequestManagementMessageReceived) stanza : ", "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
 
         try {
             let joincompanyrequestElem = stanza; //.find("userinvite");
@@ -318,12 +328,12 @@ class InvitationEventHandler extends GenericHandler {
                 that.eventEmitter.emit("evt_internal_joinCompanyRequestManagementUpdate", request);
                 return true;
             } else {
-                //  that.logger.log("error", LOG_ID + "(onJoinCompanyRequestManagementMessageReceived) joincompanyinvite empty.");
-                that.logger.log("error", LOG_ID + "(onJoinCompanyRequestManagementMessageReceived) joincompanyinvite empty : ", stanza);
+                // that._logger.log(that.ERROR, LOG_ID + "(onJoinCompanyRequestManagementMessageReceived) joincompanyinvite empty.");
+                that._logger.log(that.ERROR, LOG_ID + "(onJoinCompanyRequestManagementMessageReceived) joincompanyinvite empty : ", stanza);
             }
         } catch (err) {
-            //  that.logger.log("error", LOG_ID + "(onJoinCompanyRequestManagementMessageReceived) CATCH Error !!! ");
-            that.logger.log("error", LOG_ID + "(onJoinCompanyRequestManagementMessageReceived) CATCH Error !!! : ", err);
+            // that._logger.log(that.ERROR, LOG_ID + "(onJoinCompanyRequestManagementMessageReceived) CATCH Error !!! ");
+            that._logger.log(that.ERROR, LOG_ID + "(onJoinCompanyRequestManagementMessageReceived) CATCH Error !!! : ", err);
             return true;
         }
     }
@@ -331,7 +341,7 @@ class InvitationEventHandler extends GenericHandler {
     onOpenInvitationManagementMessageReceived (stanza) {
         let that = this;
 
-        that.logger.log("internal", LOG_ID + "(onOpenInvitationManagementMessageReceived) stanza : ", "\n", stanza?.root ? prettydata.xml(stanza?.root().toString()) : stanza);
+        that._logger.log(that.INTERNAL, LOG_ID + "(onOpenInvitationManagementMessageReceived) stanza : ", "\n", stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
         try {
             let userInviteElem = stanza; //.find("userinvite");
             if (userInviteElem && userInviteElem.attrs) {
@@ -351,12 +361,12 @@ class InvitationEventHandler extends GenericHandler {
                 that.eventEmitter.emit("evt_internal_openinvitationManagementUpdate", invitation);
                 return true;
             } else {
-                //  that.logger.log("error", LOG_ID + "(onOpenInvitationManagementMessageReceived) userInvite empty.");
-                that.logger.log("error", LOG_ID + "(onOpenInvitationManagementMessageReceived) userInvite empty : ", stanza);
+                // that._logger.log(that.ERROR, LOG_ID + "(onOpenInvitationManagementMessageReceived) userInvite empty.");
+                that._logger.log(that.ERROR, LOG_ID + "(onOpenInvitationManagementMessageReceived) userInvite empty : ", stanza);
             }
         } catch (err) {
-            //  that.logger.log("error", LOG_ID + "(onOpenInvitationManagementMessageReceived) CATCH Error !!! ");
-            that.logger.log("error", LOG_ID + "(onOpenInvitationManagementMessageReceived) CATCH Error !!! : ", err);
+            // that._logger.log(that.ERROR, LOG_ID + "(onOpenInvitationManagementMessageReceived) CATCH Error !!! ");
+            that._logger.log(that.ERROR, LOG_ID + "(onOpenInvitationManagementMessageReceived) CATCH Error !!! : ", err);
             return true;
         }
     }
@@ -365,20 +375,23 @@ class InvitationEventHandler extends GenericHandler {
     onReceiptMessageReceived (msg, stanza) {
     };
 
-    onErrorMessageReceived (msg, stanza) {
+    onErrorMessageReceived (msg, stanzaTab) {
         let that = this;
+        let stanza = stanzaTab[0];
+        let prettyStanza = stanzaTab[1];
+        let jsonStanza = stanzaTab[2];
 
         try {
             if (stanza.getChild('no-store') != undefined){
-                // // Treated in conversation handler that.logger.log("error", LOG_ID + "(onErrorMessageReceived) The 'to' of the message can not received the message");
+                // // Treated in conversation handler that._logger.log(that.ERROR, LOG_ID + "(onErrorMessageReceived) The 'to' of the message can not received the message");
             } else {
-                // that.logger.log("error", LOG_ID + "(onErrorMessageReceived) something goes wrong...");
-                that.logger.log("error", LOG_ID + "(onErrorMessageReceived) something goes wrong...", msg, "\n", stanza?.root ? prettydata.xml(stanza?.root().toString()) : stanza);
+                // that._logger.log(that.ERROR, LOG_ID + "(onErrorMessageReceived) something goes wrong...");
+                that._logger.log(that.ERROR, LOG_ID + "(onErrorMessageReceived) something goes wrong...", msg, "\n", prettyStanza);
                 that.eventEmitter.emit("evt_internal_xmpperror", msg);
             }
         } catch (err) {
-            // that.logger.log("error", LOG_ID + "(onErrorMessageReceived) CATCH Error !!! ");
-            that.logger.log("error", LOG_ID + "(onErrorMessageReceived) CATCH Error !!! : ", err);
+            // that._logger.log(that.ERROR, LOG_ID + "(onErrorMessageReceived) CATCH Error !!! ");
+            that._logger.log(that.ERROR, LOG_ID + "(onErrorMessageReceived) CATCH Error !!! : ", err);
         }
     }
 
@@ -389,9 +402,9 @@ class InvitationEventHandler extends GenericHandler {
     /*
     this.findChildren = (element) => {
         try {
-            that.logger.log("debug", LOG_ID + "(findChildren) _entering_");
-            that.logger.log("internal", LOG_ID + "(findChildren) _entering_", element);
-            that.logger.log("error", LOG_ID + "(findChildren) findChildren element : ", element, " name : ", element.getName());
+            that._logger.log(that.DEBUG, LOG_ID + "(findChildren) _entering_");
+            that._logger.log(that.INTERNAL, LOG_ID + "(findChildren) _entering_", element);
+            that._logger.log(that.ERROR, LOG_ID + "(findChildren) findChildren element : ", element, " name : ", element.getName());
             let json = {};
             //let result = null;
             let children = element.children;
@@ -401,20 +414,20 @@ class InvitationEventHandler extends GenericHandler {
                 children.forEach((elemt) => {
                     // @ts-ignore
                     if (typeof elemt.children === Array) {
-                        that.logger.log("error", LOG_ID + "(findChildren)  children.forEach Array : ", element, ", elemt : ", elemt);
+                        that._logger.log(that.ERROR, LOG_ID + "(findChildren)  children.forEach Array : ", element, ", elemt : ", elemt);
                         childrenJson[elemt.getName()] = elemt.children[0];
                     }
-                    that.logger.log("error", LOG_ID + "(findChildren)  children.forEach element : ", element, ", elemt : ", elemt);
+                    that._logger.log(that.ERROR, LOG_ID + "(findChildren)  children.forEach element : ", element, ", elemt : ", elemt);
                     childrenJson[elemt.getName()] = this.findChildren(elemt);
                 });
                 return json;
             } else {
-                that.logger.log("error", LOG_ID + "(findChildren)  No children element : ", element);
+                that._logger.log(that.ERROR, LOG_ID + "(findChildren)  No children element : ", element);
                 return element.getText();
             }
             //return result;
         } catch (err) {
-            that.logger.log("error", LOG_ID + "(findChildren) CATCH Error !!! : ", err);
+            that._logger.log(that.ERROR, LOG_ID + "(findChildren) CATCH Error !!! : ", err);
         }
     };
      */

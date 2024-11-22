@@ -4,7 +4,7 @@ import {GenericService} from "./GenericService";
 
 export {};
 
-import {logEntryExit, setTimeoutPromised} from "../common/Utils";
+import {isDefined, logEntryExit, setTimeoutPromised} from "../common/Utils";
 import * as PubSub from "pubsub-js";
 import {CallLogEventHandler} from '../connection/XMPPServiceHandler/calllogEventHandler';
 //import {setFlagsFromString} from "v8";
@@ -18,8 +18,10 @@ import {ProfilesService} from "./ProfilesService";
 import {TelephonyService} from "./TelephonyService";
 import {S2SService} from "./S2SService";
 import {Core} from "../Core";
+import {error} from "winston";
 
 const LOG_ID = "CALLLOG/SVCE - ";
+const API_ID = "API_CALL - ";
 
 interface ICallLogsBean {
     callLogs: Array<any>;
@@ -60,6 +62,9 @@ function CallLogsBean() : ICallLogsBean {
 *      - Mark calls as read / unread <br>
 */
  class CallLogService extends GenericService{
+    get calllogEventHandler(): CallLogEventHandler {
+        return this._calllogEventHandler;
+    }
     private calllogs: ICallLogsBean;
     private callLogHandlerRef: any;
     private callLogMessageAckRef: any;
@@ -84,16 +89,21 @@ function CallLogsBean() : ICallLogsBean {
     private _profiles: ProfilesService;
     private _calllogEventHandler: CallLogEventHandler;
     private _telephony: TelephonyService;
+    private iMOptions: any;
 
     static getClassName(){ return 'CallLogService'; }
     getClassName(){ return CallLogService.getClassName(); }
 
+    static getAccessorName(){ return 'calllog'; }
+    getAccessorName(){ return CallLogService.getAccessorName(); }
+
     // $q, $log, $rootScope, $interval, contactService, xmppService, CallLog, orderByFilter, profileService, $injector, telephonyService, webrtcGatewayService
-    constructor(_eventEmitter : EventEmitter, logger : Logger, _startConfig: {
+    constructor(_core:Core, _eventEmitter : EventEmitter, logger : Logger, _startConfig: {
         start_up:boolean,
         optional:boolean
     }) {
         super(logger, LOG_ID);
+        this.setLogLevels(this);
 
         /*********************************************************/
         /**                 LIFECYCLE STUFF                     **/
@@ -108,6 +118,8 @@ function CallLogsBean() : ICallLogsBean {
         this._options = {};
         this._useXMPP = false;
         this._useS2S = false;
+
+        this._core = _core;
 
         /*this.callLogs = [];
         this.orderByNameCallLogs = [];
@@ -138,22 +150,25 @@ function CallLogsBean() : ICallLogsBean {
 
     }
 
-    async start(_options, _core : Core) { //  _xmpp: XMPPService, _s2s : S2SService, _rest: RESTService, _contacts : ContactsService, _profiles : ProfilesService, _telephony : TelephonyService
+    async start(_options) { //  _xmpp: XMPPService, _s2s : S2SService, _rest: RESTService, _contacts : ContactsService, _profiles : ProfilesService, _telephony : TelephonyService
         let that = this;
-        that._xmpp = _core._xmpp;
-        that._rest = _core._rest;
-        that._contacts = _core.contacts;
-        that._profiles = _core.profiles;
-        that._telephony = _core.telephony;
+        that.initStartDate();
+        that._xmpp = that._core._xmpp;
+        that._rest = that._core._rest;
+        that._contacts = that._core.contacts;
+        that._profiles = that._core.profiles;
+        that._telephony = that._core.telephony;
         that._options = _options;
-        that._s2s = _core._s2s;
+        that._s2s = that._core._s2s;
         that._useXMPP = that._options.useXMPP;
         that._useS2S = that._options.useS2S;
 
+        that.iMOptions = _options?._getIMOptions();
+
         this.calllogHandlerToken = [];
 
-       that._logger.log("info", LOG_ID + " ");
-       that._logger.log("info", LOG_ID + "[start] === STARTING ===");
+       that._logger.log(that.INFO, LOG_ID + " ");
+       that._logger.log(that.INFO, LOG_ID + "[start] === STARTING ===");
         this.attachHandlers();
         that.setStarted ();
     }
@@ -161,7 +176,7 @@ function CallLogsBean() : ICallLogsBean {
     async stop() {
         let that = this;
 
-       that._logger.log("info", LOG_ID + "[stop] Stopping");
+       that._logger.log(that.INFO, LOG_ID + "[stop] Stopping");
 
         //remove all saved call logs
         this._initialized = false;
@@ -192,13 +207,14 @@ function CallLogsBean() : ICallLogsBean {
         }
         that.calllogHandlerToken = [];
         that.setStopped ();
-       that._logger.log("info", LOG_ID + "[stop] Stopped");
+       that._logger.log(that.INFO, LOG_ID + "[stop] Stopped");
     }
 
-    async init(useRestAtStartup : boolean) {
+    public async init(useRestAtStartup : boolean) {
         let that = this;
+        that._logger.log(that.INFO, LOG_ID + "(init)");
 
-        if (useRestAtStartup) {
+        if (useRestAtStartup && that.iMOptions.autoLoadCallLog) {
             //that._eventEmitter.on("rainbow_oncalllogupdated", that.onIqCallLogNotificationReceived.bind(that));
             await setTimeoutPromised(3000).then(async () => {
                 let startDate = new Date();
@@ -207,8 +223,8 @@ function CallLogsBean() : ICallLogsBean {
                             that.setInitialized();
                         })
                         .catch((error) => {
-                            that._logger.log("error", LOG_ID + "[start] === STARTING FAILURE ===");
-                            that._logger.log("internalerror", LOG_ID + "[start] === STARTING FAILURE === : ", error);
+                            that._logger.log(that.ERROR, LOG_ID + "[start] === STARTING FAILURE ===");
+                            that._logger.log(that.INTERNALERROR, LOG_ID + "[start] === STARTING FAILURE === : ", error);
                             that.setInitialized();
                         });
             });
@@ -220,13 +236,14 @@ function CallLogsBean() : ICallLogsBean {
     attachHandlers() {
         let that = this;
 
-       that._logger.log("info", LOG_ID + "(attachHandlers)");
+       that._logger.log(that.INFO, LOG_ID + "(attachHandlers)");
 
         that._calllogEventHandler = new CallLogEventHandler(that._xmpp, that, that._contacts, that._profiles, that._telephony);
         that.calllogHandlerToken = [
-            PubSub.subscribe(that._xmpp.hash + "." + that._calllogEventHandler.IQ_CALLLOG, that._calllogEventHandler.onIqCallLogReceived.bind(that._calllogEventHandler)),
-            PubSub.subscribe(that._xmpp.hash + "." + that._calllogEventHandler.CALLLOG_ACK, that._calllogEventHandler.onCallLogAckReceived.bind(that._calllogEventHandler)),
-            PubSub.subscribe(that._xmpp.hash + "." + that._calllogEventHandler.IQ_CALLOG_NOTIFICATION, that._calllogEventHandler.onIqCallLogNotificationReceived.bind(that._calllogEventHandler))
+            PubSub.subscribe(that._xmpp.hash + "." + that._calllogEventHandler.MESSAGE, that._calllogEventHandler.onMessageReceived.bind(that._calllogEventHandler)),
+            //PubSub.subscribe(that._xmpp.hash + "." + that._calllogEventHandler.IQ_CALLLOG, that._calllogEventHandler.onIqCallLogReceived.bind(that._calllogEventHandler)),
+            //PubSub.subscribe(that._xmpp.hash + "." + that._calllogEventHandler.CALLLOG_ACK, that._calllogEventHandler.onCallLogAckReceived.bind(that._calllogEventHandler)),
+            //PubSub.subscribe(that._xmpp.hash + "." + that._calllogEventHandler.IQ_CALLOG_NOTIFICATION, that._calllogEventHandler.onIqCallLogNotificationReceived.bind(that._calllogEventHandler))
         ];
 
         /*
@@ -248,7 +265,7 @@ function CallLogsBean() : ICallLogsBean {
     async getCallLogHistoryPage(useAfter?) {
         let that = this;
 
-       that._logger.log("debug", LOG_ID + "(getCallLogHistoryPage)");
+       that._logger.log(that.INFO, LOG_ID + "(getCallLogHistoryPage)");
         if (that._useXMPP) {
             return await that._xmpp.sendGetCallLogHistoryPage(useAfter);
         }
@@ -276,6 +293,7 @@ function CallLogsBean() : ICallLogsBean {
      */
     getAll() {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getAll) .");
 
         that.calllogs = this._calllogEventHandler.orderCallLogsFunction();
         let callLogs = that.getSimplifiedCallLogs();
@@ -311,11 +329,12 @@ function CallLogsBean() : ICallLogsBean {
      */
     getMissedCallLogCounter() {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getMissedCallLogCounter) .");
         let num = 0;
 
         that.calllogs.callLogs.forEach(function (callLog) {
             if (!callLog.read && callLog.state === "missed" && callLog.direction === "incoming") {
-               that._logger.log("debug", LOG_ID + "(getMissedCallLogCounter) iter : " , num, ", callLog : ", callLog);
+               that._logger.log(that.INFO, LOG_ID + "(getMissedCallLogCounter) iter : " , num, ", callLog : ", callLog);
                 num++;
             }
         });
@@ -339,7 +358,7 @@ function CallLogsBean() : ICallLogsBean {
     deleteOneCallLog(id) {
         let that = this;
 
-       that._logger.log("debug", LOG_ID + "(deleteOneCallLog) id : ", id);
+       that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteOneCallLog) id : ", id);
         return that._xmpp.deleteOneCallLog(id);
     }
 
@@ -358,7 +377,7 @@ function CallLogsBean() : ICallLogsBean {
     deleteCallLogsForContact(jid) {
         let that = this;
 
-       that._logger.log("debug", LOG_ID + "(deleteCallLogsForContact) jid : ", jid);
+       that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteCallLogsForContact) jid : ", jid);
         return that._xmpp.deleteCallLogsForContact(jid);
     }
 
@@ -376,7 +395,7 @@ function CallLogsBean() : ICallLogsBean {
     deleteAllCallLogs() {
         let that = this;
 
-       that._logger.log("debug", LOG_ID + "(deleteAllCallLogs)");
+       that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteAllCallLogs)");
         return that._xmpp.deleteAllCallLogs();
     }
 
@@ -395,7 +414,7 @@ function CallLogsBean() : ICallLogsBean {
     markCallLogAsRead(id) {
         let that = this;
 
-       that._logger.log("debug", LOG_ID + "(markCallLogAsRead) id : ", id);
+       that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(markCallLogAsRead) id : ", id);
         return that._xmpp.markCallLogAsRead(id);
     }
 
@@ -413,8 +432,8 @@ function CallLogsBean() : ICallLogsBean {
     async markAllCallsLogsAsRead() {
         let that = this;
 
-       that._logger.log("debug", LOG_ID + "(markAllCallsLogsAsRead) ");
-       that._logger.log("internal", LOG_ID + "(markAllCallsLogsAsRead) that.calllogs.callLogs : ", that.calllogs.callLogs);
+       that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(markAllCallsLogsAsRead) .");
+       that._logger.log(that.INTERNAL, LOG_ID + "(markAllCallsLogsAsRead) that.calllogs.callLogs : ", that.calllogs.callLogs);
         await that._xmpp.markAllCallsLogsAsRead(that.calllogs.callLogs);
     }
     //endregion CallLog MANAGEMENT
@@ -501,7 +520,7 @@ function CallLogsBean() : ICallLogsBean {
 
     async resetCallLogs() {
         let that = this;
-       that._logger.log("debug", LOG_ID + "[resetCallLogs] resetCallLogs");
+       that._logger.log(that.INFO, LOG_ID + "[resetCallLogs] resetCallLogs");
         that.calllogs = CallLogsBean();
         await this._calllogEventHandler.resetCallLogs();
 

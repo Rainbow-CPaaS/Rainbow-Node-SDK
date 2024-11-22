@@ -5,11 +5,12 @@ export {};
 
 
 const winston = require("winston");
+
 const DailyRotateFile = require('winston-daily-rotate-file');
 const fs = require("fs");
 const colors = require("colors/safe");
 const util = require("util");
-const stripAnsi = require('strip-ansi');
+import {default as stripAnsi} from 'strip-ansi';
 const Cryptr = require('cryptr');
 //import stripAnsi from 'strip-ansi';
 /* let stripAnsi;
@@ -22,6 +23,8 @@ const Cryptr = require('cryptr');
 //let defaultConfig = require("../config/config");
 import {config as defaultConfig} from "../config/config";
 import {from} from "rxjs";
+import {isDefined, stackTrace} from "./Utils.js";
+import {LEVELS, LEVELSCOLORS, LEVELSNAMES, LogLevelAreas} from './LevelLogs.js';
 
 const LOG_ID = "LOGS - ";
 
@@ -29,7 +32,7 @@ const tsFormat = () => {
 
     let date = new Date();
 
-    return date.toLocaleDateString() + " " + date.toLocaleTimeString() + " [" + date.valueOf() + "]";
+    return date.toLocaleDateString() + " " + date.toLocaleTimeString() + ":" + date.getMilliseconds() + " [" + date.valueOf() + "]";
 };
 
 const myFormat = winston.format.printf(info => {
@@ -38,13 +41,25 @@ const myFormat = winston.format.printf(info => {
 });
 
 const myFormatNoColors = winston.format.printf(info => {
-    return `${tsFormat()}` + ' - ' + stripAnsi(info.level) + ':' + stripAnsi(info.message);
+    return `${tsFormat()} - ${info.level}: ${info.message}`;
+    // The following code is necessary when the colors lib disabled.
+    //return `${tsFormat()}` + ' - ' + stripAnsi(info.level) + ':' + stripAnsi(info.message);
 }) ;
 
 
 class Logger {
+    get areasLogs(): LogLevelAreas {
+        return this._areasLogs;
+    }
+
+    set areasLogs(value: LogLevelAreas) {
+        this._areasLogs = value;
+    }
     private enableEncryptedLogs: boolean = false;
-    public logLevel: string;
+    public logLevel: LEVELSNAMES;
+    private _areasLogs : LogLevelAreas;
+
+    // public levels: { debug: number; warning: number; error: number;   "http": number, "xmpp": number; info: number , "warn": number, "trace": number, "internal": number, "internalerror": number};
     get logEventEmitter(): NodeJS.EventEmitter {
         return this._logEventEmitter;
     }
@@ -65,7 +80,9 @@ class Logger {
 
         let self = this;
         const cryptr = new Cryptr('rainbow-node-sdk-1654341354345486797943542318461318730123013');
-        
+
+        winston.addColors(LEVELSCOLORS);
+
         this.colors = colors;
 
         this.colors.setTheme({
@@ -79,13 +96,13 @@ class Logger {
             warn: 'yellow',
             debug: 'blue',
             error: 'red',
+            xmpp: "cyan",
             events: [ 'magenta', 'underline', 'italic'],
             eventsEmitter: [ 'cyan', 'underline', 'italic']
         });
 
         let welcome = () => {
             this._logger.log("info", LOG_ID + "------------------------------------------------");
-
             this._logger.log("info", LOG_ID + "Welcome to the " + this.colors.magenta("ALE Rainbow SDK for Node.JS") + "");
             this._logger.log("info", LOG_ID + "Where Everything connects");
             this._logger.log("info", LOG_ID + "Support: Send message to Emily using #support #api");
@@ -96,6 +113,15 @@ class Logger {
      * \"internals\" config property is for logs level of debug + unsensored data. \n\
     Warning password and so on can be logs. \n    " +
     that.colors.red.underline("***    IT SHOULD ONLY BE USED IN DEVELOPPEMENT ENVIRONEMENT !!!    ***"))));
+            this._logger.log("info", LOG_ID + this.colors[LEVELSCOLORS.error]("error level color : " + LEVELSCOLORS.error));
+            this._logger.log("info", LOG_ID + this.colors[LEVELSCOLORS.warn]("warn level color : " + LEVELSCOLORS.warn));
+            this._logger.log("info", LOG_ID + this.colors[LEVELSCOLORS.info]("info level color : " + LEVELSCOLORS.info));
+            this._logger.log("info", LOG_ID + this.colors[LEVELSCOLORS.trace]("trace level color : " + LEVELSCOLORS.trace));
+            this._logger.log("info", LOG_ID + this.colors[LEVELSCOLORS.http]("http level color : " + LEVELSCOLORS.http));
+            this._logger.log("info", LOG_ID + this.colors[LEVELSCOLORS.xmpp]("xmpp level color : " + LEVELSCOLORS.xmpp));
+            this._logger.log("info", LOG_ID + this.colors[LEVELSCOLORS.debug]("debug level color : " + LEVELSCOLORS.debug));
+            this._logger.log("info", LOG_ID + this.colors[LEVELSCOLORS.internalerror]("internalerror level color : " + LEVELSCOLORS.internalerror));
+            this._logger.log("info", LOG_ID + this.colors[LEVELSCOLORS.internal]("internal level color : " + LEVELSCOLORS.internal));
         };
 
         let logs = defaultConfig.logs;
@@ -139,8 +165,10 @@ class Logger {
         }
 
         if (!logColor) {
+            this.colors?.disable();
             logFormat=myFormatNoColors;
         } else {
+            this.colors?.enable();
             logFormat=myFormat;
         }
 
@@ -222,6 +250,20 @@ class Logger {
             }
         }
 
+        if (config && config.logs && config.logs.areas) {
+            self._areasLogs = config.logs.areas;
+        } else {
+            self._areasLogs = new LogLevelAreas(self.logLevel,false,false,false);
+            if (self.logLevel === LEVELSNAMES.DEBUG) {
+                self._areasLogs.showServicesApiLogs();
+            }
+            if (self.logLevel === LEVELSNAMES.INTERNAL) {
+                self._areasLogs.showServicesApiLogs(true);
+                self._areasLogs.showRESTLogs(self.logLevel);
+                self._areasLogs.showEventsLogs(self.logLevel);
+            }
+        }
+
         let that : any = this;
         this._winston = {};
         this._logger = {};
@@ -241,19 +283,19 @@ class Logger {
         }
 
         this._logger.info = function () {
-            that._logger.log.apply(this._logger, ["info", ...arguments]);
+            that._logger.log.apply(this._logger, [LEVELSNAMES.INFO, ...arguments]);
         };
 
         this._logger.error = function () {
-            that._logger.log.apply(this._logger, ["error", ...arguments]);
+            that._logger.log.apply(this._logger, [LEVELSNAMES.ERROR, ...arguments]);
         };
 
         this._logger.debug = function () {
-            that._logger.log.apply(that._logger, ["debug", ...arguments]);
+            that._logger.log.apply(that._logger, [LEVELSNAMES.DEBUG, ...arguments]);
         };
 
         this._logger.warn = function () {
-            that._logger.log.apply(that._logger, ["warn", ...arguments]);
+            that._logger.log.apply(that._logger, [LEVELSNAMES.WARN, ...arguments]);
         };
         
         this._logger.encrypt = function (str) {
@@ -267,6 +309,21 @@ class Logger {
         this._logger.decrypt = function (str) {
             return cryptr.decrypt(str);            
         };
+
+        this._logger.stripStringForLogs = function (value : string) {
+            let result = "";
+            if (self.logLevel !== LEVELSNAMES.INFO ) {
+                result = value;
+            } else {
+                if (!value ) {
+                    result = value;
+                } else {
+                    value += "";
+                    result = value.charAt(0) + value.replace(/[^\s](?=.{1,}$)/g, "*")?.substr(1);
+                }
+            }
+            return result;
+        }
 
         this.hideId = function (url) {
             return url.replace(/[\/="'][a-f\d]{24}[\/\?&"']?/ig, (x) => {
@@ -289,7 +346,8 @@ class Logger {
         };
 
         this.emit = function(level, info) {
-            let event = "debug";
+            let event = LEVELSNAMES.DEBUG;
+
             if (this.logEventEmitter && enableEventsLogs) {
                 let msg = new Date().toISOString() + " - " + level + ": " + (info ? info.replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g, '') : "");
                 this._logEventEmitter.emit(event, msg);
@@ -300,28 +358,100 @@ class Logger {
             return that._winston.end();
         }
 
-        this._logger.log = function (level) {
+      /*  this._logger.log = function (options : {"callerObj" : any, "level" : LEVELSNAMES, isApi : boolean} | LEVELSNAMES) {
             try {
-                if (level === "internal" || level === "internalerror") {
-                    if (logInternals === true) {
+                const args = [...arguments];
+                console.log(new Date().toISOString() + args?.toString());
+
+                return (-1);
+            } catch (err) {
+            }
+        } // */
+
+        this._logger.log = function (options : {"callerObj" : any, "level" : LEVELSNAMES, isApi : boolean} | LEVELSNAMES) {
+            try {
+                let levelOfLog: LEVELSNAMES ;
+                // Level of the SDK logs.
+                let levelOfSdk = self.logLevel;
+                let levelOfSdkValue = LEVELS[self.logLevel];
+                let levelLimit = LEVELS.error;
+                let isApi : boolean = false;
+                let showAreaApi : boolean = false;
+
+                if (typeof options==="object") {
+                    let callerObj = options?.callerObj;
+                    let callerAreaName = "unknown";
+                    if (callerObj && (typeof callerObj.getAccessorName) === "function") {
+                        callerAreaName = callerObj.getAccessorName();
+                    }
+                    // Current log's config.
+                    let paramsOfAreaLogs = self._areasLogs ? self._areasLogs[callerAreaName] : {level:levelOfSdk};
+                    levelOfLog=options?.level?options.level:LEVELSNAMES.INFO;
+                    isApi=options?.isApi;
+                    //showAreaApi = paramsOfAreaLogs.api;
+                    showAreaApi = isDefined(paramsOfAreaLogs.api) ? paramsOfAreaLogs.api : true;
+                    // Level of the current log.
+                    //let levelOfLog = options?.level;
+                    // let levelOfLogNumber = winston.config.syslog.levels[levelOfLog];
+                    // let levelOfLogNumber = self.levels[levelOfLog];
+                    // Level of the aera in the SDK config options.
+                    let levelOfArea = ""+paramsOfAreaLogs?.level;
+                    levelLimit = LEVELS[levelOfArea];
+                    //levelLimit = levelOfArea?LEVELS[levelOfArea]:levelOfSdkValue;
+                    // console.log("paramOfClassLogs", paramsOfClassLogs);
+                    //let levelOfAreaNumber = self.levels[paramsOfClassLogs?.level];
+                    //let levelOfSdkNumber = self.levels[levelOfLog];
+                    //console.log("callerName : ", callerName, ", level : ", level, ", levelOfLogNumber : ", levelOfLogNumber, ", levelOfAreaNumber : ", levelOfAreaNumber, ", levelOfSdkNumber : ", levelOfSdkNumber);
+                    /*
+                    if (levelOfAreaNumber > levelOfSdkNumber ) {
+                        if (levelOfLogNumber > levelOfSdkNumber && levelOfLogNumber < levelOfSdkNumber) {
+                            level=levelOfSdkNumber;
+                        }
+                    } // */
+                    // Force to not log the entry if the sdk and the entry are configured to log at "debug" and the aera override at "info".
+                    /*
+                    if ((levelOfLog === "debug" || levelOfLog === "internal") && levelOfArea === "info" && levelOfSdk === "debug") {
+                        return;
+                    }
+                    // Force to log the entry if the sdk is configured to "info" and the entry and area are configured to log at "debug". Override entry to "info".
+                    if ((levelOfLog === "debug" || levelOfLog === "internal") && levelOfArea === "debug" && levelOfSdk === "info") {
+                        level = "info";
+                    }
+                    // */
+                    //console.log("callerName : ", callerName, ", levelOfLog : ", levelOfLog, ", levelOfArea : ", levelOfArea, ", levelOfSdk : ", levelOfSdk);
+                } else {
+                    levelOfLog = options;
+                    levelLimit = levelOfSdkValue;
+                }
+                if (!levelOfLog) {
+                    console.log("!!! undefined levelOfLog : ", levelOfLog, ", arguments : ", ...arguments);
+                }
+
+                let levelOfLogValue = LEVELS[levelOfLog];
+                //console.log("levelOfLog : ", levelOfLog, ", levelOfLogValue : ", levelOfLogValue, ", levelLimit : ", levelLimit);
+                if (levelOfLogValue > levelLimit || (isApi && !showAreaApi)) {
+                    //console.log("levelOfLogValue : ", levelOfLogValue, "is supperior to levelLimit : ", levelLimit, " so ignore log.");
+                    return;
+                }
+
+                if (levelOfLog==="internal" || levelOfLog==="internalerror") {
+                    if (logInternals===true) {
                         //level = (level === "internal") ? "debug" : "error";
                         let datatolog = that.colors.italic(that.colors.red("FORBIDDEN TO LOG THIS DATA IN PROD ENV !!! Sorry."));
 
                         // dev-code-internal //
-                        if ( level === "internal") {
-                            level = "debug";
+                        if (levelOfLog==="internal") {
+                            levelOfLog = LEVELSNAMES.DEBUG;
                             datatolog = that.colors.italic(that.colors.red("PROD HIDDEN : ")) + that.argumentsToString(arguments);
-                            that._winston.log.apply(that._winston, [level, that._logger.customLabel + datatolog]);
-                            that.emit(level, that._logger.customLabel + datatolog);
+                            that._winston.log.apply(that._winston, [levelOfLog, that._logger.customLabel + datatolog]);
+                            that.emit(levelOfLog, that._logger.customLabel + datatolog);
+                        } else if (levelOfLog==="internalerror") {
+                            levelOfLog = LEVELSNAMES.ERROR;
+                            datatolog = that.colors.italic(that.colors.red("PROD HIDDEN : ")) + that.argumentsToStringFull(arguments);
+                            that._winston.log.apply(that._winston, [levelOfLog, that._logger.customLabel + datatolog]);
+                            that.emit(levelOfLog, that._logger.customLabel + datatolog);
                         }
-                        else
-                            if (level === "internalerror") {
-                                level = "error";
-                                datatolog = that.colors.italic(that.colors.red("PROD HIDDEN : ")) + that.argumentsToStringFull(arguments);
-                                that._winston.log.apply(that._winston, [level, that._logger.customLabel + datatolog]);
-                                that.emit(level, that._logger.customLabel + datatolog);
-                            }
-                            /* */
+                        /* */
                         // end-dev-code-internal //
                         /*
                         if ( level === "internal") {
@@ -339,11 +469,11 @@ class Logger {
                     }
                 } else {
                     if (logInternals) {
-                        that._winston.log.apply(that._winston, [level, that._logger.customLabel + that.argumentsToString(arguments)]);
-                        that.emit(level, that._logger.customLabel + that.argumentsToString(arguments));
+                        that._winston.log.apply(that._winston, [levelOfLog, that._logger.customLabel + that.argumentsToString(arguments)]);
+                        that.emit(levelOfLog, that._logger.customLabel + that.argumentsToString(arguments));
                     } else {
-                        that._winston.log.apply(that._winston, [level, that._logger.customLabel + that.hideId(that.hideUuid(that.argumentsToString(arguments)))]);
-                        that.emit(level, that._logger.customLabel + that.hideId(that.hideUuid(that.argumentsToString(arguments))));
+                        that._winston.log.apply(that._winston, [levelOfLog, that._logger.customLabel + that.hideId(that.hideUuid(that.argumentsToString(arguments)))]);
+                        that.emit(levelOfLog, that._logger.customLabel + that.hideId(that.hideUuid(that.argumentsToString(arguments))));
                     }
                 }
             } catch (err) {
@@ -351,12 +481,11 @@ class Logger {
             }
         };
 
-
         if (enableConsoleLog && enableFileLog) {
 
 
             this._winston = winston.createLogger({
-
+                levels: LEVELS,
                 format: winston.format.combine(
                         winston.format.errors({ stack: true }), // <-- use errors format
                         winston.format.colorize({ all: logColor }),
@@ -370,7 +499,7 @@ class Logger {
 
                 transports: [
                     new (winston.transports.Console)({
-                        level: self.logLevel
+                        level: LEVELSNAMES.INTERNAL,
                     }),
                     new (DailyRotateFile)({
                         name: 'logs',
@@ -381,7 +510,8 @@ class Logger {
                         datePattern: "YYYY-MM-DD",
                         maxFiles: maxFiles,
                         prepend: true,
-                        level: self.logLevel
+                        level: LEVELSNAMES.INTERNAL
+                        //level: self.logLevel
                     })
                 ]
             });
@@ -395,6 +525,7 @@ class Logger {
         else if (enableConsoleLog) {
 
             this._winston = winston.createLogger({
+                levels: LEVELS,
                 format: winston.format.combine(
                         winston.format.errors({ stack: true }), // <-- use errors format
                     winston.format.colorize({ all: logColor }),
@@ -406,10 +537,12 @@ class Logger {
                 ),
                 transports: [
                     new (winston.transports.Console)({
-                        level: self.logLevel
+                        level: LEVELSNAMES.INTERNAL
                     })
                 ]
             });
+
+          //  this._winston.addColors(this._winston.config.syslog.colors, { "trace": this._winston.config.syslog.colors.debug, "xmpp": this._winston.config.syslog.colors.debug, "internal": this._winston.config.syslog.colors.debug, "internalerror": this._winston.config.syslog.colors.error})
 
             welcome();
 
@@ -417,6 +550,7 @@ class Logger {
         }
         else if (enableFileLog) {
             this._winston = winston.createLogger({
+                levels: LEVELS,
                 format: winston.format.combine(
                         winston.format.errors({ stack: true }), // <-- use errors format
                     winston.format.colorize({ all: logColor }),
@@ -436,7 +570,7 @@ class Logger {
                         datePattern: "YYYY-MM-DD",
                         maxFiles: maxFiles,
                         prepend: true,
-                        level: self.logLevel
+                        level: LEVELSNAMES.INTERNAL
                     })
         ]
             });
@@ -490,6 +624,10 @@ class Logger {
         return this._logger;
     }
 
+    stripStringForLogs = function (value : string) {
+        return this._logger?.stripStringForLogs(value);
+    }
+
     argumentsToStringReduced (v, delemiter : string = " "){
         // convert arguments object to real array
         let args = Array.prototype.slice.call(v, 1);
@@ -505,7 +643,8 @@ class Logger {
                 args[k] = util.inspect(args[k], options);
             }
         }
-        let str = args.join(delemiter);
+        //let str =  Array.prototype.join.call(args, delemiter);
+        let str =  args.join(delemiter);
         return str;
     }
 

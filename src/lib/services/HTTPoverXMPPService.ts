@@ -6,7 +6,7 @@ import {GuestParams, MEDIATYPE, RESTService} from "../connection/RESTService";
 import {ErrorManager} from "../common/ErrorManager";
 import {XMPPService} from "../connection/XMPPService";
 import {EventEmitter} from "events";
-import {getBinaryData, getJsonFromXML, isStarted, logEntryExit, resizeImage, until} from "../common/Utils";
+import {getBinaryData, getJsonFromXML, isDefined, isStarted, logEntryExit, resizeImage, until} from "../common/Utils";
 import {Logger} from "../common/Logger";
 import {ContactsService} from "./ContactsService";
 import {ProfilesService} from "./ProfilesService";
@@ -18,10 +18,12 @@ import {GenericService} from "./GenericService";
 //import {RBVoiceEventHandler} from "../connection/XMPPServiceHandler/rbvoiceEventHandler";
 import {Channel} from "../common/models/Channel";
 import {HttpoverxmppEventHandler} from "../connection/XMPPServiceHandler/httpoverxmppEventHandler";
+import {GroupsService} from "./GroupsService.js";
 
 export {};
 
 const LOG_ID = "HTTPoverXMPP/SVCE - ";
+const API_ID = "API_CALL - ";
 
 @logEntryExit(LOG_ID)
 @isStarted([])
@@ -45,19 +47,18 @@ class HTTPoverXMPP extends GenericService {
     private hTTPoverXMPPHandlerToken: any;
 
 
-    static getClassName() {
-        return 'HTTPoverXMPP';
-    }
+    static getClassName() { return 'HTTPoverXMPP'; }
+    getClassName() { return HTTPoverXMPP.getClassName(); }
 
-    getClassName() {
-        return HTTPoverXMPP.getClassName();
-    }
+    static getAccessorName(){ return 'httpoverxmpp'; }
+    getAccessorName(){ return HTTPoverXMPP.getAccessorName(); }
 
-    constructor(_eventEmitter: EventEmitter, _http: any, _logger: Logger, _startConfig: {
+    constructor(_core:Core, _eventEmitter: EventEmitter, _http: any, _logger: Logger, _startConfig: {
         start_up: boolean,
         optional: boolean
     }) {
         super(_logger, LOG_ID);
+        this.setLogLevels(this);
         this._xmpp = null;
         this._rest = null;
         this._s2s = null;
@@ -71,6 +72,8 @@ class HTTPoverXMPP extends GenericService {
         this._host = _http.host;
         this._port = _http.port;
 
+        this._core = _core;
+
         this.avatarDomain = this._host.split(".").length===2 ? this._protocol + "://cdn." + this._host + ":" + this._port:this._protocol + "://" + this._host + ":" + this._port;
 
         // this._eventEmitter.on("evt_internal_createrbvoice", this.onCreateRBVoice.bind(this));
@@ -78,15 +81,15 @@ class HTTPoverXMPP extends GenericService {
 
     }
 
-    start(_options, _core: Core) { // , _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService, _contacts : ContactsService, _profileService : ProfilesService
+    start(_options) { // , _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService, _contacts : ContactsService, _profileService : ProfilesService
         let that = this;
-
+        that.initStartDate();
         return new Promise(async function (resolve, reject) {
             try {
-                that._xmpp = _core._xmpp;
-                that._rest = _core._rest;
+                that._xmpp = that._core._xmpp;
+                that._rest = that._core._rest;
                 that._options = _options;
-                that._s2s = _core._s2s;
+                that._s2s = that._core._s2s;
                 that._useXMPP = that._options.useXMPP;
                 that._useS2S = that._options.useS2S;
                 //that._rbvoice = [];
@@ -152,10 +155,11 @@ class HTTPoverXMPP extends GenericService {
      */
     get(urlToGet : string, headers: any = {}, httpoverxmppserver_jid? : string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(get) is urlToGet defined : ", isDefined(urlToGet));
 
         return new Promise(async (resolve, reject) => {
             if (!urlToGet) {
-                that._logger.log("error", LOG_ID + "(get) Parameter 'urlToGet' is missing or null");
+                that._logger.log(that.ERROR, LOG_ID + "(get) Parameter 'urlToGet' is missing or null");
                 throw ErrorManager.getErrorManager().BAD_REQUEST();
             }
 
@@ -166,15 +170,15 @@ class HTTPoverXMPP extends GenericService {
             try {
                 
                 let node = await that._xmpp.getHTTPoverXMPP(urlToGet, httpoverxmppserver_jid, headers);
-                that._logger.log("debug", "(get) - sent.");
-                that._logger.log("internal", "(get) - result : ", node);
+                that._logger.log(that.DEBUG, "(get) - sent.");
+                that._logger.log(that.INTERNAL, "(get) - result : ", node);
                 let xmlNodeStr = node ? node.toString():"<xml></xml>";
                 let reqObj = await getJsonFromXML(xmlNodeStr);
 
                 resolve(reqObj);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(get) Error.");
-                that._logger.log("internalerror", LOG_ID + "(get) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(get) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(get) Error : ", err);
                 return reject(err);
             }
         });
@@ -196,6 +200,7 @@ class HTTPoverXMPP extends GenericService {
      */
     discoverHTTPoverXMPP(headers: any = {}, httpoverxmppserver_jid? : string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(discoverHTTPoverXMPP) is headers defined : ", isDefined(headers));
 
         return new Promise(async (resolve, reject) => {
             if (!httpoverxmppserver_jid) {
@@ -205,15 +210,15 @@ class HTTPoverXMPP extends GenericService {
             try {
                 
                 let node = await that._xmpp.discoverHTTPoverXMPP(httpoverxmppserver_jid, headers);
-                that._logger.log("debug", "(discoverHTTPoverXMPP) - sent.");
-                that._logger.log("internal", "(discoverHTTPoverXMPP) - result : ", node);
+                that._logger.log(that.DEBUG, "(discoverHTTPoverXMPP) - sent.");
+                that._logger.log(that.INTERNAL, "(discoverHTTPoverXMPP) - result : ", node);
                 let xmlNodeStr = node ? node.toString():"<xml></xml>";
                 let reqObj = await getJsonFromXML(xmlNodeStr);
 
                 resolve(reqObj);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(discoverHTTPoverXMPP) Error.");
-                that._logger.log("internalerror", LOG_ID + "(discoverHTTPoverXMPP) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(discoverHTTPoverXMPP) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(discoverHTTPoverXMPP) Error : ", err);
                 return reject(err);
             }
         });
@@ -236,10 +241,11 @@ class HTTPoverXMPP extends GenericService {
      */
     trace(urlToTrace : string, headers: any = {}, httpoverxmppserver_jid? : string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(trace) is urlToTrace defined : ", isDefined(urlToTrace));
 
         return new Promise(async (resolve, reject) => {
             if (!urlToTrace) {
-                that._logger.log("error", LOG_ID + "(trace) Parameter 'urlToTrace' is missing or null");
+                that._logger.log(that.ERROR, LOG_ID + "(trace) Parameter 'urlToTrace' is missing or null");
                 throw ErrorManager.getErrorManager().BAD_REQUEST();
             }
 
@@ -248,18 +254,18 @@ class HTTPoverXMPP extends GenericService {
             }
 
             try {
-                that._logger.log("internal", LOG_ID + "(trace) Parameter urlToTrace : ", urlToTrace, ", headers : ", headers, ", httpoverxmppserver_jid : ", httpoverxmppserver_jid);
+                that._logger.log(that.INTERNAL, LOG_ID + "(trace) Parameter urlToTrace : ", urlToTrace, ", headers : ", headers, ", httpoverxmppserver_jid : ", httpoverxmppserver_jid);
 
                 let node = await that._xmpp.traceHTTPoverXMPP(urlToTrace, httpoverxmppserver_jid, headers);
-                that._logger.log("debug", "(trace) - sent.");
-                that._logger.log("internal", "(trace) - result : ", node);
+                that._logger.log(that.DEBUG, "(trace) - sent.");
+                that._logger.log(that.INTERNAL, "(trace) - result : ", node);
                 let xmlNodeStr = node ? node.toString():"<xml></xml>";
                 let reqObj = await getJsonFromXML(xmlNodeStr);
 
                 resolve(reqObj);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(trace) Error.");
-                that._logger.log("internalerror", LOG_ID + "(trace) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(trace) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(trace) Error : ", err);
                 return reject(err);
             }
         });
@@ -282,10 +288,11 @@ class HTTPoverXMPP extends GenericService {
      */
     head(urlToHead : string, headers: any = {}, httpoverxmppserver_jid? : string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(head) is urlToHead defined : ", isDefined(urlToHead));
 
         return new Promise(async (resolve, reject) => {
             if (!urlToHead) {
-                that._logger.log("error", LOG_ID + "(head) Parameter 'urlToGet' is missing or null");
+                that._logger.log(that.ERROR, LOG_ID + "(head) Parameter 'urlToGet' is missing or null");
                 throw ErrorManager.getErrorManager().BAD_REQUEST();
             }
 
@@ -296,15 +303,15 @@ class HTTPoverXMPP extends GenericService {
             try {
                 
                 let node = await that._xmpp.headHTTPoverXMPP(urlToHead, httpoverxmppserver_jid, headers);
-                that._logger.log("debug", "(head) - sent.");
-                that._logger.log("internal", "(head) - result : ", node);
+                that._logger.log(that.DEBUG, "(head) - sent.");
+                that._logger.log(that.INTERNAL, "(head) - result : ", node);
                 let xmlNodeStr = node ? node.toString():"<xml></xml>";
                 let reqObj = await getJsonFromXML(xmlNodeStr);
 
                 resolve(reqObj);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(head) Error.");
-                that._logger.log("internalerror", LOG_ID + "(head) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(head) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(head) Error : ", err);
                 return reject(err);
             }
         });
@@ -328,10 +335,11 @@ class HTTPoverXMPP extends GenericService {
      */    
     post(urlToPost : string, headers: any = {}, data : any, httpoverxmppserver_jid? : string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(post) is urlToPost defined : ", isDefined(urlToPost));
 
         return new Promise(async (resolve, reject) => {
             if (!urlToPost) {
-                that._logger.log("error", LOG_ID + "(post) Parameter 'urlToPost' is missing or null");
+                that._logger.log(that.ERROR, LOG_ID + "(post) Parameter 'urlToPost' is missing or null");
                 throw ErrorManager.getErrorManager().BAD_REQUEST();
             }
 
@@ -342,15 +350,15 @@ class HTTPoverXMPP extends GenericService {
             try {
                 
                 let node = await that._xmpp.postHTTPoverXMPP(urlToPost, httpoverxmppserver_jid, headers, data);
-                that._logger.log("debug", "(post) - sent.");
-                that._logger.log("internal", "(post) - result : ", node);
+                that._logger.log(that.DEBUG, "(post) - sent.");
+                that._logger.log(that.INTERNAL, "(post) - result : ", node);
                 let xmlNodeStr = node ? node.toString():"<xml></xml>";
                 let reqObj = await getJsonFromXML(xmlNodeStr);
 
                 resolve(reqObj);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(post) Error.");
-                that._logger.log("internalerror", LOG_ID + "(post) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(post) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(post) Error : ", err);
                 return reject(err);
             }
         });
@@ -374,10 +382,11 @@ class HTTPoverXMPP extends GenericService {
      */
     put(urlToPost : string, headers: any = {}, data : any, httpoverxmppserver_jid? : string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(put) is urlToPost defined : ", isDefined(urlToPost));
 
         return new Promise(async (resolve, reject) => {
             if (!urlToPost) {
-                that._logger.log("error", LOG_ID + "(put) Parameter 'urlToPost' is missing or null");
+                that._logger.log(that.ERROR, LOG_ID + "(put) Parameter 'urlToPost' is missing or null");
                 throw ErrorManager.getErrorManager().BAD_REQUEST();
             }
 
@@ -388,15 +397,15 @@ class HTTPoverXMPP extends GenericService {
             try {
                 
                 let node = await that._xmpp.putHTTPoverXMPP(urlToPost, httpoverxmppserver_jid, headers, data);
-                that._logger.log("debug", "(put) - sent.");
-                that._logger.log("internal", "(put) - result : ", node);
+                that._logger.log(that.DEBUG, "(put) - sent.");
+                that._logger.log(that.INTERNAL, "(put) - result : ", node);
                 let xmlNodeStr = node ? node.toString():"<xml></xml>";
                 let reqObj = await getJsonFromXML(xmlNodeStr);
 
                 resolve(reqObj);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(put) Error.");
-                that._logger.log("internalerror", LOG_ID + "(put) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(put) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(put) Error : ", err);
                 return reject(err);
             }
         });
@@ -420,10 +429,11 @@ class HTTPoverXMPP extends GenericService {
      */
     delete(urlToPost : string, headers: any = {}, data : any, httpoverxmppserver_jid? : string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(delete) is urlToPost defined : ", isDefined(urlToPost));
 
         return new Promise(async (resolve, reject) => {
             if (!urlToPost) {
-                that._logger.log("error", LOG_ID + "(delete) Parameter 'urlToPost' is missing or null");
+                that._logger.log(that.ERROR, LOG_ID + "(delete) Parameter 'urlToPost' is missing or null");
                 throw ErrorManager.getErrorManager().BAD_REQUEST();
             }
 
@@ -434,15 +444,15 @@ class HTTPoverXMPP extends GenericService {
             try {
                 
                 let node = await that._xmpp.deleteHTTPoverXMPP(urlToPost, httpoverxmppserver_jid, headers, data);
-                that._logger.log("debug", "(delete) - sent.");
-                that._logger.log("internal", "(delete) - result : ", node);
+                that._logger.log(that.DEBUG, "(delete) - sent.");
+                that._logger.log(that.INTERNAL, "(delete) - result : ", node);
                 let xmlNodeStr = node ? node.toString():"<xml></xml>";
                 let reqObj = await getJsonFromXML(xmlNodeStr);
 
                 resolve(reqObj);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(delete) Error.");
-                that._logger.log("internalerror", LOG_ID + "(delete) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(delete) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(delete) Error : ", err);
                 return reject(err);
             }
         });
@@ -468,13 +478,13 @@ class HTTPoverXMPP extends GenericService {
             try {
                 
                 let result = await that._xmpp.discover();
-                that._logger.log("debug", "(discover) - sent.");
-                that._logger.log("internal", "(discover) - result : ", result);
+                that._logger.log(that.DEBUG, "(discover) - sent.");
+                that._logger.log(that.INTERNAL, "(discover) - result : ", result);
 
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(discover) Error.");
-                that._logger.log("internalerror", LOG_ID + "(discover) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(discover) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(discover) Error : ", err);
                 return reject(err);
             }
         });

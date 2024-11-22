@@ -5,6 +5,7 @@ export {};
 
 
 import {ErrorManager} from "./ErrorManager";
+import {stackTrace} from "./Utils.js";
 const utils= require("./Utils");
 
 enum SDKSTATUSENUM {
@@ -82,22 +83,49 @@ class StateManager {
     }
 
     async transitTo(publishEvent : boolean = true, state : SDKSTATUSENUM, data?) {
-        return new Promise( async (resolve, reject) => {
-            if (this.state === state) {
-                this.logger.log("info", LOG_ID + "(transitTo) the state is yet ", this.state, ", so ignore it.");
+        let that = this;
+        return new Promise(async (resolve, reject) => {
+            that.logger.log("info", LOG_ID + "(transitTo) __entering__ will try to transit from state : ", this.state, " to ", state);
+            if (that.state===state) {
+                that.logger.log("info", LOG_ID + "(transitTo) the state is yet ", that.state, ", so ignore it.");
                 resolve(undefined);
             } else {
-                this.state = state;
-                if (this.isSTOPPED() || this.isREADY()) {
-                    await utils.setTimeoutPromised(1500).then(() => {
-                    // await this.timeOutManager.setTimeoutPromised(undefined,1500, "transitTo : " + state).then(() => {
-                        this.logger.log("info", LOG_ID + "(transitTo) set state : ", this.state);
-                        if (publishEvent) { this.eventEmitter.publish(state, data); }
-                        resolve(undefined);
-                    });
+                that.state = state;
+                if (that.isREADY()) {
+                    //if (that.isSTOPPED() || that.isREADY()) {
+                    try {
+                        await that.timeOutManager.setTimeoutPromised(() => {
+                            // await this.timeOutManager.setTimeoutPromised(undefined,1500, "transitTo : " + state).then(() => {
+                            that.logger.log("info", LOG_ID + "(transitTo) setTimeoutPromised set state : ", that.state);
+                            if (publishEvent) {
+                                that.eventEmitter.publish(state, data);
+                            }
+                            resolve(undefined);
+                        }, 1500, "(transitTo) setTimeoutPromised set state : " + that.state);
+                    } catch (err) {
+                        that.logger.log("warn", LOG_ID + "(transitTo) CATCH Error !!! error : ", err);
+                    }
+                } else if (that.isSTOPPED()) {
+                    try {
+                        setTimeout(() => {
+                            // await this.timeOutManager.setTimeoutPromised(undefined,1500, "transitTo : " + state).then(() => {
+                            that.logger.log("info", LOG_ID + "(transitTo) setTimeoutPromised set state : ", that.state);
+                            if (publishEvent) {
+                                that.eventEmitter.publish(state, data);
+                            }
+                            resolve(undefined);
+                        }, 100/* , "(transitTo) setTimeout set state : " + that.state */);
+                    } catch (err) {
+                        that.logger.log("warn", LOG_ID + "(transitTo) CATCH Error !!! error : ", err);
+                    }
                 } else {
-                    this.logger.log("info", LOG_ID + "(transitTo) set state : ", this.state);
-                    if (publishEvent) { this.eventEmitter.publish(state, data); }
+                    that.logger.log("info", LOG_ID + "(transitTo) set state : ", that.state);
+                    if (that.isERROR() || that.isFAILED()) {
+                        that.logger.log("warn", LOG_ID + "(transitTo) stackTrace : ", stackTrace());
+                    }
+                    if (publishEvent) {
+                        that.eventEmitter.publish(state, data);
+                    }
                     resolve(undefined);
                 }
             }

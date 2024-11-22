@@ -22,6 +22,7 @@ Module._extensions['.js'] = function (module, filename) {
 // */
 
 import {NodeSDK} from "./lib/NodeSDK";
+import {LogLevelAreas} from "./lib/common/LevelLogs.js";
 
 /*
 //let RainbowSdk : any = NodeSDK;
@@ -39,6 +40,7 @@ export default NodeSDK;
 module.exports = NodeSDK;
 module.exports.default = NodeSDK;
 module.exports.NodeSDK = NodeSDK;
+module.exports.LogLevelAreas = LogLevelAreas;
 export default NodeSDK;
-export { NodeSDK as NodeSDK}; //, OptionsType};
+export { NodeSDK as NodeSDK, LogLevelAreas}; //, OptionsType};
 

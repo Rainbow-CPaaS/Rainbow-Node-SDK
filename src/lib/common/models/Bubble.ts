@@ -144,6 +144,9 @@ class Bubble {
     public isOwnedByGroup : boolean
     public isActiveLastChange : boolean
     public processId : any
+    public confEndpoints : string
+    public allNames: Array<string>;
+    public participantNames: Array<string>;
 
 
     public static RoomUserStatus = {
@@ -204,7 +207,7 @@ class Bubble {
 
     constructor(_id: any = "", _name: any = "", _topic: any = "", _jid: any = "", _creator: any = "", _history: any = "none", _users: any = [], _creationDate: any = "", _visibility: any = "private", _customData: any = {}, _isActive: any = false, _conference: any,
                 _disableNotifications: boolean = false, _lastAvatarUpdateDate: any = null, _guestEmails: [] = [], _activeUsersCounter: number = 0, _autoRegister: boolean = false, _lastActivityDate, _autoAcceptInvitation: boolean = false, _tags: Array<any> = [], _avatarDomain: string = "", _containerId: string = null, _containerName: string = null,
-                _isAlertNotificationEnabled : boolean = null, _isOwnedByGroup : boolean = null, _isActiveLastChange : boolean = null, _processId : any = null) {
+                _isAlertNotificationEnabled : boolean = null, _isOwnedByGroup : boolean = null, _isActiveLastChange : boolean = null, _processId : any = null, _confEndpoints : string = null, _allNames:Array<string>, _participantNames:Array<string>) {
 
         /**
          * @public
@@ -450,6 +453,22 @@ class Bubble {
         this.isOwnedByGroup = _isOwnedByGroup;
         this.isActiveLastChange = _isActiveLastChange;
         this.processId = _processId;
+        this.confEndpoints = _confEndpoints;
+
+        /**
+         * @public
+         * @property {Array<string>} allNames The name of contacts in the bubble.
+         * @readonly
+         */
+        this.allNames = _allNames;
+
+        /**
+         * @public
+         * @property {Array<string>} participantNames The name of contacts in the bubble.
+         * @readonly
+         */
+        this.participantNames = _participantNames;
+
     }
 
     /**
@@ -515,9 +534,9 @@ class Bubble {
                             that[val] = data[val];
                         }
                     } else {
-                        //console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class can not update Bubble with : ", val, " -> ", data[val]);
+                        console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class can not update Bubble with : ", val, " -> ", data[val]);
                         // dev-code-console //
-                        console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class can not update Bubble property : ", val);
+                        //console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class can not update Bubble property : ", val);
                         // end-dev-code-console //
                     }
                 });
@@ -580,7 +599,10 @@ class Bubble {
                 data.isAlertNotificationEnabled,
                 data.isOwnedByGroup,
                 data.isActiveLastChange,
-                data.processId
+                data.processId,
+                data.confEndpoints,
+                data.allNames,
+                data.participantNames
             );
             if (data) {
                 let bubbleproperties = Object.getOwnPropertyNames(bubble);
@@ -590,9 +612,9 @@ class Bubble {
                         if (!bubbleproperties.find((el) => {
                             return val == el;
                         })) {
-                            //console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class : ", val, " -> ", data[val]);
+                            console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class : ", val, " -> ", data[val]);
                             // dev-code-console //
-                            console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class : ", val);
+                            //console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class : ", val);
                             // end-dev-code-console //
                         }
                     });
@@ -617,12 +639,11 @@ class Bubble {
                 if (data.users) {
                     //data.users.forEach(async (userData: any) => {
                     for (const userData of data.users) {
-                        const contact = await  contactsService.getContactById(userData.userId);
-                        //if (contact) {                      
-                        if (contactsService.isUserContact(contact)) {
+                        //const contact = await  contactsService.getContactById(userData.userId);
+                        //if (contactsService.isUserContact(contact)) {
+                        if (contactsService.isUserContactId(userData.userId)) {
                             bubble.status = userData.status;
                         }
-                        //}
                     }
                     //})
                 }

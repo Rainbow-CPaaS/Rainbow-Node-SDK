@@ -11,6 +11,8 @@ import {Logger} from "./Logger";
 const LOG_ID = "EVENTS - ";
 let EventEmitterClass = EventEmitter;
 
+EventEmitter.captureRejections = true;
+
  // dev-code //
  // @ class  Emitter EventEmitter class extended to log the event names and parameters.
 class Emitter extends EventEmitter {
@@ -84,104 +86,110 @@ class Emitter extends EventEmitterClass{
  * @description
  *      This module fires every events that come from Rainbow.<br>
  *      To receive them, you need to subscribe individually to each of the following events<br>
- * @fires Events#rainbow_onxmmpeventreceived <br>
- * @fires Events#rainbow_onxmmprequestsent <br>
- * @fires Events#rainbow_onrainbowversionwarning <br>
- * @fires Events#rainbow_onmessageserverreceiptreceived <br>
- * @fires Events#rainbow_onmessagereceiptreceived <br>
- * @fires Events#rainbow_onmessagereceiptreadreceived <br>
- * @fires Events#rainbow_onmessagereceived <br>
- * @fires Events#rainbow_onsendmessagefailed <br>
- * @fires Events#rainbow_oncontactpresencechanged <br>
- * @fires Events#rainbow_onpresencechanged <br>
- * @fires Events#rainbow_onconversationremoved <br>
- * @fires Events#rainbow_onconversationchanged <br>
- * @fires Events#rainbow_onallmessagedremovedfromconversationreceived <br>
- * @fires Events#rainbow_onchatstate <br>
- * @fires Events#rainbow_oncontactinformationchanged <br>
- * @fires Events#rainbow_onuserinformationchanged <br>
- * @fires Events#rainbow_onuserinvitereceived <br>
- * @fires Events#rainbow_onuserinviteaccepted <br>
- * @fires Events#rainbow_onuserinvitecanceled <br>
- * @fires Events#rainbow_oncontactremovedfromnetwork <br>
- * @fires Events#rainbow_onbubbleaffiliationchanged <br>
- * @fires Events#rainbow_onbubblepresencechanged <br>
- * @fires Events#rainbow_onbubbleownaffiliationchanged <br>
- * @fires Events#rainbow_onbubbledeleted <br>
- * @fires Events#rainbow_onbubbleinvitationreceived <br>
- * @fires Events#rainbow_onbubblecontactinvitationreceived <br>
- * @fires Events#rainbow_onbubbleconferencestartedreceived <br>
- * @fires Events#rainbow_onbubbleconferencestoppedreceived <br>
- * @fires Events#rainbow_onbubbleconferencedelegatereceived <br>
- * @fires Events#rainbow_onbubbleconferenceupdated <br>
- * @fires Events#rainbow_onbubblecustomdatachanged <br>
- * @fires Events#rainbow_onbubbletopicchanged <br>
- * @fires Events#rainbow_onbubbleprivilegechanged <br>
- * @fires Events#rainbow_onbubbleavatarchanged <br>
- * @fires Events#rainbow_onbubblenamechanged <br>
- * @fires Events#rainbow_onopeninvitationupdate <br>
- * @fires Events#rainbow_ongroupcreated <br>
- * @fires Events#rainbow_ongroupdeleted <br>
- * @fires Events#rainbow_ongroupupdated <br>
- * @fires Events#rainbow_onuseraddedingroup <br>
- * @fires Events#rainbow_onuserremovedfromgroup <br>
- * @fires Events#rainbow_onstarted <br>
- * @fires Events#rainbow_onstopped <br>
- * @fires Events#rainbow_onready <br>
- * @fires Events#rainbow_onerror <br>
- * @fires Events#rainbow_onconnected <br>
- * @fires Events#rainbow_onconnectionerror <br>
- * @fires Events#rainbow_ondisconnected <br>
- * @fires Events#rainbow_onreconnecting <br>
- * @fires Events#rainbow_onfailed <br>
- * @fires Events#rainbow_oncallupdated <br>
- * @fires Events#rainbow_onconferenced <br>
- * @fires Events#rainbow_ontelephonystatuschanged <br>
- * @fires Events#rainbow_onnomadicstatusevent <br>
- * @fires Events#rainbow_onvoicemessageupdated <br>
- * @fires Events#rainbow_onvoicemessagesinfo <br>
- * @fires Events#rainbow_oncallforwarded <br>
- * @fires Events#rainbow_onchannelmessagereceived <br>
- * @fires Events#rainbow_onchannelmyappreciationreceived <br>
- * @fires Events#rainbow_onchannelmessagedeletedreceived <br>
- * @fires Events#rainbow_onprofilefeatureupdated <br>
- * @fires Events#rainbow_onfilecreated <br>
- * @fires Events#rainbow_onfileupdated <br>
- * @fires Events#rainbow_onfiledeleted <br>
- * @fires Events#rainbow_onthumbnailcreated <br>
- * @fires Events#rainbow_onwebinarupdated <br>
- * @fires Events#rainbow_onchannelupdated <br>
- * @fires Events#rainbow_onchannelusersubscription <br>
- * @fires Events#rainbow_onmediapropose <br>
- * @fires Events#rainbow_onmediaretract <br>
- * @fires Events#rainbow_oncalllogupdated <br>
- * @fires Events#rainbow_oncalllogackupdated <br>
- * @fires Events#rainbow_onfavoritecreated <br>
- * @fires Events#rainbow_onfavoriteupdated <br>
- * @fires Events#rainbow_onfavoritedeleted <br>
- * @fires Events#rainbow_onxmpperror <br>
- * @fires Events#rainbow_onalertmessagereceived <br>
- * @fires Events#rainbow_onbubblescontainercreated <br>
- * @fires Events#rainbow_onbubblescontainerupdated <br>
- * @fires Events#rainbow_onbubblescontainerdeleted <br>
- * @fires Events#rainbow_onusertokenrenewfailed <br>
- * @fires Events#rainbow_onusertokenwillexpire <br>
- * @fires Events#rainbow_onbubblepollcreated <br>
- * @fires Events#rainbow_onbubblepolldeleted <br>
- * @fires Events#rainbow_onbubblepollpublished <br>
- * @fires Events#rainbow_onbubblepollunpublished <br>
- * @fires Events#rainbow_onbubblepollterminated <br>
- * @fires Events#rainbow_onbubblepollupdated <br>
- * @fires Events#rainbow_onbubblepollvoted <br>
- * @fires Events#rainbow_onconnectorcommand <br>
- * @fires Events#rainbow_onconnectorconfig <br>
- * @fires Events#rainbow_onconnectorcommandended <br>
- * @fires Events#rainbow_onconnectorimportstatus <br>
- * @fires Events#rainbow_onrbvoicerawevent <br>
- * @fires Events#rainbow_onjoincompanyinvitereceived <br>
- * @fires Events#rainbow_onjoincompanyrequestreceived <br>
- * @fires Events#rainbow_onlogsconfig <br>
-*/
+ * @fires Events#rainbow_onxmmpeventreceived
+ * @fires Events#rainbow_onxmmprequestsent
+ * @fires Events#rainbow_onrainbowversionwarning
+ * @fires Events#rainbow_onmessageserverreceiptreceived
+ * @fires Events#rainbow_onmessagereceiptreceived
+ * @fires Events#rainbow_onmessagereceiptreadreceived
+ * @fires Events#rainbow_onmessagereceived
+ * @fires Events#rainbow_onsendmessagefailed
+ * @fires Events#rainbow_oncontactpresencechanged
+ * @fires Events#rainbow_onpresencechanged
+ * @fires Events#rainbow_onconversationremoved
+ * @fires Events#rainbow_onconversationchanged
+ * @fires Events#rainbow_onloadConversationHistoryCompleted
+ * @fires Events#rainbow_onallmessagedremovedfromconversationreceived
+ * @fires Events#rainbow_onchatstate
+ * @fires Events#rainbow_oncontactinformationchanged
+ * @fires Events#rainbow_onuserinformationchanged
+ * @fires Events#rainbow_onuserinvitereceived
+ * @fires Events#rainbow_onuserinviteaccepted
+ * @fires Events#rainbow_onuserinvitecanceled
+ * @fires Events#rainbow_oncontactremovedfromnetwork
+ * @fires Events#rainbow_onbubbleaffiliationchanged
+ * @fires Events#rainbow_onbubblepresencechanged
+ * @fires Events#rainbow_onbubbleownaffiliationchanged
+ * @fires Events#rainbow_onbubbledeleted
+ * @fires Events#rainbow_onbubbleinvitationreceived
+ * @fires Events#rainbow_onbubblecontactinvitationreceived
+ * @fires Events#rainbow_onbubbleconferencestartedreceived
+ * @fires Events#rainbow_onbubbleconferencestoppedreceived
+ * @fires Events#rainbow_onbubbleconferencedelegatereceived
+ * @fires Events#rainbow_onbubbleconferenceupdated
+ * @fires Events#rainbow_onbubblecustomdatachanged
+ * @fires Events#rainbow_onbubbletopicchanged
+ * @fires Events#rainbow_onbubbleprivilegechanged
+ * @fires Events#rainbow_onbubbleavatarchanged
+ * @fires Events#rainbow_onbubblenamechanged
+ * @fires Events#rainbow_onopeninvitationupdate
+ * @fires Events#rainbow_ongroupcreated
+ * @fires Events#rainbow_ongroupdeleted
+ * @fires Events#rainbow_ongroupupdated
+ * @fires Events#rainbow_onuseraddedingroup
+ * @fires Events#rainbow_onuserremovedfromgroup
+ * @fires Events#rainbow_onstarted
+ * @fires Events#rainbow_onstopped
+ * @fires Events#rainbow_onready
+ * @fires Events#rainbow_onerror
+ * @fires Events#rainbow_onconnected
+ * @fires Events#rainbow_onconnectionerror
+ * @fires Events#rainbow_ondisconnected
+ * @fires Events#rainbow_onreconnecting
+ * @fires Events#rainbow_onfailed
+ * @fires Events#rainbow_oncallupdated
+ * @fires Events#rainbow_onconferenced
+ * @fires Events#rainbow_ontelephonystatuschanged
+ * @fires Events#rainbow_onnomadicstatusevent
+ * @fires Events#rainbow_onvoicemessageupdated
+ * @fires Events#rainbow_onvoicemessagesinfo
+ * @fires Events#rainbow_oncallforwarded
+ * @fires Events#rainbow_onchannelmessagereceived
+ * @fires Events#rainbow_onchannelmyappreciationreceived
+ * @fires Events#rainbow_onchannelmessagedeletedreceived
+ * @fires Events#rainbow_onprofilefeatureupdated
+ * @fires Events#rainbow_onfilecreated
+ * @fires Events#rainbow_onfileupdated
+ * @fires Events#rainbow_onfiledeleted
+ * @fires Events#rainbow_onthumbnailcreated
+ * @fires Events#rainbow_onwebinarupdated
+ * @fires Events#rainbow_onchannelupdated
+ * @fires Events#rainbow_onchannelusersubscription
+ * @fires Events#rainbow_onmediapropose
+ * @fires Events#rainbow_onmediaretract
+ * @fires Events#rainbow_oncalllogupdated
+ * @fires Events#rainbow_oncalllogackupdated
+ * @fires Events#rainbow_onfavoritecreated
+ * @fires Events#rainbow_onfavoriteupdated
+ * @fires Events#rainbow_onfavoritedeleted
+ * @fires Events#rainbow_onxmpperror
+ * @fires Events#rainbow_onalertmessagereceived
+ * @fires Events#rainbow_onbubblescontainercreated
+ * @fires Events#rainbow_onbubblescontainerupdated
+ * @fires Events#rainbow_onbubblescontainerdeleted
+ * @fires Events#rainbow_onusertokenrenewfailed
+ * @fires Events#rainbow_onusertokenwillexpire
+ * @fires Events#rainbow_onbubblepollcreated
+ * @fires Events#rainbow_onbubblepolldeleted
+ * @fires Events#rainbow_onbubblepollpublished
+ * @fires Events#rainbow_onbubblepollunpublished
+ * @fires Events#rainbow_onbubblepollterminated
+ * @fires Events#rainbow_onbubblepollupdated
+ * @fires Events#rainbow_onbubblepollvoted
+ * @fires Events#rainbow_onconnectorcommand
+ * @fires Events#rainbow_onconnectorconfig
+ * @fires Events#rainbow_onconnectorcommandended
+ * @fires Events#rainbow_onconnectorimportstatus
+ * @fires Events#rainbow_onrbvoicerawevent
+ * @fires Events#rainbow_onjoincompanyinvitereceived
+ * @fires Events#rainbow_onjoincompanyrequestreceived
+ * @fires Events#rainbow_onlogsconfig
+ * @fires Events#rainbow_ontaskcreated
+ * @fires Events#rainbow_ontaskupdated
+ * @fires Events#rainbow_ontaskdeleted
+ * @fires Events#rainbow_on429BackoffError
+ * @fires Events#rainbow_onrainbowcpaasreceived
+ */
 class Events {
     get logEmitter(): EventEmitter {
         return this._logEmitter;
@@ -210,6 +218,7 @@ class Events {
         "rainbow_onpresencechanged",
         "rainbow_onconversationremoved",
         "rainbow_onconversationchanged",
+        "rainbow_onloadConversationHistoryCompleted",
         "rainbow_onallmessagedremovedfromconversationreceived",
         "rainbow_onchatstate",
         "rainbow_oncontactinformationchanged",
@@ -294,8 +303,13 @@ class Events {
         "rainbow_onrbvoicerawevent",
         "rainbow_onjoincompanyinvitereceived",
         "rainbow_onjoincompanyrequestreceived",
-        "rainbow_onlogsconfig"
-    ];
+        "rainbow_onlogsconfig",
+        "rainbow_ontaskcreated",
+        "rainbow_ontaskupdated",
+        "rainbow_ontaskdeleted",
+        "rainbow_on429BackoffError",
+        "rainbow_onrainbowcpaasreceived"
+ ];
     public  waitBeforeBubblePresenceSend = false;
 
     constructor( _logger : Logger, _filterCallback : Function) {
@@ -499,6 +513,18 @@ class Events {
              *      This event is fired when a conversation has changed
              */
             that.publishEvent("conversationchanged", conversation);
+        });
+
+        this._evReceiver.on("evt_internal_loadConversationHistoryCompleted", function(conversation) {
+
+            /**
+             * @public
+             * @event Events#rainbow_onloadConversationHistoryCompleted
+             * @param { Conversation } conversation The conversation
+             * @description
+             *      This event is fired when a conversation history has finished to charge.
+             */
+            that.publishEvent("loadConversationHistoryCompleted", conversation);
         });
 
         this._evReceiver.on("evt_internal_allmessagedremovedfromconversationreceived", function(conversation) {
@@ -1520,6 +1546,77 @@ class Events {
             that.publishEvent("logsconfig", data);
         });
 
+        this._evReceiver.on("evt_internal_taskcreated", function (data) {
+            /**
+             * @event Events#rainbow_ontaskcreated
+             * @public
+             * @param { Favorite } task The task created
+             * @description
+             *      Fired when a task is added to the loggued in user.
+             */
+            that.publishEvent("taskcreated", data);
+        });
+
+        this._evReceiver.on("evt_internal_taskupdated", function (data) {
+            /**
+             * @event Events#rainbow_ontaskupdated
+             * @public
+             * @param { Favorite } task The task updated
+             * @description
+             *      Fired when a task is updated to the loggued in user.
+             */
+            that.publishEvent("taskupdated", data);
+        });
+
+        this._evReceiver.on("evt_internal_taskdeleted", function (data) {
+            /**
+             * @event Events#rainbow_ontaskdeleted
+             * @public
+             * @param { Favorite } task The task deleted
+             * @description
+             *      Fired when a task is suppressed to the loggued in user.
+             */
+            that.publishEvent("taskdeleted", data);
+        });
+
+        this._evReceiver.on("evt_internal_429BackoffError", function (data) {
+            /**
+             * @event Events#rainbow_on429BackoffError
+             * @public
+             * @param { request | error } data The request and the error raised by backoff
+             * @description
+             *      Fired when a request initialy failed and is trying to be retreated by backoff process.
+             */
+            that.publishEvent("429BackoffError", data);
+        });
+
+        this._evReceiver.on("evt_internal_onrainbowcpaasreceived", function (data) {
+            /**
+             * @event Events#rainbow_onrainbowcpaasreceived
+             * @public
+             * @param { any | error } data The data of the event.
+             * @description
+             *      Fired when a `rainbow-cpaas` event is receveid for a private data exchange.
+             */
+            that.publishEvent("rainbowcpaasreceived", data);
+        });
+
+
+    }
+
+    listenerData() {
+        let that = this;
+
+        let eventsData = {
+            receiver : {
+                "listenerCount" : that._evReceiver.listenerCount("rainbow_onready")
+            },
+            emitter : {
+                "listenerCount" : that._evPublisher.listenerCount("rainbow_onready")
+            }
+        };
+
+        return eventsData;
     }
 
     get iee(): EventEmitter {

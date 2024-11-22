@@ -39,6 +39,8 @@ export {};
 const packageVersion = require("../package.json");
 import * as Utils from "./common/Utils"
 import {RPCoverXMPPService} from "./services/RPCoverXMPPService.js";
+import {LevelLogs} from "./common/LevelLogs.js";
+import { TasksService } from "./services/TasksService";
 
 /*let _signin;
 let _retrieveInformation;
@@ -52,7 +54,8 @@ enum SIGNINMETHODNAME {
 }
 
 @logEntryExit(LOG_ID)
-class Core {
+class Core extends LevelLogs{
+
     get timeOutManager(): TimeOutManager {
         return this._timeOutManager;
     }
@@ -60,7 +63,7 @@ class Core {
     set timeOutManager(value: TimeOutManager) {
         this._timeOutManager = value;
     }
-	public logger: any;
+	public _logger: any;
 	public _rest: RESTService;
 	public _eventEmitter: Events;
 	public options: any;
@@ -87,6 +90,7 @@ class Core {
     public _webinars: WebinarsService;
     public _rbvoice: RBVoiceService;
     public _invitations: InvitationsService;
+    public _tasks: TasksService;
     public _httpoverxmpp: HTTPoverXMPP;
     public _rpcoverxmpp: RPCoverXMPPService;
 	public _botsjid: any;
@@ -96,17 +100,22 @@ class Core {
     private _timeOutManager : TimeOutManager;
     private _signinmethodName : SIGNINMETHODNAME;
     private lastConnectedOptions : {token : string, userInfos : any};
+    public startDate : Date;
 
     static getClassName(){ return 'Core'; }
     getClassName(){ return Core.getClassName(); }
 
-    constructor(options) {
+    static getAccessorName(){ return 'core'; }
+    getAccessorName(){ return Core.getAccessorName(); }
 
+    constructor(options) {
+        super();
+        this.setLogLevels(this);
         let self = this;
         
         // Initialize the logger
         let loggerModule = new Logger(options);
-        self.logger = loggerModule.log;
+        self._logger = loggerModule.log;
 
         self._Utils = Utils;
 
@@ -114,36 +123,36 @@ class Core {
         self.lastConnectedOptions = {token:undefined, userInfos: {}};
 
         // Initialize the Events Emitter
-        self._eventEmitter = new Events(self.logger, (jid) => {
+        self._eventEmitter = new Events(self._logger, (jid) => {
             return self._botsjid.includes(jid);
         });
         self._eventEmitter.setCore(self);
 
         loggerModule.logEventEmitter = self._eventEmitter.logEmitter;
 
-        self._timeOutManager = new TimeOutManager(self.logger);
-        
-        self.logger.log("debug", LOG_ID + "(constructor) _entering_");
-        self.logger.log("debug", LOG_ID + "(constructor) ------- SDK INFORMATION -------");
+        self._timeOutManager = new TimeOutManager(self._logger);
+        //{"callerObj" : this, "level" : "debug"};
+        self._logger.log(self.INFO, LOG_ID + "(constructor) _entering_");
+        self._logger.log(self.INFO, LOG_ID + "(constructor) ------- SDK INFORMATION -------");
 
-        self.logger.log("info", LOG_ID + " (constructor) SDK version: " + packageVersion.version);
-        self.logger.log("info", LOG_ID + " (constructor) Node version: " + process.version);
+        self._logger.log(self.INFO, LOG_ID + " (constructor) SDK version: " + packageVersion.version);
+        self._logger.log(self.INFO, LOG_ID + " (constructor) Node version: " + process.version);
         for (let key in process.versions) {
-            self.logger.log("info", LOG_ID + " (constructor) " + key + " version: " + process.versions[key]);
+            self._logger.log(self.INFO, LOG_ID + " (constructor) " + key + " version: " + process.versions[key]);
         }
-        self.logger.log("debug", LOG_ID + "(constructor) ------- SDK INFORMATION -------");
+        self._logger.log(self.DEBUG, LOG_ID + "(constructor) ------- SDK INFORMATION -------");
 
         // Initialize the options
 
-        self.options = new Options(options, self.logger);
+        self.options = new Options(options, self._logger);
         self.options.parse();
 
-        self.logger.log("internal", LOG_ID + "(constructor) options : ", self.options);
+        self._logger.log(self.INTERNAL, LOG_ID + "(constructor) options : ", self.options);
 
         self._eventEmitter.iee.on("evt_internal_signinrequired", async() => {
             let that = this;
             let error = ErrorManager.getErrorManager().ERROR;
-            self.logger.log("info", LOG_ID + " (evt_internal_signinrequired) Stop, start and signin  the SDK. This log is not printed if the SDK is already stopped!");
+            self._logger.log(self.INFO, LOG_ID + " (evt_internal_signinrequired) Stop, start and signin  the SDK. This log is not printed if the SDK is already stopped!");
             await self.stop().then(function(result) {
             }).catch(async function(err) {
                 error.msg = err;
@@ -151,11 +160,16 @@ class Core {
                 //self.events.publish("stopped", error);
             });
             await self._stateManager.transitTo(true, self._stateManager.STOPPED, error);
+
+            self._logger.log(self.INFO, LOG_ID + " (evt_internal_signinrequired) pause before continue the reconnection !");
+            await pause(20000);
+            self._logger.log(self.INFO, LOG_ID + " (evt_internal_signinrequired) pause done, so continue the reconnection !");
+
             if (that._signinmethodName == SIGNINMETHODNAME.SIGNIN ) {
                 await self.start(that.lastConnectedOptions.token).then(async function () {
                     return await self.signin(true, that.lastConnectedOptions.token);
                 }).catch((err2) => {
-                    self.logger.log("error", LOG_ID + " (evt_internal_signinrequired) start/signin failed : ", err2);
+                    self._logger.log(self.ERROR, LOG_ID + " (evt_internal_signinrequired) start/signin failed : ", err2);
                     setTimeout(() => {
                         self._eventEmitter.iee.emit("evt_internal_signinrequired");
                     }, 10000 + getRandomInt(40000));
@@ -165,7 +179,7 @@ class Core {
                 await self.start(that.lastConnectedOptions.token).then(async function () {
                     return await self._signinWSOnly(true, that.lastConnectedOptions.token, that.lastConnectedOptions.userInfos);
                 }).catch((err2) => {
-                    self.logger.log("error", LOG_ID + " (evt_internal_signinrequired) start/signin failed : ", err2);
+                    self._logger.log(self.ERROR, LOG_ID + " (evt_internal_signinrequired) start/signin failed : ", err2);
                     setTimeout(() => {
                         self._eventEmitter.iee.emit("evt_internal_signinrequired");
                     }, 10000 + getRandomInt(40000));
@@ -179,7 +193,7 @@ class Core {
 
         self._eventEmitter.iee.on("evt_internal_xmppfatalerror", async (err) => {
             console.log("Error XMPP, Stop the SDK : ", err);
-            self.logger.log("error", LOG_ID + " (evt_internal_xmppfatalerror) Error XMPP, Stop the SDK : ", err);
+            self._logger.log(self.ERROR, LOG_ID + " (evt_internal_xmppfatalerror) Error XMPP, Stop the SDK : ", err);
             await self.stop().then(function(result) {
                 //let success = ErrorManager.getErrorManager().OK;
             }).catch(async function(err) {
@@ -197,28 +211,28 @@ class Core {
 
         self._eventEmitter.iee.on("rainbow_xmppreconnected", function () {
             let that = self;
-            self.logger.log("info", LOG_ID + " (rainbow_xmppreconnected) received, so start reconnect from RESTService.");
+            self._logger.log(self.INFO, LOG_ID + " (rainbow_xmppreconnected) received, so start reconnect from RESTService.");
             self._rest.reconnect().then((data) => {
-                self.logger.log("info", LOG_ID + " (rainbow_xmppreconnected) reconnect succeed : so change state to connected");
-                self.logger.log("internal", LOG_ID + " (rainbow_xmppreconnected) reconnect succeed : ", data, " so change state to connected");
+                self._logger.log(self.INFO, LOG_ID + " (rainbow_xmppreconnected) reconnect succeed : so change state to connected");
+                self._logger.log(self.INTERNAL, LOG_ID + " (rainbow_xmppreconnected) reconnect succeed : ", data, " so change state to connected");
                 return self._stateManager.transitTo(true, self._stateManager.CONNECTED).then(async (data2) => {
-                    self.logger.log("info", LOG_ID + " (rainbow_xmppreconnected) transition to connected succeed.");
-                    self.logger.log("internal", LOG_ID + " (rainbow_xmppreconnected) transition to connected succeed : ", data2);
+                    self._logger.log(self.INFO, LOG_ID + " (rainbow_xmppreconnected) transition to connected succeed.");
+                    self._logger.log(self.INTERNAL, LOG_ID + " (rainbow_xmppreconnected) transition to connected succeed : ", data2);
                     await that._bubbles.reset() ;
                     return self._retrieveInformation();
                 });
             }).then((data3) => {
-                self.logger.log("info", LOG_ID + " (rainbow_xmppreconnected) _retrieveInformation succeed, change state to ready");
-                self.logger.log("internal", LOG_ID + " (rainbow_xmppreconnected) _retrieveInformation succeed : ", data3,  " change state to ready");
+                self._logger.log(self.INFO, LOG_ID + " (rainbow_xmppreconnected) _retrieveInformation succeed, change state to ready");
+                self._logger.log(self.INTERNAL, LOG_ID + " (rainbow_xmppreconnected) _retrieveInformation succeed : ", data3,  " change state to ready");
                 self._stateManager.transitTo(true, self._stateManager.READY).then((data4) => {
-                    self.logger.log("info", LOG_ID + " (rainbow_xmppreconnected) transition to ready succeed.");
-                    self.logger.log("internal", LOG_ID + " (rainbow_xmppreconnected) transition to ready succeed : ", data4);
+                    self._logger.log(self.INFO, LOG_ID + " (rainbow_xmppreconnected) transition to ready succeed.");
+                    self._logger.log(self.INTERNAL, LOG_ID + " (rainbow_xmppreconnected) transition to ready succeed : ", data4);
                 });
             }).catch(async (err) => {
                 // If not already connected, it is an error in xmpp connection, so should failed
                 if (!self._stateManager.isCONNECTED() && !self._stateManager.isRECONNECTING()) {
-                    self.logger.log("error", LOG_ID + " (rainbow_xmppreconnected) REST connection ", self._stateManager.FAILED);
-                    self.logger.log("internalerror", LOG_ID + " (rainbow_xmppreconnected) REST connection ", self._stateManager.FAILED, ", ErrorManager : ", err);
+                    self._logger.log(self.ERROR, LOG_ID + " (rainbow_xmppreconnected) REST connection ", self._stateManager.FAILED);
+                    self._logger.log(self.INTERNALERROR, LOG_ID + " (rainbow_xmppreconnected) REST connection ", self._stateManager.FAILED, ", ErrorManager : ", err);
                     await self.stop().then(function(result) {
                     }).catch(function(err) {
                     });
@@ -229,10 +243,10 @@ class Core {
                     }
                 } else {
                     if (err && err.errorname == "reconnectingInProgress") {
-                        self.logger.log("warn", LOG_ID + " (rainbow_xmppreconnected) REST reconnection already in progress ignore error : ", err);
+                        self._logger.log(self.WARN, LOG_ID + " (rainbow_xmppreconnected) REST reconnection already in progress ignore error : ", err);
                     } else {
-                        self.logger.log("warn", LOG_ID + " (rainbow_xmppreconnected) REST reconnection Error, set state : ", self._stateManager.DISCONNECTED);
-                        self.logger.log("internalerror", LOG_ID + " (rainbow_xmppreconnected) REST reconnection ErrorManager : ", err, ", set state : ", self._stateManager.DISCONNECTED);
+                        self._logger.log(self.WARN, LOG_ID + " (rainbow_xmppreconnected) REST reconnection Error, set state : ", self._stateManager.DISCONNECTED);
+                        self._logger.log(self.INTERNALERROR, LOG_ID + " (rainbow_xmppreconnected) REST reconnection ErrorManager : ", err, ", set state : ", self._stateManager.DISCONNECTED);
                         // ErrorManager in REST micro service, so let say it is disconnected
                         await self._stateManager.transitTo(true, self._stateManager.DISCONNECTED);
                         // relaunch the REST connection.
@@ -248,12 +262,12 @@ class Core {
 
         self._eventEmitter.iee.on("rainbow_xmppdisconnect", async function (xmppDisconnectInfos) {
             if (xmppDisconnectInfos && xmppDisconnectInfos.reconnect) {
-                self.logger.log("info", LOG_ID + " (rainbow_xmppdisconnect) set to state : ", self._stateManager.DISCONNECTED);
+                self._logger.log(self.INFO, LOG_ID + " (rainbow_xmppdisconnect) set to state : ", self._stateManager.DISCONNECTED);
                 await self._stateManager.transitTo(true, self._stateManager.DISCONNECTED);
             }  else {
-                self.logger.log("info", LOG_ID + " (rainbow_xmppdisconnect) set to state : ", self._stateManager.STOPPED);
+                self._logger.log(self.INFO, LOG_ID + " (rainbow_xmppdisconnect) set to state : ", self._stateManager.STOPPED);
                 if (! self.options.autoReconnectIgnoreErrors) {
-                    await self._stateManager.transitTo(true, self._stateManager.STOPPED);
+            //        await self._stateManager.transitTo(true, self._stateManager.STOPPED);
                 } else {
                     self._eventEmitter.iee.emit("evt_internal_signinrequired");
                 }
@@ -264,59 +278,69 @@ class Core {
         self._eventEmitter.iee.on("evt_internal_tokenexpired", self.onTokenExpired.bind(self));
 
         if (self.options.useXMPP) {
-            self.logger.log("info", LOG_ID + "(constructor) used in XMPP mode");
+            self._logger.log(self.INFO, LOG_ID + "(constructor) used in XMPP mode");
         }
         else {
             if (self.options.useCLIMode) {
-                self.logger.log("info", LOG_ID + "(constructor) used in CLI mode");
+                self._logger.log(self.INFO, LOG_ID + "(constructor) used in CLI mode");
             }
             else {
-                self.logger.log("info", LOG_ID + "(constructor) used in HOOK mode");
+                self._logger.log(self.INFO, LOG_ID + "(constructor) used in HOOK mode");
             }
         }
 
         // Instantiate basic service
-        self._proxy = new ProxyImpl(self.options.proxyOptions, self.logger);
-        self._http = new HTTPService(self.options, self.logger, self._proxy, self._eventEmitter.iee, this);
-        self._rest = new RESTService(self.options, self._eventEmitter.iee, self.logger, this);
-        self._xmpp = new XMPPService(self.options.xmppOptions, self.options.imOptions, self.options.applicationOptions, self._eventEmitter.iee, self.logger, self._proxy, self._rest, self.options, self);
-        self._s2s = new S2SService(self.options.s2sOptions, self.options.imOptions, self.options.applicationOptions, self._eventEmitter.iee, self.logger, self._proxy,self.options.servicesToStart.s2s);
+        self._proxy = new ProxyImpl(self.options.proxyOptions, self._logger);
+        self._http = new HTTPService(self, self.options, self._logger, self._proxy, self._eventEmitter.iee);
+        self._rest = new RESTService(self, self.options, self._eventEmitter.iee, self._logger);
+        self._xmpp = new XMPPService(self, self.options.xmppOptions, self.options.imOptions, self.options.applicationOptions, self._eventEmitter.iee, self._logger, self._proxy, self._rest, self.options);
+        self._s2s = new S2SService(self, self.options.s2sOptions, self.options.imOptions, self.options.applicationOptions, self._eventEmitter.iee, self._logger, self._proxy,self.options.servicesToStart.s2s);
 
         // Instantiate State Manager
-        self._stateManager = new StateManager(self._eventEmitter, self.logger, this._timeOutManager );
+        self._stateManager = new StateManager(self._eventEmitter, self._logger, this._timeOutManager );
 
         // Instantiate others Services
-        self._im = new ImsService(self._eventEmitter.iee, self.logger, self.options.imOptions, self.options.servicesToStart.im);
-        self._presence = new PresenceService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.presence);
-        self._channels = new ChannelsService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.channels);
-        self._contacts = new ContactsService(self._eventEmitter.iee, self.options.httpOptions, self.logger, self.options.servicesToStart.contacts);
-        self._conversations = new ConversationsService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.conversations, self.options.imOptions.conversationsRetrievedFormat, self.options.imOptions.nbMaxConversations, self.options.imOptions.autoLoadConversations, self.options.imOptions.autoLoadConversationHistory);
-        self._profiles = new ProfilesService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.profiles);
-        self._telephony = new TelephonyService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.telephony);
-        self._bubbles = new BubblesService(self._eventEmitter.iee, self.options.httpOptions,self.logger, self.options.servicesToStart.bubbles);
-        self._groups = new GroupsService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.groups);
-        self._admin = new AdminService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.admin);
-        self._settings = new SettingsService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.settings);
-        self._fileServer = new FileServerService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.fileServer);
-        self._fileStorage = new FileStorageService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.fileStorage);
-        self._calllog = new CallLogService(self._eventEmitter.iee, self.logger, self.options.servicesToStart.calllog);
-        self._favorites = new FavoritesService(self._eventEmitter.iee,self.logger, self.options.servicesToStart.favorites);
-        self._alerts = new AlertsService(self._eventEmitter.iee,self.logger, self.options.servicesToStart.alerts);
-        self._rbvoice = new RBVoiceService(self._eventEmitter.iee, self.options.httpOptions, self.logger, self.options.servicesToStart.rbvoice);
-        self._httpoverxmpp = new HTTPoverXMPP(self._eventEmitter.iee, self.options.httpOptions, self.logger, self.options.servicesToStart.httpoverxmpp);
-        self._rpcoverxmpp = new RPCoverXMPPService(self._eventEmitter.iee, self.options.httpOptions, self.logger, self.options.servicesToStart.rpcoverxmpp);
-        self._webinars = new WebinarsService(self._eventEmitter.iee, self.options.httpOptions, self.logger, self.options.servicesToStart.webinar);
-        self._invitations = new InvitationsService(self._eventEmitter.iee,self.logger, self.options.servicesToStart.invitation);
+        self._im = new ImsService(self, self._eventEmitter.iee, self._logger, self.options.imOptions, self.options.servicesToStart.im);
+        self._presence = new PresenceService(self, self._eventEmitter.iee, self._logger, self.options.servicesToStart.presence);
+        self._channels = new ChannelsService(self, self._eventEmitter.iee, self._logger, self.options.servicesToStart.channels);
+        self._contacts = new ContactsService(self, self._eventEmitter.iee, self.options.httpOptions, self._logger, self.options.servicesToStart.contacts);
+        self._conversations = new ConversationsService(self, self._eventEmitter.iee, self._logger, self.options.servicesToStart.conversations, self.options.imOptions.conversationsRetrievedFormat, self.options.imOptions.nbMaxConversations, self.options.imOptions.autoLoadConversations, self.options.imOptions.autoLoadConversationHistory);
+        self._profiles = new ProfilesService(self, self._eventEmitter.iee, self._logger, self.options.servicesToStart.profiles);
+        self._telephony = new TelephonyService(self, self._eventEmitter.iee, self._logger, self.options.servicesToStart.telephony);
+        self._bubbles = new BubblesService(self, self._eventEmitter.iee, self.options.httpOptions,self._logger, self.options.servicesToStart.bubbles);
+        self._groups = new GroupsService(self, self._eventEmitter.iee, self._logger, self.options.servicesToStart.groups);
+        self._admin = new AdminService(self, self._eventEmitter.iee, self._logger, self.options.servicesToStart.admin);
+        self._settings = new SettingsService(self, self._eventEmitter.iee, self._logger, self.options.servicesToStart.settings);
+        self._fileServer = new FileServerService(self, self._eventEmitter.iee, self._logger, self.options.servicesToStart.fileServer);
+        self._fileStorage = new FileStorageService(self, self._eventEmitter.iee, self._logger, self.options.servicesToStart.fileStorage);
+        self._calllog = new CallLogService(self, self._eventEmitter.iee, self._logger, self.options.servicesToStart.calllog);
+        self._favorites = new FavoritesService(self, self._eventEmitter.iee,self._logger, self.options.servicesToStart.favorites);
+        self._alerts = new AlertsService(self, self._eventEmitter.iee,self._logger, self.options.servicesToStart.alerts);
+        self._rbvoice = new RBVoiceService(self, self._eventEmitter.iee, self.options.httpOptions, self._logger, self.options.servicesToStart.rbvoice);
+        self._httpoverxmpp = new HTTPoverXMPP(self, self._eventEmitter.iee, self.options.httpOptions, self._logger, self.options.servicesToStart.httpoverxmpp);
+        self._rpcoverxmpp = new RPCoverXMPPService(self, self._eventEmitter.iee, self.options.httpOptions, self._logger, self.options.servicesToStart.rpcoverxmpp);
+        self._webinars = new WebinarsService(self, self._eventEmitter.iee, self.options.httpOptions, self._logger, self.options.servicesToStart.webinar);
+        self._invitations = new InvitationsService(self, self._eventEmitter.iee,self._logger, self.options.servicesToStart.invitation);
+        self._tasks = new TasksService(self, self._eventEmitter.iee, self._logger, self.options.servicesToStart.tasks);
 
         self._botsjid = [];
 
         self.startCleanningInterval();
-        self.logger.log("debug", LOG_ID + "(constructor) _exiting_");
+
+        self._logger.log(self.INFO, LOG_ID + `=== CONSTRUCTED at (${new Date()} ===`);
+        //self._logger.log(self.DEBUG, LOG_ID + "(constructor) _exiting_");
+    }
+
+    getDurationSinceStart(label:string) {
+        let that = this;
+        let sinceCreateDuration =  Math.round((new Date()).getTime() - that.startDate?.getTime());
+        that._logger.log(that.INFO, LOG_ID + `=== ${label} - SINCE CREATION (${sinceCreateDuration} ms) ===`);
+        return sinceCreateDuration;
     }
 
     _signin (forceStopXMPP, token) {
         let that = this;
-        that.logger.log("debug", LOG_ID + "(signin) _entering_");
+        that._logger.log(that.DEBUG, LOG_ID + "(signin) _entering_");
 
         let json = null;
 
@@ -342,15 +366,15 @@ class Core {
                         };
                         return that._xmpp.signin(that._rest.loggedInUser, headers);
                     }).then(function () {
-                        that.logger.log("debug", LOG_ID + "(signin) signed in successfully");
-                        that.logger.log("debug", LOG_ID + "(signin) _exiting_");
+                        that._logger.log(that.DEBUG, LOG_ID + "(signin) signed in successfully");
+                        that._logger.log(that.DEBUG, LOG_ID + "(signin) _exiting_");
                         //return resolve(json);
                         loginResult = json;
                         loginSucceed = true;
                     }).catch(function (err) {
-                        that.logger.log("error", LOG_ID + "(signin) can't signed-in.");
-                        that.logger.log("internalerror", LOG_ID + "(signin) can't signed-in", err);
-                        that.logger.log("debug", LOG_ID + "(signin) _exiting_");
+                        that._logger.log(that.ERROR, LOG_ID + "(signin) can't signed-in.");
+                        that._logger.log(that.INTERNALERROR, LOG_ID + "(signin) can't signed-in", err);
+                        that._logger.log(that.DEBUG, LOG_ID + "(signin) _exiting_");
                         //return reject(err);
                         loginSucceed = false;
                         loginResult = err;
@@ -380,13 +404,13 @@ class Core {
 
                     return that._s2s.signin(that._rest.loggedInUser, headers);
                 }).then(function () {
-                    that.logger.log("debug", LOG_ID + "(signin) signed in successfully");
-                    that.logger.log("debug", LOG_ID + "(signin) _exiting_");
+                    that._logger.log(that.DEBUG, LOG_ID + "(signin) signed in successfully");
+                    that._logger.log(that.DEBUG, LOG_ID + "(signin) _exiting_");
                     return resolve(json);
                 }).catch(function (err) {
-                    that.logger.log("error", LOG_ID + "(signin) can't signed-in.");
-                    that.logger.log("internalerror", LOG_ID + "(signin) can't signed-in", err);
-                    that.logger.log("debug", LOG_ID + "(signin) _exiting_");
+                    that._logger.log(that.ERROR, LOG_ID + "(signin) can't signed-in.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(signin) can't signed-in", err);
+                    that._logger.log(that.DEBUG, LOG_ID + "(signin) _exiting_");
                     return reject(err);
                 });
             } else {
@@ -401,12 +425,12 @@ class Core {
                             // "Accept": accept || "application/json",
                         }
                     };
-                    that.logger.log("debug", LOG_ID + "(signin) signed in successfully");
-                    that.logger.log("debug", LOG_ID + "(signin) _exiting_");
+                    that._logger.log(that.DEBUG, LOG_ID + "(signin) signed in successfully");
+                    that._logger.log(that.DEBUG, LOG_ID + "(signin) _exiting_");
                     return resolve(json);
                 }).catch((err)=> {
-                    that.logger.log("debug", LOG_ID + "(signin) signed failed : ", err);
-                    that.logger.log("debug", LOG_ID + "(signin) _exiting_");
+                    that._logger.log(that.DEBUG, LOG_ID + "(signin) signed failed : ", err);
+                    that._logger.log(that.DEBUG, LOG_ID + "(signin) _exiting_");
                     return reject(err);
                 });
             }
@@ -415,7 +439,7 @@ class Core {
 
     _signinWSOnly (forceStopXMPP, token, userInfos) {
         let that = this;
-        that.logger.log("debug", LOG_ID + "(_signinWSOnly) _entering_");
+        that._logger.log(that.DEBUG, LOG_ID + "(_signinWSOnly) _entering_");
 
         let json = null;
 
@@ -442,13 +466,13 @@ class Core {
                     };
                     return that._xmpp.signin(userInfos, headers);
                 }).then(function () {
-                    that.logger.log("debug", LOG_ID + "(_signinWSOnly) signed in successfully");
-                    that.logger.log("debug", LOG_ID + "(_signinWSOnly) _exiting_");
+                    that._logger.log(that.DEBUG, LOG_ID + "(_signinWSOnly) signed in successfully");
+                    that._logger.log(that.DEBUG, LOG_ID + "(_signinWSOnly) _exiting_");
                     return resolve(json);
                 }).catch(function (err) {
-                    that.logger.log("error", LOG_ID + "(_signinWSOnly) can't signed-in.");
-                    that.logger.log("internalerror", LOG_ID + "(signin) can't signed-in", err);
-                    that.logger.log("debug", LOG_ID + "(_signinWSOnly) _exiting_");
+                    that._logger.log(that.ERROR, LOG_ID + "(_signinWSOnly) can't signed-in.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(signin) can't signed-in", err);
+                    that._logger.log(that.DEBUG, LOG_ID + "(_signinWSOnly) _exiting_");
                     return reject(err);
                 });
             } else {
@@ -459,19 +483,19 @@ class Core {
 
     _retrieveInformation () {
         let that = this;
-        that.logger.log("debug", LOG_ID + "(_retrieveInformation).");
-        //that.logger.log("internal", LOG_ID + "(_retrieveInformation) options : ", that.options);
+        that._logger.log(that.DEBUG, LOG_ID + "(_retrieveInformation). " + `(${that.getDurationSinceStart("_retrieveInformation")} ms)`);
+        //that._logger.log(that.INTERNAL, LOG_ID + "(_retrieveInformation) options : ", that.options);
         return new Promise(async (resolve, reject) => {
 
             if (that.options.testOutdatedVersion) {
                 await that._rest.getRainbowNodeSdkPackagePublishedInfos().then((infos: any) => {
-                    // self.logger.log("internal", LOG_ID +  "(getRainbowNodeSdkPackagePublishedInfos) infos : ", infos);
+                    // self._logger.log(self.INTERNAL, LOG_ID +  "(getRainbowNodeSdkPackagePublishedInfos) infos : ", infos);
                     infos.results.forEach((packagePublished: any) => {
                         if (packagePublished.package.name === packageVersion.name) {
                             //if (packagePublished.package.version !== packageVersion.version) {
                             if (lt(packageVersion.version, packagePublished.package.version)) {
-                                that.logger.log("error", LOG_ID + "(getRainbowNodeSdkPackagePublishedInfos)  \n " +
-                                        "*******************************************************\n\n", that.logger.colors.red.underline("WARNING : "), that.logger.colors.italic("\n  curent rainbow-node-sdk version : " + packageVersion.version + " is OLDER than the latest available one on npmjs.com : " + packagePublished.package.version + "\n  please update it (npm install rainbow-node-sdk@latest) and use the CHANGELOG to consider the changes."), "\n\n*******************************************************");
+                                that._logger.log(that.ERROR, LOG_ID + "(getRainbowNodeSdkPackagePublishedInfos)  \n " +
+                                        "*******************************************************\n\n", that._logger.colors.red.underline("WARNING : "), that._logger.colors.italic("\n  curent rainbow-node-sdk version : " + packageVersion.version + " is OLDER than the latest available one on npmjs.com : " + packagePublished.package.version + "\n  please update it (npm install rainbow-node-sdk@latest) and use the CHANGELOG to consider the changes."), "\n\n*******************************************************");
                                 let error = {
                                     "label": "curent rainbow-node-sdk version : " + packageVersion.version + " is OLDER than the latest available one on npmjs.com : " + packagePublished.package.version + " please update it (npm install rainbow-node-sdk@latest) and use the CHANGELOG to consider the changes.",
                                     "currentPackage": packageVersion.version,
@@ -481,13 +505,13 @@ class Core {
 
                                 //self.events.publish("rainbowversionwarning", error);
                             } else {
-                                that.logger.log("info", LOG_ID + "(_retrieveInformation) using the last published version of the SDK.");
+                                that._logger.log(that.INFO, LOG_ID + "(_retrieveInformation) using the last published version of the SDK.");
                             }
                         }
                     });
                 }).catch((error) => {
-                    that.logger.log("debug", LOG_ID + "(_retrieveInformation) getRainbowNodeSdkPackagePublishedInfos error : ", error);
-                    // self.logger.log("internalerror", LOG_ID +  "(getRainbowNodeSdkPackagePublishedInfos) error : ", error);
+                    that._logger.log(that.DEBUG, LOG_ID + "(_retrieveInformation) getRainbowNodeSdkPackagePublishedInfos error : ", error);
+                    // self._logger.log(self.INTERNALERROR, LOG_ID +  "(getRainbowNodeSdkPackagePublishedInfos) error : ", error);
                 });
             }
 
@@ -500,17 +524,17 @@ class Core {
                     while (findingDns) {
                         try {
                             resolvedHostnames = await resolveDns(that._http.host);
-                            that.logger.log("debug", "(_retrieveInformation), resolveDns result : ", resolvedHostnames);
+                            that._logger.log(that.DEBUG, "(_retrieveInformation), resolveDns result : ", resolvedHostnames);
                             if ((Array.isArray(resolvedHostnames)) && (resolvedHostnames.length > 0)) {
                                 findingDns = false;
                                 dnsFound = true;
                             } else {
-                                that.logger.log("debug", "(_retrieveInformation), resolveDns DNS entry not found for HOST : ", that._http.host," continue to search.");
+                                that._logger.log(that.DEBUG, "(_retrieveInformation), resolveDns DNS entry not found for HOST : ", that._http.host," continue to search.");
                                 //if ((resolvedHostnames == undefined) || (resolvedHostnames.length == 0) ) {
                                 await setTimeoutPromised(3000);
                             }
                         } catch (err) {
-                            that.logger.log("error", "(_retrieveInformation), failed to resolveDns : ", that._http.host, ", error : ", err);
+                            that._logger.log(that.ERROR, "(_retrieveInformation), failed to resolveDns : ", that._http.host, ", error : ", err);
                         }
                     }
                 }
@@ -520,44 +544,44 @@ class Core {
                     // Test if resolvedHostnames is undefined and if the Array is filled (so the dns entry was found)
                     let result = dnsFound;
                     result ?
-                            that.logger.log("debug", "(_retrieveInformation), resolvedHostnames found, so stop the search."):
-                            that.logger.log("warn", "(_retrieveInformation), resolvedHostnames not found, continue search");
+                            that._logger.log(that.DEBUG, "(_retrieveInformation), resolvedHostnames found, so stop the search."):
+                            that._logger.log(that.WARN, "(_retrieveInformation), resolvedHostnames not found, continue search");
 
 
                     return result
                 }, "Waiting for DNS resolve the hostname : " + that._http.host, 5*60000).catch((err)=> {
-                    that.logger.log("warn", "(_retrieveInformation), resolvedHostnames FAILED for , ", that._http.host, " error : ", err, ", so continue initialize the SDK, but it will probably failed.");
+                    that._logger.log(that.WARN, "(_retrieveInformation), resolvedHostnames FAILED for , ", that._http.host, " error : ", err, ", so continue initialize the SDK, but it will probably failed.");
                 });
 
                 findingDns = false;
 
                 if (dnsFound) {
-                    that.logger.log("info", "(_retrieveInformation), resolvedHostnames found, ", that._http.host, " : ", resolvedHostnames, ", so continue initialize the SDK.");
+                    that._logger.log(that.INFO, "(_retrieveInformation), resolvedHostnames found, ", that._http.host, " : ", resolvedHostnames, ", so continue initialize the SDK.");
                 } else {
-                    that.logger.log("warn", "(_retrieveInformation), " + that._http.host, " DNS entry not found, SDK will not work with full features.");
+                    that._logger.log(that.WARN, "(_retrieveInformation), " + that._http.host, " DNS entry not found, SDK will not work with full features.");
                 }
             }
+
+            that.getDurationSinceStart("_retrieveInformation after DNSEntry search ");
 
             if (that.options.useS2S) {
                 try {
                     if (that.options.imOptions.autoLoadContacts) {
                         let result = await that._contacts.getRosters();
                     } else {
-                        that.logger.log("info", LOG_ID + "(_retrieveInformation) load of getRosters IGNORED by config autoLoadContacts : ", that.options.imOptions.autoLoadContacts);
+                        that._logger.log(that.INFO, LOG_ID + "(_retrieveInformation) load of getRosters IGNORED by config autoLoadContacts : ", that.options.imOptions.autoLoadContacts);
                     }
                 } catch (e) {
-                    that.logger.log("info", LOG_ID + "(_retrieveInformation) load of getRosters Failed : ", e);
+                    that._logger.log(that.INFO, LOG_ID + "(_retrieveInformation) load of getRosters Failed : ", e);
                 }
-                return that._presence._sendPresenceFromConfiguration().then(() => {
-                    return Promise.resolve(undefined)
-                }).then(() => {
-                    return that._s2s.init(that.options._restOptions.useRestAtStartup);
-                }).then(() => {
+                return that._s2s.init(that.options._restOptions.useRestAtStartup).then(() => {
                     return that._profiles.init(that.options._restOptions.useRestAtStartup);
                 }).then(() => {
                     return that._contacts.init(that.options._restOptions.useRestAtStartup);
                 }).then(() => {
-                    return that._telephony.init(that.options._restOptions.useRestAtStartup);
+                    return that._presence._sendPresenceFromConfiguration();
+                }).then(() => {
+                        return that._telephony.init(that.options._restOptions.useRestAtStartup);
                 }).then(() => {
                     return that._fileStorage.init(that.options._restOptions.useRestAtStartup);
                 }).then(() => {
@@ -580,6 +604,8 @@ class Core {
                     return that._presence.init(that.options._restOptions.useRestAtStartup);
                 }).then(() => {
                     return that._settings.init(that.options._restOptions.useRestAtStartup);
+                }).then(() => {
+                    return that._tasks.init(that.options._restOptions.useRestAtStartup);
                 }).then(() => {
                     //return that.presence.sendInitialPresence();
                     return Promise.resolve(undefined);
@@ -605,7 +631,7 @@ class Core {
                             return that._conversations.getServerConversations();
                         }
                     } else {
-                        that.logger.log("info", LOG_ID + "(_retrieveInformation) load of getServerConversations IGNORED by config autoLoadConversations : ", that.options.imOptions.autoLoadConversations);
+                        that._logger.log(that.INFO, LOG_ID + "(_retrieveInformation) load of getServerConversations IGNORED by config autoLoadConversations : ", that.options.imOptions.autoLoadConversations);
                         return;
                     }
                 }).then(() => {
@@ -631,8 +657,8 @@ class Core {
                 }).then(() => {
                     resolve(undefined);
                 }).catch((err) => {
-                    that.logger.log("error", LOG_ID + "(_retrieveInformation) !!! CATCH  Error while initializing services. Error : ", err);
-                    that.logger.log("internalerror", LOG_ID + "(_retrieveInformation) !!! CATCH  Error while initializing services : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(_retrieveInformation) !!! CATCH  Error while initializing services. Error : ", err);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(_retrieveInformation) !!! CATCH  Error while initializing services : ", err);
                     reject(err);
                 });
                 //return resolve(undefined);
@@ -648,29 +674,32 @@ class Core {
                         if (that.options.imOptions.autoLoadContacts) {
                             //let result = await that._contacts.getRosters();
                             await that._contacts.getRosters().then((result)=> {
-                                that.logger.log("info", LOG_ID + "(_retrieveInformation) contacts from roster retrieved.");
+                                that._logger.log(that.INFO, LOG_ID + "(_retrieveInformation) contacts from roster retrieved.");
+                                that.getDurationSinceStart("_retrieveInformation after contacts from roster retrieved ");
                             });
                         } else {
-                            that.logger.log("info", LOG_ID + "(_retrieveInformation) load of getRosters IGNORED by config autoLoadContacts : ", that.options.imOptions.autoLoadContacts);
+                            that._logger.log(that.INFO, LOG_ID + "(_retrieveInformation) load of getRosters IGNORED by config autoLoadContacts : ", that.options.imOptions.autoLoadContacts);
                         }
                     } else {
-                        that.logger.log("info", LOG_ID + "(_retrieveInformation) load of getRosters IGNORED because of useRestAtStartup : ", that.options._restOptions.useRestAtStartup);
+                        that._logger.log(that.INFO, LOG_ID + "(_retrieveInformation) load of getRosters IGNORED because of useRestAtStartup : ", that.options._restOptions.useRestAtStartup);
                     }
                 } catch (e) {
-                    that.logger.log("info", LOG_ID + "(_retrieveInformation) load of getRosters Failed : ", e);
+                    that._logger.log(that.INFO, LOG_ID + "(_retrieveInformation) load of getRosters Failed : ", e);
                 }
                 //return Utils.traceExecutionTime(that,"_sendPresenceFromConfiguration", that.presence._sendPresenceFromConfiguration).then(() => {
-                return that._presence._sendPresenceFromConfiguration().then(() => {
+                /* return that._presence._sendPresenceFromConfiguration().then(() => {
                     return Promise.resolve(undefined)
-                }).then(() => {
-                    return that._s2s.init(that.options._restOptions.useRestAtStartup);
-                }).then(() => {
+                }).then(() => { // */
+                return that._s2s.init(that.options._restOptions.useRestAtStartup).then(() => {
                     return that._profiles.init(that.options._restOptions.useRestAtStartup);
                 }).then(() => {
                     //return Utils.traceExecutionTime(that,"_contacts.init", that._contacts.init, [that.options._restOptions.useRestAtStartup]);
                     return that._contacts.init(that.options._restOptions.useRestAtStartup);
                 }).then(() => {
-                    return that._telephony.init(that.options._restOptions.useRestAtStartup);
+                    return that._presence._sendPresenceFromConfiguration();
+                    //    return Promise.resolve(undefined)
+                }).then(() => {
+                        return that._telephony.init(that.options._restOptions.useRestAtStartup);
                 }).then(() => {
                     return that._fileStorage.init(that.options._restOptions.useRestAtStartup);
                 }).then(() => {
@@ -695,6 +724,8 @@ class Core {
                 }).then(() => {
                     return that._settings.init(that.options._restOptions.useRestAtStartup);
                 }).then(() => {
+                    return that._tasks.init(that.options._restOptions.useRestAtStartup);
+                }).then(() => {
                     //return that.presence.sendInitialPresence();
                     return Promise.resolve(undefined);
                 }).then(() => {
@@ -711,13 +742,14 @@ class Core {
                     if (that.options.imOptions.autoLoadConversations && that.options._restOptions.useRestAtStartup) {
                         if (that.options.imOptions.autoLoadConversationHistory) {
                             return await that._conversations.getServerConversations().then(async () => {
-                                return await that._conversations.loadEveryConversationsHistory()
+                                return await that._conversations.loadEveryConversationsHistory();
                             });
                         } else {
                             return await that._conversations.getServerConversations();
                         }
+                        that.getDurationSinceStart("_retrieveInformation after getServerConversations ");
                     } else {
-                        that.logger.log("info", LOG_ID + "(_retrieveInformation) load of getServerConversations IGNORED by config autoLoadConversations : ", that.options.imOptions.autoLoadConversations);
+                        that._logger.log(that.INFO, LOG_ID + "(_retrieveInformation) load of getServerConversations IGNORED by config autoLoadConversations : ", that.options.imOptions.autoLoadConversations);
                         return;
                     }
                 }).then(() => {
@@ -739,19 +771,20 @@ class Core {
                 }).then(() => {
                     resolve(undefined);
                 }).catch((err) => {
-                    that.logger.log("error", LOG_ID + "(_retrieveInformation) !!! CATCH  Error while initializing services. Error : ", err);
-                    that.logger.log("internalerror", LOG_ID + "(_retrieveInformation) !!! CATCH  Error while initializing services : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(_retrieveInformation) !!! CATCH  Error while initializing services. Error : ", err);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(_retrieveInformation) !!! CATCH  Error while initializing services : ", err);
                     reject(err);
                 });
             }
+            that.getDurationSinceStart("_retrieveInformation end ");
         });
     };
 
     async setRenewedToken (strToken : string) {
         let that = this;
-        that.logger.log("info", LOG_ID +  "(setRenewedToken) strToken : ", strToken);
+        that._logger.log(that.INFO, LOG_ID +  "(setRenewedToken) strToken : ", strToken);
         return await that._rest.signin(strToken).then(() => {
-            that.logger.log("info", LOG_ID +  "(setRenewedToken) token successfully renewed, send evt_internal_tokenrenewed event");
+            that._logger.log(that.INFO, LOG_ID +  "(setRenewedToken) token successfully renewed, send evt_internal_tokenrenewed event");
             that._eventEmitter.iee.emit("evt_internal_tokenrenewed");
         });
         //return await self.signin(false, strToken);
@@ -759,19 +792,19 @@ class Core {
 
     async setCredentialPassword (strPassword : string) {
         let that = this;
-        //that.logger.log("internal", LOG_ID +  "(setCredentialPassword) strPassword : ", strPassword);
+        that._logger.log(that.INFO, LOG_ID +  "(setCredentialPassword) strPassword : ", strPassword);
         that._rest.setCredentialPassword(strPassword);
     }
 
     onTokenRenewed() {
         let that = this;
-        that.logger.log("info", LOG_ID +  "(onTokenRenewed) token successfully renewed");
+        that._logger.log(that.INFO, LOG_ID +  "(onTokenRenewed) token successfully renewed");
         that._rest.startTokenSurvey();
     };
 
     onTokenExpired() {
         let that = this;
-        that.logger.log("info", LOG_ID +  "(onTokenExpired) token expired. Signin required");
+        that._logger.log(that.INFO, LOG_ID +  "(onTokenExpired) token expired. Signin required");
         /*
                     self._eventEmitter.iee.removeListener("evt_internal_tokenrenewed", self.onTokenRenewed.bind(self));
                     self._eventEmitter.iee.removeListener("evt_internal_tokenexpired", self.onTokenExpired.bind(self));
@@ -779,17 +812,17 @@ class Core {
         if (!that._rest.p_decodedtokenRest || ( that._rest.p_decodedtokenRest && ! that._rest.p_decodedtokenRest.oauth)) {
             that._eventEmitter.iee.emit("evt_internal_signinrequired");
         } else {
-            that.logger.log("info", LOG_ID +  "(onTokenExpired) oauth token expired. External renew required");
+            that._logger.log(that.INFO, LOG_ID +  "(onTokenExpired) oauth token expired. External renew required");
             that._eventEmitter.iee.emit("evt_internal_onusertokenrenewfailed");
         }
     };
 
     _tokenSurvey () {
         let that = this;
-        that.logger.log("debug", LOG_ID +  "(tokenSurvey) _enter_");
+        that._logger.log(that.DEBUG, LOG_ID +  "(tokenSurvey) _enter_");
 
         if (that.options.useCLIMode) {
-            that.logger.log("info", LOG_ID +  "(tokenSurvey) No token survey in CLI mode");
+            that._logger.log(that.INFO, LOG_ID +  "(tokenSurvey) No token survey in CLI mode");
             return;
         }
 
@@ -805,7 +838,7 @@ class Core {
     startCleanningInterval() {
         let that = this;
         function cleanningClass() {
-            that.logger.log("debug", LOG_ID + "(startCleanningInterval) cleanningClass.");
+            that._logger.log(that.DEBUG, LOG_ID + "(startCleanningInterval) cleanningClass.");
 
 
             //public _rest: RESTService;
@@ -835,7 +868,8 @@ class Core {
             that._s2s.cleanMemoryCache();
             that._settings.cleanMemoryCache();
             that._telephony.cleanMemoryCache();
-        }        
+            that._tasks.cleanMemoryCache();
+        }
         
         that.cleanningClassIntervalID = setInterval(cleanningClass, that.options.intervalBetweenCleanMemoryCache);
     }
@@ -843,72 +877,76 @@ class Core {
     start(token) {
         let that = this;
 
+        that.startDate = new Date();
+
         // Initialize the logger
-        //if (! that.logger) {
+        //if (! that._logger) {
             let loggerModule = new Logger(that.options._options);
-            that.logger = loggerModule.log;
+            that._logger = loggerModule.log;
         //}
         
-        that.logger.log("debug", LOG_ID + "(start) _entering_");
-        that.logger.log("info", LOG_ID + "(start) STARTING the SDK : ", packageVersion.version);
+        that._logger.log(that.DEBUG, LOG_ID + "(start) _entering_");
+        that._logger.log(that.INFO, LOG_ID + "(start) STARTING the SDK : ", packageVersion.version);
 
         return new Promise(async function (resolve, reject) {
 
             try {
 
+                that.getDurationSinceStart("start begin ");
+
                 if (!that.options.hasCredentials && !token) {
-                    that.logger.log("error", LOG_ID + "(start) No credentials. Stop loading...");
-                    that.logger.log("debug", LOG_ID + "(start) _exiting_");
+                    that._logger.log(that.ERROR, LOG_ID + "(start) No credentials. Stop loading...");
+                    that._logger.log(that.DEBUG, LOG_ID + "(start) _exiting_");
                     reject("Credentials are missing. Check your configuration!");
                 } else {
                     if (token) {
-                        that.logger.log("debug", LOG_ID + "(start) with token.");
-                        that.logger.log("internal", LOG_ID + "(start) with token : ", token);                        
+                        that._logger.log(that.DEBUG, LOG_ID + "(start) with token.");
+                        that._logger.log(that.INTERNAL, LOG_ID + "(start) with token : ", token);
                     }
 
-                    that.logger.log("debug", LOG_ID + "(start) start all modules");
+                    that._logger.log(that.DEBUG, LOG_ID + "(start) start all modules");
                     if (!token) {
-                        that.logger.log("internal", LOG_ID + "(start) start all modules for user : ", that.options.credentials.login);
+                        that._logger.log(that.INTERNAL, LOG_ID + "(start) start all modules for user : ", that.options.credentials.login);
                     }
-                    that.logger.log("internal", LOG_ID + "(start) servicesToStart : ", that.options.servicesToStart);
+                    that._logger.log(that.INTERNAL, LOG_ID + "(start) servicesToStart : ", that.options.servicesToStart);
                     
                     try {
                         if (that._stateManager.isCONNECTED()) {
-                            that.logger.log("info", LOG_ID + "(start) !!! SDK status is " + that._stateManager.state + ", so treat the start as a restart, with a stop before the start.");
+                            that._logger.log(that.INFO, LOG_ID + "(start) !!! SDK status is " + that._stateManager.state + ", so treat the start as a restart, with a stop before the start.");
                             await that.stop();
                         }
                         if (that._stateManager.isDISCONNECTED()) {
-                            that.logger.log("info", LOG_ID + "(start) !!! SDK status is " + that._stateManager.state + ", so treat the start as a restart, with a stop before the start.");
+                            that._logger.log(that.INFO, LOG_ID + "(start) !!! SDK status is " + that._stateManager.state + ", so treat the start as a restart, with a stop before the start.");
                             await that.stop();
                         }
                         if (that._stateManager.isERROR()) {
-                            that.logger.log("info", LOG_ID + "(start) !!! SDK status is " + that._stateManager.state + ", so treat the start as a restart, with a stop before the start.");
+                            that._logger.log(that.INFO, LOG_ID + "(start) !!! SDK status is " + that._stateManager.state + ", so treat the start as a restart, with a stop before the start.");
                             await that.stop();
                         }
                         if (that._stateManager.isFAILED()) {
-                            that.logger.log("info", LOG_ID + "(start) !!! SDK status is " + that._stateManager.state + ", so treat the start as a restart, with a stop before the start.");
+                            that._logger.log(that.INFO, LOG_ID + "(start) !!! SDK status is " + that._stateManager.state + ", so treat the start as a restart, with a stop before the start.");
                             await that.stop();
                         }
                         if (that._stateManager.isREADY()) {
-                            that.logger.log("info", LOG_ID + "(start) SDK status is " + that._stateManager.state + ", so treat the start as a restart, with a stop before the start.");
+                            that._logger.log(that.INFO, LOG_ID + "(start) SDK status is " + that._stateManager.state + ", so treat the start as a restart, with a stop before the start.");
                             await that.stop();
                         }
                         if (that._stateManager.isRECONNECTING()) {
-                            that.logger.log("info", LOG_ID + "(start) SDK status is " + that._stateManager.state + ". Should not do anything.");
+                            that._logger.log(that.INFO, LOG_ID + "(start) SDK status is " + that._stateManager.state + ". Should not do anything.");
                         }
                         if (that._stateManager.isSTARTED()) {
-                            that.logger.log("info", LOG_ID + "(start) !!! SDK status is " + that._stateManager.state + ", so treat the start as a restart, with a stop before the start.");
+                            that._logger.log(that.INFO, LOG_ID + "(start) !!! SDK status is " + that._stateManager.state + ", so treat the start as a restart, with a stop before the start.");
                             await that.stop();
                         }
                         if (that._stateManager.isSTARTING()) {
-                            that.logger.log("info", LOG_ID + "(start) SDK status is " + that._stateManager.state + ". SDK should not do anything.");
+                            that._logger.log(that.INFO, LOG_ID + "(start) SDK status is " + that._stateManager.state + ". SDK should not do anything.");
                         }
                         if (that._stateManager.isSTOPPED()) {
-                            that.logger.log("info", LOG_ID + "(start) SDK status is " + that._stateManager.state + ", will start.");
+                            that._logger.log(that.INFO, LOG_ID + "(start) SDK status is " + that._stateManager.state + ", will start.");
                         }
                     } catch (err) {
-                        that.logger.log("error", LOG_ID + "(start) !!! CATCH Error when treatment of SDK status, SDK status is " + that._stateManager.state + ".");
-                        that.logger.log("internalerror", LOG_ID + "(start) !!! CATCH Error when treatment of SDK status : ", err);
+                        that._logger.log(that.ERROR, LOG_ID + "(start) !!! CATCH Error when treatment of SDK status, SDK status is " + that._stateManager.state + ".");
+                        that._logger.log(that.INTERNALERROR, LOG_ID + "(start) !!! CATCH Error when treatment of SDK status : ", err);
                     } 
                     
                     return that._stateManager.start().then(() => {
@@ -918,69 +956,72 @@ class Core {
                     }).then(() => {
                         return that._xmpp.start(that.options.useXMPP);
                     }).then(() => {
-                        return that._s2s.start(that.options, that);
+                        return that._s2s.start(that.options);
                     }).then(() => {
-                        return that._settings.start(that.options, that);
+                        return that._settings.start(that.options);
                     }).then(() => {
-                        return that._presence.start(that.options,that) ;
+                        return that._presence.start(that.options) ;
                     }).then(() => {
-                        return  that._contacts.start(that.options, that ) ;
+                        return  that._contacts.start(that.options ) ;
                     }).then(() => {
-                       return that._bubbles.start(that.options, that) ;
+                       return that._bubbles.start(that.options) ;
                     }).then(() => {
-                        return that._conversations.start(that.options, that) ;
+                        return that._conversations.start(that.options) ;
                     }).then(() => {
-                        return that._profiles.start(that.options, that, []) ;
+                        return that._profiles.start(that.options, []) ;
                     }).then(() => {
-                        return that._telephony.start(that.options, that) ;
+                        return that._telephony.start(that.options) ;
                     }).then(() => {
-                        return that._im.start(that.options, that) ;
+                        return that._im.start(that.options) ;
                     }).then(() => {
-                        return that._channels.start(that.options, that) ;
+                        return that._channels.start(that.options) ;
                     }).then(() => {
-                        return that._groups.start(that.options, that) ;
+                        return that._groups.start(that.options) ;
                     }).then(() => {
-                        return that._admin.start(that.options,that) ;
+                        return that._admin.start(that.options) ;
                     }).then(() => {
-                        return that._fileServer.start(that.options, that) ;
+                        return that._fileServer.start(that.options) ;
                     }).then(() => {
-                        return that._fileStorage.start(that.options, that) ;
+                        return that._fileStorage.start(that.options) ;
                     }).then(() => {
-                        return that._calllog.start(that.options, that) ;
+                        return that._calllog.start(that.options) ;
                     }).then(() => {
-                        return that._favorites.start(that.options, that) ;
+                        return that._favorites.start(that.options) ;
                     }).then(() => {
-                        return that._alerts.start(that.options, that) ; 
+                        return that._alerts.start(that.options) ;
                     }).then(() => {
-                        return that._rbvoice.start(that.options, that) ;
+                        return that._rbvoice.start(that.options) ;
                     }).then(() => {
-                        return that._webinars.start(that.options, that) ;
+                        return that._webinars.start(that.options) ;
                     }).then(() => {
-                        return that._httpoverxmpp.start(that.options, that) ;
+                        return that._httpoverxmpp.start(that.options) ;
                     }).then(() => {
-                        return that._rpcoverxmpp.start(that.options, that) ;
+                        return that._rpcoverxmpp.start(that.options) ;
                     }).then(() => {
-                        return that._invitations.start(that.options, that, []) ;
+                        return that._invitations.start(that.options, []) ;
                     }).then(() => {
-                        that.logger.log("debug", LOG_ID + "(start) all modules started successfully");
+                        return that._tasks.start(that.options) ;
+                    }).then(() => {
+                        that._logger.log(that.DEBUG, LOG_ID + "(start) all modules started successfully");
                         that._stateManager.transitTo(true, that._stateManager.STARTED).then(() => {
-                            that.logger.log("debug", LOG_ID + "(start) _exiting_");
+                            that.getDurationSinceStart("start end ");
+                            that._logger.log(that.DEBUG, LOG_ID + "(start) _exiting_");
                             resolve(undefined);
                         }).catch((err) => {
                             reject(err);
                         });
                     }).catch((err) => {
-                        that.logger.log("error", LOG_ID + "(start) !!! CATCH Error during bulding services instances. Error : ", err);
-                        that.logger.log("internalerror", LOG_ID + "(start) !!! CATCH Error during bulding services instances : ", err);
-                        that.logger.log("debug", LOG_ID + "(start) _exiting_");
+                        that._logger.log(that.ERROR, LOG_ID + "(start) !!! CATCH Error during bulding services instances. Error : ", err);
+                        that._logger.log(that.INTERNALERROR, LOG_ID + "(start) !!! CATCH Error during bulding services instances : ", err);
+                        that._logger.log(that.DEBUG, LOG_ID + "(start) _exiting_");
                         reject(err);
                     });
                 }
 
             } catch (err) {
-                that.logger.log("error", LOG_ID + "(start)");
-                that.logger.log("internalerror", LOG_ID + "(start)", err.message);
-                that.logger.log("debug", LOG_ID + "(start) _exiting_");
+                that._logger.log(that.ERROR, LOG_ID + "(start)");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(start)", err.message);
+                that._logger.log(that.DEBUG, LOG_ID + "(start) _exiting_");
                 reject(err);
             }
         });
@@ -993,15 +1034,20 @@ class Core {
             that._signinmethodName = SIGNINMETHODNAME.SIGNIN;
 
             let json = null;
+            that.getDurationSinceStart("signin begin ");
 
             return that._signin(forceStopXMPP, token).then(function (_json) {
                 that.lastConnectedOptions.token = token;
                 json = _json;
-                that._tokenSurvey();
+                that.getDurationSinceStart("_signin done ");
+
                 return that._stateManager.transitTo(true, that._stateManager.CONNECTED).then(() => {
+                    that.getDurationSinceStart("_retrieveInformation before ");
                     return that._retrieveInformation();
                 });
             }).then(() => {
+                that.getDurationSinceStart("_retrieveInformation done ");
+                that._tokenSurvey();
                 that._stateManager.transitTo(true, that._stateManager.READY).then(() => {
                     resolve(json);
                 }).catch((err)=> { 
@@ -1025,14 +1071,14 @@ class Core {
                 that.lastConnectedOptions.token = token;
                 that.lastConnectedOptions.userInfos = userInfos;
                 json = _json;
-                //that._tokenSurvey();
                 return that._stateManager.transitTo(true, that._stateManager.CONNECTED).then(() => {
                     
                     return that._retrieveInformation().catch((err) => {
-                        that.logger.log("internal", LOG_ID + "(signinWSOnly) error while _retrieveInformation : ", err);
+                        that._logger.log(that.INTERNAL, LOG_ID + "(signinWSOnly) error while _retrieveInformation : ", err);
                     });
                 });
             }).then(() => {
+                //that._tokenSurvey();
                     that._stateManager.transitTo(true, that._stateManager.READY).then(() => {
                     resolve(json);
                 }).catch((err)=> { 
@@ -1046,110 +1092,119 @@ class Core {
 
     stop() {
         let that = this;
-        this.logger.log("internal", LOG_ID + "(stop) _entering_ stack : ", stackTrace());
-        
+        that._logger.log(that.INTERNAL, LOG_ID + "(stop) _entering_ stack : ", stackTrace());
+
         return new Promise(async function (resolve, reject) {
 
-            that.timeOutManager.clearEveryTimeout();
-            
+            await that.timeOutManager.clearEveryTimeout();
+
             if (that._stateManager.isSTOPPED()) {
-                return resolve ("core already stopped !");
+                return resolve("core already stopped !");
             }
 
-            that.logger.log("debug", LOG_ID + "(stop) stop all modules !");
+            that._logger.log(that.INFO, LOG_ID + "(stop) stop all modules !");
 
             await that._s2s.stop().then(() => {
-                that.logger.log("debug", LOG_ID + "(stop) stopped s2s.");
+                that._logger.log(that.INFO, LOG_ID + "(stop) stopped s2s.");
                 if (that.options._restOptions.useRestAtStartup) {
                     return that._rest.stop();
                 }
             }).then(() => {
-                that.logger.log("debug", LOG_ID + "(stop) stopped rest");
+                that._logger.log(that.INFO, LOG_ID + "(stop) stopped rest");
                 return that._http.stop();
             }).then(() => {
-                that.logger.log("debug", LOG_ID + "(stop) stopped http");
+                that._logger.log(that.INFO, LOG_ID + "(stop) stopped http");
                 return that._xmpp.stop(that.options.useXMPP);
             }).then(() => {
-                that.logger.log("debug", LOG_ID + "(stop) stopped xmpp");
+                that._logger.log(that.INFO, LOG_ID + "(stop) stopped xmpp");
                 return that._im.stop();
             }).then(() => {
-                that.logger.log("debug", LOG_ID + "(stop) stopped im");
+                that._logger.log(that.INFO, LOG_ID + "(stop) stopped im");
                 return that._settings.stop();
             }).then(() => {
-                that.logger.log("debug", LOG_ID + "(stop) stopped settings");
+                that._logger.log(that.INFO, LOG_ID + "(stop) stopped settings");
                 return that._presence.stop();
             }).then(() => {
-                that.logger.log("debug", LOG_ID + "(stop) stopped presence");
+                that._logger.log(that.INFO, LOG_ID + "(stop) stopped presence");
                 return that._conversations.stop();
             }).then(() => {
-                that.logger.log("debug", LOG_ID + "(stop) stopped conversations");
+                that._logger.log(that.INFO, LOG_ID + "(stop) stopped conversations");
                 return that._telephony.stop();
             }).then(() => {
-                that.logger.log("debug", LOG_ID + "(stop) stopped telephony");
+                that._logger.log(that.INFO, LOG_ID + "(stop) stopped telephony");
                 return that._contacts.stop();
             }).then(() => {
-                that.logger.log("debug", LOG_ID + "(stop) stopped contacts");
+                that._logger.log(that.INFO, LOG_ID + "(stop) stopped contacts");
                 return that._bubbles.stop();
             }).then(() => {
-                that.logger.log("debug", LOG_ID + "(stop) stopped bubbles");
+                that._logger.log(that.INFO, LOG_ID + "(stop) stopped bubbles");
                 return that._channels.stop();
             }).then(() => {
-                that.logger.log("debug", LOG_ID + "(stop) stopped channels");
+                that._logger.log(that.INFO, LOG_ID + "(stop) stopped channels");
                 return that._groups.stop();
             }).then(() => {
-                that.logger.log("debug", LOG_ID + "(stop) stopped groups");
+                that._logger.log(that.INFO, LOG_ID + "(stop) stopped groups");
                 return that._admin.stop();
             }).then(() => {
-                that.logger.log("debug", LOG_ID + "(stop) stopped admin");
+                that._logger.log(that.INFO, LOG_ID + "(stop) stopped admin");
                 return that._fileServer.stop();
             }).then(() => {
-                that.logger.log("debug", LOG_ID + "(stop) stopped fileServer");
+                that._logger.log(that.INFO, LOG_ID + "(stop) stopped fileServer");
                 return that._fileStorage.stop();
             }).then(() => {
-                that.logger.log("debug", LOG_ID + "(stop) stopped fileStorage");
-                return that._stateManager.stop();
-            }).then(() => {
-                that.logger.log("debug", LOG_ID + "(stop) stopped stateManager");
+                that._logger.log(that.INFO, LOG_ID + "(stop) stopped fileStorage");
                 return that._calllog.stop();
             }).then(() => {
-                that.logger.log("debug", LOG_ID + "(stop) stopped calllog");
+                that._logger.log(that.INFO, LOG_ID + "(stop) stopped calllog");
                 return that._favorites.stop();
             }).then(() => {
-                that.logger.log("debug", LOG_ID + "(stop) stopped favorites");
+                that._logger.log(that.INFO, LOG_ID + "(stop) stopped favorites");
                 return that._alerts.stop();
             }).then(() => {
-                that.logger.log("debug", LOG_ID + "(stop) stopped alerts");
+                that._logger.log(that.INFO, LOG_ID + "(stop) stopped alerts");
                 return that._rbvoice.stop();
             }).then(() => {
-                that.logger.log("debug", LOG_ID + "(stop) stopped rbvoice");
+                that._logger.log(that.INFO, LOG_ID + "(stop) stopped rbvoice");
                 return that._webinars.stop();
             }).then(() => {
-                that.logger.log("debug", LOG_ID + "(stop) stopped webinar");
+                that._logger.log(that.INFO, LOG_ID + "(stop) stopped webinar");
                 return that._httpoverxmpp.stop();
             }).then(() => {
-                that.logger.log("debug", LOG_ID + "(stop) stopped httpoverxmpp");
+                that._logger.log(that.INFO, LOG_ID + "(stop) stopped httpoverxmpp");
                 return that._rpcoverxmpp.stop();
             }).then(() => {
-                that.logger.log("debug", LOG_ID + "(stop) stopped rpcoverxmpp");
+                that._logger.log(that.INFO, LOG_ID + "(stop) stopped rpcoverxmpp");
+                return that._tasks.stop();
+            }).then(() => {
+                that._logger.log(that.INFO, LOG_ID + "(stop) stopped tasks");
                 return that._invitations.stop();
             }).then(() => {
-                that.logger.log("debug", LOG_ID + "(stop) stopped invitations");
-                that.logger.log("debug", LOG_ID + "(stop) _exiting_");
+                that._logger.log(that.INFO, LOG_ID + "(stop) stopped invitations");
+                that._logger.log(that.INFO, LOG_ID + "(stop) _exiting_");
                 resolve("core stopped");
             }).catch((err) => {
-                that.logger.log("error", LOG_ID + "(stop) CATCH Error !!! ");
-                that.logger.log("internalerror", LOG_ID + "(stop) CATCH Error !!! : ", err);
-                that.logger.log("debug", LOG_ID + "(stop) _exiting_");
+                that._logger.log(that.ERROR, LOG_ID + "(stop) CATCH Error !!! Error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(stop) CATCH Error !!! : ", err);
+                that._logger.log(that.INFO, LOG_ID + "(stop) _exiting_");
                 reject(err);
             });
-            
-            that.timeOutManager.clearEveryTimeout();
-            
-            // that.logger.log("debug", LOG_ID + "(stop) stop after all modules 1 !");
-            that.logger.stop();
-            //that.logger = null;
+
+            await that.timeOutManager.clearEveryTimeout();
+
+            await that._stateManager.stop().then(() => {
+                that._logger.log(that.INFO, LOG_ID + "(stop) stopped stateManager");
+            }).catch((err) => {
+                that._logger.log(that.ERROR, LOG_ID + "(stop) CATCH Error !!! Error : ", err);
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(stop) CATCH Error !!! : ", err);
+                that._logger.log(that.INFO, LOG_ID + "(stop) _exiting_");
+                reject(err);
+            });
+
+            // that._logger.log(that.DEBUG, LOG_ID + "(stop) stop after all modules 1 !");
+            that._logger.stop();
+            //that._logger = null;
         });
-        // that.logger.log("debug", LOG_ID + "(stop) stop after all modules 2 !");
+        // that._logger.log(that.DEBUG, LOG_ID + "(stop) stop after all modules 2 !");
     }
 
     async getConnectionStatus():Promise<{
@@ -1231,9 +1286,9 @@ class Core {
             "settings": {
                 "started": boolean
             },
-           /* "tasks": {
+            "tasks": {
                 "started": boolean
-            }, // */
+            },
             "telephony": {
                 "started": boolean
             },
@@ -1247,21 +1302,21 @@ class Core {
             try {
                 restStatus = (that._rest && that.options._restOptions.useRestAtStartup) ? await that._rest.checkRESTAuthentication():false;
             } catch (err) {
-                that.logger.log("error", LOG_ID + "(getConnectionStatus) CATCH Error - testing REST status: ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getConnectionStatus) CATCH Error - testing REST status: ", err);
             }
             // Test XMPP connection
             try {
                 xmppStatus = that._xmpp ? await that._xmpp.sendPing().then((result) => {
                     if (result && result.code===1) {
-                        that.logger.log("debug", LOG_ID + "(getConnectionStatus) set xmppStatus to true. result : ", result);
+                        that._logger.log(that.DEBUG, LOG_ID + "(getConnectionStatus) set xmppStatus to true. result : ", result);
                         return true;
                     } else {
-                        that.logger.log("info", LOG_ID + "(getConnectionStatus) set xmppStatus to false. result : ", result);
+                        that._logger.log(that.INFO, LOG_ID + "(getConnectionStatus) set xmppStatus to false. result : ", result);
                         return false;
                     }
                 }):false;
             } catch (err) {
-                that.logger.log("error", LOG_ID + "(getConnectionStatus) CATCH Error - testing XMPP status: ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getConnectionStatus) CATCH Error - testing XMPP status: ", err);
             }
 
             // */
@@ -1269,7 +1324,7 @@ class Core {
             try {
                 s2sStatus = (that._rest && that.options._restOptions.useRestAtStartup) ? await that._rest.checkS2SAuthentication():false;
             } catch (err) {
-                that.logger.log("error", LOG_ID + "(getConnectionStatus) CATCH Error - testing S2S status : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getConnectionStatus) CATCH Error - testing S2S status : ", err);
             }
             let httpStatus: any = {
                 nbHttpAdded: 0,
@@ -1294,7 +1349,7 @@ class Core {
                     retryAfterStartTime : 0
                 };
             } catch (err) {
-                that.logger.log("error", LOG_ID + "(getConnectionStatus) CATCH Error - testing http status : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getConnectionStatus) CATCH Error - testing http status : ", err);
             }
 
             try {
@@ -1359,9 +1414,9 @@ class Core {
                         "settings": {
                             "started": that._settings._started
                         },
-                        /*"tasks": {
+                        "tasks": {
                             "started": that._tasks._started
-                        }, // */
+                        },
                         "telephony": {
                             "started": that._telephony._started
                         },
@@ -1370,7 +1425,7 @@ class Core {
                         }
                     } ;
             } catch (err) {
-                that.logger.log("error", LOG_ID + "(getConnectionStatus) CATCH Error - testing Services status : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getConnectionStatus) CATCH Error - testing Services status : ", err);
             }
 
             return resolve({
@@ -1462,6 +1517,10 @@ class Core {
 
     get calllog() {
         return this._calllog;
+    }
+
+    get tasks() {
+        return this._tasks;
     }
 
     get Utils() {

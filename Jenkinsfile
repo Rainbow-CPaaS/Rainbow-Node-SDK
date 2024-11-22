@@ -1,4 +1,4 @@
-// Jenkinsfile-sts file for the production of sts delivery version with the jenkins job : "CPaaS-SDK-Node-SDK-sts"
+// Jenkinsfile file for the production of STS/LTS delivery version with the jenkins job : "rainbow-cpaas/node-sdk-projects/Rainbow-Node-SDK"
 
 @Library('rainbow-shared-library') _
 //@Library('rainbow-shared-library@hubSearchIndex') _
@@ -14,11 +14,38 @@ Map defaults = [
 
 def DOC_PATH = ''
 
+enum RELEASENAMEENUM {
+    STS,
+    LTS,
+    sts,
+    lts
+} // Enum of possible release name values.
+
+def getReleaseName(upper) {
+    println "getReleaseName - upper : " + upper;
+    if ( "${env.BRANCH_NAME}" == "STSDelivery" && upper)  {
+       // echo "getReleaseName() will return STS"
+        return "STS";
+    }
+    if ( "${env.BRANCH_NAME}" == "STSDelivery" && !upper)  {
+        //echo "getReleaseName() will return sts"
+        return "sts";
+    }
+    if ( "${env.BRANCH_NAME}" == "LTSDelivery" && upper)  {
+        //echo "getReleaseName() will return LTS"
+        return "LTS";
+    }
+    if ( "${env.BRANCH_NAME}" == "LTSDelivery" && !upper)  {
+        //echo "getReleaseName() will return lts"
+        return "lts";
+    }
+}
+
 pipeline {
     agent {
         label {
                   label "docker-slave-cpaas-bullseye"
-                  customWorkspace "/home/jenkins/workspace/SDK-Node-SDK-sts_delivery"
+                  customWorkspace "/home/jenkins/workspace/SDK-Node-SDK-${env.BRANCH_NAME}"
         }        
     }
     options {
@@ -32,13 +59,13 @@ pipeline {
     }
     
     parameters {
-        string(name: 'RAINBOWNODESDKVERSION', defaultValue: '1.87.0-test.16', description: 'What is the version of the STS SDK to build?')
-        booleanParam(name: 'SENDEMAIL', defaultValue: false, description: 'Send email after of the sts SDK built?')
+        string(name: 'RAINBOWNODESDKVERSION', defaultValue: '2.0.0-lts.0', description: 'What is the version of the STS/LTS SDK to build?')
+        booleanParam(name: 'SENDEMAIL', defaultValue: false, description: 'Send email after of the STS/LTS SDK built?')
         booleanParam(name: 'SENDEMAILTOVBERDER', defaultValue: false, description: 'Send email after of the lts SDK built to vincent.berder@al-enterprise.com only ?')
-        booleanParam(name: 'DEBUGINTERNAL', defaultValue: true, description: 'Should this STS version be compiled with internal debug ?')
+        booleanParam(name: 'DEBUGINTERNAL', defaultValue: true, description: 'Should this STS/LTS version be compiled with internal debug ?')
         booleanParam(name: 'LTSBETA', defaultValue: false, description: 'Should this STS version be also an LTS BETA Version ?')
-        booleanParam(name: 'PUBLISHONNPMJSWITHSTSTAG', defaultValue: false, description: 'Publish this STS version to npmjs with the tag \"sts\" else with \".net\" tag ?')
-        booleanParam(name: 'PUBLISHTONPMANDSETTAGINGIT', defaultValue: true, description: 'Publish the sts SDK built to npmjs and save the tag/branch to GIT.')
+        booleanParam(name: 'PUBLISHONNPMJSWITHSTSTAG', defaultValue: false, description: 'Publish this STS/LTS version to npmjs with the tag \"sts\" else with \".net\" tag ?')
+        booleanParam(name: 'PUBLISHTONPMANDSETTAGINGIT', defaultValue: true, description: 'Publish the sts SDK/LTS built to npmjs and save the tag/branch to GIT.')
         //string(name: 'PERSON', defaultValue: 'Mr Jenkins', description: 'Who should I say hello to?')
         //text(name: 'BIOGRAPHY', defaultValue: '', description: 'Enter some information about the person')
         //booleanParam(name: 'TOGGLE', defaultValue: true, description: 'Toggle this value')
@@ -46,6 +73,8 @@ pipeline {
         //password(name: 'PASSWORD', defaultValue: 'SECRET', description: 'Enter a password')
     }
      environment {
+                RELEASENAMEUPPERNAME = getReleaseName(true) // 'Name of the release in UPPPERCASE.')
+                RELEASENAMELOWERNAME = getReleaseName(false) // 'Name of the release in LOWERCASE.')
                 MJAPIKEY = credentials('2f8c39d0-35d5-4b67-a68a-f60aaa7084ad') // 6f119214480245deed79c5a45c59bae6/****** (MailJet API Key to post emails)
                 NPMJSAUTH = credentials('6ba55a5f-c0fa-41c3-b5dd-0c0f62ee22b5') // npmjs /****** (npmjs auth token to publish vberder)
                 GITLABVBERDER = credentials('b04ca5f5-3666-431d-aaf4-c6c239121510') // gitlab credential of vincent berder.
@@ -53,6 +82,42 @@ pipeline {
                 APP = credentials('25181a6c-2586-477d-9b95-0a1cc456c831') // (Rainbow Official Vberder AppId).
     }
     stages {
+            stage('Init') {
+                 when {
+                      anyOf {
+                        allOf {
+                            branch "STSDelivery";
+                        }
+                        allOf {
+                            branch "LTSDelivery";
+                        }
+                     }
+                 }
+                 steps {
+                    echo "Init started."
+                    script {
+                            /*def BuildCauses0=currentBuild.getBuildCauses()[0]
+                            def BuildCauses1=currentBuild.getBuildCauses()[1]
+                            echo 'currentBuild.getBuildCauses() : ' currentBuild.getBuildCauses()
+                            (BuildCauses0 == null || BuildCauses0.isEmpty()) ? echo 'BuildCauses0 is defined' : echo 'BuildCauses0 is not defined'
+                            (BuildCauses1 == null || BuildCauses1.isEmpty()) ? echo 'BuildCauses1 is defined' : echo 'BuildCauses1 is not defined'
+                            if ((BuildCauses0 == null || BuildCauses0.isEmpty()) && (BuildCauses1 == null || BuildCauses1.isEmpty())) {
+                                echo 'starting build ...'
+                                BUILD_TRIGGER_BY = BuildCauses0.shortDescription + " / " + BuildCauses1.shortDescription
+                            } else {
+                            // */
+                                echo 'skipping BUILD_TRIGGER_BY retrieve. Set it to empty.'
+                                BUILD_TRIGGER_BY = ""
+                           /* }
+                           // */
+                        //BUILD_TRIGGER_BY = currentBuild.getBuildCauses()[0]
+                        //BUILD_TRIGGER_BY = currentBuild.getBuildCauses()
+                        CAUSE = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')
+                    }
+                    echo "BUILD_TRIGGER_BY : ${BUILD_TRIGGER_BY}"
+                    echo "userName: ${CAUSE.userName}"
+                 }
+            }
             stage('Show for parameters') {
                  //input {
                  //  message "parameters?"
@@ -61,25 +126,124 @@ pipeline {
                  //        string(name: 'RAINBOWNODESDKVERSION', defaultValue: '1.87.0', description: 'What is the version of the STS SDK to build?')
                  //        booleanParam(name: 'SENDEMAIL', defaultValue: false, description: 'Send email after of the STS SDK built?')
                  //    }
-                 //} 
-                        
+                 //}
+
                  when {
-                    allOf {
-                        branch "STSDelivery"; 
-                        triggeredBy 'user'
-                    }
+                      anyOf {
+                        allOf {
+                            branch "STSDelivery";
+                        }
+                        allOf {
+                            branch "LTSDelivery";
+                        }
+                     }
                  }
+
+                 /*when {
+                      anyOf {
+                        allOf {
+                            branch "STSDelivery";
+                            triggeredBy 'user'
+                        }
+                        allOf {
+                            branch "LTSDelivery";
+                            triggeredBy 'user'
+                        }
+                        allOf {
+                            branch "STSDelivery";
+                            triggeredBy cause: 'UserIdCause'
+                        }
+                        allOf {
+                            branch "LTSDelivery";
+                            triggeredBy cause: 'UserIdCause'
+                        }
+                        allOf {
+                            branch "STSDelivery";
+                            triggeredBy 'SCMTrigger'
+                        }
+                        allOf {
+                            branch "LTSDelivery";
+                            triggeredBy 'SCMTrigger'
+                        }
+                        allOf {
+                            branch "STSDelivery";
+                            triggeredBy 'SCM'
+                        }
+                        allOf {
+                            branch "LTSDelivery";
+                            triggeredBy 'SCM'
+                        }
+                        allOf {
+                            branch "STSDelivery";
+                            triggeredBy 'UpstreamCause'
+                        }
+                        allOf {
+                            branch "LTSDelivery";
+                            triggeredBy 'UpstreamCause'
+                        }
+                        allOf {
+                            branch "STSDelivery";
+                            triggeredBy 'TimerTrigger'
+                        }
+                        allOf {
+                            branch "LTSDelivery";
+                            triggeredBy 'TimerTrigger'
+                        }
+                        allOf {
+                            branch "STSDelivery";
+                            triggeredBy 'BuildUpstreamCause'
+                        }
+                        allOf {
+                            branch "LTSDelivery";
+                            triggeredBy 'BuildUpstreamCause'
+                        }
+                      }
+                 } // */
                  steps {
-                    echo "Parameters to build the Rainbow-Node-SDK : ${params.RAINBOWNODESDKVERSION} ! with send email : ${params.SENDEMAIL} and is LTSBETA : ${params.LTSBETA}"
+                    echo "Parameters to build from branch ${env.BRANCH_NAME} : "
+                    echo "Rainbow-Node-SDK : ${params.RAINBOWNODESDKVERSION}"
+                    echo "SENDEMAIL : ${params.SENDEMAIL}"
+                    echo "SENDEMAILTOVBERDER : ${params.SENDEMAILTOVBERDER}"
+                    echo "DEBUGINTERNAL : ${params.DEBUGINTERNAL}"
+                    echo "LTSBETA : ${params.LTSBETA} "
+                    echo "PUBLISHONNPMJSWITHSTSTAG : ${params.PUBLISHONNPMJSWITHSTSTAG} "
+                    echo "PUBLISHTONPMANDSETTAGINGIT : ${params.PUBLISHTONPMANDSETTAGINGIT} "
+
+                    echo "Environment variables to build from branch ${env.BRANCH_NAME} : "
+                    echo "RELEASENAMEUPPERNAME : ${env.RELEASENAMEUPPERNAME}"
+                    echo "RELEASENAMELOWERNAME : ${env.RELEASENAMELOWERNAME}"
+
                     sh 'echo "Service user is $MJAPIKEY_USR , password is $MJAPIKEY_PSW"'
+
+                    sh script: """
+                        if [ "${RELEASENAMELOWERNAME}" = "${RELEASENAMEENUM.sts}" ]; then
+                            echo "Lower Release Name is ${RELEASENAMEENUM.sts}"
+                        fi
+                        if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM.STS}" ]; then
+                            echo "Upper Release Name is ${RELEASENAMEENUM.STS}"
+                        fi
+                        if [ "${RELEASENAMELOWERNAME}" = "${RELEASENAMEENUM.lts}" ]; then
+                            echo "Lower Release Name is ${RELEASENAMEENUM.lts}"
+                        fi
+                        if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM.LTS}" ]; then
+                            echo "Upper Release Name is ${RELEASENAMEENUM.LTS}"
+                        fi
+                    """
+
                  }
             }
             stage('Checkout') {
                 when {
-                    allOf {
-                        branch "STSDelivery"; 
-                        triggeredBy 'user'
-                    }
+                      anyOf {
+                        allOf {
+                            branch "STSDelivery";
+                            triggeredBy 'user'
+                        }
+                        allOf {
+                            branch "LTSDelivery";
+                            triggeredBy 'user'
+                        }
+                      }
                 }
                 steps{
                     echo "Clean ${env.workspace} customWorkspace before build"
@@ -146,12 +310,21 @@ pipeline {
 // */
             stage('WhenJenkinsfileChanged') {
                 when {
-                    allOf {
-                        branch "STSDelivery"; 
-                        //triggeredBy 'UpstreamCause'
-                        //triggeredBy "[[_class:jenkins.branch.BranchIndexingCause, shortDescription:Branch indexing]]"
-                        triggeredBy cause: 'BranchIndexingCause' , detail: "Branch indexing"// cause($class: 'jenkins.branch.BranchIndexingCause')
-                        //triggeredBy cause : 'jenkins.branch.BranchIndexingCause' // cause($class: 'jenkins.branch.BranchIndexingCause')
+                    anyOf {
+                        allOf {
+                            branch "STSDelivery";
+                            //triggeredBy 'UpstreamCause'
+                            //triggeredBy "[[_class:jenkins.branch.BranchIndexingCause, shortDescription:Branch indexing]]"
+                            triggeredBy cause: 'BranchIndexingCause' , detail: "Branch indexing"// cause($class: 'jenkins.branch.BranchIndexingCause')
+                            //triggeredBy cause : 'jenkins.branch.BranchIndexingCause' // cause($class: 'jenkins.branch.BranchIndexingCause')
+                        }
+                        allOf {
+                            branch "LTSDelivery";
+                            //triggeredBy 'UpstreamCause'
+                            //triggeredBy "[[_class:jenkins.branch.BranchIndexingCause, shortDescription:Branch indexing]]"
+                            triggeredBy cause: 'BranchIndexingCause' , detail: "Branch indexing"// cause($class: 'jenkins.branch.BranchIndexingCause')
+                            //triggeredBy cause : 'jenkins.branch.BranchIndexingCause' // cause($class: 'jenkins.branch.BranchIndexingCause')
+                        }
                     }
                 }
                 steps{
@@ -204,10 +377,16 @@ pipeline {
 
             stage('Build') {
                 when {
-                    allOf {
-                        branch "STSDelivery"; 
-                        triggeredBy 'user'
-                    }
+                      anyOf {
+                        allOf {
+                            branch "STSDelivery";
+                            triggeredBy 'user'
+                        }
+                        allOf {
+                            branch "LTSDelivery";
+                            triggeredBy 'user'
+                        }
+                      }
                 }
                 steps{
                     echo "Build the sources and doc files of the Rainbow-Node-SDK."
@@ -235,7 +414,13 @@ pipeline {
                     #git branch "delivered${RAINBOWNODESDKVERSION}" 
                     #git checkout "delivered${RAINBOWNODESDKVERSION}"
                     #git push  --set-upstream origin "delivered${RAINBOWNODESDKVERSION}"
-                        
+
+                    if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM.LTS}" ]; then
+                        ${PUBLISHTONPMANDSETTAGINGIT} && git branch "delivered${RAINBOWNODESDKVERSION}"
+                        ${PUBLISHTONPMANDSETTAGINGIT} && git checkout "delivered${RAINBOWNODESDKVERSION}"
+                        ${PUBLISHTONPMANDSETTAGINGIT} && git push  --set-upstream origin "delivered${RAINBOWNODESDKVERSION}"
+                    fi
+
                     #echo "registry=https://10.10.13.10:4873/
                     #//10.10.13.10:4873/:_authToken=\"bqyuhm71xMxSA8+6hA3rdg==\"" >> ~/.npmrc
                         
@@ -282,15 +467,24 @@ pipeline {
                         echo "Build sources with Internal DEBUG removed."
                         echo ---------- STEP grunt : 
                         echo Sub Step 1 : To compil the sources
-                        grunt 
+                        grunt --verbose
                         echo Sub Step 2 : To prepare the sources + doc for package
-                        grunt delivery 
+                        grunt delivery --verbose
                     fi
                         
                         
                         
                     #echo ---------- STEP commit : 
-                    git reset --hard origin/${env.BRANCH_NAME}
+                    if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM.LTS}" ]; then
+                        if [ "${PUBLISHTONPMANDSETTAGINGIT}" = "true" ]; then
+                            git reset --hard "origin/delivered${RAINBOWNODESDKVERSION}"
+                        else
+                            git reset --hard "origin/${env.BRANCH_NAME}"
+                        fi
+                    fi
+                    if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM.STS}" ]; then
+                        git reset --hard origin/${env.BRANCH_NAME}
+                    fi
                     npm version "${RAINBOWNODESDKVERSION}"  --allow-same-version
                                                 
                     echo ---------- STEP whoami :
@@ -306,29 +500,51 @@ pipeline {
 
                     echo ---------- STEP publish :
                     if [ "${PUBLISHTONPMANDSETTAGINGIT}" = "true" ]; then
-                        if [ "${PUBLISHONNPMJSWITHSTSTAG}" = "true" ]; then
-                            echo "Publish on npmjs with tag."
-                            npm publish --tag sts
-                        else
-                            echo "Publish on npmjs with node .net tag."
-                            npm publish --tag .net
+                        if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM.LTS}" ]; then
+                            ${PUBLISHTONPMANDSETTAGINGIT} && npm publish
+                        fi
+                        if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM.STS}" ]; then
+                            if [ "${PUBLISHONNPMJSWITHSTSTAG}" = "true" ]; then
+                                echo "Publish on npmjs with tag."
+                                npm publish --tag sts
+                            else
+                                echo "Publish on npmjs with node .net tag."
+                                npm publish --tag .net
+                            fi
                         fi
                     fi
                         
                     echo ---------- PUSH tags AND files :
-                    ${PUBLISHTONPMANDSETTAGINGIT} && git tag -a ${RAINBOWNODESDKVERSION} -m "${RAINBOWNODESDKVERSION} is a sts version."
-                    ${PUBLISHTONPMANDSETTAGINGIT} && git push  origin HEAD:${env.BRANCH_NAME}
-                    ${PUBLISHTONPMANDSETTAGINGIT} && git push --tags origin HEAD:${env.BRANCH_NAME}
+                    if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM.STS}" ]; then
+                        ${PUBLISHTONPMANDSETTAGINGIT} && git tag -a ${RAINBOWNODESDKVERSION} -m "${RAINBOWNODESDKVERSION} is a ${RELEASENAMELOWERNAME} version."
+                        ${PUBLISHTONPMANDSETTAGINGIT} && git push  origin HEAD:${env.BRANCH_NAME}
+                        ${PUBLISHTONPMANDSETTAGINGIT} && git push --tags origin HEAD:${env.BRANCH_NAME}
+                    fi
+                    if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM.LTS}" ]; then
+                        ${PUBLISHTONPMANDSETTAGINGIT} && git tag -a ${RAINBOWNODESDKVERSION} -m "${RAINBOWNODESDKVERSION} is a ${RELEASENAMELOWERNAME} version."
+                        ${PUBLISHTONPMANDSETTAGINGIT} && git push  origin "HEAD:delivered${RAINBOWNODESDKVERSION}"
+                        ${PUBLISHTONPMANDSETTAGINGIT} && git push --tags origin "HEAD:delivered${RAINBOWNODESDKVERSION}"
+                    fi
 
                     echo ---------- send emails getDebianArtifacts parameters setted :
                     export MJ_APIKEY_PUBLIC="${MJAPIKEY_USR}" 
                     export MJ_APIKEY_PRIVATE="${MJAPIKEY_PSW}"
-                    ${SENDEMAIL} && npm run-script sendmailPreProduction
-                    ${SENDEMAIL} && node mailing/postChangeLogInChannel.js host=official login=${VBERDERRB_USR} password=${VBERDERRB_PSW} appID=${APP_USR} appSecret=${APP_PSW}
+                    if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM.STS}" ]; then
+                        ${SENDEMAIL} && npm run-script sendmailPreProduction
+                        ${SENDEMAIL} && node mailing/postChangeLogInChannel.js host=official login=${VBERDERRB_USR} password=${VBERDERRB_PSW} appID=${APP_USR} appSecret=${APP_PSW}
 
-                    # To send the mailing only to vincent.berder@al-enterprise.com . 
-                    ${SENDEMAILTOVBERDER} && npm run-script sendmailProductionTest
-                    ${SENDEMAILTOVBERDER} && node mailing/postChangeLogInChannel.js host=official login=${VBERDERRB_USR} password=${VBERDERRB_PSW} appID=${APP_USR} appSecret=${APP_PSW}  channelName=RNodeSdkChangeLog 
+                        # To send the mailing only to vincent.berder@al-enterprise.com .
+                        ${SENDEMAILTOVBERDER} && npm run-script sendmailProductionTest
+                        ${SENDEMAILTOVBERDER} && node mailing/postChangeLogInChannel.js host=official login=${VBERDERRB_USR} password=${VBERDERRB_PSW} appID=${APP_USR} appSecret=${APP_PSW}  channelName=RNodeSdkChangeLog
+                    fi
+
+                    if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM.LTS}" ]; then
+                        ${SENDEMAIL} && npm run-script sendmailProduction
+                        ${SENDEMAIL} && node mailing/postChangeLogInChannel.js host=official login=${VBERDERRB_USR} password=${VBERDERRB_PSW} appID=${APP_USR} appSecret=${APP_PSW}
+
+                        # To send the mailing only to vincent.berder@al-enterprise.com .
+                        ${SENDEMAILTOVBERDER} && npm run-script sendmailProductionTest
+                    fi
                         
                     more ~/.npmrc.sav > ~/.npmrc
                 """
@@ -337,20 +553,35 @@ pipeline {
               
             stage('Build Documentation from Rainbow Node SDK') {
                 when {
-                    allOf {
-                        branch "STSDelivery"; 
-                        triggeredBy 'user'
-                    }
+                      anyOf {
+                        allOf {
+                            branch "STSDelivery";
+                            triggeredBy 'user'
+                        }
+                        allOf {
+                            branch "LTSDelivery";
+                            triggeredBy 'user'
+                        }
+                      }
                 }
                 steps{
                     sh script: """
                         echo "Build Documentation from Makefile"
-                        make allsts
-                        echo "{ 
-                         \\"lts\\": false,
-                         \\"ltsbeta\\": ${LTSBETA},
-                         \\"sts\\": true
-                        }" > ./doc/sdk/node/sts/version.json
+                        make all${RELEASENAMELOWERNAME}
+                        if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM.STS}" ]; then
+                            echo "{
+                             \\"lts\\": false,
+                             \\"ltsbeta\\": ${LTSBETA},
+                             \\"sts\\": true
+                            }" > ./doc/sdk/node/${RELEASENAMELOWERNAME}/version.json
+                        fi
+                        if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM.LTS}" ]; then
+                            echo "{
+                             \\"lts\\": true,
+                             \\"ltsbeta\\": false,
+                             \\"sts\\": false
+                            }" > ./doc/sdk/node/${RELEASENAMELOWERNAME}/version.json
+                        fi
                     """
                                   
                     //stash includes: 'doc/sdk/node/**/*.*, doc/sdk/node/index.yml, doc/sdk/node/sitemap.yml', name: 'docfiles'
@@ -359,10 +590,16 @@ pipeline {
               
             stage('Documentation Packaging') {
                 when {
-                    allOf {
-                        branch "STSDelivery"; 
-                        triggeredBy 'user'
-                    }
+                      anyOf {
+                        allOf {
+                            branch "STSDelivery";
+                            triggeredBy 'user'
+                        }
+                        allOf {
+                            branch "LTSDelivery";
+                            triggeredBy 'user'
+                        }
+                      }
                 }
                 steps { 
                     script   {
@@ -381,25 +618,25 @@ pipeline {
                                 mkdir -p Documentation
                                 cp -R doc debian Documentation/
                      
-                                echo "update files with doc/sdk/node path which should be doc/sdk/node/sts into the folder Documentation ."
-                                sed "s/otlite-sdk-node-doc/otlite-sdk-node-doc-sts/" debian/control |tee "${workspace}/Documentation/debian/control"      
-                                sed "s/\\/usr\\/share\\/sdkdoc\\/node\\/sitemap.xml/\\/usr\\/share\\/sdkdoc\\/node\\/sts\\/sitemap.xml/" debian/postinst |tee "${workspace}/Documentation/debian/postinst"      
+                                echo "update files with doc/sdk/node path which should be doc/sdk/node/${RELEASENAMELOWERNAME} into the folder Documentation ."
+                                sed "s/otlite-sdk-node-doc/otlite-sdk-node-doc-${RELEASENAMELOWERNAME}/" debian/control |tee "${workspace}/Documentation/debian/control"
+                                sed "s/\\/usr\\/share\\/sdkdoc\\/node\\/sitemap.xml/\\/usr\\/share\\/sdkdoc\\/node\\/${RELEASENAMELOWERNAME}\\/sitemap.xml/" debian/postinst |tee "${workspace}/Documentation/debian/postinst"
                                 # more Documentation/debian/control
-                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "guide/RainbowNodeSDKNews.md"  |tee "Documentation/doc/sdk/node/sts/guides/RainbowNodeSDKNews.md"
-                                # more Documentation/doc/sdk/node/sts/guides/RainbowNodeSDKNews.md
-                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "guide/Answering_chat_message.md" |tee  "Documentation/doc/sdk/node/sts/guides/Answering_chat_message.md"
-                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "guide/Connecting_to_Rainbow_S2S_Mode.md"  |tee "Documentation/doc/sdk/node/sts/guides/Connecting_to_Rainbow_S2S_Mode.md"
-                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "guide/Connecting_to_Rainbow_XMPP_Mode.md"  |tee "Documentation/doc/sdk/node/sts/guides/Connecting_to_Rainbow_XMPP_Mode.md"
-                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "guide/Development_Kit.md"  |tee "Documentation/doc/sdk/node/sts/guides/Development_Kit.md"
-                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "guide/Getting_Started.md"  |tee "Documentation/doc/sdk/node/sts/guides/Getting_Started.md"
-                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "guide/Legals.md"  |tee "Documentation/doc/sdk/node/sts/guides/Legals.md"
-                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "guide/Managing_bubbles.md"  |tee "Documentation/doc/sdk/node/sts/guides/Managing_bubbles.md"
-                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "guide/Managing_conferences.md"  |tee "Documentation/doc/sdk/node/sts/guides/Managing_conferences.md"
-                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "guide/Managing_RPCoverXMPP.md"  |tee "Documentation/doc/sdk/node/sts/guides/Managing_RPCoverXMPP.md"
-                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "build/What_is_new_generated.md"  |tee "Documentation/doc/sdk/node/sts/guides/What_is_new.md"                      
+                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "guide/RainbowNodeSDKNews.md"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/RainbowNodeSDKNews.md"
+                                # more Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/RainbowNodeSDKNews.md
+                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "guide/Answering_chat_message.md" |tee  "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/Answering_chat_message.md"
+                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "guide/Connecting_to_Rainbow_S2S_Mode.md"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/Connecting_to_Rainbow_S2S_Mode.md"
+                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "guide/Connecting_to_Rainbow_XMPP_Mode.md"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/Connecting_to_Rainbow_XMPP_Mode.md"
+                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "guide/Development_Kit.md"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/Development_Kit.md"
+                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "guide/Getting_Started.md"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/Getting_Started.md"
+                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "guide/Legals.md"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/Legals.md"
+                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "guide/Managing_bubbles.md"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/Managing_bubbles.md"
+                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "guide/Managing_conferences.md"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/Managing_conferences.md"
+                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "guide/Managing_RPCoverXMPP.md"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/Managing_RPCoverXMPP.md"
+                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "build/What_is_new_generated.md"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/What_is_new.md"
                                  
-                                sed "s/ref:doc\\/sdk\\/node\\//ref:doc\\/sdk\\/node\\/sts\\//g" "index.yml"  |tee "Documentation/doc/sdk/node/sts/index.yml"                      
-                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/sts\\//g" "sitemap.xml"  |tee "Documentation/doc/sdk/node/sts/sitemap.xml"                      
+                                sed "s/ref:doc\\/sdk\\/node\\//ref:doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "index.yml"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/index.yml"
+                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "sitemap.xml"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/sitemap.xml"
                                 
 
                                 """
@@ -432,12 +669,12 @@ pipeline {
                                 sh script: """
                                 # cd "${workspace}/Documentation"
                                 sudo npm install npm -g
-                                npm exec -- developers_searchindex --docPath Documentation/doc/sdk/node/sts
+                                npm exec -- developers_searchindex --docPath Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}
                                 # sh "npx developers_searchindex --docPath build/doc/hub"
                                 # ls -la build/doc/hub
                                 """
 
-                                // generateHubV2DocumentationSearchIndex("Documentation/doc/sdk/node/sts", "DocumentationFolder")
+                                // generateHubV2DocumentationSearchIndex("Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}", "DocumentationFolder")
                             } catch (Exception e) {
                                 echo "Failure: ${currentBuild.result}: ${e}"
                             }

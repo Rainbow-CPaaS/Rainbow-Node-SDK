@@ -1,13 +1,19 @@
 "use strict";
+import {LevelLogs} from "../../common/LevelLogs.js";
+
 export {};
 
 import {XMPPService} from "../XMPPService";
+import {stackTrace} from "../../common/Utils.js";
 const xml2js = require('xml2js');
 
-class GenericHandler {
+class GenericHandler extends LevelLogs{
 	public xmppService: XMPPService;
 
-    constructor(xmppService) {
+    constructor(xmppService: XMPPService) {
+        super()
+        this.setLogLevels(this);
+        let that = this;
         this.xmppService = xmppService;
     }
 
@@ -42,8 +48,8 @@ class GenericHandler {
     get eventEmitter() {
         return this.xmppService.eventEmitter;
     }
-    get logger() {
-        return this.xmppService.logger;
+    get _logger() {
+        return this.xmppService._logger;
     }
 }
 

@@ -6,7 +6,7 @@ import {GuestParams, MEDIATYPE, RESTService} from "../connection/RESTService";
 import {ErrorManager} from "../common/ErrorManager";
 import {XMPPService} from "../connection/XMPPService";
 import {EventEmitter} from "events";
-import {getBinaryData, isStarted, logEntryExit, resizeImage, until} from "../common/Utils";
+import {getBinaryData, isDefined, isStarted, logEntryExit, resizeImage, until} from "../common/Utils";
 import {Logger} from "../common/Logger";
 import {ContactsService} from "./ContactsService";
 import {ProfilesService} from "./ProfilesService";
@@ -22,6 +22,7 @@ import {RBVoiceEventHandler} from "../connection/XMPPServiceHandler/RBVoiceEvent
 export {};
 
 const LOG_ID = "RBVOICE/SVCE - ";
+const API_ID = "API_CALL - ";
 
 @logEntryExit(LOG_ID)
 @isStarted([])
@@ -42,22 +43,20 @@ class RBVoiceService extends GenericService {
 
     private rbvoiceEventHandler: RBVoiceEventHandler;
     private rbvoiceHandlerToken: any;
-    private _core: Core;
 
 
-    static getClassName() {
-        return 'RBVoiceService';
-    }
+    static getClassName() { return 'RBVoiceService'; }
+    getClassName() { return RBVoiceService.getClassName(); }
 
-    getClassName() {
-        return RBVoiceService.getClassName();
-    }
+    static getAccessorName(){ return 'rbvoice'; }
+    getAccessorName(){ return RBVoiceService.getAccessorName(); }
 
-    constructor(_eventEmitter: EventEmitter, _http: any, _logger: Logger, _startConfig: {
+    constructor(_core:Core, _eventEmitter: EventEmitter, _http: any, _logger: Logger, _startConfig: {
         start_up: boolean,
         optional: boolean
     }) {
         super(_logger, LOG_ID);
+        this.setLogLevels(this);
         this._xmpp = null;
         this._rest = null;
         this._s2s = null;
@@ -71,6 +70,8 @@ class RBVoiceService extends GenericService {
         this._host = _http.host;
         this._port = _http.port;
 
+        this._core = _core;
+
         this.avatarDomain = this._host.split(".").length===2 ? this._protocol + "://cdn." + this._host + ":" + this._port:this._protocol + "://" + this._host + ":" + this._port;
 
         this._eventEmitter.on("evt_internal_rbvoiceevent", this._onEventRBVoice.bind(this));
@@ -78,16 +79,16 @@ class RBVoiceService extends GenericService {
 
     }
 
-    start(_options, _core: Core) { // , _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService, _contacts : ContactsService, _profileService : ProfilesService
+    start(_options) { // , _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService, _contacts : ContactsService, _profileService : ProfilesService
         let that = this;
+        that.initStartDate();
 
         return new Promise(async function (resolve, reject) {
             try {
-                that._core = _core;
-                that._xmpp = _core._xmpp;
-                that._rest = _core._rest;
+                that._xmpp = that._core._xmpp;
+                that._rest = that._core._rest;
                 that._options = _options;
-                that._s2s = _core._s2s;
+                that._s2s = that._core._s2s;
                 that._useXMPP = that._options.useXMPP;
                 that._useS2S = that._options.useS2S;
                 //that._rbvoice = [];
@@ -142,7 +143,7 @@ class RBVoiceService extends GenericService {
 
     _onEventRBVoice (data) {
         let that = this;
-        that._logger.log("internal", "(_onEventRBVoice) - data : ", data);
+        that._logger.log(that.INTERNAL, "(_onEventRBVoice) - data : ", data);
         that._eventEmitter.emit("evt_internal_onrbvoiceevent", data);
     }
     
@@ -175,17 +176,18 @@ class RBVoiceService extends GenericService {
      */
     retrieveAllAvailableCallLineIdentifications() {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(retrieveAllAvailableCallLineIdentifications) .");
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.retrieveAllAvailableCallLineIdentifications();
-                that._logger.log("debug", "(retrieveAllAvailableCallLineIdentifications) - sent.");
-                that._logger.log("internal", "(retrieveAllAvailableCallLineIdentifications) - result : ", result);
+                that._logger.log(that.DEBUG, "(retrieveAllAvailableCallLineIdentifications) - sent.");
+                that._logger.log(that.INTERNAL, "(retrieveAllAvailableCallLineIdentifications) - result : ", result);
 
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(retrieveAllAvailableCallLineIdentifications) Error.");
-                that._logger.log("internalerror", LOG_ID + "(retrieveAllAvailableCallLineIdentifications) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(retrieveAllAvailableCallLineIdentifications) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(retrieveAllAvailableCallLineIdentifications) Error : ", err);
                 return reject(err);
             }
         });
@@ -204,17 +206,18 @@ class RBVoiceService extends GenericService {
      */
     retrieveCurrentCallLineIdentification() {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(retrieveCurrentCallLineIdentification) .");
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.retrieveCurrentCallLineIdentification();
-                that._logger.log("debug", "(retrieveCurrentCallLineIdentification) - sent.");
-                that._logger.log("internal", "(retrieveCurrentCallLineIdentification) - result : ", result);
+                that._logger.log(that.DEBUG, "(retrieveCurrentCallLineIdentification) - sent.");
+                that._logger.log(that.INTERNAL, "(retrieveCurrentCallLineIdentification) - result : ", result);
 
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(retrieveCurrentCallLineIdentification) Error.");
-                that._logger.log("internalerror", LOG_ID + "(retrieveCurrentCallLineIdentification) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(retrieveCurrentCallLineIdentification) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(retrieveCurrentCallLineIdentification) Error : ", err);
                 return reject(err);
             }
         });
@@ -246,17 +249,18 @@ class RBVoiceService extends GenericService {
      */
     setCurrentActiveCallLineIdentification(policy: string, phoneNumberId?: string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(setCurrentActiveCallLineIdentification) is phoneNumberId defined : ", isDefined(phoneNumberId));
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.setCurrentActiveCallLineIdentification(policy, phoneNumberId);
-                that._logger.log("debug", "(setCurrentActiveCallLineIdentification) - sent.");
-                that._logger.log("internal", "(setCurrentActiveCallLineIdentification) - result : ", result);
+                that._logger.log(that.DEBUG, "(setCurrentActiveCallLineIdentification) - sent.");
+                that._logger.log(that.INTERNAL, "(setCurrentActiveCallLineIdentification) - result : ", result);
 
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(setCurrentActiveCallLineIdentification) Error.");
-                that._logger.log("internalerror", LOG_ID + "(setCurrentActiveCallLineIdentification) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(setCurrentActiveCallLineIdentification) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(setCurrentActiveCallLineIdentification) Error : ", err);
                 return reject(err);
             }
         });
@@ -309,17 +313,18 @@ class RBVoiceService extends GenericService {
      */
     addMemberToGroup(groupId: string, memberId: string, position: number, roles: [], status: string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(addMemberToGroup) is groupId defined : ", isDefined(groupId));
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.addMemberToGroup(groupId, memberId, position, roles, status);
-                that._logger.log("debug", "(addMemberToGroup) - sent.");
-                that._logger.log("internal", "(addMemberToGroup) - result : ", result);
+                that._logger.log(that.DEBUG, "(addMemberToGroup) - sent.");
+                that._logger.log(that.INTERNAL, "(addMemberToGroup) - result : ", result);
 
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(addMemberToGroup) Error.");
-                that._logger.log("internalerror", LOG_ID + "(addMemberToGroup) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(addMemberToGroup) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(addMemberToGroup) Error : ", err);
                 return reject(err);
             }
         });
@@ -341,17 +346,18 @@ class RBVoiceService extends GenericService {
      */
     deleteVoiceMessageAssociatedToAGroup(groupId: string, messageId: string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteVoiceMessageAssociatedToAGroup) is groupId defined : ", isDefined(groupId));
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.deleteVoiceMessageAssociatedToAGroup(groupId, messageId);
-                that._logger.log("debug", "(deleteVoiceMessageAssociatedToAGroup) - sent.");
-                that._logger.log("internal", "(deleteVoiceMessageAssociatedToAGroup) - result : ", result);
+                that._logger.log(that.DEBUG, "(deleteVoiceMessageAssociatedToAGroup) - sent.");
+                that._logger.log(that.INTERNAL, "(deleteVoiceMessageAssociatedToAGroup) - result : ", result);
 
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(deleteVoiceMessageAssociatedToAGroup) Error.");
-                that._logger.log("internalerror", LOG_ID + "(deleteVoiceMessageAssociatedToAGroup) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(deleteVoiceMessageAssociatedToAGroup) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteVoiceMessageAssociatedToAGroup) Error : ", err);
                 return reject(err);
             }
         });
@@ -398,17 +404,18 @@ class RBVoiceService extends GenericService {
      */
     getVoiceMessagesAssociatedToGroup(groupId: string, limit: number = 100, offset: number = 0, sortField: string = "name", sortOrder: number, fromDate: string, toDate: string, callerName: string, callerNumber: string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getVoiceMessagesAssociatedToGroup) is groupId defined : ", isDefined(groupId));
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.getVoiceMessagesAssociatedToGroup(groupId, limit, offset, sortField, sortOrder, fromDate, toDate, callerName, callerNumber);
-                that._logger.log("debug", "(getVoiceMessagesAssociatedToGroup) - sent.");
-                that._logger.log("internal", "(getVoiceMessagesAssociatedToGroup) - result : ", result);
+                that._logger.log(that.DEBUG, "(getVoiceMessagesAssociatedToGroup) - sent.");
+                that._logger.log(that.INTERNAL, "(getVoiceMessagesAssociatedToGroup) - result : ", result);
 
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(getVoiceMessagesAssociatedToGroup) Error.");
-                that._logger.log("internalerror", LOG_ID + "(getVoiceMessagesAssociatedToGroup) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getVoiceMessagesAssociatedToGroup) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getVoiceMessagesAssociatedToGroup) Error : ", err);
                 return reject(err);
             }
         });
@@ -436,17 +443,18 @@ class RBVoiceService extends GenericService {
      */
     getGroupForwards(groupId: string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getGroupForwards) is groupId defined : ", isDefined(groupId));
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.getGroupForwards(groupId);
-                that._logger.log("debug", "(getGroupForwards) - sent.");
-                that._logger.log("internal", "(getGroupForwards) - result : ", result);
+                that._logger.log(that.DEBUG, "(getGroupForwards) - sent.");
+                that._logger.log(that.INTERNAL, "(getGroupForwards) - result : ", result);
 
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(getGroupForwards) Error.");
-                that._logger.log("internalerror", LOG_ID + "(getGroupForwards) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getGroupForwards) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getGroupForwards) Error : ", err);
                 return reject(err);
             }
         });
@@ -483,17 +491,18 @@ class RBVoiceService extends GenericService {
      */
     getTheUserGroup(type: string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getTheUserGroup) is type defined : ", isDefined(type));
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.getTheUserGroup(type);
-                that._logger.log("debug", "(getTheUserGroup) - sent.");
-                that._logger.log("internal", "(getTheUserGroup) - result : ", result);
+                that._logger.log(that.DEBUG, "(getTheUserGroup) - sent.");
+                that._logger.log(that.INTERNAL, "(getTheUserGroup) - result : ", result);
 
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(getTheUserGroup) Error.");
-                that._logger.log("internalerror", LOG_ID + "(getTheUserGroup) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getTheUserGroup) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getTheUserGroup) Error : ", err);
                 return reject(err);
             }
         });
@@ -530,17 +539,18 @@ class RBVoiceService extends GenericService {
      */
     joinAGroup(groupId: string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(joinAGroup) is groupId defined : ", isDefined(groupId));
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.joinAGroup(groupId);
-                that._logger.log("debug", "(joinAGroup) - sent.");
-                that._logger.log("internal", "(joinAGroup) - result : ", result);
+                that._logger.log(that.DEBUG, "(joinAGroup) - sent.");
+                that._logger.log(that.INTERNAL, "(joinAGroup) - result : ", result);
 
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(joinAGroup) Error.");
-                that._logger.log("internalerror", LOG_ID + "(joinAGroup) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(joinAGroup) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(joinAGroup) Error : ", err);
                 return reject(err);
             }
         });
@@ -562,17 +572,18 @@ class RBVoiceService extends GenericService {
      */
     joinAllGroups() {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(joinAllGroups) .");
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.joinAllGroups();
-                that._logger.log("debug", "(joinAllGroups) - sent.");
-                that._logger.log("internal", "(joinAllGroups) - result : ", result);
+                that._logger.log(that.DEBUG, "(joinAllGroups) - sent.");
+                that._logger.log(that.INTERNAL, "(joinAllGroups) - result : ", result);
 
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(joinAllGroups) Error.");
-                that._logger.log("internalerror", LOG_ID + "(joinAllGroups) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(joinAllGroups) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(joinAllGroups) Error : ", err);
                 return reject(err);
             }
         });
@@ -609,17 +620,18 @@ class RBVoiceService extends GenericService {
      */
     leaveAGroup(groupId: string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(leaveAGroup) is groupId defined : ", isDefined(groupId));
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.leaveAGroup(groupId);
-                that._logger.log("debug", "(leaveAGroup) - sent.");
-                that._logger.log("internal", "(leaveAGroup) - result : ", result);
+                that._logger.log(that.DEBUG, "(leaveAGroup) - sent.");
+                that._logger.log(that.INTERNAL, "(leaveAGroup) - result : ", result);
 
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(leaveAGroup) Error.");
-                that._logger.log("internalerror", LOG_ID + "(leaveAGroup) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(leaveAGroup) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(leaveAGroup) Error : ", err);
                 return reject(err);
             }
         });
@@ -654,17 +666,18 @@ class RBVoiceService extends GenericService {
      */
     leaveAllGroups() {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(leaveAllGroups) .");
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.leaveAllGroups();
-                that._logger.log("debug", "(leaveAllGroups) - sent.");
-                that._logger.log("internal", "(leaveAllGroups) - result : ", result);
+                that._logger.log(that.DEBUG, "(leaveAllGroups) - sent.");
+                that._logger.log(that.INTERNAL, "(leaveAllGroups) - result : ", result);
 
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(leaveAllGroups) Error.");
-                that._logger.log("internalerror", LOG_ID + "(leaveAllGroups) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(leaveAllGroups) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(leaveAllGroups) Error : ", err);
                 return reject(err);
             }
         });
@@ -686,17 +699,18 @@ class RBVoiceService extends GenericService {
      */
     removeMemberFromGroup(groupId: string, memberId: string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(removeMemberFromGroup) is groupId defined : ", isDefined(groupId));
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.removeMemberFromGroup(groupId, memberId);
-                that._logger.log("debug", "(leaveAllGroups) - sent.");
-                that._logger.log("internal", "(leaveAllGroups) - result : ", result);
+                that._logger.log(that.DEBUG, "(leaveAllGroups) - sent.");
+                that._logger.log(that.INTERNAL, "(leaveAllGroups) - result : ", result);
 
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(leaveAllGroups) Error.");
-                that._logger.log("internalerror", LOG_ID + "(leaveAllGroups) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(leaveAllGroups) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(leaveAllGroups) Error : ", err);
                 return reject(err);
             }
         });
@@ -730,17 +744,18 @@ class RBVoiceService extends GenericService {
      */
     retrieveNumberReadUnreadMessagesForHuntingGroupsOfLoggedUser() {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(retrieveNumberReadUnreadMessagesForHuntingGroupsOfLoggedUser) .");
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.retrieveNumberReadUnreadMessagesForHuntingGroupsOfLoggedUser();
-                that._logger.log("debug", "(retrieveNumberReadUnreadMessagesForHuntingGroupsOfLoggedUser) - sent.");
-                that._logger.log("internal", "(retrieveNumberReadUnreadMessagesForHuntingGroupsOfLoggedUser) - result : ", result);
+                that._logger.log(that.DEBUG, "(retrieveNumberReadUnreadMessagesForHuntingGroupsOfLoggedUser) - sent.");
+                that._logger.log(that.INTERNAL, "(retrieveNumberReadUnreadMessagesForHuntingGroupsOfLoggedUser) - result : ", result);
 
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(retrieveNumberReadUnreadMessagesForHuntingGroupsOfLoggedUser) Error.");
-                that._logger.log("internalerror", LOG_ID + "(retrieveNumberReadUnreadMessagesForHuntingGroupsOfLoggedUser) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(retrieveNumberReadUnreadMessagesForHuntingGroupsOfLoggedUser) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(retrieveNumberReadUnreadMessagesForHuntingGroupsOfLoggedUser) Error : ", err);
                 return reject(err);
             }
         });
@@ -763,17 +778,18 @@ class RBVoiceService extends GenericService {
      */
     updateAVoiceMessageAssociatedToAGroup(groupId: string, messageId: string, read: boolean) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateAVoiceMessageAssociatedToAGroup) is groupId defined : ", isDefined(groupId));
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.updateAVoiceMessageAssociatedToAGroup(groupId, messageId, read);
-                that._logger.log("debug", "(updateAVoiceMessageAssociatedToAGroup) - sent.");
-                that._logger.log("internal", "(updateAVoiceMessageAssociatedToAGroup) - result : ", result);
+                that._logger.log(that.DEBUG, "(updateAVoiceMessageAssociatedToAGroup) - sent.");
+                that._logger.log(that.INTERNAL, "(updateAVoiceMessageAssociatedToAGroup) - result : ", result);
 
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(updateAVoiceMessageAssociatedToAGroup) Error.");
-                that._logger.log("internalerror", LOG_ID + "(updateAVoiceMessageAssociatedToAGroup) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(updateAVoiceMessageAssociatedToAGroup) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(updateAVoiceMessageAssociatedToAGroup) Error : ", err);
                 return reject(err);
             }
         });
@@ -817,17 +833,18 @@ class RBVoiceService extends GenericService {
      */
     updateAGroup(groupId: string, externalNumberId: string, isEmptyAllowed: boolean) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateAGroup) is groupId defined : ", isDefined(groupId));
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.updateAGroup(groupId, externalNumberId, isEmptyAllowed);
-                that._logger.log("debug", "(updateAGroup) - sent.");
-                that._logger.log("internal", "(updateAGroup) - result : ", result);
+                that._logger.log(that.DEBUG, "(updateAGroup) - sent.");
+                that._logger.log(that.INTERNAL, "(updateAGroup) - result : ", result);
 
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(updateAGroup) Error.");
-                that._logger.log("internalerror", LOG_ID + "(updateAGroup) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(updateAGroup) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(updateAGroup) Error : ", err);
                 return reject(err);
             }
         });
@@ -878,17 +895,18 @@ class RBVoiceService extends GenericService {
      */
     updateGroupForward(groupId: string, callForwardType: string, destinationType: string, numberToForward: number, activate: boolean, noReplyDelay: number, managerIds: Array<string>, rvcpAutoAttendantId: string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateGroupForward) is groupId defined : ", isDefined(groupId));
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.updateGroupForward(groupId, callForwardType, destinationType, numberToForward, activate, noReplyDelay, managerIds, rvcpAutoAttendantId);
-                that._logger.log("debug", "(updateGroupForward) - sent.");
-                that._logger.log("internal", "(updateGroupForward) - result : ", result);
+                that._logger.log(that.DEBUG, "(updateGroupForward) - sent.");
+                that._logger.log(that.INTERNAL, "(updateGroupForward) - result : ", result);
 
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(updateGroupForward) Error.");
-                that._logger.log("internalerror", LOG_ID + "(updateGroupForward) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(updateGroupForward) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(updateGroupForward) Error : ", err);
                 return reject(err);
             }
         });
@@ -929,17 +947,18 @@ class RBVoiceService extends GenericService {
      */
     updateGroupMember(groupId: string, memberId: string, position: number, roles: Array<string>, status: string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateGroupMember) is groupId defined : ", isDefined(groupId));
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.updateGroupMember(groupId, memberId, position, roles, status);
-                that._logger.log("debug", "(updateGroupMember) - sent.");
-                that._logger.log("internal", "(updateGroupMember) - result : ", result);
+                that._logger.log(that.DEBUG, "(updateGroupMember) - sent.");
+                that._logger.log(that.INTERNAL, "(updateGroupMember) - result : ", result);
 
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(updateGroupMember) Error.");
-                that._logger.log("internalerror", LOG_ID + "(updateGroupMember) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(updateGroupMember) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(updateGroupMember) Error : ", err);
                 return reject(err);
             }
         });
@@ -963,17 +982,18 @@ class RBVoiceService extends GenericService {
      */
     activateDeactivateDND(activate: boolean) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(activateDeactivateDND) is activate defined : ", isDefined(activate));
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.activateDeactivateDND(activate);
-                that._logger.log("debug", "(activateDeactivateDND) - sent.");
-                that._logger.log("internal", "(activateDeactivateDND) - result : ", result);
+                that._logger.log(that.DEBUG, "(activateDeactivateDND) - sent.");
+                that._logger.log(that.INTERNAL, "(activateDeactivateDND) - result : ", result);
 
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(activateDeactivateDND) Error.");
-                that._logger.log("internalerror", LOG_ID + "(activateDeactivateDND) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(activateDeactivateDND) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(activateDeactivateDND) Error : ", err);
                 return reject(err);
             }
         });
@@ -1005,17 +1025,18 @@ class RBVoiceService extends GenericService {
      */
     configureAndActivateDeactivateForward(callForwardType: string, type: string, number: string, timeout: number = 20, activated: boolean) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(configureAndActivateDeactivateForward) is callForwardType defined : ", isDefined(callForwardType));
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.configureAndActivateDeactivateForward(callForwardType, type, number, timeout, activated);
-                that._logger.log("debug", "(configureAndActivateDeactivateForward) - sent.");
-                that._logger.log("internal", "(configureAndActivateDeactivateForward) - result : ", result);
+                that._logger.log(that.DEBUG, "(configureAndActivateDeactivateForward) - sent.");
+                that._logger.log(that.INTERNAL, "(configureAndActivateDeactivateForward) - result : ", result);
 
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(configureAndActivateDeactivateForward) Error.");
-                that._logger.log("internalerror", LOG_ID + "(configureAndActivateDeactivateForward) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(configureAndActivateDeactivateForward) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(configureAndActivateDeactivateForward) Error : ", err);
                 return reject(err);
             }
         });
@@ -1035,17 +1056,18 @@ class RBVoiceService extends GenericService {
      */
     retrieveActiveForwards() {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(retrieveActiveForwards) .");
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.retrieveActiveForwards();
-                that._logger.log("debug", "(retrieveActiveForwards) - sent.");
-                that._logger.log("internal", "(retrieveActiveForwards) - result : ", result);
+                that._logger.log(that.DEBUG, "(retrieveActiveForwards) - sent.");
+                that._logger.log(that.INTERNAL, "(retrieveActiveForwards) - result : ", result);
 
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(retrieveActiveForwards) Error.");
-                that._logger.log("internalerror", LOG_ID + "(retrieveActiveForwards) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(retrieveActiveForwards) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(retrieveActiveForwards) Error : ", err);
                 return reject(err);
             }
         });
@@ -1065,17 +1087,18 @@ class RBVoiceService extends GenericService {
      */
     retrieveDNDState() {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(retrieveDNDState) .");
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.retrieveDNDState();
-                that._logger.log("debug", "(retrieveDNDState) - sent.");
-                that._logger.log("internal", "(retrieveDNDState) - result : ", result);
+                that._logger.log(that.DEBUG, "(retrieveDNDState) - sent.");
+                that._logger.log(that.INTERNAL, "(retrieveDNDState) - result : ", result);
 
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(retrieveDNDState) Error.");
-                that._logger.log("internalerror", LOG_ID + "(retrieveDNDState) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(retrieveDNDState) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(retrieveDNDState) Error : ", err);
                 return reject(err);
             }
         });
@@ -1124,17 +1147,18 @@ class RBVoiceService extends GenericService {
      */
     searchUsersGroupsContactsByName(displayName: string, limit: number) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(searchUsersGroupsContactsByName) is displayName defined : ", isDefined(displayName));
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.searchUsersGroupsContactsByName(displayName, limit);
-                that._logger.log("debug", "(searchUsersGroupsContactsByName) - sent.");
-                that._logger.log("internal", "(searchUsersGroupsContactsByName) - result : ", result);
+                that._logger.log(that.DEBUG, "(searchUsersGroupsContactsByName) - sent.");
+                that._logger.log(that.INTERNAL, "(searchUsersGroupsContactsByName) - result : ", result);
 
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(searchUsersGroupsContactsByName) Error.");
-                that._logger.log("internalerror", LOG_ID + "(searchUsersGroupsContactsByName) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(searchUsersGroupsContactsByName) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(searchUsersGroupsContactsByName) Error : ", err);
                 return reject(err);
             }
         });
@@ -1180,17 +1204,18 @@ class RBVoiceService extends GenericService {
      */
     activatePersonalRoutine(routineId: string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(activatePersonalRoutine) is routineId defined : ", isDefined(routineId));
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.activatePersonalRoutine(routineId);
-                that._logger.log("debug", "(activatePersonalRoutine) - sent.");
-                that._logger.log("internal", "(activatePersonalRoutine) - result : ", result);
+                that._logger.log(that.DEBUG, "(activatePersonalRoutine) - sent.");
+                that._logger.log(that.INTERNAL, "(activatePersonalRoutine) - result : ", result);
 
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(activatePersonalRoutine) Error.");
-                that._logger.log("internalerror", LOG_ID + "(activatePersonalRoutine) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(activatePersonalRoutine) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(activatePersonalRoutine) Error : ", err);
                 return reject(err);
             }
         });
@@ -1255,17 +1280,18 @@ class RBVoiceService extends GenericService {
      */
     createCustomPersonalRoutine(name: string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(createCustomPersonalRoutine) is name defined : ", isDefined(name));
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.createCustomPersonalRoutine(name);
-                that._logger.log("debug", "(createCustomPersonalRoutine) - sent.");
-                that._logger.log("internal", "(createCustomPersonalRoutine) - result : ", result);
+                that._logger.log(that.DEBUG, "(createCustomPersonalRoutine) - sent.");
+                that._logger.log(that.INTERNAL, "(createCustomPersonalRoutine) - result : ", result);
 
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(createCustomPersonalRoutine) Error.");
-                that._logger.log("internalerror", LOG_ID + "(createCustomPersonalRoutine) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(createCustomPersonalRoutine) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(createCustomPersonalRoutine) Error : ", err);
                 return reject(err);
             }
         });
@@ -1286,17 +1312,18 @@ class RBVoiceService extends GenericService {
      */
     deleteCustomPersonalRoutine(routineId: string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteCustomPersonalRoutine) is routineId defined : ", isDefined(routineId));
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.deleteCustomPersonalRoutine(routineId);
-                that._logger.log("debug", "(deleteCustomPersonalRoutine) - sent.");
-                that._logger.log("internal", "(deleteCustomPersonalRoutine) - result : ", result);
+                that._logger.log(that.DEBUG, "(deleteCustomPersonalRoutine) - sent.");
+                that._logger.log(that.INTERNAL, "(deleteCustomPersonalRoutine) - result : ", result);
 
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(deleteCustomPersonalRoutine) Error.");
-                that._logger.log("internalerror", LOG_ID + "(deleteCustomPersonalRoutine) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(deleteCustomPersonalRoutine) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteCustomPersonalRoutine) Error : ", err);
                 return reject(err);
             }
         });
@@ -1361,17 +1388,18 @@ class RBVoiceService extends GenericService {
      */
     getPersonalRoutineData(routineId: string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getPersonalRoutineData) is routineId defined : ", isDefined(routineId));
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.getPersonalRoutineData(routineId);
-                that._logger.log("debug", "(getPersonalRoutineData) - sent.");
-                that._logger.log("internal", "(getPersonalRoutineData) - result : ", result);
+                that._logger.log(that.DEBUG, "(getPersonalRoutineData) - sent.");
+                that._logger.log(that.INTERNAL, "(getPersonalRoutineData) - result : ", result);
 
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(getPersonalRoutineData) Error.");
-                that._logger.log("internalerror", LOG_ID + "(getPersonalRoutineData) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getPersonalRoutineData) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getPersonalRoutineData) Error : ", err);
                 return reject(err);
             }
         });
@@ -1414,17 +1442,18 @@ class RBVoiceService extends GenericService {
      */
     getAllPersonalRoutines(userId) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getAllPersonalRoutines) is userId defined : ", isDefined(userId));
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.getAllPersonalRoutines(userId);
-                that._logger.log("debug", "(getAllPersonalRoutines) - sent.");
-                that._logger.log("internal", "(getAllPersonalRoutines) - result : ", result);
+                that._logger.log(that.DEBUG, "(getAllPersonalRoutines) - sent.");
+                that._logger.log(that.INTERNAL, "(getAllPersonalRoutines) - result : ", result);
 
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(getAllPersonalRoutines) Error.");
-                that._logger.log("internalerror", LOG_ID + "(getAllPersonalRoutines) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getAllPersonalRoutines) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getAllPersonalRoutines) Error : ", err);
                 return reject(err);
             }
         });
@@ -1522,17 +1551,18 @@ class RBVoiceService extends GenericService {
      */
     updatePersonalRoutineData(routineId: string, dndPresence: boolean, name: string, presence: { manage: boolean, value: string }, deviceMode: { manage: boolean, mode: string }, immediateCallForward: { manage: boolean, activate: boolean, number: string, destinationType: string }, busyCallForward: { manage: boolean, activate: boolean, number: string, destinationType: string }, noreplyCallForward: { manage: boolean, activate: boolean, number: string, destinationType: string, noReplyDelay: number }, huntingGroups: { withdrawAll: boolean }) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updatePersonalRoutineData) is routineId defined : ", isDefined(routineId));
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.updatePersonalRoutineData(routineId, dndPresence, name, presence, deviceMode, immediateCallForward, busyCallForward, noreplyCallForward, huntingGroups);
-                that._logger.log("debug", "(updatePersonalRoutineData) - sent.");
-                that._logger.log("internal", "(updatePersonalRoutineData) - result : ", result);
+                that._logger.log(that.DEBUG, "(updatePersonalRoutineData) - sent.");
+                that._logger.log(that.INTERNAL, "(updatePersonalRoutineData) - result : ", result);
 
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(updatePersonalRoutineData) Error.");
-                that._logger.log("internalerror", LOG_ID + "(updatePersonalRoutineData) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(updatePersonalRoutineData) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(updatePersonalRoutineData) Error : ", err);
                 return reject(err);
             }
         });
@@ -1566,17 +1596,18 @@ class RBVoiceService extends GenericService {
      */
     manageUserRoutingData(destinations: Array<string>, currentDeviceId: string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(manageUserRoutingData) is currentDeviceId defined : ", isDefined(currentDeviceId));
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.manageUserRoutingData(destinations, currentDeviceId);
-                that._logger.log("debug", "(manageUserRoutingData) - sent.");
-                that._logger.log("internal", "(manageUserRoutingData) - result : ", result);
+                that._logger.log(that.DEBUG, "(manageUserRoutingData) - sent.");
+                that._logger.log(that.INTERNAL, "(manageUserRoutingData) - result : ", result);
 
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(manageUserRoutingData) Error.");
-                that._logger.log("internalerror", LOG_ID + "(manageUserRoutingData) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(manageUserRoutingData) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(manageUserRoutingData) Error : ", err);
                 return reject(err);
             }
         });
@@ -1604,17 +1635,18 @@ class RBVoiceService extends GenericService {
      */
     retrievetransferRoutingData(calleeId: string, addresseeId ?: string, addresseePhoneNumber ?: string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(retrievetransferRoutingData) is calleeId defined : ", isDefined(calleeId));
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.retrievetransferRoutingData(calleeId, addresseeId, addresseePhoneNumber);
-                that._logger.log("debug", "(retrievetransferRoutingData) - sent.");
-                that._logger.log("internal", "(retrievetransferRoutingData) - result : ", result);
+                that._logger.log(that.DEBUG, "(retrievetransferRoutingData) - sent.");
+                that._logger.log(that.INTERNAL, "(retrievetransferRoutingData) - result : ", result);
 
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(retrievetransferRoutingData) Error.");
-                that._logger.log("internalerror", LOG_ID + "(retrievetransferRoutingData) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(retrievetransferRoutingData) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(retrievetransferRoutingData) Error : ", err);
                 return reject(err);
             }
         });
@@ -1642,17 +1674,18 @@ class RBVoiceService extends GenericService {
      */
     retrieveUserRoutingData() {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(retrieveUserRoutingData) .");
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.retrieveUserRoutingData();
-                that._logger.log("debug", "(retrieveUserRoutingData) - sent.");
-                that._logger.log("internal", "(retrieveUserRoutingData) - result : ", result);
+                that._logger.log(that.DEBUG, "(retrieveUserRoutingData) - sent.");
+                that._logger.log(that.INTERNAL, "(retrieveUserRoutingData) - result : ", result);
 
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(retrieveUserRoutingData) Error.");
-                that._logger.log("internalerror", LOG_ID + "(retrieveUserRoutingData) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(retrieveUserRoutingData) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(retrieveUserRoutingData) Error : ", err);
                 return reject(err);
             }
         });
@@ -1681,17 +1714,18 @@ class RBVoiceService extends GenericService {
      */
     retrieveVoiceUserSettings() {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(retrieveVoiceUserSettings) .");
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.retrieveVoiceUserSettings();
-                that._logger.log("debug", "(retrieveVoiceUserSettings) - sent.");
-                that._logger.log("internal", "(retrieveVoiceUserSettings) - result : ", result);
+                that._logger.log(that.DEBUG, "(retrieveVoiceUserSettings) - sent.");
+                that._logger.log(that.INTERNAL, "(retrieveVoiceUserSettings) - result : ", result);
 
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(retrieveVoiceUserSettings) Error.");
-                that._logger.log("internalerror", LOG_ID + "(retrieveVoiceUserSettings) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(retrieveVoiceUserSettings) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(retrieveVoiceUserSettings) Error : ", err);
                 return reject(err);
             }
         });
@@ -1718,17 +1752,18 @@ class RBVoiceService extends GenericService {
      */
     addParticipant3PCC(callId: string, callData: { callee: string }) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(addParticipant3PCC) is callId defined : ", isDefined(callId));
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.addParticipant3PCC(callId, callData);
-                that._logger.log("debug", "(retrieveUserRoutingData) - sent.");
-                that._logger.log("internal", "(retrieveUserRoutingData) - result : ", result);
+                that._logger.log(that.DEBUG, "(retrieveUserRoutingData) - sent.");
+                that._logger.log(that.INTERNAL, "(retrieveUserRoutingData) - result : ", result);
 
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(retrieveUserRoutingData) Error.");
-                that._logger.log("internalerror", LOG_ID + "(retrieveUserRoutingData) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(retrieveUserRoutingData) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(retrieveUserRoutingData) Error : ", err);
                 return reject(err);
             }
         });
@@ -1751,17 +1786,18 @@ class RBVoiceService extends GenericService {
      */
     answerCall3PCC(callId: string, callData: { legId: string }) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(answerCall3PCC) is callId defined : ", isDefined(callId));
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.answerCall3PCC(callId, callData);
-                that._logger.log("debug", "(answerCall3PCC) - sent.");
-                that._logger.log("internal", "(answerCall3PCC) - result : ", result);
+                that._logger.log(that.DEBUG, "(answerCall3PCC) - sent.");
+                that._logger.log(that.INTERNAL, "(answerCall3PCC) - result : ", result);
 
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(answerCall3PCC) Error.");
-                that._logger.log("internalerror", LOG_ID + "(answerCall3PCC) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(answerCall3PCC) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(answerCall3PCC) Error : ", err);
                 return reject(err);
             }
         });
@@ -1786,17 +1822,18 @@ class RBVoiceService extends GenericService {
      */
     blindTransferCall3PCC(callId: string, callData: { destination: { userId: string, resource: string } }) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(blindTransferCall3PCC) is callId defined : ", isDefined(callId));
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.blindTransferCall3PCC(callId, callData);
-                that._logger.log("debug", "(blindTransferCall3PCC) - sent.");
-                that._logger.log("internal", "(blindTransferCall3PCC) - result : ", result);
+                that._logger.log(that.DEBUG, "(blindTransferCall3PCC) - sent.");
+                that._logger.log(that.INTERNAL, "(blindTransferCall3PCC) - result : ", result);
 
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(blindTransferCall3PCC) Error.");
-                that._logger.log("internalerror", LOG_ID + "(blindTransferCall3PCC) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(blindTransferCall3PCC) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(blindTransferCall3PCC) Error : ", err);
                 return reject(err);
             }
         });
@@ -1819,17 +1856,18 @@ class RBVoiceService extends GenericService {
      */
     deflectCall3PCC(callId: string, callData: { destination: string }) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deflectCall3PCC) is callId defined : ", isDefined(callId));
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.deflectCall3PCC(callId, callData);
-                that._logger.log("debug", "(deflectCall3PCC) - sent.");
-                that._logger.log("internal", "(deflectCall3PCC) - result : ", result);
+                that._logger.log(that.DEBUG, "(deflectCall3PCC) - sent.");
+                that._logger.log(that.INTERNAL, "(deflectCall3PCC) - result : ", result);
 
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(deflectCall3PCC) Error.");
-                that._logger.log("internalerror", LOG_ID + "(deflectCall3PCC) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(deflectCall3PCC) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(deflectCall3PCC) Error : ", err);
                 return reject(err);
             }
         });
@@ -1852,17 +1890,18 @@ class RBVoiceService extends GenericService {
      */
     holdCall3PCC(callId: string, callData: { legId: string }) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(holdCall3PCC) is callId defined : ", isDefined(callId));
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.holdCall3PCC(callId, callData);
-                that._logger.log("debug", "(holdCall3PCC) - sent.");
-                that._logger.log("internal", "(holdCall3PCC) - result : ", result);
+                that._logger.log(that.DEBUG, "(holdCall3PCC) - sent.");
+                that._logger.log(that.INTERNAL, "(holdCall3PCC) - result : ", result);
 
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(holdCall3PCC) Error.");
-                that._logger.log("internalerror", LOG_ID + "(holdCall3PCC) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(holdCall3PCC) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(holdCall3PCC) Error : ", err);
                 return reject(err);
             }
         });
@@ -1901,17 +1940,18 @@ class RBVoiceService extends GenericService {
      */
     makeCall3PCC(callData: { deviceId: string, callerAutoAnswer: boolean, anonymous: boolean, calleeExtNumber: string, calleePbxId: string, calleeShortNumber: string, calleeCountry: string, dialPadCalleeNumber: string }) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(makeCall3PCC) is callData defined : ", isDefined(callData));
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.makeCall3PCC(callData);
-                that._logger.log("debug", "(holdCall3PCC) - sent.");
-                that._logger.log("internal", "(holdCall3PCC) - result : ", result);
+                that._logger.log(that.DEBUG, "(holdCall3PCC) - sent.");
+                that._logger.log(that.INTERNAL, "(holdCall3PCC) - result : ", result);
 
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(holdCall3PCC) Error.");
-                that._logger.log("internalerror", LOG_ID + "(holdCall3PCC) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(holdCall3PCC) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(holdCall3PCC) Error : ", err);
                 return reject(err);
             }
         });
@@ -1934,17 +1974,18 @@ class RBVoiceService extends GenericService {
      */
     mergeCall3PCC(activeCallId: string, callData: { heldCallId: string }) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(mergeCall3PCC) is activeCallId defined : ", isDefined(activeCallId));
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.mergeCall3PCC(activeCallId, callData);
-                that._logger.log("debug", "(mergeCall3PCC) - sent.");
-                that._logger.log("internal", "(mergeCall3PCC) - result : ", result);
+                that._logger.log(that.DEBUG, "(mergeCall3PCC) - sent.");
+                that._logger.log(that.INTERNAL, "(mergeCall3PCC) - result : ", result);
 
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(mergeCall3PCC) Error.");
-                that._logger.log("internalerror", LOG_ID + "(mergeCall3PCC) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(mergeCall3PCC) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(mergeCall3PCC) Error : ", err);
                 return reject(err);
             }
         });
@@ -1970,17 +2011,18 @@ class RBVoiceService extends GenericService {
      */
     pickupCall3PCC(callData: { deviceId: string, callerAutoAnswer: boolean, calleeShortNumber: string }) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(pickupCall3PCC) is callData defined : ", isDefined(callData));
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.pickupCall3PCC(callData);
-                that._logger.log("debug", "(pickupCall3PCC) - sent.");
-                that._logger.log("internal", "(pickupCall3PCC) - result : ", result);
+                that._logger.log(that.DEBUG, "(pickupCall3PCC) - sent.");
+                that._logger.log(that.INTERNAL, "(pickupCall3PCC) - result : ", result);
 
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(pickupCall3PCC) Error.");
-                that._logger.log("internalerror", LOG_ID + "(pickupCall3PCC) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(pickupCall3PCC) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(pickupCall3PCC) Error : ", err);
                 return reject(err);
             }
         });
@@ -2004,17 +2046,18 @@ class RBVoiceService extends GenericService {
      */
     releaseCall3PCC(callId: string, legId: string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(releaseCall3PCC) is callId defined : ", isDefined(callId));
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.releaseCall3PCC(callId, legId);
-                that._logger.log("debug", "(releaseCall3PCC) - sent.");
-                that._logger.log("internal", "(releaseCall3PCC) - result : ", result);
+                that._logger.log(that.DEBUG, "(releaseCall3PCC) - sent.");
+                that._logger.log(that.INTERNAL, "(releaseCall3PCC) - result : ", result);
 
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(releaseCall3PCC) Error.");
-                that._logger.log("internalerror", LOG_ID + "(releaseCall3PCC) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(releaseCall3PCC) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(releaseCall3PCC) Error : ", err);
                 return reject(err);
             }
         });
@@ -2037,17 +2080,18 @@ class RBVoiceService extends GenericService {
      */
     retrieveCall3PCC(callId: string, callData: { legId: string }) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(retrieveCall3PCC) is callId defined : ", isDefined(callId));
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.retrieveCall3PCC(callId, callData);
-                that._logger.log("debug", "(retrieveCall3PCC) - sent.");
-                that._logger.log("internal", "(retrieveCall3PCC) - result : ", result);
+                that._logger.log(that.DEBUG, "(retrieveCall3PCC) - sent.");
+                that._logger.log(that.INTERNAL, "(retrieveCall3PCC) - result : ", result);
 
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(retrieveCall3PCC) Error.");
-                that._logger.log("internalerror", LOG_ID + "(retrieveCall3PCC) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(retrieveCall3PCC) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(retrieveCall3PCC) Error : ", err);
                 return reject(err);
             }
         });
@@ -2071,17 +2115,18 @@ class RBVoiceService extends GenericService {
      */
     sendDTMF3PCC(callId: string, callData: { legId: string, digits: string }) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendDTMF3PCC) is callId defined : ", isDefined(callId));
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.sendDTMF3PCC(callId, callData);
-                that._logger.log("debug", "(sendDTMF3PCC) - sent.");
-                that._logger.log("internal", "(sendDTMF3PCC) - result : ", result);
+                that._logger.log(that.DEBUG, "(sendDTMF3PCC) - sent.");
+                that._logger.log(that.INTERNAL, "(sendDTMF3PCC) - result : ", result);
 
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(sendDTMF3PCC) Error.");
-                that._logger.log("internalerror", LOG_ID + "(sendDTMF3PCC) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(sendDTMF3PCC) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(sendDTMF3PCC) Error : ", err);
                 return reject(err);
             }
         });
@@ -2111,17 +2156,18 @@ class RBVoiceService extends GenericService {
      */
     snapshot3PCC(callId: string, deviceId: string, seqNum: number) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(snapshot3PCC) is callId defined : ", isDefined(callId));
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.snapshot3PCC(callId, deviceId, seqNum);
-                that._logger.log("debug", "(snapshot3PCC) - sent.");
-                that._logger.log("internal", "(snapshot3PCC) - result : ", result);
+                that._logger.log(that.DEBUG, "(snapshot3PCC) - sent.");
+                that._logger.log(that.INTERNAL, "(snapshot3PCC) - result : ", result);
 
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(snapshot3PCC) Error.");
-                that._logger.log("internalerror", LOG_ID + "(snapshot3PCC) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(snapshot3PCC) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(snapshot3PCC) Error : ", err);
                 return reject(err);
             }
         });
@@ -2144,17 +2190,18 @@ class RBVoiceService extends GenericService {
      */
     transferCall3PCC(activeCallId: string, callData: { heldCallId: string }) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(transferCall3PCC) is activeCallId defined : ", isDefined(activeCallId));
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.transferCall3PCC(activeCallId, callData);
-                that._logger.log("debug", "(transferCall3PCC) - sent.");
-                that._logger.log("internal", "(transferCall3PCC) - result : ", result);
+                that._logger.log(that.DEBUG, "(transferCall3PCC) - sent.");
+                that._logger.log(that.INTERNAL, "(transferCall3PCC) - result : ", result);
 
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(transferCall3PCC) Error.");
-                that._logger.log("internalerror", LOG_ID + "(transferCall3PCC) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(transferCall3PCC) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(transferCall3PCC) Error : ", err);
                 return reject(err);
             }
         });
@@ -2176,17 +2223,18 @@ class RBVoiceService extends GenericService {
      */
     deleteAVoiceMessage(messageId: string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteAVoiceMessage) is messageId defined : ", isDefined(messageId));
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.deleteAVoiceMessage(messageId);
-                that._logger.log("debug", "(deleteAVoiceMessage) - sent.");
-                that._logger.log("internal", "(deleteAVoiceMessage) - result : ", result);
+                that._logger.log(that.DEBUG, "(deleteAVoiceMessage) - sent.");
+                that._logger.log(that.INTERNAL, "(deleteAVoiceMessage) - result : ", result);
 
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(deleteAVoiceMessage) Error.");
-                that._logger.log("internalerror", LOG_ID + "(deleteAVoiceMessage) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(deleteAVoiceMessage) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteAVoiceMessage) Error : ", err);
                 return reject(err);
             }
         });
@@ -2208,17 +2256,18 @@ class RBVoiceService extends GenericService {
      */
     deleteAllVoiceMessages(messageId: string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteAllVoiceMessages) is messageId defined : ", isDefined(messageId));
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.deleteAllVoiceMessages(messageId);
-                that._logger.log("debug", "(deleteAllVoiceMessages) - sent.");
-                that._logger.log("internal", "(deleteAllVoiceMessages) - result : ", result);
+                that._logger.log(that.DEBUG, "(deleteAllVoiceMessages) - sent.");
+                that._logger.log(that.INTERNAL, "(deleteAllVoiceMessages) - result : ", result);
 
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(deleteAllVoiceMessages) Error.");
-                that._logger.log("internalerror", LOG_ID + "(deleteAllVoiceMessages) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(deleteAllVoiceMessages) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteAllVoiceMessages) Error : ", err);
                 return reject(err);
             }
         });
@@ -2247,17 +2296,18 @@ class RBVoiceService extends GenericService {
      */
     getEmergencyNumbersAndEmergencyOptions() {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getEmergencyNumbersAndEmergencyOptions) .");
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.getEmergencyNumbersAndEmergencyOptions();
-                that._logger.log("debug", "(getEmergencyNumbersAndEmergencyOptions) - sent.");
-                that._logger.log("internal", "(getEmergencyNumbersAndEmergencyOptions) - result : ", result);
+                that._logger.log(that.DEBUG, "(getEmergencyNumbersAndEmergencyOptions) - sent.");
+                that._logger.log(that.INTERNAL, "(getEmergencyNumbersAndEmergencyOptions) - result : ", result);
 
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(getEmergencyNumbersAndEmergencyOptions) Error.");
-                that._logger.log("internalerror", LOG_ID + "(getEmergencyNumbersAndEmergencyOptions) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getEmergencyNumbersAndEmergencyOptions) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getEmergencyNumbersAndEmergencyOptions) Error : ", err);
                 return reject(err);
             }
         });
@@ -2309,17 +2359,18 @@ class RBVoiceService extends GenericService {
                      callerName: string,
                      callerNumber: string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getVoiceMessages) is callerName defined : ", isDefined(callerName));
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.getVoiceMessages(limit, offset, sortField, sortOrder, fromDate, toDate, callerName, callerNumber);
-                that._logger.log("debug", "(getVoiceMessages) - sent.");
-                that._logger.log("internal", "(getVoiceMessages) - result : ", result);
+                that._logger.log(that.DEBUG, "(getVoiceMessages) - sent.");
+                that._logger.log(that.INTERNAL, "(getVoiceMessages) - result : ", result);
 
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(getVoiceMessages) Error.");
-                that._logger.log("internalerror", LOG_ID + "(getVoiceMessages) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getVoiceMessages) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getVoiceMessages) Error : ", err);
                 return reject(err);
             }
         });
@@ -2348,17 +2399,18 @@ class RBVoiceService extends GenericService {
      */
     getUserDevices() {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getUserDevices) .");
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.getUserDevices();
-                that._logger.log("debug", "(getUserDevices) - sent.");
-                that._logger.log("internal", "(getUserDevices) - result : ", result);
+                that._logger.log(that.DEBUG, "(getUserDevices) - sent.");
+                that._logger.log(that.INTERNAL, "(getUserDevices) - result : ", result);
 
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(getUserDevices) Error.");
-                that._logger.log("internalerror", LOG_ID + "(getUserDevices) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getUserDevices) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getUserDevices) Error : ", err);
                 return reject(err);
             }
         });
@@ -2386,17 +2438,18 @@ class RBVoiceService extends GenericService {
      */
     updateVoiceMessage(messageId: string, urlData: { read: boolean }) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateVoiceMessage) is messageId defined : ", isDefined(messageId));
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.updateVoiceMessage(messageId, urlData);
-                that._logger.log("debug", "(updateVoiceMessage) - sent.");
-                that._logger.log("internal", "(updateVoiceMessage) - result : ", result);
+                that._logger.log(that.DEBUG, "(updateVoiceMessage) - sent.");
+                that._logger.log(that.INTERNAL, "(updateVoiceMessage) - result : ", result);
 
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(updateVoiceMessage) Error.");
-                that._logger.log("internalerror", LOG_ID + "(updateVoiceMessage) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(updateVoiceMessage) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(updateVoiceMessage) Error : ", err);
                 return reject(err);
             }
         });
@@ -2432,17 +2485,18 @@ class RBVoiceService extends GenericService {
      */
     forwardCall(callForwardType: string, userId: string, urlData: { destinationType: string, number: string, activate: boolean, noReplyDelay: number }) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(forwardCall) is userId defined : ", isDefined(userId));
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.forwardCall(callForwardType, userId, urlData);
-                that._logger.log("debug", "(updateVoiceMessage) - sent.");
-                that._logger.log("internal", "(updateVoiceMessage) - result : ", result);
+                that._logger.log(that.DEBUG, "(updateVoiceMessage) - sent.");
+                that._logger.log(that.INTERNAL, "(updateVoiceMessage) - result : ", result);
 
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(updateVoiceMessage) Error.");
-                that._logger.log("internalerror", LOG_ID + "(updateVoiceMessage) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(updateVoiceMessage) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(updateVoiceMessage) Error : ", err);
                 return reject(err);
             }
         });
@@ -2468,17 +2522,18 @@ class RBVoiceService extends GenericService {
      */
     getASubscriberForwards(userId: string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getASubscriberForwards) is userId defined : ", isDefined(userId));
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.getASubscriberForwards(userId);
-                that._logger.log("debug", "(getASubscriberForwards) - sent.");
-                that._logger.log("internal", "(getASubscriberForwards) - result : ", result);
+                that._logger.log(that.DEBUG, "(getASubscriberForwards) - sent.");
+                that._logger.log(that.INTERNAL, "(getASubscriberForwards) - result : ", result);
 
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(getASubscriberForwards) Error.");
-                that._logger.log("internalerror", LOG_ID + "(getASubscriberForwards) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getASubscriberForwards) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getASubscriberForwards) Error : ", err);
                 return reject(err);
             }
         });
@@ -2504,17 +2559,18 @@ class RBVoiceService extends GenericService {
      */
     searchCloudPBXhuntingGroups(name: string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(searchCloudPBXhuntingGroups) is name defined : ", isDefined(name));
 
         return new Promise(async (resolve, reject) => {
             try {
                 let result = await that._rest.searchCloudPBXhuntingGroups(name);
-                that._logger.log("debug", "(searchCloudPBXhuntingGroups) - sent.");
-                that._logger.log("internal", "(searchCloudPBXhuntingGroups) - result : ", result);
+                that._logger.log(that.DEBUG, "(searchCloudPBXhuntingGroups) - sent.");
+                that._logger.log(that.INTERNAL, "(searchCloudPBXhuntingGroups) - result : ", result);
 
                 resolve(result);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(searchCloudPBXhuntingGroups) Error.");
-                that._logger.log("internalerror", LOG_ID + "(searchCloudPBXhuntingGroups) Error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(searchCloudPBXhuntingGroups) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(searchCloudPBXhuntingGroups) Error : ", err);
                 return reject(err);
             }
         });

@@ -7,12 +7,13 @@ import {XMPPService} from "../connection/XMPPService";
 import {RESTService} from "../connection/RESTService";
 import {ErrorManager} from "../common/ErrorManager";
 import {EventEmitter} from "events";
-import {isStarted, logEntryExit} from "../common/Utils";
+import {isDefined, isStarted, logEntryExit} from "../common/Utils";
 import {Logger} from "../common/Logger";
 import {S2SService} from "./S2SService";
 import {Core} from "../Core";
 
 const LOG_ID = "SETT/SVCE - ";
+const API_ID = "API_CALL - ";
 
 @logEntryExit(LOG_ID)
 @isStarted([])
@@ -33,11 +34,15 @@ class Settings extends GenericService {
     static getClassName(){ return 'Settings'; }
     getClassName(){ return Settings.getClassName(); }
 
-    constructor(_eventEmitter : EventEmitter, _logger : Logger, _startConfig: {
+    static getAccessorName(){ return 'settings'; }
+    getAccessorName(){ return Settings.getAccessorName(); }
+
+    constructor(_core:Core, _eventEmitter : EventEmitter, _logger : Logger, _startConfig: {
         start_up:boolean,
         optional:boolean
     }) {
         super(_logger, LOG_ID);
+        this.setLogLevels(this);
         this._startConfig = _startConfig;
         this._xmpp = null;
         this._rest = null;
@@ -48,20 +53,23 @@ class Settings extends GenericService {
         this._eventEmitter = _eventEmitter;
         this._logger = _logger;
 
+        this._core = _core;
+
         // this.RAINBOW_PRESENCE_ONLINE = "online";
         // this.RAINBOW_PRESENCE_DONOTDISTURB = "dnd";
         // this.RAINBOW_PRESENCE_AWAY = "away";
         // this.RAINBOW_PRESENCE_INVISIBLE = "invisible";
     }
 
-    start(_options, _core : Core) { // , _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService
+    start(_options) { // , _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService
         let that = this;
+        that.initStartDate();
         return new Promise(function(resolve, reject) {
             try {
-                that._xmpp = _core._xmpp;
-                that._rest = _core._rest;
+                that._xmpp = that._core._xmpp;
+                that._rest = that._core._rest;
                 that._options = _options;
-                that._s2s = _core._s2s;
+                that._s2s = that._core._s2s;
                 that._useXMPP = that._options.useXMPP;
                 that._useS2S = that._options.useS2S;
                 that.setStarted ();
@@ -126,14 +134,15 @@ class Settings extends GenericService {
      */
     getUserSettings() {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getUserSettings) .");
         return new Promise((resolve, reject) => {
 
             that._rest.getUserSettings().then((settings) => {
-                that._logger.log("debug", LOG_ID + "(getUserSettings) get successfully");
+                that._logger.log(that.INFO, LOG_ID + "(getUserSettings) get successfully");
                 resolve(settings);
             }).catch(function(err) {
-                that._logger.log("error", LOG_ID + "(getUserSettings) error.");
-                that._logger.log("internalerror", LOG_ID + "(getUserSettings) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getUserSettings) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getUserSettings) error : ", err);
                 return reject(err);
             });
         });
@@ -163,15 +172,16 @@ class Settings extends GenericService {
      */
     updateUserSettings(settings) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateUserSettings) is settings defined : ", isDefined(settings));
         return new Promise( (resolve, reject) => {
             // Check validity
             that._rest.updateUserSettings(settings).then( (newSettings) => {
-                    that._logger.log("debug", LOG_ID + "(updateUserSettings) update successfully");
+                    that._logger.log(that.INFO, LOG_ID + "(updateUserSettings) update successfully");
                     resolve(newSettings);
                 })
                 .catch( (err) => {
-                    that._logger.log("error", LOG_ID + "(updateUserSettings) error.");
-                    that._logger.log("internalerror", LOG_ID + "(updateUserSettings) error : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(updateUserSettings) error.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(updateUserSettings) error : ", err);
                     return reject(err);
                 });
         });

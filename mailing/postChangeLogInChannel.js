@@ -51,6 +51,16 @@ let options = {
             "maxFiles" : 10 // */
         }
     },
+    "testOutdatedVersion": false,
+    "testDNSentry": false,
+    "httpoverxmppserver": false,
+    "intervalBetweenCleanMemoryCache": 1000 * 60 * 60 * 6, // Every 6 hours.
+    "requestsRate": {
+        "useRequestRateLimiter": false,
+        "maxReqByIntervalForRequestRate": 50, // nb requests during the interval.
+        "intervalForRequestRate": 60, // nb of seconds used for the calcul of the rate limit.
+        "timeoutRequestForRequestRate": 600 // nb seconds Request stay in queue before being rejected if queue is full.
+    },
     // IM options
     "im": {
         "sendReadReceipt": false,
@@ -153,7 +163,7 @@ options.logs.customLabel = options.credentials.login;
 // Instantiate the SDK
 let rainbowSDK = new RainbowSDK(options);
 
-let logger = rainbowSDK._core.logger;
+let logger = rainbowSDK._core._logger;
 
 // logger.log("internal", "MAIN - options : ", options);
 
@@ -267,7 +277,7 @@ rainbowSDK.start(undefined).then(async(result) => {
 
                 logger.log("debug", "html : ", html);
 
-                await rainbowSDK.channels.createItem(mychannel, html, product.title, null, null, "basic",  {tag:["node"]}).then(async (res ) => {
+                await rainbowSDK.channels.createItem(mychannel, html, product.title, null, null, "basic",  {tag:["node","SDK"]}).then(async (res ) => {
                     logger.log("debug", "createItem - res : ", res);
                     if (res.publishResult && res.publishResult.data && res.publishResult.data[0]) {
                         await rainbowSDK.channels.likeItem(mychannel, res.publishResult.data[0].id, RainbowSDK.Appreciation.Fantastic).catch((err1) => {

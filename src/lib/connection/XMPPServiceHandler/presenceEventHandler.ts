@@ -17,13 +17,16 @@ const LOG_ID = "XMPP/HNDL/PRES - ";
 
 @logEntryExit(LOG_ID)
 class PresenceEventHandler extends GenericHandler {
-	public PRESENCE: any;
-	// public onPresenceReceived: any;
-	private _contacts : ContactsService;
-	private _xmpp : XMPPService;
+        public PRESENCE: any;
+        // public onPresenceReceived: any;
+        private _contacts : ContactsService;
+        private _xmpp : XMPPService;
 
     static getClassName(){ return 'PresenceEventHandler'; }
     getClassName(){ return PresenceEventHandler.getClassName(); }
+
+    static getAccessorName(){ return 'presenceevent'; }
+    getAccessorName(){ return PresenceEventHandler.getAccessorName(); }
 
     constructor(xmppService : XMPPService, contacts: ContactsService) {
         super( xmppService);
@@ -36,14 +39,18 @@ class PresenceEventHandler extends GenericHandler {
 
     }
 
-    async onPresenceReceived (msg, stanza) {
+    async onPresenceReceived (msg, stanzaTab) {
         let that = this;
+        let stanza = stanzaTab[0];
+        let prettyStanza = stanzaTab[1];
+        let jsonStanza = stanzaTab[2];
+
         let xmppUtils = XMPPUTils.getXMPPUtils();
 
         try {
-            //that.logger.log("internal", LOG_ID + "(onPresenceReceived) _entering_ : ", msg, stanza?.root ? prettydata.xml(stanza?.root().toString()) : stanza);
-            that.logger.log("debug", LOG_ID + "(onPresenceReceived) _entering_ : ", msg, stanza?.root ? prettydata.xml(stanza?.root().toString()) : stanza);
-            //that.logger.log("internal", LOG_ID + "(onPresenceReceived) msg : ", msg, "stanza : ", stanza);
+            //that._logger.log(that.INTERNAL, LOG_ID + "(onPresenceReceived) _entering_ : ", msg, stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
+            that._logger.log(that.DEBUG, LOG_ID + "(onPresenceReceived) _entering_ : ", msg, prettyStanza);
+            //that._logger.log(that.INTERNAL, LOG_ID + "(onPresenceReceived) msg : ", msg, "stanza : ", stanza);
             let from = stanza.attrs.from;
 
             const fromJid = stanza.attr("from");
@@ -55,7 +62,7 @@ class PresenceEventHandler extends GenericHandler {
 
             // Ignore muc presence
             if (namespace && namespace.indexOf(NameSpacesLabels.MucNameSpace) === 0) {
-                that.logger.log("internal", LOG_ID + "(onPresenceReceived) ignore Muc Name Space.");
+                that._logger.log(that.INTERNAL, LOG_ID + "(onPresenceReceived) ignore Muc Name Space.");
                 return true; 
             }
 
@@ -76,7 +83,7 @@ class PresenceEventHandler extends GenericHandler {
                     if (stanza.getChild("show")) {
                         show = stanza.getChild("show").text();
                     } else {
-                        that.logger.log("internal", LOG_ID + "(onPresenceReceived) <show> node can not be found in stanza!");
+                        that._logger.log(that.INTERNAL, LOG_ID + "(onPresenceReceived) <show> node can not be found in stanza!");
                     }
                 }
                 let status = stanza.getChild("status") ? stanza.getChild("status").text() : "";
@@ -157,10 +164,10 @@ class PresenceEventHandler extends GenericHandler {
                         case "x":
                             let items = node.children;
                             items.forEach((item) => {
-                                that.logger.log("internal", LOG_ID + "(onPresenceReceived) My presence (node or other resources) in the room changes x child name : ", item.getName());
+                                that._logger.log(that.INTERNAL, LOG_ID + "(onPresenceReceived) My presence (node or other resources) in the room changes x child name : ", item.getName());
                                 switch (item.getName()) {
                                     case "item":
-                                        //that.logger.log("internal", LOG_ID + "(onPresenceReceived) My presence (node or other resources) in the room changes item ", item);
+                                        //that._logger.log(that.INTERNAL, LOG_ID + "(onPresenceReceived) My presence (node or other resources) in the room changes item ", item);
                                         let childrenReason = item.getChild("reason");
                                         if (childrenReason) {
                                             description = childrenReason.children[0];
@@ -168,7 +175,7 @@ class PresenceEventHandler extends GenericHandler {
 
                                         break;
                                     case "status":
-                                        //that.logger.log("internal", LOG_ID + "(onPresenceReceived) status item", item);
+                                        //that._logger.log(that.INTERNAL, LOG_ID + "(onPresenceReceived) status item", item);
                                         switch (item.attrs.code) {
                                             case "332":
                                                 status = "disconnected" ; // from room because of a system shutdown
@@ -180,7 +187,7 @@ class PresenceEventHandler extends GenericHandler {
                                                 status = "resumed";
                                                 break;
                                             default:
-                                                that.logger.log("internal", LOG_ID + "(onPresenceReceived) default - status not treated : ", item.attrs.code);
+                                                that._logger.log(that.INTERNAL, LOG_ID + "(onPresenceReceived) default - status not treated : ", item.attrs.code);
                                                 status = item.attrs.code;
                                                 break;
                                         }
@@ -316,8 +323,8 @@ class PresenceEventHandler extends GenericHandler {
 
             }
         } catch (err) {
-            //  that.logger.log("error", LOG_ID + "(onPresenceReceived) CATCH ErrorManager !!! ");
-            that.logger.log("error", LOG_ID + "(onPresenceReceived) CATCH ErrorManager !!! : ", err);
+            // that._logger.log(that.ERROR, LOG_ID + "(onPresenceReceived) CATCH ErrorManager !!! ");
+            that._logger.log(that.ERROR, LOG_ID + "(onPresenceReceived) CATCH ErrorManager !!! : ", err);
         }
     };
 

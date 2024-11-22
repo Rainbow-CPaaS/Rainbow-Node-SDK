@@ -6,75 +6,64 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-### [2.25.2-lts.12] - 2024-11-22
+
+### [2.31.0] - 2024-11-22
 #### Removed
 -   None
 
 #### Fixed
--   fix `autoInitialBubbleFormat`.
+-   Fix loading message history.
+-   Remove child event in XMPPService in fn_STANZA_EVENT callback. To increase speed of treatment.
+-   Fix default values of FileStorageService::retrieveSentFiles.
+-   Fix `NodeSDK` java doc.
+-   Fix doc "autoInitialBubbleFormat" : "full".
+-   Fix spelling of label `bubblemanager` to `bubblesmanager` for logs.
+-   Fix the `ttl` usfor renew of get `settings`.
+-   Fix rainbowSDK.bubbles.updateAvatarForBubble because the Jimp library API changed.
 
 #### Added
--   None
+-   Add options to SDK {boolean} options.im.autoLoadCallLog to activate the retrieve of calllog from the server. The default value is false.
+-   Add ability to load message history with bulk.
+-   Add event "rainbow_on429BackoffError" Fired when a request initially failed and is trying to be retreated by backoff process.
+-   Add Utils::loadConfigFromIniFile Utils::saveConfigFromIniFile to manage a config.ini file in $USERDATA$/Rainbow/RainbowNodeSdkDir directory.
+-   Add `setCredentialPassword` API to set the password credential of the Bot for the login.
+-   Add method `destroy()` on SDK. This method should be called before the bot to point to the SDK's instance to remove listener of "process" object.
+-   Add `ImsService::sendApplicationMessageContactJid` API method to Sends a message to a Contact Jid that is ignored in the UCaaS app's message stream.
+-   Add `ImsService::sendApplicationMessageBubbleJid` API method to Sends a message to a bubbleJid that is ignored in the UCaaS app's message stream.
+-   Add `rainbow_onrainbowcpaasreceived` event Fired when a `rainbow-cpaas` event is receveid for a private data exchange.
+-   Add a log for `Replaced by new connection` xmpp error.
 
 #### Changed
-- Update of `getConnectionStatus()` API with "serviceStatus".
+-   Update `createBubble` with new parameters, and update "withHistory" parameter to "history" parameter to fllow ths string type. Note that for compatibility, if a boolean is provided then the API still have the same behaviour.
+-   (internal to SDK) Refactor event treatment to have stanza in different format of xml, prettyXml and json in every law layer callbacks.
+-   Replace old `Jenkinsfile-lts.groovy` and `Jenkinsfile-sts.groovy` with a merged `Jenkinsfile` file for new jenkins server.
+-   Update got network lib default config value.
+-   Update `HttpService` methods to use a param nbRetryBeforeFailed to use the `retry` mechanism of got library.
+-   Update `xmppRessourceName` Option to be store in config.ini file to keep the same ressource name when a new SDK is constructed. So a user can only be connected one times on one computer. Note that the ressource name will be the same if few users has an instance of SDK.
+-   Update `AdminService::retrieveAllOffersOfCompanyById` with parameters to filter the search.
+-   Update method to find if the presence for teams in `isFromPresenceJid`.
+-   Update of `getConnectionStatus()` API with `serviceStatus` to give the started status of SDK's services.
 
-### [2.25.2-lts.11] - 2024-10-24
+### [2.30.0] - 2024-07-03
 #### Removed
 -   None
 
 #### Fixed
--   Fix doc for SDK's options.
+-   Fix upload file in wrong bubbles.
+-   Fix `events messages` received in conversationHistoryHandler.
+-   Fix missing some history messages received in conversationHistoryHandler missing in `conversations.messages`.
 
 #### Added
--   Add extract SDK's options for building a JSON doc ("tasks/generateJsDocToJSON.js").
--   Add method  setCredentialPassword on SDK to Set the password credential of the Bot for the login. Note: The SDK use this password in the next connection/reconnection.
--   Add method destroy() on SDK. This method should be called before the bot to point to the SDK's instance to remove listener of "process" object.
+-   Add "SDK" in tag of postChangeLogInChannel.
+-   Add API `RESTService::getApiConfigurationFromServer` and `HttpService::addAdditionalHeaders` to retrieve settings. The settings is the configuration of rules allowing to force the clients to use a specific region for some API calls in Rainbow multi-region deployment (to avoid some clustering issues or increase performances)
 
 #### Changed
--   Update default value of "rateLimitPerHour" parameter to 10000.
--   Update createBubble with new parameters, and update "withHistory" parameter to "history" parameter to folow the string type. Note that for compatibility, if a boolean is provided then the API still have the same behaviour.
+-   Update `keepAliveMsecs` got option to 4301 to follow server values.
+-   Update logs when an error occured in `Event handlers`.
+-   Update to do less job when the history is retrieved.
+-   Update `BubblesManager::treatAllBubblesToJoin` to oreder the join of bubbles, ordered by the most recent `lastActivityDate` .
 
-### [2.25.2-lts.10] - 2024-05-31
-#### Removed
--   None
-
-#### Fixed
--   Fix error logs in event handlers.
-
-#### Added
--   None
-
-#### Changed
--   None.
-
-### [2.25.2-lts.9] - 2024-05-07
-#### Removed
--   None
-
-#### Fixed
--   Fix autoLoadConversations
-
-#### Added
--   None
-
-#### Changed
--   None.
-
-### [2.25.2-lts.8] - 2024-05-02
-#### Removed
--   None
-
-#### Fixed
--   None
-
-#### Added
--   None
-
-#### Changed
--   Add `options.im.storeMessagesInConversation`, it allows to store messages in conversation cache if true else the conversation.messages property stay empty. The default value is true.
-
-### [2.25.2-lts.7] - 2024-02-26
+### [2.29.0] - 2024-05-24
 #### Removed
 -   None
 
@@ -82,17 +71,132 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   None
 
 #### Added
--   None
+-   Add AdminService::getCompaniesBPBusinessType, AdminService::getCompanyAppFeatureCustomisation, AdminService::getCompanyServiceDescriptionFile, AdminService::getDefaultCompanyData, AdminService::setCompanyAppFeatureCustomisation, AdminService::updateCompany api methods about managing companies.
+-   Add option `storeMessagesInConversation` to define if messages are stored in Conversation.  
+-   Add option `maxMessagesStoredInConversation` to define the number of messages stored in Conversation. It is still stored in `messages` property but the type becomes a MessagesQueue (a FIFOQueue which extends Array). Note that storeMessagesInConversation needs to  
 
 #### Changed
--   Add `options.xmpp.maxPendingAsyncLockXmppQueue` the number of xmpp requests waiting for sending.
+-   None
 
-### [2.25.2-lts.6] - 2024-02-23
+### [2.28.3] - 2024-04-04
+#### Removed
+-   None
+
+#### Fixed
+-   Fix build Jenkinsfile-sts.groovy file with new hubSearchIndex
+
+#### Added
+-   Add AdminService::deleteEmailTemplate AdminService::deleteAvailableEmailTemplatesBycompanyId AdminService::testEmailTemplateRendering AdminService::activateEmailTemplate AdminService::deactivateEmailTemplate
+
+#### Changed
+-   None
+
+### [2.28.2] - 2024-03-29
+#### Removed
+-   None
+
+#### Fixed
+-   Fix build.
+
+#### Added
+-   None
+ 
+#### Changed
+-   None
+
+### [2.28.1] - 2024-03-29
+#### Removed
+-   None
+
+#### Fixed
+-   Fix build.
+
+#### Added
+-   Cyclone DX informations
+-   Add Companies Cloudpbx Groups (Rainbow Voice) API createCloudPBXGroup, deleteCloudPBXGroup, getCloudPBXGroup, getAllCloudPBXGroups, getMembersOfCloudPBXGroups, updateCloudPBXGroup, updateCloudPBXHuntingGroupAnalyticsConfiguration, updateCloudPBXHuntingGroupRecordingConfiguration, 
+-   Add region Companies Customization Emails API getEmailTemplatesDocumentation, initiateEmailTemplate, updateSubjectPartTemplate, updateMjmlFormatPartTemplate, updateTextFormatFormatPartTemplate, getEmailTemplatesByCompanyId. (Some APi are still missing)
+ 
+#### Changed
+-   Update Jenkinsfile-lts.groovy Jenkinsfile-sts.groovy file with new hubSearchIndex
+
+### [2.28.0] - 2024-03-20
+#### Removed
+-   None
+
+#### Fixed
+-   Fix S2S presence in bubble event evt_internal_ownaffiliationchanged event.
+-   Fix typo "LOCK_TIMEOUT_QUEUE"
+-   Fix HttpService::_delete of logs after request.
+-   Fix reading of xmpp.timeBetweenXmppRequests SDK options.
+-   Fix Contact.name.value for display. 
+-   Fix to sendPresenceFromConfiguration after having ContactsService.init. To have already get the informations about connected user.
+-   Fix RESTConferenceV2::addPSTNParticipantToConference request Headers.
+
+#### Added
+-   Add Offended 'raw in' and 'raw out' xmpp stanza.
+-   Add options.xmpp.maxPendingAsyncLockXmppQueue the number of xmpp requests waiting for sending.
+-   Add TasksService to manage Tasks (todos on server side).
+-   Add  "rainbow_ontaskcreated", "rainbow_ontaskupdated", "rainbow_ontaskdeleted" events about tasks.
+-   Add TasksService API : addTask, createTaskcategory, createOrUpdatePropertiesTaskByCategoryId, getTaskById, getTasksByCategoryId, getTasks, getAllCategories, deletePropertiesFromCategoriesTasks, deleteTask, deleteCategoryFromTasks, updateTask
+-   Add an error trace when a fatal XMPP event "resource-constraint" with text "Max sessions reached" is received. This happens when the maximum of different XMPP ressources connected to server is reached (A user can only be connected simultaneously 5 times to XMPP Server).
+
+#### Changed
+-   Update Logger to add milliseconds.
+-   Update timeouts of got default requests.
+-   Update HttpService for log error.message when requests failed.
+-   Update maxPending of AsyncLock to 5000 and update logs in XmppQueue.
+-   Refactor Logger to use new levels with following order : "error", "warn", "info", "trace", "http", "xmpp", "debug", "internalerror", "internal". Each level contains previous one. 
+-   Refactor Logger to use customs levels areas. Areas allow to override the log level for specifics limited area of code.
+
+### [2.27.1] - 2024-01-22
+#### Removed
+-   None
+
+#### Fixed
+-   Fix FileStorageService.
+-   Fix grunt compil of mime.
+
+#### Added
+-   Update logs API_ID in `AdminService`.
+-   Update logs API_ID in `AlertsService`.
+-   Update logs API_ID in `FileStorageService`.
+-   Update `HttpService` logs
+-   Update stop of sdk.
+-   Update `gotOptions` with a new layer : gotRequestOptions to manage the `got` request timeout.
+
+#### Changed
+-   Update `gotOptions` with a new layer : agentOptions containing previous values.
+
+### [2.27.0] - 2024-01-12
+#### Removed
+-   None
+
+#### Fixed
+-   Fix "jwt-decode" import.
+
+#### Added
+-   Add method's caller name in HTTP request logs.
+-   Add "x-rainbow-request-node-id" header in HTTP request to link with the resulting "x-rainbow-request-id" header received in response.
+-   Add missing properties in Contact and Bubble class.
+-   Add method's caller name in HTTP request logs.
+
+#### Changed
+-   Update to use "SCRAM-SHA-1" on Xmpp link instead of "PLAIN".
+-   Update `Logger` to enable or disable colors with "colors" lib and without removing ansi colors caracters.
+-   Update `AdminService::uploadLdapAvatar` with parameter `ldapId` user unique identifier in ldap
+-   Update `AdminService::deleteLdapAvatar` with parameter `ldapId` user unique identifier in ldap
+-   Update reconnexion when token expired.
+-   Update postTestRunOpenrainbowDotNet sdk's options
+-   Update of logs from debug to info if not needed.
+-   Update of stop sdk when error occured.
+
+### [2.26.0] - 2023-12-12
 #### Removed
 -   None
 
 #### Fixed
 -   Fix reading of xmpp.timeBetweenXmppRequests SDK options.
+-   Fix "roomid" and "pollid" when a poll event is received.
 
 #### Added
 -   Add Offended `raw in` and `raw out` xmpp stanza in `debug` level.
@@ -110,7 +214,11 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 #### Added
 -   None
-
+-   Add options `useGotLibForHttp` to enable the use of `got` lib for REST requests (esle the old Request lib is used). Default value is true.
+-   Add options `gotOptions` to customize the `got` lib for REST requests options.
+-   Add a header in REST requests : `x-rainbow-request-id`.
+-   Add `fix-esm` lib to load node package of type `ES Modules`.
+ 
 #### Changed
 -   Update `AdminService::uploadLdapAvatar` with parameter `ldapId` user unique identifier in ldap
 -   Update `AdminService::deleteLdapAvatar` with parameter `ldapId` user unique identifier in ldap
@@ -120,7 +228,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   None
 
 #### Fixed
--   None
+-   Fix `429` error for got lib.
 
 #### Added
 -   None

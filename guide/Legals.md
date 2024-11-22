@@ -56,3 +56,6 @@ The Rainbow SDK includes the following third parties libraries:
 FOSS informations </br> 
 * [Foss on the Web](#/documentation/doc/sdk/node/api/fossText)
 * [Foss file](/doc/sdk/node/api/fossText.md)
+
+Cyclone DX informations </br> 
+* [Cyclone DX extract file](/doc/sdk/node/api/rainbownodesdk.cdx)

@@ -143,6 +143,9 @@ Add these lines before instantiating the SDK:
 let RainbowSDK = require("rainbow-node-sdk");
 
 // Define your configuration
+let level = "error";
+let logLevelAreas = new LogLevelAreas(level, false, false, false);
+
 let options = {
     "rainbow": {
         "host": "sandbox",
@@ -190,8 +193,9 @@ let options = {
         "enableEventsLogs": false,
         "enableEncryptedLogs": false,
         "color": true,
-        "level": 'debug',
+        "level": level,
         "customLabel": "vincent01",
+        "areas":logLevelAreas,
         "system-dev": {
             "internals": false,
             "http": false,
@@ -199,7 +203,7 @@ let options = {
         "file": {
             "path": "/var/tmp/rainbowsdk/",
             "customFileName": "R-SDK-Node-Sample2",
-            "level": "debug",
+            "level": level,
             "zippedArchive" : false/*,
             maxSize : '10m',
             maxFiles : 10 // */

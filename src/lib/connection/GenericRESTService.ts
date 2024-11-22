@@ -2,16 +2,51 @@
 
 import * as btoa from "btoa";
 import * as CryptoJS from "crypto-js";
+import {makeId, stackTrace} from "../common/Utils.js";
+import {Logger} from "../common/Logger.js";
+import {LevelLogs} from "../common/LevelLogs.js";
 let packageVersion = require("../../package.json");
 
-class GenericRESTService {
+class GenericRESTService extends LevelLogs{
     protected _token: any;
     protected _decodedtokenRest: any;
     protected _credentials: any;
     protected _application: any;
     protected _auth: any;
+    protected _logger: Logger;
+    protected _logId: string;
 
-    constructor() {
+    protected startingInfos : {
+        constructorDate: Date,
+        startDate: Date,
+        startedDate: Date,
+        initilizedDate: Date
+        readyDate: Date
+    } = {
+        constructorDate: new Date(),
+        startDate: new Date(),
+        startedDate: new Date(),
+        initilizedDate: new Date(),
+        readyDate: new Date()
+    };
+
+    constructor( _logger : Logger, logId : string = "UNDF/SVCE - ") {
+        super();
+        this.setLogLevels(this);
+        let that = this;
+        that._logger = _logger;
+        if (logId) {
+            that._logId = logId;
+        }
+
+        // that._logger.log("debug", that._logId + "(GenericService::constructor) " );
+        that.setConstructed();
+    }
+
+    setConstructed () {
+        let that = this;
+        that.startingInfos.constructorDate = new Date();
+        that._logger.log(that.INFO, that._logId + `=== CONSTRUCTED at (${that.startingInfos.constructorDate} ===`);
     }
 
     set p_token(value: any) {
@@ -63,8 +98,13 @@ class GenericRESTService {
             "Range": undefined,
             "x-rainbow-client": "sdk_node",
             "x-rainbow-client-version": packageVersion.version,
-            "x-rainbow-client-id": that.application?that.application.appID:""
+            "x-rainbow-client-id": that.application?that.application.appID:"",
+            "x-rainbow-request-node-id" :  makeId(9)
         };
+
+        //let caller = arguments.callee.caller.toString();
+        // let caller = arguments.callee.caller.prototype;
+        //console.log("caller : ", caller);
 
         return headers;
     }
@@ -77,7 +117,8 @@ class GenericRESTService {
             "accept": accept || "application/json",
             "x-rainbow-client": "sdk_node",
             "x-rainbow-client-version": packageVersion.version,
-            "x-rainbow-client-id": that.application?that.application.appID:""
+            "x-rainbow-client-id": that.application?that.application.appID:"",
+            "x-rainbow-request-node-id" :  makeId(9)
         };
 
         return headers;
@@ -118,15 +159,16 @@ class GenericRESTService {
             "Authorization": "Basic " + (auth || that._auth),
             "x-rainbow-client": "sdk_node",
             "x-rainbow-client-version": packageVersion.version,
-            "x-rainbow-client-id": that.application?that.application.appID:""
+            "x-rainbow-client-id": that.application?that.application.appID:"",
+            "x-rainbow-request-node-id" :  makeId(9)
         };
 
         let toEncrypt = that._application.appSecret + (password || that._credentials.password);
-        //that.logger.log("debug", LOG_ID + "toEncrypt : " + toEncrypt);
+        //that._logger.log(that.DEBUG, LOG_ID + "toEncrypt : " + toEncrypt);
         let encrypted = CryptoJS.SHA256(toEncrypt).toString();
-        //that.logger.log("debug", LOG_ID + "encrypted : " + encrypted);
+        //that._logger.log(that.DEBUG, LOG_ID + "encrypted : " + encrypted);
         let base64 = btoa(that._application.appID + ':' + encrypted);
-        //that.logger.log("debug", LOG_ID + "base64 : " + base64);
+        //that._logger.log(that.DEBUG, LOG_ID + "base64 : " + base64);
 
         if (that._application.appSecret && base64 && base64.length) {
             headers["x-rainbow-app-auth"] = "Basic " + base64 || "";
@@ -143,7 +185,8 @@ class GenericRESTService {
             "Content-Type": "application/json",
             "x-rainbow-client": "sdk_node",
             "x-rainbow-client-version": packageVersion.version,
-            "x-rainbow-client-id": that.application?that.application.appID:""
+            "x-rainbow-client-id": that.application?that.application.appID:"",
+            "x-rainbow-request-node-id" :  makeId(9)
         };
     };
     

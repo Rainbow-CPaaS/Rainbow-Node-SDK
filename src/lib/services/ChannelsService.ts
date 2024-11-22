@@ -10,7 +10,7 @@ import {EventEmitter} from "events";
 import * as PubSub from "pubsub-js";
 import * as fs from "fs";
 import * as mimetypes from "mime-types";
-import {isStarted, logEntryExit} from "../common/Utils";
+import {isDefined, isStarted, logEntryExit} from "../common/Utils";
 import {Logger} from "../common/Logger";
 import {S2SService} from "./S2SService";
 import {Core} from "../Core";
@@ -20,6 +20,7 @@ import {ContactsService} from "./ContactsService.js";
 export {};
 
 const LOG_ID = "CHANNELS/SVCE - ";
+const API_ID = "API_CALL - ";
 
 @logEntryExit(LOG_ID)
 @isStarted([])
@@ -53,6 +54,9 @@ class ChannelsService extends GenericService {
     static getClassName(){ return 'ChannelsService'; }
     getClassName(){ return ChannelsService.getClassName(); }
 
+    static getAccessorName(){ return 'channels'; }
+    getAccessorName(){ return ChannelsService.getAccessorName(); }
+
     public LIST_EVENT_TYPE = {
         ADD: {code : 0, label : "ADD"},
         UPDATE: {code : 1, label : "UPDATE"},
@@ -71,11 +75,12 @@ class ChannelsService extends GenericService {
     };
 
 
-    constructor(_eventEmitter : EventEmitter, _logger : Logger, _startConfig: {
+    constructor(_core:Core, _eventEmitter : EventEmitter, _logger : Logger, _startConfig: {
         start_up:boolean,
         optional:boolean
     }) {
         super(_logger, LOG_ID);
+        this.setLogLevels(this);
         this._startConfig = _startConfig;
         this._xmpp = null;
         this._rest = null;
@@ -94,6 +99,8 @@ class ChannelsService extends GenericService {
         this.PRIVATE_VISIBILITY = "private";
         this.CLOSED_VISIBILITY = "closed";
 
+        this._core = _core;
+
         this._eventEmitter.on("evt_internal_channelitemreceived", this._onChannelMessageReceived.bind(this));
         this._eventEmitter.on("evt_internal_channelbyidmyappreciationreceived", this._onChannelMyAppreciationReceived.bind(this));
         this._eventEmitter.on("evt_internal_addtochannel", this.onAddToChannel.bind(this));
@@ -107,15 +114,16 @@ class ChannelsService extends GenericService {
 
     }
 
-    start(_options,_core : Core) { // , _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService
+    start(_options) { // , _xmpp : XMPPService, _s2s : S2SService, _rest : RESTService
         let that = this;
+        that.initStartDate();
         return new Promise((resolve, reject) => {
             try {
-                that._xmpp = _core._xmpp;
-                that._rest = _core._rest;
+                that._xmpp = that._core._xmpp;
+                that._rest = that._core._rest;
                 that._options = _options;
-                that._s2s = _core._s2s;
-                that._contacts = _core._contacts;
+                that._s2s = that._core._s2s;
+                that._contacts = that._core._contacts;
                 that._useXMPP = that._options.useXMPP;
                 that._useS2S = that._options.useS2S;
                 that._channels = [];
@@ -125,8 +133,8 @@ class ChannelsService extends GenericService {
                 resolve(undefined);
             }
             catch (err) {
-                that._logger.log("error", LOG_ID + "(start) error ");
-                that._logger.log("internalerror", LOG_ID + "(start) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(start) error ");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(start) error : ", err);
                 return reject(err);
             }
         });
@@ -148,8 +156,8 @@ class ChannelsService extends GenericService {
                 that.setStopped ();
                 resolve(undefined);
             } catch (err) {
-                that._logger.log("error", LOG_ID + "(stop) error ");
-                that._logger.log("internalerror", LOG_ID + "(stop) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(stop) error ");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(stop) error : ", err);
                 return reject(err);
             }
         });
@@ -218,23 +226,24 @@ class ChannelsService extends GenericService {
      */
     createPublicChannel(name: string, channelTopic: string, category : string) : Promise<Channel>{
         let that = this;
-        
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(createPublicChannel) is name defined : ", isDefined(name), " is channelTopic defined : ", isDefined(channelTopic));
+
         return new Promise((resolve, reject) => {
 
             if (!name) {
-                that._logger.log("warn", LOG_ID + "(createPublicChannel) bad or empty 'name' parameter");
-                that._logger.log("internalerror", LOG_ID + "(createPublicChannel) bad or empty 'name' parameter : ", name);
+                that._logger.log(that.WARN, LOG_ID + "(createPublicChannel) bad or empty 'name' parameter");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(createPublicChannel) bad or empty 'name' parameter : ", name);
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
             }
             that._rest.createPublicChannel(name, channelTopic, category, that.PUBLIC_VISIBILITY, that.MAX_ITEMS, that.MAX_PAYLOAD_SIZE).then((channel) => {
-                that._logger.log("debug", LOG_ID + "(createPublicChannel) creation successfull");
+                that._logger.log(that.DEBUG, LOG_ID + "(createPublicChannel) creation successfull");
                 //let channelObj : Channel = that.addOrUpdateChannelToCache(channel);
                 let channelObj : Channel = Channel.ChannelFactory()(channel, that._rest.http.serverURL);
                 resolve(channelObj);
             }).catch((err) => {
-                that._logger.log("error", LOG_ID + "(createPublicChannel) error ");
-                that._logger.log("internalerror", LOG_ID + "(createPublicChannel) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(createPublicChannel) error ");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(createPublicChannel) error : ", err);
                 return reject(err);
             });
         });
@@ -279,23 +288,24 @@ class ChannelsService extends GenericService {
      */
     createClosedChannel(name: string, description : string, category : string) : Promise<Channel> {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(createClosedChannel) is name defined : ", isDefined(name), " is description defined : ", isDefined(description));
 
         return new Promise((resolve, reject) => {
 
             if (!name) {
-                that._logger.log("warn", LOG_ID + "(createClosedChannel) bad or empty 'name' parameter");
-                that._logger.log("internalerror", LOG_ID + "(createClosedChannel) bad or empty 'name' parameter : ", name);
+                that._logger.log(that.WARN, LOG_ID + "(createClosedChannel) bad or empty 'name' parameter");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(createClosedChannel) bad or empty 'name' parameter : ", name);
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
             }
             that._rest.createPublicChannel(name, description, category, that.PRIVATE_VISIBILITY, that.MAX_ITEMS, that.MAX_PAYLOAD_SIZE).then((channel) => {
-                that._logger.log("debug", LOG_ID + "(createClosedChannel) creation successfull");
+                that._logger.log(that.DEBUG, LOG_ID + "(createClosedChannel) creation successfull");
                 //let channelObj : Channel = that.addOrUpdateChannelToCache(channel);
                 let channelObj : Channel = Channel.ChannelFactory()(channel, that._rest.http.serverURL);
                 resolve(channelObj);
             }).catch((err) => {
-                that._logger.log("error", LOG_ID + "(createClosedChannel) error ");
-                that._logger.log("internalerror", LOG_ID + "(createClosedChannel) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(createClosedChannel) error ");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(createClosedChannel) error : ", err);
                 return reject(err);
             });
         });
@@ -315,33 +325,34 @@ class ChannelsService extends GenericService {
      */
     deleteChannel(channel: Channel) : Promise<Channel> {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteChannel) is channel defined : ", isDefined(channel));
 
         return new Promise((resolve, reject) => {
             if (!channel || !channel.id) {
-                that._logger.log("warn", LOG_ID + "(deleteChannel) bad or empty 'channel' parameter");
-                that._logger.log("internalerror", LOG_ID + "(deleteChannel) bad or empty 'channel' parameter : ", channel);
+                that._logger.log(that.WARN, LOG_ID + "(deleteChannel) bad or empty 'channel' parameter");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteChannel) bad or empty 'channel' parameter : ", channel);
                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 return;
             }
 
             that._rest.deleteChannel(channel.id).then(async (status) => {
-                that._logger.log("debug", LOG_ID + "(deleteChannel) channel deleted status : ", status);
+                that._logger.log(that.DEBUG, LOG_ID + "(deleteChannel) channel deleted status : ", status);
                 /*let channelRemoved = that._channels.splice(that._channels.findIndex((el) => {
                     return el.id === channel.id;
                 }), 1); // */
 
                 let channelRemoved = await that.removeChannelFromCache(channel.id);
-                that._logger.log("internal", LOG_ID + "(deleteChannel) channel deleted : ", channelRemoved);
+                that._logger.log(that.INTERNAL, LOG_ID + "(deleteChannel) channel deleted : ", channelRemoved);
                 if (channelRemoved) {
                     resolve(channelRemoved);
                 } else {
-                    that._logger.log("warn", LOG_ID + "(deleteChannel) the channel deleted was unknown from SDK cache ");
-                    that._logger.log("internalerror", LOG_ID + "(deleteChannel) the channel deleted was unknown from SDK cache : ", channel);
+                    that._logger.log(that.WARN, LOG_ID + "(deleteChannel) the channel deleted was unknown from SDK cache ");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteChannel) the channel deleted was unknown from SDK cache : ", channel);
                     resolve(channel);
                 }
             }).catch((err) => {
-                that._logger.log("error", LOG_ID + "(deleteChannel) error ");
-                that._logger.log("internalerror", LOG_ID + "(deleteChannel) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(deleteChannel) error ");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteChannel) error : ", err);
                 return reject(err);
             });
         });
@@ -361,10 +372,11 @@ class ChannelsService extends GenericService {
      */
     findChannelsByName(name : string) : Promise<[Channel]> {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(findChannelsByName) is name defined : ", isDefined(name));
 
         if (!name) {
-            that._logger.log("warn", LOG_ID + "(findChannelsByName) bad or empty 'name' parameter ");
-            that._logger.log("internalerror", LOG_ID + "(findChannelsByName) bad or empty 'name' parameter : ", name);
+            that._logger.log(that.WARN, LOG_ID + "(findChannelsByName) bad or empty 'name' parameter ");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(findChannelsByName) bad or empty 'name' parameter : ", name);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
@@ -385,10 +397,11 @@ class ChannelsService extends GenericService {
      */
     findChannelsByTopic(topic : string) : Promise<[Channel]> {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(findChannelsByTopic) is topic defined : ", isDefined(topic));
 
         if (!topic) {
-            that._logger.log("warn", LOG_ID + "(findChannelsByTopic) bad or empty 'topic' parameter ");
-            that._logger.log("internalerror", LOG_ID + "(findChannelsByTopic) bad or empty 'topic' parameter : ", topic);
+            that._logger.log(that.WARN, LOG_ID + "(findChannelsByTopic) bad or empty 'topic' parameter ");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(findChannelsByTopic) bad or empty 'topic' parameter : ", topic);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
@@ -408,8 +421,8 @@ class ChannelsService extends GenericService {
                 that.fetchChannel(id).then((channel : Channel) => {
                     resolve(channel);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(_findChannels) error getChannel ");
-                    that._logger.log("internalerror", LOG_ID + "(_findChannels) error getChannel : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(_findChannels) error getChannel ");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(_findChannels) error getChannel : ", err);
                     resolve(null);
                 });
             });
@@ -418,8 +431,8 @@ class ChannelsService extends GenericService {
         return new Promise((resolve, reject) => {
 
             that._rest.findChannels(name, topic, null, null, null, null, null).then((channels : []) => {
-                that._logger.log("debug", LOG_ID + "(_findChannels) findChannels channels found ");
-                that._logger.log("internal", LOG_ID + "(_findChannels) findChannels channels found : ", channels);
+                that._logger.log(that.INFO, LOG_ID + "(_findChannels) findChannels channels found ");
+                that._logger.log(that.INTERNAL, LOG_ID + "(_findChannels) findChannels channels found : ", channels);
 
                 let promises = [];
 
@@ -432,8 +445,8 @@ class ChannelsService extends GenericService {
                 });
 
             }).catch((err) => {
-                that._logger.log("error", LOG_ID + "(_findChannels) error ");
-                that._logger.log("internalerror", LOG_ID + "(_findChannels) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(_findChannels) error ");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(_findChannels) error : ", err);
                 return reject(err);
             });
         });
@@ -476,28 +489,29 @@ class ChannelsService extends GenericService {
      */
     async fetchChannel(id : string, force? : boolean) : Promise<Channel>{
         let that = this;
-        
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(fetchChannel) is id defined : ", isDefined(id));
+
         return new Promise(async (resolve, reject) => {
             if (!id) {
-                that._logger.log("warn", LOG_ID + "(fetchChannel) bad or empty 'jid' parameter");
-                that._logger.log("internalerror", LOG_ID + "(fetchChannel) bad or empty 'jid' parameter : ", id);
+                that._logger.log(that.WARN, LOG_ID + "(fetchChannel) bad or empty 'jid' parameter");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(fetchChannel) bad or empty 'jid' parameter : ", id);
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
             else {
                 let channelFound = that.getChannelFromCache(id);
 
                 if (channelFound && !force) {
-                    that._logger.log("debug", LOG_ID + "(fetchChannel) channel found locally");
-                    that._logger.log("internal", LOG_ID + "(fetchChannel) channel found locally : ", channelFound);
+                    that._logger.log(that.INFO, LOG_ID + "(fetchChannel) channel found locally");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(fetchChannel) channel found locally : ", channelFound);
                     resolve(channelFound);
                 } else {
-                    that._logger.log("debug", LOG_ID + "(fetchChannel) channel not found locally. Ask the server for id : ", id);
+                    that._logger.log(that.DEBUG, LOG_ID + "(fetchChannel) channel not found locally. Ask the server for id : ", id);
                     try {
                         let channel = await that.getChannel(id);
                         let channelObj: Channel = that.addOrUpdateChannelToCache(channel);
                         resolve(channelObj);
                     } catch (err) {
-                        that._logger.log("internal", LOG_ID + "(fetchChannel) channel not found on serveur, err : ", err);
+                        that._logger.log(that.INTERNAL, LOG_ID + "(fetchChannel) channel not found on serveur, err : ", err);
                         reject(err);
                     }
                 }
@@ -528,30 +542,31 @@ class ChannelsService extends GenericService {
      */
     fetchChannelsByFilter (filter:any) : Promise<[Channel]> {
         let that = this;
-        
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(fetchChannelsByFilter) is filter defined : ", isDefined(filter));
+
         let getChannel = (id) : Promise<Channel> => {
             return new Promise((resolve) => {
                 that.fetchChannel(id).then((channel : Channel) => {
                     resolve(channel);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(fetchChannelsByFilter) error getChannel ");
-                    that._logger.log("internalerror", LOG_ID + "(fetchChannelsByFilter) error getChannel : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(fetchChannelsByFilter) error getChannel ");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(fetchChannelsByFilter) error getChannel : ", err);
                     resolve(null);
                 });
             });
         };
 
         if (!filter) {
-            that._logger.log("debug", LOG_ID + "(fetchChannelsByFilter) bad or empty 'channel' parameter ");
-            that._logger.log("internal", LOG_ID + "(fetchChannelsByFilter) bad or empty 'channel' parameter : ", filter);
+            that._logger.log(that.DEBUG, LOG_ID + "(fetchChannelsByFilter) bad or empty 'channel' parameter ");
+            that._logger.log(that.INTERNAL, LOG_ID + "(fetchChannelsByFilter) bad or empty 'channel' parameter : ", filter);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
         return new Promise((resolve, reject) => {
 
             that._rest.findChannels(filter.name, filter.topic, filter.category, filter.limit, filter.offset, filter.sortField, (filter.sortOrder && (filter.sortOrder === 1) ? "1" : "-1")).then((channels : []) => {
-                that._logger.log("debug", LOG_ID + "(fetchChannelsByFilter) channels found");
-                that._logger.log("internal", LOG_ID + "(fetchChannelsByFilter) channels found : ", channels);
+                that._logger.log(that.INFO, LOG_ID + "(fetchChannelsByFilter) channels found");
+                that._logger.log(that.INTERNAL, LOG_ID + "(fetchChannelsByFilter) channels found : ", channels);
 
                 let promises = [];
 
@@ -564,8 +579,8 @@ class ChannelsService extends GenericService {
                 });
 
             }).catch((err) => {
-                that._logger.log("error", LOG_ID + "(fetchChannelsByFilter) error ");
-                that._logger.log("internalerror", LOG_ID + "(fetchChannelsByFilter) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(fetchChannelsByFilter) error ");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(fetchChannelsByFilter) error : ", err);
                 return reject(err);
             });
         });
@@ -607,14 +622,15 @@ class ChannelsService extends GenericService {
      */
     fetchMyChannels(force? : boolean) : Promise<[Channel]>{
         let that = this;
-        
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(fetchMyChannels) is force defined : ", isDefined(force));
+
         let getChannel = (id) : Promise<Channel> => {
             return new Promise((resolve) => {
                 that.fetchChannel(id, force).then((channel) => {
                     resolve(channel);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(fetchMyChannels) error fetchChannel ");
-                    that._logger.log("internalerror", LOG_ID + "(fetchMyChannels) error fetchChannel : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(fetchMyChannels) error fetchChannel ");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(fetchMyChannels) error fetchChannel : ", err);
                     resolve(null);
                 });
             });
@@ -648,21 +664,21 @@ class ChannelsService extends GenericService {
                     }
                 }
 
-                that._logger.log("debug", LOG_ID + "(fetchMyChannels) hack start get channel data individually from server...");
+                that._logger.log(that.INFO, LOG_ID + "(fetchMyChannels) hack start get channel data individually from server...");
                 Promise.all(promises).then((channels : [Channel]) => {
-                    that._logger.log("internal", LOG_ID + "(fetchMyChannels) hack done : ", channels);
+                    that._logger.log(that.INTERNAL, LOG_ID + "(fetchMyChannels) hack done : ", channels);
                     that._channels = [];
                     if (channels) {
                         channels.forEach((channel) => {
                             that.addOrUpdateChannelToCache(channel);
                         })
                     }
-                    //that._logger.log("internal", LOG_ID + "(fetchMyChannels) get successfully and updated the channels cache : ", that._channels);
+                    //that._logger.log(that.INTERNAL, LOG_ID + "(fetchMyChannels) get successfully and updated the channels cache : ", that._channels);
                     resolve(that._channels);
                 });
             }).catch((err) => {
-                that._logger.log("error", LOG_ID + "(fetchMyChannels) error ");
-                that._logger.log("internalerror", LOG_ID + "(fetchMyChannels) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(fetchMyChannels) error ");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(fetchMyChannels) error : ", err);
                 // Do not block the startup on VM without channels API
                 that._channels = [];
                 resolve(that._channels);
@@ -682,6 +698,7 @@ class ChannelsService extends GenericService {
      */
     getAllChannels() : [Channel] {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getAllChannels) .");
         return that._channels;
     }
 
@@ -715,6 +732,7 @@ class ChannelsService extends GenericService {
      */
     getAllOwnedChannels() : [Channel] {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getAllOwnedChannels) .");
         return that._channels.filter((channel) => {
             return channel.creatorId === that._rest.userId;
         });
@@ -732,6 +750,7 @@ class ChannelsService extends GenericService {
      */
     getAllPendingChannels() : [Channel] {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getAllPendingChannels) .");
         return that._channels.filter((channel) => {
             return channel.invited;
         });
@@ -752,6 +771,7 @@ class ChannelsService extends GenericService {
      */
     updateChannelTopic (channel : Channel, description : string) : Promise <Channel> {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateChannelTopic) is channel defined : ", isDefined(channel));
         return that.updateChannelDescription(channel, description);
     }
 
@@ -770,28 +790,29 @@ class ChannelsService extends GenericService {
      */
     updateChannelDescription(channel: Channel, description : string) : Promise <Channel> {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateChannelDescription) is channel defined : ", isDefined(channel));
         if (!channel || !channel.id) {
-            that._logger.log("warn", LOG_ID + "(updateChannelDescription) bad or empty 'channel' parameter ");
-            that._logger.log("internalerror", LOG_ID + "(updateChannelDescription) bad or empty 'channel' parameter : ", channel);
+            that._logger.log(that.WARN, LOG_ID + "(updateChannelDescription) bad or empty 'channel' parameter ");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(updateChannelDescription) bad or empty 'channel' parameter : ", channel);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
         if (!channel.id) {
-            that._logger.log("warn", LOG_ID + "(updateChannelDescription) bad or empty 'channel.id' parameter ");
-            that._logger.log("internalerror", LOG_ID + "(updateChannelDescription) bad or empty 'channel.id' parameter : ", channel.id);
+            that._logger.log(that.WARN, LOG_ID + "(updateChannelDescription) bad or empty 'channel.id' parameter ");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(updateChannelDescription) bad or empty 'channel.id' parameter : ", channel.id);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
         if (!description) {
-            that._logger.log("warn", LOG_ID + "(updateChannelDescription) bad or empty 'description' parameter ");
-            that._logger.log("internalerror", LOG_ID + "(updateChannelDescription) bad or empty 'description' parameter : ", description);
+            that._logger.log(that.WARN, LOG_ID + "(updateChannelDescription) bad or empty 'description' parameter ");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(updateChannelDescription) bad or empty 'description' parameter : ", description);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
         return new Promise((resolve, reject) => {
             that._rest.updateChannel(channel.id, description, null,  null , null, null, null).then((channelUpdated : any) => {
-                that._logger.log("debug", LOG_ID + "(updateChannelDescription) channel updated");
-                that._logger.log("internal", LOG_ID + "(updateChannelDescription) channel updated : ", channelUpdated);
+                that._logger.log(that.INFO, LOG_ID + "(updateChannelDescription) channel updated");
+                that._logger.log(that.INTERNAL, LOG_ID + "(updateChannelDescription) channel updated : ", channelUpdated);
 
                 let channelObj = that.addOrUpdateChannelToCache(channelUpdated);
                 /*let foundIndex = that._channels.findIndex(channelItem => channelItem.id === channelUpdated.id);
@@ -800,8 +821,8 @@ class ChannelsService extends GenericService {
 
                 resolve(channelObj);
             }).catch((err) => {
-                that._logger.log("error", LOG_ID + "(updateChannelDescription) error ");
-                that._logger.log("internalerror", LOG_ID + "(updateChannelDescription) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(updateChannelDescription) error ");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(updateChannelDescription) error : ", err);
                 return reject(err);
             });
         });
@@ -823,29 +844,30 @@ class ChannelsService extends GenericService {
      */
     updateChannelName(channel : Channel, channelName : string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateChannelName) is channel defined : ", isDefined(channel));
         if (!channel || !channel.id) {
-            that._logger.log("warn", LOG_ID + "(updateChannelName) bad or empty 'channel' parameter ");
-            that._logger.log("internalerror", LOG_ID + "(updateChannelName) bad or empty 'channel' parameter : ", channel);
+            that._logger.log(that.WARN, LOG_ID + "(updateChannelName) bad or empty 'channel' parameter ");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(updateChannelName) bad or empty 'channel' parameter : ", channel);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
         if (!channel.id) {
-            that._logger.log("warn", LOG_ID + "(updateChannelName) bad or empty 'channel.id' parameter ");
-            that._logger.log("internalerror", LOG_ID + "(updateChannelName) bad or empty 'channel.id' parameter : ", channel.id);
+            that._logger.log(that.WARN, LOG_ID + "(updateChannelName) bad or empty 'channel.id' parameter ");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(updateChannelName) bad or empty 'channel.id' parameter : ", channel.id);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
         if (!channelName) {
-            that._logger.log("warn", LOG_ID + "(updateChannelName) bad or empty 'channelName' parameter ");
-            that._logger.log("internalerror", LOG_ID + "(updateChannelName) bad or empty 'channelName' parameter : ", channelName);
+            that._logger.log(that.WARN, LOG_ID + "(updateChannelName) bad or empty 'channelName' parameter ");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(updateChannelName) bad or empty 'channelName' parameter : ", channelName);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
         return new Promise((resolve, reject) => {
 
             that._rest.updateChannel(channel.id, null, null,  null , null, channelName, null).then((channelUpdated : any) => {
-                that._logger.log("debug", LOG_ID + "(updateChannelName) channel updated ");
-                that._logger.log("internalerror", LOG_ID + "(updateChannelName) channel updated : ", channelUpdated);
+                that._logger.log(that.INFO, LOG_ID + "(updateChannelName) channel updated ");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(updateChannelName) channel updated : ", channelUpdated);
 
                 let channelObj = that.addOrUpdateChannelToCache(channelUpdated);
 
@@ -855,8 +877,8 @@ class ChannelsService extends GenericService {
 
                 resolve(channelObj);
             }).catch((err) => {
-                that._logger.log("error", LOG_ID + "(updateChannelName) error ");
-                that._logger.log("internalerror", LOG_ID + "(updateChannelName) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(updateChannelName) error ");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(updateChannelName) error : ", err);
                 return reject(err);
             });
         });
@@ -885,10 +907,11 @@ class ChannelsService extends GenericService {
      */
     updateChannel( id : string, channelTopic : string, visibility : string, max_items : Number, max_payload_size : Number, channelName : string, category : string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateChannel) is id defined : ", isDefined(id));
 
         if (!id) {
-            that._logger.log("warn", LOG_ID + "(updateChannel) bad or empty 'id' parameter ");
-            that._logger.log("internalerror", LOG_ID + "(updateChannel) bad or empty 'id' parameter : ", id);
+            that._logger.log(that.WARN, LOG_ID + "(updateChannel) bad or empty 'id' parameter ");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(updateChannel) bad or empty 'id' parameter : ", id);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         } else {
             let options : any = {};
@@ -915,10 +938,10 @@ class ChannelsService extends GenericService {
             {
                 that._rest.updateChannel(id, options.topic, null, options.max_items, options.max_payload_size, options.name, options.mode)
                         .then((channelUpdated) => {
-                            that._logger.log("internal", LOG_ID + "(updateChannel) channel channelUpdated : ", channelUpdated);
+                            that._logger.log(that.INTERNAL, LOG_ID + "(updateChannel) channel channelUpdated : ", channelUpdated);
                             let channelObj = that.addOrUpdateChannelToCache(channelUpdated);
 
-                            that._logger.log("internal", LOG_ID + "(updateChannel) channel updated, channelObj : ", channelObj);
+                            that._logger.log(that.INTERNAL, LOG_ID + "(updateChannel) channel updated, channelObj : ", channelObj);
                             resolve(channelObj);
                         })
                         .catch(function (err) {
@@ -945,21 +968,22 @@ class ChannelsService extends GenericService {
      */
     updateChannelVisibility(channel : Channel, visibility : string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateChannelVisibility) is channel defined : ", isDefined(channel));
         if (!channel || !channel.id) {
-            that._logger.log("warn", LOG_ID + "(updateChannelVisibility) bad or empty 'channel' parameter ");
-            that._logger.log("internalerror", LOG_ID + "(updateChannelVisibility) bad or empty 'channel' parameter : ", channel);
+            that._logger.log(that.WARN, LOG_ID + "(updateChannelVisibility) bad or empty 'channel' parameter ");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(updateChannelVisibility) bad or empty 'channel' parameter : ", channel);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
         if (!channel.id) {
-            that._logger.log("warn", LOG_ID + "(updateChannelVisibility) bad or empty 'channel.id' parameter ");
-            that._logger.log("internalerror", LOG_ID + "(updateChannelVisibility) bad or empty 'channel.id' parameter : ", channel.id);
+            that._logger.log(that.WARN, LOG_ID + "(updateChannelVisibility) bad or empty 'channel.id' parameter ");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(updateChannelVisibility) bad or empty 'channel.id' parameter : ", channel.id);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
         if (!visibility) {
-            that._logger.log("warn", LOG_ID + "(updateChannelVisibility) bad or empty 'visibility' parameter ");
-            that._logger.log("internalerror", LOG_ID + "(updateChannelVisibility) bad or empty 'visibility' parameter : ", visibility);
+            that._logger.log(that.WARN, LOG_ID + "(updateChannelVisibility) bad or empty 'visibility' parameter ");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(updateChannelVisibility) bad or empty 'visibility' parameter : ", visibility);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
@@ -969,7 +993,7 @@ class ChannelsService extends GenericService {
         return new Promise((resolve, reject) => {
 
             that._rest.updateChannel(channel.id, null, null,  null , null, name, mode).then((channelUpdated : any) => {
-                that._logger.log("internal", LOG_ID + "(updateChannelVisibility) channel updated : ", channelUpdated);
+                that._logger.log(that.INTERNAL, LOG_ID + "(updateChannelVisibility) channel updated : ", channelUpdated);
 
                 let channelObj = that.addOrUpdateChannelToCache(channelUpdated);
 
@@ -977,12 +1001,12 @@ class ChannelsService extends GenericService {
                 let channelObj : Channel = Channel.ChannelFactory()(channelUpdated, that._rest.http.serverURL);
                 that._channels[foundIndex] = channelObj;
                 */
-                that._logger.log("internal", LOG_ID + "(updateChannelVisibility) channel updated : ", channelObj);
+                that._logger.log(that.INTERNAL, LOG_ID + "(updateChannelVisibility) channel updated : ", channelObj);
 
                 resolve(channelObj);
             }).catch((err) => {
-                that._logger.log("error", LOG_ID + "(updateChannelVisibility) error ");
-                that._logger.log("internalerror", LOG_ID + "(updateChannelVisibility) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(updateChannelVisibility) error ");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(updateChannelVisibility) error : ", err);
                 return reject(err);
             });
         });
@@ -1003,6 +1027,7 @@ class ChannelsService extends GenericService {
      */
     public updateChannelVisibilityToPublic(channel: Channel) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateChannelVisibilityToPublic) is channel defined : ", isDefined(channel));
         return that.updateChannelVisibility(channel, "company");
     }
 
@@ -1021,6 +1046,7 @@ class ChannelsService extends GenericService {
      */
     public updateChannelVisibilityToClosed(channel: Channel) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateChannelVisibilityToClosed) is channel defined : ", isDefined(channel));
         //channel.name = channel.name + "_updateToClosed";
         return that.updateChannelVisibility(channel, "closed");
     }
@@ -1041,18 +1067,19 @@ class ChannelsService extends GenericService {
      */
     updateChannelAvatar (channel : Channel, urlAvatar : string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateChannelAvatar) is channel defined : ", isDefined(channel));
         if (!channel || !channel.id) {
-            that._logger.log("warn", LOG_ID + "(updateChannelAvatar) bad or empty 'channel' parameter ");
-            that._logger.log("internalerror", LOG_ID + "(updateChannelAvatar) bad or empty 'channel' parameter : ", channel);
+            that._logger.log(that.WARN, LOG_ID + "(updateChannelAvatar) bad or empty 'channel' parameter ");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(updateChannelAvatar) bad or empty 'channel' parameter : ", channel);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         } else if (!urlAvatar) {
-            that._logger.log("warn", LOG_ID + "(updateChannelAvatar) bad or empty 'urlAvatar' parameter ");
-            that._logger.log("internalerror", LOG_ID + "(updateChannelAvatar) bad or empty 'urlAvatar' parameter : ", urlAvatar);
+            that._logger.log(that.WARN, LOG_ID + "(updateChannelAvatar) bad or empty 'urlAvatar' parameter ");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(updateChannelAvatar) bad or empty 'urlAvatar' parameter : ", urlAvatar);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         } else {
             return new Promise((resolve, reject) => {
                 try {
-                    that._logger.log("internal", LOG_ID + "(updateChannelAvatar) channel : ", channel);
+                    that._logger.log(that.INTERNAL, LOG_ID + "(updateChannelAvatar) channel : ", channel);
                     let id = channel.id;
                     let fileStats = fs.statSync(urlAvatar);
                     let fd = fs.openSync(urlAvatar, "r+");
@@ -1061,19 +1088,19 @@ class ChannelsService extends GenericService {
                     let fileType = mimetypes.lookup(urlAvatar) + "";
 
                     that._rest.uploadChannelAvatar(id, buf, fileStats.size/* should resize the picture to 512*/, fileType).then(function () {
-                        that._logger.log("internal", LOG_ID + "(updateChannelAvatar) channel : ", channel);
+                        that._logger.log(that.INTERNAL, LOG_ID + "(updateChannelAvatar) channel : ", channel);
                         resolve({
                             code: "OK",
                             label: "OK"
                         });
                     }).catch(function (err) {
-                        that._logger.log("error", LOG_ID + "(updateChannelAvatar) !!! CATCH Error ");
-                        that._logger.log("internalerror", LOG_ID + "(updateChannelAvatar) !!! CATCH Error ", err,  ", for channel : ", channel);
+                        that._logger.log(that.ERROR, LOG_ID + "(updateChannelAvatar) !!! CATCH Error ");
+                        that._logger.log(that.INTERNALERROR, LOG_ID + "(updateChannelAvatar) !!! CATCH Error ", err,  ", for channel : ", channel);
                         return reject(err);
                     });
                 } catch (err2) {
-                    that._logger.log("error", LOG_ID + "(updateChannelAvatar) !!! CATCH Error ");
-                    that._logger.log("internalerror", LOG_ID + "(updateChannelAvatar) !!! CATCH Error ", err2,  ", for channel : ", channel);
+                    that._logger.log(that.ERROR, LOG_ID + "(updateChannelAvatar) !!! CATCH Error ");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(updateChannelAvatar) !!! CATCH Error ", err2,  ", for channel : ", channel);
                     return reject(err2);
                 }
             });
@@ -1095,16 +1122,17 @@ class ChannelsService extends GenericService {
      */
     deleteChannelAvatar(channel : Channel) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteChannelAvatar) is channel defined : ", isDefined(channel));
         if (!channel || !channel.id) {
-            that._logger.log("warn", LOG_ID + "(updateChannelAvatar) bad or empty 'channel' parameter ");
-            that._logger.log("internalerror", LOG_ID + "(updateChannelAvatar) bad or empty 'channel' parameter : ", channel);
+            that._logger.log(that.WARN, LOG_ID + "(updateChannelAvatar) bad or empty 'channel' parameter ");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(updateChannelAvatar) bad or empty 'channel' parameter : ", channel);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         } else {
             return new Promise((resolve, reject) => {
                 let id = channel.id;
                 that._rest.deleteChannelAvatar(id)
                         .then(function () {
-                            that._logger.log("internal", LOG_ID + "(updateChannelAvatar) channel : ", channel);
+                            that._logger.log(that.INTERNAL, LOG_ID + "(updateChannelAvatar) channel : ", channel);
                             resolve({
                                 code: "OK",
                                 label: "OK"
@@ -1128,13 +1156,13 @@ class ChannelsService extends GenericService {
         let that = this;
         return new Promise((resolve, reject) => {
             that._rest.getChannel(channelId).then((channel) => {
-                that._logger.log("debug", LOG_ID + "(getChannel) channel found on the server");
-                that._logger.log("internal", LOG_ID + "(getChannel) channel found on the server : ", channel);
+                that._logger.log(that.INFO, LOG_ID + "(getChannel) channel found on the server");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getChannel) channel found on the server : ", channel);
                 let channelObj : Channel = Channel.ChannelFactory()(channel, that._rest.http.serverURL);
                 resolve(channelObj);
             }).catch((err) => {
-                that._logger.log("error", LOG_ID + "(getChannel) error ");
-                that._logger.log("internalerror", LOG_ID + "(getChannel) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getChannel) error ");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getChannel) error : ", err);
                 return reject(err);
             });
         });
@@ -1150,26 +1178,26 @@ class ChannelsService extends GenericService {
     private getChannelFromCache(channelId: string): Channel {
         let channelFound = null;
         let that = this;
-        that._logger.log("internal", LOG_ID + "(getChannelFromCache) search id : ", channelId);
+        that._logger.log(that.INTERNAL, LOG_ID + "(getChannelFromCache) search id : ", channelId);
 
         if (that._channels) {
             let channelFoundindex = that._channels.findIndex((channel) => {
                 return channel.id === channelId;
             });
             if (channelFoundindex != -1) {
-                that._logger.log("internal", LOG_ID + "(getChannelFromCache) channel found : ", that._channels[channelFoundindex], " with id : ", channelId);
+                that._logger.log(that.INTERNAL, LOG_ID + "(getChannelFromCache) channel found : ", that._channels[channelFoundindex], " with id : ", channelId);
                 return that._channels[channelFoundindex];
             }
         }
-        that._logger.log("internal", LOG_ID + "(getChannelFromCache) channel found : ", channelFound, " with id : ", channelId);
+        that._logger.log(that.INTERNAL, LOG_ID + "(getChannelFromCache) channel found : ", channelFound, " with id : ", channelId);
         return channelFound ;
     }
 
     private updateChannelsList(): void {
         let that = this;
-        //that._logger.log("debug", LOG_ID + "(updateChannelsList) keys : ", Object.keys(that._channels));
+        //that._logger.log(that.DEBUG, LOG_ID + "(updateChannelsList) keys : ", Object.keys(that._channels));
         that._channelsList = that._channels.map((chnl) => { return chnl.id; });
-        that._logger.log("internal", LOG_ID + "(updateChannelsList) that._channelsList : ", that._channelsList);
+        that._logger.log(that.INTERNAL, LOG_ID + "(updateChannelsList) that._channelsList : ", that._channelsList);
     }
 
     private addOrUpdateChannelToCache(channel: any): Channel {
@@ -1179,14 +1207,14 @@ class ChannelsService extends GenericService {
             return channelIter.id === channel.id;
         });
         if (channelFoundindex != -1) {
-            that._logger.log("internal", LOG_ID + "(addOrUpdateChannelToCache) update in cache with channel : ", channel, ", at channelFoundindex : ", channelFoundindex);
+            that._logger.log(that.INTERNAL, LOG_ID + "(addOrUpdateChannelToCache) update in cache with channel : ", channel, ", at channelFoundindex : ", channelFoundindex);
             //that._channels.splice(channelFoundindex,1,channelObj);
             //channelCached = channelObj;
-            that._logger.log("internal", LOG_ID + "(addOrUpdateChannelToCache) in update that._channels : ", that._channels);
+            that._logger.log(that.INTERNAL, LOG_ID + "(addOrUpdateChannelToCache) in update that._channels : ", that._channels);
             that._channels[channelFoundindex].updateChannel(channel);
             channelObj = that._channels[channelFoundindex];
         } else {
-            that._logger.log("internal", LOG_ID + "(addOrUpdateChannelToCache) add in cache channelObj : ", channelObj);
+            that._logger.log(that.INTERNAL, LOG_ID + "(addOrUpdateChannelToCache) add in cache channelObj : ", channelObj);
             that._channels.push(channelObj);
         }
         that.updateChannelsList();
@@ -1208,7 +1236,7 @@ class ChannelsService extends GenericService {
                 // Remove from channels
                 let channelId = channelToRemove.id;
 
-                that._logger.log("internal", LOG_ID + "(removeChannelFromCache) remove from cache channelId : ", channelId);
+                that._logger.log(that.INTERNAL, LOG_ID + "(removeChannelFromCache) remove from cache channelId : ", channelId);
                 that._channels = that._channels.filter( function(chnl) {
                     return !(chnl.id === channelId);
                 });
@@ -1220,8 +1248,8 @@ class ChannelsService extends GenericService {
                 that.retrieveLatests()
                         .then(() => { resolve(channelToRemove); })
                         .catch((err) => {
-                            that._logger.log("error", LOG_ID + "(removeChannelFromCache) error retrieveLatests ");
-                            that._logger.log("internalerror", LOG_ID + "(removeChannelFromCache) error retrieveLatests : ", err);
+                            that._logger.log(that.ERROR, LOG_ID + "(removeChannelFromCache) error retrieveLatests ");
+                            that._logger.log(that.INTERNALERROR, LOG_ID + "(removeChannelFromCache) error retrieveLatests : ", err);
                             return reject(err);
                         });
             } else {
@@ -1254,6 +1282,7 @@ class ChannelsService extends GenericService {
      */
     publishMessageToChannel(channel : Channel, message : string, title : string, url : string, imagesIds : any, type : string, customDatas : any = {}) : Promise<{}> {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(publishMessageToChannel) is channel defined : ", isDefined(channel));
         return that.createItem(channel, message, title, url, imagesIds, type, customDatas);
     }
 
@@ -1276,25 +1305,26 @@ class ChannelsService extends GenericService {
      */
     createItem(channel : Channel, message : string, title : string, url : string, imagesIds : any, type : string, customDatas : any = {}) : Promise <{}> {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(createItem) is channel defined : ", isDefined(channel));
         if (!channel || !channel.id) {
-            that._logger.log("warn", LOG_ID + "(createItem) bad or empty 'channel' parameter ");
-            that._logger.log("internalerror", LOG_ID + "(createItem) bad or empty 'channel' parameter : ", channel);
+            that._logger.log(that.WARN, LOG_ID + "(createItem) bad or empty 'channel' parameter ");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(createItem) bad or empty 'channel' parameter : ", channel);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
         if (!message) {
-            that._logger.log("warn", LOG_ID + "(createItem) bad or empty 'title' parameter ");
-            that._logger.log("internalerror", LOG_ID + "(createItem) bad or empty 'title' parameter : ", title);
+            that._logger.log(that.WARN, LOG_ID + "(createItem) bad or empty 'title' parameter ");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(createItem) bad or empty 'title' parameter : ", title);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
         if (imagesIds && typeof imagesIds !== "object" && imagesIds.length < 1) {
-            that._logger.log("warn", LOG_ID + "(createItem) bad or empty 'imagesIds' parameter ");
-            that._logger.log("internalerror", LOG_ID + "(createItem) bad or empty 'imagesIds' parameter : ", imagesIds);
+            that._logger.log(that.WARN, LOG_ID + "(createItem) bad or empty 'imagesIds' parameter ");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(createItem) bad or empty 'imagesIds' parameter : ", imagesIds);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
         if (type && ["basic", "markdown", "html", "data"].indexOf(type) === -1) {
-            that._logger.log("warn", LOG_ID + "(createItem) bad or empty 'type' parameter ", type, " \"Parameter 'type' could be 'basic', 'markdown', 'html' or 'data'\"");
+            that._logger.log(that.WARN, LOG_ID + "(createItem) bad or empty 'type' parameter ", type, " \"Parameter 'type' could be 'basic', 'markdown', 'html' or 'data'\"");
             return Promise.reject(ErrorManager);
         }
 
@@ -1303,12 +1333,12 @@ class ChannelsService extends GenericService {
             type = type ? "urn:xmpp:channels:" + type : "urn:xmpp:channels:basic";
 
             that._rest.publishMessage(channel.id, message, title, url, imagesIds, type, customDatas).then((status) => {
-                that._logger.log("debug", LOG_ID + "(createItem) message published");
-                that._logger.log("internal", LOG_ID + "(createItem) message published : ", status);
+                that._logger.log(that.INFO, LOG_ID + "(createItem) message published");
+                that._logger.log(that.INTERNAL, LOG_ID + "(createItem) message published : ", status);
                 resolve(Object.assign({"publishResult" : status}, ErrorManager.getErrorManager().OK));
             }).catch((err) => {
-                that._logger.log("error", LOG_ID + "(createItem) error ");
-                that._logger.log("internalerror", LOG_ID + "(createItem) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(createItem) error ");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(createItem) error : ", err);
                 return reject(err);
             });
         });
@@ -1351,9 +1381,10 @@ class ChannelsService extends GenericService {
      */
     public fetchChannelItems (channel : Channel, maxMessages: number = 100, beforeDate?: Date, afterDate?: Date) : Promise<Array<any>>{
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(fetchChannelItems) is channel defined : ", isDefined(channel));
         if (!channel || !channel.id) {
-            that._logger.log("warn", LOG_ID + "(fetchChannelItems) bad or empty 'channel' parameter");
-            that._logger.log("internalerror", LOG_ID + "(fetchChannelItems) bad or empty 'channel' parameter : ", channel);
+            that._logger.log(that.WARN, LOG_ID + "(fetchChannelItems) bad or empty 'channel' parameter");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(fetchChannelItems) bad or empty 'channel' parameter : ", channel);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
@@ -1363,13 +1394,13 @@ class ChannelsService extends GenericService {
             }
 
             that._rest.getChannelMessages(channel.id, maxMessages, beforeDate, afterDate).then((res : any) => {
-                that._logger.log("debug", LOG_ID + "(fetchChannelItems) messages retrieved : ", res);
+                that._logger.log(that.INFO, LOG_ID + "(fetchChannelItems) messages retrieved : ", res);
 
                 let messages = res.items;
 
                 let listOfMessages = [];
                 messages.forEach((item) => {
-                    that._logger.log("internal", LOG_ID + "(fetchChannelItems) messages retrieved item : ", item);
+                    that._logger.log(that.INTERNAL, LOG_ID + "(fetchChannelItems) messages retrieved item : ", item);
                     let message = {
                         id: item.item.$.id ? item.item.$.id : "",
                         timestamp: item.item.entry.$.timestamp ? new Date(item.item.entry.$.timestamp) : "",
@@ -1397,8 +1428,8 @@ class ChannelsService extends GenericService {
                 });
                 resolve(listOfMessages);
             }).catch((err) => {
-                that._logger.log("error", LOG_ID + "(fetchChannelItems) error ");
-                that._logger.log("internalerror", LOG_ID + "(fetchChannelItems) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(fetchChannelItems) error ");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(fetchChannelItems) error : ", err);
                 return reject(err);
             });
         });
@@ -1440,23 +1471,24 @@ class ChannelsService extends GenericService {
      */
     public deleteItemFromChannel (channelId : string, itemId : string) : Promise<Channel> {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteItemFromChannel) is channelId defined : ", isDefined(channelId));
         if (!channelId ) {
-            that._logger.log("error", LOG_ID + "(deleteItemFromChannel) bad or empty 'channelId' parameter");
-            that._logger.log("internalerror", LOG_ID + "(deleteItemFromChannel) bad or empty 'channelId' parameter : ", channelId);
+            that._logger.log(that.ERROR, LOG_ID + "(deleteItemFromChannel) bad or empty 'channelId' parameter");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteItemFromChannel) bad or empty 'channelId' parameter : ", channelId);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
         if (!itemId) {
-            that._logger.log("error", LOG_ID + "(deleteItemFromChannel) bad or empty 'itemId' parameter");
-            that._logger.log("internalerror", LOG_ID + "(deleteItemFromChannel) bad or empty 'itemId' parameter : ", itemId);
+            that._logger.log(that.ERROR, LOG_ID + "(deleteItemFromChannel) bad or empty 'itemId' parameter");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteItemFromChannel) bad or empty 'itemId' parameter : ", itemId);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
         return new Promise( (resolve, reject) => {
 
             that._rest.deleteChannelMessage(channelId, itemId).then((result) => {
-                that._logger.log("debug", LOG_ID + "(deleteItemFromChannel) channel message deletion");
-                that._logger.log("internal", LOG_ID + "(deleteItemFromChannel) channel message deletion : ", result);
+                that._logger.log(that.INFO, LOG_ID + "(deleteItemFromChannel) channel message deletion");
+                that._logger.log(that.INTERNAL, LOG_ID + "(deleteItemFromChannel) channel message deletion : ", result);
 
                 that._rest.getChannel(channelId).then((updatedChannel : any) => {
                     // Update local channel
@@ -1467,13 +1499,13 @@ class ChannelsService extends GenericService {
                      */
                     resolve(channelObj);
                 }).catch((err) => {
-                    that._logger.log("error", LOG_ID + "(deleteItemFromChannel) error getChannel ");
-                    that._logger.log("internalerror", LOG_ID + "(deleteItemFromChannel) error getChannel : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(deleteItemFromChannel) error getChannel ");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteItemFromChannel) error getChannel : ", err);
                     return reject(err);
                 });
             }).catch((err) => {
-                that._logger.log("error", LOG_ID + "(deleteItemFromChannel) error ");
-                that._logger.log("internalerror", LOG_ID + "(deleteItemFromChannel) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(deleteItemFromChannel) error ");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteItemFromChannel) error : ", err);
                 return reject(err);
             });
         });
@@ -1496,34 +1528,35 @@ class ChannelsService extends GenericService {
      */
     public likeItem( channel : Channel, itemId : string, appreciation : Appreciation): Promise<any> {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(likeItem) is channel defined : ", isDefined(channel));
         if (!channel || !channel.id) {
-            that._logger.log("warn", LOG_ID + "(likeItem) bad or empty 'channel' parameter ");
-            that._logger.log("internalerror", LOG_ID + "(likeItem) bad or empty 'channel' parameter : ", channel);
+            that._logger.log(that.WARN, LOG_ID + "(likeItem) bad or empty 'channel' parameter ");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(likeItem) bad or empty 'channel' parameter : ", channel);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
         if (!itemId) {
-            that._logger.log("error", LOG_ID + "(likeItem) bad or empty 'itemId' parameter");
-            that._logger.log("internalerror", LOG_ID + "(likeItem) bad or empty 'itemId' parameter : ", itemId);
+            that._logger.log(that.ERROR, LOG_ID + "(likeItem) bad or empty 'itemId' parameter");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(likeItem) bad or empty 'itemId' parameter : ", itemId);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
         if (!appreciation) {
-            that._logger.log("error", LOG_ID + "(likeItem) bad or empty 'appreciation' parameter");
-            that._logger.log("internalerror", LOG_ID + "(likeItem) bad or empty 'appreciation' parameter : ", appreciation);
+            that._logger.log(that.ERROR, LOG_ID + "(likeItem) bad or empty 'appreciation' parameter");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(likeItem) bad or empty 'appreciation' parameter : ", appreciation);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
         return new Promise((resolve, reject) => {
             that._rest.likeItem(channel.id, itemId, appreciation).then((result) => {
-                that._logger.log("debug", LOG_ID + "(likeItem) done on the server");
-                that._logger.log("internal", LOG_ID + "(likeItem) done on the server : ", result);
+                that._logger.log(that.INFO, LOG_ID + "(likeItem) done on the server");
+                that._logger.log(that.INTERNAL, LOG_ID + "(likeItem) done on the server : ", result);
                 //let channelObj : Channel = Channel.ChannelFactory()(channel, that._rest.http.serverURL);
                 //resolve(channelObj);
                 resolve(result);
             }).catch((err) => {
-                that._logger.log("error", LOG_ID + "(likeItem) error ");
-                that._logger.log("internalerror", LOG_ID + "(likeItem) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(likeItem) error ");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(likeItem) error : ", err);
                 return reject(err);
             });
         });
@@ -1544,28 +1577,29 @@ class ChannelsService extends GenericService {
      */
     public getDetailedAppreciations( channel : Channel, itemId : string): Promise<any> {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getDetailedAppreciations) is channel defined : ", isDefined(channel));
         if (!channel || !channel.id) {
-            that._logger.log("warn", LOG_ID + "(getDetailedAppreciations) bad or empty 'channel' parameter ");
-            that._logger.log("internalerror", LOG_ID + "(getDetailedAppreciations) bad or empty 'channel' parameter : ", channel);
+            that._logger.log(that.WARN, LOG_ID + "(getDetailedAppreciations) bad or empty 'channel' parameter ");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(getDetailedAppreciations) bad or empty 'channel' parameter : ", channel);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
         if (!itemId) {
-            that._logger.log("error", LOG_ID + "(getDetailedAppreciations) bad or empty 'itemId' parameter");
-            that._logger.log("internalerror", LOG_ID + "(getDetailedAppreciations) bad or empty 'itemId' parameter : ", itemId);
+            that._logger.log(that.ERROR, LOG_ID + "(getDetailedAppreciations) bad or empty 'itemId' parameter");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(getDetailedAppreciations) bad or empty 'itemId' parameter : ", itemId);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
         return new Promise((resolve, reject) => {
             that._rest.getDetailedAppreciations(channel.id, itemId).then((result) => {
-                that._logger.log("debug", LOG_ID + "(getDetailedAppreciations) done on the server");
-                that._logger.log("internal", LOG_ID + "(getDetailedAppreciations) done on the server : ", result);
+                that._logger.log(that.INFO, LOG_ID + "(getDetailedAppreciations) done on the server");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getDetailedAppreciations) done on the server : ", result);
                 //let channelObj : Channel = Channel.ChannelFactory()(channel, that._rest.http.serverURL);
                 //resolve(channelObj);
                 resolve(result);
             }).catch((err) => {
-                that._logger.log("error", LOG_ID + "(getDetailedAppreciations) error ");
-                that._logger.log("internalerror", LOG_ID + "(getDetailedAppreciations) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(getDetailedAppreciations) error ");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getDetailedAppreciations) error : ", err);
                 return reject(err);
             });
         });
@@ -1613,6 +1647,7 @@ class ChannelsService extends GenericService {
      */
     getAllSubscribedChannels() : [Channel] {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getAllSubscribedChannels) .");
         return that._channels.filter((channel) => {
             return channel.creatorId !== that._rest.userId;
         });
@@ -1632,23 +1667,24 @@ class ChannelsService extends GenericService {
      */
     subscribeToChannel(channel : Channel) : Promise<Channel> {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(subscribeToChannel) is channel defined : ", isDefined(channel));
         if (!channel || !channel.id) {
-            that._logger.log("warn", LOG_ID + "(subscribeToChannel) bad or empty 'channel' parameter ");
-            that._logger.log("internalerror", LOG_ID + "(subscribeToChannel) bad or empty 'channel' parameter : ", channel);
+            that._logger.log(that.WARN, LOG_ID + "(subscribeToChannel) bad or empty 'channel' parameter ");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(subscribeToChannel) bad or empty 'channel' parameter : ", channel);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
         return new Promise((resolve, reject) => {
 
             that._rest.subscribeToChannel(channel.id).then((status) => {
-                that._logger.log("debug", LOG_ID + "(subscribeToChannel) channel subscribed : ", status);
+                that._logger.log(that.INFO, LOG_ID + "(subscribeToChannel) channel subscribed : ", status);
 
                 that.fetchChannel(channel.id, true).then((channelUpdated) => {
                     resolve(channelUpdated);
                 });
             }).catch((err) => {
-                that._logger.log("error", LOG_ID + "(subscribeToChannel) error ");
-                that._logger.log("internalerror", LOG_ID + "(subscribeToChannel) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(subscribeToChannel) error ");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(subscribeToChannel) error : ", err);
                 return reject(err);
             });
         });
@@ -1669,9 +1705,10 @@ class ChannelsService extends GenericService {
      */
     subscribeToChannelById (id : string) {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(subscribeToChannelById) is id defined : ", isDefined(id));
         if (!id) {
-            that._logger.log("warn", LOG_ID + "(subscribeToChannel) bad or empty 'id' parameter ");
-            that._logger.log("internalerror", LOG_ID + "(subscribeToChannel) bad or empty 'id' parameter : ", id);
+            that._logger.log(that.WARN, LOG_ID + "(subscribeToChannel) bad or empty 'id' parameter ");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(subscribeToChannel) bad or empty 'id' parameter : ", id);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
@@ -1682,7 +1719,7 @@ class ChannelsService extends GenericService {
                     if (channelFound) {
                         that.subscribeToChannel(channelFound)
                             .then(function () {
-                                that._logger.log("debug", LOG_ID + "(subscribeToChannel) subscribed : ", id);
+                                that._logger.log(that.DEBUG, LOG_ID + "(subscribeToChannel) subscribed : ", id);
                                 resolve({
                                     code: "OK",
                                     label: "OK"
@@ -1701,7 +1738,7 @@ class ChannelsService extends GenericService {
             } else {
                 that.subscribeToChannel(channel)
                     .then(function () {
-                        that._logger.log("debug", LOG_ID + "(subscribeToChannel) subscribed : ", id);
+                        that._logger.log(that.DEBUG, LOG_ID + "(subscribeToChannel) subscribed : ", id);
                         resolve({
                             code: "OK",
                             label: "OK"
@@ -1729,20 +1766,21 @@ class ChannelsService extends GenericService {
      */
     unsubscribeFromChannel(channel : Channel) : Promise<string> {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(unsubscribeFromChannel) is channel defined : ", isDefined(channel));
         if (!channel || !channel.id) {
-            that._logger.log("warn", LOG_ID + "(unsubscribeFromChannel) bad or empty 'channel' parameter ");
-            that._logger.log("internalerror", LOG_ID + "(unsubscribeFromChannel) bad or empty 'channel' parameter : ", channel);
+            that._logger.log(that.WARN, LOG_ID + "(unsubscribeFromChannel) bad or empty 'channel' parameter ");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(unsubscribeFromChannel) bad or empty 'channel' parameter : ", channel);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
         return new Promise((resolve, reject) => {
 
             that._rest.unsubscribeToChannel(channel.id).then((status : string) => {
-                that._logger.log("debug", LOG_ID + "(unsubscribeFromChannel) channel unsubscribed : ", status);
+                that._logger.log(that.INFO, LOG_ID + "(unsubscribeFromChannel) channel unsubscribed : ", status);
                 resolve(status);
             }).catch((err) => {
-                that._logger.log("error", LOG_ID + "(unsubscribeFromChannel) error ");
-                that._logger.log("internalerror", LOG_ID + "(unsubscribeFromChannel) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(unsubscribeFromChannel) error ");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(unsubscribeFromChannel) error : ", err);
                 return reject(err);
             });
         });
@@ -1796,9 +1834,10 @@ class ChannelsService extends GenericService {
      */
     public fetchChannelUsers(channel : Channel, options : any) : Promise<Array<{}>> {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(fetchChannelUsers) is channel defined : ", isDefined(channel));
         if (!channel || !channel.id) {
-            that._logger.log("warn", LOG_ID + "(fetchChannelUsers) bad or empty 'channel' parameter");
-            that._logger.log("internalerror", LOG_ID + "(fetchChannelUsers) bad or empty 'channel' parameter : ", channel);
+            that._logger.log(that.WARN, LOG_ID + "(fetchChannelUsers) bad or empty 'channel' parameter");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(fetchChannelUsers) bad or empty 'channel' parameter : ", channel);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
@@ -1829,12 +1868,12 @@ class ChannelsService extends GenericService {
         return new Promise((resolve, reject) => {
 
             that._rest.getChannelUsers(channel.id, json).then((users : []) => {
-                that._logger.log("debug", LOG_ID + "(fetchChannelUsers) channel has users ");
-                that._logger.log("internal", LOG_ID + "(fetchChannelUsers) channel has users : ", users.length);
+                that._logger.log(that.INFO, LOG_ID + "(fetchChannelUsers) channel has users ");
+                that._logger.log(that.INTERNAL, LOG_ID + "(fetchChannelUsers) channel has users : ", users.length);
                 resolve(users);
             }).catch((err) => {
-                that._logger.log("error", LOG_ID + "(fetchChannelUsers) error ");
-                that._logger.log("internalerror", LOG_ID + "(fetchChannelUsers) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(fetchChannelUsers) error ");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(fetchChannelUsers) error : ", err);
                 return reject(err);
             });
         });
@@ -1874,17 +1913,18 @@ class ChannelsService extends GenericService {
      */
     public deleteAllUsersFromChannel(channel : Channel) : Promise<Channel> {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteAllUsersFromChannel) is channel defined : ", isDefined(channel));
         if (!channel || !channel.id) {
-            that._logger.log("warn", LOG_ID + "(deleteAllUsersFromChannel) bad or empty 'channel' parameter");
-            that._logger.log("internalerror", LOG_ID + "(deleteAllUsersFromChannel) bad or empty 'channel' parameter : ", channel);
+            that._logger.log(that.WARN, LOG_ID + "(deleteAllUsersFromChannel) bad or empty 'channel' parameter");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteAllUsersFromChannel) bad or empty 'channel' parameter : ", channel);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
         return new Promise((resolve, reject) => {
 
             that._rest.deleteAllUsersFromChannel(channel.id).then((result) => {
-                that._logger.log("debug", LOG_ID + "(deleteAllUsersFromChannel) channel users deletion");
-                that._logger.log("internal", LOG_ID + "(deleteAllUsersFromChannel) channel users deletion : ", result);
+                that._logger.log(that.INFO, LOG_ID + "(deleteAllUsersFromChannel) channel users deletion");
+                that._logger.log(that.INTERNAL, LOG_ID + "(deleteAllUsersFromChannel) channel users deletion : ", result);
 
                 that._rest.getChannel(channel.id).then((updatedChannel : any) => {
                     // Update local channel
@@ -1897,8 +1937,8 @@ class ChannelsService extends GenericService {
                 });
 
             }).catch((err) => {
-                that._logger.log("error", LOG_ID + "(deleteAllUsersFromChannel) error ");
-                that._logger.log("internalerror", LOG_ID + "(deleteAllUsersFromChannel) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(deleteAllUsersFromChannel) error ");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteAllUsersFromChannel) error : ", err);
                 return reject(err);
             });
         });
@@ -1927,18 +1967,19 @@ class ChannelsService extends GenericService {
      */
     public updateChannelUsers(channel : Channel, users: Array<any>) : Promise<Channel> {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateChannelUsers) is channel defined : ", isDefined(channel));
         if (!channel || !channel.id) {
-            that._logger.log("warn", LOG_ID + "(updateChannelUsers) bad or empty 'channel' parameter");
-            that._logger.log("internalerror", LOG_ID + "(updateChannelUsers) bad or empty 'channel' parameter : ", channel);
+            that._logger.log(that.WARN, LOG_ID + "(updateChannelUsers) bad or empty 'channel' parameter");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(updateChannelUsers) bad or empty 'channel' parameter : ", channel);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
         let channelId = channel.id;
         return new Promise((resolve, reject) => {
-            //that._logger.log("internal", LOG_ID + "(updateChannelUsers) that._channels : ", that._channels);
+            //that._logger.log(that.INTERNAL, LOG_ID + "(updateChannelUsers) that._channels : ", that._channels);
             that._rest.updateChannelUsers(channelId, users).then((res) => {
-                that._logger.log("debug", LOG_ID + "(updateChannelUsers) channel users updated");
-                that._logger.log("internal", LOG_ID + "(updateChannelUsers) channel users updated : ", res);
+                that._logger.log(that.INFO, LOG_ID + "(updateChannelUsers) channel users updated");
+                that._logger.log(that.INTERNAL, LOG_ID + "(updateChannelUsers) channel users updated : ", res);
 
                 that._rest.getChannel(channelId).then((updatedChannel : any) => {
                     // Update local channel
@@ -1948,12 +1989,12 @@ class ChannelsService extends GenericService {
                     let channelObj : Channel = Channel.ChannelFactory()(updatedChannel, that._rest.http.serverURL);
                     that._channels[foundIndex] = channelObj;
                      */
-                    that._logger.log("internal", LOG_ID + "(updateChannelUsers) channel updated : ", channelObj);
+                    that._logger.log(that.INTERNAL, LOG_ID + "(updateChannelUsers) channel updated : ", channelObj);
                     resolve(channelObj);
                 });
             }).catch((err) => {
-                that._logger.log("error", LOG_ID + "(updateChannelUsers) error ");
-                that._logger.log("internalerror", LOG_ID + "(updateChannelUsers) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(updateChannelUsers) error ");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(updateChannelUsers) error : ", err);
                 return reject(err);
             });
         });
@@ -1984,20 +2025,21 @@ class ChannelsService extends GenericService {
      */
     public updateChannelUsersByLoginEmails(channel : Channel, users: Array<any>) : Promise<Channel> {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateChannelUsersByLoginEmails) is channel defined : ", isDefined(channel));
         if (!channel || !channel.id) {
-            that._logger.log("warn", LOG_ID + "(updateChannelUsersByLoginEmails) bad or empty 'channel' parameter");
-            that._logger.log("internalerror", LOG_ID + "(updateChannelUsersByLoginEmails) bad or empty 'channel' parameter : ", channel);
+            that._logger.log(that.WARN, LOG_ID + "(updateChannelUsersByLoginEmails) bad or empty 'channel' parameter");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(updateChannelUsersByLoginEmails) bad or empty 'channel' parameter : ", channel);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
         let channelId = channel.id;
         return new Promise((resolve, reject) => {
-            //that._logger.log("internal", LOG_ID + "(updateChannelUsers) that._channels : ", that._channels);
+            //that._logger.log(that.INTERNAL, LOG_ID + "(updateChannelUsers) that._channels : ", that._channels);
             let usersId = [];
             if (Array.isArray(users)) {
                 usersId = users.map(async (value , index, arr) => {  
                     let usersIndex = await that._contacts.getContactIdByLoginEmail(value.loginEmail).catch((error) => {
-                        that._logger.log("warn", LOG_ID + "(updateChannelUsersByLoginEmails) Id not found for user loginEmail parameter. Index : ", index);
+                        that._logger.log(that.WARN, LOG_ID + "(updateChannelUsersByLoginEmails) Id not found for user loginEmail parameter. Index : ", index);
                     });
                     return {
                         id : usersIndex, 
@@ -2008,8 +2050,8 @@ class ChannelsService extends GenericService {
             
             
             that._rest.updateChannelUsers(channelId, usersId).then((res) => {
-                that._logger.log("debug", LOG_ID + "(updateChannelUsersByLoginEmails) channel users updated");
-                that._logger.log("internal", LOG_ID + "(updateChannelUsersByLoginEmails) channel users updated : ", res);
+                that._logger.log(that.INFO, LOG_ID + "(updateChannelUsersByLoginEmails) channel users updated");
+                that._logger.log(that.INTERNAL, LOG_ID + "(updateChannelUsersByLoginEmails) channel users updated : ", res);
 
                 that._rest.getChannel(channelId).then((updatedChannel : any) => {
                     // Update local channel
@@ -2019,12 +2061,12 @@ class ChannelsService extends GenericService {
                     let channelObj : Channel = Channel.ChannelFactory()(updatedChannel, that._rest.http.serverURL);
                     that._channels[foundIndex] = channelObj;
                      */
-                    that._logger.log("internal", LOG_ID + "(updateChannelUsersByLoginEmails) channel updated : ", channelObj);
+                    that._logger.log(that.INTERNAL, LOG_ID + "(updateChannelUsersByLoginEmails) channel updated : ", channelObj);
                     resolve(channelObj);
                 });
             }).catch((err) => {
-                that._logger.log("error", LOG_ID + "(updateChannelUsersByLoginEmails) error ");
-                that._logger.log("internalerror", LOG_ID + "(updateChannelUsersByLoginEmails) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(updateChannelUsersByLoginEmails) error ");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(updateChannelUsersByLoginEmails) error : ", err);
                 return reject(err);
             });
         });
@@ -2045,15 +2087,16 @@ class ChannelsService extends GenericService {
      */
     public addOwnersToChannel(channel : Channel, owners: any[]) : Promise<Channel>  {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(addOwnersToChannel) is channel defined : ", isDefined(channel));
         if (!channel || !channel.id) {
-            that._logger.log("warn", LOG_ID + "(addOwnersToChannel) bad or empty 'channel' parameter");
-            that._logger.log("internalerror", LOG_ID + "(addOwnersToChannel) bad or empty 'channel' parameter : ", channel);
+            that._logger.log(that.WARN, LOG_ID + "(addOwnersToChannel) bad or empty 'channel' parameter");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(addOwnersToChannel) bad or empty 'channel' parameter : ", channel);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
         if (!owners) {
-            that._logger.log("warn", LOG_ID + "(addOwnersToChannel) bad or empty 'owners' parameter");
-            that._logger.log("internalerror", LOG_ID + "(addOwnersToChannel) bad or empty 'owners' parameter : ", owners);
+            that._logger.log(that.WARN, LOG_ID + "(addOwnersToChannel) bad or empty 'owners' parameter");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(addOwnersToChannel) bad or empty 'owners' parameter : ", owners);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
@@ -2089,15 +2132,16 @@ class ChannelsService extends GenericService {
      */
     public addOwnersToChannelByLoginEmails(channel : Channel, owners: any[]) : Promise<Channel>  {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(addOwnersToChannelByLoginEmails) is channel defined : ", isDefined(channel));
         if (!channel || !channel.id) {
-            that._logger.log("warn", LOG_ID + "(addOwnersToChannelByLoginEmails) bad or empty 'channel' parameter");
-            that._logger.log("internalerror", LOG_ID + "(addOwnersToChannelByLoginEmails) bad or empty 'channel' parameter : ", channel);
+            that._logger.log(that.WARN, LOG_ID + "(addOwnersToChannelByLoginEmails) bad or empty 'channel' parameter");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(addOwnersToChannelByLoginEmails) bad or empty 'channel' parameter : ", channel);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
         if (!owners) {
-            that._logger.log("warn", LOG_ID + "(addOwnersToChannelByLoginEmails) bad or empty 'owners' parameter");
-            that._logger.log("internalerror", LOG_ID + "(addOwnersToChannelByLoginEmails) bad or empty 'owners' parameter : ", owners);
+            that._logger.log(that.WARN, LOG_ID + "(addOwnersToChannelByLoginEmails) bad or empty 'owners' parameter");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(addOwnersToChannelByLoginEmails) bad or empty 'owners' parameter : ", owners);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
@@ -2113,7 +2157,7 @@ class ChannelsService extends GenericService {
         if (Array.isArray(owners)) {
             usersId = owners.map(async (value , index, arr) => {
                 let usersIndex = await that._contacts.getContactIdByLoginEmail(value.loginEmail).catch((error) => {
-                    that._logger.log("warn", LOG_ID + "(addOwnersToChannelByLoginEmails) Id not found for user loginEmail parameter. Index : ", index);
+                    that._logger.log(that.WARN, LOG_ID + "(addOwnersToChannelByLoginEmails) Id not found for user loginEmail parameter. Index : ", index);
                 });
                 return {
                     id : usersIndex,
@@ -2141,15 +2185,16 @@ class ChannelsService extends GenericService {
      */
     public addPublishersToChannel(channel : Channel, publishers : Array<Contact>) : Promise<Channel> {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(addPublishersToChannel) is channel defined : ", isDefined(channel));
         if (!channel || !channel.id ) {
-            that._logger.log("warn", LOG_ID + "(addPublishersToChannel) bad or empty 'channel' parameter");
-            that._logger.log("internalerror", LOG_ID + "(addPublishersToChannel) bad or empty 'channel' parameter : ", channel);
+            that._logger.log(that.WARN, LOG_ID + "(addPublishersToChannel) bad or empty 'channel' parameter");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(addPublishersToChannel) bad or empty 'channel' parameter : ", channel);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
         if (!publishers || !(publishers.length > 0)) {
-            that._logger.log("warn", LOG_ID + "(addPublishersToChannel) bad or empty 'publishers' parameter");
-            that._logger.log("internalerror", LOG_ID + "(addPublishersToChannel) bad or empty 'publishers' parameter : ", publishers);
+            that._logger.log(that.WARN, LOG_ID + "(addPublishersToChannel) bad or empty 'publishers' parameter");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(addPublishersToChannel) bad or empty 'publishers' parameter : ", publishers);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
@@ -2185,15 +2230,16 @@ class ChannelsService extends GenericService {
      */
     public addPublishersToChannelByLoginEmails(channel : Channel, publishers : Array<any>) : Promise<Channel> {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(addPublishersToChannelByLoginEmails) is channel defined : ", isDefined(channel));
         if (!channel || !channel.id ) {
-            that._logger.log("warn", LOG_ID + "(addPublishersToChannelByLoginEmails) bad or empty 'channel' parameter");
-            that._logger.log("internalerror", LOG_ID + "(addPublishersToChannelByLoginEmails) bad or empty 'channel' parameter : ", channel);
+            that._logger.log(that.WARN, LOG_ID + "(addPublishersToChannelByLoginEmails) bad or empty 'channel' parameter");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(addPublishersToChannelByLoginEmails) bad or empty 'channel' parameter : ", channel);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
         if (!publishers || !(publishers.length > 0)) {
-            that._logger.log("warn", LOG_ID + "(addPublishersToChannelByLoginEmails) bad or empty 'publishers' parameter");
-            that._logger.log("internalerror", LOG_ID + "(addPublishersToChannelByLoginEmails) bad or empty 'publishers' parameter : ", publishers);
+            that._logger.log(that.WARN, LOG_ID + "(addPublishersToChannelByLoginEmails) bad or empty 'publishers' parameter");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(addPublishersToChannelByLoginEmails) bad or empty 'publishers' parameter : ", publishers);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
@@ -2208,7 +2254,7 @@ class ChannelsService extends GenericService {
         if (Array.isArray(publishers)) {
             usersId = publishers.map(async (value , index, arr) => {
                 let usersIndex = await that._contacts.getContactIdByLoginEmail(value.loginEmail).catch((error) => {
-                    that._logger.log("warn", LOG_ID + "(addPublishersToChannelByLoginEmails) Id not found for user loginEmail parameter. Index : ", index);
+                    that._logger.log(that.WARN, LOG_ID + "(addPublishersToChannelByLoginEmails) Id not found for user loginEmail parameter. Index : ", index);
                 });
                 return {
                     id : usersIndex,
@@ -2235,16 +2281,17 @@ class ChannelsService extends GenericService {
      */
     public async addMembersToChannel(channel : Channel, members : Array<Contact>) : Promise<Channel> {
         let that = this;
-        //that._logger.log("internal", LOG_ID + "(addMembersToChannel) that._channels : ", that._channels);
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(addMembersToChannel) is channel defined : ", isDefined(channel));
+        //that._logger.log(that.INTERNAL, LOG_ID + "(addMembersToChannel) that._channels : ", that._channels);
         if (!channel || !channel.id) {
-            that._logger.log("warn", LOG_ID + "(addMembersToChannel) bad or empty 'channel' parameter");
-            that._logger.log("internalerror", LOG_ID + "(addMembersToChannel) bad or empty 'channel' parameter : ", channel);
+            that._logger.log(that.WARN, LOG_ID + "(addMembersToChannel) bad or empty 'channel' parameter");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(addMembersToChannel) bad or empty 'channel' parameter : ", channel);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
         if (!members) {
-            that._logger.log("warn", LOG_ID + "(addMembersToChannel) bad or empty 'members' parameter");
-            that._logger.log("internalerror", LOG_ID + "(addMembersToChannel) bad or empty 'members' parameter : ", members);
+            that._logger.log(that.WARN, LOG_ID + "(addMembersToChannel) bad or empty 'members' parameter");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(addMembersToChannel) bad or empty 'members' parameter : ", members);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
@@ -2257,8 +2304,8 @@ class ChannelsService extends GenericService {
         });
 
         if (!(usersId.length > 0)) {
-            that._logger.log("warn", LOG_ID + "(addMembersToChannel) bad or empty 'members' parameter");
-            that._logger.log("internalerror", LOG_ID + "(addMembersToChannel) bad or empty 'members' parameter : ", members);
+            that._logger.log(that.WARN, LOG_ID + "(addMembersToChannel) bad or empty 'members' parameter");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(addMembersToChannel) bad or empty 'members' parameter : ", members);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
@@ -2288,16 +2335,17 @@ class ChannelsService extends GenericService {
      */
     public async addMembersToChannelByLoginEmails(channel : Channel, members : Array<any>) : Promise<Channel> {
         let that = this;
-        //that._logger.log("internal", LOG_ID + "(addMembersToChannel) that._channels : ", that._channels);
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(addMembersToChannelByLoginEmails) is channel defined : ", isDefined(channel));
+        //that._logger.log(that.INTERNAL, LOG_ID + "(addMembersToChannel) that._channels : ", that._channels);
         if (!channel || !channel.id) {
-            that._logger.log("warn", LOG_ID + "(addMembersToChannelByLoginEmails) bad or empty 'channel' parameter");
-            that._logger.log("internalerror", LOG_ID + "(addMembersToChannelByLoginEmails) bad or empty 'channel' parameter : ", channel);
+            that._logger.log(that.WARN, LOG_ID + "(addMembersToChannelByLoginEmails) bad or empty 'channel' parameter");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(addMembersToChannelByLoginEmails) bad or empty 'channel' parameter : ", channel);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
         if (!members) {
-            that._logger.log("warn", LOG_ID + "(addMembersToChannelByLoginEmails) bad or empty 'members' parameter");
-            that._logger.log("internalerror", LOG_ID + "(addMembersToChannelByLoginEmails) bad or empty 'members' parameter : ", members);
+            that._logger.log(that.WARN, LOG_ID + "(addMembersToChannelByLoginEmails) bad or empty 'members' parameter");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(addMembersToChannelByLoginEmails) bad or empty 'members' parameter : ", members);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
@@ -2315,7 +2363,7 @@ class ChannelsService extends GenericService {
         if (Array.isArray(members)) {
             usersId = members.map(async (value , index, arr) => {
                 let usersIndex = await that._contacts.getContactIdByLoginEmail(value.loginEmail).catch((error) => {
-                    that._logger.log("warn", LOG_ID + "(addMembersToChannelByLoginEmails) Id not found for user loginEmail parameter. Index : ", index);
+                    that._logger.log(that.WARN, LOG_ID + "(addMembersToChannelByLoginEmails) Id not found for user loginEmail parameter. Index : ", index);
                 });
                 return {
                     id : usersIndex,
@@ -2325,8 +2373,8 @@ class ChannelsService extends GenericService {
         }
         
         if (!(usersId.length > 0)) {
-            that._logger.log("warn", LOG_ID + "(addMembersToChannelByLoginEmails) bad or empty 'members' parameter");
-            that._logger.log("internalerror", LOG_ID + "(addMembersToChannelByLoginEmails) bad or empty 'members' parameter : ", members);
+            that._logger.log(that.WARN, LOG_ID + "(addMembersToChannelByLoginEmails) bad or empty 'members' parameter");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(addMembersToChannelByLoginEmails) bad or empty 'members' parameter : ", members);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
@@ -2369,15 +2417,16 @@ class ChannelsService extends GenericService {
      */
     public deleteUsersFromChannel(channel : Channel, users : Array<Contact>) : Promise<Channel> {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteUsersFromChannel) is channel defined : ", isDefined(channel));
         if (!channel || !channel.id) {
-            that._logger.log("warn", LOG_ID + "(deleteUsersFromChannel) bad or empty 'channel' parameter");
-            that._logger.log("internalerror", LOG_ID + "(deleteUsersFromChannel) bad or empty 'channel' parameter : ", channel);
+            that._logger.log(that.WARN, LOG_ID + "(deleteUsersFromChannel) bad or empty 'channel' parameter");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteUsersFromChannel) bad or empty 'channel' parameter : ", channel);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
         if (!users) {
-            that._logger.log("warn", LOG_ID + "(deleteUsersFromChannel) bad or empty 'publishers' parameter");
-            that._logger.log("internalerror", LOG_ID + "(deleteUsersFromChannel) bad or empty 'publishers' parameter : ", users);
+            that._logger.log(that.WARN, LOG_ID + "(deleteUsersFromChannel) bad or empty 'publishers' parameter");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteUsersFromChannel) bad or empty 'publishers' parameter : ", users);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
@@ -2414,15 +2463,16 @@ class ChannelsService extends GenericService {
      */
     public deleteUsersFromChannelByLoginEmails(channel : Channel, users : Array<any>) : Promise<Channel> {
         let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteUsersFromChannelByLoginEmails) is channel defined : ", isDefined(channel));
         if (!channel || !channel.id) {
-            that._logger.log("warn", LOG_ID + "(deleteUsersFromChannelByLoginEmails) bad or empty 'channel' parameter");
-            that._logger.log("internalerror", LOG_ID + "(deleteUsersFromChannelByLoginEmails) bad or empty 'channel' parameter : ", channel);
+            that._logger.log(that.WARN, LOG_ID + "(deleteUsersFromChannelByLoginEmails) bad or empty 'channel' parameter");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteUsersFromChannelByLoginEmails) bad or empty 'channel' parameter : ", channel);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
 
         if (!users) {
-            that._logger.log("warn", LOG_ID + "(deleteUsersFromChannelByLoginEmails) bad or empty 'publishers' parameter");
-            that._logger.log("internalerror", LOG_ID + "(deleteUsersFromChannelByLoginEmails) bad or empty 'publishers' parameter : ", users);
+            that._logger.log(that.WARN, LOG_ID + "(deleteUsersFromChannelByLoginEmails) bad or empty 'publishers' parameter");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteUsersFromChannelByLoginEmails) bad or empty 'publishers' parameter : ", users);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
         
@@ -2438,7 +2488,7 @@ class ChannelsService extends GenericService {
         if (Array.isArray(users)) {
             usersId = users.map(async (value , index, arr) => {
                 let usersIndex = await that._contacts.getContactIdByLoginEmail(value.loginEmail).catch((error) => {
-                    that._logger.log("warn", LOG_ID + "(deleteUsersFromChannelByLoginEmails) Id not found for user loginEmail parameter. Index : ", index);
+                    that._logger.log(that.WARN, LOG_ID + "(deleteUsersFromChannelByLoginEmails) Id not found for user loginEmail parameter. Index : ", index);
                 });
                 return {
                     id : usersIndex,
@@ -2461,7 +2511,7 @@ class ChannelsService extends GenericService {
             delete message.channelId;
             that._eventEmitter.emit("evt_internal_channelmessagereceived", message);
         }).catch((err)=>{
-            that._logger.log("warn", LOG_ID + "(_onChannelMessageReceived) fetchChannel error : ", err);
+            that._logger.log(that.WARN, LOG_ID + "(_onChannelMessageReceived) fetchChannel error : ", err);
         });
     }
 
@@ -2498,7 +2548,7 @@ class ChannelsService extends GenericService {
 
             that._eventEmitter.emit("evt_internal_channelmyappreciationreceived", appreciationObj);
         }).catch((err)=>{
-            that._logger.log("warn", LOG_ID + "(_onChannelMyAppreciationReceived) fetchChannel error : ", err);
+            that._logger.log(that.WARN, LOG_ID + "(_onChannelMyAppreciationReceived) fetchChannel error : ", err);
         });
     }
 
@@ -2525,7 +2575,7 @@ class ChannelsService extends GenericService {
         let that = this;
         let channelId = channelInfo.id;
 
-        that._logger.log("debug", LOG_ID + "(onUpdateToChannel) channelId : ", channelId);
+        that._logger.log(that.DEBUG, LOG_ID + "(onUpdateToChannel) channelId : ", channelId);
         // Get channel from cache
         //let channel = that.getChannelFromCache(channelId);
 
@@ -2541,15 +2591,15 @@ class ChannelsService extends GenericService {
                     that._eventEmitter.emit("evt_internal_channelupdated", {"id": channelObj.id, "kind" : that.LIST_EVENT_TYPE.ADD.code, "label" : that.LIST_EVENT_TYPE.ADD.label});
                     //}
                 }).catch((err)=>{
-            that._logger.log("warn", LOG_ID + "(onUpdateToChannel) getChannel error : ", err);
+            that._logger.log(that.WARN, LOG_ID + "(onUpdateToChannel) getChannel error : ", err);
         });
     }
 
     public  onAddToChannel(channelInfo: {id:string}): void {
         let that = this;
         let channelId = channelInfo.id;
-        that._logger.log("debug", LOG_ID + "(onAddToChannel) channelId : ", channelId);
-        //that._logger.log("internal", LOG_ID + "(onAddToChannel) that._channels : ", that._channels);
+        that._logger.log(that.DEBUG, LOG_ID + "(onAddToChannel) channelId : ", channelId);
+        //that._logger.log(that.INTERNAL, LOG_ID + "(onAddToChannel) that._channels : ", that._channels);
 
         // Get channel from cache
         let channel = that.getChannelFromCache(channelId);
@@ -2562,7 +2612,7 @@ class ChannelsService extends GenericService {
                     if (!channel && !newChannel.invited) {
                         let channelObj : Channel = that.addOrUpdateChannelToCache(newChannel);
                         //that.$rootScope.$broadcast(that.CHANNEL_UPDATE_EVENT, that.LIST_EVENT_TYPE.ADD, newChannel.id);
-                        //that._logger.log("debug", LOG_ID + "(onAddToChannel) rainbow_channelcreated : ", channelObj.id);
+                        //that._logger.log(that.DEBUG, LOG_ID + "(onAddToChannel) rainbow_channelcreated : ", channelObj.id);
                         that._eventEmitter.emit("evt_internal_channelupdated", {'id': channelObj.id, "kind" : that.LIST_EVENT_TYPE.ADD.code, "label" : that.LIST_EVENT_TYPE.ADD.label});
                     }
 
@@ -2570,7 +2620,7 @@ class ChannelsService extends GenericService {
                     else if (!channel && newChannel.invited) {
                         let channelObj : Channel = that.addOrUpdateChannelToCache(newChannel);
                         that.incrementInvitationCounter();
-                        //that._logger.log("debug", LOG_ID + "(onAddToChannel) evt_internal_channelupdated : ", channelObj.id, "kind : ", that.LIST_EVENT_TYPE.SUBSCRIBE);
+                        //that._logger.log(that.DEBUG, LOG_ID + "(onAddToChannel) evt_internal_channelupdated : ", channelObj.id, "kind : ", that.LIST_EVENT_TYPE.SUBSCRIBE);
                         that._eventEmitter.emit("evt_internal_channelupdated", {'id': channelObj.id, "kind" : that.LIST_EVENT_TYPE.SUBSCRIBE.code, "label" : that.LIST_EVENT_TYPE.SUBSCRIBE.label});
                         //that.$rootScope.$broadcast(that.CHANNEL_UPDATE_EVENT, that.LIST_EVENT_TYPE.SUBSCRIBE, newChannel.id);
                     }
@@ -2581,23 +2631,23 @@ class ChannelsService extends GenericService {
                         // TODO : that.feedChannel.messages = [];
                         that.retrieveLatests()
                                 .then(() => {
-                                    //that._logger.log("debug", LOG_ID + "(onAddToChannel) retrieveLatests evt_internal_channelupdated : ", channelId, "kind : ", that.LIST_EVENT_TYPE.SUBSCRIBE);
+                                    //that._logger.log(that.DEBUG, LOG_ID + "(onAddToChannel) retrieveLatests evt_internal_channelupdated : ", channelId, "kind : ", that.LIST_EVENT_TYPE.SUBSCRIBE);
                                     that._eventEmitter.emit("evt_internal_channelupdated", {'id': channelId, "kind" : that.LIST_EVENT_TYPE.SUBSCRIBE.code, "label" : that.LIST_EVENT_TYPE.SUBSCRIBE.label});
                                     //that.$rootScope.$broadcast(that.CHANNEL_UPDATE_EVENT, that.LIST_EVENT_TYPE.SUBSCRIBE, channelId);
                                 });
                     }
 
                 }).catch(err=>{
-            that._logger.log("warn", LOG_ID + "(onAddToChannel) getChannel error : ", err);
+            that._logger.log(that.WARN, LOG_ID + "(onAddToChannel) getChannel error : ", err);
         });
     }
 
     private async onRemovedFromChannel(channelInfo : {id : string}): Promise<any> {
         let that = this;
         let channelId = channelInfo.id;
-        that._logger.log("debug", LOG_ID + "(onRemovedFromChannel) channelId : ", channelId);
+        that._logger.log(that.DEBUG, LOG_ID + "(onRemovedFromChannel) channelId : ", channelId);
         let channelDeleted = await that.removeChannelFromCache(channelId).catch(err=>{
-            that._logger.log("warn", LOG_ID + "(onRemovedFromChannel) removeChannelFromCache error : ", err);
+            that._logger.log(that.WARN, LOG_ID + "(onRemovedFromChannel) removeChannelFromCache error : ", err);
         });
         let channelIdDeleted = channelDeleted ? channelDeleted.id : channelInfo.id;
         that._eventEmitter.emit("evt_internal_channelupdated", {'id': channelIdDeleted, "kind" : that.LIST_EVENT_TYPE.DELETE.code, "label" : that.LIST_EVENT_TYPE.DELETE.label});
@@ -2608,7 +2658,7 @@ class ChannelsService extends GenericService {
         let that = this;
         let channelId: string = channelInfo.id;
         let subscribersInfo: string = channelInfo.subscribers;
-        that._logger.log("internal", LOG_ID + "(onSubscribeToChannel) channelId : ", channelId, ", subscribersInfo : ", subscribersInfo);
+        that._logger.log(that.INTERNAL, LOG_ID + "(onSubscribeToChannel) channelId : ", channelId, ", subscribersInfo : ", subscribersInfo);
         // Handle invitation case
         let channel = that.getChannelFromCache(channelId);
         let subscribers = Number.parseInt(subscribersInfo);
@@ -2621,7 +2671,7 @@ class ChannelsService extends GenericService {
                         that._eventEmitter.emit("evt_internal_channelupdated", {'id': channelId, "kind" : that.LIST_EVENT_TYPE.SUBSCRIBE.code, "label" : that.LIST_EVENT_TYPE.SUBSCRIBE.label});
                         //that.$rootScope.$broadcast(that.CHANNEL_UPDATE_EVENT, that.LIST_EVENT_TYPE.SUBSCRIBE, channelId);
                     }).catch(err=>{
-                that._logger.log("warn", LOG_ID + "(onSubscribeToChannel) retrieveLatests error : ", err);
+                that._logger.log(that.WARN, LOG_ID + "(onSubscribeToChannel) retrieveLatests error : ", err);
             });
         }
 
@@ -2636,7 +2686,7 @@ class ChannelsService extends GenericService {
                         that._eventEmitter.emit("evt_internal_channelupdated", {'id': channelId, "kind" : that.LIST_EVENT_TYPE.SUBSCRIBE.code, "label" : that.LIST_EVENT_TYPE.SUBSCRIBE.label});
                         //that.$rootScope.$broadcast(that.CHANNEL_UPDATE_EVENT, that.LIST_EVENT_TYPE.SUBSCRIBE, channelId);
                     }).catch(err=>{
-                that._logger.log("warn", LOG_ID + "(onSubscribeToChannel) getChannel error : ", err);
+                that._logger.log(that.WARN, LOG_ID + "(onSubscribeToChannel) getChannel error : ", err);
             });
         }
     }
@@ -2645,7 +2695,7 @@ class ChannelsService extends GenericService {
         let that = this;
         let channelId: string = channelInfo.id;
         let subscribersInfo: string = channelInfo.subscribers;
-        that._logger.log("internal", LOG_ID + "(onUnsubscribeToChannel) channelId : ", channelId, ", subscribersInfo : ", subscribersInfo);
+        that._logger.log(that.INTERNAL, LOG_ID + "(onUnsubscribeToChannel) channelId : ", channelId, ", subscribersInfo : ", subscribersInfo);
         let subscribers = Number.parseInt(subscribersInfo);
         try {
             let channel: Channel = await that.fetchChannel(channelId);
@@ -2654,7 +2704,7 @@ class ChannelsService extends GenericService {
                 channel.subscribed = false;
             }
         } catch(err){
-            that._logger.log("warn", LOG_ID + "(onUnsubscribeToChannel) fetchChannel error : ", err);
+            that._logger.log(that.WARN, LOG_ID + "(onUnsubscribeToChannel) fetchChannel error : ", err);
         }
 
         // Update messagesList
@@ -2663,7 +2713,7 @@ class ChannelsService extends GenericService {
             that._eventEmitter.emit("evt_internal_channelupdated", {'id': channelId, "kind" : that.LIST_EVENT_TYPE.UNSUBSCRIBE.code, "label" : that.LIST_EVENT_TYPE.UNSUBSCRIBE.label});
             //that.$rootScope.$broadcast(that.CHANNEL_UPDATE_EVENT, that.LIST_EVENT_TYPE.UNSUBSCRIBE, channelId);
         }).catch(err=>{
-            that._logger.log("warn", LOG_ID + "(onUnsubscribeToChannel) retrieveLatests error : ", err);
+            that._logger.log(that.WARN, LOG_ID + "(onUnsubscribeToChannel) retrieveLatests error : ", err);
             return;
         });
     }
@@ -2671,9 +2721,9 @@ class ChannelsService extends GenericService {
     private async onDeleteChannel(channelInfo : {id : string}): Promise<any> {
         let that = this;
         let channelId: string = channelInfo.id;
-        that._logger.log("debug", LOG_ID + "(onDeleteChannel) channelId : ", channelId);
+        that._logger.log(that.DEBUG, LOG_ID + "(onDeleteChannel) channelId : ", channelId);
         let channelDeleted = await that.removeChannelFromCache(channelId).catch(err=>{
-            that._logger.log("warn", LOG_ID + "(onDeleteChannel) removeChannelFromCache error : ", err);
+            that._logger.log(that.WARN, LOG_ID + "(onDeleteChannel) removeChannelFromCache error : ", err);
         });
         let channelIdDeleted = channelDeleted ? channelDeleted.id : channelInfo.id;
 
@@ -2683,9 +2733,9 @@ class ChannelsService extends GenericService {
 
     private async onUserSubscribeEvent(info : {id: string, userId: string, 'subscribers': number}) {
         let that = this;
-        that._logger.log("internal", LOG_ID + "(onUserSubscribeEvent) channelId : ", info.id, ", subscribersInfo : ", info.subscribers);
+        that._logger.log(that.INTERNAL, LOG_ID + "(onUserSubscribeEvent) channelId : ", info.id, ", subscribersInfo : ", info.subscribers);
         let channel = await that.fetchChannel(info.id).catch(err=>{
-            that._logger.log("warn", LOG_ID + "(onUserSubscribeEvent) fetchChannel error : ", err);
+            that._logger.log(that.WARN, LOG_ID + "(onUserSubscribeEvent) fetchChannel error : ", err);
         });
         if (channel) {
             channel.subscribers_count = info.subscribers;
@@ -2697,9 +2747,9 @@ class ChannelsService extends GenericService {
 
     private async onUserUnsubscribeEvent(info : {id: string, userId: string, 'subscribers': number}) {
         let that = this;
-        that._logger.log("internal", LOG_ID + "(onUserUnsubscribeEvent) channelId : ", info.id, ", subscribersInfo : ", info.subscribers);
+        that._logger.log(that.INTERNAL, LOG_ID + "(onUserUnsubscribeEvent) channelId : ", info.id, ", subscribersInfo : ", info.subscribers);
         let channel = await that.fetchChannel(info.id).catch(err=>{
-            that._logger.log("warn", LOG_ID + "(onUserUnsubscribeEvent) fetchChannel error : ", err);
+            that._logger.log(that.WARN, LOG_ID + "(onUserUnsubscribeEvent) fetchChannel error : ", err);
         });
         if (channel) {
             channel.subscribers_count = info.subscribers;

@@ -3,15 +3,26 @@
 
 //import util from "util";
 
-import {start} from "repl";
+//import {start} from "repl";
+
+import src from "../../index.js";
 
 const config = require ("../config/config");
 import {atob} from "atob";
-const Jimp = require('jimp');
-const dns = require('dns')
-const utilTypes = require('util').types
+import {isArray} from "node:util";
+import { Jimp } from "jimp";
+import { JimpMime } from "jimp";
+const dns = require('dns');
+const utilTypes = require('util').types;
 const xml2js = require('xml2js');
 const util = require("util");
+
+const fs = require('fs');
+const ini = require('ini');
+
+function isObject (value) {
+    return (value !== null && typeof value === 'object');
+}
 
 let makeId = (n) => {
   let text = "";
@@ -115,7 +126,14 @@ let isNumber = function  isNumber(data) {
     return (typeof data === 'number' && !(isNaN(data)));
 }
 
-let setTimeoutPromised = function(timeOutMs) : Promise<any> {
+/**
+ * @name setTimeoutPromised
+ * @description
+ *  function to wait for milliseconds and return a resolved promise.
+ * @param {number} timeOutMs milliseconds to wait.
+ * @returns {Promise<any>}
+ */
+let setTimeoutPromised = function(timeOutMs: number) : Promise<any> {
     return new Promise((resolve, reject) => {
       setTimeout(()=> {
           try {
@@ -127,10 +145,25 @@ let setTimeoutPromised = function(timeOutMs) : Promise<any> {
     });
 };
 
+/**
+ * @name pause
+ * @description
+ *  function to wait for milliseconds and return a resolved promise.
+ * @param {number} timeOutMs milliseconds to wait.
+ * @returns {Promise<any>}
+ */
 let pause = setTimeoutPromised;
 /*let pause = function (timeToWaitMS) : Promise<any> {
     return setTimeoutPromised(timeToWaitMS);
 } // */
+
+function pauseSync(milliseconds: number): void {
+    const startTime = Date.now();
+    while (Date.now() - startTime < milliseconds) {
+        // Ne rien faire, attendre que le temps s'écoule
+        setTimeout(()=>{}, 10);
+    }
+}
 
 /*
 myFunction() in the original question can be modified as follows
@@ -151,13 +184,14 @@ async function myFunction(number) {
 
 //where until() is this utility function
 /**
+ * @name until
  * @description
  * function to wait for a condition for a few time before it is resolved of rejected.
  * To be used with asynchrone function :
  * myFunction() is the code using until function.
  *
  * async function myFunction(number) {
-  *    let x=number;
+ *    let x=number;
  * ... more initializations
  *
  *    await until(_ => flag == true);
@@ -166,9 +200,11 @@ async function myFunction(number) {
  * }
  *
  * @param conditionFunction
+ * @param labelOfWaitingCondition
+ * @param waitMsTimeBeforeReject
  * @returns {Promise<any>}
  */
-function until(conditionFunction : Function, labelOfWaitingCondition : string, waitMsTimeBeforeReject : number = 5000) {
+function until(conditionFunction : Function, labelOfWaitingCondition : string, waitMsTimeBeforeReject : number = 5000): Promise<any> {
 
     let now = new Date();//.toJSON().replace(/-/g, '_');
 
@@ -285,6 +321,42 @@ function addPropertyToObj(objetToUpdate : Object, methodName : string, methodVal
     }
 }
 
+
+function updateObjectPropertiesFromAnOtherObject (dstObjectArray: number | any[], srcObject: { [x: string]: any; }) {
+    if (!Array.isArray(dstObjectArray)) {
+        return {};
+    }
+
+    let dstObject = dstObjectArray[0];
+    Object.getOwnPropertyNames(srcObject).forEach((val, idx, array) => {
+                //console.log(val + " -> " + data[val]);
+                if (dstObject.hasOwnProperty(val)) {
+                    // dev-code //
+                    // console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class : ", val, " -> ", data[val]);
+                    // end-dev-code //
+
+                    if (srcObject && (typeof srcObject[val] === "object" || typeof srcObject[val] === "function") ) {
+                        // dev-code //
+                       // console.log("One property of the dst Object is found in dst and is an Object, so recursivly try to update.");
+                        // end-dev-code //
+                        let dstArray = [];
+                        dstArray.push(dstObject[val]);
+                        updateObjectPropertiesFromAnOtherObject(dstArray, srcObject[val]);
+                    } else {
+                        // dev-code //
+                        //console.log("One property of the dst Object is found in dst and is an Object, so update it.");
+                        // end-dev-code //
+                        dstObject[val] = srcObject[val];
+                    }
+                } else {
+                    // dev-code-console //
+                    //console.log("WARNING : One property of the dst Object is not present in src Object default value, so ignore it : ", val);
+                    // end-dev-code-console //
+                }
+            });
+}
+
+
 function cleanEmptyMembersFromObject(objParams : Object) {
     if (objParams) {
         for (let objParamsKey in objParams) {
@@ -297,10 +369,12 @@ function cleanEmptyMembersFromObject(objParams : Object) {
 
 function  isStart_upService( serviceoptions) {
     let start_up = true;
-    if (!serviceoptions.optional) {
-        start_up = true;
-    } else {
-        start_up = !!serviceoptions.start_up;
+    if (serviceoptions !== undefined) {
+        if (!serviceoptions.optional) {
+            start_up = true;
+        } else {
+            start_up = !!serviceoptions.start_up;
+        }
     }
     return start_up;
 }
@@ -412,7 +486,7 @@ function logEntryExit(LOG_ID) : any {
                 // Execute the method with its initial context and arguments
                 // Return value is stored into a variable instead of being passed to the execution stack
                 let returnValue = undefined;
-                if (this==null || originalMethod.name==="getClassName" || propertyName==="getClassName") {
+                if (this==null || originalMethod.name==="getClassName" || propertyName==="getClassName" || originalMethod.name==="getAccessorName" || propertyName==="getAccessorName" || originalMethod.name==="setLogLevels" || propertyName==="setLogLevels") {
                     returnValue = originalMethod.apply(this, args);
                 } else {
                     let logger = this.logger ? this.logger:this._logger ? this._logger:{log : ()=> {console.log( arguments);}, colors:{data : function (param) {return param} }};
@@ -468,23 +542,11 @@ function resizeImage (avatarImg, maxWidth, maxHeight) {
         Jimp.read(avatarImg) // this can be url or local location
             .then(image => {
                 // logger.log("debug", "(resizeImage) image : ", image);
-                image.resize(maxHeight, maxWidth) // jimp.AUTO automatically sets the width so that the image doesnot looks odd
+                return resolve(
+                    image.resize({"w":maxHeight, "h":maxWidth}) // , "mode":Jimp.RESIZE_BEZIER
                     // @ts-ignore
-                    .getBase64(Jimp.AUTO, (err, res) => {
-                        // logger.log("debug", "(setAvatarBubble) getBase64 : ", res);
-                        /*
-                        const buf = new Buffer(
-                            res.replace(/^data:image\/\w+;base64,/, ""),
-                            "base64"
-                        );
-                        let data = {
-                            Body: buf,
-                            ContentEncoding: "base64",
-                            ContentType: "image/jpeg"
-                        };
-                        // */
-                        return resolve(res);
-                    });
+                    .getBase64(JimpMime.jpeg)
+                    );
             })
             .catch(err => {
                 console.log("error", "(resizeImage) Error : ", err);
@@ -557,15 +619,36 @@ function getRandomInt(max) {
     return Math.floor(Math.random() * Math.floor(max?max:10));
 }
 
+function throwError() {
+    throw new Error();
+}
+
 function stackTrace() {
-    var err = new Error();
-    return err.stack;
+
+    try {
+        throwError();
+    }
+    catch (e) {
+        try {
+            //return e.stack.split('at ')[3].split(' ')[0];
+            return e.stack;
+        } catch (e) {
+            return '';
+        }
+    }
+    /*var err = new Error();
+    return err.stack;// */
 }
 
 function isPromise (x) {
     let isProm = utilTypes.isPromise(x) || x.constructor.name === 'Promise' || x.constructor.name === 'AsyncFunction';
     return isProm ;
     //return Object(x).constructor===Promise;
+}
+
+// Function to test if variable is a string
+function isString(variable) {
+    return typeof variable === "string";
 }
 
 const resolveDns = (cname) => {
@@ -603,9 +686,32 @@ const resolveDns = (cname) => {
     });
 }
 
+function castStrToTypes(value, name) {
+    let result = value;
+    try {
+        // Try to cast to Object the value
+        result = JSON.parse(value);
+        return result;
+    } catch (err) {
+        try {
+            // Try to cast to Number the value
+            result = +value;
+            if (Number.isNaN(result)) {
+                result = value;
+            } else {
+                return result;
+            }
+        } catch (err) {
+            result = value;
+        }
+    }
+    return result;
+}
+
 async function getJsonFromXML(xml : string) {
     try {
-        const result = await xml2js.parseStringPromise(xml, {mergeAttrs: false, explicitArray : false, attrkey : "$attrs", emptyTag  : undefined});
+
+        const result = await xml2js.parseStringPromise(xml, {mergeAttrs: false, explicitArray : false, attrkey : "$attrs", emptyTag  : undefined, valueProcessors:[castStrToTypes], attrValueProcessors:[castStrToTypes]});
 
         // convert it to a JSON string
         return result;
@@ -613,6 +719,108 @@ async function getJsonFromXML(xml : string) {
     } catch (err) {
         //console.log(err);
         return {};
+    }
+}
+
+function getTextFromJSONProperty(property){
+    let result = "";
+    if (isObject(property)) {
+      result = property?._;
+    } else
+    if (isString(property)) {
+      result = property;
+    } else {
+        result = property;
+    }
+    return result;
+}
+
+function getAttrFromJSONObj(obj, name){
+    let result = undefined; //  msg?.body?.$attrs["xml:lang"]
+    if (obj && isObject(obj) && obj.$attrs) {
+      result = obj.$attrs[name];
+    }
+    return result;
+}
+
+function getValueFromVariable(variable, defaultValue){
+    return (isObject(variable)?variable:{});
+}
+
+function getObjectFromVariable(variable){
+    return getValueFromVariable(variable, {});
+}
+
+type JsonObject = { [key: string]: any };
+
+function findAllPropInJSONByPropertyName(obj: JsonObject, propertyName: string, maxDepth: number = 10, cond : (key, value, tabToSaveObjFound) => void = null): any[] | any {
+    let results: any[] = [];
+
+    function search(obj: JsonObject, currentDepth: number) {
+        if (currentDepth > maxDepth) {
+            return;
+        }
+
+        for (let key in obj) {
+            if (obj.hasOwnProperty(key)) {
+                //if (key === propertyName && ( !cond || ( cond && cond(key, obj[key]) ) ) ) {
+                if (key === propertyName) {
+                    if (!cond) {
+                        results.push(obj[key]);
+                    } else {
+                        cond(key, obj[key], results);
+                        /* if (Array.isArray(obj[key])) {
+
+                        } else {
+                            cond(key, obj[key])
+                        } // */
+                    }
+                }
+                if (typeof obj[key] === 'object' && obj[key] !== null) {
+                    search(obj[key], currentDepth + 1);
+                }
+            }
+        }
+    }
+
+    search(obj, 0);
+    if (results.length === 1) {
+//        console.log("(findAllPropInJSONByPropertyName) results[0] : ", results[0]);
+        if (typeof results[0] === 'object' && results[0] !== null) {
+            results[0].length = 1;
+        }
+        return results[0];
+    }
+    return results;
+}
+
+function findAllPropInJSONByPropertyNameByXmlNS(obj: JsonObject, propertyName: string, xmlNsStr : string,  maxDepth: number = 10 ){
+    let result = findAllPropInJSONByPropertyName(obj, propertyName, maxDepth, (key, value, tabToSaveObjFound) => {
+        let isFound = false;
+        if (Array.isArray(value)){
+                value.forEach((valueElmtItem) => {
+                    if (valueElmtItem?.$attrs?.xmlns === xmlNsStr) {
+                        tabToSaveObjFound.push(valueElmtItem);
+                    }
+               //     isFound = isFound || (valueElmtItem?.$attrs?.xmlns === xmlNsStr);
+                });
+            //return isFound;
+        } else {
+            if (value?.$attrs?.xmlns === xmlNsStr) {
+                tabToSaveObjFound.push(value);
+            }
+             //isFound = value?.$attrs?.xmlns === xmlNsStr;
+            //return isFound;
+        }
+    }) ;
+    return result.length === 0 ? undefined : result;
+}
+
+function safeJsonParse(str) {
+    try {
+        return [null, JSON.parse(str)];
+    } catch (err) {
+        return [err];
     }
 }
 
@@ -628,6 +836,26 @@ function generateRamdomEmail(email){
     let randomId = randomString(16, "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
     let emailGenerated = randomId + "_" + email;
     return emailGenerated.toLowerCase();
+}
+
+function callerName() {
+    /*try {
+        throw new Error();
+    }
+    catch (e) { //*/
+        try {
+            let callerNameStr = (new Error()).stack.split('at ')[6].split(' ')[0];
+            return callerNameStr?callerNameStr.substring("descriptor.value.".length):'';
+            //return e;
+        } catch (e) {
+            return '';
+        }
+    //}
+}
+
+function currentFunction(){
+    let whoCallMe = callerName();
+    console.log(whoCallMe);
 }
 
 function functionName(functionPtr) {
@@ -676,6 +904,126 @@ async function traceExecutionTime(thisToUse, methodName, methodDefinition, param
     return result;
 }
 
+/**
+ * convert time in milliseconds to hours, minutes ands seconds in human readable time.
+ * @param {number} duration in milliseconds
+ * @returns {string} time
+ */
+function msToTime(duration: number): string {
+    let ms: number = duration % 1000;
+    duration = (duration - ms) / 1000;
+    let secs: number = duration % 60;
+    duration = (duration - secs) / 60;
+    let mins: number = duration % 60;
+    duration = (duration - mins) / 60;
+    let hrs: number = duration % 60;
+    let days: number = (duration - hrs) / 24;
+
+    let hours: string = (hrs < 10) ? "0" + hrs : hrs.toString();
+    let minutes: string = (mins < 10) ? "0" + mins : mins.toString();
+    let seconds: string = (secs < 10) ? "0" + secs : secs.toString();
+    let milliseconds: string = (ms < 10) ? "0" + ms : ms.toString();
+
+    //return hrs + ':' + mins + ':' + secs + '.' + ms;
+    return (days + " Jrs " + hours + ":" + minutes + ":" + seconds + "." + milliseconds);
+}
+
+/**
+ * @description
+ * Voici une fonction TypeScript qui transforme un objet JSON avec une arborescence en un objet JSON plat :
+ * Cette fonction prend en paramètre un objet JSON obj et une chaîne parentKey (optionnelle, par défaut vide) qui est utilisée pour conserver le chemin dans l'objet JSON plat résultant.
+ * Elle parcourt récursivement l'objet JSON d'entrée et construit l'objet JSON plat en combinant les clés parentes avec les clés enfants séparées par des points.
+*/
+function flattenObject(obj: any, parentKey : string = '', withparentKey : boolean= true): any {
+    return Object.keys(obj).reduce((acc: any, key: string) => {
+        const prefixedKey = (parentKey && withparentKey) ? `${parentKey}.${key}` : key;
+        if (typeof obj[key] === 'object' && obj[key] !== null) {
+            const flattenedChild = flattenObject(obj[key], prefixedKey, withparentKey);
+            return { ...acc, ...flattenedChild };
+        } else {
+            return { ...acc, [prefixedKey]: obj[key] };
+        }
+    }, {});
+}
+
+function formattStringOnNbChars(variableString, nbChars = 50) {
+    // S'assurer que la chaîne a exactement 50 caractères
+    let formattedString = variableString?.slice(0, nbChars).padEnd(nbChars);
+
+    // Entourer la chaîne de parenthèses
+    //formattedString = `(${formattedString})`;
+
+    // Afficher sur la console
+    return formattedString;
+}
+
+function loadConfigFromIniFile() {
+    let config :any = {"RAINBOWSDKNODE":{}};
+    try {
+        let userAPPDATAPath = process.env.APPDATA || (process.platform == 'darwin' ? process.env.HOME + '/Library/Preferences' : process.env.HOME + "/.local/share") ;
+
+        try {
+            if (userAPPDATAPath) {
+                userAPPDATAPath += "/Rainbow/RainbowNodeSdkDir";
+                if (!fs.existsSync(userAPPDATAPath)) {
+                    if (fs.mkdirSync(userAPPDATAPath, {recursive: true})) {
+                    } else {
+                    }
+                } else {
+                }
+            } else {
+
+            }
+        } catch (err) {
+            if (err.code !== 'EEXIST') throw err;
+        }
+
+        let readResult = fs.readFileSync(userAPPDATAPath + '/config.ini', 'utf-8');
+        config = ini.parse(readResult);
+    } catch (err) {
+    }
+    return config?.RAINBOWSDKNODE;
+}
+
+function saveConfigFromIniFile(config: any) {
+    try {
+        let userAPPDATAPath = process.env.APPDATA || (process.platform == 'darwin' ? process.env.HOME + '/Library/Preferences' : process.env.HOME + "/.local/share") ;
+
+        try {
+            if (userAPPDATAPath) {
+                userAPPDATAPath += "/Rainbow/RainbowNodeSdkDir";
+                if (!fs.existsSync(userAPPDATAPath)) {
+                    if (fs.mkdirSync(userAPPDATAPath, {recursive: true})) {
+                        fs.writeFileSync(userAPPDATAPath + '/config.ini', ini.stringify(config, {section: 'RAINBOWSDKNODE'}));
+                    } else {
+                    }
+                } else {
+                    fs.writeFileSync(userAPPDATAPath + '/config.ini', ini.stringify(config, {section: 'RAINBOWSDKNODE'}));
+                }
+            } else {
+            }
+        } catch (err) {
+            if (err.code !== 'EEXIST') throw err
+        }
+    } catch (err) {
+    }
+}
+
+// Function to write the array to a file
+function writeArrayToFile(array:Array<any>, path : string) {
+    const data = array.join('\n'); // Convert array to string with newlines
+    fs.writeFileSync(path, data, 'utf8');
+    //console.log('Array written to file');
+}
+
+// Function to read the array from the file
+function readArrayFromFile(path : string) {
+    const data = fs.readFileSync(path, 'utf8');
+    const array = data.split('\n'); // Convert string back to array
+    //console.log('Array read from file:', array);
+    return array;
+}
+
 export let objToExport = {
     makeId,
     createPassword,
@@ -685,11 +1033,13 @@ export let objToExport = {
     isNullOrEmpty,
     isDefined,
     isNumber,
+    isString,
     Deferred,
     isSuperAdmin,
     setTimeoutPromised,
     until,
     orderByFilter,
+    updateObjectPropertiesFromAnOtherObject,
     isStart_upService,
     isStarted,
     logEntryExit,
@@ -697,6 +1047,7 @@ export let objToExport = {
     getBinaryData,
     getRandomInt,
     pause,
+    pauseSync,
     stackTrace,
     addDaysToDate,
     addParamToUrl,
@@ -706,10 +1057,26 @@ export let objToExport = {
     doWithinInterval,
     addPropertyToObj,
     generateRamdomEmail,
+    randomString,
     getJsonFromXML,
+    getTextFromJSONProperty,
+    getAttrFromJSONObj,
+    getValueFromVariable,
+    getObjectFromVariable,
+    findAllPropInJSONByPropertyName,
+    findAllPropInJSONByPropertyNameByXmlNS,
+    callerName,
     functionName,
     functionSignature,
-    traceExecutionTime
+    traceExecutionTime,
+    msToTime,
+    flattenObject,
+    formattStringOnNbChars,
+    loadConfigFromIniFile,
+    saveConfigFromIniFile,
+    safeJsonParse,
+    writeArrayToFile,
+    readArrayFromFile
 };
 
 module.exports = objToExport;
@@ -722,11 +1089,13 @@ export {
     isNullOrEmpty,
     isDefined,
     isNumber,
+    isString,
     Deferred,
     isSuperAdmin,
     setTimeoutPromised,
     until,
     orderByFilter,
+    updateObjectPropertiesFromAnOtherObject,
     isStart_upService,
     isStarted,
     logEntryExit,
@@ -734,6 +1103,7 @@ export {
     getBinaryData,
     getRandomInt,
     pause,
+    pauseSync,
     stackTrace,
     addDaysToDate,
     addParamToUrl,
@@ -743,10 +1113,26 @@ export {
     doWithinInterval,
     addPropertyToObj,
     generateRamdomEmail,
+    randomString,
     getJsonFromXML,
+    getTextFromJSONProperty,
+    getAttrFromJSONObj,
+    getValueFromVariable,
+    getObjectFromVariable,
+    findAllPropInJSONByPropertyName,
+    findAllPropInJSONByPropertyNameByXmlNS,
+    callerName,
     functionName,
     functionSignature,
-    traceExecutionTime
+    traceExecutionTime,
+    msToTime,
+    flattenObject,
+    formattStringOnNbChars,
+    loadConfigFromIniFile,
+    saveConfigFromIniFile,
+    safeJsonParse,
+    writeArrayToFile,
+    readArrayFromFile
 };
 
 export default {
@@ -758,11 +1144,13 @@ export default {
     isNullOrEmpty,
     isDefined,
     isNumber,
+    isString,
     Deferred,
     isSuperAdmin,
     setTimeoutPromised,
     until,
     orderByFilter,
+    updateObjectPropertiesFromAnOtherObject,
     isStart_upService,
     isStarted,
     logEntryExit,
@@ -770,6 +1158,7 @@ export default {
     getBinaryData,
     getRandomInt,
     pause,
+    pauseSync,
     stackTrace,
     addDaysToDate,
     addParamToUrl,
@@ -779,8 +1168,24 @@ export default {
     doWithinInterval,
     addPropertyToObj,
     generateRamdomEmail,
+    randomString,
     getJsonFromXML,
+    getTextFromJSONProperty,
+    getAttrFromJSONObj,
+    getValueFromVariable,
+    getObjectFromVariable,
+    findAllPropInJSONByPropertyName,
+    findAllPropInJSONByPropertyNameByXmlNS,
+    callerName,
     functionName,
     functionSignature,
-    traceExecutionTime
+    traceExecutionTime,
+    msToTime,
+    flattenObject,
+    formattStringOnNbChars,
+    loadConfigFromIniFile,
+    saveConfigFromIniFile,
+    safeJsonParse,
+    writeArrayToFile,
+    readArrayFromFile
 };

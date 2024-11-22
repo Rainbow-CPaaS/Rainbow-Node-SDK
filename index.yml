@@ -44,7 +44,9 @@
   - Invitation: 'ref:doc/sdk/node/api/invitation.md'
   - Message: 'ref:doc/sdk/node/api/message.md'
   - PresenceRainbow: 'ref:doc/sdk/node/api/presencerainbow.md'
-  - Settings.js: 'ref:doc/sdk/node/api/settings.md'
+  - RainbowVoiceCloudPBX: 'ref:doc/sdk/node/api/rainbowvoicecloudpbx.md'
+  - Settings: 'ref:doc/sdk/node/api/settings.md'
+  - Task: 'ref:doc/sdk/node/api/task.md'
 - APIs - Services :
   - Admin Service: 'ref:doc/sdk/node/api/admin.md'
   - Alerts Service: 'ref:doc/sdk/node/api/alerts.md'
@@ -65,5 +67,6 @@
   - RPCoverXMPP Service: 'ref:doc/sdk/node/api/rpcoverxmpp.md'
   - S2S Service: 'ref:doc/sdk/node/api/s2s.md'
   - Settings Service: 'ref:doc/sdk/node/api/settingssvc.md'
+  - Tasks Service: 'ref:doc/sdk/node/api/tasks.md'
   - Telephony Service: 'ref:doc/sdk/node/api/telephony.md'
   - Webinars Service: 'ref:doc/sdk/node/api/webinars.md'

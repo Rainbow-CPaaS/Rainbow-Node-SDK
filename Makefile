@@ -17,6 +17,7 @@ doc:
 	mkdir -p doc/sdk/node/api && \
 	cp build/*.md doc/sdk/node/api && \
 	cp build/*.xml doc/sdk/node/api && \
+	cp build/*.cdx doc/sdk/node/sts/api && \
 	mkdir -p doc/sdk/node/guides && \
 	cp guide/*.md doc/sdk/node/guides && \
 	grunt generatemermaid
@@ -32,6 +33,7 @@ docsts:
 	mkdir -p doc/sdk/node/sts/api && \
 	cp build/*.md doc/sdk/node/sts/api && \
 	cp build/*.xml doc/sdk/node/sts/api && \
+	cp build/*.cdx doc/sdk/node/sts/api && \
 	mkdir -p doc/sdk/node/sts/guides && \
 	cp guide/*.md doc/sdk/node/sts/guides && \
 	ls ./jsdoc/diagramsMermaid/*
@@ -56,6 +58,7 @@ doclts:
 	mkdir -p doc/sdk/node/lts/api && \
 	cp build/*.md doc/sdk/node/lts/api && \
 	cp build/*.xml doc/sdk/node/lts/api && \
+	cp build/*.cdx doc/sdk/node/sts/api && \
 	mkdir -p doc/sdk/node/lts/guides && \
 	cp guide/*.md doc/sdk/node/lts/guides && \
 	grunt generatemermaid
