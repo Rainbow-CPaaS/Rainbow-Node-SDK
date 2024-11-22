@@ -7,6 +7,19 @@ Warning: Before deploying in production a bot that can generate heavy traffic, p
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 
+### [2.32.0-lts.0] - 2024-11-22
+#### Removed
+-   None
+
+#### Fixed
+-   None
+
+#### Added
+-   None
+
+#### Changed
+-   Same as STS 2.31.0 .
+
 ### [2.31.0] - 2024-11-22
 #### Removed
 -   None
