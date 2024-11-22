@@ -244,8 +244,9 @@ pipeline {
                         
                     #sudo npm install npm -g
                     sudo npm install n -g
-                    sudo n stable
-                    
+                    #sudo n stable
+                    sudo n 20.5.1
+
                     sudo npm install --global npm@6
                         
                     cd ${WORKSPACE}
