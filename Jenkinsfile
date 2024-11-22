@@ -98,6 +98,7 @@ pipeline {
                     script {
                             def BuildCauses0=currentBuild.getBuildCauses()[0]
                             def BuildCauses1=currentBuild.getBuildCauses()[1]
+                            println('currentBuild.getBuildCauses() : ', currentBuild.getBuildCauses())
                             (BuildCauses0 == null || BuildCauses0.isEmpty()) ? println('BuildCauses0 is defined') : println('BuildCauses0 is not defined')
                             (BuildCauses1 == null || BuildCauses1.isEmpty()) ? println('BuildCauses1 is defined') : println('BuildCauses1 is not defined')
                             if ((BuildCauses0 == null || BuildCauses0.isEmpty()) && (BuildCauses1 == null || BuildCauses1.isEmpty())) {
