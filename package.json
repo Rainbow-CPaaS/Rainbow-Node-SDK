@@ -47,7 +47,7 @@
     "@cyclonedx/cyclonedx-npm": "^1.19.3",
     "@mermaid-js/mermaid-cli": "^11.2.1",
     "@tsconfig/node14": "^14.1.2",
-    "@types/dompurify": "^3.2.0",
+    "@types/dompurify": "^2.3.3",
     "@types/inquirer": "^9.0.7",
     "@types/mime": "^3.0.4",
     "@types/node": "^22.7.7",
