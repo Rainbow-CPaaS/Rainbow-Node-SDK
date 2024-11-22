@@ -475,10 +475,15 @@ pipeline {
                         
                         
                     #echo ---------- STEP commit : 
-                    if [ "${PUBLISHTONPMANDSETTAGINGIT}" = "true" ]; then
-                        git reset --hard "origin/delivered${RAINBOWNODESDKVERSION}"
-                    else
-                        git reset --hard "origin/${env.BRANCH_NAME}"
+                    if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM.LTS}" ]; then
+                        if [ "${PUBLISHTONPMANDSETTAGINGIT}" = "true" ]; then
+                            git reset --hard "origin/delivered${RAINBOWNODESDKVERSION}"
+                        else
+                            git reset --hard "origin/${env.BRANCH_NAME}"
+                        fi
+                    fi
+                    if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM.STS}" ]; then
+                        git reset --hard origin/${env.BRANCH_NAME}
                     fi
                     npm version "${RAINBOWNODESDKVERSION}"  --allow-same-version
                                                 
