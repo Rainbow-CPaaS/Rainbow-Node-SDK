@@ -13,7 +13,10 @@ declare module 'lib/common/Utils' {
 }): {}; function cleanEmptyMembersFromObject(objParams: Object): void; function isStart_upService(serviceoptions: any): boolean; function isStarted(_methodsToIgnoreStartedState?: Array<string>): any; function logEntryExit(LOG_ID: any): any; function resizeImage(avatarImg: any, maxWidth: any, maxHeight: any): Promise<unknown>; function getBinaryData(image: any): {
     type: any;
     data: Uint8Array;
-}; function getRandomInt(max: any): number; function stackTrace(): any; function isPromise(x: any): any; const resolveDns: (cname: any) => Promise<unknown>; function getJsonFromXML(xml: string): Promise<any>; function generateRamdomEmail(email: any): string; function callerName(): string; function functionName(functionPtr: any): any; function functionSignature(functionPtr: any): string; function traceExecutionTime(thisToUse: any, methodName: any, methodDefinition: any, parameters?: any): Promise<void>; function msToTime(duration: number): string; function flattenObject(obj: any, parentKey?: string, withparentKey?: boolean): any;
+}; function getRandomInt(max: any): number; function stackTrace(): any; function isPromise(x: any): any; function isString(variable: any): variable is string; const resolveDns: (cname: any) => Promise<unknown>; function getJsonFromXML(xml: string): Promise<any>; function getTextFromJSONProperty(property: any): string; function getAttrFromJSONObj(obj: any, name: any): any; function getValueFromVariable(variable: any, defaultValue: any): any; function getObjectFromVariable(variable: any): any;
+type JsonObject = {
+    [key: string]: any;
+}; function findAllPropInJSONByPropertyName(obj: JsonObject, propertyName: string, maxDepth?: number, cond?: (key: any, value: any, tabToSaveObjFound: any) => void): any[] | any; function findAllPropInJSONByPropertyNameByXmlNS(obj: JsonObject, propertyName: string, xmlNsStr: string, maxDepth?: number): any; function safeJsonParse(str: any): any[]; function randomString(length: any, chars: any): string; function generateRamdomEmail(email: any): string; function callerName(): string; function functionName(functionPtr: any): any; function functionSignature(functionPtr: any): string; function traceExecutionTime(thisToUse: any, methodName: any, methodDefinition: any, parameters?: any): Promise<void>; function msToTime(duration: number): string; function flattenObject(obj: any, parentKey?: string, withparentKey?: boolean): any; function formattStringOnNbChars(variableString: any, nbChars?: number): any; function loadConfigFromIniFile(): any; function saveConfigFromIniFile(config: any): void; function writeArrayToFile(array: Array<any>, path: string): void; function readArrayFromFile(path: string): any;
 export let objToExport: {
     makeId: (n: any) => string;
     createPassword: (size: any) => string;
@@ -23,6 +26,7 @@ export let objToExport: {
     isNullOrEmpty: (value: any) => boolean;
     isDefined: (value: any) => boolean;
     isNumber: (data: any) => boolean;
+    isString: typeof isString;
     Deferred: typeof Deferred;
     isSuperAdmin: (roles: any) => boolean;
     setTimeoutPromised: (timeOutMs: number) => Promise<any>;
@@ -46,15 +50,28 @@ export let objToExport: {
     doWithinInterval: typeof doWithinInterval;
     addPropertyToObj: typeof addPropertyToObj;
     generateRamdomEmail: typeof generateRamdomEmail;
+    randomString: typeof randomString;
     getJsonFromXML: typeof getJsonFromXML;
+    getTextFromJSONProperty: typeof getTextFromJSONProperty;
+    getAttrFromJSONObj: typeof getAttrFromJSONObj;
+    getValueFromVariable: typeof getValueFromVariable;
+    getObjectFromVariable: typeof getObjectFromVariable;
+    findAllPropInJSONByPropertyName: typeof findAllPropInJSONByPropertyName;
+    findAllPropInJSONByPropertyNameByXmlNS: typeof findAllPropInJSONByPropertyNameByXmlNS;
     callerName: typeof callerName;
     functionName: typeof functionName;
     functionSignature: typeof functionSignature;
     traceExecutionTime: typeof traceExecutionTime;
     msToTime: typeof msToTime;
     flattenObject: typeof flattenObject;
+    formattStringOnNbChars: typeof formattStringOnNbChars;
+    loadConfigFromIniFile: typeof loadConfigFromIniFile;
+    saveConfigFromIniFile: typeof saveConfigFromIniFile;
+    safeJsonParse: typeof safeJsonParse;
+    writeArrayToFile: typeof writeArrayToFile;
+    readArrayFromFile: typeof readArrayFromFile;
 };
-export { makeId, createPassword, isAdmin, anonymizePhoneNumber, equalIgnoreCase, isNullOrEmpty, isDefined, isNumber, Deferred, isSuperAdmin, setTimeoutPromised, until, orderByFilter, updateObjectPropertiesFromAnOtherObject, isStart_upService, isStarted, logEntryExit, resizeImage, getBinaryData, getRandomInt, pause, pauseSync, stackTrace, addDaysToDate, addParamToUrl, cleanEmptyMembersFromObject, resolveDns, isPromise, doWithinInterval, addPropertyToObj, generateRamdomEmail, getJsonFromXML, callerName, functionName, functionSignature, traceExecutionTime, msToTime, flattenObject }; const _default: {
+export { makeId, createPassword, isAdmin, anonymizePhoneNumber, equalIgnoreCase, isNullOrEmpty, isDefined, isNumber, isString, Deferred, isSuperAdmin, setTimeoutPromised, until, orderByFilter, updateObjectPropertiesFromAnOtherObject, isStart_upService, isStarted, logEntryExit, resizeImage, getBinaryData, getRandomInt, pause, pauseSync, stackTrace, addDaysToDate, addParamToUrl, cleanEmptyMembersFromObject, resolveDns, isPromise, doWithinInterval, addPropertyToObj, generateRamdomEmail, randomString, getJsonFromXML, getTextFromJSONProperty, getAttrFromJSONObj, getValueFromVariable, getObjectFromVariable, findAllPropInJSONByPropertyName, findAllPropInJSONByPropertyNameByXmlNS, callerName, functionName, functionSignature, traceExecutionTime, msToTime, flattenObject, formattStringOnNbChars, loadConfigFromIniFile, saveConfigFromIniFile, safeJsonParse, writeArrayToFile, readArrayFromFile }; const _default: {
     makeId: (n: any) => string;
     createPassword: (size: any) => string;
     isAdmin: (roles: any) => boolean;
@@ -63,6 +80,7 @@ export { makeId, createPassword, isAdmin, anonymizePhoneNumber, equalIgnoreCase,
     isNullOrEmpty: (value: any) => boolean;
     isDefined: (value: any) => boolean;
     isNumber: (data: any) => boolean;
+    isString: typeof isString;
     Deferred: typeof Deferred;
     isSuperAdmin: (roles: any) => boolean;
     setTimeoutPromised: (timeOutMs: number) => Promise<any>;
@@ -86,13 +104,26 @@ export { makeId, createPassword, isAdmin, anonymizePhoneNumber, equalIgnoreCase,
     doWithinInterval: typeof doWithinInterval;
     addPropertyToObj: typeof addPropertyToObj;
     generateRamdomEmail: typeof generateRamdomEmail;
+    randomString: typeof randomString;
     getJsonFromXML: typeof getJsonFromXML;
+    getTextFromJSONProperty: typeof getTextFromJSONProperty;
+    getAttrFromJSONObj: typeof getAttrFromJSONObj;
+    getValueFromVariable: typeof getValueFromVariable;
+    getObjectFromVariable: typeof getObjectFromVariable;
+    findAllPropInJSONByPropertyName: typeof findAllPropInJSONByPropertyName;
+    findAllPropInJSONByPropertyNameByXmlNS: typeof findAllPropInJSONByPropertyNameByXmlNS;
     callerName: typeof callerName;
     functionName: typeof functionName;
     functionSignature: typeof functionSignature;
     traceExecutionTime: typeof traceExecutionTime;
     msToTime: typeof msToTime;
     flattenObject: typeof flattenObject;
+    formattStringOnNbChars: typeof formattStringOnNbChars;
+    loadConfigFromIniFile: typeof loadConfigFromIniFile;
+    saveConfigFromIniFile: typeof saveConfigFromIniFile;
+    safeJsonParse: typeof safeJsonParse;
+    writeArrayToFile: typeof writeArrayToFile;
+    readArrayFromFile: typeof readArrayFromFile;
 };
 export default _default;
 
@@ -457,7 +488,7 @@ interface LogLevelAreasInterface {
     version: Service;
     webinars: Service;
     core: LawLayer;
-    bubblemanager: LawLayer;
+    bubblesmanager: LawLayer;
     httpmanager: LawLayer;
     httpservice: LawLayer;
     rest: LawLayer;
@@ -526,7 +557,7 @@ interface LogLevelAreasInterface {
         version: Service;
         webinars: Service;
         core: LawLayer;
-        bubblemanager: LawLayer;
+        bubblesmanager: LawLayer;
         httpmanager: LawLayer;
         httpservice: LawLayer;
         rest: LawLayer;
@@ -557,8 +588,8 @@ interface LogLevelAreasInterface {
     set alertevent(value: EventHandlers);
     get alerts(): Service;
     set alerts(value: Service);
-    get bubblemanager(): LawLayer;
-    set bubblemanager(value: LawLayer);
+    get bubblesmanager(): LawLayer;
+    set bubblesmanager(value: LawLayer);
     get bubbles(): Service;
     set bubbles(value: Service);
     get calllog(): Service;
@@ -953,6 +984,7 @@ declare module 'lib/config/config' {
         autoLoadConversations: boolean;
         autoLoadConversationHistory: boolean;
         autoLoadContacts: boolean;
+        autoLoadCallLog: boolean;
         forceHistoryGetContactFromServer: boolean;
         enableCarbon: boolean;
         enablesendurgentpushmessages: boolean;
@@ -1098,8 +1130,7 @@ export { conf as config, DataStoreType };
 
 }
 declare module 'lib/common/Logger' {
-	/// <reference types="node" />
-export {};
+	export {};
 import { LEVELSNAMES, LogLevelAreas } from 'lib/common/LevelLogs.js'; class Logger {
     get areasLogs(): LogLevelAreas;
     set areasLogs(value: LogLevelAreas);
@@ -1513,7 +1544,10 @@ import { FIFOQueue } from 'lib/common/FIFOQueue.js'; class MessagesQueue extends
     private rwlock;
     isFull: () => boolean;
     updateMessageIfExistsElseEnqueueIt: (message: any, forceDequeueIfFull?: boolean) => Message;
-    removeMessage: (message: any, forceDequeueIfFull?: boolean) => Message;
+    removeMessage: (message: any) => Message;
+    removeMessageById: (messageId: string) => Message;
+    replaceMessage: (messageOld: any, messageNew: Message) => Message;
+    replaceMessageById: (idMessageOld: string, messageNew: Message) => Message;
     constructor(_logger: any, _maxSize?: number);
     get length(): number;
 } class Conversation {
@@ -1630,8 +1664,8 @@ import { GenericHandler } from 'lib/connection/XMPPServiceHandler/GenericHandler
     static getAccessorName(): string;
     getAccessorName(): string;
     constructor(xmppService: XMPPService);
-    onIqGetSetReceived(msg: any, stanza: any): void;
-    onIqResultReceived(msg: any, stanza: any): void;
+    onIqGetSetReceived(msg: any, stanzaTab: any): void;
+    onIqResultReceived(msg: any, stanzaTab: any): void;
     _onIqGetPbxAgentStatusReceived(stanza: any, node: any): void;
     _onIqGetPingReceived(stanza: any, node: any): void;
     _onIqGetQueryReceived(stanza: any, node: any): void;
@@ -1670,12 +1704,12 @@ export {}; class XmppClient {
     }>;
     constructor(...args: any[]);
     init(_logger: any, _eventemitter: any, _timeBetweenXmppRequests: any, _storeMessages: any, _rateLimitPerHour: any, _messagesDataStore: any, _copyMessage: any, _enablesendurgentpushmessages: any, _maxPendingAsyncLockXmppQueue: any): Promise<void>;
-    onIqErrorReceived(msg: any, stanza: any): void;
+    onIqErrorReceived(msg: any, stanzaTab: any): void;
     iqGetEventPing(ctx: any): {};
     iqSetEventRoster(ctx: any): {};
     iqSetEventHttp(ctx: any): Promise<boolean>;
     iqSetEventRpc(ctx: any): Promise<boolean>;
-    onIqResultReceived(msg: any, stanza: any): void;
+    onIqResultReceived(msg: any, stanzaTab: any): void;
     resolvPendingRequest(id: any, stanza: any): Promise<boolean>;
     resetnbMessagesSentThisHour(): void;
     send(...args: any[]): any;
@@ -2196,10 +2230,10 @@ import { GenericHandler } from 'lib/connection/XMPPServiceHandler/GenericHandler
     static getAccessorName(): string;
     getAccessorName(): string;
     constructor(xmppService: any, channelsService: any);
-    onManagementMessageReceived(msg: any, stanza: any): void;
+    onManagementMessageReceived(msg: any, stanzaTab: any): void;
     onFavoriteManagementMessageReceived(stanza: any): boolean;
     onReceiptMessageReceived(msg: any, stanza: any): void;
-    onErrorMessageReceived(msg: any, stanza: any): void;
+    onErrorMessageReceived(msg: any, stanzaTab: any): void;
 }
 export { FavoriteEventHandler };
 
@@ -2260,13 +2294,13 @@ import { GenericHandler } from 'lib/connection/XMPPServiceHandler/GenericHandler
     static getAccessorName(): string;
     getAccessorName(): string;
     constructor(xmppService: any, invitationService: any);
-    onManagementMessageReceived(msg: any, stanza: any): void;
+    onManagementMessageReceived(msg: any, stanzaTab: any): void;
     onInvitationManagementMessageReceived(stanza: any): boolean;
     onJoinCompanyInviteManagementMessageReceived(stanza: any): boolean;
     onJoinCompanyRequestManagementMessageReceived(stanza: any): boolean;
     onOpenInvitationManagementMessageReceived(stanza: any): boolean;
     onReceiptMessageReceived(msg: any, stanza: any): void;
-    onErrorMessageReceived(msg: any, stanza: any): void;
+    onErrorMessageReceived(msg: any, stanzaTab: any): void;
     findAttrs(): void;
 }
 export { InvitationEventHandler };
@@ -2525,8 +2559,7 @@ export default _default;
 
 }
 declare module 'lib/services/ProfilesService' {
-	/// <reference types="node" />
-import { GenericService } from 'lib/services/GenericService';
+	import { GenericService } from 'lib/services/GenericService';
 export {};
 import { EventEmitter } from 'events';
 import { Logger } from 'lib/common/Logger';
@@ -3048,8 +3081,7 @@ export { Conference };
 
 }
 declare module 'lib/common/BubblesManager' {
-	/// <reference types="node" />
-import { Bubble } from 'lib/common/models/Bubble';
+	import { Bubble } from 'lib/common/models/Bubble';
 import { Logger } from 'lib/common/Logger';
 import { EventEmitter } from 'events';
 import { Core } from 'lib/Core';
@@ -3125,8 +3157,7 @@ export { BubblesManager };
 
 }
 declare module 'lib/services/BubblesService' {
-	/// <reference types="node" />
-import { List } from 'ts-generic-collections-linq';
+	import { List } from 'ts-generic-collections-linq';
 import { Bubble } from 'lib/common/models/Bubble';
 import { EventEmitter } from 'events';
 import { Logger } from 'lib/common/Logger';
@@ -3770,13 +3801,19 @@ export {}; class Bubbles extends GenericService {
      *  Create a new bubble <br>
      * @param {string} name  The name of the bubble to create
      * @param {string} description  The description of the bubble to create
-     * @param {boolean} withHistory If true, a newcomer will have the complete messages history since the beginning of the bubble. False if omitted
+     * @param {string } history (optional) Determines the amount of history available to new users. Default is "all". Allowed values: "none", "all", "number".
+     * @param {number} p_number (optional) Number of messages to retrieve when history="number". Default is 0.
+     * @param {string} visibility (optional) Group visibility for search, either "private" or "public". Default is "private".
+     * @param {boolean} disableNotifications (optional) If true, no notifications will be sent. Default is false.
+     * @param {string} autoRegister (optional) Determines behavior for public links. Default is "unlock". Allowed values: "unlock", "lock".
+     * @param {boolean} autoAcceptInvitation (optional) If true, participants are automatically added to the room. Default is false.
+     * @param {boolean} muteUponEntry (optional) Automatically mutes participants when they join the conference. Default is false.
+     * @param {boolean} playEntryTone (optional) Plays a sound when a participant enters the conference. Default is true.
      * @async
      * @return {Promise<Bubble, ErrorManager>}
      * @fulfil {Bubble} - Bubble object, else an ErrorManager object
-
      */
-    createBubble(name: any, description: any, withHistory?: boolean): Promise<unknown>;
+    createBubble(name: string, description: string, history?: any, p_number?: number, visibility?: string, disableNotifications?: boolean, autoRegister?: string, autoAcceptInvitation?: boolean, muteUponEntry?: boolean, playEntryTone?: boolean): Promise<unknown>;
     /**
      * @public
      * @nodered true
@@ -3835,7 +3872,7 @@ export {}; class Bubbles extends GenericService {
      * @description
      *    Delete all existing owned bubbles <br>
      *    Return a promise <br>
-     * @return {Object} Nothing or an error object depending on the result
+     * @return {void} Nothing or an error object depending on the result
      */
     deleteAllBubbles(): void;
     /**
@@ -5579,8 +5616,7 @@ export { Bubbles as BubblesService };
 
 }
 declare module 'lib/services/GroupsService' {
-	/// <reference types="node" />
-import { GenericService } from 'lib/services/GenericService';
+	import { GenericService } from 'lib/services/GenericService';
 export {};
 import { Logger } from 'lib/common/Logger';
 import { EventEmitter } from 'events';
@@ -5857,8 +5893,7 @@ export { GroupsService as GroupsService };
 
 }
 declare module 'lib/services/HTTPoverXMPPService' {
-	/// <reference types="node" />
-import { EventEmitter } from 'events';
+	import { EventEmitter } from 'events';
 import { Logger } from 'lib/common/Logger';
 import { Core } from 'lib/Core';
 import { GenericService } from 'lib/services/GenericService';
@@ -6012,8 +6047,7 @@ export { HTTPoverXMPP as HTTPoverXMPP };
 
 }
 declare module 'lib/services/ImsService' {
-	/// <reference types="node" />
-export {};
+	export {};
 import { Conversation } from 'lib/common/models/Conversation';
 import { Logger } from 'lib/common/Logger';
 import { EventEmitter } from 'events';
@@ -6396,6 +6430,66 @@ import { Message } from 'lib/common/models/Message'; class ImsService extends Ge
      * @return Return a promise with no parameter when succeed
      */
     sendIsTypingStateInConversation(conversation: any, status: any): Promise<unknown>;
+    /**
+     * @public
+     * @nodered true
+     * @method sendApplicationMessageContactJid
+     * @instance
+     * @async
+     * @category Ims Application Messages
+     * @description
+     * Sends a message to a Contact Jid that is ignored in the UCaaS app's message stream
+     * (e.g., in Rainbow Web Client, Desktop, Android, or iOS).
+     * Useful for bots to communicate with other bots in the same conversation
+     * without involving other users via the default application.
+     *
+     * @param jid - The Contact Jid to which the message is sent
+     * @param xmlElements - List of XML elements to create
+     * @return {Promise<any>} - that resolves on success
+     *
+     *
+     * exemple:
+     *
+     * ```
+     *
+     *  const Element = require('ltx').Element;
+     *  let contactEmailToSearch = "xxx@xxx.com";
+     *  // Retrieve a contact by its id
+     *  let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+     *  // Retrieve the associated conversation
+     *  let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
+     *  let now = new Date().getTime();
+     *  let xmlElements = new Element('instance', {'xmlns': 'tests:rainbownodesdk', 'id': now });
+     *  xmlElements.cnode(new Element('displayName').t("My displayName"));
+     *  xmlElements.cnode(new Element('description').t("My description"));
+     *  // Send message
+     *  let msgSent = await rainbowSDK.im.sendApplicationMessageContactJid(contact.jid, xmlElements);
+     *
+     * ```
+     *
+     */
+    sendApplicationMessageContactJid(jid: any, xmlElements: Element): Promise<boolean>;
+    /**
+     * @public
+     * @nodered true
+     * @method sendApplicationMessageBubbleJid
+     * @instance
+     * @async
+     * @category Ims Application Messages
+     * @description
+     * Sends a message to a Bubble Jid that is ignored in the UCaaS app's message stream
+     * (e.g., in Rainbow Web Client, Desktop, Android, or iOS).
+     * Useful for bots to communicate with other bots in the same conversation
+     * without involving other users via the default application.
+     *
+     * @param jid - The Bubble Jid to which the message is sent
+     * @param xmlElements - List of XML elements to create
+     * @return {Promise<any>} - that resolves on success
+     *
+     *
+     *
+     */
+    sendApplicationMessageBubbleJid(jid: any, xmlElements: Element): Promise<boolean>;
 }
 export { ImsService };
 
@@ -6418,18 +6512,17 @@ import { GenericHandler } from 'lib/connection/XMPPServiceHandler/GenericHandler
     static getAccessorName(): string;
     getAccessorName(): string;
     constructor(xmppService: any, channelsService: any);
-    onManagementMessageReceived(msg: any, stanza: any): void;
-    onHeadlineMessageReceived(msg: any, stanza: any): void;
+    onManagementMessageReceived(msg: any, stanzaTab: any): void;
+    onHeadlineMessageReceived(msg: any, stanzaTab: any): void;
     onChannelManagementMessageReceived(stanza: any): boolean;
     onReceiptMessageReceived(msg: any, stanza: any): void;
-    onErrorMessageReceived(msg: any, stanza: any): void;
+    onErrorMessageReceived(msg: any, stanzaTab: any): void;
 }
 export { ChannelEventHandler };
 
 }
 declare module 'lib/services/ChannelsService' {
-	/// <reference types="node" />
-import { Contact } from 'lib/common/models/Contact';
+	import { Contact } from 'lib/common/models/Contact';
 import { Appreciation, Channel } from 'lib/common/models/Channel';
 import { EventEmitter } from 'events';
 import { Logger } from 'lib/common/Logger';
@@ -7303,9 +7396,9 @@ export {}; class TelephonyEventHandler extends GenericHandler {
     static getAccessorName(): string;
     getAccessorName(): string;
     constructor(xmppService: XMPPService, telephonyService: any, contactService: any, profileService: any);
-    onIqResultReceived(msg: any, stanza: any): void;
+    onIqResultReceived(msg: any, stanzaTab: any): void;
     onIqGetPbxAgentStatusReceived(stanza: any, node: any): void;
-    onMessageReceived(msg: any, stanza: any): boolean;
+    onMessageReceived(msg: any, stanzaTab: any): boolean;
     onProposeMessageReceived(node: any, from: any): Promise<void>;
     onRetractMessageReceived(node: any, from: any): Promise<void>;
     onAcceptMessageReceived(node: any, from: any): Promise<void>;
@@ -7418,8 +7511,7 @@ export { TelephonyEventHandler };
 
 }
 declare module 'lib/services/TelephonyService' {
-	/// <reference types="node" />
-export {};
+	export {};
 import { Call } from 'lib/common/models/Call';
 import { EventEmitter } from 'events';
 import { Logger } from 'lib/common/Logger';
@@ -8193,8 +8285,7 @@ export { HuntingGroup as HuntingGroup, GroupMember as GroupMember };
 
 }
 declare module 'lib/services/AdminService' {
-	/// <reference types="node" />
-export {};
+	export {};
 import { EventEmitter } from 'events';
 import { Logger } from 'lib/common/Logger';
 import { Contact } from 'lib/common/models/Contact';
@@ -12293,11 +12384,24 @@ import { HuntingGroup } from 'lib/common/models/RainbowVoiceCloudPBX.js'; enum O
      * @async
      * @category Offers and Subscriptions.
      * @param {string} companyId Id of the company to be retrieve the offers.
+     * @param {string} [format="small"] - Allows retrieving different levels of offer details. Options: 'small', 'medium', 'full'.
+     * @param {string} [name] - Filters the offer list by name.
+     * @param {boolean} [canBeSold] - Filters offer list by 'canBeSold' field.
+     * @param {boolean} [autoSubscribe] - Filters offer list by 'autoSubscribe' field.
+     * @param {boolean} [isExclusive] - Filters offer list by 'isExclusive' field.
+     * @param {boolean} [isPrepaid] - Filters offer list by 'isPrepaid' field.
+     * @param {boolean} [profileId] - Filters offer list by 'profileId' field.
+     * @param {boolean} [offerReference] - Filters offer list by 'offerReference' field.
+     * @param {boolean} [sapReference] - Filters offer list by 'sapReference' field.
+     * @param {number} [limit=100] - Specifies the number of offers to retrieve.
+     * @param {number} [offset=0] - Specifies the starting position of offers to retrieve.
+     * @param {string} [sortField="name"] - Field to sort the offers by. Options: '_id', 'name'.
+     * @param {number} [sortOrder=1] - Order for sorting. Options: 1 (ascending), -1 (descending).
      * @description
      *      Method to retrieve all the offers of one company on server. </BR>
      * @return {Promise<Array<any>>}
      */
-    retrieveAllOffersOfCompanyById(companyId?: string): Promise<Array<any>>;
+    retrieveAllOffersOfCompanyById(companyId?: string, format?: string, name?: string, canBeSold?: boolean, autoSubscribe?: boolean, isExclusive?: boolean, isPrepaid?: boolean, profileId?: boolean, offerReference?: boolean, sapReference?: boolean, limit?: number, offset?: number, sortField?: string, sortOrder?: number): Promise<Array<any>>;
     /**
      * @public
      * @nodered true
@@ -12451,6 +12555,21 @@ import { HuntingGroup } from 'lib/common/models/RainbowVoiceCloudPBX.js'; enum O
      * @return {Promise<any>}
      */
     unSubscribeCompanyToOfferById(offerId: string, companyId?: string): Promise<any>;
+    /**
+     * @public
+     * @nodered true
+     * @method unSubscribeCompanyToSubscription
+     * @since 1.73
+     * @instance
+     * @async
+     * @category Offers and Subscriptions.
+     * @param {string} subscriptionId Id of the subscriptions to unsubscribe.
+     * @param {string} companyId Id of the company of the subscription.
+     * @description
+     *      Method to unsubscribe one company to one subscription. </BR>
+     * @return {Promise<any>}
+     */
+    unSubscribeCompanyToSubscription(subscriptionId: string, companyId?: string): Promise<any>;
     /**
      * @public
      * @nodered true
@@ -17763,8 +17882,7 @@ export { AdminService as AdminService, OFFERTYPES, CLOUDPBXCLIOPTIONPOLICY };
 
 }
 declare module 'lib/services/SettingsService' {
-	/// <reference types="node" />
-import { GenericService } from 'lib/services/GenericService';
+	import { GenericService } from 'lib/services/GenericService';
 export {};
 import { EventEmitter } from 'events';
 import { Logger } from 'lib/common/Logger';
@@ -17842,8 +17960,7 @@ export { Settings as SettingsService };
 
 }
 declare module 'lib/common/TimeOutManager' {
-	/// <reference types="node" />
-export {}; class ItemForTimeOutQueue {
+	export {}; class ItemForTimeOutQueue {
     private defered;
     private itemFunction;
     id: string;
@@ -17956,9 +18073,11 @@ import { GenericHandler } from 'lib/connection/XMPPServiceHandler/GenericHandler
     static getAccessorName(): string;
     getAccessorName(): string;
     constructor(xmppService: XMPPService, calllogService: any, contactService: any, profileService: any, telephonyService: any);
-    onIqCallLogReceived(msg: any, stanza: any): boolean;
-    onCallLogAckReceived(msg: any, stanza: any): boolean;
-    onIqCallLogNotificationReceived(msg: any, stanza: any): Promise<boolean>;
+    onMessageReceived(msg: any, stanzaTab: any): Promise<boolean>;
+    onIqCallLogReceived(msg: any, stanzaTab: any): boolean;
+    onCallLogAckReceived(msg: any, stanzaTab: any): boolean;
+    onIqResultReceived(msg: any, stanzaTab: any): void;
+    onIqCallLogNotificationReceived(msg: any, stanzaTab: any): Promise<boolean>;
     /**
      * Method isMediaPillarJid
      * @public
@@ -17981,12 +18100,13 @@ export { CallLogEventHandler };
 
 }
 declare module 'lib/services/CallLogService' {
-	/// <reference types="node" />
-import { GenericService } from 'lib/services/GenericService';
+	import { GenericService } from 'lib/services/GenericService';
 export {};
+import { CallLogEventHandler } from 'lib/connection/XMPPServiceHandler/calllogEventHandler';
 import { EventEmitter } from 'events';
 import { Logger } from 'lib/common/Logger';
 import { Core } from 'lib/Core'; class CallLogService extends GenericService {
+    get calllogEventHandler(): CallLogEventHandler;
     private calllogs;
     private callLogHandlerRef;
     private callLogMessageAckRef;
@@ -18002,6 +18122,7 @@ import { Core } from 'lib/Core'; class CallLogService extends GenericService {
     private _profiles;
     private _calllogEventHandler;
     private _telephony;
+    private iMOptions;
     static getClassName(): string;
     getClassName(): string;
     static getAccessorName(): string;
@@ -18135,8 +18256,7 @@ export { CallLogService };
 
 }
 declare module 'lib/common/Events' {
-	/// <reference types="node" />
-export {};
+	export {};
 import { EventEmitter } from 'events';
 import { Core } from 'lib/Core';
 import { Logger } from 'lib/common/Logger'; class Events {
@@ -18184,7 +18304,7 @@ import { Logger } from 'lib/common/Logger'; class Events {
      * @description
      *      Unsubscribe to an event raised when a log is done.
      */
-    removeLogListener(event: any, callback: any): EventEmitter;
+    removeLogListener(event: any, callback: any): EventEmitter<[never]>;
     /**
      * @method on
      * @public
@@ -18276,6 +18396,7 @@ import { DataStoreType } from 'lib/config/config'; class Options {
     private _concurrentRequests;
     private _intervalBetweenCleanMemoryCache;
     private _requestsRate;
+    private _configIniData;
     constructor(_options: any, _logger: Logger);
     parse(): void;
     get testOutdatedVersion(): boolean;
@@ -18394,6 +18515,7 @@ import { DataStoreType } from 'lib/config/config'; class Options {
         autoLoadConversations: boolean;
         autoLoadConversationHistory: boolean;
         autoLoadContacts: boolean;
+        autoLoadCallLog: boolean;
         forceHistoryGetContactFromServer: boolean;
         enableCarbon: boolean;
         enablesendurgentpushmessages: boolean;
@@ -18456,10 +18578,10 @@ import { GenericHandler } from 'lib/connection/XMPPServiceHandler/GenericHandler
     constructor(xmppService: XMPPService, alertsService: AlertsService, options: any);
     lock(fn: any): any;
     onManagementMessageReceived(msg: any, stanza: any): void;
-    onHeadlineMessageReceived(msg: any, stanza: any): void;
+    onHeadlineMessageReceived(msg: any, stanzaTab: any): void;
     onNotificationManagementMessageReceived(stanza: any): boolean;
     onReceiptMessageReceived(msg: any, stanza: any): void;
-    onErrorMessageReceived(msg: any, stanza: any): void;
+    onErrorMessageReceived(msg: any, stanzaTab: any): void;
 }
 export { AlertEventHandler };
 
@@ -18576,8 +18698,7 @@ export { AlertTemplate, AlertTemplatesData };
 
 }
 declare module 'lib/services/AlertsService' {
-	/// <reference types="node" />
-import { Logger } from 'lib/common/Logger';
+	import { Logger } from 'lib/common/Logger';
 export {};
 import { Alert, AlertsData } from 'lib/common/models/Alert';
 import { EventEmitter } from 'events';
@@ -19240,17 +19361,16 @@ import { GenericHandler } from 'lib/connection/XMPPServiceHandler/GenericHandler
     static getAccessorName(): string;
     getAccessorName(): string;
     constructor(xmppService: any, channelsService: any);
-    onManagementMessageReceived(msg: any, stanza: any): void;
+    onManagementMessageReceived(msg: any, stanzaTab: any): void;
     onWebinarManagementMessageReceived(stanza: any): boolean;
     onReceiptMessageReceived(msg: any, stanza: any): void;
-    onErrorMessageReceived(msg: any, stanza: any): void;
+    onErrorMessageReceived(msg: any, stanzaTab: any): void;
 }
 export { WebinarEventHandler };
 
 }
 declare module 'lib/services/WebinarsService' {
-	/// <reference types="node" />
-import { EventEmitter } from 'events';
+	import { EventEmitter } from 'events';
 import { Logger } from 'lib/common/Logger';
 import { Core } from 'lib/Core';
 import { GenericService } from 'lib/services/GenericService';
@@ -19504,17 +19624,16 @@ export {}; class RBVoiceEventHandler extends GenericHandler {
     getAccessorName(): string;
     constructor(xmppService: XMPPService, core: Core);
     onIqResultReceived(msg: any, stanza: any): void;
-    onErrorMessageReceived(msg: any, stanza: any): void;
-    onMessageReceived(msg: any, stanza: any): Promise<boolean>;
-    onManagementMessageReceived(msg: any, stanza: any): Promise<boolean>;
-    onHeadlineMessageReceived(msg: any, stanza: any): Promise<boolean>;
+    onErrorMessageReceived(msg: any, stanzaTab: any): void;
+    onMessageReceived(msg: any, stanzaTab: any): Promise<boolean>;
+    onManagementMessageReceived(msg: any, stanzaTab: any): Promise<boolean>;
+    onHeadlineMessageReceived(msg: any, stanzaTab: any): Promise<boolean>;
 }
 export { RBVoiceEventHandler };
 
 }
 declare module 'lib/services/RBVoiceService' {
-	/// <reference types="node" />
-import { EventEmitter } from 'events';
+	import { EventEmitter } from 'events';
 import { Logger } from 'lib/common/Logger';
 import { Core } from 'lib/Core';
 import { GenericService } from 'lib/services/GenericService';
@@ -21048,8 +21167,8 @@ import { RPCoverXMPPService } from 'lib/services/RPCoverXMPPService.js'; class R
     static getAccessorName(): string;
     getAccessorName(): string;
     constructor(xmppService: XMPPService, restService: RESTService, options: any, rpcoverxmpp: RPCoverXMPPService);
-    onIqGetSetReceived(msg: any, stanza: any): void;
-    onIqResultReceived(msg: any, stanza: any): void;
+    onIqGetSetReceived(msg: any, stanzaTab: any): void;
+    onIqResultReceived(msg: any, stanzaTab: any): void;
     _onIqGetSetQueryReceived(stanza: any, node: any): Promise<void>;
     _onIqGetSetReqReceived(stanza: any, node: any): Promise<number>;
     _onIqRespResultReceived(stanza: any, node: any): Promise<void>;
@@ -21058,8 +21177,7 @@ export { RpcoverxmppEventHandler };
 
 }
 declare module 'lib/services/RPCoverXMPPService' {
-	/// <reference types="node" />
-import { EventEmitter } from 'events';
+	import { EventEmitter } from 'events';
 import { Logger } from 'lib/common/Logger';
 import { Core } from 'lib/Core';
 import { GenericService } from 'lib/services/GenericService';
@@ -21163,8 +21281,7 @@ export { RPCoverXMPPService as RPCoverXMPPService };
 
 }
 declare module 'lib/Core' {
-	/// <reference types="node" />
-import { XMPPService } from 'lib/connection/XMPPService';
+	import { XMPPService } from 'lib/connection/XMPPService';
 import { RESTService } from 'lib/connection/RESTService';
 import { HTTPService } from 'lib/connection/HttpService';
 import { ImsService } from 'lib/services/ImsService';
@@ -21246,6 +21363,7 @@ import { TasksService } from 'lib/services/TasksService'; class Core extends Lev
     _signinWSOnly(forceStopXMPP: any, token: any, userInfos: any): Promise<unknown>;
     _retrieveInformation(): Promise<unknown>;
     setRenewedToken(strToken: string): Promise<void>;
+    setCredentialPassword(strPassword: string): Promise<void>;
     onTokenRenewed(): void;
     onTokenExpired(): void;
     _tokenSurvey(): void;
@@ -21255,6 +21373,7 @@ import { TasksService } from 'lib/services/TasksService'; class Core extends Lev
     signinWSOnly(forceStopXMPP: any, token: any, userInfos: any): Promise<unknown>;
     stop(): Promise<unknown>;
     getConnectionStatus(): Promise<{
+        serviceStatus: any;
         restStatus: boolean;
         xmppStatus: boolean;
         s2sStatus: boolean;
@@ -21291,9 +21410,7 @@ export { Core };
 
 }
 declare module 'lib/services/FileServerService' {
-	/// <reference types="node" />
-/// <reference types="node" />
-import { Observable } from 'rxjs';
+	import { Observable } from 'rxjs';
 export {};
 import { Logger } from 'lib/common/Logger';
 import { EventEmitter } from 'events';
@@ -21467,8 +21584,7 @@ export { FileServer as FileServerService };
 
 }
 declare module 'lib/services/FileStorageService' {
-	/// <reference types="node" />
-export {};
+	export {};
 import { Observable } from 'rxjs';
 import { FileDescriptor } from 'lib/common/models/FileDescriptor';
 import { Conversation } from 'lib/common/models/Conversation';
@@ -21959,7 +22075,7 @@ import { GenericService } from 'lib/services/GenericService'; function FileUpdat
      * @return {Promise<FileDescriptor[]>} : list of sent files descriptors
      *
      */
-    retrieveSentFiles(peerId: string, fileName: string, extension: string, typeMIME: string, purpose: string, isUploaded: boolean, path: string, limit: number, offset: number, sortField: string, sortOrder?: number, format?: string): Promise<unknown>;
+    retrieveSentFiles(peerId: string, fileName?: string, extension?: string, typeMIME?: string, purpose?: string, isUploaded?: boolean, path?: string, limit?: number, offset?: number, sortField?: string, sortOrder?: number, format?: string): Promise<unknown>;
     /**
      * @public
      *
@@ -22737,7 +22853,7 @@ export {}; class ConversationEventHandler extends GenericHandler {
     constructor(xmppService: XMPPService, conversationService: any, imOptions: any, fileStorageService: any, fileServerService: any, bubbleService: any, contactsService: any, presenceService: any);
     private createSessionParticipantFromElem;
     parseConferenceV2UpdatedEvent(stanza: any, id: any, node: any): Promise<void>;
-    onChatMessageReceived(msg: any, stanza: Element): Promise<void>;
+    onChatMessageReceived(msg: any, stanzaTab: Element): Promise<void>;
     parseParticipantsFromConferenceUpdatedEvent(conference: ConferenceSession, addedParticipants: any): Promise<void>;
     parseIdFromConferenceUpdatedEvent(participants: any, propertyToGet: string): List<string>;
     parseTalkersFromConferenceUpdatedEvent(conference: ConferenceSession, talkersElmt: any): void;
@@ -22745,10 +22861,10 @@ export {}; class ConversationEventHandler extends GenericHandler {
     parsePublishersFromConferenceUpdatedEvent(conference: ConferenceSession, xmlElementList: any, add: boolean): Promise<void>;
     parseServicesFromConferenceUpdatedEvent(conference: ConferenceSession, xmlElementList: any, add: boolean): Promise<void>;
     _onMessageReceived(conversationId: any, data: any): Promise<void>;
-    onRoomAdminMessageReceived(msg: any, stanza: any): void;
-    onFileMessageReceived(msg: any, stanza: any): void;
-    onWebRTCMessageReceived(msg: any, stanza: any): void;
-    onManagementMessageReceived(msg: any, stanza: any): void;
+    onRoomAdminMessageReceived(msg: any, stanzaTab: any): void;
+    onFileMessageReceived(msg: any, stanzaTab: any): void;
+    onWebRTCMessageReceived(msg: any, stanzaTab: any): void;
+    onManagementMessageReceived(msg: any, stanzaTab: any): void;
     onRoomManagementMessageReceived(node: any): void;
     onUserSettingsManagementMessageReceived(node: any): void;
     onUserInviteManagementMessageReceived(node: any): void;
@@ -22765,8 +22881,8 @@ export {}; class ConversationEventHandler extends GenericHandler {
     onConnectorConfigManagementMessageReceived(node: any): Promise<void>;
     onLogsMessageReceived(node: any): Promise<void>;
     onReceiptMessageReceived(msg: any, stanza: any): void;
-    onErrorMessageReceived(msg: any, stanza: any): Promise<void>;
-    onCloseMessageReceived(msg: any, stanza: any): void;
+    onErrorMessageReceived(msg: any, stanzaTab: any): Promise<void>;
+    onCloseMessageReceived(msg: any, stanzaTab: any): void;
 }
 export { ConversationEventHandler };
 
@@ -22777,8 +22893,11 @@ export {};
 import { ConversationsService } from 'lib/services/ConversationsService';
 import { ContactsService } from 'lib/services/ContactsService';
 import { GenericHandler } from 'lib/connection/XMPPServiceHandler/GenericHandler'; class ConversationHistoryHandler extends GenericHandler {
-    MESSAGE_MAM: any;
-    FIN_MAM: any;
+    MESSAGE: string;
+    IQ_GET: any;
+    IQ_SET: any;
+    IQ_RESULT: any;
+    IQ_ERROR: any;
     _conversationService: ConversationsService;
     private _contactsService;
     forceHistoryGetContactFromServer: boolean;
@@ -22787,18 +22906,21 @@ import { GenericHandler } from 'lib/connection/XMPPServiceHandler/GenericHandler
     getClassName(): string;
     static getAccessorName(): string;
     getAccessorName(): string;
+    historyDelay: number;
     constructor(xmppService: XMPPService, conversationService: ConversationsService, contactsService: ContactsService, options: any);
-    onMamMessageReceived(msg: any, stanza: any): boolean;
-    onHistoryMessageReceived(msg: any, stanza: any): Promise<boolean>;
+    onMamMessageReceived(msg: any, stanzaTab: any): Promise<boolean>;
+    onMessageReceived(msg: any, stanzaTab: any): Promise<boolean>;
+    onIqResultReceived(msg: any, stanzaTab: any): void;
+    onHistoryMessageReceived(msg: any, stanzaTab: any, conversation: any): Promise<boolean | "completed">;
     onWebrtcHistoryMessageReceived(stanza: any, conversation: any): boolean;
 }
 export { ConversationHistoryHandler };
 
 }
 declare module 'lib/services/ConversationsService' {
-	/// <reference types="node" />
-export {};
+	export {};
 import { Conversation } from 'lib/common/models/Conversation';
+import { ConversationHistoryHandler } from 'lib/connection/XMPPServiceHandler/conversationHistoryHandler';
 import { Logger } from 'lib/common/Logger';
 import { EventEmitter } from 'events';
 import { Contact } from 'lib/common/models/Contact';
@@ -22806,6 +22928,7 @@ import { Core } from 'lib/Core';
 import { Message } from 'lib/common/models/Message';
 import { Bubble } from 'lib/common/models/Bubble';
 import { GenericService } from 'lib/services/GenericService'; class ConversationsService extends GenericService {
+    get conversationHistoryHandler(): ConversationHistoryHandler;
     get pendingMessages(): any;
     private _contactsService;
     private _fileStorageService;
@@ -22894,12 +23017,13 @@ import { GenericService } from 'lib/services/GenericService'; class Conversation
      *    Retrieve the remote history of a specific conversation. <br>
      * @param {Conversation} conversation Conversation to retrieve
      * @param {number} size Maximum number of element to retrieve
+     * @param {boolean} useBulk Does the history should be retrieved with a bulk (group) of messages
      * @async
      * @return {Promise<Conversation[]>}
      * @fulfil {Conversation[]} - Array of Conversation object
      * @category async
      */
-    getHistoryPage(conversation: Conversation, size?: number): Promise<any>;
+    getHistoryPage(conversation: Conversation, size?: number, useBulk?: boolean): Promise<any>;
     /**
      * @public
      * @nodered true
@@ -22910,12 +23034,13 @@ import { GenericService } from 'lib/services/GenericService'; class Conversation
      *    Retrieve the remote history of a specific conversation. <br>
      * @param {Conversation} conversation Conversation to retrieve
      * @param {string} pageSize number of message in each page to retrieve messages.
+     * @param {boolean} useBulk Does the history should be retrieved with a bulk (group) of messages
      * @async
      * @return {Promise<Conversation[]>}
      * @fulfil {Conversation[]} - Array of Conversation object
      * @category async
      */
-    loadConversationHistory(conversation: any, pageSize?: number): Promise<Conversation>;
+    loadConversationHistory(conversation: any, pageSize?: number, useBulk?: boolean): Promise<Conversation>;
     /**
      * @public
      * @nodered true
@@ -22927,11 +23052,12 @@ import { GenericService } from 'lib/services/GenericService'; class Conversation
      *    </br>The result of the loading process is sent with the event `rainbow_onloadConversationHistoryCompleted`<br>
      * @param {Conversation} conversation Conversation to retrieve
      * @param {string} pageSize number of message in each page to retrieve messages.
+     * @param {boolean} useBulk Does the history should be retrieved with a bulk (group) of messages
      * @async
      * @return {Promise<{code:number,label:string}>}
      * @category async
      */
-    loadConversationHistoryAsync(conversation: Conversation, pageSize?: number): Promise<{
+    loadConversationHistoryAsync(conversation: Conversation, pageSize?: number, useBulk?: boolean): Promise<{
         code: number;
         label: string;
     }>;
@@ -22944,12 +23070,13 @@ import { GenericService } from 'lib/services/GenericService'; class Conversation
      *    Retrieve the remote history of a specific conversation. <br>
      * @param {Conversation} conversation Conversation to retrieve
      * @param {string} pageSize number of message in each page to retrieve messages.
+     * @param {boolean} useBulk Does the history should be retrieved with a bulk (group) of messages
      * @async
      * @return {Promise<Conversation[]>}
      * @fulfil {Conversation[]} - Array of Conversation object
      * @category async
      */
-    loadEveryConversationsHistory(pageSize?: number): void;
+    loadEveryConversationsHistory(pageSize?: number, useBulk?: boolean): void;
     /**
      *
      * @public
@@ -23005,10 +23132,11 @@ import { GenericService } from 'lib/services/GenericService'; class Conversation
      * @description
      *    To retrieve messages exchanged by contacts in a conversation. The result is the messages without event type. <br>
      * @param {string} conversationId : Id of the conversation
+     * @param {boolean} useBulk Does the history should be retrieved with a bulk (group) of messages
      * @async
      * @return {Promise<any>}
      */
-    getContactsMessagesFromConversationId(conversationId: string): Promise<Message>;
+    getContactsMessagesFromConversationId(conversationId: string, useBulk?: boolean): Promise<Message>;
     searchMessageArchivedFromServer(conversation: Conversation, messageId: string, stamp: string): Promise<any>;
     /**
      * @private
@@ -23566,8 +23694,7 @@ export { S2SServiceEventHandler };
 
 }
 declare module 'lib/services/S2SService' {
-	/// <reference types="node" />
-import { EventEmitter } from 'events';
+	import { EventEmitter } from 'events';
 import { Logger } from 'lib/common/Logger';
 import { ProxyImpl } from 'lib/ProxyImpl';
 import { GenericService } from 'lib/services/GenericService';
@@ -23774,8 +23901,7 @@ export { S2SService, ROOMROLE };
 
 }
 declare module 'lib/services/FavoritesService' {
-	/// <reference types="node" />
-import { Logger } from 'lib/common/Logger';
+	import { Logger } from 'lib/common/Logger';
 export {};
 import { Favorite } from 'lib/common/models/Favorite';
 import { EventEmitter } from 'events';
@@ -23992,8 +24118,7 @@ export { Invitation as Invitation };
 
 }
 declare module 'lib/services/InvitationsService' {
-	/// <reference types="node" />
-export {};
+	export {};
 import { EventEmitter } from 'events';
 import { Logger } from 'lib/common/Logger';
 import { Core } from 'lib/Core';
@@ -24566,8 +24691,7 @@ export { InvitationsService };
 
 }
 declare module 'lib/services/ContactsService' {
-	/// <reference types="node" />
-import { Contact } from 'lib/common/models/Contact';
+	import { Contact } from 'lib/common/models/Contact';
 import { EventEmitter } from 'events';
 import { Logger } from 'lib/common/Logger';
 import { Core } from 'lib/Core';
@@ -25935,6 +26059,15 @@ export {}; class ContactsService extends GenericService {
      *      Method called when the roster _contacts is updated <br>
      */
     _onRostersUpdate(contacts: any): void;
+    /**
+     * @private
+     * @method _onrainbowcpaasreceived
+     * @instance
+     * @param {Object} contacts contains a contact list with updated elements
+     * @description
+     *      Method called when the roster _contacts is updated <br>
+     */
+    _onrainbowcpaasreceived(rainbowcpaasdata: any): void;
 }
 export { ContactsService as ContactsService };
 
@@ -25952,14 +26085,13 @@ export {}; class PresenceEventHandler extends GenericHandler {
     static getAccessorName(): string;
     getAccessorName(): string;
     constructor(xmppService: XMPPService, contacts: ContactsService);
-    onPresenceReceived(msg: any, stanza: any): Promise<boolean>;
+    onPresenceReceived(msg: any, stanzaTab: any): Promise<boolean>;
 }
 export { PresenceEventHandler };
 
 }
 declare module 'lib/services/PresenceService' {
-	/// <reference types="node" />
-import { Logger } from 'lib/common/Logger';
+	import { Logger } from 'lib/common/Logger';
 import { EventEmitter } from 'events';
 import { Core } from 'lib/Core';
 import { PresenceLevel, PresenceRainbow } from 'lib/common/models/PresenceRainbow';
@@ -26691,13 +26823,15 @@ declare module 'lib/connection/request-rate-limiter/src/BackoffError' {
 
 }
 declare module 'lib/connection/request-rate-limiter/src/RequestRateLimiter' {
-	export default class RequestRateLimiter {
+	import { EventEmitter } from 'events';
+export default class RequestRateLimiter {
     backoffTime: number;
     private requestRate;
     private interval;
     private timeout;
     bucket: any;
     private requestHandler;
+    private _eventEmitter;
     /**
      * The constructor accepts 4 additional options, which can be used to configure the behaviour of the limiter:
      * backoffTime: how many seconds to back off when the remote end indicates to back off
@@ -26706,7 +26840,7 @@ declare module 'lib/connection/request-rate-limiter/src/RequestRateLimiter' {
      * timeout: no request will stay in the queue any longer than the timeout. if the queue is full, the requst will be rejected
      *
     */
-    constructor({ backoffTime, requestRate, interval, timeout, }?: {
+    constructor(_eventEmitter: EventEmitter, { backoffTime, requestRate, interval, timeout, }?: {
         backoffTime?: number;
         requestRate?: number;
         interval?: number;
@@ -26760,8 +26894,7 @@ export { BackoffError, RequestRequestHandler, MockRequestHandler, RequestRateLim
 
 }
 declare module 'lib/connection/HttpManager' {
-	/// <reference types="node" />
-import { EventEmitter } from 'events';
+	import { EventEmitter } from 'events';
 import { Core } from 'lib/Core';
 import { Logger } from 'lib/common/Logger';
 import RequestRateLimiter from 'lib/connection/request-rate-limiter/index';
@@ -26865,28 +26998,28 @@ import { LevelLogs } from 'lib/common/LevelLogs'; class HTTPService extends Leve
         method: string;
         headers: any;
     }): void;
-    getUrlRaw(url: any, headers: any, params: any): Promise<any>;
-    _getUrlRaw(url: any, headers: any, params: any): Promise<any>;
-    headUrlRaw(url: any, headers?: any): Promise<any>;
-    _headUrlRaw(url: any, headers?: any): Promise<any>;
+    getUrlRaw(url: any, headers: any, params: any, nbRetryBeforeFailed?: number, timeBetweenRetry?: number): Promise<any>;
+    _getUrlRaw(url: any, headers: any, params: any, nbRetryBeforeFailed?: number, timeBetweenRetry?: number): Promise<any>;
+    headUrlRaw(url: any, headers?: any, nbRetryBeforeFailed?: number, timeBetweenRetry?: number): Promise<any>;
+    _headUrlRaw(url: any, headers?: any, nbRetryBeforeFailed?: number, timeBetweenRetry?: number): Promise<any>;
     postUrlRaw(url: any, headers: any, data: any): Promise<any>;
     _postUrlRaw(url: any, headers: any, data: any): Promise<any>;
     putUrlRaw(url: any, headers: any, data: any): Promise<any>;
     _putUrlRaw(url: any, headers: any, data: any): Promise<any>;
-    deleteUrlRaw(url: any, headers?: any, data?: Object): Promise<any>;
-    _deleteUrlRaw(url: any, headers?: any, data?: Object): Promise<any>;
-    getUrlJson(url: any, headers: any, params: any): Promise<any>;
-    _getUrlJson(url: any, headers: any, params: any): Promise<any>;
-    get(url: any, headers: any, params: any, responseType?: string, nbTryBeforeFailed?: number, timeBetweenRetry?: number): Promise<any>;
-    _get(url: any, headers: any, params: any, responseType?: string, nbTryBeforeFailed?: number, timeBetweenRetry?: number): Promise<any>;
-    post(url: any, headers: any, data: any, contentType: any): Promise<any>;
-    _post(url: any, headers: any, data: any, contentType: any): Promise<any>;
-    head(url: any, headers?: any): Promise<any>;
-    _head(url: any, headers?: any): Promise<any>;
-    patch(url: any, headers: any, data: any, type: any): Promise<any>;
-    _patch(url: any, headers: any, data: any, type: any): Promise<any>;
-    put(url: any, headers: any, data: any, type: any): Promise<any>;
-    _put(url: any, headers: any, data: any, type: any): Promise<any>;
+    deleteUrlRaw(url: any, headers?: any, data?: Object, nbRetryBeforeFailed?: number, timeBetweenRetry?: number): Promise<any>;
+    _deleteUrlRaw(url: any, headers?: any, data?: Object, nbRetryBeforeFailed?: number, timeBetweenRetry?: number): Promise<any>;
+    getUrlJson(url: any, headers: any, params: any, nbRetryBeforeFailed?: number, timeBetweenRetry?: number): Promise<any>;
+    _getUrlJson(url: any, headers: any, params: any, nbRetryBeforeFailed?: number, timeBetweenRetry?: number): Promise<any>;
+    get(url: any, headers: any, params: any, responseType?: string, nbRetryBeforeFailed?: number, timeBetweenRetry?: number): Promise<any>;
+    _get(url: any, headers: any, params: any, responseType?: string, nbRetryBeforeFailed?: number, timeBetweenRetry?: number): Promise<any>;
+    post(url: any, headers: any, data: any, contentType: any, nbRetryBeforeFailed?: number, timeBetweenRetry?: number): Promise<any>;
+    _post(url: any, headers: any, data: any, contentType: any, nbRetryBeforeFailed?: number, timeBetweenRetry?: number): Promise<any>;
+    head(url: any, headers?: any, nbRetryBeforeFailed?: number, timeBetweenRetry?: number): Promise<any>;
+    _head(url: any, headers?: any, nbRetryBeforeFailed?: number, timeBetweenRetry?: number): Promise<any>;
+    patch(url: any, headers: any, data: any, type: any, nbRetryBeforeFailed?: number, timeBetweenRetry?: number): Promise<any>;
+    _patch(url: any, headers: any, data: any, type: any, nbRetryBeforeFailed?: number, timeBetweenRetry?: number): Promise<any>;
+    put(url: any, headers: any, data: any, type: any, nbRetryBeforeFailed?: number, timeBetweenRetry?: number): Promise<any>;
+    _put(url: any, headers: any, data: any, type: any, nbRetryBeforeFailed?: number, timeBetweenRetry?: number): Promise<any>;
     putBuffer(url: any, headers: any, buffer: any): Promise<any>;
     _putBuffer(url: any, headers: any, buffer: any): Promise<any>;
     putStream(url: any, headers: any, stream: any): Promise<any>;
@@ -26998,8 +27131,7 @@ export { createTask as createTask, Task as Task };
 
 }
 declare module 'lib/connection/RESTService' {
-	/// <reference types="node" />
-import { RESTTelephony } from 'lib/connection/RestServices/RESTTelephony';
+	import { RESTTelephony } from 'lib/connection/RestServices/RESTTelephony';
 import { HTTPService } from 'lib/connection/HttpService';
 import EventEmitter = NodeJS.EventEmitter;
 import { Logger } from 'lib/common/Logger';
@@ -27084,6 +27216,7 @@ import { HuntingGroup } from 'lib/common/models/RainbowVoiceCloudPBX.js'; enum M
     static getAccessorName(): string;
     getAccessorName(): string;
     constructor(core: Core, _options: any, evtEmitter: EventEmitter, _logger: Logger);
+    setCredentialPassword(strPassword: string): Promise<void>;
     get userId(): any;
     get loggedInUser(): any;
     start(http: any): Promise<any[]>;
@@ -27217,7 +27350,7 @@ import { HuntingGroup } from 'lib/common/models/RainbowVoiceCloudPBX.js'; enum M
      * @return {Promise<unknown>}
      */
     getMediaPillarInfo(): Promise<unknown>;
-    createBubble(name: any, description: any, withHistory: any): Promise<unknown>;
+    createBubble(name: string, description: string, history?: any, p_number?: number, visibility?: string, disableNotifications?: boolean, autoRegister?: string, autoAcceptInvitation?: boolean, muteUponEntry?: boolean, playEntryTone?: boolean): Promise<unknown>;
     updateRoomData(bubbleId: string, data: any): Promise<unknown>;
     setBubbleVisibility(bubbleId: any, visibility: any): Promise<unknown>;
     setBubbleAutoRegister(bubbleId: string, autoRegister?: string): Promise<unknown>;
@@ -27782,7 +27915,7 @@ import { HuntingGroup } from 'lib/common/models/RainbowVoiceCloudPBX.js'; enum M
      * @memberof WebConferenceService
      */
     retrieveWebConferences(mediaType?: string): Promise<any>;
-    retrieveAllCompanyOffers(companyId: string): Promise<unknown>;
+    retrieveAllCompanyOffers(companyId: string, format?: string, name?: string, canBeSold?: boolean, autoSubscribe?: boolean, isExclusive?: boolean, isPrepaid?: boolean, profileId?: boolean, offerReference?: boolean, sapReference?: boolean, limit?: number, offset?: number, sortField?: string, sortOrder?: number): Promise<unknown>;
     retrieveAllCompanySubscriptions(companyId: string, format?: string): Promise<unknown>;
     subscribeCompanyToOffer(companyId: string, offerId: string, maxNumberUsers?: number, autoRenew?: boolean): Promise<unknown>;
     unSubscribeCompanyToSubscription(companyId: string, subscriptionId: string): Promise<unknown>;
@@ -28261,8 +28394,8 @@ import { RESTService } from 'lib/connection/RESTService'; class HttpoverxmppEven
     static getAccessorName(): string;
     getAccessorName(): string;
     constructor(xmppService: XMPPService, restService: RESTService, options: any);
-    onIqGetSetReceived(msg: any, stanza: any): void;
-    onIqResultReceived(msg: any, stanza: any): void;
+    onIqGetSetReceived(msg: any, stanzaTab: any): void;
+    onIqResultReceived(msg: any, stanzaTab: any): void;
     _onIqGetSetReqReceived(stanza: any, node: any): Promise<number>;
     _onIqRespResultReceived(stanza: any, node: any): Promise<void>;
 }
@@ -28275,7 +28408,9 @@ import { XmppClient } from 'lib/common/XmppQueue/XmppClient';
 import { AlertMessage } from 'lib/common/models/AlertMessage';
 import { GenericService } from 'lib/services/GenericService';
 import { HttpoverxmppEventHandler } from 'lib/connection/XMPPServiceHandler/httpoverxmppEventHandler';
-import { RpcoverxmppEventHandler } from 'lib/connection/XMPPServiceHandler/rpcoverxmppEventHandler'; const NameSpacesLabels: {
+import { RpcoverxmppEventHandler } from 'lib/connection/XMPPServiceHandler/rpcoverxmppEventHandler';
+import { ConversationHistoryHandler } from 'lib/connection/XMPPServiceHandler/conversationHistoryHandler.js';
+import { CallLogEventHandler } from 'lib/connection/XMPPServiceHandler/calllogEventHandler.js'; const NameSpacesLabels: {
     ChatstatesNS: string;
     ReceiptNS: string;
     CallLogNamespace: string;
@@ -28306,6 +28441,7 @@ import { RpcoverxmppEventHandler } from 'lib/connection/XMPPServiceHandler/rpcov
     protocolShimNS: string;
     XmppFraming: string;
     RPC: string;
+    RainbowCpaaSMessage: string;
 }; class XMPPService extends GenericService {
     serverURL: any;
     host: any;
@@ -28340,6 +28476,8 @@ import { RpcoverxmppEventHandler } from 'lib/connection/XMPPServiceHandler/rpcov
     IQEventHandler: any;
     httpoverxmppEventHandler: HttpoverxmppEventHandler;
     rpcoverxmppEventHandler: RpcoverxmppEventHandler;
+    conversationHistoryHandler: ConversationHistoryHandler;
+    calllogEventHandler: CallLogEventHandler;
     xmppUtils: XMPPUTils;
     private shouldSendMessageToConnectedUser;
     private storeMessages;
@@ -28365,6 +28503,8 @@ import { RpcoverxmppEventHandler } from 'lib/connection/XMPPServiceHandler/rpcov
     startOrResetIdleTimer(incomingStanza?: boolean): void;
     stopIdleTimer(): void;
     mockStanza(stanza: any): void;
+    fn_input(stanzaStr: any): void;
+    fn_STANZA_EVENT(stanza: any): Promise<void>;
     handleXMPPConnection(headers: any): Promise<void>;
     setPresence(show: any, status: any): any;
     subscribePresence(to: any): any;
@@ -28379,6 +28519,7 @@ import { RpcoverxmppEventHandler } from 'lib/connection/XMPPServiceHandler/rpcov
     sendChatExistingFSMessage(message: any, jid: any, lang: any, fileDescriptor: any): Promise<any>;
     sendChatExistingFSMessageToBubble(message: any, jid: any, lang: any, fileDescriptor: any): Promise<any>;
     sendIsTypingState(conversation: any, isTypingState: any): Promise<any>;
+    sendApplicationMessageAsync(jid: any, type: any, element: Element): Promise<any>;
     /****************************************************/
     /**            XMPP ROSTER MANAGEMENT              **/
     /****************************************************/
@@ -28402,10 +28543,10 @@ import { RpcoverxmppEventHandler } from 'lib/connection/XMPPServiceHandler/rpcov
     deleteAllMessagesInRoomConversation(roomJid: any, forContactJid?: any): Promise<unknown>;
     getErrorMessage(data: any, actionLabel: any): string;
     getTelephonyState(secondary: any): Promise<unknown>;
-    sendPing(): Promise<any>;
+    sendPing(to?: string): Promise<any>;
     SendAlertMessage(alertMessage: AlertMessage): Promise<unknown>;
-    mamQuery(jid: any, options: any): void;
-    mamQueryMuc(jid: any, to: any, options: any): void;
+    mamQuery(jid: any, options: any, useBulk: any): void;
+    mamQueryMuc(jid: any, to: any, options: any, useBulk: any): void;
     mamDelete(options: any): void;
     voiceMessageQuery(jid: any): Promise<unknown>;
     discoverHTTPoverXMPP(to: any, headers?: {}): Promise<unknown>;
@@ -28429,8 +28570,7 @@ export { XMPPService, NameSpacesLabels };
 
 }
 declare module 'lib/services/GenericService' {
-	/// <reference types="node" />
-import { XMPPService } from 'lib/connection/XMPPService';
+	import { XMPPService } from 'lib/connection/XMPPService';
 export {};
 import { Core } from 'lib/Core';
 import { Logger } from 'lib/common/Logger';
@@ -28447,7 +28587,7 @@ import { LevelLogs } from 'lib/common/LevelLogs.js'; class GenericService extend
     protected _useS2S: boolean;
     protected _eventEmitter: EventEmitter;
     protected _rest: RESTService;
-    protected _started: boolean;
+    _started: boolean;
     protected _initialized: boolean;
     protected _core: Core;
     protected _startConfig: {
@@ -28504,17 +28644,16 @@ export {}; class TasksEventHandler extends GenericHandler {
     getAccessorName(): string;
     constructor(xmppService: XMPPService, core: Core);
     onIqResultReceived(msg: any, stanza: any): void;
-    onErrorMessageReceived(msg: any, stanza: any): void;
-    onMessageReceived(msg: any, stanza: any): Promise<boolean>;
-    onManagementMessageReceived(msg: any, stanza: any): Promise<boolean>;
+    onErrorMessageReceived(msg: any, stanzaTab: any): void;
+    onMessageReceived(msg: any, stanzaTab: any): Promise<boolean>;
+    onManagementMessageReceived(msg: any, stanzaTab: any): Promise<boolean>;
     onTodosManagementMessageReceived(stanza: any): Promise<void>;
 }
 export { TasksEventHandler };
 
 }
 declare module 'lib/services/TasksService' {
-	/// <reference types="node" />
-import { GenericService } from 'lib/services/GenericService';
+	import { GenericService } from 'lib/services/GenericService';
 export {};
 import { Logger } from 'lib/common/Logger';
 import { EventEmitter } from 'events';
@@ -28876,51 +29015,52 @@ import { LogLevelAreas } from 'lib/common/LevelLogs.js'; class NodeSDK {
      * @param {string} options.proxy.protocol "http", The proxy protocol (note http is used to https also).
      * @param {string} options.proxy.user "proxyuser", The proxy username.
      * @param {string} options.proxy.password "XXXXX", The proxy password.
-     * @param {string} options.logs.enableConsoleLogs false, Activate logs on the console.
-     * @param {string} options.logs.enableFileLogs false, Activate the logs in a file.
+     * @param {boolean} options.logs.enableConsoleLogs false, Activate logs on the console.
+     * @param {boolean} options.logs.enableFileLogs false, Activate the logs in a file.
      * @param {boolean} options.logs.enableEventsLogs: false, Activate the logs to be raised from the events service (with `onLog` listener). Used for logs in connection node in red node contrib.
      * @param {boolean} options.logs.enableEncryptedLogs: true, Activate the encryption of stanza in logs.
-     * @param {string} options.logs.color true, Activate the ansii color in the log (more humain readable, but need a term console or reader compatible (ex : vim + AnsiEsc module)).
+     * @param {boolean} options.logs.color true, Activate the ansii color in the log (more humain readable, but need a term console or reader compatible (ex : vim + AnsiEsc module)).
      * @param {string} options.logs.level "info", The level of logs. The value can be "error", "warn", "info", "trace", "http", "xmpp", "debug", "internalerror", "internal". These Severities of levels are shown in an inclusive order, so "error" level only show "error" logs, "warn" level only show "error" and "warn" levels, and so on.
      * @param {LogLevelAreas} options.logs.areas Areas allow to override the log level for specifics limited area of code.
      * @param {string} options.logs.customLabel "MyRBProject", A label inserted in every lines of the logs. It is usefull if you use multiple SDK instances at a same time. It allows to separate logs in console.
      * @param {string} options.logs.file.path "c:/temp/", Path to the log file.
      * @param {string} options.logs.file.customFileName "R-SDK-Node-MyRBProject", A label inserted in the name of the log file.
      * @param {string} options.logs.file.zippedArchive false Can activate a zip of file. It needs CPU process, so avoid it.
-     * @param {string} options.testOutdatedVersion true, Parameter to verify at startup if the current SDK Version is the lastest published on npmjs.com.
-     * @param {string} options.testDNSentry true, Parameter to verify at startup/reconnection that the rainbow server DNS entry name is available.
-     * @param {string} options.httpoverxmppserver false, Activate the treatment of Http over Xmpp requests (xep0332).
+     * @param {boolean} options.testOutdatedVersion true, Parameter to verify at startup if the current SDK Version is the lastest published on npmjs.com.
+     * @param {boolean} options.testDNSentry true, Parameter to verify at startup/reconnection that the rainbow server DNS entry name is available.
+     * @param {boolean} options.httpoverxmppserver false, Activate the treatment of Http over Xmpp requests (xep0332).
      * @param {number} options.intervalBetweenCleanMemoryCache 21600000 (6 hours), There is a cleannig process to reduce memory use and this option allow to modify the interval between it.
      * @param {string} options.requestsRate.useRequestRateLimiter true, // Allows to use the rate limit of the http requests to server.
      * @param {string} options.requestsRate.maxReqByIntervalForRequestRate 600, // nb requests during the interval of the rate limit of the http requests to server.
      * @param {string} options.requestsRate.intervalForRequestRate 60, // nb of seconds used for the calcul of the rate limit of the rate limit of the http requests to server.
      * @param {string} options.requestsRate.timeoutRequestForRequestRate 600 // nb seconds Request stay in queue before being rejected if queue is full of the rate limit of the http requests to server.
-     * @param {string} options.im.sendReadReceipt true, Allow to automatically send back a 'read' status of the received message. Usefull for Bots.
+     * @param {boolean} options.im.sendReadReceipt true, Allow to automatically send back a 'read' status of the received message. Usefull for Bots.
      * @param {string} options.im.messageMaxLength 1024, Maximum size of messages send by rainbow. Note that this value should not be modified without ALE Agreement.
-     * @param {string} options.im.sendMessageToConnectedUser false, Forbid the SDK to send a message to the connected user it self. This is to avoid bot loopback.
+     * @param {boolean} options.im.sendMessageToConnectedUser false, Forbid the SDK to send a message to the connected user it self. This is to avoid bot loopback.
      * @param {string} options.im.conversationsRetrievedFormat "small", Set the size of the conversation's content retrieved from server. Can be `small`, `medium`, `full`.
      * @param {string} options.im.storeMessages false, Tell the server to store the message for delay distribution and also for history. Please avoid to set it to true for a bot which will not read anymore the messages. It is a better way to store it in your own CPaaS application.
      * @param {boolean} options.im.copyMessage to manage if the Messages hint should not be copied to others resources (https://xmpp.org/extensions/xep-0334.html#no-copy) . The default value is true.
      * @param {string} options.im.nbMaxConversations 15, Parameter to set the maximum number of conversations to keep (defaut value to 15). Old ones are remove from XMPP server with the new method `ConversationsService::removeOlderConversations`.
-     * @param {string} options.im.rateLimitPerHour 1000, Parameter to set the maximum of "message" stanza sent to server by hour. Default value is 1000.
+     * @param {number} options.im.rateLimitPerHour 1000, Parameter to set the maximum of "message" stanza sent to server by hour. Default value is 1000.
      * @param {string} options.im.messagesDataStore Parameter to override the storeMessages parameter of the SDK to define the behaviour of the storage of the messages (Enum DataStoreType in lib/config/config , default value "DataStoreType.UsestoreMessagesField" so it follows the storeMessages behaviour).<br>
      *                         DataStoreType.NoStore "no-store" Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.<br>
      *                          DataStoreType.NoPermanentStore "no-permanent-store" Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).<br>
      *                          DataStoreType.StoreTwinSide "storetwinside" The messages are fully stored.<br>
      *                          DataStoreType.UsestoreMessagesField "OldstoreMessagesUsed" to follow the storeMessages SDK's parameter behaviour.
      * @param {boolean} options.im.autoInitialGetBubbles to allow automatic opening of the bubbles the user is in. Default value is true.
-     * @param {string} options.im.autoInitialBubblePresence to allow automatic opening of conversation to the bubbles with sending XMPP initial presence to the room. Default value is true.
+     * @param {boolean} options.im.autoInitialBubblePresence to allow automatic opening of conversation to the bubbles with sending XMPP initial presence to the room. Default value is true.
      * @param {number} options.im.maxBubbleJoinInProgress to define the maximum of simultaneous "send initial presence of the bubbles".
      * @param {boolean} options.im.autoInitialBubbleFormat to allow modify format of data received at getting the bubbles. Default value is true.
      * @param {boolean} options.im.autoInitialBubbleUnsubscribed to allow get the bubbles when the user is unsubscribed form it. Default value is true.
      * @param {boolean} options.im.autoLoadConversations to activate the retrieve of conversations from the server. The default value is true.
      * @param {boolean} options.im.autoLoadConversationHistory to activate the retrieve of conversation's messages from the server. The default value is false.
      * @param {boolean} options.im.autoLoadContacts to activate the retrieve of contacts from roster from the server. The default value is true.
+     * @param {boolean} options.im.autoLoadCallLog to activate the retrieve of calllog from the server. The default value is false.
      * @param {boolean} options.im.forceHistoryGetContactFromServer Allows to force to retrieve information about contacts when history messages are getted from server.
      * @param {boolean} options.im.enableCarbon to manage carbon copy of message (https://xmpp.org/extensions/xep-0280.html). The default value is true.     * @param {string} options.im.enablesendurgentpushmessages permit to add <retry-push xmlns='urn:xmpp:hints'/> tag to allows the server sending this messge in push with a small ttl (meaning urgent for apple/google backend) and retry sending it 10 times to increase probability that it is received by mobile device. The default value is false.
-     * @param {string} options.im.enablesendurgentpushmessages permit to add <retry-push xmlns='urn:xmpp:hints'/> tag to allows the server sending this messge in push with a small ttl (meaning urgent for apple/google backend) and retry sending it 10 times to increase probability that it is received by mobile device. The default value is false.
-     * @param {string} options.im.storeMessagesInConversation Allows to store messages in conversation cache if true else the conversation.messages property stay empty. The default value is true.
-     * @param {string} options.im.maxMessagesStoredInConversation Allows to store messages in conversation with a maximum entries. The default value is 1000. Note: `storeMessagesInConversation` needs to be setted to true to be relevant.
+     * @param {boolean} options.im.enablesendurgentpushmessages permit to add <retry-push xmlns='urn:xmpp:hints'/> tag to allows the server sending this messge in push with a small ttl (meaning urgent for apple/google backend) and retry sending it 10 times to increase probability that it is received by mobile device. The default value is false.
+     * @param {boolean} options.im.storeMessagesInConversation Allows to store messages in conversation cache if true else the conversation.messages property stay empty. The default value is true.
+     * @param {number} options.im.maxMessagesStoredInConversation Allows to store messages in conversation with a maximum entries. The default value is 1000. Note: `storeMessagesInConversation` needs to be setted to true to be relevant.
      * @param {Object} options.servicesToStart <br>
      *    Services to start. This allows to start the SDK with restricted number of services, so there are less call to API.<br>
      *    Take care, severals services are linked, so disabling a service can disturb an other one.<br>
@@ -28969,35 +29109,31 @@ import { LogLevelAreas } from 'lib/common/LevelLogs.js'; class NodeSDK {
      *    The token must be empty to signin with credentials.<br>
      *    The SDK is disconnected when the renew of the token had expired (No initial signin possible with out credentials.)<br>
      *    There is a sample using the oauth and sdk at https://github.com/Rainbow-CPaaS/passport-rainbow-oauth2-with-rainbow-node-sdk-example <br>
-     * @memberof NodeSDK
      */
     start(token?: string): Promise<unknown>;
     /**
      * @public
-     * @method start
+     * @method startWSOnly
      * @instance
      * @description
      *    Start the SDK with only XMPP link<br>
-     *    Note :<br>
-     * @memberof NodeSDK
+     *
      */
     startWSOnly(token: any, userInfos: any): Promise<unknown>;
     /**
-     * @private
+     * @public
      * @method startCLI
      * @instance
      * @description
-     *      Start the SDK in CLI mode
-     * @memberof NodeSDK
+     *      Start the SDK in CLI Mode
      */
     startCLI(): Promise<unknown>;
     /**
-     * @private
+     * @public
      * @method siginCLI
      * @instance
      * @description
-     *      Sign-in in CLI
-     * @memberof NodeSDK
+     *      Sign-in in CLI Mode (without the XMPP link)
      */
     signinCLI(): Promise<unknown>;
     /**
@@ -29005,19 +29141,39 @@ import { LogLevelAreas } from 'lib/common/LevelLogs.js'; class NodeSDK {
      * @method setRenewedToken
      * @instance
      * @description
-     *    Set the token renewed externaly of the SDK. This is for oauth authentication.
-     * @memberof NodeSDK
+     *    Set the token renewed externaly of the SDK. This is for oauth authentication.</br>
+     *   Note: An event #rainbow_onusertokenrenewfailed is fired when an oauth token is expired.</br>
+     *      The application must refresh the token and send it back to SDK with `setRenewedToken` API.
      */
     setRenewedToken(strToken: any): Promise<void>;
+    /**
+     * @public
+     * @method setCredentialPassword
+     * @instance
+     * @description
+     *    Set the password credential of the Bot for the login.</br>
+     *    Note: The SDK use this password in the next connection/reconnection.
+     */
+    setCredentialPassword(strPassword: any): Promise<void>;
     /**
      * @public
      * @method stop
      * @instance
      * @description
      *    Stop the SDK
-     * @memberof NodeSDK
      */
     stop(): Promise<unknown>;
+    /**
+     * @public
+     * @method destroy
+     * @instance
+     * @description
+     *    This method should be called before the bot to point to the SDK's instance to remove listener of "process" object. </br>
+     *    And then avoid the error `MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 11 SIGINT listeners added to [process]. Use emitter.setMaxListeners() to increase limit` when the SDK is instantiated and removed more than
+     *    10 times.
+     *
+     */
+    destroy(): void;
     stopProcess(): () => Promise<never>;
     setAreasLogs(areasLogs: LogLevelAreas): void;
     /**

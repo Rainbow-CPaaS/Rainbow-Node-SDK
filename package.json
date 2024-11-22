@@ -47,6 +47,7 @@
     "@cyclonedx/cyclonedx-npm": "^1.19.3",
     "@mermaid-js/mermaid-cli": "^11.2.1",
     "@tsconfig/node14": "^14.1.2",
+    "@types/dompurify": "^3.2.0",
     "@types/inquirer": "^9.0.7",
     "@types/mime": "^3.0.4",
     "@types/node": "^22.7.7",
@@ -89,6 +90,8 @@
     "yamljs": "^0.3.0"
   },
   "dependencies": {
+    "@inquirer/figures": "^1.0.7",
+    "@inquirer/prompts": "^7.0.0",
     "@types/backoff": "^2.5.5",
     "@xmpp/client": "^0.13.1",
     "@xmpp/sasl-scram-sha-1": "^0.13.1",
@@ -117,8 +120,6 @@
     "ini": "^5.0.0",
     "inquirer": "9.2.12",
     "inquirer-autocomplete-prompt": "^3.0.1",
-    "@inquirer/figures": "^1.0.7",
-    "@inquirer/prompts": "^7.0.0",
     "jimp": "^1.6.0",
     "jsdoc-x": "^4.1.0",
     "jwt-decode": "4.0.0",
