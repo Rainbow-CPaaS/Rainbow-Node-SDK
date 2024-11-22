@@ -94,6 +94,7 @@ pipeline {
                      }
                  }
                  steps {
+                    echo "Init started."
                     script {
                         BUILD_TRIGGER_BY = currentBuild.getBuildCauses()[0].shortDescription + " / " + currentBuild.getBuildCauses()[1].shortDescription
                         //BUILD_TRIGGER_BY = currentBuild.getBuildCauses()[0]
