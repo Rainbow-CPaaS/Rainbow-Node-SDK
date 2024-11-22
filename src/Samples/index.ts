@@ -9784,6 +9784,45 @@ let urlS2S;
             _logger.log("debug", "MAIN - testgetMyPresenceInformation, res : ", res);
         }
 
+        async testsendIqGetMyPresenceInformation() {
+            /* The API server send to xmpp server the following request.
+            <iq type='get' id='123' xmlns='jabber:client'>
+                 *     <user-presences user='cce80c33c78c47c0907a6bfa3f4ffe72@openrainbow.com' xmlns='jabber:iq:configuration'/>
+                 * </iq>
+             */
+            let that = this;
+            let contact = await rainbowSDK.contacts.getContactByLoginEmail("vincent01@vbe.test.openrainbow.net");
+            let promiseList = []
+            _logger.log("debug", "MAIN - (testsendIq) : START iter.");
+            //await rainbowSDK._core._rest.getContactInformationByJID(contact.jid).then((_contactFromServer: any) => {
+            //_logger.log("debug", "MAIN - (testsendPing) getContactInformationByJID result : ", _contactFromServer);
+            let id = xmppUtils.getUniqueMessageId();
+            let stanza = xml("iq", {
+                    "from": rainbowSDK._core._xmpp.fullJid,
+                    "type": "get",
+               //     "to": rainbowSDK._core._xmpp.fullJid,
+                    "to": connectedUser.jid,
+                    "id": id
+                },
+                xml("user-presences", {"user" : connectedUser.jid, "xmlns": 'jabber:iq:configuration'})
+            );
+            _logger.log("debug", "MAIN - (testsendIq) send - 'stanza'", stanza.root().toString());
+
+            let sendIqResult = await rainbowSDK._core._xmpp.xmppClient.sendIq(stanza);
+            _logger.log("debug", "MAIN - (testsendIq) sendIq result : ", sendIqResult);
+            let prettyStanza = stanza.root ? prettydata.xml(stanza.root().toString()) : stanza;
+            _logger.log("debug", "MAIN - (testsendIq) sendIq result prettyStanza : ", prettyStanza);
+            let xmlNodeStr = stanza ? stanza.toString():"<xml></xml>";
+            let jsonStanza = await getJsonFromXML(xmlNodeStr);
+            _logger.log("debug", "MAIN - (testsendIq) sendIq result jsonStanza : ", jsonStanza);
+            _logger.log("debug", "MAIN - (testsendIq) sendIq result jsonStanza.iq.query.identity : ", jsonStanza.iq.query.identity);
+            _logger.log("debug", "MAIN - (testsendIq) sendIq result jsonStanza.iq.query.feature : ", jsonStanza.iq.query.feature);
+            //}).catch((error) => {
+            //  _logger.log("error", "MAIN - CATCH Error !!! promise to getContactInfo failed result : ", error);
+            //});
+        }
+
+
         async testsetPresenceTo() {
             let presenceStr = "away"; // 'dnd', 'away', 'invisible' ('xa' on server side) or 'online'
             let setAway = true;
@@ -10020,6 +10059,81 @@ let urlS2S;
 
         //endregion Customer Care
 
+        //region XMPP 
+
+        async testsendPing() {
+            /*
+            <iq from='user2@pdevdv3os18f.corp.intuit.net'
+to='user1@pdevdv3os18f.corp.intuit.net/BANL07R9AME9X' type='get' id='e2e1'>
+<ping xmlns='urn:xmpp:ping'/>
+</iq>
+             */
+            let that = this;
+            let contact = await rainbowSDK.contacts.getContactByLoginEmail("vincent01@vbe.test.openrainbow.net");
+            let promiseList = []
+            _logger.log("debug", "MAIN - (testsendPing) : START contact : ", contact.displayName);
+            //await rainbowSDK._core._rest.getContactInformationByJID(contact.jid).then((_contactFromServer: any) => {
+            //_logger.log("debug", "MAIN - (testsendPing) getContactInformationByJID result : ", _contactFromServer);
+            let pingResult = rainbowSDK._core._xmpp.sendPing(contact.jid);
+            _logger.log("debug", "MAIN - (testsendPing) sendPing result : ", pingResult);
+            //}).catch((error) => {
+            //  _logger.log("error", "MAIN - CATCH Error !!! promise to getContactInfo failed result : ", error);
+            //});
+        }
+
+        async testsendIq() {
+            /*
+    <iq type='result'
+        from='romeo@montague.net/orchard'
+        to='juliet@capulet.com/balcony'
+        id='info4'>
+      <query xmlns='http://jabber.org/protocol/disco#info'>
+        <identity
+            category='client'
+            type='pc'
+            name='Work PC'/>
+        <feature var='jabber:iq:time'/>
+        <feature var='jabber:iq:version'/>
+      </query>
+    </iq>
+             */
+            let that = this;
+            let contact = await rainbowSDK.contacts.getContactByLoginEmail("vincent01@vbe.test.openrainbow.net");
+            let promiseList = []
+            _logger.log("debug", "MAIN - (testsendIq) : START iter.");
+            //await rainbowSDK._core._rest.getContactInformationByJID(contact.jid).then((_contactFromServer: any) => {
+            //_logger.log("debug", "MAIN - (testsendPing) getContactInformationByJID result : ", _contactFromServer);
+            let id = xmppUtils.getUniqueMessageId();
+            let stanza = xml("iq", {
+                    "from": rainbowSDK._core._xmpp.fullJid,
+                    "type": "result",
+                    "to": rainbowSDK._core._xmpp.fullJid,
+                    "id": id
+                }, xml("query", {xmlns: 'http://jabber.org/protocol/disco#info'},
+                    xml("identity", {category: 'client'}),
+                    xml("feature", {var: 'jabber:iq:time'}),
+                    xml("feature", {var: 'jabber:iq:version'})
+                    )
+            );
+            _logger.log("debug", "MAIN - (testsendIq) send - 'stanza'", stanza.root().toString());
+
+            let sendIqResult = await rainbowSDK._core._xmpp.xmppClient.sendIq(stanza);
+            _logger.log("debug", "MAIN - (testsendIq) sendIq result : ", sendIqResult);
+            let prettyStanza = stanza.root ? prettydata.xml(stanza.root().toString()) : stanza;
+            _logger.log("debug", "MAIN - (testsendIq) sendIq result prettyStanza : ", prettyStanza);
+            let xmlNodeStr = stanza ? stanza.toString():"<xml></xml>";
+            let jsonStanza = await getJsonFromXML(xmlNodeStr);
+            _logger.log("debug", "MAIN - (testsendIq) sendIq result jsonStanza : ", jsonStanza);
+            _logger.log("debug", "MAIN - (testsendIq) sendIq result jsonStanza.iq.query.identity : ", jsonStanza.iq.query.identity);
+            _logger.log("debug", "MAIN - (testsendIq) sendIq result jsonStanza.iq.query.feature : ", jsonStanza.iq.query.feature);
+            //}).catch((error) => {
+            //  _logger.log("error", "MAIN - CATCH Error !!! promise to getContactInfo failed result : ", error);
+            //});
+        }
+
+
+        //endregion XMPP
+        
         // region TimeOutManager
 
         async testtimeOutManagersetTimeout() {

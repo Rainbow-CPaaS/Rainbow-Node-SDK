@@ -2359,7 +2359,7 @@ class XMPPService extends GenericService {
         });
     }
 
-    async sendPing() : Promise<any> {
+    async sendPing(to : string = undefined) : Promise<any> {
         let that = this;
         try {
             if (that.useXMPP) {
@@ -2368,6 +2368,14 @@ class XMPPService extends GenericService {
                     "type": "get",
                     "id": id
                 }, xml("ping", {xmlns: NameSpacesLabels.PingNameSpace}));
+
+                if (to) {
+                    stanza = xml("iq", {
+                        "type": "get",
+                        "to": to,
+                        "id": id
+                    }, xml("ping", {xmlns: NameSpacesLabels.PingNameSpace}));
+                }
 
                 that._logger.log(that.DEBUG, LOG_ID + "(sendPing) send - 'message'", stanza.root().toString(), " for Rainbow Node SDK version : ", packageVersion.version);
                 if (that.xmppClient) {

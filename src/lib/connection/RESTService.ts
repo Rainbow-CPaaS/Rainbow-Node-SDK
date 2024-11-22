@@ -2995,7 +2995,12 @@ Request Method: PUT
 
     getMyPresenceInformation() {
         let that = this;
+/* The API server send to xmpp server the following request.
+<iq type='get' id='123' xmlns='jabber:client'>
+     *     <user-presences user='cce80c33c78c47c0907a6bfa3f4ffe72@openrainbow.com' xmlns='jabber:iq:configuration'/>
+     * </iq>
 
+ */
         return new Promise((resolve, reject) => {
             that.http.get("/api/rainbow/enduser/v1.0/users/me/presences", that.getRequestHeader(), undefined).then((json) => {
                 that._logger.log(that.DEBUG, LOG_ID + "(getMyPresenceInformation) successfull");
@@ -3008,7 +3013,6 @@ Request Method: PUT
             });
         });
     }
-
 
     //endregion Presence
 
