@@ -142,7 +142,7 @@ let urlS2S;
             "raiseLowLevelXmppOutReq": false,
             "maxIdleTimer": 16000,
             "maxPingAnswerTimer": 11000,
-            "xmppRessourceName": "vnagw",
+           // "xmppRessourceName": "vnagw",
             "maxPendingAsyncLockXmppQueue": 10000
         },
         "s2s": {
@@ -223,13 +223,13 @@ let urlS2S;
             "sendReadReceipt": true,
 //            "messageMaxLength": 1024,
             "sendMessageToConnectedUser": false,
-            "conversationsRetrievedFormat": "small",
+            "conversationsRetrievedFormat": "full",
             "storeMessages": false,
             "copyMessage": false,
             "nbMaxConversations": 15,
             "rateLimitPerHour": 100000,
-        "messagesDataStore": DataStoreType.NoStore,
-//            "messagesDataStore": DataStoreType.StoreTwinSide,
+//        "messagesDataStore": DataStoreType.NoStore,
+            "messagesDataStore": DataStoreType.StoreTwinSide,
             "autoInitialGetBubbles": true,
             "autoInitialBubblePresence": true,
             "autoInitialBubbleFormat": "full",
@@ -238,8 +238,8 @@ let urlS2S;
             // "autoInitialBubblePresence": false,
             // "autoLoadConversations": false,
             "autoLoadConversationHistory" : false,
-            "autoLoadContacts": false,
-            "enableCarbon": false,
+            "autoLoadContacts": tru,
+            "enableCarbon": true,
             "enablesendurgentpushmessages": true
             //"useMessageEditionAndDeletionV2": false
             //"storeMessagesInConversation": false
