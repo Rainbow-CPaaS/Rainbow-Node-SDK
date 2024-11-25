@@ -981,6 +981,7 @@ function loadConfigFromIniFile() {
         let readResult = fs.readFileSync(userAPPDATAPath + '/config.ini', 'utf-8');
         config = ini.parse(readResult);
     } catch (err) {
+        config = {"RAINBOWSDKNODE":{}};
     }
     return config?.RAINBOWSDKNODE;
 }
