@@ -238,7 +238,7 @@ let urlS2S;
             // "autoInitialBubblePresence": false,
             // "autoLoadConversations": false,
             "autoLoadConversationHistory" : false,
-            "autoLoadContacts": tru,
+            "autoLoadContacts": true,
             "enableCarbon": true,
             "enablesendurgentpushmessages": true
             //"useMessageEditionAndDeletionV2": false
