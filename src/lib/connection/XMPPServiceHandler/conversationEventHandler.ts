@@ -492,7 +492,7 @@ class ConversationEventHandler extends GenericHandler {
                                                 conference = true;
                                                 conferencebubbleId = nodeX.attrs.thread;
                                                 conferencebubbleJid = nodeX.attrs.jid;
-                                                that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", conference received");
+                                                that._logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", conference received");
                                             }
                                                 break;
                                             case "jabber:x:oob" : {
@@ -507,7 +507,7 @@ class ConversationEventHandler extends GenericHandler {
                                                     filesize: nodeX.getChild("size").getText(),
                                                     fileId: fileId
                                                 };
-                                                that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", oob received");
+                                                that._logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", oob received");
                                                 break;
                                             }
                                             default:
