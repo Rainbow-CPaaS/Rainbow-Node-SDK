@@ -53,10 +53,10 @@ function FileUpdated(input) {
     if (!self.name) {
         throw new Error("No name");
     }
-    if ( ! mime.lookup)  {
-        self.type = self.type || mime.getType(self.name);
+    if ( ! mime?.lookup)  {
+        self.type = self.type || mime?.getType(self.name);
     } else {
-        self.type = self.type || mime.lookup(self.name);
+        self.type = self.type || mime?.lookup(self.name);
     }
 
     if (!self.path) {
