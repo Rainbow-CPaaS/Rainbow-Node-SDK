@@ -39,6 +39,14 @@ def getReleaseName(upper) {
         //echo "getReleaseName() will return lts"
         return "lts";
     }
+    if ( "${env.BRANCH_NAME}" == "LTSDeliveryNew" && upper)  {
+        //echo "getReleaseName() will return LTS"
+        return "LTS";
+    }
+    if ( "${env.BRANCH_NAME}" == "LTSDeliveryNew" && !upper)  {
+        //echo "getReleaseName() will return lts"
+        return "lts";
+    }
 }
 
 pipeline {
@@ -91,6 +99,9 @@ pipeline {
                         allOf {
                             branch "LTSDelivery";
                         }
+                        allOf {
+                            branch "LTSDeliveryNew";
+                        }
                      }
                  }
                  steps {
@@ -135,6 +146,9 @@ pipeline {
                         }
                         allOf {
                             branch "LTSDelivery";
+                        }
+                        allOf {
+                            branch "LTSDeliveryNew";
                         }
                      }
                  }
@@ -243,6 +257,10 @@ pipeline {
                             branch "LTSDelivery";
                             triggeredBy 'user'
                         }
+                        allOf {
+                            branch "LTSDeliveryNew";
+                            triggeredBy 'user'
+                        }
                       }
                 }
                 steps{
@@ -325,6 +343,13 @@ pipeline {
                             triggeredBy cause: 'BranchIndexingCause' , detail: "Branch indexing"// cause($class: 'jenkins.branch.BranchIndexingCause')
                             //triggeredBy cause : 'jenkins.branch.BranchIndexingCause' // cause($class: 'jenkins.branch.BranchIndexingCause')
                         }
+                        allOf {
+                            branch "LTSDeliveryNew";
+                            //triggeredBy 'UpstreamCause'
+                            //triggeredBy "[[_class:jenkins.branch.BranchIndexingCause, shortDescription:Branch indexing]]"
+                            triggeredBy cause: 'BranchIndexingCause' , detail: "Branch indexing"// cause($class: 'jenkins.branch.BranchIndexingCause')
+                            //triggeredBy cause : 'jenkins.branch.BranchIndexingCause' // cause($class: 'jenkins.branch.BranchIndexingCause')
+                        }
                     }
                 }
                 steps{
@@ -384,6 +409,10 @@ pipeline {
                         }
                         allOf {
                             branch "LTSDelivery";
+                            triggeredBy 'user'
+                        }
+                        allOf {
+                            branch "LTSDeliveryNew";
                             triggeredBy 'user'
                         }
                       }
@@ -562,6 +591,10 @@ pipeline {
                             branch "LTSDelivery";
                             triggeredBy 'user'
                         }
+                        allOf {
+                            branch "LTSDeliveryNew";
+                            triggeredBy 'user'
+                        }
                       }
                 }
                 steps{
@@ -597,6 +630,10 @@ pipeline {
                         }
                         allOf {
                             branch "LTSDelivery";
+                            triggeredBy 'user'
+                        }
+                        allOf {
+                            branch "LTSDeliveryNew";
                             triggeredBy 'user'
                         }
                       }
