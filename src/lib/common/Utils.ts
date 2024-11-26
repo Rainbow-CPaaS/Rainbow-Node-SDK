@@ -983,7 +983,7 @@ function loadConfigFromIniFile() {
     } catch (err) {
         config = {"RAINBOWSDKNODE":{}};
     }
-    return config?.RAINBOWSDKNODE;
+    return (config?.RAINBOWSDKNODE) ? (config?.RAINBOWSDKNODE) : {};
 }
 
 function saveConfigFromIniFile(config: any) {

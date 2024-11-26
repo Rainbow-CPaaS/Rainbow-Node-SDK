@@ -336,7 +336,7 @@ class Options {
             if (this._options.xmpp.xmppRessourceName) {
                 xmppOptions.xmppRessourceName = this._options.xmpp.xmppRessourceName;
             }
-            if (this._configIniData.xmppRessourceName) {
+            if (!xmppOptions.xmppRessourceName && this._configIniData.xmppRessourceName) {
                 xmppOptions.xmppRessourceName = this._configIniData.xmppRessourceName;
             }
             if (!xmppOptions.xmppRessourceName) {
