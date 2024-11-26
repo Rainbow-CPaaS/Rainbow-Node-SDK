@@ -421,7 +421,7 @@ class Message {
          * @property {Number} oob.filesize The file size
          * @instance
          */
-        this.oob = null;
+        this.oob = oob?oob:null;
 
         /**
          * @public

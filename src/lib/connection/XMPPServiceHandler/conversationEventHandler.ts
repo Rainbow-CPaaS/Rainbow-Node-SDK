@@ -483,7 +483,38 @@ class ConversationEventHandler extends GenericHandler {
                                         }
                                         that._logger.log(that.DEBUG, LOG_ID + "(onChatMessageReceived) id : ", id, ",message - CC message  answeredMsgId : ", answeredMsgId, ", answeredMsgStamp : ", answeredMsgStamp, ", answeredMsgDate : ", answeredMsgDate);
 
-                                        childs.forEach(async (nodeChild) => {
+                                        let nodeX = stanza.find("x");
+                                        let xmlns = nodeX.attrs.xmlns;
+                                        switch (xmlns) {
+                                            case "jabber:x:bubble:conference":
+                                            case "jabber:x:conference:2":
+                                            case "jabber:x:conference": {
+                                                conference = true;
+                                                conferencebubbleId = nodeX.attrs.thread;
+                                                conferencebubbleJid = nodeX.attrs.jid;
+                                                that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", conference received");
+                                            }
+                                                break;
+                                            case "jabber:x:oob" : {
+                                                attachIndex = nodeX.attrs.index;
+                                                attachNumber = nodeX.attrs.count;
+                                                let urlFile = nodeX.getChild("url").getText();
+                                                let fileId = urlFile ? urlFile.split(/[/ ]+/).pop():"";
+                                                oob = {
+                                                    url: urlFile,
+                                                    mime: nodeX.getChild("mime").getText(),
+                                                    filename: nodeX.getChild("filename").getText(),
+                                                    filesize: nodeX.getChild("size").getText(),
+                                                    fileId: fileId
+                                                };
+                                                that.logger.log("debug", LOG_ID + "(onChatMessageReceived) id : ", id, ", oob received");
+                                                break;
+                                            }
+                                            default:
+                                                break;
+                                        }
+
+                                            childs.forEach(async (nodeChild) => {
                                             if (nodeChild.getName()==="body") {
                                                 that._logger.log(that.DEBUG, LOG_ID + "(onChatMessageReceived) id : ", id, ", message - CC message 'sent' of type chat received ");
 
@@ -554,7 +585,7 @@ class ConversationEventHandler extends GenericHandler {
                                                         data.cctype,
                                                         data.isEvent,
                                                         undefined, // data.event,
-                                                        undefined, // data.oob,
+                                                        oob, // data.oob,
                                                         undefined, // data.fromBubbleJid,
                                                         undefined, // data.fromBubbleUserJid,
                                                         data.answeredMsg,
