@@ -142,7 +142,7 @@ Sharing a file within a Bubble can be done as simply as with a contact by callin
 ---
 
 
-When you share a file, you will get in return an event `rainbow_filecreated` which contains the fileid of the file shared:
+When you share a file, you will get in return an event `rainbow_onfilecreated` which contains the fileid of the file shared:
 
 
 ```json
@@ -153,7 +153,7 @@ When you share a file, you will get in return an event `rainbow_filecreated` whi
 
 ```
 
-When you updates an already shared file, you will get in return an event `rainbow_fileupdated` which contains the fileid of the file shared updated:
+When you updates an already shared file, you will get in return an event `rainbow_onfileupdated` which contains the fileid of the file shared updated:
 
 
 ```json
@@ -164,7 +164,7 @@ When you updates an already shared file, you will get in return an event `rainbo
 
 ```
 
-When you delete a file, you will get in return an event `rainbow_filedeleted` which contains the fileid of the file deleted:
+When you delete a file, you will get in return an event `rainbow_onfiledeleted` which contains the fileid of the file deleted:
 
 
 ```json
