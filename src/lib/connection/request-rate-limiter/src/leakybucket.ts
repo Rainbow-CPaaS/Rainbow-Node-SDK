@@ -103,7 +103,7 @@ export default class LeakyBucket {
             // log.warn(`Rejecting item because the bucket is over capacity! Current max capacity: ${maxCurrentCapacity}, Total cost of all queued items: ${this.totalCost}, item cost: ${cost}`);
             throw new Error(`Cannot throttle item, bucket is overflowing: the maximum capacity is ${maxCurrentCapacity}, the current total cost is ${this.totalCost}!`);
         } else {
-            console.log(`the maximum capacity is ${maxCurrentCapacity}, the current total cost is ${this.totalCost + cost }!`);
+           // console.log(`the maximum capacity is ${maxCurrentCapacity}, the current total cost is ${this.totalCost + cost }!`);
         }
 
         return new Promise((resolve, reject) => {
