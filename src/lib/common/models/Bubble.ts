@@ -147,6 +147,11 @@ class Bubble {
     public confEndpoints : string
     public allNames: Array<string>;
     public participantNames: Array<string>;
+    public hasLobby:boolean;
+    public isOwnedByRoomAdmin:boolean;
+    public managedRoomPolicy:any;
+    public companyId:string;
+
 
 
     public static RoomUserStatus = {
@@ -469,6 +474,10 @@ class Bubble {
          */
         this.participantNames = _participantNames;
 
+        this.hasLobby = false;
+        this.isOwnedByRoomAdmin = false;
+        this.managedRoomPolicy = "none";
+        this.companyId = undefined;
     }
 
     /**
