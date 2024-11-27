@@ -195,7 +195,7 @@ Files are protected in Rainbow. If you want to download a file, you need to be s
                         if (file ) {
                             try {
                                 let blobArray = file.buffer;
-                                let writeStream = createWriteStream("c:\\temp\\" + fd.fileName);
+                                let writeStream = createWriteStream("c:\\temp\\" + fileReceived.fileName);
 
                                 writeStream.on('error', () => {
                                     console.log("WriteStream error event");
@@ -207,7 +207,7 @@ Files are protected in Rainbow. If you want to download a file, you need to be s
                                 for (let index = 0; index < blobArray.length; index++) {
                                     if (blobArray[index]) {
                                         console.log("writeAvailableChunksInDisk : Blob " + index + " available");
-                                        //fd.chunkWrittenInDisk = index;
+                                        //fileReceived.chunkWrittenInDisk = index;
                                         writeStream.write(new Buffer(blobArray[index]));
                                         blobArray[index] = null;
                                     } else {
@@ -215,12 +215,12 @@ Files are protected in Rainbow. If you want to download a file, you need to be s
                                         break;
                                     }
                                 }
-                                console.log(`The file ${fd.fileName} was saved!`);
+                                console.log(`The file ${fileReceived.fileName} was saved!`);
                             } catch (e) {
-                                console.log(`Error saving file ${fd.fileName} from Rainbow`, e);
+                                console.log(`Error saving file ${fileReceived.fileName} from Rainbow`, e);
                             }
                         } else {
-                            console.log(`Main - Error downloading file ${fd.fileName}`);
+                            console.log(`Main - Error downloading file ${fileReceived.fileName}`);
                         }
                 });
             });
