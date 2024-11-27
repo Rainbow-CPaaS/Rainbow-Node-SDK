@@ -30,7 +30,7 @@ export default class LeakyBucket {
      *   timeout: 60
      *
      * example: throttle 100 actions per minute that have a cost of 1, reject
-     * items that have to wait more thatn 2 minutes. there will be no more thatn
+     * items that have to wait more thatn 2 minutes. there will be no more than
      * 200 items queued at any time. of those 200 items 100 will be bursted within
      * a minute, the rest will be executed evenly spread over a mintue.
      *   capacity: 100
@@ -77,7 +77,7 @@ export default class LeakyBucket {
     
 
     /**
-     * dthe throttle method is used to throttle things. it is async and will resolve either
+     * the throttle method is used to throttle things. it is async and will resolve either
      * immediatelly, if there is space in the bucket, than can be bursted, or it will wait
      * until there is enough capacity left to execute the item with the given cost. if the
      * bucket is overflowing, and the item cannot be executed within the timeout of the bucket,
@@ -101,7 +101,9 @@ export default class LeakyBucket {
         // later on
         if (append && this.totalCost + cost > maxCurrentCapacity) {
             // log.warn(`Rejecting item because the bucket is over capacity! Current max capacity: ${maxCurrentCapacity}, Total cost of all queued items: ${this.totalCost}, item cost: ${cost}`);
-            throw new Error(`Cannot throttle item, bucket is overflowing: the maximum capacity is ${maxCurrentCapacity}, the current total capacity is ${this.totalCost}!`);
+            throw new Error(`Cannot throttle item, bucket is overflowing: the maximum capacity is ${maxCurrentCapacity}, the current total cost is ${this.totalCost}!`);
+        } else {
+            console.log(`the maximum capacity is ${maxCurrentCapacity}, the current total cost is ${this.totalCost + cost }!`);
         }
 
         return new Promise((resolve, reject) => {

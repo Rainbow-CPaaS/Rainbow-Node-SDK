@@ -187,10 +187,6 @@ class Core extends LevelLogs{
             } 
         });
 
-        self._eventEmitter.iee.on("rainbow_application_token_updated", function (token) {
-            self._rest.applicationToken = token;
-        });
-
         self._eventEmitter.iee.on("evt_internal_xmppfatalerror", async (err) => {
             console.log("Error XMPP, Stop the SDK : ", err);
             self._logger.log(self.ERROR, LOG_ID + " (evt_internal_xmppfatalerror) Error XMPP, Stop the SDK : ", err);
