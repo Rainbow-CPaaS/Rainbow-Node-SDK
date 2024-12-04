@@ -20,6 +20,9 @@ const util = require("util");
 const fs = require('fs');
 const ini = require('ini');
 
+import { dirname, join } from 'path';
+import { existsSync } from 'fs';
+
 function isObject (value) {
     return (value !== null && typeof value === 'object');
 }
@@ -1025,6 +1028,27 @@ function readArrayFromFile(path : string) {
     return array;
 }
 
+// To find the package.json file of the current library
+// // If using CommonJS, use __dirname
+// // If using ES modules:
+// const currentFileUrl = import.meta.url;
+// const currentDir = dirname(fileURLToPath(currentFileUrl));
+//
+// const packageJsonPath = findPackageJson(currentDir);
+function findPackageJson(startDir: string): string | null {
+    let currentDir = startDir;
+
+    while (currentDir !== '/') {
+        const packageJsonPath = join(currentDir, 'package.json');
+        if (existsSync(packageJsonPath)) {
+            return packageJsonPath;
+        }
+        currentDir = dirname(currentDir);
+    }
+
+    return null; // Return null if package.json not found
+}
+
 export let objToExport = {
     makeId,
     createPassword,
@@ -1077,7 +1101,8 @@ export let objToExport = {
     saveConfigFromIniFile,
     safeJsonParse,
     writeArrayToFile,
-    readArrayFromFile
+    readArrayFromFile,
+    findPackageJson
 };
 
 module.exports = objToExport;
@@ -1133,7 +1158,8 @@ export {
     saveConfigFromIniFile,
     safeJsonParse,
     writeArrayToFile,
-    readArrayFromFile
+    readArrayFromFile,
+    findPackageJson
 };
 
 export default {
@@ -1188,5 +1214,6 @@ export default {
     saveConfigFromIniFile,
     safeJsonParse,
     writeArrayToFile,
-    readArrayFromFile
+    readArrayFromFile,
+    findPackageJson
 };

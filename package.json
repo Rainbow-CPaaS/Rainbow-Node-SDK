@@ -111,7 +111,6 @@
     "debug-http": "^1.1.0",
     "deep-equal": "^2.2.3",
     "express": "^4.21.1",
-    "file-api": "^0.10.4",
     "fix-esm": "^1.0.1",
     "got": "^14.4.3",
     "highland": "^2.13.5",

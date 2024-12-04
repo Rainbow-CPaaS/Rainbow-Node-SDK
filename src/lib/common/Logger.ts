@@ -23,8 +23,12 @@ const Cryptr = require('cryptr');
 //let defaultConfig = require("../config/config");
 import {config as defaultConfig} from "../config/config";
 import {from} from "rxjs";
-import {isDefined, stackTrace} from "./Utils.js";
+import {findPackageJson, isDefined, stackTrace} from "./Utils.js";
 import {LEVELS, LEVELSCOLORS, LEVELSNAMES, LogLevelAreas} from './LevelLogs.js';
+import path from "path";
+import {fileURLToPath} from "node:url";
+
+import { dirname, join } from 'path';
 
 const LOG_ID = "LOGS - ";
 
@@ -102,10 +106,31 @@ class Logger {
         });
 
         let welcome = () => {
+            let fullVersion = "";
+            try {
+                //let content = fs.readFileSync(path.join(__dirname, "../package.json"));
+                // If using CommonJS, use __dirname
+                // If using ES modules:
+                const currentFileUrl = __dirname;
+                const currentDir = dirname(currentFileUrl);
+                //const currentFileUrl = import.meta.url;
+                //const currentDir = dirname(fileURLToPath(currentFileUrl));
+
+                const packageJsonPath = findPackageJson(currentDir);
+                if (packageJsonPath) {
+                    console.log(`Found package.json at: ${packageJsonPath}`);
+                    let content = fs.readFileSync(packageJsonPath);
+                    let packageJSON = JSON.parse(content);
+                    fullVersion = packageJSON.version;
+                }
+            } catch(err) {
+                console.log("CATCH Error !!! in welcome : ", err);
+            }
             this._logger.log("info", LOG_ID + "------------------------------------------------");
             this._logger.log("info", LOG_ID + "Welcome to the " + this.colors.magenta("ALE Rainbow SDK for Node.JS") + "");
             this._logger.log("info", LOG_ID + "Where Everything connects");
             this._logger.log("info", LOG_ID + "Support: Send message to Emily using #support #api");
+            this._logger.log("info", LOG_ID + "Node Version : " , process.versions.node, ", Rainbow Node SDK Version : ", fullVersion );
             this._logger.log("info", LOG_ID + "------------------------------------------------");
             this._logger.log("internal", LOG_ID + "(constructor) : ", this.colors.italic(this.colors.red(" \n\
      * \"system-dev\" section in logs is activated!!! \n\
