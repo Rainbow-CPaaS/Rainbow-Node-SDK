@@ -716,7 +716,7 @@ class XMPPService extends GenericService {
 //            that._logger.log(that.INFO, LOG_ID + "(handleXMPPConnection) ", that._logger.colors.yellow(" raw out - decoded : <") + that._logger.decrypt(encodedXml) + ">");
             that.startOrResetIdleTimer(false);
             if (that.raiseLowLevelXmppOutReq ) {
-                that.eventEmitter.emit("evt_internal_xmmprequestsent", xmlStr);
+                that.eventEmitter.emit("evt_internal_xmpprequestsent", xmlStr);
             }
         });
 

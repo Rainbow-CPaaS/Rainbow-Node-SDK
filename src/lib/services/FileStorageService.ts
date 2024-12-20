@@ -537,13 +537,12 @@ class FileStorage extends GenericService{
      * @async
      * @instance
      * @param {FileDescriptor} fileDescriptor   The description of the file to download (short file descriptor)
-     * @param {string} path If provided then the retrieved file is stored in it. If not provided then
      * @description
-     *    Allow to download a file from the server) <br>
+     *    Allow to download a file from the server <br>
      *    Return a promise <br>
      * @return {} Object with : Array of buffer Binary data of the file type,  Mime type, fileSize: fileSize, Size of the file , fileName: fileName The name of the file  Return the file received
      */
-    async downloadFile(fileDescriptor : any, path: string = null) {
+    async downloadFile(fileDescriptor : any) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(downloadFile) fileDescriptor.id : ", that._logger.stripStringForLogs(fileDescriptor?.id));
 

@@ -1279,6 +1279,9 @@ class ConversationsService extends GenericService {
      * @instance
      * @description
      *    Cleanup a conversation by removing all previous messages<br>
+     *
+     *    If conversation is P2P then the messages are deleted on Bot side.
+     *
      *    This method returns a promise <br>
      * @param {Conversation} conversation The conversation to clean
      * @async

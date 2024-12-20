@@ -405,7 +405,7 @@ class Events {
             that.publishEvent("xmmpeventreceived", ...args);
         });
 
-        this._evReceiver.on("evt_internal_xmmprequestsent", function(...args) {
+        this._evReceiver.on("evt_internal_xmpprequestsent", function(...args) {
 
             /**
              * @event Events#rainbow_onxmmprequestsent
