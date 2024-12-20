@@ -139,6 +139,7 @@ class HTTPService extends LevelLogs{
              * Socket timeout in milliseconds. This will set the timeout after the socket is connected.
              */
             timeout: customLiveOption?.agentOptions?.timeout!==undefined ? customLiveOption.agentOptions.timeout:60000, // ?: number | undefined;
+         //   rejectUnauthorized: false
         };
 
         if (that.proxy.isProxyConfigured) {
@@ -2447,6 +2448,9 @@ safeJsonParse(str) {
                             noise: 100
                         },
                         hooks: {
+                            beforeRequest: [function(options) {
+                                //that._logger.log(that.HTTP, LOG_ID + "(post) beforeRequest url : ", ( urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-request-node-id : ", xRainbowRequestNodeId,", options : ", options);
+                            }],
                             afterResponse: [
                                 (response, retryWithMergedOptions) => {
                                     let body;
@@ -2534,7 +2538,7 @@ safeJsonParse(str) {
                                     // No changes otherwise
                                     return response;
                                 }
-                            ],
+                            ]
                         },
                     };
 
@@ -3424,11 +3428,12 @@ safeJsonParse(str) {
             //let urlEncoded = encodeURI(that.serverURL + url); // Can not be used because the data in url are allready encodeURIComponent
             let urlEncoded = that.serverURL + url;
 
+           /* if (url === "https://localhost:3000") {
+                urlEncoded = "https://localhost:3000";
+            } // */
+
             let httpConfig = {URL : urlEncoded, method : "PUT", headers : headers};
             that.addAdditionalHeaders(httpConfig);
-
-            let xRainbowRequestNodeId = headers["x-rainbow-request-node-id"] ;
-            that._logger.log(that.HTTP, LOG_ID + "(put) url : ", ( urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-request-node-id : ", xRainbowRequestNodeId);
 
             headers["user-agent"] = USER_AGENT;
             that._logger.log(that.INTERNAL, LOG_ID + "(put) url : ", urlEncoded, ", headers : ", headers, ", data : ", data);
@@ -3448,6 +3453,13 @@ safeJsonParse(str) {
             if (headers["Content-Type"] === "application/json" ) {
                 body = typeof data !== "string" ? JSON.stringify(data) : data;
             }
+            // */
+
+            let xRainbowRequestNodeId = headers["x-rainbow-request-node-id"] ;
+            that._logger.log(that.HTTP, LOG_ID + "(put) url : ", ( urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-request-node-id : ", xRainbowRequestNodeId);
+
+           //  that._logger.log(that.INTERNAL, LOG_ID + "(put) url : ", urlEncoded, ", headers : ", headers, ", body : ", body);
+
 
             if (that._options.restOptions.useGotLibForHttp) {
                 let attemptCount = 0;
@@ -3488,7 +3500,7 @@ safeJsonParse(str) {
                                 let shouldBeRun = (nbRetryBeforeFailed - attemptCount)> 1 ? 1 : 0;
                                 let computedValueCalculated = (shouldBeRun * (timeBetweenRetry + noise));
                                 attemptCount++;
-                                that._logger.warn("warn", LOG_ID + "(get) (calculateDelay) retry HTTP GET, nbRetryBeforeFailed : ", nbRetryBeforeFailed, ",attemptCount : ", attemptCount, ", timeBetweenRetry : ", timeBetweenRetry, "ms , computedValue : ", computedValue,", computedValueCalculated : ", computedValueCalculated);
+                                that._logger.warn("warn", LOG_ID + "(put) (calculateDelay) retry HTTP PUT, nbRetryBeforeFailed : ", nbRetryBeforeFailed, ",attemptCount : ", attemptCount, ", timeBetweenRetry : ", timeBetweenRetry, "ms , computedValue : ", computedValue,", computedValueCalculated : ", computedValueCalculated);
                                 return computedValueCalculated;
                             },
                             methods: [
@@ -3526,6 +3538,9 @@ safeJsonParse(str) {
                             noise: 100
                         },
                         hooks: {
+                            beforeRequest: [function(options) {
+                                //that._logger.log(that.HTTP, LOG_ID + "(put) beforeRequest url : ", ( urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-request-node-id : ", xRainbowRequestNodeId,", options : ", options);
+                            }],
                             afterResponse: [
                                 (response, retryWithMergedOptions) => {
                                     let body;
@@ -3613,12 +3628,12 @@ safeJsonParse(str) {
                                     // No changes otherwise
                                     return response;
                                 }
-                            ],
+                            ]/*,
                             beforeRetry: [
                                 error => {
                                     // This will be called on `retryWithMergedOptions(...)`
                                 }
-                            ]
+                            ] // */
                         },
                     };
 
@@ -3639,6 +3654,7 @@ safeJsonParse(str) {
 
 
                     let getOptions = newAliveAgent();
+
                     let response = secondInstance.put(urlEncoded, getOptions).catch((error) => {
                         that._logger.warn("internal", LOG_ID + "(put) sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," error.code : ", error?.code, ", error.message : ", error?.message, ", urlEncoded : ", urlEncoded);
                     });
