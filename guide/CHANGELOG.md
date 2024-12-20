@@ -45,7 +45,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Fix `NodeSDK` java doc.
 -   Fix doc "autoInitialBubbleFormat" : "full".
 -   Fix spelling of label `bubblemanager` to `bubblesmanager` for logs.
--   Fix the `ttl` usfor renew of get `settings`.
+-   Fix the `ttl` used for renew of get `settings`.
 -   Fix rainbowSDK.bubbles.updateAvatarForBubble because the Jimp library API changed.
 
 #### Added
