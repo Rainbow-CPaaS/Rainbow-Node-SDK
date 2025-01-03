@@ -169,17 +169,19 @@ class ConversationHistoryHandler  extends GenericHandler {
                     //that._logger.log(that.INTERNAL, LOG_ID + "(onMamMessageReceived) results [", i, "] : ", result);
 //                    that._logger.log(that.INTERNAL, LOG_ID + "(onMamMessageReceived) a result of results.");
                     let queryId = result['$attrs']?.queryid;
+                    /*
+                     if (!queryId) {
+                         if (jsonStanza?.iq?.fin) {
+                             //if ( stanza?.getChild("fin")) {
+                             that._logger.log(that.INTERNAL, LOG_ID + "(onMamMessageReceived) no queryid found on result, and a \"fin\" found.");
+                             queryId = jsonStanza?.iq?.id;
+                         } else {
+                             queryId = null;
+                         }
+                     } // */
                     if (queryId.indexOf("id:") === 0 && queryId.length > 13) {
                         queryId = queryId.substring(13);
                     }
-                    /*if (!queryId) {
-                        if (jsonStanza?.iq?.fin) {
-                            //if ( stanza?.getChild("fin")) {
-                            that._logger.log(that.INTERNAL, LOG_ID + "(onMamMessageReceived) no queryid found on result, and a \"fin\" found.");
-                        } else {
-                            queryId = null;
-                        }
-                    } */
 
                     if (queryId?.indexOf("tel_")!==0 && that.onHistoryMessageReceived) {
                         let stanzaTabIter = [];
@@ -941,7 +943,16 @@ class ConversationHistoryHandler  extends GenericHandler {
                 // Get associated conversation
                 let queryId = jsonStanza?.iq?.fin['$attrs']?.queryid;
                 //queryId = stanza.getChild("fin")?.getAttr("queryid");
-                if (queryId.indexOf("id:")===0 && queryId.length > 13) {
+                                if (!queryId) {
+                                    if (jsonStanza?.iq?.fin) {
+                                        //if ( stanza?.getChild("fin")) {
+                                        that._logger.log(that.INTERNAL, LOG_ID + "(onHistoryMessageReceived) no queryid found on result, and a \"fin\" found, so get the id");
+                                        queryId = jsonStanza?.iq?.id;
+                                    } else {
+                                        queryId = null;
+                                    }
+                                } // */
+                if (queryId.indexOf("id:") === 0 && queryId.length > 13) {
                     queryId = queryId.substring(13);
                 }
 
