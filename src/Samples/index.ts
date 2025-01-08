@@ -138,8 +138,8 @@ import * as v8 from "v8";
     output: process.stdout
 }); // */
 
-//let rainbowMode = "s2s" ;
-let rainbowMode = "xmpp";
+let rainbowMode = "s2s" ;
+//let rainbowMode = "xmpp";
 
 let ngrok = require('ngrok');
 //import ngrok from 'ngrok';
@@ -147,7 +147,7 @@ let ngrok = require('ngrok');
 let urlS2S;
 
 (async function () {
-    if (rainbowMode=="s2s") {
+    if (rainbowMode==="s2s") {
         console.log("MAIN - S2S Mode, with ngrock.");
         urlS2S = await ngrok.connect(4000).catch((error) => {
             console.log("MAIN - ngrock, error : ", error);
@@ -2293,11 +2293,11 @@ let urlS2S;
         // */
         }
 
-        async testremoveAllMessages() {
+        async testremoveAllMessages(contactEmailToSearch : string = "vincent01@vbe.test.openrainbow.net") {
             //let that = this;
             //let contactIdToSearch = "5bbdc3812cf496c07dd89128"; // vincent01 vberder
             //let contactIdToSearch = "5bbb3ef9b0bb933e2a35454b"; // vincent00 official
-            let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
+            //let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
             // Retrieve a contact by its id
             let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
             // Retrieve the associated conversation
@@ -4172,6 +4172,54 @@ let urlS2S;
                             "message": message
                         }, "subject", undefined, "middle");
                         // */
+                        });
+                    });
+                }
+            }); // */
+            //    let utc = new Date().toJSON().replace(/-/g, '/');
+        }
+
+        async testCreateBubbleWithNoInvitationAndSendMessageAndRemoveAllMessages() {
+            let loginEmail = "vincent02@vbe.test.openrainbow.net";
+            let appointmentRoom = "testBot";
+            //let botappointment = "vincent01@vbe.test.openrainbow.net";
+            rainbowSDK.contacts.getContactByLoginEmail(loginEmail).then(async contact => {
+                if (contact) {
+                    _logger.log("debug", "MAIN - [testCreateBubbles    ] :: getContactByLoginEmail contact : ", contact);
+                    let utc = new Date().toJSON().replace(/-/g, "/");
+                    await rainbowSDK.bubbles.createBubble(appointmentRoom + utc + contact + "_" + 1, appointmentRoom + utc + "_" + 1).then(async (bubble: any) => {
+                        _logger.log("debug", "MAIN - [testCreateBubbles    ] :: createBubble request ok", bubble);
+                        rainbowSDK.bubbles.inviteContactToBubble(contact, bubble, false, false).then(async () => {
+                            let message = "message de **test** ";
+                            await rainbowSDK.im.sendMessageToBubbleJid(message, bubble.jid, "en", {
+                                "type": "text/markdown",
+                                "message": message + "_1"
+                            }, "subject", undefined, "middle");
+                            await rainbowSDK.im.sendMessageToBubbleJid(message, bubble.jid, "en", {
+                                "type": "text/markdown",
+                                "message": message + "_2"
+                            }, "subject", undefined, "middle");
+                            // */
+
+                            // Retrieve the associated conversation
+                            let conversation = await rainbowSDK.conversations.openConversationForBubble(bubble);
+                            let nbMsgToSend = 2;
+                            let msgsSent = [];
+                            for (let i = 1; i <= nbMsgToSend; i++) {
+                                let now = new Date().getTime();
+                                // Send message
+                                let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "hello num " + i + " from node : " + now, "FR", null, "Le sujet de node : " + now);
+                                //_logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
+                                //_logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
+                                msgsSent.push(msgSent);
+                                _logger.log("debug", "MAIN - testremoveAllMessages - wait for message to be in conversation : ", msgSent);
+                                await Utils.until(() => {
+                                    return conversation.getMessageById(msgSent.id)!==undefined;
+                                }, "Wait for message to be added in conversation num : " + i);
+                            }
+                            let conversationWithMessagesRemoved = await rainbowSDK.conversations.removeAllMessages(conversation);
+                            _logger.log("debug", "MAIN - testremoveAllMessages - conversation with messages removed : ", conversationWithMessagesRemoved);
+
                         });
                     });
                 }
@@ -7360,6 +7408,16 @@ let urlS2S;
 
         }
 
+        async testregisterUserByEmailFirstStep(userInfo: {"email":string,"lang":string}) {
+            let result = await rainbowSDK.admin.registerUserByEmailFirstStep(userInfo);
+            _logger.log("debug", "MAIN - testregisterUserByEmailFirstStep - result : ", result);
+        }
+
+        async testregisterUserByEmailSecondStepWithToken(userLoginInfo: {"loginEmail":string,"password":string,"temporaryToken":string}) {
+            let result = await rainbowSDK.admin.registerUserByEmailSecondStepWithToken(userLoginInfo);
+            _logger.log("debug", "MAIN - registerUserByEmailSecondStepWithToken - result : ", result);
+        }
+
         async testaddPropertyToObj() {
 
             let user: any = {};
@@ -8054,6 +8112,187 @@ let urlS2S;
             _logger.log("debug", "MAIN - testgetCompanyById - companyInfo : ", companyInfo);
         }
 
+        async testCreateCompanyAndRemoveCompany() {
+            // To use with rford@westworld.com
+
+            let utc = new Date().toJSON().replace(/-/g, '_');
+            let companyName = "MyVberderCompany_" + utc;
+            let newCompany = await (rainbowSDK.admin.createCompany(companyName, "USA", "AA", OFFERTYPES.PREMIUM).catch((e) => {
+                _logger.log("error", "MAIN - (testCreateCompanyAndRemoveCompany) - createCompany Error : ", e);
+            }));
+            await pause(2000);
+
+            let deletedCompany = await rainbowSDK.admin.removeCompany({id: newCompany.id});
+            _logger.log("debug", "MAIN - (testCreateCompanyAndRemoveCompany) deletedCompany : ", deletedCompany);
+        }
+
+        async testupdateCompany() {
+            // to be used with rford@westworld.com on .Net.
+            _logger.log("debug", "MAIN - testgetAllCompaniesWithFilters. ");
+            let format: string = "small";
+            let sortField: string = "name";
+            let bpId: string = undefined;
+            let catalogId: string = undefined;
+            let offerId: string = undefined;
+            let offerCanBeSold: boolean = undefined;
+            let externalReference: string = undefined;
+            let externalReference2: string = undefined;
+            let salesforceAccountId: string = undefined;
+            let selectedAppCustomisationTemplate: string = undefined
+            let selectedThemeObj: boolean = undefined;
+            let offerGroupName: string = undefined;
+            let limit: number = 100;
+            let offset: number = 0;
+            let sortOrder: number = 1;
+            let name: string = "MyVberderCompany_updated";
+            let status: string = undefined;
+            let visibility: string = undefined;
+            let organisationId: string = undefined
+            let isBP: boolean = undefined;
+            let hasBP: boolean = undefined;
+            let bpType: string = undefined;
+
+            let allCompanies: any = await rainbowSDK.admin.getAllCompanies(format, sortField, bpId, catalogId, offerId, offerCanBeSold, externalReference, externalReference2, salesforceAccountId, selectedAppCustomisationTemplate, selectedThemeObj, offerGroupName, limit, offset, sortOrder, name, status, visibility, organisationId, isBP, hasBP, bpType);
+            _logger.log("debug", "MAIN - testgetAllCompaniesWithFilters - allCompanies.total : ", allCompanies.total);
+
+            //let companyId = connectedUser.companyId;
+            for (let company of allCompanies.data) {
+                //that._logger.log("debug", "(getSubscriptionsOfCompanyByOfferId) subscription : ", subscription);
+                if (company.name===name) {
+                   _logger.log("debug", "MAIN - testgetAllCompaniesWithFilters company ", name, " found : ", company);
+                    let companyId = company.id;
+                    let companyInfo: any = await rainbowSDK.admin.getCompanyById(companyId);
+                    _logger.log("debug", "MAIN - testgetAllCompaniesWithFilters - before update companyInfo : ", companyInfo);
+
+                    /*
+                    companyInfo :  {
+                        selectedTheme: null,
+                            localPublicSafetyAnsweringPoint: { userLocationReminderTimer: 360, globalUserRight: false },
+                        names: [ 'myvberdercompany_2023_10_11t12:51:53758z' ],
+                            offerType: 'freemium',
+                            organisationId: '5c40a2d447ed8d89832292ff',
+                            catalogId: '5fb32098514d23221012cfb5',
+                            isBP: false,
+                            bpBusinessType: [],
+                            bpId: null,
+                            disableCCareAdminAccess: false,
+                            size: 'self-employed',
+                            status: 'active',
+                            visibility: 'organization',
+                            visibleBy: [],
+                            forceHandshake: false,
+                            autoAcceptUserInvitations: true,
+                            userSelfRegisterEnabled: true,
+                            userSelfRegisterAllowedDomains: [],
+                            lastAvatarUpdateDate: null,
+                            lastBannerUpdateDate: null,
+                            office365ScopesGranted: [],
+                            avatarShape: 'circle',
+                            adminCanSetCustomData: false,
+                            isCentrex: false,
+                            allowUsersSelectTheme: true,
+                            allowUsersSelectPublicTheme: true,
+                            selectedAppCustomisationTemplate: '5f43d61db7b6d40988a73e7c',
+                            cloudPbxRecordingInboundOnly: true,
+                            cloudPbxVoicemailToEmail: 'none',
+                            mobilePermanentConnectionMode: false,
+                            fileSharingCustomisation: 'enabled',
+                            userTitleNameCustomisation: 'enabled',
+                            softphoneOnlyCustomisation: 'disabled',
+                            useRoomCustomisation: 'enabled',
+                            phoneMeetingCustomisation: 'enabled',
+                            useChannelCustomisation: 'enabled',
+                            useScreenSharingCustomisation: 'enabled',
+                            useWebRTCVideoCustomisation: 'enabled',
+                            useWebRTCAudioCustomisation: 'enabled',
+                            useWebRTCOnlyIfMobileLoggedCustomisation: 'disabled',
+                            instantMessagesCustomisation: 'enabled',
+                            userProfileCustomisation: 'enabled',
+                            fileStorageCustomisation: 'enabled',
+                            overridePresenceCustomisation: 'enabled',
+                            changeTelephonyCustomisation: 'enabled',
+                            changeSettingsCustomisation: 'enabled',
+                            recordingConversationCustomisation: 'enabled',
+                            useGifCustomisation: 'enabled',
+                            useDialOutCustomisation: 'enabled',
+                            fileCopyCustomisation: 'enabled',
+                            fileTransferCustomisation: 'enabled',
+                            forbidFileOwnerChangeCustomisation: 'enabled',
+                            readReceiptsCustomisation: 'enabled',
+                            useSpeakingTimeStatistics: 'enabled',
+                            allowDeviceFirmwareSelection: false,
+                            eLearningCustomisation: 'enabled',
+                            eLearningGamificationCustomisation: 'enabled',
+                            meetingRecordingCustomisation: 'enabled',
+                            alertNotificationReception: 'disabled',
+                            alertNotificationSending: 'disabled',
+                            selectedDeviceFirmware: 'released',
+                            defaultOptionsGroups: [],
+                            sendPrepaidSubscriptionsNotification: true,
+                            ddiReadOnly: false,
+                            allowPhoneNumbersVisibility: false,
+                            isMonitorable: false,
+                            csEmailList: [],
+                            seEmailList: [],
+                            csmEmailList: [],
+                            kamEmailList: [],
+                            supervisionGroupMaxSize: 1500,
+                            supervisionGroupMaxNumber: 5,
+                            supervisionGroupMaxUsers: 30,
+                            allowTeamsToDesktopSso: true,
+                            useExternalStorage: 'disabled',
+                            useRainbowStorage: 'enabled',
+                            externalStorageAllowedAllUsers: false,
+                            rainbowStorageAllowedAllUsers: true,
+                            mainStorage: 'Rainbow Storage',
+                            name: 'MyVberderCompany_updated',
+                            state: 'AA',
+                            country: 'USA',
+                            statusUpdatedDate: '2023-10-11T12:51:59.689Z',
+                            creationDate: '2023-10-11T12:51:59.689Z',
+                            useComputerMode: 'enabled',
+                            useOtherPhoneMode: 'enabled',
+                            canCallParticipantPbxNumberCustomisation: 'enabled',
+                            imPopupDuration: 3,
+                            useSoftPhoneMode: 'enabled',
+                            canAccessFaqCustomisation: 'enabled',
+                            canAccessHelpCenterCustomisation: 'enabled',
+                            canAccessStoreCustomisation: 'enabled',
+                            canAccessWhatsNew: 'enabled',
+                            canDownloadAppCustomisation: 'enabled',
+                            endOfConferenceBehavior: { behavior: 'rainbow' },
+                        canSetInvisiblePresenceCustomisation: 'enabled',
+                            teamsPresenceOnRainbowBusyPhone: 'Busy',
+                            canUseSendReportCustomisation: 'enabled',
+                            canUseTaskCustomisation: 'enabled',
+                            canUseTestConfigCustomisation: 'enabled',
+                            useTeamsMode: 'disabled',
+                            id: '65269a6fb06ddfd882b9c09f',
+                            numberUsers: 0,
+                            dataLocation: { name: 'North-America', location: 'Canada', country: 'CAN' }
+                    } // */
+
+                    let data : any = {"name": companyInfo.name, "autoAcceptUserInvitations" : false}; // !!! autoAcceptUserInvitations need superAdmin role.
+
+                    _logger.log("debug", "MAIN - testgetAllCompaniesWithFilters - data : ", data);
+
+                    let companyUpdatedResult : any = await rainbowSDK.admin.updateCompanyByObj(companyId, true, data);
+                    _logger.log("debug", "MAIN - testgetAllCompaniesWithFilters - companyUpdatedResult : ", companyUpdatedResult);
+
+                    companyInfo = await rainbowSDK.admin.getCompanyById(companyId);
+                    _logger.log("debug", "MAIN - testgetAllCompaniesWithFilters - after update companyInfo : ", companyInfo);
+
+                }
+            }
+       //_logger.log("debug", "MAIN - testgetAllCompaniesWithFilters - companyId : ", companyId);
+
+            /*
+        let result = await rainbowSDK.admin.retrieveRainbowUserList(companyId, "csv", true);
+       _logger.log("debug", "MAIN - testgetAllCompaniesWithFilters - result : ", result);
+        // */
+
+        }
+
         //endregion Company
 
         //region Company Clean Afterbuild
@@ -8080,7 +8319,7 @@ let urlS2S;
             let sortOrder: number = 1;
             //let name: string = "Westworld_Guest_1583336606191";
            // let name: string = "Westworld_Guest_";
-            let names: Array<string> = ["Westworld_Guest_", "Westworld_Host_","Westworld Guest_", "Westworld Host_", "Afterbuild_NodeSDK_Westworld_"];
+            let names: Array<string> = ["Westworld_Guest_", "Westworld_Host_","Westworld Guest_", "Westworld Host_", "Afterbuild_NodeSDK_Westworld_", "Westworld Test SDK ("];
             //let names: Array<string> = ["Westworld_Host_1611262600870"];
             let status: string = undefined;
             let visibility: string = undefined;
