@@ -7,6 +7,26 @@ Warning: Before deploying in production a bot that can generate heavy traffic, p
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 
+### [2.33.0] - 2025-01-XX
+#### Removed
+-   None
+
+#### Fixed
+-   Fix `methodsToIgnoreStartedState` value in `Utils::isStarted` to be able to define more than one method in "@isStarted" decoration parameter.
+
+#### Added
+-   Add `AdminService::updateCompanyByObj` method to allows users with superadmin role to update any company. Users with admin role (and not having superadmin role) can only update their own company.
+-   Add `AdminService::registerUserByEmailFirstStep` API allows to send a self-register email to a user. A temporary user token is generated and send in the email body. This token is required in the self register validation workflow with API `registerUserByEmailSecondStepWithToken`.
+-   Add `AdminService::registerUserByEmailSecondStepWithToken` API allows to a user to self register a user account in Rainbow application. The token must be retrieved with `registerUserByEmailFirstStep`.
+-   Add in `S2SServiceEventHandler` treatment of `/user` path event. It allows to receive the user roster events (add, remove).
+-   Add in Logger Welcome trace the node version and the SDK running version.
+-   Add `hasLobby`, `isOwnedByRoomAdmin`, `managedRoomPolicy`, `companyId` in `Bubble` class.
+ 
+#### Changed
+-   Update `S2SServiceEventHandler` to use the `userId` provided by each server's event to use a uniq Web server for many callback url.
+-   Update default value of `maxReqByIntervalForRequestRate` to 20250.
+-   Update default value of `timeoutRequestForRequestRate` to 600.
+
 ### [2.32.0-lts.2] - 2024-11-26
 #### Removed
 -   None
