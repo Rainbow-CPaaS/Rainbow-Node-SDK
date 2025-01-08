@@ -296,6 +296,7 @@ class GuestParams {
 @logEntryExit(LOG_ID)
 class RESTService extends GenericRESTService {
     public http: HTTPService;
+    public _core: Core;
     public account: any;
     public app: any;
     //public token: any;
@@ -338,6 +339,7 @@ class RESTService extends GenericRESTService {
         this.eventEmitter = evtEmitter;
 
         this._logger = _logger;
+        that._core = core;
         this.restTelephony = new RESTTelephony(evtEmitter, _logger);
         this.restConferenceV2 = new RESTConferenceV2(evtEmitter, _logger);
         this.restWebinar = new RESTWebinar(evtEmitter, _logger);
@@ -2158,6 +2160,59 @@ class RESTService extends GenericRESTService {
         });
     }
 
+    registerUserByEmailFirstStep(userInfo: {"email":string,"lang":string}) {
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that._logger.log(that.INTERNAL, LOG_ID + "(registerUserByEmailFirstStep) REST.");
+
+           /* let url, headers, params;
+            url = "/api/rainbow/enduser/v1.0/notifications/emails/self-register";
+            let urlEncoded = that._core._http.serverURL + url;
+            headers = that.getPostHeader();
+            //delete headers.Authorization;
+            if (headers["Content-Type"] === "application/json" ) {
+                params = typeof userInfo !== "string" ? JSON.stringify(userInfo) : userInfo;
+            }
+            that._core._http._postUrlRaw(urlEncoded, headers, params).then((result) => {
+                that._logger.log(that.DEBUG, LOG_ID + "(registerUserByEmailFirstStep) Successfull.");
+                that._logger.log(that.INTERNAL, LOG_ID + "(registerUserByEmailFirstStep) Successfull : ", result);
+                resolve(result);
+            }).catch((err) => {
+                that._logger.log(that.ERROR, LOG_ID + "(registerUserByEmailFirstStep) ErrorManager : ", userInfo);
+                return reject(err);
+            });
+// */
+
+            that._core._http._post("/api/rainbow/enduser/v1.0/notifications/emails/self-register", that.getPostHeader(), userInfo, undefined).then((json) => {
+                that._logger.log(that.DEBUG, LOG_ID + "(registerUserByEmailFirstStep) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(registerUserByEmailFirstStep) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(registerUserByEmailFirstStep) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(registerUserByEmailFirstStep) error : ", err);
+                return reject(err);
+            });
+            // */
+        });
+    }
+
+    registerUserByEmailSecondStepWithToken(userLoginInfo: {"loginEmail":string,"password":string,"temporaryToken":string}) {
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that._logger.log(that.INTERNAL, LOG_ID + "(registerUserByEmailSecondStepWithToken) REST.");
+
+            that._core._http._post("/api/rainbow/enduser/v1.0/users/self-register", that.getPostHeader(), userLoginInfo, undefined).then((json) => {
+                that._logger.log(that.DEBUG, LOG_ID + "(registerUserByEmailSecondStepWithToken) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(registerUserByEmailSecondStepWithToken) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(registerUserByEmailSecondStepWithToken) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(registerUserByEmailSecondStepWithToken) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
     changePassword(password, userId) {
         let that = this;
         return new Promise(function (resolve, reject) {
@@ -2558,12 +2613,12 @@ class RESTService extends GenericRESTService {
             }
 
             that.http.post("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations", that.getRequestHeader(), params, undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(sendInvitationByEmail) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(sendInvitationByEmail) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(sendInvitationByCriteria) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(sendInvitationByCriteria) REST result : ", json);
                 resolve(json);
             }).catch((err) => {
-                that._logger.log(that.ERROR, LOG_ID, "(sendInvitationByEmail) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(sendInvitationByEmail) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(sendInvitationByCriteria) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(sendInvitationByCriteria) error : ", err);
                 return reject(err);
             });
         });
@@ -5352,6 +5407,43 @@ kamEmailList?: string[], businessSpecific?: string, adminServiceNotificationsLev
                 that._logger.log(that.INTERNALERROR, LOG_ID, "(setCompanyAppFeatureCustomisation) error : ", err);
                 return reject(err);
             });
+        });
+    }
+
+    updateCompanyByObj(_companyId : string, selectedThemeObj : boolean, companyInfoToUpdate : any): Promise<any> {
+        // API https://api.openrainbow.org/admin/#api-companies-PutCompanies
+        // URL PUT /api/rainbow/admin/v1.0/companies/:companyId
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let companyId = _companyId ? _companyId:that.account.companyId;
+            let url = "/api/rainbow/admin/v1.0/companies/" + companyId ;
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "selectedThemeObj", selectedThemeObj);
+            url = urlParamsTab[0];
+
+            let data: any = {};
+
+            Object.getOwnPropertyNames(companyInfoToUpdate).forEach(
+                (val, idx, array) => {
+                    //console.log(val + " -> " + data[val]);
+                    addPropertyToObj(data, val, companyInfoToUpdate[val], false);
+                });
+
+            that._logger.log(that.DEBUG, LOG_ID + "(setCompanyAppFeatureCustomisation) data : ", data);
+
+            //that.http.put(url, that.getRequestHeader(), JSON.stringify(data), undefined, 0, 0).then(function (json) {
+            // url = "https://localhost:3000";
+            that.http.put(url, that.getRequestHeader(), companyInfoToUpdate, undefined, 0, 0).then(function (json) {
+                that._logger.log(that.DEBUG, LOG_ID + "(setCompanyAppFeatureCustomisation) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(setCompanyAppFeatureCustomisation) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(setCompanyAppFeatureCustomisation) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(setCompanyAppFeatureCustomisation) error : ", err);
+                return reject(err);
+            }); // */
         });
     }
 

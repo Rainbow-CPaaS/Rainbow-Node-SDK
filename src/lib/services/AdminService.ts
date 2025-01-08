@@ -5,7 +5,7 @@ import {XMPPService} from "../connection/XMPPService";
 export {};
 
 import {ErrorManager} from "../common/ErrorManager";
-import  {RESTService} from "../connection/RESTService";
+import {GuestParams, RESTService} from "../connection/RESTService";
 import {addParamToUrl, addPropertyToObj, Deferred, isDefined, isStarted, logEntryExit} from "../common/Utils";
 import {EventEmitter} from "events";
 import {Logger} from "../common/Logger";
@@ -51,7 +51,7 @@ enum CLOUDPBXCLIOPTIONPOLICY {
 };
 
 @logEntryExit(LOG_ID)
-@isStarted([])
+@isStarted([ "registerUserByEmailFirstStep", "registerUserByEmailSecondStepWithToken"])
 /**
  * @module
  * @name AdminService
@@ -2040,6 +2040,288 @@ class AdminService extends GenericService {
     /**
      * @public
      * @nodered true
+     * @method registerUserByEmailFirstStep
+     * @param  {Object} userInfo user info requesting a self-register </BR>
+     *  { </BR>
+     *   // Email of the user requesting a self-register email with a temporary token </BR>
+     *   // Possibles values : /^[a-zA-Z0-9_\+-]+(\.[a-zA-Z0-9_\+-]+)*@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.([a-zA-Z]{2,4})$/ </BR>
+     *   "email": string, </BR>
+     * </BR>
+     *   // Language of the email notification. </BR>
+     *   // Language format is composed of locale using format ISO 639-1, with optionally the regional variation using ISO 3166‑1 alpha-2 (separated by hyphen). </BR>
+     *   // Locale part is in lowercase, regional part is in uppercase. Examples: en, en-US, fr, fr-FR, fr-CA, es-ES, es-MX, ... </BR>
+     *   // More information about the format can be found on this link: https://en.wikipedia.org/wiki/Language_localisation#Language_tags_and_codes </BR>
+     *   // If lang is not provided (or no translation available for provided language), email is sent in English. </BR>
+     *   // Valeur par défaut : en </BR>
+     *   // Size : 2..5 </BR>
+     *   "lang": string </BR>
+     * } </BR>
+     *
+     * @instance
+     * @description
+     *      This API allows to send a self-register email to a user. A temporary user token is generated and send in the email body. This token is required in the self register validation workflow with API `registerUserByEmailSecondStepWithToken`.</BR>
+     * @async
+     * @category Companies and users management
+     * @fulfil {Object} - Json object containing details regarding the operation.
+     * @category async
+     * @return {Promise<Object>} - result :
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | data | Object | Details regarding the operation |
+     * | status | String | Status of the operation |
+     * | email | String | Email address used to send the self-register email |
+     *
+     */
+    registerUserByEmailFirstStep(userInfo: {"email":string,"lang":string}) {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(registerUserByEmailFirstStep) userInfo : ", userInfo);
+        return that.callRestMethod("registerUserByEmailFirstStep", arguments);
+// */
+/*        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(registerUserByEmailFirstStep) userInfo : ", that._logger.stripStringForLogs(userInfo?.email));
+
+        return new Promise(function (resolve, reject) {
+            try {
+
+                if (!userInfo) {
+                    that._logger.log(that.ERROR, LOG_ID + "(registerUserByEmailFirstStep) bad or empty 'userId' parameter");
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    return;
+                }
+
+                let url, headers, params;
+                url = "/api/rainbow/enduser/v1.0/notifications/emails/self-register";
+                let urlEncoded = that._core._http.serverURL + url;
+                headers = that._core._rest.getPostHeader();
+                //delete headers.Authorization;
+                if (headers["Content-Type"] === "application/json" ) {
+                    params = typeof userInfo !== "string" ? JSON.stringify(userInfo) : userInfo;
+                }
+                that._core._http._postUrlRaw(urlEncoded, headers, params).then((result) => {
+                    that._logger.log(that.DEBUG, LOG_ID + "(registerUserByEmailFirstStep) Successfull.");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(registerUserByEmailFirstStep) Successfull : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log(that.ERROR, LOG_ID + "(registerUserByEmailFirstStep) ErrorManager : ", userInfo);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(registerUserByEmailFirstStep) error : ", err);
+                return reject(err);
+            }
+        });
+// */
+    }
+
+    /**
+     * @public
+     * @nodered true
+     * @method registerUserByEmailSecondStepWithToken
+     * @param  {Object} userLoginInfo user info requesting a self-register. </BR>
+     * { </BR>
+     *   // User email address (used for login). </BR>
+     *   // Must be unique (409 error is returned if a user already exists with the same email address).
+     *   "loginEmail": string, </BR>
+     * </BR>
+     *   // User password. </BR>
+     *   // Rules: </BR>
+     *   // - More than 8 characters, </BR>
+     *   //   ⚠️ Warning: the minimal password length will soon be increased to 12, planned to be effective mid-June 2023 (8 characters are still accepted until this date). </BR>
+     *   // - At least 1 capital letter, </BR>
+     *   // - 1 number, </BR>
+     *   // - 1 special character. </BR>
+     *   "password": string, </BR>
+     * </BR>
+     *   // User temporary token (obtained from [POST /api/rainbow/enduser/v1.0/notifications/emails/self-register](#api-enduser_notifications_emails-EmailSelfRegister) API). </BR>
+     *   // Do not use if `invitationId`, `joinCompanyInvitationId`, `joinCompanyLinkId` or `openInviteId` is specified. </BR>
+     *   // Size : 6 </BR>
+     *   "temporaryToken": string </BR>
+     * } </BR>
+     *
+     * @instance
+     * @description
+     *      This API allows a user to self register a user account in Rainbow application. The token must be retrieved with `registerUserByEmailFirstStep` </BR>
+     * @async
+     * @category Companies and users management
+     * @fulfil {Object} - Json object containing details regarding the operation.
+     * @category async
+     @return {Promise<Object>} - result :
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | mainStorage | String | In an environment where a company uses the Rainbow file server and an External file server at the same time, 'mainStorage' allows to decide which file server must be used when the user is assigned to both file servers.<br><br>* `same_than_company`: The same mainStorage setting than the user's company's is applied to the user. if the mainStorage of the company is changed the user's mainStorage will use this company new setting.<br>* `Rainbow Storage`: Assigment to the Rainbow file server.<br>* `External Storage`: Assigment to the External file server. |
+     * | useExternalStorage | String | In an environment where a company uses the Rainbow file server and an External file server at the same time, 'useExternalStorage' allows a user to be assigned to a file server.<br><br>* `same_than_company`: The same useExternalStorage setting than the user's company's is applied to the user. if the useExternalStorage of the company is changed the user's useExternalStorage will use this company new setting.<br>* `enabled`: Assign the user to the External File Storage.<br>* `disabled`: Unassign the user from the External File Storage. |
+     * | useRainbowStorage | String | In an environment where a company uses the Rainbow file server and an External file server at the same time, 'useRainbowStorage' allows a user to be assigned to a file server.<br><br>* `same_than_company`: The same useRainbowStorage setting than the user's company's is applied to the user. if the useRainbowStorage of the company is changed the user's useRainbowStorage will use this company new setting.<br>* `enabled`: Assign the user to the default Rainbow File Storage.<br>* `disabled`: Unassign the user from the default Rainbow File Storage. |
+     * | canSetInvisiblePresenceCustomisation | String | Select the capability for a user to set invisible presence.  <br>Defines how a user can set invisible presence.  <br>canSetInvisiblePresenceCustomisation can be:<br><br>* `same_than_company`: The same canSetInvisiblePresenceCustomisation setting than the user's company's is applied to the user. if the canSetInvisiblePresenceCustomisation of the company is changed the user's canSetInvisiblePresenceCustomisation will use this company new setting.<br>* `enabled`: The user can set invisible presence.<br>* `disabled`: The user can't set invisible presence. |
+     * | canCallParticipantPbxNumberCustomisation | String | Select the capability for a user to call participant via a PBX number.  <br>Defines how a user can call participant via a PBX number.  <br>canCallParticipantPbxNumberCustomisation can be:<br><br>* `same_than_company`: The same canCallParticipantPbxNumberCustomisation setting than the user's company's is applied to the user. if the canCallParticipantPbxNumberCustomisation of the company is changed the user's canCallParticipantPbxNumberCustomisation will use this company new setting.<br>* `enabled`: The user can call participant with all number.<br>* `disabled`: The user can't call participant.<br>* `internal`: The user can call participant only with internal number.<br>* `national`: The user can call participant with national number. |
+     * | canUseTaskCustomisation | String | Activate/Deactivate the capability for a user to use Rainbow tasks.  <br>Defines if a user can use Rainbow tasks.  <br>canUseTaskCustomisation can be:<br><br>* `same_than_company`: The same canUseTaskCustomisation setting than the user's company's is applied to the user. if the canUseTaskCustomisation of the company is changed the user's canUseTaskCustomisation will use this company new setting.<br>* `enabled`: The user can use Rainbow tasks.<br>* `disabled`: The user can't use Rainbow tasks. |
+     * | canUseSendReportCustomisation | String | Activate/Deactivate the capability for a user to send report.  <br>Defines if a user can send report.  <br>canUseSendReportCustomisation can be:<br><br>* `same_than_company`: The same canUseSendReportCustomisation setting than the user's company's is applied to the user. if the canUseSendReportCustomisation of the company is changed the user's canUseSendReportCustomisation will use this company new setting.<br>* `enabled`: The user can send report.<br>* `disabled`: The user can't send report. |
+     * | canUseTestConfigCustomisation | String | Activate/Deactivate the capability for a user to test the configuration.  <br>Defines if a user can test the configuration.  <br>canUseTestConfigCustomisation can be:<br><br>* `same_than_company`: The same canUseTestConfigCustomisation setting than the user's company's is applied to the user. if the canUseTestConfigCustomisation of the company is changed the user's canUseTestConfigCustomisation will use this company new setting.<br>* `enabled`: The user can test the configuration.<br>* `disabled`: The user can't test the configuration. |
+     * | canDownloadAppCustomisation | String | Activate/Deactivate the capability for a user to download Rainbow application.  <br>Defines if a user can download Rainbow application.  <br>canDownloadAppCustomisation can be:<br><br>* `same_than_company`: The same canDownloadAppCustomisation setting than the user's company's is applied to the user. if the canDownloadAppCustomisation of the company is changed the user's canDownloadAppCustomisation will use this company new setting.<br>* `enabled`: The user can download Rainbow application.<br>* `disabled`: The user can't download Rainbow application. |
+     * | canAccessStoreCustomisation | String | Activate/Deactivate the capability for a user to access to Rainbow store.  <br>Defines if a user can access to Rainbow store.  <br>canAccesStoreCustomisation can be:<br><br>* `same_than_company`: The same canAccessStoreCustomisation setting than the user's company's is applied to the user. if the canAccessStoreCustomisation of the company is changed the user's canAccessStoreCustomisation will use this company new setting.<br>* `enabled`: The user can access to Rainbow store.<br>* `disabled`: The user can't access to Rainbow store. |
+     * | canAccessHelpCenterCustomisation | String | Activate/Deactivate the capability for a user to access to Rainbow help center.  <br>Defines if a user can access to Rainbow help center.  <br>canAccesHelpCenterCustomisation can be:<br><br>* `same_than_company`: The same canAccessHelpCenterCustomisation setting than the user's company's is applied to the user. if the canAccessHelpCenterCustomisation of the company is changed the user's canAccessHelpCenterCustomisation will use this company new setting.<br>* `enabled`: The user can access to Rainbow help center.<br>* `disabled`: The user can't access to Rainbow help center. |
+     * | canAccessFaqCustomisation | String | Activate/Deactivate the capability for a user to access to the FAQ.  <br>Defines if a user can access to the FAQ.  <br>canAccessFaqCustomisation can be:<br><br>* `same_than_company`: The same canAccessFaqCustomisation setting than the user's company's is applied to the user. if the canAccessFaqCustomisation of the company is changed the user's canAccessFaqCustomisation will use this company new setting.<br>* `enabled`: The user can access to the FAQ.<br>* `disabled`: The user can't access to the FAQ. |
+     * | canAccessWhatsNew | String | Activate/Deactivate the capability for a user to access to what's new.  <br>Defines if a user can access to what's new.  <br>canAccessWhatsNew can be:<br><br>* `same_than_company`: The same canAccessWhatsNew setting than the user's company's is applied to the user. if the canAccessWhatsNew of the company is changed the user's canAccessWhatsNew will use this company new setting.<br>* `enabled`: The user can access to what's new.<br>* `disabled`: The user can't access to what's new. |
+     * | imPopupDuration optionnel | Number | Defines the IM popup duration.<br><br>* If the imPopupDuration is not defined or null, the same imPopupDuration setting than the user's company's is applied to the user.<br>* Otherwise, a new imPopupDuration is set for the user. |
+     * | useTeamsMode optionnel | String | Activate/Deactivate the capability for a user to use the Teams mode.  <br>Defines if a user can use the Teams mode.  <br>useTeamsMode can be:<br><br>* `same_than_company`: The same useTeamsMode setting than the user's company's is applied to the user. if the useTeamsMode of the company is changed the user's useTeamsMode will use this company new setting.<br>* `enabled`: The user can use the Teams mode.<br>* `disabled`: The user can't use the Teams mode. |
+     * | useSoftPhoneMode | String | Activate/Force/Deactivate the capability for a user to use the softphone mode.  <br>Defines if a user can use the softphone mode.  <br>useSoftPhoneMode can be:<br><br>* `same_than_company`: The same useSoftPhoneMode setting than the user's company's is applied to the user. if the useSoftPhoneMode of the company is changed the user's useSoftPhoneMode will use this company new setting.<br>* `enabled`: The user can use the softphone mode.<br>* `forced`: The user can use the softphone mode only on Web application.<br>* `disabled`: The user can't use the softphone mode. |
+     * | useComputerMode | String | Activate/Deactivate the capability for a user to use the computer mode.  <br>Defines if a user can use the computer mode.  <br>useComputerMode can be:<br><br>* `same_than_company`: The same useComputerMode setting than the user's company's is applied to the user. if the useComputerMode of the company is changed the user's useComputerMode will use this company new setting.<br>* `enabled`: The user can use the computer mode.<br>* `disabled`: The user can't use the computer mode. |
+     * | useOtherPhoneMode | String | Activate/Deactivate the capability for a user to use the other phone mode.  <br>Defines if a user can use the other phone mode.  <br>useOtherPhoneMode can be:<br><br>* `same_than_company`: The same useOtherPhoneMode setting than the user's company's is applied to the user. if the useOtherPhoneMode of the company is changed the user's useOtherPhoneMode will use this company new setting.<br>* `enabled`: The user can use the other phone mode.<br>* `disabled`: The user can't use the other phone mode. |
+     * | meetingRecordingCustomisation | String | Activate/Deactivate the capability for a user to record a meeting.  <br>Defines if a user can record a meeting.  <br>meetingRecordingCustomisation can be:<br><br>* `same_than_company`: The same meetingRecordingCustomisation setting than the user's company's is applied to the user. if the meetingRecordingCustomisation of the company is changed the user's meetingRecordingCustomisation will use this company new setting.<br>* `enabled`: The user can record a meeting.<br>* `disabled`: The user can't record a meeting. |
+     * | eLearningGamificationCustomisation | String | Activate/Deactivate the capability for a user to earn badges for Elearning progress.  <br>Defines if a user can earn badges for Elearning progress.  <br>eLearningGamificationCustomisation can be:<br><br>* `same_than_company`: The same eLearningGamificationCustomisation setting than the user's company's is applied to the user. if the eLearningGamificationCustomisation of the company is changed the user's eLearningGamificationCustomisation will use this company new setting.<br>* `enabled`: The user can earn badges for Elearning progress.<br>* `disabled`: The user can't earn badges for Elearning progress. |
+     * | eLearningCustomisation | String | Activate/Deactivate the capability for a user to participate on a Elearning training.  <br>Defines if a user can participate on an Elearning training.  <br>eLearningCustomisation can be:<br><br>* `same_than_company`: The same eLearningCustomisation setting than the user's company's is applied to the user. if the useSpeakingTimeStatistics of the company is changed the user's eLearningCustomisation will use this company new setting.<br>* `enabled`: The user can participate on an Elearning training.<br>* `disabled`: The user can't participate on an Elearning training. |
+     * | useWebRTCAudioAsRBVoiceUser | String | Technical flag for Rainbow voice users.  <br>Whatever the customisation template applied for the user, if he has a Rainbow Voice licence useWebRTCAudioAsRBVoiceUser is enabled else it is disabled. |
+     * | useRoomAsRBVoiceUser | String | Technical flag for Rainbow voice users.  <br>Whatever the customisation template applied for the user, if he has a Rainbow Voice licence useRoomAsRBVoiceUser is enabled else it is disabled. |
+     * | selectedAppCustomisationTemplate | String | To log the last template applied to the user. |
+     * | useSpeakingTimeStatistics | String | Activate/Deactivate the capability for a user to see speaking time statistics.  <br>Defines whether a user has the right to see for a given meeting the speaking time for each attendee of this meeting.  <br>useSpeakingTimeStatistics can be:<br><br>* `same_than_company`: The same useSpeakingTimeStatistics setting than the user's company's is applied to the user. if the useSpeakingTimeStatistics of the company is changed the user's useSpeakingTimeStatistics will use this company new setting.<br>* `enabled`: The user can use meeting speaking time statistics.<br>* `disabled`: The user can't use meeting speaking time statistics. |
+     * | readReceiptsCustomisation | String | Activate/Deactivate the capability for a user to allow a sender to check if a chat message is read.  <br>Defines whether a peer user in a conversation allows the sender of a chat message to see if this IM is acknowledged by the peer.  <br>This right is used by Ucaas or Cpaas application to show either or not a message is acknowledged. No check is done on backend side.  <br>readReceiptsCustomisation can be:<br><br>* `same_than_company`: The same readReceiptsCustomisation setting than the user's company's is applied to the user. if the readReceiptsCustomisation of the company is changed the user's readReceiptsCustomisation will use this company new setting.<br>* `enabled`: The user allows the sender to check if an IM is read.<br>* `disabled`: The user doesn't allow the sender to check if an IM is read. |
+     * | useDialOutCustomisation | String | Activate/Deactivate the capability for a user to use dial out in phone meetings.  <br>Define if a user is allowed to be called by the Rainbow conference bridge.  <br>useDialOutCustomisation can be:<br><br>* `same_than_company`: The same useDialOutCustomisation setting than the user's company's is applied to the user. if the useDialOutCustomisation of the company is changed the user's useDialOutCustomisation will use this company new setting.<br>* `enabled`: The user can be called by the Rainbow conference bridge.<br>* `disabled`: The user can't be called by the Rainbow conference bridge. |
+     * | forbidFileOwnerChangeCustomisation | String | Activate/Deactivate the capability for a user to loose the ownership on one file..  <br>One user can drop the ownership to another Rainbow user of the same company.  <br>forbidFileOwnerChangeCustomisation can be:<br><br>* `same_than_company`: The same forbidFileOwnerChangeCustomisation setting than the user's company's is applied to the user. if the forbidFileOwnerChangeCustomisation of the company is changed the user's forbidFileOwnerChangeCustomisation will use this company new setting.<br>* `enabled`: The user can't give the ownership of his file.<br>* `disabled`: The user can give the ownership of his file. |
+     * | fileTransferCustomisation | String | Activate/Deactivate the capability for a user to copy a file from a conversation then share it inside another conversation.  <br>The file cannot be re-shared.  <br>fileTransferCustomisation can be:<br><br>* `same_than_company`: The same fileTransferCustomisation setting than the user's company's is applied to the user. if the fileTransferCustomisation of the company is changed the user's fileTransferCustomisation will use this company new setting.<br>* `enabled`: The user can transfer a file doesn't belong to him.<br>* `disabled`: The user can't transfer a file doesn't belong to him. |
+     * | fileCopyCustomisation | String | Activate/Deactivate the capability for one user to copy any file he receives in his personal cloud space  <br>fileCopyCustomisation can be:<br><br>* `same_than_company`: The same fileCopyCustomisation setting than the user's company's is applied to the user. if the fileCopyCustomisation of the company is changed the user's fileCopyCustomisation will use this company new setting.<br>* `enabled`: The user can make a copy of a file to his personal cloud space.<br>* `disabled`: The user can't make a copy of a file to his personal cloud space. |
+     * | useGifCustomisation | String | Activate/Deactivate the ability for a user to Use GIFs in conversations.  <br>Define if a user has the is allowed to send animated GIFs in conversations  <br>useGifCustomisation can be:<br><br>* `same_than_company`: The same useGifCustomisation setting than the user's company's is applied to the user. if the useGifCustomisation of the company is changed the user's useGifCustomisation will use this company new setting.<br>* `enabled`: The user can send animated GIFs in conversations.<br>* `disabled`: The user can't send animated GIFs in conversations. |
+     * | recordingConversationCustomisation | String | Activate/Deactivate the capability for a user to record a conversation.  <br>Define if a user has the right to record a conversation (for P2P and multi-party calls).  <br>recordingConversationCustomisation can be:<br><br>* `same_than_company`: The same recordingConversationCustomisation setting than the user's company's is applied to the user. if the recordingConversationCustomisation of the company is changed the user's recordingConversationCustomisation will use this company new setting.<br>* `enabled`: The user can record a peer to peer or a multi-party call.<br>* `disabled`: The user can't record a peer to peer or a multi-party call. |
+     * | changeSettingsCustomisation | String | Activate/Deactivate the ability for a user to change all client general settings.  <br>changeSettingsCustomisation can be:<br><br>* `same_than_company`: The same changeSettingsCustomisation setting than the user's company's is applied to the user. if the changeSettingsCustomisation of the company is changed the user's changeSettingsCustomisation will use this company new setting.<br>* `enabled`: The user can change all client general settings.<br>* `disabled`: The user can't change any client general setting. |
+     * | changeTelephonyCustomisation | String | Activate/Deactivate the ability for a user to modify telephony settings.  <br>Define if a user has the right to modify some telephony settigs like forward activation...  <br>changeTelephonyCustomisation can be:<br><br>* `same_than_company`: The same changeTelephonyCustomisation setting than the user's company's is applied to the user. if the changeTelephonyCustomisation of the company is changed the user's changeTelephonyCustomisation will use this company new setting.<br>* `enabled`: The user can modify telephony settings.<br>* `disabled`: The user can't modify telephony settings. |
+     * | overridePresenceCustomisation | String | Activate/Deactivate the capability for a user to use instant messages.  <br>Define if a user has the right to change his presence manually or only use automatic states.  <br>overridePresenceCustomisation can be:<br><br>* `same_than_company`: The same overridePresenceCustomisation setting than the user's company's is applied to the user. if the overridePresenceCustomisation of the company is changed the user's overridePresenceCustomisation will use this company new setting.<br>* `enabled`: The user can change his presence.<br>* `disabled`: The user can't change his presence. |
+     * | fileStorageCustomisation | String | Activate/Deactivate the capability for a user to access to Rainbow file storage..  <br>Define if a user has the right to upload/download/copy or share documents.  <br>fileStorageCustomisation can be:<br><br>* `same_than_company`: The same fileStorageCustomisation setting than the user's company's is applied to the user. if the fileStorageCustomisation of the company is changed the user's fileStorageCustomisation will use this company new setting.<br>* `enabled`: The user can manage and share files.<br>* `disabled`: The user can't manage and share files. |
+     * | userProfileCustomisation | String | Activate/Deactivate the capability for a user to modify his profile.  <br>Define if a user has the right to modify the globality of his profile and not only (title, firstName, lastName).  <br>userProfileCustomisation can be:<br><br>* `same_than_company`: The same userProfileCustomisation setting than the user's company's is applied to the user. if the userProfileCustomisation of the company is changed the user's userProfileCustomisation will use this company new setting.<br>* `enabled`: The user can modify his profile.<br>* `disabled`: The user can't modify his profile. |
+     * | instantMessagesCustomisation | String | Activate/Deactivate the capability for a user to use instant messages.  <br>Define if a user has the right to use IM, then to start a chat (P2P ou group chat) or receive chat messages and chat notifications.  <br>instantMessagesCustomisation can be:<br><br>* `same_than_company`: The same instantMessagesCustomisation setting than the user's company's is applied to the user. if the instantMessagesCustomisation of the company is changed the user's instantMessagesCustomisation will use this company new setting.<br>* `enabled`: The user can use instant messages.<br>* `disabled`: The user can't use instant messages. |
+     * | useWebRTCAudioCustomisation | String | Activate/Deactivate the capability for a user to switch to a Web RTC audio conversation.  <br>Define if a user has the right to be joined via audio (WebRTC) and to use Rainbow audio (WebRTC) (start a P2P audio call, start a web conference call).  <br>useWebRTCAudioCustomisation can be:<br><br>* `same_than_company`: The same useWebRTCAudioCustomisation setting than the user's company's is applied to the user. if the useWebRTCAudioCustomisation of the company is changed the user's useWebRTCAudioCustomisation will use this company new setting.<br>* `enabled`: The user can switch to a Web RTC audio conversation.<br>* `disabled`: The user can't switch to a Web RTC audio conversation. |
+     * | useWebRTCVideoCustomisation | String | Activate/Deactivate the capability for a user to switch to a Web RTC video conversation.  <br>Define if a user has the right to be joined via video and to use video (start a P2P video call, add video in a P2P call, add video in a web conference call).  <br>useWebRTCVideoCustomisation can be:<br><br>* `same_than_company`: The same useWebRTCVideoCustomisation setting than the user's company's is applied to the user. if the useWebRTCVideoCustomisation of the company is changed the user's useWebRTCVideoCustomisation will use this company new setting.<br>* `enabled`: The user can switch to a Web RTC video conversation.<br>* `disabled`: The user can't switch to a Web RTC video conversation. |
+     * | useChannelCustomisation | String | Activate/Deactivate the capability for a user to use a channel.  <br>Define if a user has the right to create channels or be a member of channels.  <br>useChannelCustomisation can be:<br><br>* `same_than_company`: The same useChannelCustomisation setting than the user's company's is applied to the user. if the useChannelCustomisation of the company is changed the user's useChannelCustomisation will use this company new setting.<br>* `enabled`: The user can use some channels.<br>* `disabled`: The user can't use some channel. |
+     * | phoneMeetingCustomisation | String | Activate/Deactivate the capability for a user to use phone meetings (PSTN conference).  <br>Define if a user has the right to join phone meetings.  <br>phoneMeetingCustomisation can be:<br><br>* `same_than_company`: The same phoneMeetingCustomisation setting than the user's company's is applied to the user. if the phoneMeetingCustomisation of the company is changed the user's phoneMeetingCustomisation will use this company new setting.<br>* `enabled`: The user can join phone meetings.<br>* `disabled`: The user can't join phone meetings. |
+     * | useRoomCustomisation | String | Activate/Deactivate the capability for a user to use bubbles.  <br>Define if a user can create bubbles or participate in bubbles (chat and web conference).  <br>useRoomCustomisation can be:<br><br>* `same_than_company`: The same useRoomCustomisation setting than the user's company's is applied to the user. if the useRoomCustomisation of the company is changed the user's useRoomCustomisation will use this company new setting.<br>* `enabled`: The user can use bubbles.<br>* `disabled`: The user can't use bubbles. |
+     * | softphoneOnlyCustomisation | String | Activate/Deactivate the capability for an UCaas application not to offer all Rainbow services but to focus to telephony services  <br>Define if UCaas apps used by a user of this company must provide Softphone functions, i.e. no chat, no bubbles, no meetings, no channels, and so on.  <br>softphoneOnlyCustomisation can be:<br><br>* `same_than_company`: The same softphoneOnlyCustomisation setting than the user's company's is applied to the user. if the softphoneOnlyCustomisation of the company is changed the user's softphoneOnlyCustomisation will use this company new setting.<br>* `enabled`: The user switch to a softphone mode only.<br>* `disabled`: The user can use telephony services, chat, bubbles, channels meeting services and so on. |
+     * | userTitleNameCustomisation | String | Activate/Deactivate the capability for a user to modify his profile (title, firstName, lastName)  <br>Define if the user can change some profile data.  <br>userTitleNameCustomisation can be:<br><br>* `same_than_company`: The same userTitleNameCustomisation setting than the user's company's is applied to the user. if the userTitleNameCustomisation of the company is changed the user's userTitleNameCustomisation will use this company new setting.<br>* `enabled`: Whatever the userTitleNameCustomisation of the company setting, the user can change some profile data.<br>* `disabled`: Whatever the userTitleNameCustomisation of the company setting, the user can't change some profile data. |
+     * | fileSharingCustomisation | String | Activate/Deactivate file sharing capability per user  <br>Define if the user can use the file sharing service then, allowed to download and share file.  <br>FileSharingCustomisation can be:<br><br>* `same_than_company`: The same fileSharingCustomisation setting than the user's company's is applied to the user. if the fileSharingCustomisation of the company is changed the user's fileSharingCustomisation will use this company new setting.<br>* `enabled`: Whatever the fileSharingCustomisation of the company setting, the user can use the file sharing service.<br>* `disabled`: Whatever the fileSharingCustomisation of the company setting, the user can't use the file sharing service. |
+     * | data | Object | User Object. |
+     * | isInDefaultCompany | Boolean | Is user in default company |
+     * | id  | String | User unique identifier |
+     * | loginEmail | String | User email address (used for login) |
+     * | loginPhone optionnel | Object | User phone number (used for login) |
+     * | E164 | String | User phone number in E164 format. Used for login and to send passwordless code to the user by SMS when passwordless authentication is enabled for this user with a policy configured to send the code by SMS.<br><br>Ordre de grandeur : `1..32` |
+     * | isValidated | Boolean | Specifies that the loginPhone.E164 can be used to authenticate the user. |
+     * | national optionnel | String | User phone number in national format. Can be used for login, but there is a risk several users have a same national number depending on the country (in such case, user must use E164 format to login).<br><br>Ordre de grandeur : `1..32` |
+     * | nationalWithoutPrefix optionnel | String | User phone number in national format without national prefix. Can be used for login, but there is a risk several users have a same nationalWithoutPrefix number depending on the country (in such case, user must use E164 format to login).<br><br>Ordre de grandeur : `1..32` |
+     * | E164WithoutPrefix optionnel | String | User phone number in E164 format without '+' prefix. Can be used for login, but there is a risk several users have a same E164WithoutPrefix number depending on the country (in such case, user must use E164 format to login).<br><br>Ordre de grandeur : `1..32` |
+     * | E164WithNationalPrefix optionnel | String | User phone number in E164 format with the national prefix. Can be used for login, but there is a risk several users have a same E164WithNationalPrefix number depending on the country (in such case, user must use E164 format to login).<br><br>Ordre de grandeur : `1..32` |
+     * | firstName | String | User first name |
+     * | E164WithNationalPrefixWithoutPrefix optionnel | String | User phone number in E164 format with the national prefix but without '+' prefix. Can be used for login, but there is a risk several users have a same E164WithNationalPrefixWithoutPrefix number depending on the country (in such case, user must use E164 format to login).<br><br>Ordre de grandeur : `1..32` |
+     * | lastName | String | User last name |
+     * | displayName | String | User display name (firstName + lastName concatenated on server side) |
+     * | nickName optionnel | String | User nickName |
+     * | title optionnel | String | User title (honorifics title, like Mr, Mrs, Sir, Lord, Lady, Dr, Prof,...) |
+     * | jobTitle optionnel | String | User job title |
+     * | department optionnel | String | User department |
+     * | tags optionnel | String\[\] | An Array of free tags associated to the user.  <br>A maximum of 5 tags is allowed, each tag can have a maximum length of 64 characters.  <br>`tags` can only be set by users who have administrator rights on the user. The user can't modify the tags.  <br>The tags are visible by the user and all users belonging to his organisation/company, and can be used with the search API to search the user based on his tags. |
+     * | emails | Object\[\] | Array of user emails addresses objects |
+     * | email | String | User email address |
+     * | type | String | Email type, one of `home`, `work`, `other` |
+     * | phoneNumbers | Object\[\] | Array of user phone numbers objects.  <br>Phone number objects can:<br><br>* be created by user (information filled by user),<br>* come from association with a system (pbx) device (association is done by admin). |
+     * | phoneNumberId | String | Phone number unique id in phone-numbers directory collection. |
+     * | number optionnel | String | User phone number (as entered by user) |
+     * | numberE164 optionnel | String | User E.164 phone number, computed by server from `number` and `country` fields |
+     * | country | String | Phone number country (ISO 3166-1 alpha3 format)  <br>`country` field is automatically computed using the following algorithm when creating/updating a phoneNumber entry:<br><br>* If `number` is provided and is in E164 format, `country` is computed from E164 number<br>* Else if `country` field is provided in the phoneNumber entry, this one is used<br>* Else user `country` field is used |
+     * | isFromSystem | Boolean | Boolean indicating if phone is linked to a system (pbx). |
+     * | shortNumber optionnel | String | **\[Only for phone numbers linked to a system (pbx)\]**  <br>If phone is linked to a system (pbx), short phone number (corresponds to the number monitored by PCG).  <br>Only usable within the same PBX.  <br>Only PCG can set this field. |
+     * | internalNumber optionnel | String | **\[Only for phone numbers linked to a system (pbx)\]**  <br>If phone is linked to a system (pbx), internal phone number.  <br>Usable within a PBX group.  <br>Admins and users can modify this internalNumber field. |
+     * | systemId optionnel | String | **\[Only for phone numbers linked to a system (pbx)\]**  <br>If phone is linked to a system (pbx), unique identifier of that system in Rainbow database. |
+     * | pbxId optionnel | String | **\[Only for phone numbers linked to a system (pbx)\]**  <br>If phone is linked to a system (pbx), unique identifier of that pbx. |
+     * | type | String | Phone number type<br><br>Possibles values : `home`, `work`, `other`, `login`, `rainbow` |
+     * | deviceType | String | Phone number device type, one of `landline`, `mobile`, `fax`, `other`. |
+     * | isVisibleByOthers | Boolean | Allow user to choose if the phone number is visible by other users or not.  <br>Note that administrators can see all the phone numbers, even if `isVisibleByOthers` is set to false.  <br>Note that phone numbers linked to a system (`isFromSystem`=true) are always visible, `isVisibleByOthers` can't be set to false for these numbers. |
+     * | redirectNumber optionnel | String | User redirect phone number (as entered by user) |
+     * | isRedirectNumberEditable optionnel | String | Indicates if the redirect phone number is editable by a user |
+     * | country | String | User country (ISO 3166-1 alpha3 format)<br><br>The list of allowed countries can be obtained using the API [GET /api/rainbow/enduser/v1.0/countries](/enduser/#api-countries-getCountries) |
+     * | state optionnel | String | When country is 'USA' or 'CAN', a state can be defined. Else it is not managed (null).<br><br>The list of allowed states can be obtained using the API [GET /api/rainbow/enduser/v1.0/countries](/enduser/#api-countries-getCountries) for the associated countries.<br><br>* List of allowed states for `USA`:<br>    * `AA`: "Armed Forces America",<br>    * `AE`: "Armed Forces",<br>    * `AP`: "Armed Forces Pacific",<br>    * `AK`: "Alaska",<br>    * `AL`: "Alabama",<br>    * `AR`: "Arkansas",<br>    * `AZ`: "Arizona",<br>    * `CA`: "California",<br>    * `CO`: "Colorado",<br>    * `CT`: "Connecticut",<br>    * `DC`: Washington DC",<br>    * `DE`: "Delaware",<br>    * `FL`: "Florida",<br>    * `GA`: "Georgia",<br>    * `GU`: "Guam",<br>    * `HI`: "Hawaii",<br>    * `IA`: "Iowa",<br>    * `ID`: "Idaho",<br>    * `IL`: "Illinois",<br>    * `IN`: "Indiana",<br>    * `KS`: "Kansas",<br>    * `KY`: "Kentucky",<br>    * `LA`: "Louisiana",<br>    * `MA`: "Massachusetts",<br>    * `MD`: "Maryland",<br>    * `ME`: "Maine",<br>    * `MI`: "Michigan",<br>    * `MN`: "Minnesota",<br>    * `MO`: "Missouri",<br>    * `MS`: "Mississippi",<br>    * `MT`: "Montana",<br>    * `NC`: "North Carolina",<br>    * `ND`: "North Dakota",<br>    * `NE`: "Nebraska",<br>    * `NH`: "New Hampshire",<br>    * `NJ`: "New Jersey",<br>    * `NM`: "New Mexico",<br>    * `NV`: "Nevada",<br>    * `NY`: "New York",<br>    * `OH`: "Ohio",<br>    * `OK`: "Oklahoma",<br>    * `OR`: "Oregon",<br>    * `PA`: "Pennsylvania",<br>    * `PR`: "Puerto Rico",<br>    * `RI`: "Rhode Island",<br>    * `SC`: "South Carolina",<br>    * `SD`: "South Dakota",<br>    * `TN`: "Tennessee",<br>    * `TX`: "Texas",<br>    * `UT`: "Utah",<br>    * `VA`: "Virginia",<br>    * `VI`: "Virgin Islands",<br>    * `VT`: "Vermont",<br>    * `WA`: "Washington",<br>    * `WI`: "Wisconsin",<br>    * `WV`: "West Virginia",<br>    * `WY`: "Wyoming"<br>* List of allowed states for `CAN`:<br>    * `AB`: "Alberta",<br>    * `BC`: "British Columbia",<br>    * `MB`: "Manitoba",<br>    * `NB`: "New Brunswick",<br>    * `NL`: "Newfoundland and Labrador",<br>    * `NS`: "Nova Scotia",<br>    * `NT`: "Northwest Territories",<br>    * `NU`: "Nunavut",<br>    * `ON`: "Ontario",<br>    * `PE`: "Prince Edward Island",<br>    * `QC`: "Quebec",<br>    * `SK`: "Saskatchewan",<br>    * `YT`: "Yukon"<br><br>Possibles values : `null`, `"AA"`, `"AE"`, `"AP"`, `"AK"`, `"AL"`, `"AR"`, `"AZ"`, `"CA"`, `"CO"`, `"CT"`, `"DC"`, `"DE"`, `"FL"`, `"GA"`, `"GU"`, `"HI"`, `"IA"`, `"ID"`, `"IL"`, `"IN"`, `"KS"`, `"KY"`, `"LA"`, `"MA"`, `"MD"`, `"ME"`, `"MI"`, `"MN"`, `"MO"`, `"MS"`, `"MT"`, `"NC"`, `"ND"`, `"NE"`, `"NH"`, `"NJ"`, `"NM"`, `"NV"`, `"NY"`, `"OH"`, `"OK"`, `"OR"`, `"PA"`, `"PR"`, `"RI"`, `"SC"`, `"SD"`, `"TN"`, `"TX"`, `"UT"`, `"VA"`, `"VI"`, `"VT"`, `"WA"`, `"WI"`, `"WV"`, `"WY"`, `"AB"`, `"BC"`, `"MB"`, `"NB"`, `"NL"`, `"NS"`, `"NT"`, `"NU"`, `"ON"`, `"PE"`, `"QC"`, `"SK"`, `"YT"` |
+     * | language optionnel | String | User language (ISO 639-1 code format, with possibility of regional variation. Ex: both 'en' and 'en-US' are supported) |
+     * | timezone optionnel | String | User timezone name |
+     * | jid_im | String | User Jabber IM identifier |
+     * | jid_tel | String | User Jabber TEL identifier |
+     * | jid_password | String | User Jabber IM and TEL password |
+     * | roles | String\[\] | List of user roles (Array of String)  <br>Note: `company_support` role is only used for support redirection. If a user writes a #support ticket and have the role `company_support`, the ticket will be sent to ALE's support (otherwise the ticket is sent to user's company's `supportEmail` address is set, ALE otherwise). |
+     * | adminType | String | In case of user's is 'admin', define the subtype (organisation\_admin, company\_admin, site_admin (default undefined) |
+     * | companyId | String | User company unique identifier |
+     * | organisationId | String | In addition to User companyId, optional identifier to indicate the user belongs also to an organization |
+     * | siteId | String | In addition to User companyId, optional identifier to indicate the user belongs also to a site |
+     * | companyName | String | User company name |
+     * | selectedProgKeysGroupId | String | Identifier of the assigned company's telephonyKey group |
+     * | visibility | String | User visibility  <br>Define if the user can be searched by users being in other company and if the user can search users being in other companies.  <br>Visibility can be:<br><br>* `same_than_company`: The same visibility than the user's company's is applied to the user. When this user visibility is used, if the visibility of the company is changed the user's visibility will use this company new visibility.<br>* `public`: User can be searched by external users / can search external users. User can invite external users / can be invited by external users<br>* `private`: User **can't** be searched by external users / can search external users. User can invite external users / can be invited by external users<br>* `closed`: User **can't** be searched by external users / **can't** search external users. User can invite external users / can be invited by external users<br>* `isolated`: User **can't** be searched by external users / **can't** search external users. User **can't** invite external users / **can't** be invited by external users<br>* `none`: Default value reserved for guest. User **can't** be searched by **any users** (even within the same company) / can search external users. User can invite external users / can be invited by external users  <br>    External users mean 'public user not being in user's company nor user's organisation nor a company visible by user's company.<br><br>Possibles values : `same_than_company`, `public`, `private`, `closed`, `isolated`, `none` |
+     * | isActive | Boolean | Is user active |
+     * | isInitialized | Boolean | Is user initialized |
+     * | initializationDate | Date-Time | User initialization date |
+     * | activationDate | Date-Time | User activation date |
+     * | creationDate | Date-Time | User creation date |
+     * | lastUpdateDate | Date-Time | Date of last user update (whatever the field updated) |
+     * | lastAvatarUpdateDate | Date-Time | Date of last user avatar create/update, null if no avatar |
+     * | createdBySelfRegister | Boolean | true if user has been created using self register |
+     * | createdByAdmin optionnel | Object | If user has been created by an admin or superadmin, contain userId and loginEmail of the admin who created this user |
+     * | userId | String | userId of the admin who created this user |
+     * | loginEmail | String | loginEmail of the admin who created this user |
+     * | invitedBy optionnel | Object | If user has been created from an email invitation sent by another rainbow user, contain the date the invitation was sent and userId and loginEmail of the user who invited this user |
+     * | userId | String | userId of the user who invited this user |
+     * | authenticationType optionnel | String | User authentication type (if not set company default authentication will be used)<br><br>Possibles values : `DEFAULT`, `RAINBOW`, `SAML`, `OIDC` |
+     * | loginEmail | String | loginEmail of the user who invited this user |
+     * | authenticationExternalUid optionnel | String | User external authentication ID Allows to authenticate the user based on an external identifier (company's SSO server (SAML or OIDC), Teams, Outlook, ...) |
+     * | firstLoginDate | Date-Time | Date of first user login (only set the first time user logs in, null if user never logged in) |
+     * | lastLoginDate | Date-Time | Date of last user login (defined even if user is logged out) |
+     * | loggedSince | Date-Time | Date of last user login (null if user is logged out) |
+     * | lastSeenDate | Date-Time | Approximate date when the user has been seen on Rainbow (null if user never logged in)  <br>This date is updated:<br><br>* When the user logs in (either from login API, SAML/OIDC SSO, OAuth)<br>* When the token of the user is refreshed (using the API GET /api/rainbow/authentication/v1.0/renew, done automatically by the clients before the token expires and not visible by the user)<br>* When the user logs out |
+     * | isTerminated | Boolean | Indicates if the Rainbow account of this user has been deleted |
+     * | isAlertNotificationEnabled | Boolean | Is user subscribed to Rainbow Alert Offer |
+     * | guestMode | Boolean | Indicated a user embedded in a chat or conference room, as guest, with limited rights until he finalizes his registration. |
+     * | timeToLive optionnel | Number | Duration in second to wait before automatically starting a user deletion from the creation date.  <br>Once the timeToLive has been reached, the user won't be usable to use APIs anymore (error 401523). His account may then be deleted from the database at any moment.  <br>Value -1 means timeToLive is disable (i.e. user account will not expire). |
+     * | userInfo1 optionnel | String | Free field that admin can use to link their users to their IS/IT tools / to perform analytics (this field is output in the CDR file) |
+     * | userInfo2 optionnel | String | 2nd Free field that admin can use to link their users to their IS/IT tools / to perform analytics (this field is output in the CDR file) |
+     * | profiles | Object\[\] | User profile Objects. |
+     * | subscriptionId | String | Id of company subscription to which user profile is assigned (one of the subscriptions available to user's company) |
+     * | offerId | String | Id of the Rainbow offer to which company subscription is attached |
+     * | offerName | String | Name of the Rainbow offer to which company subscription is attached |
+     * | profileId | String | Id of the Rainbow profile to which company subscription is attached |
+     * | profileName | String | Name of the Rainbow profile to which company subscription is attached |
+     * | status | String | Status of the company subscription to which user profile is assigned  <br>  <br>Possible values: `active`, `alerting`, `hold`, `terminated` |
+     * | isDefault | Boolean | Indicates if this profile is linked to user's company's subscription to default offer (i.e. Essential) |
+     * | assignationDate | String | Date when the subscription was attached to user profile |
+     * | canBeSold | Boolean | Indicates if the offer is billed.  <br>Some offers will not be billed (Essential, Demo, ...). |
+     * | offerTechnicalDescription optionnel | string | Offer technical description.<br><br>Ordre de grandeur : `1..512` |
+     * | businessModel optionnel | string | Indicates the business model associated to this offer (number of users, usage, ...)<br><br>* `nb_users`: Licencing business model. Subscriptions having this business model are billed according to the number of users bought for it.<br>* `usage`: Subscriptions having this business model are billed based on service consumption (whatever the number of users assigned to the subscription of this offer).<br>* `flat_fee`: Subscriptions having this business model are billed based on a flat fee (same price each month for the company which subscribe to this offer).<br>* `none`: no business model. Should be used for offers which are not sold (like Essential...).<br><br>Valeur par défaut : `none`<br><br>Possibles values : `nb_users`, `usage`, `flat_fee`, `none` |
+     * | businessSpecific optionnel | String\[\] | Indicates if the subscription is related to specific(s) business (for verticals like HDS)<br><br>* `NONE`: This subscription is used if the company does not have a businessSpecific field.<br>* `HDS`: This subscription is used if the company have a businessSpecific HDS (HealthCare).<br><br>Valeur par défaut : `["NONE"]`<br><br>Possibles values : `NONE`, `HDS` |
+     * | isExclusive optionnel | Boolean | Indicates if the offer is exclusive for assignation to a user profile (if the user has already an exclusive offer assigned, it won't be possible to assign a second exclusive offer). |
+     * | isPrepaid optionnel | Boolean | Indicates if the profile is linked to a prepaid subscription |
+     * | prepaidDuration optionnel | Number | Prepaid subscription duration (in month).  <br>Only set if `isPrepaid` is true. |
+     * | zuoraOfferId optionnel | string | ID of the related offer in Zuora (if offer can be sold) |
+     * | zuoraProductRatePlanId optionnel | string | ID of the ProductRatePlanId to used in Zuora (if offer can be sold) |
+     * | zuoraProductRatePlanChargeId optionnel | string | ID of the ProductRatePlanChargeId used in Zuora (if offer can be sold) |
+     * | hasConference optionnel | Boolean | Indicates if the profile contains conference services |
+     * | isDemo optionnel | Boolean | Indicates if the profile is linked to a demo subscription |
+     * | useScreenSharingCustomisation | String | Activate/Deactivate the capability for a user to share a screen.  <br>Define if a user has the right to share his screen.  <br>useScreenSharingCustomisation can be:<br><br>* `same_than_company`: The same useScreenSharingCustomisation setting than the user's company's is applied to the user. if the useScreenSharingCustomisation of the company is changed the user's useScreenSharingCustomisation will use this company new setting.<br>* `enabled`: Each user of the company can share his screen.<br>* `disabled`: No user of the company can share his screen. |
+     * | mfaRainbowAuth optionnel | Object\[\] | Rainbow authentication policy Object. |
+     * | mfaRainbowPolicyId optionnel | String | Id of company rainbow policy to which user profile is assigned |
+     * | mfaStatus optionnel | String | status of the activation of the rainbow policy<br><br>Possibles values : `init`, `enabled`, `disabled` |
+     * | mfaTrustedApps optionnel | Object\[\] | list of trusted application of rainbow policy |
+     * | appId optionnel | String | id of a trusted application of rainbow policy |
+     * | appName optionnel | String | name of a trusted application of rainbow policy |
+     * | rainbowPasswordlessPolicy optionnel | Object\[\] | Rainbow passwordless authentication policy Object. |
+     * | rainbowPasswordlessPolicyId optionnel | String | Id of company rainbow passwordless policy to which user is assigned |
+     * | sendToEmail optionnel | String | Optional email used to send passwordless code to the user (instead of his loginEmail address) when passwordless authentication is enabled for the user and the associated company's passwordless policy has `sendEmail`=true. |
+     * | customData optionnel | Object | User's custom data.  <br>Object with free keys/values.  <br>It is up to the client to manage the user's customData (new customData provided overwrite the existing one).  <br>  <br>Restrictions on customData Object:<br><br>* max 20 keys,<br>* max key length: 64 characters,<br>* max value length: 4096 characters. |
+     *
+     */
+    registerUserByEmailSecondStepWithToken(userLoginInfo: {"loginEmail":string,"password":string,"temporaryToken":string}) {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(registerUserByEmailSecondStepWithToken) userLoginInfo : ", userLoginInfo);
+        return that.callRestMethod("registerUserByEmailSecondStepWithToken", arguments);
+    }
+
+
+    /**
+     * @public
+     * @nodered true
      * @method getAllCompanies
      * @param {string} format Allows to retrieve more or less company details in response. </BR>
      * - small: _id, name </BR>
@@ -3271,6 +3553,578 @@ class AdminService extends GenericService {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateCompany) companyId : ", companyId, ", name : ", name);
         return that.callRestMethod("updateCompany", arguments);
+    /*    return new Promise(function (resolve, reject) {
+            try {
+
+                that._rest.updateCompany(companyId, selectedThemeObj, name, country, street, city, state, postalCode, offerType,
+                    currency, status, visibility, visibleBy, adminEmail, supportEmail, supportUrlFAQ, companyContactId, disableCCareAdminAccess,
+                    disableCCareAdminAccessCustomers, disableCCareAdminAccessResellers, autoAcceptUserInvitations, autoAddToUserNetwork, contentPolicyLifeTime,
+                    documentGracePeriod, userSelfRegisterAllowedDomains, slogan, description, size, economicActivityClassification, website,
+                    giphyEnabled, catalogId, adminCanSetCustomData, customData, bpId, adminHasRightToUpdateSubscriptions, adminAllowedUpdateSubscriptionsOps, isBP,
+                    bpType, bpBusinessModel, bpApplicantNumber, bpCRDid, bpHasRightToSell, bpHasRightToConnect, bpHasRightForBYOT, preferredSipLoadBalancerId,
+                    bpIsContractAccepted, externalReference, externalReference2, salesforceAccountId, avatarShape, isCentrex, companyCallNumber, superadminComment,
+                    bpBusinessType, billingModel, allowUsersSelectTheme, allowUsersSelectPublicTheme, selectedTheme, mobilePermanentConnectionMode,
+                    alertNotificationReception, alertNotificationSending, useDialOutCustomisation, allowDeviceFirmwareSelection, selectedDeviceFirmware, cloudPbxVoicemailToEmail,
+                    businessData, defaultLicenseGroup, defaultOptionsGroups, selectedThemeCustomers, allowTeamsToDesktopSso, cloudPbxRecordingInboundOnly,
+                    supervisionGroupMaxSize, supervisionGroupMaxNumber, supervisionGroupMaxUsers,
+                    timezone, sendPrepaidSubscriptionsNotification, ddiReadOnly, allowPhoneNumbersVisibility, csEmailList, seEmailList, csmEmailList,
+                    kamEmailList, businessSpecific, adminServiceNotificationsLevel).then((result : any) => {
+                    that._logger.log(that.DEBUG, LOG_ID + "(updateCompany) Successfully ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(updateCompany) : result values : ", result);
+                    resolve(result);
+                }).catch(function (err) {
+                    that._logger.log(that.ERROR, LOG_ID + "(updateCompany) Error.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(updateCompany) Error : ", err);
+                    return reject(err);
+                });
+            } catch (err) {
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getAllUsers) error : ", err);
+                return reject(err);
+            }
+        });*/
+    }
+
+    /**
+     * @public
+     * @nodered true
+     * @method updateCompanyByObj
+     * @instance
+     * @description
+     *   Users with superadmin role can update any company. Users with admin role (and not having superadmin role) can only update their own company.
+     * </br> Default and Terminated companies can't be renamed, and their name can't be use to rename another company
+     * </br> `Sooner or later it will be unnecessary to manage each customization parameter individually. It will be necessary to create and/or apply customization templates.</br> AdminService::getAllAvailableCustomisationTemplates().`
+     *
+     * @param {string} companyId Company unique identifier
+     * @param {any} selectedThemeObj Allows to return selectedTheme attribute as an object:
+     * </br> * true returns selectedTheme as an object (e.g. { "light": "60104754c8fada2ad4be3e48", "dark": "5ea304e4359c0e6815fc8b57" }),
+     * </br> * false return selectedTheme as a string.
+     * @param {any} companyInfoToUpdate Object with company's properties to update. : {
+     *  {string} name Company name
+     *  {string} country Company country (ISO 3166-1 alpha3 format)
+     *  {string} street Company street
+     *  {string} city Company city
+     *  {string} state When country is 'USA' or 'CAN', a state must be defined. Else it is not managed.
+     *  {string} postalCode Company postal code
+     *  {string} offerType Company offer type.
+     * </br> Companies with offerType=`freemium` are not able to subscribe to paid offers, they must be `premium` to do so.
+     * </br> Only `superadmin` can set offerType from `premium` to `freemium`.
+     * </br> Possibles values : `freemium`, `premium`
+     *  {string} currency Company currency, for payment of premium offers (ISO 4217 format)
+     * </br> For now, only USD, EUR and CNY are supported
+     * </br> Only settable by `superadmin`
+     * </br> Possibles values : `USD`, `EUR`, `CNY`
+     *  {string} status Company status.
+     * </br> If company status is `initializing`, only `superadmin` can change the status value.
+     * </br> Possibles values : `initializing`, `active`, `alerting`, `hold`, `terminated`
+     *  {string} visibility Company visibility (define if users being in this company can be searched by users being in other companies and if the user can search users being in other companies).
+     * </br> * `public`: User can be searched by external users / can search external users. User can invite external users / can be invited by external users
+     * </br> * `private`: User **can't** be searched by external users (even within his organisation) / can search external users. User can invite external users / can be invited by external users
+     * </br> * `organization`: User **can't** be searched by external users / can search external users. User can invite external users / can be invited by external users
+     * </br> * `closed`: User **can't** be searched by external users / **can't** search external users. User can invite external users / can be invited by external users
+     * </br> * `isolated`: User **can't** be searched by external users / **can't** search external users. User **can't** invite external users / **can't** be invited by external users
+     * </br> * `hotspot`: User can be searched by hotspot attached company's users (users from any company if the user belong to the default company) / can't search any users (even in their company) or user can't invite external users / can be invited by hotspot attached company's users (users from any company if the user belong to the default company)
+     * </br>     * currently `hotspot` visibility can only be set on the default company, and with superadmin role (development of `hotspot` visibility is partially done, only for default company in the context of RQRAINB-7456)
+     * </br>
+     * </br> External users mean public user not being in user's company nor user's organisation nor a company visible by user's company.
+     * </br>
+     * </br> Note related to organisation visibility:
+     * </br>
+     * </br> * Under the same organisation, a company can choose the visibility=organisation. That means users belonging to this company are visible for users of foreign companies inside the same organisation.
+     * </br> * The visibility=organisation is same as visibility=private outside the organisation. That is to say users can't be searched outside the organisation's companies.
+     * </br>
+     * </br> Default value : `private`. Possibles values : `public`, `private`, `organization`, `closed`, `isolated`, `hotspot`
+     *  {string[]} visibleBy If visibility is private or organisation, list of company ids for which visibility is allowed
+     *  {string} adminEmail Company contact person email. adminEmail is case sentive. Possibles values : `"/^[a-zA-Z0-9_\+-]+(\.[a-zA-Z0-9_\+-]+)*@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.([a-zA-Z]{2,4})$/"`
+     *  {string} supportEmail Company support email. supportEmail is case sensitive. supportEmail `should be provided if company to create is a VAD or a DR`. Possibles values : `"/^[a-zA-Z0-9_\+-]+(\.[a-zA-Z0-9_\+-]+)*@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.([a-zA-Z]{2,4})$/"`
+     *  {string} supportUrlFAQ Company support url
+     *  {string} companyContactId User Id of a Rainbow user which is the contact for this company
+     *  {boolean} disableCCareAdminAccess When True, disables the access to the customer care logs for admins of this company.
+     * </br> Note that if `disableCCareAdminAccessCustomers` is enabled on its BP company or `disableCCareAdminAccessResellers` is enabled on its BP VAD company, this setting is forced to true.
+     * </br> `disableCCareAdminAccess` can only be set:
+     * </br> * by `superadmin` (all companies),
+     * </br> * by `bp_admin` or `bp_finance` for the companies he manages,
+     * </br> * by `organization_admin` for the BP companies he manages.
+     * </br> * by `organization_admin` for the companies he manages.
+     *  {boolean} disableCCareAdminAccessCustomers When True, disables the access to the customer care logs for admins of all the customers company.
+     * </br> This setting is only applicable for BP companies (`isBP`=true)
+     * </br> * If the BP company is a DR or an IR, enabling this setting disables the access to the customer care logs for the admins of all its customers companies.
+     * </br> * If the BP company is a VAD, enabling this setting disables the access to the customer care logs for all the admins of its customers companies.
+     * </br>     Note that the bp_admins/admins of all the BP IRs companies linked to this VAD still have access to the customer care logs (the setting `disableCCareAdminAccessResellers` on the BP VAD company allows to disable it).
+     * </br>     `disableCCareAdminAccessCustomers` can only be set:
+     * </br> * by `superadmin` (all BP companies),
+     * </br> * by `bp_admin` or `bp_finance` of a BP VAD company for the BP companies he manages,
+     * </br> * by `organization_admin` for the BP companies he manages,
+     * </br> * by `company_admin` for the BP company he manages.
+     *  {boolean} disableCCareAdminAccessResellers When True, disables the access to the customer care logs for admins of all the BP IRs companies linked to the BP VAD and their customers company.
+     * </br> This setting is only applicable for BP VAD companies (`isBP`=true and `bpType`=`VAD`)
+     * </br> Enabling this setting disables on the BP VAD company disables the access to the customer care logs for the bp_admins/admins of all the BP IRs linked to this VAD, and to all the admins of their customers.
+     * </br> Note that the admins of all the customer companies directly linked to this VAD still have access to the customer care logs (the setting `disableCCareAdminAccessCustomers` on the BP VAD company allows to disable it).
+     * </br> `disableCCareAdminAccessResellers` can only be set:
+     * </br> * by `superadmin` (all BP VAD companies),
+     * </br> * by `bp_admin` or `bp_finance` of a BP VAD company for the BP companies he manages,
+     * </br> * by `organization_admin` for the BP VAD companies he manages,
+     * </br> * by `company_admin` for the BP VAD company he manages.
+     *  {boolean} autoAcceptUserInvitations Allow to enable or disable the auto-acceptation of user invitations between users of this company (default true: enabled). Default value : true
+     *  {boolean} autoAddToUserNetwork Allow to enable or disable the auto addition to user's network between users of this company (default false: disabled). Default value : false
+     *  {boolean} contentPolicyLifeTime When different from -1 it activates content removal for all user of this companies with a content lifetime equals to contentPolicyLifeTime in minutes. Default value : -1
+     *  {boolean} documentGracePeriod When content removal is active for the organisation it represents the period in minutes where a document is still available event if it's content policy lifetime has expired * @apiParam (BodyParameters) {Boolean} [userSelfRegisterEnabled=true] Allow users with email domain matching 'userSelfRegisterAllowedDomains' to join the company by self-register process Default value : 14400
+     *  {string[]} userSelfRegisterAllowedDomains Allow users with email domain matching one of the values of this array to join the company by self-register process (if userSelfRegisterEnabled is true)
+     *  {string} slogan A free string corresponding to the slogan of the company
+     *  {string} description A free string that describes the company (2000 char length)
+     *  {string} size An overview of the number of employees. Default value : `self-employed`. Possibles values : `"self-employed"`, `"1-10 employees"`, `"11-50 employees"`, `"51-200 employees"`, `"201-500 employees"`, `"501-1000 employees"`, `"1001-5000 employees"`, `"5001-10,000 employees"`, `"10,001+ employees"`
+     *  {string} economicActivityClassification
+     * </br> * `A`: AGRICULTURE, FORESTRY AND FISHING
+     * </br> * `B`: MINING AND QUARRYING
+     * </br> * `C`: MANUFACTURING
+     * </br> * `D`: ELECTRICITY, GAS, STEAM AND AIR CONDITIONING SUPPLY
+     * </br> * `E`: WATER SUPPLY; SEWERAGE, WASTE MANAGEMENT AND REMEDIATION ACTIVITIES
+     * </br> * `F`: CONSTRUCTION
+     * </br> * `G`: WHOLESALE AND RETAIL TRADE; REPAIR OF MOTOR VEHICLES AND MOTORCYCLES
+     * </br> * `H`: TRANSPORTATION AND STORAGE
+     * </br> * `I`: ACCOMMODATION AND FOOD SERVICE ACTIVITIES
+     * </br> * `J`: INFORMATION AND COMMUNICATION
+     * </br> * `K`: FINANCIAL AND INSURANCE ACTIVITIES
+     * </br> * `L`: REAL ESTATE ACTIVITIES
+     * </br> * `M`: PROFESSIONAL, SCIENTIFIC AND TECHNICAL ACTIVITIES
+     * </br> * `N`: ADMINISTRATIVE AND SUPPORT SERVICE ACTIVITIES
+     * </br> * `O`: PUBLIC ADMINISTRATION AND DEFENCE; COMPULSORY SOCIAL SECURITY
+     * </br> * `P`: EDUCATION
+     * </br> * `Q`: HUMAN HEALTH AND SOCIAL WORK ACTIVITIES
+     * </br> * `R`: ARTS, ENTERTAINMENT AND RECREATION
+     * </br> * `S`: OTHER SERVICE ACTIVITIES
+     * </br> * `T`: ACTIVITIES OF HOUSEHOLDS AS EMPLOYERS; UNDIFFERENTIATED GOODS- AND SERVICES-PRODUCING ACTIVITIES OF HOUSEHOLDS FOR OWN USE
+     * </br> * `U`: ACTIVITIES OF EXTRATERRITORIAL ORGANISATIONS AND BODIES
+     * </br>
+     * </br> Possibles values : `"A"`, `"B"`, `"C"`, `"D"`, `"E"`, `"F"`, `"G"`, `"H"`, `"I"`, `"J"`, `"K"`, `"L"`, `"M"`, `"N"`, `"O"`, `"P"`, `"Q"`, `"R"`, `"S"`, `"T"`, `"U"`
+     *  {string}  website Company website url
+     *  {boolean} giphyEnabled Whether or not giphy feature is enabled for users belonging to this company (possibility to use animated gifs in conversations). `This field is deprecated.` Manage instead **useGifCustomisation field!**
+     *  {string} catalogId Id of the catalog of Rainbow offers to which the company is linked. The catalog corresponds to the list of offers the company can subscribe.
+     * </br> When a new company is created, if no catalogId is specified the company is automatically linked to the default catalog.
+     * </br> When a `bp_admin>` or `bp_finance>` creates a company, catalogId of this new company is automatically set to BP company's catalogId.
+     * </br> When an `organization_admin>` creates a company, catalogId of this new company is automatically set to organization_admin's company's catalogId.
+     * </br>
+     * </br> Only `superadmin` can set a different catalogId to a company.
+     *  {boolean} adminCanSetCustomData Whether or not administrators can set customData field for their own company.
+     * </br> adminCanSetCustomData can only be set:
+     * </br>     by `superadmin` (all companies),
+     * </br>     by `bp_admin` or `bp_finance` for the companies he manages,
+     * </br>     by `organization_admin` for the companies he manages.
+     *  {any} customData Company's custom data.
+     * </br> Object with free keys/values.
+     * </br> It is up to the client to manage the company's customData (new customData provided overwrite the existing one).
+     * </br>
+     * </br> Restrictions on customData Object:
+     * </br> - max 10 keys,
+     * </br> - max key length: 64 characters,
+     * </br> - max value length: 512 characters.
+     * </br>
+     * </br>
+     * </br> Company customData can only be created/updated by:
+     * </br> - \`superadmin\` (all companies),
+     * </br> - \`bp\_admin\` or \`bp\_finance\` for the companies he manages (except his company if its \`adminCanSetCustomData\` setting is not set to true),
+     * </br> - \`organization_admin\` for the companies he manages,
+     * </br> - \`company\_admin\` for his own company if its \`adminCanSetCustomData\` setting is set to true (setting that can only be set by a superadmin, his bp\_admin, bp\_finance or organization\_admin) or if he has the feature \`ADMIN\_CAN\_SET\_CUSTOM\_DATA\` (if the feature is enabled, it overwrites the value of the company setting).
+     *  {string} bpId Link the company to the corresponding Business partner company.
+     * </br> `bpId` must correspond to a valid company having `isBP` equal to true.
+     * </br> Only directly settable by `superadmin`.
+     * </br> If the company is `created` by a `bp_admin` or a `bp_finance`, `bpId` is automatically set to BP company id.
+     * </br> For existing companies, `bp_admin` must use invitation mechanism to a company admin in order to request a link of this company company to his BP company.
+     *  </br> Can only be set by `superadmin` or `bp_finance` of the related company.
+     *  {boolean} adminHasRightToUpdateSubscriptions In the case the company is linked to a Business Partner company, indicates if the `bp_finance` allows the `company_admin` to update the subscriptions of his company (if enable, allowed operations depend of the value of `adminAllowedUpdateSubscriptionsOps`).
+     * </br> Can only be set by `superadmin` or `bp_finance` of the related company.
+     *  {string} adminAllowedUpdateSubscriptionsOps In the case the company is linked to a Business Partner company and `adminHasRightToUpdateSubscriptions` is enabled, indicates the update operations for which the `bp_finance` allows the `company_admin` to perform on the subscriptions of his company.
+     * </br> Can only be set by `superadmin` or `bp_finance` of the related company.
+     * </br> Possible values:
+     * </br> - `all: company_admin is allowed to perform all update operations on the subscriptions of his company
+     * </br> - `increase_only: company_admin is only allowed to increase` maxNumberUsers` on the subscriptions of his company (decrease is forbidden)
+     * </br> - 'monthly': company_admin is only allowed to manage monthly subscription (increase and decrease)
+     * </br>
+     * </br> Possibles values : `all`, `increase_only`, `monthly`
+     *  {boolean} isBP Indicates if the company is a Business partner company
+     * </br> Only settable by `superadmin`
+     *  {string} bpType Indicates BP Company type
+     * </br> - `IR`: Indirect Reseller,
+     * </br> - `VAD`: Value Added Distributor,
+     * </br> - `DR`: Direct Reseller.
+     * </br>     Only applicable if `isBP` is true.
+     * </br>     Only settable by `superadmin`.
+     * </br>
+     * </br> Possibles values : `IR`, `VAD`, `DR`
+     *  {string} bpBusinessModel Indicates BP business model
+     * </br> Only applicable if `isBP` is true.
+     * </br> Only settable by `superadmin`.
+     * </br>
+     * </br> Possibles values : `referral`, `resell`
+     *  {string} bpApplicantNumber Reference of the Business Partner in ALE Finance tools (SAP)
+     * </br> Only applicable if `isBP` is true and `bpType` is DR or VAD.
+     * </br> Only settable by `superadmin`.
+     *  {string} bpCRDid Reference of the Business Partner in CDR
+     * </br> Only applicable if `isBP` is true and `bpType` is DR or VAD.
+     * </br> If `bpCRDid` is not defined, BP won't be able to sell (i.e. `bpHasRightToSell` can't be set to true)
+     * </br> Only settable by `superadmin`.
+     *  {boolean} bpHasRightToSell Indicates if the Business has the right to sell
+     * </br> Only applicable if `isBP` is true and `bpType` is DR or VAD.
+     * </br> Only applicable if `bpCRDid` is defined.
+     * </br> Only settable by `superadmin`.
+     *  {boolean} bpHasRightToConnect When True \[Default\], the BP can connect CPE equipment of managed companies. So when False, the "equipment" tab should be removed from the admin GUI
+     * </br> Only applicable if `isBP` is true.
+     * </br> Only settable by `superadmin`.
+     *  {boolean} bpHasRightForBYOT When True, the BP can create a SIP Hybrid Trunk for its managed companies (means that Bring Your Own Trunk feature is available for the BP). So when False, the "hybrid trunk" tab should be removed from the admin GUI
+     * </br> Only applicable if `isBP` is true.
+     * </br> Only settable by `superadmin`.
+     *  {string} preferredSipLoadBalancerId Indicates the identifier of the preferred SIP Load Balancer (Rainbow Hub context ; used for HybridTrunks of associated ECs)
+     * </br> Only applicable if `isBP` is true.
+     * </br> Only settable by `superadmin`.
+     *  {boolean} bpIsContractAccepted Indicates if the Business has accepted the contract and can sell Rainbow offers
+     * </br> Should be set by `bp_admin` or `bp_finance`.
+     * </br> Only applicable if `isBP` is true.
+     * </br>
+     * </br> Default value : `false`
+     *  {string} externalReference Free field that BP can use to link their Indirect Resellers / End Customers to their IS/IT tools
+     * </br> Only applicable by `superadmin` or by `bp_admin` or `bp_finance` on one of his Indirect Resellers / End Customers companies.
+     *  {string} externalReference2 Free field that BP can use to link their Indirect Resellers / End Customers to their IS/IT tools
+     * </br> Only applicable by `superadmin` or by `bp_admin` or `bp_finance` on one of his Indirect Resellers / End Customers companies.
+     *  {string} salesforceAccountId Curstomer's Salesforce reference.
+     * </br> Only settable by users with `superadmin` or `business_admin` role(s).
+     *  {string} avatarShape Company's avatar customization
+     *  isCentrex Indicates if the company is one tenant of a multi-tenant call server (OXE - OTEC-S or third_party) (default: false)
+     *  {string} companyCallNumber If isCentrex = true, this is the company access number \[multi-company call + company Area, ex: 8 210, 8 211\]
+     *  {string} superadminComment Free field that only `superadmin` can use.
+     *  {string[]} bpBusinessType Business type(s) that can be sold by a BP. Possibles values : `voice_by_partner`, `voice_by_ale`, `conference`, `default`.
+     *  {string} billingModel Billing model that can be subscribed for this company. Possibles values : `monthly`, `prepaid_1y`, `prepaid_3y`, `prepaid_5y`
+     *  {boolean} allowUsersSelectTheme Allow users of this company to select a theme among the ones available (owned or visible by the company). Default value : `true`
+     *  {boolean} allowUsersSelectPublicTheme Allow users of this company to select a public theme. Default value : `true`
+     *  {any} selectedTheme selectedTheme Object to set the selected theme(s) for users of the company.
+     * </br> * light optionnel String Set the selected theme light for users of the company.
+     * </br> * dark optionnel String Set the selected theme dark for users of the company.
+     *  {boolean}  mobilePermanentConnectionMode deactivate push mode for mobile devices.
+     * </br> When we can't rely on Internet and Google FCM services to wake-up the app or notify the app, we can fall back to a direct XMPP connection.
+     * </br> For customers using Samsung devices with Google Play services, we must have an option on admin side to set this permanent connection mode, so that mobile apps can rely on this parameter. This option will be applied for the whole company.
+     * </br>
+     * </br> Default value : `false`
+     *  {string} alertNotificationReception Activate/Deactivate the capability for a user to receive alert notification.
+     * </br> Define if a user has the right to receive alert notification
+     * </br> alertNotificationReception can be:
+     * </br>
+     * </br> - `enabled`: Each user of the company can receive alert notification.
+     * </br> - `disabled`: No user of the company can receive alert notification.
+     * </br>
+     * </br> Default value : `disabled`. Possibles values : `enabled`, `disabled`
+     *  {string} alertNotificationSending Activate/Deactivate the capability for a user to send alert notification.
+     * </br> Define if a user has the right to send alert notification
+     * </br> alertNotificationSending can be:
+     * </br>
+     * </br> - `enabled`: Each user of the company can send alert notification.
+     * </br> - `disabled`: No user of the company can send alert notification.
+     * </br>
+     * </br> Default value : `disabled`. Possibles values : `enabled`, `disabled`
+     *  {string} useDialOutCustomisation Activate/Deactivate the capability for a user to use dial out in phone meetings.
+     * </br> Define if a user is allowed to be called by the Rainbow conference bridge.
+     * </br> useDialOutCustomisation can be:
+     * </br>
+     * </br> - `enabled`: The user can be called by the Rainbow conference bridge.
+     * </br> - `disabled`: The user can't be called by the Rainbow conference bridge.
+     * </br>
+     * </br> Default value : `enabled`. Possibles values : `enabled`, `disabled`
+     *  {boolean} allowDeviceFirmwareSelection Superadmin allows admins of the company to select a given firmware for its cloudpbx devices. Default value : `false`
+     *  {string} selectedDeviceFirmware Cloudpbx default device firmware
+     * </br> - `released`: Default value, device firmware will be the official released one.
+     * </br> - `latest`: Device firmware can be a more up to date binary (e.g. early adopters)
+     * </br>     If allowed by `superadmin`, `company admin` can then select the kind of firmware for all the users, or only for some of them.
+     * </br>
+     * </br> Default value : `released` Possibles values : `released`, `latest`
+     *  {string} cloudPbxVoicemailToEmail Cloudpbx email notification type when receiving a voicemail. Default value : `none`. Possibles values : `none`, `simple`, `complete`
+     *  {any} businessData businessData optionnel Object
+     * </br> Set the business data of the company.
+     * </br> Only settable by users with `superadmin` or `business_admin` role(s).
+     * </br>
+     * </br> region optionnel String  Set the region of the company.
+     * </br> cluster optionnel String Set the cluster of the company.
+     * </br> area optionnel String Set the area of the company.
+     * </br> country optionnel String Set the business country of the company.
+     *  {string} defaultLicenseGroup Group of license to assign to user when finalizing his account. Should be one of offers' groupName (e.g. Enterprise, Business ...)
+     *  {string[]} defaultOptionsGroups List of options to assign to user when finalizing his account. Should be one of offers' groupName (e.g. Alert ...)
+     *  {any} selectedThemeCustomers selectedThemeCustomers optionnel Object
+     * </br> Set the selected theme(s) for customers of this BP company.
+     * </br> This param only applies for BP companies.
+     * </br> * light optionnel String Set the selected theme light for customers of this BP company.
+     * </br> * dark optionnel String Set the selected theme dark for customers of this BP company.
+     * </br> * locked optionnel Boolean Allow to lock selected theme for customers. If true, customers won't be able to create or set another theme that the one selected by BP.
+     *  {boolean} allowTeamsToDesktopSso uperadmin allows if Teams add-in uses sso to login in desktop app for all company users. Default value : true
+     *  {boolean} cloudPbxRecordingInboundOnly When CloudPbx recording is set, both inbound and outbound calls will be recorded for the selected users. If cloudPbxRecordingInboundOnly is set to true, only inbound calls will be recorded Default value : `true`
+     *  {number} supervisionGroupMaxSize Maximum number of users a company can supervise. Default value : `1500`
+     *  {number} supervisionGroupMaxNumber Maximum number of supervision groups a supervisor can belong to. Default value : 5
+     *  {number} supervisionGroupMaxUsers Maximum number of users in a supervision group (supervisor included). Default value : `30`
+     *  {string} timezone User timezone name
+     * </br> Allowed values: one of the timezone names defined in IANA tz database (https://www.iana.org/time-zones)
+     * </br> Timezone name are composed as follow: `Area/Location` (ex: Europe/Paris, America/New_York,...)
+     *  {boolean} sendPrepaidSubscriptionsNotification Indicates if company_admin should receive email notification about prepaid subscriptions expiring soon. Used only on end customer companies
+     *  {boolean} ddiReadOnly Indicates if admin of IR company is allowed to create or delete a DDI. Used only on IR companies.
+     * </br> This parameter can only be set by VAD `bp_admin` or `superadmin`.
+     *  {boolean} allowPhoneNumbersVisibility Indicates if Phone numbers should be visible or not when generating Voice CDR files. Applies only on BP companies. Default value : `false`.
+     *  {string[]} csEmailList A list of Customer Success email addresses (maximum length : 10).
+     *  {string[]} seEmailList A list of System Engineer email addresses (maximum length : 10).
+     *  {string[]} csmEmailList A list of Channel Sales Manager email addresses (maximum length : 10).
+     *  {string[]} kamEmailList A list of Key Account Manager email addresses (maximum length : 10).
+     * </br> These fields can only be set by a `business_admin` or a `superadmin`.
+     *  {string} businessSpecific Allow to specify if company has access to specific offers. Only settable by superadmin or business_admin. Possibles values : UGAP.
+     *  {string} adminServiceNotificationsLevel Level of service notification that admin should see. Possibles values : `high`, `medium`, `low`.
+     *  }
+     *
+     * @category Companies and users management
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | id  | String | Company unique identifier |
+     * | creationDate | Date-Time | Company creation date (Read only) |
+     * | statusUpdatedDate | Date-Time | Date of last company status update (Read only) |
+     * | lastAvatarUpdateDate | Date-Time | Date of last company avatar update (Read only) |
+     * | name | String | Company name |
+     * | country optionnel | String | Company country (ISO 3166-1 alpha3 format)<br><br>The list of allowed countries can be obtained using the API AdminService::getListOfCountries() |
+     * | street optionnel | String | Company street<br><br>Ordre de grandeur : `0..255` |
+     * | city optionnel | String | Company city<br><br>Ordre de grandeur : `0..255` |
+     * | state optionnel | String | When country is 'USA' or 'CAN', a state must be defined. Else it is not managed.<br><br>The list of allowed states can be obtained using the API AdminService::getListOfCountries() for the associated countries.<br><br>* List of allowed states for `USA`:<br>    * `AA`: "Armed Forces America",<br>    * `AE`: "Armed Forces",<br>    * `AP`: "Armed Forces Pacific",<br>    * `AK`: "Alaska",<br>    * `AL`: "Alabama",<br>    * `AR`: "Arkansas",<br>    * `AZ`: "Arizona",<br>    * `CA`: "California",<br>    * `CO`: "Colorado",<br>    * `CT`: "Connecticut",<br>    * `DC`: Washington DC",<br>    * `DE`: "Delaware",<br>    * `FL`: "Florida",<br>    * `GA`: "Georgia",<br>    * `GU`: "Guam",<br>    * `HI`: "Hawaii",<br>    * `IA`: "Iowa",<br>    * `ID`: "Idaho",<br>    * `IL`: "Illinois",<br>    * `IN`: "Indiana",<br>    * `KS`: "Kansas",<br>    * `KY`: "Kentucky",<br>    * `LA`: "Louisiana",<br>    * `MA`: "Massachusetts",<br>    * `MD`: "Maryland",<br>    * `ME`: "Maine",<br>    * `MI`: "Michigan",<br>    * `MN`: "Minnesota",<br>    * `MO`: "Missouri",<br>    * `MS`: "Mississippi",<br>    * `MT`: "Montana",<br>    * `NC`: "North Carolina",<br>    * `ND`: "North Dakota",<br>    * `NE`: "Nebraska",<br>    * `NH`: "New Hampshire",<br>    * `NJ`: "New Jersey",<br>    * `NM`: "New Mexico",<br>    * `NV`: "Nevada",<br>    * `NY`: "New York",<br>    * `OH`: "Ohio",<br>    * `OK`: "Oklahoma",<br>    * `OR`: "Oregon",<br>    * `PA`: "Pennsylvania",<br>    * `PR`: "Puerto Rico",<br>    * `RI`: "Rhode Island",<br>    * `SC`: "South Carolina",<br>    * `SD`: "South Dakota",<br>    * `TN`: "Tennessee",<br>    * `TX`: "Texas",<br>    * `UT`: "Utah",<br>    * `VA`: "Virginia",<br>    * `VI`: "Virgin Islands",<br>    * `VT`: "Vermont",<br>    * `WA`: "Washington",<br>    * `WI`: "Wisconsin",<br>    * `WV`: "West Virginia",<br>    * `WY`: "Wyoming"<br>* List of allowed states for `CAN`:<br>    * `AB`: "Alberta",<br>    * `BC`: "British Columbia",<br>    * `MB`: "Manitoba",<br>    * `NB`: "New Brunswick",<br>    * `NL`: "Newfoundland and Labrador",<br>    * `NS`: "Nova Scotia",<br>    * `NT`: "Northwest Territories",<br>    * `NU`: "Nunavut",<br>    * `ON`: "Ontario",<br>    * `PE`: "Prince Edward Island",<br>    * `QC`: "Quebec",<br>    * `SK`: "Saskatchewan",<br>    * `YT`: "Yukon"<br><br>Possibles values : `null`, `"AA"`, `"AE"`, `"AP"`, `"AK"`, `"AL"`, `"AR"`, `"AZ"`, `"CA"`, `"CO"`, `"CT"`, `"DC"`, `"DE"`, `"FL"`, `"GA"`, `"GU"`, `"HI"`, `"IA"`, `"ID"`, `"IL"`, `"IN"`, `"KS"`, `"KY"`, `"LA"`, `"MA"`, `"MD"`, `"ME"`, `"MI"`, `"MN"`, `"MO"`, `"MS"`, `"MT"`, `"NC"`, `"ND"`, `"NE"`, `"NH"`, `"NJ"`, `"NM"`, `"NV"`, `"NY"`, `"OH"`, `"OK"`, `"OR"`, `"PA"`, `"PR"`, `"RI"`, `"SC"`, `"SD"`, `"TN"`, `"TX"`, `"UT"`, `"VA"`, `"VI"`, `"VT"`, `"WA"`, `"WI"`, `"WV"`, `"WY"`, `"AB"`, `"BC"`, `"MB"`, `"NB"`, `"NL"`, `"NS"`, `"NT"`, `"NU"`, `"ON"`, `"PE"`, `"QC"`, `"SK"`, `"YT"` |
+     * | postalCode optionnel | String | Company postal code<br><br>Ordre de grandeur : `0..64` |
+     * | currency optionnel | String | Company currency, for payment of premium offers (ISO 4217 format)  <br>For now, only USD, EUR and CNY are supported<br><br>Ordre de grandeur : `3`<br><br>Possibles values : `USD`, `EUR`, `CNY` |
+     * | status | String | Company status<br><br>Possibles values : `initializing`, `active`, `alerting`, `hold`, `terminated` |
+     * | visibility optionnel | string | Company visibility (define if users being in this company can be searched by users being in other companies and if the user can search users being in other companies).<br><br>* `public`: User can be searched by external users / can search external users. User can invite external users / can be invited by external users<br>* `private`: User **can't** be searched by external users (even within his organisation) / can search external users. User can invite external users / can be invited by external users<br>* `organisation`: User **can't** be searched by external users / can search external users. User can invite external users / can be invited by external users<br>* `closed`: User **can't** be searched by external users / **can't** search external users. User can invite external users / can be invited by external users<br>* `isolated`: User **can't** be searched by external users / **can't** search external users. User **can't** invite external users / **can't** be invited by external users<br>* `none`: Default value reserved for guest. User **can't** be searched by **any users** (even within the same company) / can search external users. User can invite external users / can be invited by external users<br><br>External users mean public user not being in user's company nor user's organisation nor a company visible by user's company.<br><br>Note related to organisation visibility:<br><br>* Under the same organisation, a company can choose the visibility=organisation. That means users belonging to this company are visible for users of foreign companies inside the same organisation.<br>* The visibility=organisation is same as visibility=private outside the organisation. That is to say users can't be searched outside the organisation's companies.<br><br>Default value : `private`<br><br>Possibles values : `public`, `private`, `organisation`, `closed`, `isolated` |
+     * | visibleBy | String\[\] | If visibility is private, list of companyIds for which visibility is allowed |
+     * | adminEmail optionnel | String | Company contact person email |
+     * | supportEmail optionnel | String | Company support email |
+     * | supportUrlFAQ optionnel | String | Company support URL |
+     * | companyContactId optionnel | String | User Id of a Rainbow user which is the contact for this company |
+     * | disableCCareAdminAccess optionnel | Boolean | When True, disables the access to the customer care logs for admins of this company.  <br>Note that if `disableCCareAdminAccessCustomers` is enabled on its BP company or `disableCCareAdminAccessResellers` is enabled on its BP VAD company, this setting is forced to true. |
+     * | disableCCareAdminAccessCustomers optionnel | Boolean | When True, disables the access to the customer care logs for admins of all the customers company.  <br>This setting is only applicable for BP companies (`isBP`=true)<br><br>* If the BP company is a DR or an IR, enabling this setting disables the access to the customer care logs for the admins of all its customers companies.<br>* If the BP company is a VAD, enabling this setting disables the access to the customer care logs for all the admins of its customers companies.  <br>    Note that the bp_admins/admins of all the BP IRs companies linked to this VAD still have access to the customer care logs (the setting `disableCCareAdminAccessResellers` on the BP VAD company allows to disable it). |
+     * | disableCCareAdminAccessResellers optionnel | Boolean | When True, disables the access to the customer care logs for admins of all the BP IRs companies linked to the BP VAD and their customers company.  <br>This setting is only applicable for BP VAD companies (`isBP`=true and `bpType`=`VAD`)  <br>Enabling this setting disables on the BP VAD company disables the access to the customer care logs for the bp_admins/admins of all the BP IRs linked to this VAD, and to all the admins of their customers.  <br>Note that the admins of all the customer companies directly linked to this VAD still have access to the customer care logs (the setting `disableCCareAdminAccessCustomers` on the BP VAD company allows to disable it). |
+     * | autoAcceptUserInvitations optionnel | Boolean | Allow to enable or disable the auto-acceptation of user invitations between users of this company (default true: enabled) |
+     * | userSelfRegisterEnabled | Boolean | Allow users with email domain matching 'userSelfRegisterAllowedDomains' to join the company by self-register process |
+     * | userSelfRegisterAllowedDomains | String\[\] | Allow users with email domain matching one of the values of this array to join the company by self-register process (if userSelfRegisterEnabled is true) |
+     * | slogan optionnel | String | A free string corresponding to the slogan of the company (255 char length) |
+     * | description optionnel | String | A free string that describes the company (2000 char length) |
+     * | size | String | An overview of the number of employees<br><br>Possibles values : `"self-employed"`, `"1-10 employees"`, `"11-50 employees"`, `"51-200 employees"`, `"201-500 employees"`, `"501-1000 employees"`, `"1001-5000 employees"`, `"5001-10,000 employees"`, `"10,001+ employees"` |
+     * | economicActivityClassification optionnel | String | * `A`: AGRICULTURE, FORESTRY AND FISHING<br>* `B`: MINING AND QUARRYING<br>* `C`: MANUFACTURING<br>* `D`: ELECTRICITY, GAS, STEAM AND AIR CONDITIONING SUPPLY<br>* `E`: WATER SUPPLY; SEWERAGE, WASTE MANAGEMENT AND REMEDIATION ACTIVITIES<br>* `F`: CONSTRUCTION<br>* `G`: WHOLESALE AND RETAIL TRADE; REPAIR OF MOTOR VEHICLES AND MOTORCYCLES<br>* `H`: TRANSPORTATION AND STORAGE<br>* `I`: ACCOMMODATION AND FOOD SERVICE ACTIVITIES<br>* `J`: INFORMATION AND COMMUNICATION<br>* `K`: FINANCIAL AND INSURANCE ACTIVITIES<br>* `L`: REAL ESTATE ACTIVITIES<br>* `M`: PROFESSIONAL, SCIENTIFIC AND TECHNICAL ACTIVITIES<br>* `N`: ADMINISTRATIVE AND SUPPORT SERVICE ACTIVITIES<br>* `O`: PUBLIC ADMINISTRATION AND DEFENCE; COMPULSORY SOCIAL SECURITY<br>* `P`: EDUCATION<br>* `Q`: HUMAN HEALTH AND SOCIAL WORK ACTIVITIES<br>* `R`: ARTS, ENTERTAINMENT AND RECREATION<br>* `S`: OTHER SERVICE ACTIVITIES<br>* `T`: ACTIVITIES OF HOUSEHOLDS AS EMPLOYERS; UNDIFFERENTIATED GOODS- AND SERVICES-PRODUCING ACTIVITIES OF HOUSEHOLDS FOR OWN USE<br>* `U`: ACTIVITIES OF EXTRATERRITORIAL ORGANISATIONS AND BODIES<br><br>Possibles values : `"NONE"`, `"A"`, `"B"`, `"C"`, `"D"`, `"E"`, `"F"`, `"G"`, `"H"`, `"I"`, `"J"`, `"K"`, `"L"`, `"M"`, `"N"`, `"O"`, `"P"`, `"Q"`, `"R"`, `"S"`, `"T"`, `"U"` |
+     * | giphyEnabled optionnel | Boolean | Whether or not giphy feature is enabled for users belonging to this company (possibility to use animated gifs in conversations) |
+     * | website optionnel | String | Company website URL |
+     * | organisationId | String | Optional identifier to indicate the company belongs to an organisation |
+     * | catalogId | String | Id of the catalog of Rainbow offers to which the company is linked. The catalog corresponds to the list of offers the company can subscribe. |
+     * | bpId | String | Optional identifier which links the company to the corresponding Business partner company |
+     * | adminHasRightToUpdateSubscriptions optionnel | Boolean | In the case the company is linked to a Business Partner company, indicates if the `bp_admin` allows the `company_admin` to update the subscriptions of his company (if enable, allowed operations depend of the value of `adminAllowedUpdateSubscriptionsOps`).  <br>Can only be set by `superadmin` or `bp_admin`/`bp_finance` of the related company. |
+     * | adminAllowedUpdateSubscriptionsOps optionnel | String | In the case the company is linked to a Business Partner company and `adminHasRightToUpdateSubscriptions` is enabled, indicates the update operations for which the `bp_admin` allows the `company_admin` to perform on the subscriptions of his company.<br><br>Can only be set by `superadmin` or `bp_admin`/`bp_finance` of the related company.<br><br>Possible values:<br><br>* `all`: company_admin is allowed to perform all update operations on the subscriptions of his company<br>* `increase_only`: company_admin is only allowed to increase `maxNumberUsers` on the subscriptions of his company (decrease is forbidden)<br><br>Possibles values : `all`, `increase_only` |
+     * | isBP | Boolean | Indicates if the company is a Business partner company<br><br>Default value : `false` |
+     * | bpType optionnel | String | Indicates BP Company type<br><br>* `IR`: Indirect Reseller,<br>* `VAD`: Value Added Distributor,<br>* `DR`: Direct Reseller.<br><br>Possibles values : `IR`, `VAD`, `DR` |
+     * | bpBusinessModel optionnel | String | Indicates BP business model |
+     * | bpApplicantNumber optionnel | String | Reference of the Business Partner in ALE Finance tools (SAP) |
+     * | bpCRDid optionnel | String | Reference of the Business Partner in CDR |
+     * | bpHasRightToSell optionnel | Boolean | Indicates if the Business has the right to sell |
+     * | bpHasRightToConnect optionnel | Boolean | When True, the BP can connect CPE equipment of managed companies. So when False, the "equipment" tab should be removed from the admin GUI |
+     * | bpHasRightForBYOT optionnel | Boolean | When True, the BP can create a SIP Hybrid Trunk for its managed companies (means that Bring Your Own Trunk feature is available for the BP). So when False, the "hybrid trunk" tab should be removed from the admin GUI |
+     * | preferredSipLoadBalancerId optionnel | String | This attribute is only for BP and useful only in Rainbow Hub context. It indicates preferred SIP Load Balancer identifier to be used (if any). |
+     * | bpIsContractAccepted optionnel | Boolean | Indicates if the Business has accepted the contract and can sell Rainbow offers |
+     * | bpContractAcceptationInfo optionnel | Object | If the Business has accepted the contract, indicates who accepted the contract, Only visible by `superadmin` and `support`. |
+     * | acceptationDate | Date-Time | Date of contract acceptation by the BP admin |
+     * | bpAdminId | String | User Id of the BP admin who accepted the contract |
+     * | offerType | String | Allowed company offer types<br><br>Possibles values : `freemium`, `premium` |
+     * | bpAdminLoginEmail | String | User loginEmail of the BP admin who accepted the contract |
+     * | businessSpecific optionnel | String | When the customer has subscribed to specific business offers, this field is set to the associated specific business (ex: HDS for HealthCare business specific)<br><br>Possibles values : `HDS` |
+     * | externalReference optionnel | String | Free field that BP can use to link their customers to their IS/IT tools  <br>Only applicable by `superadmin` or by `bp_admin`/`bp_finance` on one of his customer companies.<br><br>Ordre de grandeur : `0..64` |
+     * | externalReference2 optionnel | String | Free field that BP can use to link their customers to their IS/IT tools  <br>Only applicable by `superadmin` or by `bp_admin`/`bp_finance` on one of his customer companies.<br><br>Ordre de grandeur : `0..64` |
+     * | avatarShape optionnel | String | Company's avatar customization<br><br>Possibles values : `square`, `circle` |
+     * | allowUsersSelectTheme | Boolean | Allow users of this company to select a theme among the ones available (owned or visible by the company). |
+     * | allowUsersSelectPublicTheme | Boolean | Allow users of this company to select a public theme. |
+     * | selectedTheme optionnel | Object | Set the selected theme(s) for users of the company. |
+     * | light optionnel | String | Set the selected theme light for users of the company. |
+     * | dark optionnel | String | Set the selected theme dark for users of the company. |
+     * | adminCanSetCustomData optionnel | Boolean | Whether or not administrators can set `customData` field for their own company. |
+     * | isLockedByBp optionnel | Boolean | Whether or not BP company has locked themes so that indicates if company admin can manage themes (create/update/delete). |
+     * | superadminComment optionnel | String | Free field that only `superadmin` can see<br><br>Ordre de grandeur : `0..256` |
+     * | bpBusinessType optionnel | String\[\] | Business type that can be sold by a BP.<br><br>Possibles values : `voice_by_partner`, `voice_by_ale`, `conference`, `default` |
+     * | billingModel optionnel | String | Billing model that can be subscribed for this company.<br><br>Possibles values : `monthly`, `prepaid_1y`, `prepaid_3y`, `prepaid_5y` |
+     * | office365Tenant optionnel | String | Office365 tenant configured for this company. |
+     * | office365ScopesGranted optionnel | String\[\] | Scopes granted to Rainbow for usage of Microsoft Office365 APIs.  <br>If no office365Tenant is set or if admin has not granted access of Office365 APIs to Rainbow for the configured office365Tenant, office365ScopesGranted is set to an empty Array.  <br>Otherwise, office365ScopesGranted lists the scopes requested by Rainbow to use Office365 APIs for the configured office365Tenant. This field can be used to determine if the admin must re-authenticate to Microsoft Office365 in the case new scopes are requested for Rainbow application (scopes requested for the current version of office365-portal are listed in API GET /api/rainbow/office365/v1.0/consent).<br><br>Possibles values : `directory`, `calendar` |
+     * | mobilePermanentConnectionMode | Boolean | deactivate push mode for mobile devices.  <br>When we can't rely on Internet and Google FCM services to wake-up the app or notify the app, we can fall back to a direct XMPP connection.  <br>For customers using Samsung devices with Google Play services, we must have an option on admin side to set this permanent connection mode, so that mobile apps can rely on this parameter. This option will be applied for the whole company. |
+     * | fileSharingCustomisation | String | Activate/Deactivate file sharing capability per company  <br>Define if the company can use the file sharing service then, allowed to download and share file.  <br>FileSharingCustomisation can be:<br><br>* `enabled`: Each user of the company can use the file sharing service, except when his own capability is set to 'disabled'.<br>* `disabled`: No user of the company can use the file sharing service, except when his own capability is set to 'enabled'. When one user of the company has the capability 'fileSharingCustomisation' set to 'same\_than\_company', his capability follow the company setting. |
+     * | userTitleNameCustomisation | String | Activate/Deactivate the capability for a user to modify his profile (title, firstName, lastName) per company  <br>Define if the company allows his users to change some profile data.  <br>userTitleNameCustomisation can be:<br><br>* `enabled`: Each user of the company can change some profile data, except when his own capability is set to 'disabled'.<br>* `disabled`: No user of the company can change some profile data, except when his own capability is set to 'enabled'. When one user of the company has the capability 'userTitleNameCustomisation' set to 'same\_than\_company', his capability follow the company setting. |
+     * | softphoneOnlyCustomisation | String | Activate/Deactivate the capability for an UCaas application not to offer all Rainbow services and but to focus to telephony services.  <br>Define if UCaas apps used by a user of this company must provide Softphone functions, i.e. no chat, no bubbles, no meetings, no channels, and so on.  <br>softphoneOnlyCustomisation can be:<br><br>* `enabled`: The user switch to a softphone mode only.<br>* `disabled`: The user can use telephony services, chat, bubbles, channels meeting services and so on. |
+     * | useRoomCustomisation | String | Activate/Deactivate the capability for a user to use bubbles.  <br>Define if a user can create bubbles or participate in bubbles (chat and web conference).  <br>useRoomCustomisation can be:<br><br>* `enabled`: Each user of the company can use bubbles.<br>* `disabled`: No user of the company can use bubbles. |
+     * | phoneMeetingCustomisation | String | Activate/Deactivate the capability for a user to use phone meetings (PSTN conference).  <br>Define if a user has the right to join phone meetings.  <br>phoneMeetingCustomisation can be:<br><br>* `enabled`: Each user of the company can join phone meetings.<br>* `disabled`: No user of the company can join phone meetings. |
+     * | useChannelCustomisation | String | Activate/Deactivate the capability for a user to use a channel.  <br>Define if a user has the right to create channels or be a member of channels.  <br>useChannelCustomisation can be:<br><br>* `enabled`: Each user of the company can use some channels.<br>* `disabled`: No user of the company can use some channel. |
+     * | useScreenSharingCustomisation | String | Activate/Deactivate the capability for a user to share a screen.  <br>Define if a user has the right to share his screen.  <br>useScreenSharingCustomisation can be:<br><br>* `enabled`: Each user of the company can share his screen.<br>* `disabled`: No user of the company can share his screen. |
+     * | useWebRTCVideoCustomisation | String | Activate/Deactivate the capability for a user to switch to a Web RTC video conversation.  <br>Define if a user has the right to be joined via video and to use video (start a P2P video call, add video in a P2P call, add video in a web conference call).  <br>useWebRTCVideoCustomisation can be:<br><br>* `enabled`: Each user of the company can switch to a Web RTC video conversation.<br>* `disabled`: No user of the company can switch to a Web RTC video conversation. |
+     * | useWebRTCAudioCustomisation | String | Activate/Deactivate the capability for a user to switch to a Web RTC audio conversation.  <br>Define if a user has the right to be joined via audio (WebRTC) and to use Rainbow audio (WebRTC) (start a P2P audio call, start a web conference call).  <br>useWebRTCVideoCustomisation can be:<br><br>* `enabled`: Each user of the company can switch to a Web RTC audio conversation.<br>* `disabled`: No user of the company can switch to a Web RTC audio conversation. |
+     * | instantMessagesCustomisation | String | Activate/Deactivate the capability for a user to use instant messages.  <br>Define if a user has the right to use IM, then to start a chat (P2P ou group chat) or receive chat messages and chat notifications.  <br>instantMessagesCustomisation can be:<br><br>* `enabled`: Each user of the company can use instant messages.<br>* `disabled`: No user of the company can use instant messages. |
+     * | userProfileCustomisation | String | Activate/Deactivate the capability for a user to modify his profile.  <br>Define if a user has the right to modify the globality of his profile and not only (title, firstName, lastName).  <br>userProfileCustomisation can be:<br><br>* `enabled`: Each user of the company can modify his profile.<br>* `disabled`: No user of the company can modify his profile. |
+     * | fileStorageCustomisation | String | Activate/Deactivate the capability for a user to access to Rainbow file storage.  <br>Define if a user has the right to upload/download/copy or share documents.  <br>fileStorageCustomisation can be:<br><br>* `enabled`: Each user of the company can manage and share files.<br>* `disabled`: No user of the company can manage and share files. |
+     * | overridePresenceCustomisation | String | Activate/Deactivate the capability for a user to change manually his presence.  <br>Define if a user has the right to change his presence manually or only use automatic states.  <br>overridePresenceCustomisation can be:<br><br>* `enabled`: Each user of the company can change his presence.<br>* `disabled`: No user of the company can change his presence. |
+     * | alertNotificationReception | String | Activate/Deactivate the capability for a user to receive alert notification.  <br>Define if a user has the right to receive alert notification  <br>alertNotificationReception can be:<br><br>* `enabled`: Each user of the company can receive alert notification.<br>* `disabled`: No user of the company can receive alert notification. |
+     * | alertNotificationSending | String | Activate/Deactivate the capability for a user to send alert notification.  <br>Define if a user has the right to send alert notification  <br>alertNotificationSending can be:<br><br>* `enabled`: Each user of the company can send alert notification.<br>* `disabled`: No user of the company can send alert notification. |
+     * | changeTelephonyCustomisation | String | Activate/Deactivate the ability for a user to modify some telephony settings.  <br>Define if a user has the right to modify telephony settings like forward activation ....  <br>changeTelephonyCustomisation can be:<br><br>* `enabled`: The user can modify telephony settings.<br>* `disabled`: The user can't modify telephony settings. |
+     * | changeSettingsCustomisation | String | Activate/Deactivate the ability for a user to change all client general settings.  <br>Define if a user has the right to change his client general settings.  <br>changeSettingsCustomisation can be:<br><br>* `enabled`: The user can change all client general settings.<br>* `disabled`: The user can't change any client general setting. recordingConversationCustomisation Activate/Deactivate the capability for a user to record a conversation.  <br>    Define if a user has the right to record a conversation (for P2P and multi-party calls).  <br>    recordingConversationCustomisation can be:<br>* `enabled`: The user can record a peer to peer or a multi-party call.<br>* `disabled`: The user can't record a peer to peer or a multi-party call. |
+     * | useGifCustomisation | String | Activate/Deactivate the ability for a user to Use GIFs in conversations.  <br>Define if a user has the is allowed to send animated GIFs in conversations  <br>useGifCustomisation can be:<br><br>* `enabled`: The user can send animated GIFs in conversations.<br>* `disabled`: The user can't send animated GIFs in conversations. |
+     * | useDialOutCustomisation | String | Activate/Deactivate the capability for a user to use dial out in phone meetings.  <br>Define if a user is allowed to be called by the Rainbow conference bridge.  <br>useDialOutCustomisation can be:<br><br>* `enabled`: The user can be called by the Rainbow conference bridge.<br>* `disabled`: The user can't be called by the Rainbow conference bridge. |
+     * | fileCopyCustomisation | String | Activate/Deactivate the capability for a user to copy files  <br>Define if one or all users of a company is allowed to copy any file he receives in his personal cloud space.  <br>fileCopyCustomisation can be:<br><br>* `enabled`: The user can make a copy of a file to his personal cloud space.<br>* `disabled`: The user can't make a copy of a file to his personal cloud space. |
+     * | fileTransferCustomisation | String | Activate/Deactivate the ability for a user to transfer files.  <br>Define if one or all users of a company has the right to copy a file from a conversation then share it inside another conversation.  <br>fileTransferCustomisation can be:<br><br>* `enabled`: The user can transfer a file doesn't belong to him.<br>* `disabled`: The user can't transfer a file doesn't belong to him. |
+     * | forbidFileOwnerChangeCustomisation | String | Activate/Deactivate the ability for a user to loose the ownership on one file.  <br>Define if one or all users can drop the ownership of a file to another Rainbow user of the same company  <br>forbidFileOwnerChangeCustomisation can be:<br><br>* `enabled`: The user can't give the ownership of his file.<br>* `disabled`: The user can give the ownership of his file. |
+     * | readReceiptsCustomisation | String | Activate/Deactivate the capability for a user to allow a sender to check if a chat message is read.  <br>Defines whether a peer user in a conversation allows the sender of a chat message to see if this IM is acknowledged by the peer.  <br>This right is used by Ucaas or Cpaas application to show either or not a message is acknowledged. No check is done on backend side.  <br>readReceiptsCustomisation can be:<br><br>* `enabled`: Each user of the company allow the sender to check if an IM is read.<br>* `disabled`: No user of the company allow the sender to check if an IM is read. |
+     * | useSpeakingTimeStatistics | String | Activate/Deactivate the ability for a user to see speaking time statistics..  <br>Defines whether a user has the right to see for a given meeting the speaking time for each attendee of this meeting.  <br>useSpeakingTimeStatistics can be:<br><br>* `enabled`: Each user of the company can use meeting speaking time statistics.<br>* `disabled`: No user of the company can use meeting speaking time statistics. |
+     * | eLearningCustomisation | String | Activate/Deactivate the capability for a user to participate on a E-learning training.  <br>Defines if a user can participate on an E-learning training.  <br>eLearningCustomisation can be:<br><br>* `enabled`: The user can participate on an E-learning training.<br>* `disabled`: The user can't participate on an E-learning training. |
+     * | eLearningGamificationCustomisation | String | Activate/Deactivate the capability for a user to earn badges for E-learning progress.  <br>Defines if a user can earn badges for E-learning progress.  <br>eLearningGamificationCustomisation can be:<br><br>* `enabled`: The user can earn badges for E-learning progress.<br>* `disabled`: The user can't earn badges for E-learning progress. |
+     * | meetingRecordingCustomisation | String | Activate/Deactivate the capability for a user to record a meeting.  <br>Defines if a user can record a meeting.  <br>meetingRecordingCustomisation can be:<br><br>* `enabled`: The user can record a meeting.<br>* `disabled`: The user can't record a meeting. |
+     * | useOtherPhoneMode | String | Activate/Deactivate the capability for a user to use the other phone mode.  <br>Defines if a user can use the other phone mode.  <br>useOtherPhoneMode can be:<br><br>* `enabled`: The user can use the other phone mode.<br>* `disabled`: The user can't use the other phone mode. |
+     * | useComputerMode | String | Activate/Deactivate the capability for a user to use the computer mode.  <br>Defines if a user can use the computer mode.  <br>useComputerMode can be:<br><br>* `enabled`: The user can use the computer mode.<br>* `disabled`: The user can't use the computer mode. |
+     * | useSoftPhoneMode | String | Activate/Deactivate the capability for a user to use the softphone mode.  <br>Defines if a user can use the softphone mode.  <br>useSoftPhoneMode can be:<br><br>* `enabled`: The user can use the softphone mode.<br>* `disabled`: The user can't use the softphone mode. |
+     * | imPopupDuration | Number | Defines the IM popup duration. |
+     * | canAccessWhatsNew | String | Activate/Deactivate the capability for a user to access to what's new.  <br>Defines if a user can access to what's new.  <br>canAccessWhatsNew can be:<br><br>* `enabled`: The user can access to what's new.<br>* `disabled`: The user can't access to what's new. |
+     * | canAccessFaqCustomisation | String | Activate/Deactivate the capability for a user to access to the FAQ.  <br>Defines if a user can access to the FAQ.  <br>canAccessFaqCustomisation can be:<br><br>* `enabled`: The user can access to the FAQ.<br>* `disabled`: The user can't access to the FAQ. |
+     * | canAccessHelpCenterCustomisation | String | Activate/Deactivate the capability for a user to access to Rainbow help center.  <br>Defines if a user can access to Rainbow help center.  <br>canAccesHelpCenterCustomisation can be:<br><br>* `enabled`: The user can access to Rainbow help center.<br>* `disabled`: The user can't access to Rainbow help center. |
+     * | canAccessStoreCustomisation | String | Activate/Deactivate the capability for a user to access to Rainbow store.  <br>Defines if a user can access to Rainbow store.  <br>canAccesStoreCustomisation can be:<br><br>* `enabled`: The user can access to Rainbow store.<br>* `disabled`: The user can't access to Rainbow store. |
+     * | canDownloadAppCustomisation | String | Activate/Deactivate the capability for a user to download Rainbow application.  <br>Defines if a user can download Rainbow application.  <br>canDownloadAppCustomisation can be:<br><br>* `enabled`: The user can download Rainbow application.<br>* `disabled`: The user can't download Rainbow application. |
+     * | canCallParticipantPbxNumberCustomisation | String | Select the capability for a user to call participant via a PBX number.  <br>Defines if a user can call participant via a PBX number.  <br>canCallParticipantPbxNumberCustomisation can be:<br><br>* `enabled`: The user can call participant with all number.<br>* `disabled`: The user can't call participant.<br>* `internal`: The user can call participant only with internal number.<br>* `national`: The user can call participant with national number. |
+     * | defaultLicenseGroup | String | Group of license to assign to user when finalizing his account (e.g. Enterprise, Business ...) |
+     * | defaultOptionsGroups | String\[\] | List of options to assign to user when finalizing his account (e.g. Alert ...) |
+     * | selectedThemeCustomers optionnel | Object | Set the selected theme(s) for customers of this BP company.  <br>This attribute only applies for BP companies. |
+     * | light optionnel | String | Set the selected theme light for customers of this BP company. |
+     * | dark optionnel | String | Set the selected theme dark for customers of this BP company. |
+     * | ddiReadOnly optionnel | Boolean | Indicates if admin of IR company is allowed to create or delete a DDI. Used only on IR companies. |
+     * | locked optionnel | Boolean | Allow to lock selected theme for customers. If true, customers won't be able to manage themes (create/update/delete). |
+     * | cloudPbxVoicemailToEmail optionnel | Boolean | Cloudpbx email notification type when receiving a voicemail |
+     * | allowPhoneNumbersVisibility optionnel | Boolean | Indicates if Phone numbers should be visible or not when generating Voice CDR files. Applies only on BP companies. |
+     * | cloudPbxRecordingInboundOnly optionnel | Boolean | When CloudPbx recording is set, both inbound and outbound calls will be recorded for the selected users. If cloudPbxRecordingInboundOnly is set to true, only inbound calls will be recorded |
+     * | allowDeviceFirmwareSelection optionnel | Boolean | Superadmin allows admins of the company to select a given firmware for its cloudpbx devices. |
+     * | businessData optionnel | Object | Set the businessData company. |
+     * | region optionnel | String | Set the region of the company. |
+     * | cluster optionnel | String | Set the cluster of the company. |
+     * | area optionnel | String | Set the area of the company. |
+     * | allowTeamsToDesktopSso optionnel | Boolean | Superadmin allows if Teams add-in uses sso to login in desktop app for all company users<br><br>Default value : `true` |
+     * | country optionnel | String | Set the business country of the company. |
+     * | rainbowStorageAllowedAllUsers | Boolean | In an environment where a company uses the Rainbow file server or an External file server, an administator can defines storage access rights at company level, and at user level.  <br>So he has to:<br><br>* Enable/Disable external storage for a company (see `useExternalStorage`) and configure required parameters as URLs, type, name, description (see company/settings/filestorage section) and if all company users have access to this storage by default (see `externalStorageAllowedAllUsers`).  <br>    If this storage is enabled by default, all users following the company policy will have access to the storage.<br>* Enable/Disable Rainbow storage for a company (see `useRainbowStorage`), and if all company users have access to this storage by default (see `rainbowStorageAllowedAllUsers`).<br>* Select which storage is the main one used to store photo taken from Rainbow Apps (see `mainStorage`) |
+     * | externalStorageAllowedAllUsers | Boolean | Refer to rainbowStorageAllowedAllUsers. |
+     * | useRainbowStorage | String | In an environment where a company uses the Rainbow file server and an External file server at the same time, 'useRainbowStorage' allows a user to be assigned to a file server.<br><br>* `enabled`: Assign all users to the default Rainbow File Storage.<br>* `disabled`: Unassign all users from the default Rainbow File Storage. |
+     * | useExternalStorage | String | In an environment where a company uses the Rainbow file server and an External file server at the same time, 'useExternalStorage' allows a user to be assigned to a file server.<br><br>* `enabled`: Assign all users to the External File Storage.<br>* `disabled`: Unassign all users from the External File Storage. |
+     * | mainStorage | String | In an environment where a company uses the Rainbow file server and an External file server at the same time, 'mainStorage' allows to decide which file server must be used when a user is assigned to both file servers.<br><br>* `Rainbow Storage`: Assigment to the Rainbow file server.<br>* `External Storage`: Assigment to the External file server. |
+     * | customData optionnel | Object | Company's custom data.  <br>Object with free keys/values.  <br>It is up to the client to manage the company's customData (new customData provided overwrite the existing one).  <br>  <br>Restrictions on customData Object:<br><br>* max 10 keys,<br>* max key length: 64 characters,<br>* max value length: 512 characters. |
+     * | adminServiceNotificationsLevel | String | Level of service notification that admin should see |
+     *
+     *
+     * example of result :
+     * ```json
+     * {
+     *         "id": "569ce8c8f9336c471b98eda1",
+     *         "creationDate": "2016-01-18T13:29:44.498Z",
+     *         "statusUpdatedDate": "2016-01-18T13:29:44.497Z",
+     *         "name": "AL-ENTERPRISE",
+     *         "street": "Sesame street",
+     *         "city": "Brooklyn",
+     *         "postalCode": "123456",
+     *         "country": "USA",
+     *         "state": "NY",
+     *         "status": "active",
+     *         "visibility": "private",
+     *         "visibleBy": [
+     *              "56fabb217d8d3ffa3d0223f8",
+     *              "56d6f00441255dd54b5b61ae"
+     *         ],
+     *         "adminEmail": "admin@company.com",
+     *         "supportEmail": "support@company.com",
+     *         "companyContactId": "588a0d902d9e7f983b8f7661",
+     *         "autoAcceptUserInvitations": true,
+     *         "userSelfRegisterEnabled": true,
+     *         "userSelfRegisterAllowedDomains": [
+     *              "@alcatel-lucent.com",
+     *              "@al-enterprise.com",
+     *              "@al-enterprise.fr",
+     *              "@al-enterprise.de"
+     *         ],
+     *         "slogan": "The slogan of my company",
+     *         "description": "A free string that describes my company",
+     *         "size" : "1001-5000 employees",
+     *         "website": "http:\\/\\/enterprise.alcatel-lucent.com",
+     *         "giphyEnabled": false,
+     *         "organisationId": "57cd58edd341df5812bbcb71",
+     *         "catalogId": "5979f63bae6056aadd1a8f17",
+     *         "bpId": null,
+     *         "externalReference": null,
+     *         "offerType": "premium",
+     *         "avatarShape": "circle",
+     *         "allowUsersSelectTheme": true,
+     *         "allowUsersSelectPublicTheme": true,
+     *         "mobilePermanentConnectionMode": false,
+     *         "customData": {},
+     *         "office365ScopesGranted": [],
+     *         "fileSharingCustomisation": "enabled",
+     *         "userTitleNameCustomisation": "enabled",
+     *         "softphoneOnlyCustomisation": "disabled",
+     *         "useRoomCustomisation": "enabled",
+     *         "phoneMeetingCustomisation": "enabled",
+     *         "useChannelCustomisation": "enabled",
+     *         "useScreenSharingCustomisation": "enabled",
+     *         "useWebRTCVideoCustomisation": "enabled",
+     *         "useWebRTCAudioCustomisation": "enabled",
+     *         "instantMessagesCustomisation": "enabled",
+     *         "userProfileCustomisation": "enabled",
+     *         "fileStorageCustomisation": "enabled",
+     *         "overridePresenceCustomisation": "enabled",
+     *         "changeTelephonyCustomisation": "enabled",
+     *         "changeSettingsCustomisation": "enabled",
+     *         "recordingConversationCustomisation": "enabled",
+     *         "useGifCustomisation": "enabled",
+     *         "useDialOutCustomisation": "enabled",
+     *         "eLearningCustomisation":  "enabled",
+     *         "eLearningGamificationCustomisation": "enabled",
+     *         "meetingRecordingCustomisation": "enabled",
+     *         "useOtherPhoneMode": "enabled",
+     *         "useComputerMode": "enabled",
+     *         "useSoftPhoneMode": "enabled",
+     *         "imPopupDuration": 3,
+     *         "canAccessWhatsNew": "enabled",
+     *         "canAccesFaqCustomisation": "enabled",
+     *         "canAccessHelpCenterCustomisation": "enabled",
+     *         "canAccessStoreCustomisation": "enabled",
+     *         "canDownloadAppCustomisation": "enabled",
+     *         "canCallParticipantPbxNumberCustomisation": "enabled",
+     *         "defaultLicenseGroup": "Enterprise",
+     *         "defaultOptionsGroups": ["Alert"],
+     *         "selectedTheme": {
+     *              "light": null,
+     *              "dark": "5ea304e4359c0e6815fc8b57",
+     *              "isLockedByBp": true
+     *         },
+     *         "businessSpecific": "UGAP",
+     *         "allowTeamsToDesktopSso": true,
+     *         "externalStorageAllowedAllUsers" : false,
+     *         "mainStorage" : "Rainbow Storage",
+     *         "rainbowStorageAllowedAllUsers" : true,
+     *         "useExternalStorage" : "disabled",
+     *         "useRainbowStorage" : "enabled",
+     *         "businessData": {
+     *              "region": "EMEA",
+     *              "cluster": "EU SOUTH",
+     *              "area": "BELUX",
+     *              "country": "BEL"
+     *         },
+     *         "useRainbowStorage" : "enabled",
+     *         "adminServiceNotificationsLevel": "high"
+     *     }
+     * ```
+     *
+     */
+    updateCompanyByObj(companyId : string, selectedThemeObj: boolean, companyInfoToUpdate :{ name : string, country : string , street : string, city : string, state : string, postalCode : string, offerType : string,
+                  currency : string, status : string, visibility : string , visibleBy: string[], adminEmail : string, supportEmail : string, supportUrlFAQ : string, companyContactId : string, disableCCareAdminAccess : boolean,
+                  disableCCareAdminAccessCustomers : boolean, disableCCareAdminAccessResellers : boolean, autoAcceptUserInvitations : boolean, autoAddToUserNetwork : boolean, contentPolicyLifeTime : boolean,
+                  documentGracePeriod : boolean, userSelfRegisterAllowedDomains : string[], slogan : string, description : string, size : string, economicActivityClassification : string, website : string,
+                  giphyEnabled : boolean, catalogId : string, adminCanSetCustomData : boolean, customData : any, bpId : string, adminHasRightToUpdateSubscriptions : boolean, adminAllowedUpdateSubscriptionsOps : string, isBP : boolean,
+                  bpType : string, bpBusinessModel : string, bpApplicantNumber : string, bpCRDid : string, bpHasRightToSell : boolean, bpHasRightToConnect : boolean, bpHasRightForBYOT : boolean, preferredSipLoadBalancerId : string,
+                  bpIsContractAccepted : boolean, externalReference : string, externalReference2 : string, salesforceAccountId : string, avatarShape : string, isCentrex: boolean, companyCallNumber : string, superadminComment : string,
+                  bpBusinessType : string[], billingModel : string, allowUsersSelectTheme: boolean, allowUsersSelectPublicTheme: boolean, selectedTheme: any, mobilePermanentConnectionMode: boolean,
+                  alertNotificationReception : string, alertNotificationSending : string, useDialOutCustomisation : string, allowDeviceFirmwareSelection: boolean, selectedDeviceFirmware : string, cloudPbxVoicemailToEmail : string,
+                  businessData : any, defaultLicenseGroup : string, defaultOptionsGroups : string[], selectedThemeCustomers : any, allowTeamsToDesktopSso: boolean, cloudPbxRecordingInboundOnly: boolean,
+                  supervisionGroupMaxSize: number, supervisionGroupMaxNumber: number, supervisionGroupMaxUsers: number,
+                  timezone: string, sendPrepaidSubscriptionsNotification: boolean, ddiReadOnly: boolean, allowPhoneNumbersVisibility: boolean, csEmailList: string[], seEmailList: string[], csmEmailList: string[],
+                  kamEmailList: string[], businessSpecific?: string, adminServiceNotificationsLevel: string}): Promise<any> {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateCompany) companyId : ", companyId, ", selectedThemeObj : ", selectedThemeObj, ", companyInfoToUpdate : ", companyInfoToUpdate);
+        return that.callRestMethod("updateCompanyByObj", arguments);
     /*    return new Promise(function (resolve, reject) {
             try {
 
