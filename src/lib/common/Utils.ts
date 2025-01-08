@@ -399,7 +399,7 @@ function isStarted(_methodsToIgnoreStartedState: Array<string> = []) : any{
                 // Return value is stored into a variable instead of being passed to the execution stack
                 let returnValue = undefined;
                 let methodsToIgnoreStartedState = ["start", "stop", "contructor", "attachHandlers", "getClassName", "cleanMemoryCache", "getAccessorName", "setLogLevels", "sendPing"] ;
-                methodsToIgnoreStartedState = methodsToIgnoreStartedState.concat(_methodsToIgnoreStartedState[0]);
+                methodsToIgnoreStartedState = [].concat(methodsToIgnoreStartedState, _methodsToIgnoreStartedState);
                 let ignoreTheStartedState : boolean = (methodsToIgnoreStartedState.find((elt) => { return elt === propertyName; } ) != undefined);
                 if (this == null) {
                     returnValue = originalMethod.apply(this, args);
