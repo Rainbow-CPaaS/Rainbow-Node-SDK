@@ -112,12 +112,21 @@ class S2SServiceEventHandler extends LevelLogs{
             return false;
         }
 
+        let userId = body?.userId;
+        if (userId !== that._rest?.account?.id ) {
+            that._logger.log(that.ERROR, LOG_ID + "(handleS2SEvent) Don't manage this request - the userID is not the connected one : ", userId);
+            return false;
+        }
+
         if (requestedPath === "/connection") {
             // that._logger.log(that.INTERNAL, LOG_ID + "(handleS2SEvent) return ParseConnectionCallback(content)");
             return that.ParseConnectionCallback(body);
         } else if (requestedPath === "/presence") {
             // that._logger.log(that.INTERNAL, LOG_ID + "(handleS2SEvent) return ParsePresenceCallback(content)");
             return that.ParsePresenceCallback(body);
+        } else if (requestedPath === "/user") {
+            // that._logger.log(that.INTERNAL, LOG_ID + "(handleS2SEvent) return ParsePresenceCallback(content)");
+            return that.ParseUserCallback(body);
         } else if (requestedPath === "/chat-state") {
             // that._logger.log(that.INTERNAL, LOG_ID + "(handleS2SEvent) return ParseChatStateCallback(content)");
             return that.ParseChatStateCallback(body);
@@ -250,6 +259,104 @@ class S2SServiceEventHandler extends LevelLogs{
             }
         } else {
             that._logger.log(that.ERROR, LOG_ID + "(ParsePresenceCallback) Impossible to get Presence object using from info provided:[", event, "]");
+        }
+
+        return false;
+    }
+
+    async ParseUserCallback(event): Promise<boolean> {
+        let that = this;
+        /* ORIGINALURL :  /user
+// */
+        that._logger.log(that.INTERNAL, LOG_ID + "(ParseUserCallback) Content:[", event, "]");
+        let userNetwork = event['user-network'];
+        if (event && userNetwork) {
+            let contactId = userNetwork.user_id;
+            if (contactId) {
+                let contact: Contact = await that._contacts.getContactById(contactId, false);
+                if (contact != null) {
+                    that._logger.log(that.INTERNAL, LOG_ID + "(ParseUserCallback) logguedin user's jid : ", that.jid_im, ", jid of the from presence : ", contact.jid_im);
+                } else {
+                    that._logger.log(that.INTERNAL, LOG_ID + "(ParseUserCallback) Impossible to get Contact using contactId field:[", contactId, "]",);
+                }
+                let action = userNetwork.action;
+                switch (action) {
+                    case "added":
+                        /*
+                        {
+                          userId: '67595de122e43f0cd3b8bf8e',
+                          'user-network': { user_id: '67595debbc8be8ac955886bf', action: 'added' },
+                          timestamp: '2024-12-11T09:42:01.829178Z',
+                          id: '1d719dd6-b7a4-11ef-8003-00505628611e'
+                        }
+                         */
+                        /*let evtParam : any = {};
+                        evtParam.status = "none";
+                        evtParam.action = "create" ;
+                        evtParam.status = "auto-accepted";
+
+                        that._eventEmitter.emit("evt_internal_invitationsManagementUpdate", evtParam);
+                        // */
+                        that._logger.log(that.DEBUG, LOG_ID + "(ParseUserCallback) user-network added userId : ", contactId);
+                        break;
+                    case "removed":
+                        /*
+                        {
+                          userId: '67595debbc8be8ac955886bf',
+                          'user-network': { user_id: '67595de122e43f0cd3b8bf8e', action: 'removed' },
+                          timestamp: '2024-12-11T10:18:13.378621Z',
+                          id: '932f5fae-b7a4-11ef-a551-00505628611e'
+                        }
+                         */
+                        that._logger.log(that.DEBUG, LOG_ID + "(ParseUserCallback) user-network removed userId : ", contactId);
+                        break;
+                }
+            } else {
+                that._logger.log(that.WARN, LOG_ID + "(ParseUserCallback) Impossible to get 'contactId' property from info provided:[", event, "]");
+            }
+        } else {
+            that._logger.log(that.ERROR, LOG_ID + "(ParseUserCallback) Impossible to get Presence object using from info provided:[", event, "]");
+        }
+
+        let userInvite = event['user-invite'];
+        if (event && userInvite) {
+            let contactId = userInvite.user_id;
+            if (contactId) {
+                let contact: Contact = await that._contacts.getContactById(contactId, false);
+                if (contact != null) {
+                    that._logger.log(that.INTERNAL, LOG_ID + "(ParseUserCallback) logguedin user's jid : ", that.jid_im, ", jid of the from presence : ", contact.jid_im);
+                } else {
+                    that._logger.log(that.INTERNAL, LOG_ID + "(ParseUserCallback) Impossible to get Contact using contactId field:[", contactId, "]",);
+                }
+                let action = userInvite.action;
+                switch (action) {
+                    case "create":
+                        /*
+                        {
+                          userId: '67595debbc8be8ac955886bf',
+                          'user-invite': {
+                            status: 'auto-accepted',
+                            id: '67595e695800c00cf3ed86d0',
+                            action: 'create'
+                          },
+                          timestamp: '2024-12-11T09:42:02.138116Z',
+                          id: '2166aef4-b7a4-11ef-b5c2-005056012d6f'
+                        }
+                        // */
+                        let evtParam : any = {};
+                        evtParam.action = userInvite.action ;
+                        evtParam.status = userInvite.status;
+                        evtParam.id = userInvite.id;
+                        evtParam.type = "received";
+                        that._eventEmitter.emit("evt_internal_invitationsManagementUpdate", evtParam);
+                        return true;
+                        break;
+                }
+            } else {
+                that._logger.log(that.WARN, LOG_ID + "(ParseUserCallback) Impossible to get 'contactId' property from info provided:[", event, "]");
+            }
+        } else {
+            that._logger.log(that.ERROR, LOG_ID + "(ParseUserCallback) Impossible to get Presence object using from info provided:[", event, "]");
         }
 
         return false;
