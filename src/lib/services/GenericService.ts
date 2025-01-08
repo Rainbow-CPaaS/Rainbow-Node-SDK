@@ -116,7 +116,7 @@ class GenericService extends LevelLogs{
 
         return new Promise(function (resolve, reject) {
             try {
-                that._rest[methodName]( ...lesarguments ).then((result) => {
+                that._core._rest[methodName]( ...lesarguments ).then((result) => {
                     that._logger.log(that.DEBUG, that._logId  + "(" + methodName + ") Successfully created.");
                     resolve(result);
                 }).catch((err) => {
