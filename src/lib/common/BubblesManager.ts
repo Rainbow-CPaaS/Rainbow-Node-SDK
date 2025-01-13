@@ -271,7 +271,7 @@ class BubblesManager extends LevelLogs {
                             let test = false;
                             if (getRandomInt(2) == 1 || !test) {
                                 that._logger.log(that.DEBUG, LOG_ID + "(treatAllBubblesToJoin) bubble found at ", iterBubbleToJoin, ", send the initial presence to bubbleLogInfos : ", getBubbleLogInfos(bubble));
-                                prom.push(that._presence.sendInitialBubblePresenceSync(bubble,2 * 1000 * 60).catch((errOfSent) => {
+                                prom.push(that._presence.sendInitialBubblePresenceSync(bubble,3 * 1000 * 60).catch((errOfSent) => {
                                     that._logger.log(that.WARN, LOG_ID + "(treatAllBubblesToJoin) Error while sendInitialBubblePresenceSync : ", errOfSent);
                                 }) );
                             } else {
