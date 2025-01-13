@@ -14,7 +14,7 @@ import {BubblesService} from "./BubblesService";
 import {PresenceCalendar, PresenceLevel, PresenceRainbow} from "../common/models/PresenceRainbow";
 import {GenericService} from "./GenericService";
 import {interval} from "rxjs";
-import {Bubble} from "../common/models/Bubble";
+import {Bubble, getBubbleLogInfos} from "../common/models/Bubble";
 
 export {};
 
@@ -460,7 +460,7 @@ class PresenceService extends GenericService{
     */
     async sendInitialBubblePresence(bubble : Bubble,  attempt : number = 0) {
             let that = this;
-            that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendInitialBubblePresence) is bubble defined : ", isDefined(bubble));
+            that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendInitialBubblePresence) is bubble : ", getBubbleLogInfos(bubble));
 
             return new Promise(async function (resolve, reject) {
                 if (!bubble || !bubble.jid) {
@@ -469,17 +469,17 @@ class PresenceService extends GenericService{
                     reject({code: -1, label: "Bubble id is not defined!!!"});
                 } else {
                     const attemptInfo = attempt ? " -- attempt " + attempt:"";
-                    that._logger.log(that.INFO, LOG_ID + "(sendInitialBubblePresence) " + attemptInfo + " -- " + bubble.getNameForLogs + " -- " + bubble?.id);
+                    that._logger.log(that.INFO, LOG_ID + "(sendInitialBubblePresence) " + attemptInfo + " -- " + getBubbleLogInfos(bubble));
                     if (that._useXMPP) {
                         let result = that._xmpp.sendInitialBubblePresence(bubble.jid)
-                        that._logger.log(that.INTERNAL, LOG_ID + "(sendInitialBubblePresence) begin wait for the bubble to be active : ", bubble?.jid);
+                        that._logger.log(that.INTERNAL, LOG_ID + "(sendInitialBubblePresence) begin wait for the bubble to be active : ", getBubbleLogInfos(bubble));
                         // Wait for the bubble to be active
                         await until(() => {
                             return bubble.isActive===true;
                         }, "Wait for the Bubble " + bubble.jid + " to be active").catch((err) => {
-                            that._logger.log(that.INTERNAL, LOG_ID + "(sendInitialBubblePresence) FAILED wait for the bubble to be active : ", bubble?.jid, " : ", err);
+                            that._logger.log(that.INTERNAL, LOG_ID + "(sendInitialBubblePresence) FAILED wait for the bubble to be active : ", getBubbleLogInfos(bubble), " : ", err);
                         });
-                        that._logger.log(that.INTERNAL, LOG_ID + "(sendInitialBubblePresence) end wait for the bubble to be active : ", bubble?.jid);
+                        that._logger.log(that.INTERNAL, LOG_ID + "(sendInitialBubblePresence) end wait for the bubble to be active : ", getBubbleLogInfos(bubble));
                         resolve(result);
                     }
                     if (that._useS2S) {
@@ -503,20 +503,20 @@ class PresenceService extends GenericService{
      */
     public sendInitialBubblePresenceSyncFn(bubble: Bubble, intervalDelay: number = 7500): Promise<any> {
         let that = this;
-        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendInitialBubblePresenceSyncFn) is bubble defined : ", isDefined(bubble));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendInitialBubblePresenceSyncFn) is bubble : ", getBubbleLogInfos(bubble));
 
         if (!bubble) {
             that._logger.log(that.WARN, LOG_ID + "(sendInitialBubblePresenceSyncFn) bad or empty 'bubble' parameter.");
             //that._logger.log(that.INTERNALERROR, LOG_ID + "(sendInitialBubblePresenceSyncFn) bad or empty 'bubble' parameter : ", bubble);
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
-        that._logger.log(that.INFO, LOG_ID + "(sendInitialBubblePresenceSyncFn) " + intervalDelay + " -- " + bubble.getNameForLogs + " -- " + bubble.id + " -- " + bubble.jid);
+        that._logger.log(that.INFO, LOG_ID + "(sendInitialBubblePresenceSyncFn) " + intervalDelay + " -- " + getBubbleLogInfos(bubble));
         if (bubble.initialPresence.initPresencePromise) {
-            that._logger.log(that.DEBUG, LOG_ID + `(sendInitialBubblePresenceSyncFn) -- ${bubble.getNameForLogs} -- ${bubble.id}` + " -- " + bubble.jid + " -- bubble activation in progress.");
+            that._logger.log(that.DEBUG, LOG_ID + "(sendInitialBubblePresenceSyncFn) -- " + getBubbleLogInfos(bubble) + " -- bubble activation in progress.");
             return bubble.initialPresence.initPresencePromise;
         }
         if (bubble.initialPresence.initPresenceAck) {
-            that._logger.log(that.DEBUG, LOG_ID + `(sendInitialBubblePresenceSyncFn) -- ${bubble.getNameForLogs} -- ${bubble.id}` + " -- " + bubble.jid + " -- bubble already activated.");
+            that._logger.log(that.DEBUG, LOG_ID + "(sendInitialBubblePresenceSyncFn) -- " + getBubbleLogInfos(bubble) + " -- bubble already activated.");
             return Promise.resolve();
         }
 //                    bubble.initialPresence.initPresencePromise()
@@ -533,12 +533,12 @@ class PresenceService extends GenericService{
                 if (attemptNumber < maxAttemptNumber) {
                     // up to <maxAttemptNumber> retries
                     attemptNumber += 1;
-                    that._logger.log(that.WARN, LOG_ID + "(sendInitialBubblePresenceSyncFn) : re sendInitialBubblePresence, attemptNumber : " + attemptNumber + " retries for " + bubble.getNameForLogs + " -- " + bubble.jid + ", bubble.initialPresence : ", bubble.initialPresence);
+                    that._logger.log(that.WARN, LOG_ID + "(sendInitialBubblePresenceSyncFn) : re sendInitialBubblePresence, attemptNumber : " + attemptNumber + " retries for " + getBubbleLogInfos(bubble) + ", bubble.initialPresence : ", bubble.initialPresence);
                     that.sendInitialBubblePresence(bubble, attemptNumber);
                 } else {
                     // if no response after <maxAttemptNumber> retries, we clean the presence promise in the bubble 
                     // (to make it possible for further trials to re-establish presence state and chat history access)
-                    that._logger.log(that.WARN, LOG_ID + "(sendInitialBubblePresenceSyncFn) : no response after " + attemptNumber + " retries => clean presence promise and interval for " + bubble.getNameForLogs + " -- " + bubble.jid);
+                    that._logger.log(that.WARN, LOG_ID + "(sendInitialBubblePresenceSyncFn) : no response after " + attemptNumber + " retries => clean presence promise and interval for " + getBubbleLogInfos(bubble));
                     reject("(sendInitialBubblePresenceSyncFn) : no response");
                     bubble.initialPresence.initPresencePromise = null;
                     if (bubble.initialPresence.initPresenceInterval) {

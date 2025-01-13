@@ -154,7 +154,7 @@ class PresenceEventHandler extends GenericHandler {
                 
                 that.eventEmitter.emit("evt_internal_presencechanged", data);
             } else if (from.includes("room_")) {
-
+                // Presence in bubble
                 let presence = stanza.attrs.type;
                 let status = undefined;
                 let description = undefined;

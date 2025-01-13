@@ -661,9 +661,19 @@ class Bubble {
             return bubble;
         };
     }
+    getBubbleLogInfos() : string {
+        return getBubbleLogInfos(this);
+    }
 }
 
+function getBubbleLogInfos (bubble: Bubble) :string {
+    if (bubble) {
+        return ("bubbleLogInfos : {id : " + bubble.id + ", jid : " + bubble.jid + ", name : " + bubble.getNameForLogs + ", status : " + bubble.status+"}");
+    } else {
+        return "";
+    }
+}
 
-export {Bubble, InitialPresence};
-export default {Bubble, InitialPresence};
-module.exports = {Bubble, InitialPresence};
+export {Bubble, InitialPresence, getBubbleLogInfos};
+export default {Bubble, InitialPresence, getBubbleLogInfos};
+module.exports = {Bubble, InitialPresence, getBubbleLogInfos};

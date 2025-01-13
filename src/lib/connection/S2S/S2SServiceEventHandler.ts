@@ -104,11 +104,11 @@ class S2SServiceEventHandler extends LevelLogs{
         that._logger.log(that.HTTP, LOG_ID + "(handleS2SEvent) *************************************************");
 
         if (String.prototype.toUpperCase.call(methodHttp + "") != "POST") {
-            that._logger.log(that.ERROR, LOG_ID + "(handleS2SEvent) Don't manage this request - Invalid HttpVerb - HttpVerb:[", methodHttp, "] - Path:[host : ", event.headers.host, ", path : ", requestedPath, "]");
+            that._logger.log(that.ERROR, LOG_ID + "(handleS2SEvent) Don't manage this request - Invalid HttpVerb - HttpVerb:", methodHttp, " - Path:host : ", event.headers.host, ", path : ", requestedPath, "");
             return false;
         }
         if (that.callbackAbsolutePath && that.callbackAbsolutePath.indexOf(event.headers.host) == -1) {
-            that._logger.log(that.ERROR, LOG_ID + "(handleS2SEvent) Don't manage this request - Invalid path - HttpVerb:[", methodHttp, "] - Path:[host : ", event.headers.host, ", path : ", requestedPath, "]");
+            that._logger.log(that.ERROR, LOG_ID + "(handleS2SEvent) Don't manage this request - Invalid path - HttpVerb:", methodHttp, " - Path:host : ", event.headers.host, ", path : ", requestedPath, "");
             return false;
         }
 
@@ -125,7 +125,7 @@ class S2SServiceEventHandler extends LevelLogs{
             // that._logger.log(that.INTERNAL, LOG_ID + "(handleS2SEvent) return ParsePresenceCallback(content)");
             return that.ParsePresenceCallback(body);
         } else if (requestedPath === "/user") {
-            // that._logger.log(that.INTERNAL, LOG_ID + "(handleS2SEvent) return ParsePresenceCallback(content)");
+            // that._logger.log(that.INTERNAL, LOG_ID + "(handleS2SEvent) return ParseUserCallback(content)");
             return that.ParseUserCallback(body);
         } else if (requestedPath === "/chat-state") {
             // that._logger.log(that.INTERNAL, LOG_ID + "(handleS2SEvent) return ParseChatStateCallback(content)");
@@ -166,13 +166,13 @@ class S2SServiceEventHandler extends LevelLogs{
             return that.ParseErrorCallback(body);
         }
 
-        that._logger.log(that.INTERNAL, LOG_ID + "(handleS2SEvent) Don't manage this request - Unknown path - HttpVerb:[", methodHttp, "] - Path:[host : ", event.headers.host, ", path : ", requestedPath, "]");
+        that._logger.log(that.INTERNAL, LOG_ID + "(handleS2SEvent) Don't manage this request - Unknown path - HttpVerb:", methodHttp, " - Path:host : ", event.headers.host, ", path : ", requestedPath, "");
         return false;
     }
 
     ParseConnectionCallback(event): boolean {
         let that = this;
-        that._logger.log(that.INTERNAL, LOG_ID + "(ParseConnectionCallback) Content:[", event, "]");
+        that._logger.log(that.INTERNAL, LOG_ID + "(ParseConnectionCallback) Content:", event, "");
 
         if (event && event.connection && event.connection.state === "ready") {
             that._eventEmitter.emit("evt_internal_ons2sready", event);
@@ -183,7 +183,7 @@ class S2SServiceEventHandler extends LevelLogs{
 
     async ParsePresenceCallback(event): Promise<boolean> {
         let that = this;
-        that._logger.log(that.INTERNAL, LOG_ID + "(ParsePresenceCallback) Content:[", event, "]");
+        that._logger.log(that.INTERNAL, LOG_ID + "(ParsePresenceCallback) Content:", event, "");
         let presence = event.presence;
         if (event && presence) {
 
@@ -225,7 +225,97 @@ class S2SServiceEventHandler extends LevelLogs{
                                             "s2s" : "desktopOrWeb"
                         };
                         that._eventEmitter.emit("evt_internal_presencechanged", eventInfo);
+                    } else if (from.includes("room_")) {
+                        // Presence in bubble
+                        that._logger.log(that.INTERNAL, LOG_ID + "(ParsePresenceCallback) bubble presence : ", event);
+                        /*
+                        let presence = stanza.attrs.type;
+                        let status = undefined;
+                        let description = undefined;
+                        let children = stanza.children;
+                        children.forEach(function (node) {
+                            switch (node.getName()) {
+                                case "x":
+                                    let items = node.children;
+                                    items.forEach((item) => {
+                                        that._logger.log(that.INTERNAL, LOG_ID + "(ParsePresenceCallback) My presence (node or other resources) in the room changes x child name : ", item.getName());
+                                        switch (item.getName()) {
+                                            case "item":
+                                                //that._logger.log(that.INTERNAL, LOG_ID + "(ParsePresenceCallback) My presence (node or other resources) in the room changes item ", item);
+                                                let childrenReason = item.getChild("reason");
+                                                if (childrenReason) {
+                                                    description = childrenReason.children[0];
+                                                }
+
+                                                break;
+                                            case "status":
+                                                //that._logger.log(that.INTERNAL, LOG_ID + "(ParsePresenceCallback) status item", item);
+                                                switch (item.attrs.code) {
+                                                    case "332":
+                                                        status = "disconnected"; // from room because of a system shutdown
+                                                        break;
+                                                    case "338":
+                                                        status = "deactivated";
+                                                        break;
+                                                    case "339":
+                                                        status = "resumed";
+                                                        break;
+                                                    default:
+                                                        that._logger.log(that.INTERNAL, LOG_ID + "(ParsePresenceCallback) default - status not treated : ", item.attrs.code);
+                                                        status = item.attrs.code;
+                                                        break;
+                                                }
+                                                break;
+                                            default:
+                                                break;
+                                        }
+                                    });
+                                    break;
+                                default:
+                                    break;
+                            }
+                        });
+
+                        // My presence (node or other resources) in the room changes
+                that.eventEmitter.emit("evt_internal_onbubblepresencechanged", {
+                    fulljid: from,
+                    jid: xmppUtils.getBareJIDFromFullJID(from),
+                    resource: xmppUtils.getResourceFromFullJID(from),
+                    presence: presence,
+                    statusCode: status,
+                    description: description
+                });
+
+
+                        // */
+
+                        /*
+                        // A presence in a room changes
+                        let fullJid = xmppUtils.getResourceFromFullJID(from);
+                        if (xmppUtils.getBareJIDFromFullJID(fullJid) === xmppUtils.getBareJIDFromFullJID(that.fullJid)) {
+
+
+                            // My presence (node or other resources) in the room changes
+                            that
+                                .eventEmitter
+                                .emit("evt_internal_onbubblepresencechanged", {
+                                    fulljid: from,
+                                    jid: xmppUtils.getBareJIDFromFullJID(from),
+                                    resource: xmppUtils.getResourceFromFullJID(from)
+                                });
+                        } else {
+                            // Presence of a participants of the room changes
+                            that
+                                .eventEmitter
+                                .emit("rainbow_onbubblerosterpresencechanged", {
+                                    fulljid: from,
+                                    jid: xmppUtils.getBareJIDFromFullJID(from),
+                                    resource: xmppUtils.getResourceFromFullJID(from)
+                                });
+                        } // */
+
                     } else {
+                        // Presence of a contact changes
                         let evtParam =  {
                             "fulljid": from,
                             "jid": contact.jid_im, //xmppUtils.getBareJIDFromFullJID(from),
@@ -252,13 +342,13 @@ class S2SServiceEventHandler extends LevelLogs{
                     }
                     return true;
                 } else {
-                    that._logger.log(that.INTERNAL, LOG_ID + "(ParsePresenceCallback) Impossible to get Contact using from field:[", from, "]",);
+                    that._logger.log(that.INTERNAL, LOG_ID + "(ParsePresenceCallback) Impossible to get Contact using from field:", from, "",);
                 }
             } else {
-                that._logger.log(that.WARN, LOG_ID + "(ParsePresenceCallback) Impossible to get 'from' property from info provided:[", event, "]");
+                that._logger.log(that.WARN, LOG_ID + "(ParsePresenceCallback) Impossible to get 'from' property from info provided:", event, "");
             }
         } else {
-            that._logger.log(that.ERROR, LOG_ID + "(ParsePresenceCallback) Impossible to get Presence object using from info provided:[", event, "]");
+            that._logger.log(that.ERROR, LOG_ID + "(ParsePresenceCallback) No 'presence' property info provided:", event, "");
         }
 
         return false;
@@ -268,16 +358,16 @@ class S2SServiceEventHandler extends LevelLogs{
         let that = this;
         /* ORIGINALURL :  /user
 // */
-        that._logger.log(that.INTERNAL, LOG_ID + "(ParseUserCallback) Content:[", event, "]");
+        that._logger.log(that.INTERNAL, LOG_ID + "(ParseUserCallback) Content:", event, "");
         let userNetwork = event['user-network'];
         if (event && userNetwork) {
             let contactId = userNetwork.user_id;
             if (contactId) {
                 let contact: Contact = await that._contacts.getContactById(contactId, false);
                 if (contact != null) {
-                    that._logger.log(that.INTERNAL, LOG_ID + "(ParseUserCallback) logguedin user's jid : ", that.jid_im, ", jid of the from presence : ", contact.jid_im);
+                    that._logger.log(that.INTERNAL, LOG_ID + "(ParseUserCallback) logguedin user's jid : ", that.jid_im, ", jid of the from 'user-network' : ", contact.jid_im);
                 } else {
-                    that._logger.log(that.INTERNAL, LOG_ID + "(ParseUserCallback) Impossible to get Contact using contactId field:[", contactId, "]",);
+                    that._logger.log(that.INTERNAL, LOG_ID + "(ParseUserCallback) Impossible to get Contact using contactId field:", contactId, "",);
                 }
                 let action = userNetwork.action;
                 switch (action) {
@@ -312,10 +402,10 @@ class S2SServiceEventHandler extends LevelLogs{
                         break;
                 }
             } else {
-                that._logger.log(that.WARN, LOG_ID + "(ParseUserCallback) Impossible to get 'contactId' property from info provided:[", event, "]");
+                that._logger.log(that.WARN, LOG_ID + "(ParseUserCallback) Impossible to get 'contactId' property from info provided:", event, "");
             }
         } else {
-            that._logger.log(that.ERROR, LOG_ID + "(ParseUserCallback) Impossible to get Presence object using from info provided:[", event, "]");
+            that._logger.log(that.ERROR, LOG_ID + "(ParseUserCallback) No user-network property info provided:", event, "");
         }
 
         let userInvite = event['user-invite'];
@@ -324,9 +414,9 @@ class S2SServiceEventHandler extends LevelLogs{
             if (contactId) {
                 let contact: Contact = await that._contacts.getContactById(contactId, false);
                 if (contact != null) {
-                    that._logger.log(that.INTERNAL, LOG_ID + "(ParseUserCallback) logguedin user's jid : ", that.jid_im, ", jid of the from presence : ", contact.jid_im);
+                    that._logger.log(that.INTERNAL, LOG_ID + "(ParseUserCallback) logguedin user's jid : ", that.jid_im, ", jid of the from 'user-invite' : ", contact.jid_im);
                 } else {
-                    that._logger.log(that.INTERNAL, LOG_ID + "(ParseUserCallback) Impossible to get Contact using contactId field:[", contactId, "]",);
+                    that._logger.log(that.INTERNAL, LOG_ID + "(ParseUserCallback) Impossible to get Contact using contactId field:", contactId, "",);
                 }
                 let action = userInvite.action;
                 switch (action) {
@@ -353,10 +443,10 @@ class S2SServiceEventHandler extends LevelLogs{
                         break;
                 }
             } else {
-                that._logger.log(that.WARN, LOG_ID + "(ParseUserCallback) Impossible to get 'contactId' property from info provided:[", event, "]");
+                that._logger.log(that.WARN, LOG_ID + "(ParseUserCallback) Impossible to get 'contactId' property from info provided:", event, "");
             }
         } else {
-            that._logger.log(that.ERROR, LOG_ID + "(ParseUserCallback) Impossible to get Presence object using from info provided:[", event, "]");
+            that._logger.log(that.ERROR, LOG_ID + "(ParseUserCallback) No user-invite property info provided:", event, "");
         }
 
         return false;
@@ -364,7 +454,7 @@ class S2SServiceEventHandler extends LevelLogs{
 
     async ParseChatStateCallback(content) {
         let that = this;
-        that._logger.log(that.INTERNAL, LOG_ID + "(ParseChatStateCallback)  Content:[", content, "]");
+        that._logger.log(that.INTERNAL, LOG_ID + "(ParseChatStateCallback)  Content:", content, "");
 
         let chatstate = content.chatstate;
         if (content && chatstate) {
@@ -786,6 +876,15 @@ class S2SServiceEventHandler extends LevelLogs{
                     "bubbleJid": bubble.jid,
                     "userJid": that.jid_im,
                     "status": eventType,
+                });
+
+                that._eventEmitter.emit("evt_internal_onbubblepresencechanged", {
+                    fulljid: bubble.jid,
+                    jid: bubble.jid,
+                    resource: undefined,
+                    presence: undefined,
+                    statusCode: eventType,
+                    description: "s2s event."
                 });
 
 

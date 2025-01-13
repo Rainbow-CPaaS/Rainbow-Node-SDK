@@ -46,7 +46,8 @@ let conf =  {
         },
         s2s: {
             hostCallback: "nrock",
-            locallistenningport: "4000"
+            locallistenningport: "4000",
+            "expressEngine": undefined
         },
         rest:{
             useRestAtStartup : true,
@@ -113,7 +114,8 @@ let conf =  {
         },
         s2s: {
             hostCallback: "nrock",
-            locallistenningport: "4000"
+            locallistenningport: "4000",
+            "expressEngine": undefined
         },
         rest:{
             useRestAtStartup : true,
@@ -180,7 +182,8 @@ let conf =  {
         },
         s2s: {
             hostCallback: "nrock",
-            locallistenningport: "4000"
+            locallistenningport: "4000",
+            "expressEngine": undefined
         }
         ,
         rest:{

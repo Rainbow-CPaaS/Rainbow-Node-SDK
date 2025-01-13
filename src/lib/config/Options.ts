@@ -377,18 +377,21 @@ class Options {
                 s2sOptions = config.official.s2s;
                 if ( this._options.s2s && this._options.s2s.hostCallback ) {  s2sOptions.hostCallback = this._options.s2s.hostCallback; }
                 if ( this._options.s2s && this._options.s2s.locallistenningport ) {  s2sOptions.locallistenningport = this._options.s2s.locallistenningport; }
+                if ( this._options.s2s && this._options.s2s.expressEngine) {  s2sOptions.expressEngine = this._options.s2s.expressEngine; }
                 this._logger.log("debug", LOG_ID + "(constructor) Use S2S services on Rainbow Official platform");
                 break;
             case "sandbox":
                 s2sOptions = config.sandbox.s2s;
                 if ( this._options.s2s && this._options.s2s.hostCallback ) {  s2sOptions.hostCallback = this._options.s2s.hostCallback; }
                 if ( this._options.s2s && this._options.s2s.locallistenningport ) {  s2sOptions.locallistenningport = this._options.s2s.locallistenningport; }
+                if ( this._options.s2s && this._options.s2s.expressEngine) {  s2sOptions.expressEngine = this._options.s2s.expressEngine; }
                 this._logger.log("debug", LOG_ID + "(constructor) Use S2S services on Rainbow Sandbox platform");
                 break;
             default:
                 s2sOptions = config.any.s2s;
                 if ( this._options.s2s && this._options.s2s.hostCallback ) {  s2sOptions.hostCallback = this._options.s2s.hostCallback; }
                 if ( this._options.s2s && this._options.s2s.locallistenningport ) {  s2sOptions.locallistenningport = this._options.s2s.locallistenningport; }
+                if ( this._options.s2s && this._options.s2s.expressEngine) {  s2sOptions.expressEngine = this._options.s2s.expressEngine; }
                 this._logger.log("warn", LOG_ID + "(constructor) Be careful, an unofficial Rainbow core is used : " + JSON.stringify(s2sOptions));
                 this._logger.log("debug", LOG_ID + "(constructor) Use S2S services on Rainbow " + this._options.rainbow.host + " platform");
                 break;

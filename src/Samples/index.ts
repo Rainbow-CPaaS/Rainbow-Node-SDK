@@ -73,6 +73,7 @@ import * as ini from 'ini';
 import { readFile } from 'fs/promises';
 
 const Element = require('ltx').Element;
+const express = require( "express" );
 
 // @ts-ignore
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
@@ -133,6 +134,7 @@ import {LEVELSNAMES} from "../lib/common/LevelLogs.js";
 import {TaskInput} from "../lib/services/TasksService.js";
 import {Task} from "../lib/common/models/Task.js";
 import * as v8 from "v8";
+import {tmpdir} from "node:os";
 /*const readline = require('readline').createInterface({
     input: process.stdin,
     output: process.stdout
@@ -144,19 +146,72 @@ let rainbowMode = "s2s" ;
 let ngrok = require('ngrok');
 //import ngrok from 'ngrok';
 
+const Fs = require('@supercharge/fs') ;
+const sp = require('synchronized-promise');
+//const {tmpdir} = require("node:os");
+async function tempDirEncapse() {
+    return new Promise(async function internal_tempDirEncapse (resolve, reject) {
+        return await Fs.mkdtemp(path.join(tmpdir(), "Rainbow-Node-SDK-" + makeId(10)) + "-", async function cb (err, folder) {
+            //if (err) return await Fs.tempDir();
+            console.log("creating temp dir : " + folder);
+            // Prints: /tmp/foo-itXde2
+            if (err) {
+                console.log("Error while creating temp dir : " + folder, ", error : ", err);
+                return resolve(await Fs.tempDir());
+            }
+            resolve(""+folder);
+            /*
+            setTimeout(function () {
+                console.log("settimeout : " + folder);
+                resolve(""+folder);
+            }, 2000); // */
+        });
+    });
+}
+
+/* tempDirEncapse().then(()=> {
+     console.log("done");
+ }).catch (()=>{
+     console.log("failed");
+     }
+ )
+ // */
+
+const createTempDirSync = sp(tempDirEncapse, {
+    // Function call timeouts
+    timeouts: 2 * 1000 * 60,
+    // deasync tick, default to 100
+    tick: 100
+}); // performs the 'synchronized version'
+// /var/folders/71/lxgy9vm54fb7tjcwr55mwccr0000gn/T/1b114e534d3ff95ea5951bb3db5c1cb3
+
+const tempDirToSaveLogs = createTempDirSync();
+// */
+
 let urlS2S;
+let portS2S = 4000 ;
+let expressEngine = undefined;
 
 (async function () {
     if (rainbowMode==="s2s") {
         console.log("MAIN - S2S Mode, with ngrock.");
-        urlS2S = await ngrok.connect(4000).catch((error) => {
+        portS2S = 4001 + Math.round(Math.random() * 1000);
+        urlS2S = await ngrok.connect(portS2S).catch((error) => {
             console.log("MAIN - ngrock, error : ", error);
             process.exit(0);
         });
-        console.log("MAIN - ngrock, urlS2S : ", urlS2S);
+        console.log("MAIN - ngrock, urlS2S : ", urlS2S, ", portS2S : ", portS2S);
+        expressEngine = express();
+        expressEngine.use(express.json());
+        expressEngine.listen(portS2S, function () {
+            console.log("MAIN - Server is running on " + portS2S + " port");
+        });
+
     } else {
         console.log("MAIN - XMPP Mode.");
     }
+
+  //  const tempDirToSaveLogs = "c:\\temp";
 
     let logLevelAreas = new LogLevelAreas();
     /*
@@ -275,8 +330,12 @@ let urlS2S;
     logLevelAreas.xmpp.xmppout
 
     if (rainbowMode === "s2s") {
+        logLevelAreas.s2s.api = true;
         logLevelAreas.s2s.level = LEVELSNAMES.INTERNAL;
         logLevelAreas.s2sevent.level = LEVELSNAMES.INTERNAL;
+
+        logLevelAreas.presence.api = true;
+        logLevelAreas.presence.level = LEVELSNAMES.INTERNAL;
     }
 
     logLevelAreas.bubblesmanager.level = LEVELSNAMES.INTERNAL;
@@ -307,7 +366,8 @@ let urlS2S;
         "s2s": {
             "hostCallback": urlS2S,
             //"hostCallback": "http://70a0ee9d.ngrok.io",
-            "locallistenningport": "4000"
+            "locallistenningport": portS2S,
+            "expressEngine": expressEngine
         },
         "rest": {
             "useRestAtStartup": true,
@@ -635,7 +695,7 @@ let urlS2S;
                 },
             },// */
             "file": {
-                "path": "c:/temp/",
+                "path": tempDirToSaveLogs,
                 "customFileName": "R-SDK-Node-Sample-" + Math.floor(Math.random() * 1000),
                 //"level": 'info',                    // Default log level used
                 "zippedArchive": false,
@@ -3211,6 +3271,15 @@ let urlS2S;
 
         //region group
 
+        async testgetGroups(forceSearchOnServer) {
+            let groups = await rainbowSDK.groups.getGroups();
+            if (groups) {
+                _logger.log("debug", "MAIN - testgetGroups - result groups : ", groups);
+            } else {
+                _logger.log("debug", "MAIN - testgetGroups - result groups not found.");
+            }
+        }
+
         async testdeleteAllGroups() {
             let that = this;
             _logger.log("debug", "MAIN - testdeleteAllGroups before delete");
@@ -3251,41 +3320,41 @@ let urlS2S;
             let groups = await rainbowSDK.groups.getGroups();
             if (groups) {
                 //let users = group.users.map(user => user.id)
-                _logger.log("debug", "MAIN - testgetGroupByName - result groups : ", groups);
+                _logger.log("debug", "MAIN - testgetGroupsAndUpdateName - result groups : ", groups);
                 await rainbowSDK.groups.updateGroupName(groups[0], "updatedGroupName_" + new Date().getTime());
                 let groupsUpdated = await rainbowSDK.groups.getGroups();
                 if (groupsUpdated) {
                     //let users = group.users.map(user => user.id)
-                    _logger.log("debug", "MAIN - testgetGroupByName - result groupsUpdated : ", groupsUpdated);
+                    _logger.log("debug", "MAIN - testgetGroupsAndUpdateName - result groupsUpdated : ", groupsUpdated);
                 } else {
-                    _logger.log("debug", "MAIN - testgetGroupByName - result groupsUpdated not found.");
+                    _logger.log("debug", "MAIN - testgetGroupsAndUpdateName - result groupsUpdated not found.");
                 }
             } else {
-                _logger.log("debug", "MAIN - testgetGroupByName - result group not found.");
+                _logger.log("debug", "MAIN - testgetGroupsAndUpdateName - result group not found.");
             }
         }
 
         async testsetGroupAsFavoriteAndUpdateIsFavorite() {
             let that = this;
-            //logger.log("debug", "testsetGroupAsFavorite before delete");
+            //logger.log("debug", "testsetGroupAsFavoriteAndUpdateIsFavorite before delete");
             let groupCreated = await rainbowSDK.groups.createGroup("myGroup", "commentGroup", false);
-            _logger.log("debug", "MAIN - testsetGroupAsFavorite groupCreated : ", groupCreated);
+            _logger.log("debug", "MAIN - testsetGroupAsFavoriteAndUpdateIsFavorite groupCreated : ", groupCreated);
             let groupUpdatedSet = await rainbowSDK.groups.setGroupAsFavorite(groupCreated);
-            _logger.log("debug", "MAIN - testsetGroupAsFavorite groupUpdatedSet : ", groupUpdatedSet);
+            _logger.log("debug", "MAIN - testsetGroupAsFavoriteAndUpdateIsFavorite groupUpdatedSet : ", groupUpdatedSet);
             let groups = await rainbowSDK.groups.getGroups();
-            _logger.log("debug", "MAIN - testsetGroupAsFavorite groups : ", groups);
+            _logger.log("debug", "MAIN - testsetGroupAsFavoriteAndUpdateIsFavorite groups : ", groups);
 
             await setTimeoutPromised(1500);
 
             let groups2 = await rainbowSDK.groups.getGroups();
-            _logger.log("debug", "MAIN - testsetGroupAsFavorite groups2 : ", groups2);
+            _logger.log("debug", "MAIN - testsetGroupAsFavoriteAndUpdateIsFavorite groups2 : ", groups2);
 
 
             let groupUpdatedUnset = await rainbowSDK.groups.unsetGroupAsFavorite(groupUpdatedSet);
-            _logger.log("debug", "MAIN - testsetGroupAsFavorite groupUpdatedUnset : ", groupUpdatedUnset);
+            _logger.log("debug", "MAIN - testsetGroupAsFavoriteAndUpdateIsFavorite groupUpdatedUnset : ", groupUpdatedUnset);
             await setTimeoutPromised(1500);
             let groupDeleted = await rainbowSDK.groups.deleteGroup(groupCreated);
-            _logger.log("debug", "MAIN - testsetGroupAsFavorite groupDeleted : ", groupDeleted);
+            _logger.log("debug", "MAIN - testsetGroupAsFavoriteAndUpdateIsFavorite groupDeleted : ", groupDeleted);
         }
 
 
@@ -3297,7 +3366,7 @@ let urlS2S;
             let mychannels = rainbowSDK.channels.getAllOwnedChannels();
             //let mychannel = mychannels ? mychannels[0]:null;
             //let utc = new Date().toJSON().replace(/-/g, "_");
-            _logger.log("debug", "MAIN - updateChannelDescription - mychannels : ", mychannels);
+            _logger.log("debug", "MAIN - tesgetAllOwnedChannels - mychannels : ", mychannels);
         }
 
         testChannelImage() {

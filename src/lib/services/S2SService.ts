@@ -54,6 +54,7 @@ class S2SService extends GenericService{
     private generatedRandomId: string;
     private hash: string;
     private hostCallback: any;
+    private expressEngine: any;
     private app: any;
     private locallistenningport: string;
     private s2sEventHandler: S2SServiceEventHandler;
@@ -66,7 +67,7 @@ class S2SService extends GenericService{
     static getAccessorName(){ return 's2s'; }
     getAccessorName(){ return S2SService.getAccessorName(); }
 
-    constructor(_core:Core, _s2s: { hostCallback:string, locallistenningport:string }, _im, _application, _eventEmitter : EventEmitter, _logger: Logger, _proxy: ProxyImpl, _startConfig: { start_up:boolean, optional:boolean }) {
+    constructor(_core:Core, _s2s: { hostCallback:string, locallistenningport:string, expressEngine:any }, _im, _application, _eventEmitter : EventEmitter, _logger: Logger, _proxy: ProxyImpl, _startConfig: { start_up:boolean, optional:boolean }) {
         super(_logger, LOG_ID);
         this.setLogLevels(this);
         let that = this;
@@ -74,6 +75,7 @@ class S2SService extends GenericService{
         this.serverURL = ""; //_s2s.protocol + "://" + _s2s.host + ":" + _s2s.port + "/websocket";
         this.hostCallback = _s2s.hostCallback;
         this.locallistenningport = _s2s.locallistenningport;
+        this.expressEngine = _s2s.expressEngine;
         this._eventEmitter = _eventEmitter;
         this.version = "0.1";
         this.jid_im = "";
@@ -127,7 +129,15 @@ class S2SService extends GenericService{
                 that._rest = that._core._rest;
                 that._contacts = that._core._contacts;
                 that._conversations = that._core._conversations;
-                that.app = express();
+                if (!that.expressEngine) {
+                    that.app = express();
+                    that.app.use(express.json());
+                    that.app.listen(that.locallistenningport, function () {
+                        that._logger.log(that.DEBUG, LOG_ID + "Server is running on " + that.locallistenningport + " port");
+                    });
+                } else {
+                    that.app = that.expressEngine;
+                }
 
                 await that.s2sEventHandler.start(that._core);
                 if (that._useS2S) {
@@ -138,10 +148,6 @@ class S2SService extends GenericService{
                     that.setStarted ();
                     return resolve(undefined);
                 }
-                that.app.use(express.json());
-                that.app.listen(that.locallistenningport, function () {
-                    that._logger.log(that.DEBUG, LOG_ID + "Server is running on " + that.locallistenningport + " port");
-                });
 
                /* that.app.post( "/message", (req, res ) => {
                         // console.log( "received a message")

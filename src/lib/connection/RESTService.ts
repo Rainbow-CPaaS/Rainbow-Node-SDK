@@ -7945,6 +7945,13 @@ kamEmailList?: string[], businessSpecific?: string, adminServiceNotificationsLev
                 let data = undefined; /*{
                     "role": role
                 }; // */
+                /*
+                data = {
+
+                    "role": "member"
+
+                };
+                // */
                 that.http.post("/api/rainbow/ucs/v1.0/connections/" + that.connectionS2SInfo.id + "/rooms/" + roomid + "/join", that.getRequestHeader(), data, undefined).then(function (json) {
                     that._logger.log(that.DEBUG, LOG_ID + "(joinS2SRoom) successfull");
                     that._logger.log(that.INTERNAL, LOG_ID + "(joinS2SRoom) REST result : ", json);
