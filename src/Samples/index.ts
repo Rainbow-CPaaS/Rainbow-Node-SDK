@@ -703,7 +703,7 @@ let expressEngine = undefined;
                 "maxFiles": 5 // */
             }
         },
-        "testOutdatedVersion": false,
+        "testOutdatedVersion": true,
         "testDNSentry": true,
         "httpoverxmppserver": true,
         "intervalBetweenCleanMemoryCache": 1000 * 60 * 60 * 6, // Every 6 hours.
@@ -6371,6 +6371,122 @@ let expressEngine = undefined;
                     _logger.log("debug", "MAIN - testGetHistoryPage - getConversationHistoryMaxime, conversation : ", conversation);
                 });
                 ;
+            });
+        }
+
+        async testgetS2SMessagesByConversationId(contactEmailToSearch : string = "vincent01@vbe.test.openrainbow.net") {
+            let that = this;
+            //let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
+            let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+            rainbowSDK.conversations.openConversationForContact(contact).then(async function (conversation) {
+                //logger.log("debug", "MAIN - testgetS2SMessagesByConversationId - openConversationForContact, conversation : ", conversation);
+                _logger.log("debug", "MAIN - testgetS2SMessagesByConversationId - openConversationForContact, conversation.messages.length : ", conversation.messages.length);
+                rainbowSDK.conversations.getS2SMessagesByConversationId(conversation.dbId).then((result) => {
+                    _logger.log("debug", "MAIN - testgetS2SMessagesByConversationId - getS2SMessagesByConversationId, conversation.messages.length : ", result.messages.length);
+                    //_logger.log("debug", "MAIN - testgetS2SMessagesByConversationId - getS2SMessagesByConversationId, result : ", result);
+                    for (let i = 0; i < result.messages.length; i++) {
+                        /*
+                        let msg = {
+                            "id": result.messages[i].id,
+                            "from": result.messages[i].from,
+                            "date": result.messages[i].datetime,
+                            "side": result.messages[i].side,
+                            "type": result.messages[i].type,
+                            "alternativeContent": result.messages[i].contents,
+                            "subject": result.messages[i].subject,
+                            "body": result.messages[i].body,
+                            "lang": result.messages[i].lang,
+                            "urgency": result.messages[i].urgency,
+                            "deleted": result.messages[i].isDeleted,
+                            "modified": result.messages[i].isModified
+                        }
+                        _logger.log("debug", "MAIN - testgetS2SMessagesByConversationId - getS2SMessagesByConversationId, iter : [" + i + "], result.messages : ", result.messages[i], ", msg : ", msg);
+                        // */
+                        _logger.log("debug", "MAIN - testgetS2SMessagesByConversationId - getS2SMessagesByConversationId, iter : [" + i + "], result.messages : ", result.messages[i]);
+                    }
+
+                    /*
+                     _links: {
+    prev: '/api/rainbow/ucs/v1.0/connections/aa7565f8-d1be-11ef-ae81-00505628611e/conversations/1668445329264340/messages?before=1708471230825733&limit=10',
+    next: '/api/rainbow/ucs/v1.0/connections/aa7565f8-d1be-11ef-ae81-00505628611e/conversations/1668445329264340/messages?after=1736780603704239&limit=10'
+  }
+                     */
+                    let urlNext = result._links.next;
+                    let urlPrev = result._links.prev;
+
+                    function getS2SMessagesByConversationIdNext(urlNext) {
+                        _logger.log("debug", "MAIN - testgetS2SMessagesByConversationId - getS2SMessagesByConversationIdNext, urlNext : ", urlNext);
+                        const match = urlNext.match(/after=(\d+)&/);
+
+                        if (match && match[1]) {
+                            const afterValue = match[1];
+                            rainbowSDK.conversations.getS2SMessagesByConversationId(conversation.dbId, 10, undefined, afterValue).then((resultNext) => {
+                                _logger.log("debug", "MAIN - testgetS2SMessagesByConversationId - getS2SMessagesByConversationId, resultNext.messages.length : ", resultNext.messages.length);
+                                // _logger.log("debug", "MAIN - testgetS2SMessagesByConversationId - getS2SMessagesByConversationId, resultNext : ", resultNext);
+                                for (let i = 0; i < resultNext.messages.length; i++) {
+                                    _logger.log("debug", "MAIN - testgetS2SMessagesByConversationId - getS2SMessagesByConversationId, iter : [" + i + "], resultNext.messages : ", resultNext.messages[i]);
+                                }
+                                let urlNextNext = resultNext._links.next;
+                                if (urlNextNext) getS2SMessagesByConversationIdNext(urlNextNext);
+                            });
+                        }
+                    }
+
+                    function getS2SMessagesByConversationIdPrev(urlPrev) {
+                        _logger.log("debug", "MAIN - testgetS2SMessagesByConversationId - getS2SMessagesByConversationIdPrev, urlPrev : ", urlPrev);
+                        const matchPrev = urlPrev.match(/before=(\d+)&/);
+
+                        if (matchPrev && matchPrev[1]) {
+                            const beforeValue = matchPrev[1];
+                            rainbowSDK.conversations.getS2SMessagesByConversationId(conversation.dbId, 10, beforeValue, undefined).then((resultPrev) => {
+                                _logger.log("debug", "MAIN - testgetS2SMessagesByConversationId - getS2SMessagesByConversationId, resultPrev.messages.length : ", resultPrev.messages.length);
+                                _logger.log("debug", "MAIN - testgetS2SMessagesByConversationId - getS2SMessagesByConversationId, resultPrev : ", resultPrev);
+                                for (let i = 0; i < resultPrev.messages.length; i++) {
+                                    _logger.log("debug", "MAIN - testgetS2SMessagesByConversationId - getS2SMessagesByConversationId, iter : [" + i + "], resultPrev.messages : ", resultPrev.messages[i]);
+                                }
+                                let urlPrevPrev = resultPrev._links.prev;
+                                if (urlPrevPrev) getS2SMessagesByConversationIdPrev(urlPrevPrev);
+                            });
+                        }
+                    }
+
+                    getS2SMessagesByConversationIdNext(urlNext);
+                    getS2SMessagesByConversationIdPrev(urlPrev);
+                });
+            });
+        }
+
+        async testgetAllS2SMessagesByConversationId(contactEmailToSearch : string = "vincent01@vbe.test.openrainbow.net") {
+            let that = this;
+            //let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
+            let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+            rainbowSDK.conversations.openConversationForContact(contact).then(async function (conversation) {
+                //logger.log("debug", "MAIN - testgetS2SMessagesByConversationId - openConversationForContact, conversation : ", conversation);
+                _logger.log("debug", "MAIN - testgetAllS2SMessagesByConversationId - openConversationForContact");
+                rainbowSDK.conversations.getAllS2SMessagesByConversationId(conversation.dbId).then((messages) => {
+                    _logger.log("debug", "MAIN - testgetAllS2SMessagesByConversationId - getS2SMessagesByConversationId, messages.length : ", messages.length);
+                    //_logger.log("debug", "MAIN - testgetS2SMessagesByConversationId - getS2SMessagesByConversationId, result : ", result);
+                    for (let i = 0; i < messages.length; i++) {
+                        /*
+                        let msg = {
+                            "id": result.messages[i].id,
+                            "from": result.messages[i].from,
+                            "date": result.messages[i].datetime,
+                            "side": result.messages[i].side,
+                            "type": result.messages[i].type,
+                            "alternativeContent": result.messages[i].contents,
+                            "subject": result.messages[i].subject,
+                            "body": result.messages[i].body,
+                            "lang": result.messages[i].lang,
+                            "urgency": result.messages[i].urgency,
+                            "deleted": result.messages[i].isDeleted,
+                            "modified": result.messages[i].isModified
+                        }
+                        _logger.log("debug", "MAIN - testgetAllS2SMessagesByConversationId - getS2SMessagesByConversationId, iter : [" + i + "], result.messages : ", result.messages[i], ", msg : ", msg);
+                        // */
+                        _logger.log("debug", "MAIN - testgetAllS2SMessagesByConversationId - getS2SMessagesByConversationId, iter : [" + i + "], result.messages : ", messages[i]);
+                    }
+                });
             });
         }
 

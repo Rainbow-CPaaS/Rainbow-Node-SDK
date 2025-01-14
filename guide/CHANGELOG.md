@@ -24,6 +24,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add `hasLobby`, `isOwnedByRoomAdmin`, `managedRoomPolicy`, `companyId` in `Bubble` class.
 -   Add `expressEngine` for S2S mode. It is an SDK's option to provide an already existing Express engine to severeals SDK instance, to use the same Web server for S2S callback for different Bots.
 -   Add `getBubbleLogInfos` methods to log small informations about Bubble.
+-   Add `getAllS2SMessagesByConversationId` Retrieve the remote history of a specific conversation.
  
 #### Changed
 -   Update `S2SServiceEventHandler` to use the `userId` provided by each server's event to use a uniq Web server for many callback url.

@@ -214,6 +214,13 @@ class Contact {
     public mfaRainbowAuth : any;
     public searchTagsOnly : Array<string>;
 
+    public canSetInvisiblePresenceCustomisation : boolean;
+    public canUseSendReportCustomisation : boolean;
+    public canUseTaskCustomisation : boolean;
+    public canUseTestConfigCustomisation : boolean;
+    public useTeamsMode : boolean;
+    public selectedProgKeysGroupId : string;
+
     constructor() {
 
         this._lastContactCacheUpdate = new Date();
@@ -644,7 +651,7 @@ class Contact {
          * @readonly
          */
         this.userInfo1 = null;
-        
+
         /**
          * @public
          * @property {string} userInfo2 2nd Free field that admin can use to link their users to their IS/IT tools / to perform analytics (this field is output in the CDR file)
@@ -693,7 +700,7 @@ class Contact {
 
         /**
          * @public
-         * @property {string} accountType 
+         * @property {string} accountType
          * @readonly
          */
         this.accountType = null;
@@ -731,7 +738,7 @@ class Contact {
          * @property {Object} createdByAdmin If user has been created by an admin or superadmin, contain userId and loginEmail of the admin who created this user
          * @readonly
          */
-        this.createdByAdmin  = null;
+        this.createdByAdmin = null;
 
         /**
          * @private
@@ -821,7 +828,7 @@ class Contact {
          *  * same_than_company: The same fileSharingCustomisation setting than the user's company's is applied to the user. if the fileSharingCustomisation of the company is changed the user's fileSharingCustomisation will use this company new setting. </BR>
          *  * enabled: Whatever the fileSharingCustomisation of the company setting, the user can use the file sharing service. </BR>
          *  * disabled: Whatever the fileSharingCustomisation of the company setting, the user can't use the file sharing service. </BR>
-         *  
+         *
          * @readonly
          */
         this.fileSharingCustomisation = null;
@@ -1153,7 +1160,7 @@ class Contact {
 
         /**
          * @public
-         * @property {Array<Object>} profiles User profile Objects. 
+         * @property {Array<Object>} profiles User profile Objects.
          * @readonly
          */
         this.profiles = [];
@@ -1167,7 +1174,7 @@ class Contact {
 
         /**
          * @public
-         * @property {string} lastOfflineMailReceivedDate The last time the user has received a message to connect to Rainbow from the logged in user 
+         * @property {string} lastOfflineMailReceivedDate The last time the user has received a message to connect to Rainbow from the logged in user
          * @readonly
          */
         this.lastOfflineMailReceivedDate = null;
@@ -1195,7 +1202,7 @@ class Contact {
 
         /**
          * @public
-         * @property {boolean} isADSearchAvailable Is ActiveDirectory (Office365) search available for this user 
+         * @property {boolean} isADSearchAvailable Is ActiveDirectory (Office365) search available for this user
          * @readonly
          */
         this.isADSearchAvailable = false;
@@ -1210,14 +1217,14 @@ class Contact {
         /**
          * @public
          * @property {Array<Object>} calendars List of associated calendars from external providers configured by the user (office365, google calendar, ...) </BR>
-         * Only returned if the requested user is the logged in user. 
+         * Only returned if the requested user is the logged in user.
          * @readonly
          */
         this.calendars = null;
 
         /**
          * @private
-         * @property {string} openInvites 
+         * @property {string} openInvites
          * @readonly
          */
         this.openInvites = null;
@@ -1232,7 +1239,7 @@ class Contact {
 
         /**
          * @public
-         * @property {Object} outOfOffice Out of office user's informations. 
+         * @property {Object} outOfOffice Out of office user's informations.
          * @readonly
          */
         this.outOfOffice = null;
@@ -1286,7 +1293,7 @@ class Contact {
 
         /**
          * @public
-         * @property {Object} msTeamsPresence List of associated Microsoft Teams Presence configured by the user. 
+         * @property {Object} msTeamsPresence List of associated Microsoft Teams Presence configured by the user.
          * @readonly
          */
         this.msTeamsPresence = null;
@@ -1451,8 +1458,16 @@ class Contact {
         this.mainStorage = null;
 
         this.nextRosterAutoCleanup = null;
-        this.mfaRainbowAuth={};
-        this.searchTagsOnly=[];
+        this.mfaRainbowAuth = {};
+        this.searchTagsOnly = [];
+
+        this.canSetInvisiblePresenceCustomisation = false;
+        this.canUseSendReportCustomisation = false;
+        this.canUseTaskCustomisation = false;
+        this.canUseTestConfigCustomisation = false;
+        this.useTeamsMode = false;
+        this.selectedProgKeysGroupId = "";
+
     }
 
     updateLastContactCacheUpdate() {
@@ -1957,6 +1972,13 @@ class Contact {
         if (userData.searchTagsOnly ) {
             this.searchTagsOnly = userData.searchTagsOnly;
         }
+
+        this.canSetInvisiblePresenceCustomisation = userData.canSetInvisiblePresenceCustomisation;
+        this.canUseSendReportCustomisation = userData.canUseSendReportCustomisation;
+        this.canUseTaskCustomisation = userData.canUseTaskCustomisation;
+        this.canUseTestConfigCustomisation = userData.canUseTestConfigCustomisation;
+        this.useTeamsMode = userData.useTeamsMode;
+        this.selectedProgKeysGroupId = userData.selectedProgKeysGroupId;
 
         // Compute display name
         that.computeDisplayName();

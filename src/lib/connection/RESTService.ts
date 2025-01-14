@@ -7852,7 +7852,7 @@ kamEmailList?: string[], businessSpecific?: string, adminServiceNotificationsLev
     }
 
     async sendS2SMessageInConversation(conversationId, msg): Promise<any> {
-        // https://openrainbow.com:443/api/rainbow/ucs/v1.0/connections/{cnxId}/conversations/{cvId}/messages
+        // POST https://openrainbow.com:443/api/rainbow/ucs/v1.0/connections/{cnxId}/conversations/{cvId}/messages
         let that = this;
         return new Promise(function (resolve, reject) {
             if (!msg) {
@@ -7884,6 +7884,39 @@ kamEmailList?: string[], businessSpecific?: string, adminServiceNotificationsLev
             }).catch(function (err) {
                 that._logger.log(that.ERROR, LOG_ID, "(getS2SServerConversation) error");
                 that._logger.log(that.INTERNALERROR, LOG_ID, "(getS2SServerConversation) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    /**
+     * name getS2SMessagesByConversationId
+     * @param {string} conversationId Id of conversation
+     * @param {number} limit Maximum number of messages to return (0 for counting)
+     * @param {number} before Get messages before this Epoch timestamp in microseconds
+     * @param {number} after Get messages after this Epoch timestamp in microseconds
+     * @returns {Promise<any>}
+     */
+    async getS2SMessagesByConversationId(conversationId, limit, before, after): Promise<any> {
+        let that = this;
+        // GET https://openrainbow.com:443/api/rainbow/ucs/v1.0/connections/{cnxId}/conversations/{cvId}/messages
+        // API https://api.openrainbow.org/doc/api/ucs/redoc-index.html#tag/Message/operation/Message.index
+        return new Promise((resolve, reject) => {
+            let url: string = "/api/rainbow/ucs/v1.0/connections/" + that.connectionS2SInfo.id + "/conversations/" + conversationId + "/messages";
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "limit", limit);
+            addParamToUrl(urlParamsTab, "before", before);
+            addParamToUrl(urlParamsTab, "after", after);
+            url = urlParamsTab[0];
+
+            that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
+                that._logger.log(that.DEBUG, LOG_ID + "(getS2SMessagesByConversationId) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getS2SMessagesByConversationId) REST result : " + JSON.stringify(json) + " conversations");
+                resolve(json);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(getS2SMessagesByConversationId) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getS2SMessagesByConversationId) error : ", err);
                 return reject(err);
             });
         });

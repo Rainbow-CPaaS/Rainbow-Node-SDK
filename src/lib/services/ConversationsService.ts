@@ -539,6 +539,25 @@ class ConversationsService extends GenericService {
     }
 
     /**
+     * @method getS2SMessagesByConversationId
+     * @instance
+     * @category MESSAGES
+     * @description
+     *   Retrieve the remote history of a specific conversation. <br>
+     * @param {string} conversationId Id of conversation
+     * @param {number} limit Maximum number of messages to return (0 for counting)
+     * @param {number} before Get messages before this Epoch timestamp in microseconds
+     * @param {number} after Get messages after this Epoch timestamp in microseconds
+     * @returns {Promise<any>}
+     * @fulfil {Pomise<any>} - result object
+     * @category async     */
+    async getS2SMessagesByConversationId(conversationId :string, limit:number = undefined, before:number = undefined, after:number = undefined): Promise<any> {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getS2SMessagesByConversationId) conversationId : ", conversationId, ", limit : ", limit, ", before : ", before, ", after : ", after);
+        return that.callRestMethod("getS2SMessagesByConversationId", arguments);
+    }
+
+    /**
      * @public
      * @nodered true
      * @method loadConversationHistory
@@ -626,6 +645,102 @@ class ConversationsService extends GenericService {
             this._eventEmitter.emit("evt_internal_loadConversationHistoryFailed", error);
         });
         return Promise.resolve({code:1, label:"load started, you should wait for conversation rainbow_onloadConversationHistoryCompleted for load result."});
+    }
+
+    /**
+     * @private
+     * @method getAllS2SMessagesByConversationId
+     * @instance
+     * @category MESSAGES
+     * @description
+     *    Retrieve the remote history of a specific conversation. <br>
+     *
+     *    ⚠️ Warning: It is useable in S2S connection mode.
+     *
+     * @param {Conversation} conversationDbId dbId of the Conversation to retrieve messages.
+     * @async
+     * @return {Promise<any>}
+     * @fulfil {Promise<any>} - Array of Conversation object
+     * @category async
+     */
+    async getAllS2SMessagesByConversationId(conversationDbId):Promise<any> {
+        let that = this;
+        let messages = [];
+        //let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
+        await that.getS2SMessagesByConversationId(conversationDbId).then(async (result) => {
+            // that._logger.log("debug", "(getAllS2SMessagesByConversationId) - getS2SMessagesByConversationId, conversation.messages.length : ", result.messages.length);
+            //_logger.log("debug", "(getAllS2SMessagesByConversationId) - getS2SMessagesByConversationId, result : ", result);
+            //for (let i = 0; i < result.messages.length; i++) {
+                /*
+                let msg = {
+                    "id": result.messages[i].id,
+                    "from": result.messages[i].from,
+                    "date": result.messages[i].datetime,
+                    "side": result.messages[i].side,
+                    "type": result.messages[i].type,
+                    "alternativeContent": result.messages[i].contents,
+                    "subject": result.messages[i].subject,
+                    "body": result.messages[i].body,
+                    "lang": result.messages[i].lang,
+                    "urgency": result.messages[i].urgency,
+                    "deleted": result.messages[i].isDeleted,
+                    "modified": result.messages[i].isModified
+                }
+                _logger.log("debug", "(getAllS2SMessagesByConversationId) - getS2SMessagesByConversationId, iter : [" + i + "], result.messages : ", result.messages[i], ", msg : ", msg);
+                // */
+//                that._logger.log("debug", "(getAllS2SMessagesByConversationId) - getS2SMessagesByConversationId, iter : [" + i + "], result.messages : ", result.messages[i]);
+  //          }
+            messages = [].concat(messages, result.messages);
+
+            let urlNext = result._links.next;
+            let urlPrev = result._links.prev;
+
+            async function getS2SMessagesByConversationIdNext(urlNext) {
+                //that._logger.log("debug", "(getAllS2SMessagesByConversationId) - getS2SMessagesByConversationIdNext, urlNext : ", urlNext);
+                const match = urlNext.match(/after=(\d+)&/);
+
+                if (match && match[1]) {
+                    const afterValue = match[1];
+                    await that.getS2SMessagesByConversationId(conversationDbId, 10, undefined, afterValue).then(async (resultNext) => {
+                        //that._logger.log("debug", "(getAllS2SMessagesByConversationId) - getS2SMessagesByConversationId, resultNext.messages.length : ", resultNext.messages.length);
+                        // _logger.log("debug", "(getAllS2SMessagesByConversationId) - getS2SMessagesByConversationId, resultNext : ", resultNext);
+                        //for (let i = 0; i < resultNext.messages.length; i++) {
+                        //    that._logger.log("debug", "(getAllS2SMessagesByConversationId) - getS2SMessagesByConversationId, iter : [" + i + "], resultNext.messages : ", resultNext.messages[i]);
+                        //}
+                        messages = [].concat(messages, resultNext.messages);
+
+                        let urlNextNext = resultNext._links.next;
+                        if (urlNextNext) await getS2SMessagesByConversationIdNext(urlNextNext);
+                    });
+                }
+            }
+
+            async function getS2SMessagesByConversationIdPrev(urlPrev) {
+                //that._logger.log("debug", "(getAllS2SMessagesByConversationId) - getS2SMessagesByConversationIdPrev, urlPrev : ", urlPrev);
+                const matchPrev = urlPrev.match(/before=(\d+)&/);
+
+                if (matchPrev && matchPrev[1]) {
+                    const beforeValue = matchPrev[1];
+                    await that.getS2SMessagesByConversationId(conversationDbId, 10, beforeValue, undefined).then( async (resultPrev) => {
+                        //that._logger.log("debug", "(getAllS2SMessagesByConversationId) - getS2SMessagesByConversationId, resultPrev.messages.length : ", resultPrev.messages.length);
+                        //that._logger.log("debug", "(getAllS2SMessagesByConversationId) - getS2SMessagesByConversationId, resultPrev : ", resultPrev);
+                        //for (let i = 0; i < resultPrev.messages.length; i++) {
+                        //    that._logger.log("debug", "(getAllS2SMessagesByConversationId) - getS2SMessagesByConversationId, iter : [" + i + "], resultPrev.messages : ", resultPrev.messages[i]);
+                        //}
+                        messages = [].concat(messages, resultPrev.messages);
+                        let urlPrevPrev = resultPrev._links.prev;
+                        if (urlPrevPrev) await getS2SMessagesByConversationIdPrev(urlPrevPrev);
+                    });
+                }
+            }
+
+            await getS2SMessagesByConversationIdNext(urlNext);
+            await getS2SMessagesByConversationIdPrev(urlPrev);
+
+        });
+
+        that._logger.log("debug", "(getAllS2SMessagesByConversationId) messages.length : ", messages?.length);
+        return messages;
     }
 
     /**

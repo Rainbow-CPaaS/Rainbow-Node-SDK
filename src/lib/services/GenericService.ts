@@ -110,7 +110,7 @@ class GenericService extends LevelLogs{
         that._logger.log(that.INFO, that._logId + `=== STOPPED () ===`);
     }
 
-    callRestMethod (methodName : string = "methodNameUnknown", lesarguments) {
+    callRestMethod (methodName : string = "methodNameUnknown", lesarguments) : Promise<any> {
         let that = this;
         that._logger.log(that.INFOAPI, that._logId + API_ID + "(" + methodName + ") "); //, that._logger.stripStringForLogs(companyId));
 
