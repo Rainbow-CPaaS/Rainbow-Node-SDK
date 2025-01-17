@@ -151,7 +151,7 @@ const sp = require('synchronized-promise');
 //const {tmpdir} = require("node:os");
 async function tempDirEncapse() {
     return new Promise(async function internal_tempDirEncapse (resolve, reject) {
-        return await Fs.mkdtemp(path.join(tmpdir(), "Rainbow-Node-SDK-" + makeId(10)) + "-", async function cb (err, folder) {
+        return await Fs.mkdtemp(path.join(tmpdir(), "Ale-Rainbow-Node-SDK-" + makeId(10)) + "-", async function cb (err, folder) {
             //if (err) return await Fs.tempDir();
             console.log("creating temp dir : " + folder);
             // Prints: /tmp/foo-itXde2
