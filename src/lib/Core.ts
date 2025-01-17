@@ -1106,15 +1106,6 @@ class Core extends LevelLogs{
                     return that._rest.stop();
                 }
             }).then(() => {
-                that._logger.log(that.INFO, LOG_ID + "(stop) stopped rest");
-                return that._http.stop();
-            }).then(() => {
-                that._logger.log(that.INFO, LOG_ID + "(stop) stopped http");
-                return that._xmpp.stop(that.options.useXMPP);
-            }).then(() => {
-                that._logger.log(that.INFO, LOG_ID + "(stop) stopped xmpp");
-                return that._im.stop();
-            }).then(() => {
                 that._logger.log(that.INFO, LOG_ID + "(stop) stopped im");
                 return that._settings.stop();
             }).then(() => {
@@ -1174,6 +1165,15 @@ class Core extends LevelLogs{
             }).then(() => {
                 that._logger.log(that.INFO, LOG_ID + "(stop) stopped tasks");
                 return that._invitations.stop();
+            }).then(() => {
+                that._logger.log(that.INFO, LOG_ID + "(stop) stopped rest");
+                return that._http.stop();
+            }).then(() => {
+                that._logger.log(that.INFO, LOG_ID + "(stop) stopped http");
+                return that._xmpp.stop(that.options.useXMPP);
+            }).then(() => {
+                that._logger.log(that.INFO, LOG_ID + "(stop) stopped xmpp");
+                return that._im.stop();
             }).then(() => {
                 that._logger.log(that.INFO, LOG_ID + "(stop) stopped invitations");
                 that._logger.log(that.INFO, LOG_ID + "(stop) _exiting_");

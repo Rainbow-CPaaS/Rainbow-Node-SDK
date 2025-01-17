@@ -114,7 +114,7 @@ class S2SServiceEventHandler extends LevelLogs{
 
         let userId = body?.userId;
         if (userId !== that._rest?.account?.id ) {
-            that._logger.log(that.ERROR, LOG_ID + "(handleS2SEvent) Don't manage this request - the userID is not the connected one : ", userId);
+            that._logger.log(that.ERROR, LOG_ID + "(handleS2SEvent) Don't manage this request - the userID: ", userId, " is not the connected one : ", that._rest?.account?.id);
             return false;
         }
 

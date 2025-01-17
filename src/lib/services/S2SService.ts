@@ -129,14 +129,20 @@ class S2SService extends GenericService{
                 that._rest = that._core._rest;
                 that._contacts = that._core._contacts;
                 that._conversations = that._core._conversations;
-                if (!that.expressEngine) {
-                    that.app = express();
-                    that.app.use(express.json());
-                    that.app.listen(that.locallistenningport, function () {
-                        that._logger.log(that.DEBUG, LOG_ID + "Server is running on " + that.locallistenningport + " port");
-                    });
+                if (!that.app) {
+                    if (!that.expressEngine) {
+                        that._logger.log(that.INFO, LOG_ID + "(start) Server app is not defined and nop expressEngine is provided, so construct it.");
+                        that.app = express();
+                        that.app.use(express.json());
+                        that.app.listen(that.locallistenningport, function () {
+                            that._logger.log(that.INFO, LOG_ID + "(start) Server app is running on " + that.locallistenningport + " port");
+                        });
+                    } else {
+                        that._logger.log(that.INFO, LOG_ID + "(start) Server app is not defined and a expressEngine is provided, so use the expressEngine parameter.");
+                        that.app = that.expressEngine;
+                    }
                 } else {
-                    that.app = that.expressEngine;
+                    that._logger.log(that.INFO, LOG_ID + "(start) Server app is already existing, so keep it.");
                 }
 
                 await that.s2sEventHandler.start(that._core);
@@ -158,9 +164,11 @@ class S2SService extends GenericService{
                     }
                 ) // */
 
-                that.app.all('*', async (req, res) => {
-                    res.send('<h1>Hello World!</h1>');
+                that._logger.log(that.INFO, LOG_ID + "(start) listen for * route of Server app.");
+                that.app.all('*', async (req, res, next: any) => {
+                    //res.send('<h1>Hello World!</h1>');
                     that._logger.log(that.HTTP, LOG_ID + "*************************************************");
+                    //that._logger.log(that.HTTP, LOG_ID + "next() called.");
                     that._logger.log(that.HTTP, LOG_ID + "received an event: ");
                     that._logger.log(that.HTTP, LOG_ID + "METHOD : ", req.method );
                     that._logger.log(that.HTTP, LOG_ID + "BASELURL : ", req.baseUrl );
@@ -169,7 +177,26 @@ class S2SService extends GenericService{
                     that._logger.log(that.HTTP, LOG_ID + "*************************************************");
                     let body = req.body;
                     that.s2sEventHandler.handleS2SEvent(req);
+                    that._logger.log(that.HTTP, LOG_ID + "before next() call.");
+                    next();
+                    that._logger.log(that.HTTP, LOG_ID + "after next() call.");
                 });
+
+                /*
+                // for test of double middleware.
+                that.app.all('*', async (req, res, next: any) => {
+                    //res.send('<h1>Hello World!</h1>');
+                    that._logger.log(that.HTTP, LOG_ID + "MiddleWare2 : *************************************************");
+                    that._logger.log(that.HTTP, LOG_ID + "MiddleWare2 : received an event: ");
+                    that._logger.log(that.HTTP, LOG_ID + "MiddleWare2 : METHOD : ", req.method );
+                    that._logger.log(that.HTTP, LOG_ID + "MiddleWare2 : BASELURL : ", req.baseUrl );
+                    that._logger.log(that.HTTP, LOG_ID + "MiddleWare2 : ORIGINALURL : ", req.originalUrl );
+                    that._logger.log(that.INTERNAL, LOG_ID + "MiddleWare2 : BODY : ", req.body );
+                    that._logger.log(that.HTTP, LOG_ID + "MiddleWare2 : *************************************************");
+                    that._logger.log(that.HTTP, LOG_ID + "MiddleWare2 : before next() call.");
+                    next();
+                    that._logger.log(that.HTTP, LOG_ID + "MiddleWare2 : after next() call.");
+                }); // */
 
                 that.setStarted ();
                 resolve(undefined);

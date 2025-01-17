@@ -450,7 +450,7 @@ let expressEngine = undefined;
             "enableConsoleLogs": true,
             "enableFileLogs": true,
             "enableEventsLogs": false,
-            "enableEncryptedLogs": false,
+            "enableEncryptedLogs": true,
             "color": true,
             //"level": "error",
             //"level": "info",
@@ -11598,6 +11598,17 @@ to='user1@pdevdv3os18f.corp.intuit.net/BANL07R9AME9X' type='get' id='e2e1'>
         }
 
         //endregion Start / Stop
+
+        //region Logguer
+
+        testDecrypt(strEncoded="f583b6c352801523822f4f02699005ad279ffbecbdf440c033ed2b3c39551ec558cbcb91fc97f9d604546db2cf90ee108eb5c3eecece0f8995d096d5cf0d16ed233c2076ba5bac6d232099139abf9348da5ffbbd3a86f367ed04f4c70cd513fb10f6034e4571ad791fe9a801429531122a5dfd8e46018b4a797449b529a7558d184698f1912468d2ac08e10428b9a5b0ef536db1146a2af8d559a4eaada3bd39398d6e87163dfaf045166e48bdb6bc1666f30f45682f47e1ce45435e0a7b0a5d410bc0ef6167618d6c240e01e6154e110b3f4a9c88d7b2b3503437bad2369f270b6dd53d00") {
+            _logger.log("info", "MAIN - str strEncoded : ", strEncoded);
+            let decrypted = _logger.decrypt(strEncoded);
+            _logger.log("info", "MAIN - str Decrypted : ", decrypted);
+        }
+
+        //endregion Logguer
+
 
     }
 
