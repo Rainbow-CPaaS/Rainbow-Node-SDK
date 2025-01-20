@@ -762,7 +762,9 @@ pipeline {
     }
     post {
         always {
-            sh 'echo "---- THE END ----"'
+            sh 'echo "---- GLOBAL Post THE END ----"'
+
+
             cleanWs(cleanWhenNotBuilt: false,
                            deleteDirs: true,
                            disableDeferredWipeout: true,
