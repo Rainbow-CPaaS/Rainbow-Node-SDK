@@ -82,7 +82,7 @@ class S2SServiceEventHandler extends LevelLogs{
         that.jid = account.jid_im;
     }
 
-    handleS2SEvent(event) {
+    handleS2SEvent(event) : {isEventForMe: boolean} {
         let that = this;
 
         if (event === undefined) {
@@ -103,54 +103,54 @@ class S2SServiceEventHandler extends LevelLogs{
         that._logger.log(that.INTERNAL, LOG_ID + "(handleS2SEvent) EVENT BODY : ", that._logger.colors.events(body));
         that._logger.log(that.HTTP, LOG_ID + "(handleS2SEvent) *************************************************");
 
-        if (String.prototype.toUpperCase.call(methodHttp + "") != "POST") {
-            that._logger.log(that.ERROR, LOG_ID + "(handleS2SEvent) Don't manage this request - Invalid HttpVerb - HttpVerb:", methodHttp, " - Path:host : ", event.headers.host, ", path : ", requestedPath, "");
-            return false;
-        }
-        if (that.callbackAbsolutePath && that.callbackAbsolutePath.indexOf(event.headers.host) == -1) {
-            that._logger.log(that.ERROR, LOG_ID + "(handleS2SEvent) Don't manage this request - Invalid path - HttpVerb:", methodHttp, " - Path:host : ", event.headers.host, ", path : ", requestedPath, "");
-            return false;
-        }
-
         let userId = body?.userId;
         if (userId !== that._rest?.account?.id ) {
             that._logger.log(that.ERROR, LOG_ID + "(handleS2SEvent) Don't manage this request - the userID: ", userId, " is not the connected one : ", that._rest?.account?.id);
-            return false;
+            return {isEventForMe: false};
+        }
+
+        if (String.prototype.toUpperCase.call(methodHttp + "") != "POST") {
+            that._logger.log(that.ERROR, LOG_ID + "(handleS2SEvent) Don't manage this request - Invalid HttpVerb - HttpVerb:", methodHttp, " - Path:host : ", event.headers.host, ", path : ", requestedPath, ", event : ", event);
+            return {isEventForMe: true};
+        }
+        if (that.callbackAbsolutePath && that.callbackAbsolutePath.indexOf(event.headers.host) == -1) {
+            that._logger.log(that.ERROR, LOG_ID + "(handleS2SEvent) Don't manage this request - Invalid path - HttpVerb:", methodHttp, " - Path:host : ", event.headers.host, ", path : ", requestedPath, ", event : ", event);
+            return {isEventForMe: true};
         }
 
         if (requestedPath === "/connection") {
             // that._logger.log(that.INTERNAL, LOG_ID + "(handleS2SEvent) return ParseConnectionCallback(content)");
-            return that.ParseConnectionCallback(body);
+            that.ParseConnectionCallback(body);
         } else if (requestedPath === "/presence") {
             // that._logger.log(that.INTERNAL, LOG_ID + "(handleS2SEvent) return ParsePresenceCallback(content)");
-            return that.ParsePresenceCallback(body);
+            that.ParsePresenceCallback(body);
         } else if (requestedPath === "/user") {
             // that._logger.log(that.INTERNAL, LOG_ID + "(handleS2SEvent) return ParseUserCallback(content)");
-            return that.ParseUserCallback(body);
+            that.ParseUserCallback(body);
         } else if (requestedPath === "/chat-state") {
             // that._logger.log(that.INTERNAL, LOG_ID + "(handleS2SEvent) return ParseChatStateCallback(content)");
-            return that.ParseChatStateCallback(body);
+            that.ParseChatStateCallback(body);
         } else if (requestedPath === "/receipt") {
             //that._logger.log(that.INTERNAL, LOG_ID + "(handleS2SEvent) return ParseReceiptCallback(content)");
-            return that.ParseReceiptCallback(body);
+            that.ParseReceiptCallback(body);
         } else if (requestedPath === "/all-receipt") {
             //that._logger.log(that.INTERNAL, LOG_ID + "(handleS2SEvent) return ParseAllReceiptCallback(content)");
-            return that.ParseAllReceiptCallback(body);
+            that.ParseAllReceiptCallback(body);
         } else if (requestedPath === "/conversation") {
             //that._logger.log(that.INTERNAL, LOG_ID + "(handleS2SEvent) TODO: return ParseConversationCallback(content)");
-            return that.ParseConversationCallback(body);
+            that.ParseConversationCallback(body);
         } else if (requestedPath === "/room-invite") {
             //that._logger.log(that.INTERNAL, LOG_ID + "(handleS2SEvent) TODO: return ParseRoomInviteCallback(content)");
-            return that.ParseRoomInviteCallback(body);
+            that.ParseRoomInviteCallback(body);
         } else if (requestedPath === "/room-member") {
             //that._logger.log(that.INTERNAL, LOG_ID + "(handleS2SEvent) TODO: return ParseRoomMemberCallback(content)");
-            return that.ParseRoomMemberCallback(body);
+            that.ParseRoomMemberCallback(body);
         } else if (requestedPath === "/room-state") {
             // that._logger.log(that.INTERNAL, LOG_ID + "(handleS2SEvent) TODO: return ParseRoomStateCallback(content)");
-            return that.ParseRoomStateCallback(body);
+            that.ParseRoomStateCallback(body);
         } else if (requestedPath === "/message") {
             // that._logger.log(that.INTERNAL, LOG_ID + "(handleS2SEvent) TODO: return ParseMessageCallback(content)");
-            return that.ParseMessageCallback(body);
+            that.ParseMessageCallback(body);
         } else if (requestedPath === "/all-deleted") {
             // that._logger.log(that.INTERNAL, LOG_ID + "(handleS2SEvent) TODO: return ParseAlldeletedCallback(content)");
             /*
@@ -160,14 +160,14 @@ class S2SServiceEventHandler extends LevelLogs{
    { with: '5c1a3df51490a30213b9d9e2',
      conversation_id: '1553006776830736' } }
              */
-            return that.ParseAlldeletedCallback(body);
+            that.ParseAlldeletedCallback(body);
         } else if (requestedPath === "/error") {
             // that._logger.log(that.ERROR, LOG_ID + "(handleS2SEvent) TODO: return ParseErrorCallback(content)");
-            return that.ParseErrorCallback(body);
+            that.ParseErrorCallback(body);
+        } else {
+            that._logger.log(that.INTERNAL, LOG_ID + "(handleS2SEvent) Don't manage this request - Unknown path - HttpVerb:", methodHttp, " - Path:host : ", event.headers.host, ", path : ", requestedPath, "");
         }
-
-        that._logger.log(that.INTERNAL, LOG_ID + "(handleS2SEvent) Don't manage this request - Unknown path - HttpVerb:", methodHttp, " - Path:host : ", event.headers.host, ", path : ", requestedPath, "");
-        return false;
+        return {isEventForMe: true};
     }
 
     ParseConnectionCallback(event): boolean {

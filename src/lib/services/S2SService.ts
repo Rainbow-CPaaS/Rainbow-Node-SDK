@@ -176,10 +176,16 @@ class S2SService extends GenericService{
                     that._logger.log(that.INTERNAL, LOG_ID + "BODY : ", req.body );
                     that._logger.log(that.HTTP, LOG_ID + "*************************************************");
                     let body = req.body;
-                    that.s2sEventHandler.handleS2SEvent(req);
-                    that._logger.log(that.HTTP, LOG_ID + "before next() call.");
-                    next();
-                    that._logger.log(that.HTTP, LOG_ID + "after next() call.");
+                    let handleS2SEventResult = that.s2sEventHandler.handleS2SEvent(req);
+                    if (handleS2SEventResult?.isEventForMe) {
+                        that._logger.log(that.HTTP, LOG_ID + "before res.send() call.");
+                        res.send('<h1>Hello World!</h1>');
+                        that._logger.log(that.HTTP, LOG_ID + "after res.send() call.");
+                    } else {
+                        that._logger.log(that.HTTP, LOG_ID + "before next() call.");
+                        next();
+                        that._logger.log(that.HTTP, LOG_ID + "after next() call.");
+                    }
                 });
 
                 /*
