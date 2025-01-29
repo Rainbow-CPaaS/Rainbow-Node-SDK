@@ -3949,6 +3949,8 @@ safeJsonParse(str) {
 
             headers["user-agent"] = USER_AGENT;
 
+            that._logger.log(that.INTERNAL, LOG_ID + "(putStream) url : ", urlEncoded, ", headers : ", headers);
+
             if (that._options.restOptions.useGotLibForHttp) {
                 let attemptCount = 0;
                 const newAliveAgent: any = () => {
