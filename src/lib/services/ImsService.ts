@@ -428,15 +428,15 @@ class ImsService extends GenericService{
                 "message": {
                     "subject": subject,
                     "lang": lang,
-                    "contents":
-                    content,
+                    "contents": content,
                     // [
                     // {
                     //     "type": "text/markdown",
                     //     "data": "## Hello Bob"
                     // }
                     // ],
-                    "body": message
+                    "body": message,
+                    urgency
                 }
             };
 
@@ -449,6 +449,9 @@ class ImsService extends GenericService{
         }
 
         return msgSent.then((messageSent) => {
+            if (!messageSent.from && !messageSent.fromJid) {
+                messageSent.from = that._rest.loggedInUser.jid_im;
+            }
             this._conversations.storePendingMessage(conversation, messageSent);
             that._logger.log(that.INTERNAL, LOG_ID + "(sendMessageToConversation) stored PendingMessage : ", messageSent);
             //conversation.messages.push(messageSent);

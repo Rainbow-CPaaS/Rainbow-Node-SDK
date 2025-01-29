@@ -14,6 +14,8 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 #### Fixed
 -   Fix `methodsToIgnoreStartedState` value in `Utils::isStarted` to be able to define more than one method in "@isStarted" decoration parameter.
 -   Fix `S2SServiceEventHandler::ParseRoomStateCallback` to emit "evt_internal_onbubblepresencechanged" to treat the promise of the sent initial bubble presence request.
+-   Fix S2SService to not start the express web server if the SDK start without S2S mode.
+-   Fix update of already stored message.
 
 #### Added
 -   Add `AdminService::updateCompanyByObj` method to allows users with superadmin role to update any company. Users with admin role (and not having superadmin role) can only update their own company.
@@ -25,12 +27,14 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add `expressEngine` for S2S mode. It is an SDK's option to provide an already existing Express engine to severeals SDK instance, to use the same Web server for S2S callback for different Bots.
 -   Add `getBubbleLogInfos` methods to log small informations about Bubble.
 -   Add `getAllS2SMessagesByConversationId` Retrieve the remote history of a specific conversation.
+-   Add sendCorrectedChatMessage in s2s mode.
  
 #### Changed
 -   Update `S2SServiceEventHandler` to use the `userId` provided by each server's event to use a uniq Web server for many callback url.
 -   Update default value of `maxReqByIntervalForRequestRate` to 20250.
 -   Update default value of `timeoutRequestForRequestRate` to 600.
 -   Update `Samples\index` to create and use a folder in %temp% directory.
+-   Update sendMessageToConversation result to store the from if it is not present in the REST result.
 
 ### [2.32.0-lts.2] - 2024-11-26
 #### Removed

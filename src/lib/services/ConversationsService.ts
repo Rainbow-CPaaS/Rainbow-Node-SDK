@@ -1125,7 +1125,7 @@ class ConversationsService extends GenericService {
     /**
      * @public
      * @nodered true
-     * @method sendExistingMessage
+     * @method sendExistingFSMessage
      * @instance
      * @category MESSAGES
      * @description
@@ -1259,17 +1259,51 @@ class ConversationsService extends GenericService {
             let messageUnicode = data==="" ? "":(data ? shortnameToUnicode(data):undefined);
 
             try {
-                let sentMessageId = await that._xmpp.sendCorrectedChatMessage(conversation, originalMessage, messageUnicode, origMsgId, originalMessage.lang, content);
-                let newMsg = Object.assign({}, originalMessage);
-                newMsg.id = sentMessageId;
-                newMsg.content = messageUnicode;
-                newMsg.date = new Date();
-                newMsg.alternativeContent = content;
-                newMsg.originalMessageReplaced = originalMessage; // Warning this is a circular depend.
-                originalMessage.replacedByMessage = newMsg; // Warning this is a circular depend.
-                that._logger.log(that.INTERNAL, LOG_ID + "(sendCorrectedChatMessage) id : ", sentMessageId, ", This is a replace msg, so set newMsg.originalMessageReplaced.replacedByMessage : ", newMsg.originalMessageReplaced.replacedByMessage);
-                this._pendingMessages[sentMessageId] = {conversation: conversation, message: newMsg};
-                return newMsg;
+                if (this._useXMPP) {
+                    let sentMessageId = await that._xmpp.sendCorrectedChatMessage(conversation, originalMessage, messageUnicode, origMsgId, originalMessage.lang, content);
+                    let newMsg = Object.assign({}, originalMessage);
+                    newMsg.id = sentMessageId;
+                    newMsg.content = messageUnicode;
+                    newMsg.date = new Date();
+                    newMsg.alternativeContent = content;
+                    newMsg.originalMessageReplaced = originalMessage; // Warning this is a circular depend.
+                    originalMessage.replacedByMessage = newMsg; // Warning this is a circular depend.
+                    that._logger.log(that.INTERNAL, LOG_ID + "(sendCorrectedChatMessage) id : ", sentMessageId, ", This is a replace msg, so set newMsg.originalMessageReplaced.replacedByMessage : ", newMsg.originalMessageReplaced.replacedByMessage);
+                    this._pendingMessages[sentMessageId] = {conversation: conversation, message: newMsg};
+                    return newMsg;
+                }
+                if ((this._useS2S)) {
+                    let msg = {
+                        "message": {
+                            "contents": content,
+                            // [
+                            // {
+                            //     "type": "text/markdown",
+                            //     "data": "## Hello Bob"
+                            // }
+                            // ],
+                            "body": messageUnicode,
+                        }
+                    };
+
+                    if (!conversation.dbId) {
+                        conversation = await that.createServerConversation(conversation);
+                        that._logger.log(that.INTERNAL, LOG_ID + "(sendMessageToConversation) conversation : ", conversation);
+                    }
+
+                    let sentMessageId = await that._s2s.sendCorrectedChatMessage(conversation.dbId, origMsgId, msg);
+                    let newMsg:any = Object.assign({}, originalMessage);
+                    newMsg.id = sentMessageId;
+                    newMsg.content = messageUnicode;
+                    newMsg.date = new Date();
+                    newMsg.alternativeContent = content;
+                    newMsg.modified = true;
+                    newMsg.originalMessageReplaced = originalMessage; // Warning this is a circular depend.
+                    originalMessage.replacedByMessage = newMsg; // Warning this is a circular depend.
+                    that._logger.log(that.INTERNAL, LOG_ID + "(sendCorrectedChatMessage) id : ", sentMessageId, ", This is a replace msg, so set newMsg.originalMessageReplaced.replacedByMessage : ", newMsg.originalMessageReplaced.replacedByMessage);
+                    this._pendingMessages[sentMessageId] = {conversation: conversation, message: newMsg};
+                    return newMsg;
+                }
             } catch (err) {
                 that._logger.log(that.ERROR, LOG_ID + "sendCorrectedChatMessage error");
                 let error = ErrorManager.getErrorManager().OTHERERROR(err.message, "(sendCorrectedChatMessage) error while sending corrected message : " + err);

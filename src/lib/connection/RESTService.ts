@@ -7851,7 +7851,7 @@ kamEmailList?: string[], businessSpecific?: string, adminServiceNotificationsLev
         return that.connectionS2SInfo = await that.infoS2S(connectionId);
     }
 
-    async sendS2SMessageInConversation(conversationId, msg): Promise<any> {
+    async sendS2SMessageInConversation(conversationId:string, msg : any): Promise<any> {
         // POST https://openrainbow.com:443/api/rainbow/ucs/v1.0/connections/{cnxId}/conversations/{cvId}/messages
         let that = this;
         return new Promise(function (resolve, reject) {
@@ -7867,6 +7867,67 @@ kamEmailList?: string[], businessSpecific?: string, adminServiceNotificationsLev
                 }).catch(function (err) {
                     that._logger.log(that.ERROR, LOG_ID, "(sendS2SMessageInConversation) error");
                     that._logger.log(that.INTERNALERROR, LOG_ID, "(sendS2SMessageInConversation) error : ", err);
+                    return reject(err);
+                });
+            }
+        });
+    }
+
+    async sendS2SCorrectedChatMessage(conversationId:string, origMsgId:string, msg :any): Promise<any> {
+        // POST https://openrainbow.com:443/api/rainbow/ucs/v1.0/connections/{cnxId}/conversations/{cvId}/messages/{msgId}/reply
+        // API https://api.openrainbow.org/doc/api/ucs/redoc-index.html#tag/Message/operation/Message.reply
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            if (!msg) {
+                that._logger.log(that.DEBUG, LOG_ID + "(sendS2SCorrectedChatMessage) failed");
+                that._logger.log(that.DEBUG, LOG_ID + "(sendS2SCorrectedChatMessage) No msg provided");
+                resolve(null);
+            } else {
+
+                let url = "/api/rainbow/ucs/v1.0/connections/" + that.connectionS2SInfo.id + "/conversations/" + conversationId + "/messages/"+ origMsgId + "/reply";
+                /*let urlParamsTab: string[] = [];
+                urlParamsTab.push(url);
+                addParamToUrl(urlParamsTab, "openInviteId", openInviteId);
+                url = urlParamsTab[0];
+                // */
+
+                that.http.post(url, that.getRequestHeader(), msg, undefined).then(function (json) {
+                    that._logger.log(that.DEBUG, LOG_ID + "(sendS2SCorrectedChatMessage) successfull");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(sendS2SCorrectedChatMessage) REST result : ", json);
+                    resolve(json?.data);
+                }).catch(function (err) {
+                    that._logger.log(that.ERROR, LOG_ID, "(sendS2SCorrectedChatMessage) error");
+                    that._logger.log(that.INTERNALERROR, LOG_ID, "(sendS2SCorrectedChatMessage) error : ", err);
+                    return reject(err);
+                });
+            }
+        });
+    }
+
+    async sendS2SForwardChatMessage(conversationId:string, msgId :string , msg, conversationDestId :string): Promise<any> {
+        // POST https://openrainbow.com:443/api/rainbow/ucs/v1.0/connections/{cnxId}/conversations/{cvId}/messages/{msgId}/forward/{id}
+        // API https://api.openrainbow.org/doc/api/ucs/redoc-index.html#tag/Message/operation/Message.forward
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            if (!msg) {
+                that._logger.log(that.DEBUG, LOG_ID + "(sendS2SForwardChatMessage) failed");
+                that._logger.log(that.DEBUG, LOG_ID + "(sendS2SForwardChatMessage) No msg provided");
+                resolve(null);
+            } else {
+                let url = "/api/rainbow/ucs/v1.0/connections/" + that.connectionS2SInfo.id + "/conversations/" + conversationId + "/messages/"+ msgId + "/forward" + conversationDestId;
+                /*let urlParamsTab: string[] = [];
+                urlParamsTab.push(url);
+                addParamToUrl(urlParamsTab, "openInviteId", openInviteId);
+                url = urlParamsTab[0];
+                // */
+
+                that.http.post(url, that.getRequestHeader(), msg, undefined).then(function (json) {
+                    that._logger.log(that.DEBUG, LOG_ID + "(sendS2SForwardChatMessage) successfull");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(sendS2SForwardChatMessage) REST result : ", json);
+                    resolve(json?.data);
+                }).catch(function (err) {
+                    that._logger.log(that.ERROR, LOG_ID, "(sendS2SForwardChatMessage) error");
+                    that._logger.log(that.INTERNALERROR, LOG_ID, "(sendS2SForwardChatMessage) error : ", err);
                     return reject(err);
                 });
             }

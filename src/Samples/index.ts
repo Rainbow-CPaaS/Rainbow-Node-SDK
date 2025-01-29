@@ -703,7 +703,7 @@ let expressEngine = undefined;
                 "maxFiles": 5 // */
             }
         },
-        "testOutdatedVersion": true,
+        "testOutdatedVersion": false,
         "testDNSentry": true,
         "httpoverxmppserver": true,
         "intervalBetweenCleanMemoryCache": 1000 * 60 * 60 * 6, // Every 6 hours.
@@ -2900,7 +2900,7 @@ let expressEngine = undefined;
             await until(() => {
                 return conversation.getMessageById(msgSent.id)!==undefined;
             }, "Wait for message to be added in conversation.");
-            let msgSentOrig = msgsSent.slice(-1)[0];
+            let msgSentOrig = msgsSent.slice(-1)[0]; // get last message from tab.
             let msgStrModified = "modified : " + msgSentOrig.content;
             _logger.log("debug", "MAIN - testsendCorrectedChatMessageWithContentAdaptiveCard - msgStrModified : ", msgStrModified);
             setTimeout(async () => {
@@ -2917,6 +2917,52 @@ let expressEngine = undefined;
                     _logger.log("error", "MAIN- testsendCorrectedChatMessageWithContentAdaptiveCard - error sendCorrectedChatMessage : ", err);
                 });
                 _logger.log("debug", "MAIN- testsendCorrectedChatMessageWithContentAdaptiveCard - msgCorrectedSent : ", msgCorrectedSent);
+            }, 20000);
+        }
+
+        async testsendForwardedChatMessageWithContentAdaptiveCard() {
+            let that = this;
+            //let contactIdToSearch = "5bbdc3812cf496c07dd89128"; // vincent01 vberder
+            //let contactIdToSearch = "5bbb3ef9b0bb933e2a35454b"; // vincent00 official
+            let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
+            // Retrieve a contact by its id
+            let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+            // Retrieve the associated conversation
+            let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
+            let nbMsgToSend = 1;
+            let msgsSent = [];
+            let now = new Date().getTime();
+            let formattedMessage = that.formatCard2("original msg : ", now);
+            let content = {
+                "type": "form/json",
+                "message": formattedMessage
+            }
+            // Send message
+            let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "Welcome to the MCQ Test", "en", content, undefined);
+            //_logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
+            //_logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
+            msgsSent.push(msgSent);
+            _logger.log("debug", "MAIN - testsendForwardedChatMessageWithContentAdaptiveCard - wait for message to be in conversation : ", msgSent);
+            await until(() => {
+                return conversation.getMessageById(msgSent.id)!==undefined;
+            }, "Wait for message to be added in conversation.");
+            let msgSentOrig = msgsSent.slice(-1)[0]; // get last message from tab.
+            let msgStrModified = "modified : " + msgSentOrig.content;
+            _logger.log("debug", "MAIN - testsendForwardedChatMessageWithContentAdaptiveCard - msgStrModified : ", msgStrModified);
+            setTimeout(async () => {
+
+                formattedMessage = that.formatCard3("modified msg : ", now);
+                content = {
+                    "type": "form/json",
+                    "message": formattedMessage
+                }
+                // content = "{ \"type\": \"form/json\", \"message\": \"{\\"\$schema\\":\\"http://adaptivecards.io/schemas/adaptive-card.json\\",\\"type\\":\\"AdaptiveCard\\",\\"version\\":\\"1.5\\",\\"body\\":[{\\"type\\":\\"TextBlock\\",\\"size\\":\\"large\\",\\"weight\\":\\"bolder\\",\\"text\\":\\" Question 1/5\\",\\"horizontalAlignment\\":\\"center\\",\\"wrap\\":true,\\"style\\":\\"heading\\"},{\\"type\\":\\"TextBlock\\",\\"size\\":\\"medium\\",\\"weight\\":\\"bolder\\",\\"text\\":\\" What was the first emoticon ever used? \" +  msg + \" : \" + utc + \" : \\",\\"horizontalAlignment\\":\\"left\\",\\"wrap\\":true,\\"style\\":\\"heading\\"},{\\"type\\":\\"Input.ChoiceSet\\",\\"id\\":\\"MCQSelection\\",\\"label\\":\\"\\",\\"value\\":\\"\\",\\"size\\":\\"medium\\",\\"weight\\":\\"bolder\\",\\"style\\":\\"expanded\\",\\"isRequired\\":true,\\"errorMessage\\":\\"Selection is required\\",\\"choices\\":[{\\"title\\":\\"ðŸ˜€\\",\\"value\\":\\"A\\"},{\\"title\\":\\"ðŸ™‚\\",\\"value\\":\\"B\\"},{\\"title\\":\\"ðŸ™\\",\\"value\\":\\"C\\"},{\\"title\\":\\"ðŸ˜›\\",\\"value\\":\\"D\\"}]},{\\"type\\":\\"TextBlock\\",\\"id\\":\\"Information\\",\\"size\\":\\"Medium\\",\\"weight\\":\\"Bolder\\",\\"text\\":\\"Answered\\",\\"horizontalAlignment\\":\\"Center\\",\\"wrap\\":true,\\"style\\":\\"heading\\",\\"color\\":\\"Good\\",\\"isVisible\\":false}],\\"actions\\":[{\\"type\\":\\"Action.Submit\\",\\"title\\":\\"Submit\\",\\"data\\":{\\"rainbow\\":{\\"type\\":\\"messageBack\\",\\"value\\":{},\\"text\\":\\"\\"},\\"questionId\\":\\"01\\"}}]}\" }" ;
+
+                // let msgCorrectedSent = await rainbowSDK.conversations.sendCorrectedChatMessage(conversation, msgStrModified, msgSentOrig.id, content).catch((err) => {
+                let msgCorrectedSent = await rainbowSDK.conversations.sendCorrectedChatMessage(conversation, "Question 1/5", msgSentOrig.id, content).catch((err) => {
+                    _logger.log("error", "MAIN- testsendForwardedChatMessageWithContentAdaptiveCard - error sendCorrectedChatMessage : ", err);
+                });
+                _logger.log("debug", "MAIN- testsendForwardedChatMessageWithContentAdaptiveCard - msgCorrectedSent : ", msgCorrectedSent);
             }, 20000);
         }
 
@@ -3907,7 +3953,7 @@ let expressEngine = undefined;
             //let strMessage = {message: "message for the file"};
             let strMessage = "message for the file";
             file = "c:\\temp\\IMG_20131005_173918.jpg";
-            _logger.log("debug", "MAIN - uploadFileToConversation - file : ", file);
+            _logger.log("debug", "MAIN - uploadFileToStorage - file : ", file);
             // Share the file
             return rainbowSDK.fileStorage.uploadFileToStorage(file).then((result) => {
                 _logger.log("debug", "MAIN - uploadFileToStorage - result : ", result);

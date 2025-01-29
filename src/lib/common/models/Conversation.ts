@@ -13,6 +13,7 @@ import {FIFOQueue} from "../FIFOQueue.js";
 import {formattStringOnNbChars, isDefined, isString, pause, pauseSync, safeJsonParse} from "../Utils.js";
 import {randomUUID} from "node:crypto";
 import {Queue} from "ts-generic-collections-linq";
+import BackoffError from "../../connection/request-rate-limiter/src/BackoffError.js";
 let AsyncLock = require('async-lock');
 let locks = require('locks');
 
@@ -91,7 +92,12 @@ class MessagesQueue extends FIFOQueue<Message> {
                         });
                         if (messageIndice!= -1) {
                             // update the already existing message and return this new value.
-                            that[messageIndice] = message;
+                            // instance1 instanceof Message
+                            if (that[messageIndice] instanceof Message) {
+                                that[messageIndice].updateMessage(message);
+                            } else {
+                                that[messageIndice] = message;
+                            }
                             messageObj = that[messageIndice];
                             that.logger.log("debug", LOG_ID + "(updateMessageIfExistsElseEnqueueIt) - id : ", id, " - message updated.");
                         } else {
