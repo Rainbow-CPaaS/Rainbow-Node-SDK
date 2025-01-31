@@ -148,6 +148,21 @@ class S2SServiceEventHandler extends LevelLogs{
         } else if (requestedPath === "/room-state") {
             // that._logger.log(that.INTERNAL, LOG_ID + "(handleS2SEvent) TODO: return ParseRoomStateCallback(content)");
             that.ParseRoomStateCallback(body);
+        } else if (requestedPath === "/telephony/rvcp") {
+            // that._logger.log(that.INTERNAL, LOG_ID + "(handleS2SEvent) TODO: return ParseTelephonyRvcpCallback(content)");
+            that.ParseTelephonyRvcpCallback(body);
+        } else if (requestedPath === "/telephony/rvcp/presence") {
+            // that._logger.log(that.INTERNAL, LOG_ID + "(handleS2SEvent) TODO: return ParseTelephonyRvcpPresenceCallback(content)");
+            that.ParseTelephonyRvcpPresenceCallback(body);
+        } else if (requestedPath === "/telephony/pcg") {
+            // that._logger.log(that.INTERNAL, LOG_ID + "(handleS2SEvent) TODO: return ParseTelephonyPcgCallback(content)");
+            that.ParseTelephonyPcgCallback(body);
+        } else if (requestedPath === "/telephony/pcg/presence") {
+            // that._logger.log(that.INTERNAL, LOG_ID + "(handleS2SEvent) TODO: return ParseTelephonyPcgPresenceCallback(content)");
+            that.ParseTelephonyPcgPresenceCallback(body);
+        } else if (requestedPath === "/conference") {
+            // that._logger.log(that.INTERNAL, LOG_ID + "(handleS2SEvent) TODO: return ParseConferenceCallback(content)");
+            that.ParseConferenceCallback(body);
         } else if (requestedPath === "/message") {
             // that._logger.log(that.INTERNAL, LOG_ID + "(handleS2SEvent) TODO: return ParseMessageCallback(content)");
             that.ParseMessageCallback(body);
@@ -911,6 +926,125 @@ class S2SServiceEventHandler extends LevelLogs{
             }
             return false;
         }
+    }
+
+    async ParseTelephonyRvcpCallback(content): Promise<boolean> {
+        let that = this;
+        that._logger.log(that.INTERNAL, LOG_ID + "(ParseTelephonyRvcpCallback)  Content:[", content, "]");
+        /*
+               { timestamp: '2020-02-25T15:29:58.976567Z',
+        'room-state': { id: '5e553d747cdc6514d72ee15a', event: 'available' },
+        id: '9665d516-57e3-11ea-8fb4-00505628611e' }
+               */
+
+        let eventObj = content["event"];
+        if (content && eventObj) {
+            /*
+            let ts = eventObj.ts;
+            let seqNum = eventObj.seqNum;
+            let cause = eventObj.cause;
+            let calls = eventObj.calls;
+            let endpoints = eventObj.endpoints;
+            let legs = eventObj.legs;
+            let devices = eventObj.devices;
+
+            that._eventEmitter.emit("evt_internal_telephonyrvcp", {
+                ts,
+                seqNum,
+                cause,
+                calls,
+                endpoints,
+                legs,
+                devices
+            });
+            // */
+            that._eventEmitter.emit("evt_internal_telephonyrvcp", {
+                "event":eventObj
+            });
+        }
+        return true;
+    }
+
+    async ParseTelephonyRvcpPresenceCallback(content): Promise<boolean> {
+        let that = this;
+        that._logger.log(that.INTERNAL, LOG_ID + "(ParseTelephonyRvcpPresenceCallback)  Content:[", content, "]");
+        /*
+               { timestamp: '2020-02-25T15:29:58.976567Z',
+        'room-state': { id: '5e553d747cdc6514d72ee15a', event: 'available' },
+        id: '9665d516-57e3-11ea-8fb4-00505628611e' }
+               */
+
+        let from = content["from"];
+        let state = content["state"];
+        if (content && from) {
+
+            that._eventEmitter.emit("evt_internal_telephonyrvcppresence", {
+                from,
+                state
+            });
+        }
+        return true;
+    }
+
+    async ParseTelephonyPcgCallback(content): Promise<boolean> {
+        let that = this;
+        that._logger.log(that.INTERNAL, LOG_ID + "(ParseTelephonyPcgCallback)  Content:[", content, "]");
+        /*
+               { timestamp: '2020-02-25T15:29:58.976567Z',
+        'room-state': { id: '5e553d747cdc6514d72ee15a', event: 'available' },
+        id: '9665d516-57e3-11ea-8fb4-00505628611e' }
+               */
+
+        let event = content["event"];
+        let data = content["data"];
+        if (content && event) {
+
+            that._eventEmitter.emit("evt_internal_ontelephonypcg", {
+                event,
+                data
+            });
+        }
+        return true;
+    }
+
+   async ParseTelephonyPcgPresenceCallback(content): Promise<boolean> {
+        let that = this;
+        that._logger.log(that.INTERNAL, LOG_ID + "(ParseTelephonyPcgPresenceCallback)  Content:[", content, "]");
+        /*
+               { timestamp: '2020-02-25T15:29:58.976567Z',
+        'room-state': { id: '5e553d747cdc6514d72ee15a', event: 'available' },
+        id: '9665d516-57e3-11ea-8fb4-00505628611e' }
+               */
+
+        let from = content["from"];
+        let state = content["state"];
+        if (content && from) {
+
+            that._eventEmitter.emit("evt_internal_ontelephonypcgpresence", {
+                from,
+                state
+            });
+        }
+        return true;
+    }
+
+   async ParseConferenceCallback(content): Promise<boolean> {
+        let that = this;
+        that._logger.log(that.INTERNAL, LOG_ID + "(ParseConferenceCallback)  Content:[", content, "]");
+        /*
+               { timestamp: '2020-02-25T15:29:58.976567Z',
+        'room-state': { id: '5e553d747cdc6514d72ee15a', event: 'available' },
+        id: '9665d516-57e3-11ea-8fb4-00505628611e' }
+               */
+
+        let event = content["event"];
+        if (content && event) {
+
+            that._eventEmitter.emit("evt_internal_onconference", {
+                event
+            });
+        }
+        return true;
     }
 
     async ParseAlldeletedCallback(content): Promise<boolean> {

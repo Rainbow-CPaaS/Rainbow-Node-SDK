@@ -189,6 +189,11 @@ class Emitter extends EventEmitterClass{
  * @fires Events#rainbow_ontaskdeleted
  * @fires Events#rainbow_on429BackoffError
  * @fires Events#rainbow_onrainbowcpaasreceived
+ * @fires Events#rainbow_ontelephonyrvcp
+ * @fires Events#rainbow_ontelephonyrvcppresence
+ * @fires Events#rainbow_ontelephonypcg
+ * @fires Events#rainbow_ontelephonypcgpresence
+ * @fires Events#rainbow_onconference
  */
 class Events {
     get logEmitter(): EventEmitter {
@@ -308,8 +313,13 @@ class Events {
         "rainbow_ontaskupdated",
         "rainbow_ontaskdeleted",
         "rainbow_on429BackoffError",
-        "rainbow_onrainbowcpaasreceived"
- ];
+        "rainbow_onrainbowcpaasreceived",
+        "rainbow_ontelephonyrvcp",
+        "rainbow_ontelephonyrvcppresence",
+        "rainbow_ontelephonypcg",
+        "rainbow_ontelephonypcgpresence",
+        "rainbow_onconference"
+    ];
     public  waitBeforeBubblePresenceSend = false;
 
     constructor( _logger : Logger, _filterCallback : Function) {
@@ -1601,6 +1611,100 @@ class Events {
             that.publishEvent("rainbowcpaasreceived", data);
         });
 
+        this._evReceiver.on("evt_internal_telephonyrvcp", function (data) {
+            /**
+             * @event Events#rainbow_ontelephonyrvcp
+             * @public
+             * @param { any | error } data The data of the event.
+             * @description
+             *      Fired when a `telephonyrvcp` event is receveid from S2S server.</br>
+             *  {</br>
+             * event : object</br>
+             * </br>
+             * |     |     |     |
+             * | --- | --- | --- |
+             * | ts | integer|unix timestamp in milliseconds since January 1970 |
+             * | seqNum | integer |incremented each time that a telephony/event is sent for the user (can be used for synchronisation) |
+             * | cause | string |specifies the reason for the event (same as the CSTA event cause) |
+             * | calls | Array of objects |provides changes on the Calls (note: in case of transfer 2 different Call may be provided) |
+             * | endpoints | Array of objects |provides changes on the involved Endpoints (callId is provided in order to correlate the Endpoint with a Call) |
+             * | legs | Array of objects |provides changes on the involved Legs (callId is provided in order to correlate the Leg with a Call) |
+             * | devices | Array of objects |provides changes on the user devices : out of service / in service |
+             * </br>
+             * }</br>
+             * </br>
+             *
+             */
+            that.publishEvent("telephonyrvcp", data);
+        });
+
+        this._evReceiver.on("evt_internal_telephonyrvcppresence", function (data) {
+            /**
+             * @event Events#rainbow_ontelephonyrvcppresence
+             * @public
+             * @param { any | error } data The data of the event.
+             * @description
+             *      Fired when a `telephonyrvcppresence` event is receveid from S2S server. </br>
+             *  { </br>
+             *     //user's id </br>
+             *     from : string, </br>
+             *     // user's telephony state </br>
+             *     state : string // Enum: "busy" "free" "out_of_service" </br>
+             *  } </br>
+             *  </br>
+             */
+            that.publishEvent("telephonyrvcppresence", data);
+        });
+
+        this._evReceiver.on("evt_internal_telephonypcg", function (data) {
+            /**
+             * @event Events#rainbow_ontelephonypcg
+             * @public
+             * @param { any | error } data The data of the event.
+             * @description
+             *      Fired when a `telephonypcg` event is receveid from S2S server.</br>
+             *  {</br>
+             *    //telephony event name</br>
+             *    event : string, // Enum: "connectionCleared" "conferenced" "delivered" "diverted" "established" "failed" "forwarded" "initiated" "originated" "queued" "updated" "updateCall" "callSubject"</br>
+             *    data : object</br>
+             * }</br>
+             * </br>
+             */
+            that.publishEvent("telephonypcg", data);
+        });
+
+        this._evReceiver.on("evt_internal_telephonypcgpresence", function (data) {
+            /**
+             * @event Events#rainbow_ontelephonypcgpresence
+             * @public
+             * @param { any | error } data The data of the event.
+             * @description
+             *      Fired when a `telephonypcgpresence` event is receveid from S2S server.</br>
+             *  {</br>
+             *    // user's id</br>
+             *    from : string,</br>
+             *    // user's telephony state</br>
+             *    state : string // Enum: "busy" "free" "out_of_service"</br>
+             *}</br>
+             * </br>
+             */
+            that.publishEvent("telephonypcgpresence", data);
+        });
+
+        this._evReceiver.on("evt_internal_conference", function (data) {
+            /**
+             * @event Events#rainbow_onconference
+             * @public
+             * @param { any | error } data The data of the event.
+             * @description
+             *      Fired when a `conference` event is receveid from S2S server.</br>
+             *  {</br>
+             *     event : object </br>
+             *  }</br>
+             *  </br>
+             */
+            that.publishEvent("conference", data);
+        });
 
     }
 

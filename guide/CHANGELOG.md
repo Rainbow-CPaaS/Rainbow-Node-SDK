@@ -28,7 +28,8 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add `getBubbleLogInfos` methods to log small informations about Bubble.
 -   Add `getAllS2SMessagesByConversationId` Retrieve the remote history of a specific conversation.
 -   Add sendCorrectedChatMessage in s2s mode.
- 
+-   Add  "rainbow_ontelephonyrvcp", "rainbow_ontelephonyrvcppresence", "rainbow_ontelephonypcg", "rainbow_ontelephonypcgpresence", "rainbow_onconference" S2S Events.
+
 #### Changed
 -   Update `S2SServiceEventHandler` to use the `userId` provided by each server's event to use a uniq Web server for many callback url.
 -   Update default value of `maxReqByIntervalForRequestRate` to 20250.
