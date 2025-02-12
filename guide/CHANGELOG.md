@@ -16,6 +16,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Fix `S2SServiceEventHandler::ParseRoomStateCallback` to emit "evt_internal_onbubblepresencechanged" to treat the promise of the sent initial bubble presence request.
 -   Fix S2SService to not start the express web server if the SDK start without S2S mode.
 -   Fix update of already stored message.
+-   Fix `startWSOnly` API. It is used for 911 VNA.
 
 #### Added
 -   Add `AdminService::updateCompanyByObj` method to allows users with superadmin role to update any company. Users with admin role (and not having superadmin role) can only update their own company.
@@ -28,7 +29,11 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add `getBubbleLogInfos` methods to log small informations about Bubble.
 -   Add `getAllS2SMessagesByConversationId` Retrieve the remote history of a specific conversation.
 -   Add sendCorrectedChatMessage in s2s mode.
--   Add  "rainbow_ontelephonyrvcp", "rainbow_ontelephonyrvcppresence", "rainbow_ontelephonypcg", "rainbow_ontelephonypcgpresence", "rainbow_onconference" S2S Events.
+-   Add `rainbow_ontelephonyrvcp`, `rainbow_ontelephonyrvcppresence`, `rainbow_ontelephonypcg`, `rainbow_ontelephonypcgpresence`, `rainbow_onconference` S2S Events.
+-   Add event `rainbow_onpinmanagement` Fired when a `pined message` event is receveid from server.
+-   Add property `Message::rainbowCpaas` the message CPaaS API hidden data.
+-   Add `rejectUnauthorized` option in `gotRequestOptions` of the SDK's options. If not false, the server certificate is verified against the list of supplied CAs. Default: true.
+-   Add `ContactsService::getPeerByJid` Api to et information about a peer by jid. Can be a "user", a "room"
 
 #### Changed
 -   Update `S2SServiceEventHandler` to use the `userId` provided by each server's event to use a uniq Web server for many callback url.
