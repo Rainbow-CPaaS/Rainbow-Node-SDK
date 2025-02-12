@@ -1,23 +1,21 @@
 "use strict";
 import {InvitationsService} from "./InvitationsService";
-import {XMPPService} from "../connection/XMPPService";
-import {RESTService} from "../connection/RESTService";
 import {XMPPUTils} from "../common/XMPPUtils";
 import {ErrorManager} from "../common/ErrorManager";
 import {Contact, NameUpdatePrio} from "../common/models/Contact";
 import * as util from 'util';
 import * as md5 from 'md5';
 import * as path from 'path';
-import {addParamToUrl, isDefined, isStarted, logEntryExit} from "../common/Utils";
+import {isStarted, logEntryExit} from "../common/Utils";
 import {PresenceService} from "./PresenceService";
 import {EventEmitter} from "events";
 import {Logger} from "../common/Logger";
-import {S2SService} from "./S2SService";
 import {Core} from "../Core";
 import {PresenceLevel, PresenceRainbow, PresenceShow, PresenceStatus} from "../common/models/PresenceRainbow";
 import {Invitation} from "../common/models/Invitation";
 import {GenericService} from "./GenericService";
-import {ChannelsService} from "./ChannelsService.js";
+import {PEERTYPE} from "../common/models/Conversation.js";
+
 let AsyncLock = require('async-lock');
 
 export {};
@@ -497,13 +495,13 @@ class ContactsService extends GenericService {
 
     //endregion Contacts MANAGEMENT
 
-    //region Contacts INFORMATIONS
+    //region Contacts INFORMATION
 
     /**
      * @public
      * @nodered true
      * @method getAll
-     * @category Contacts INFORMATIONS
+     * @category Contacts INFORMATION
      * @instance
      * @return {Contact[]} the list of _contacts
      * @description
@@ -519,7 +517,7 @@ class ContactsService extends GenericService {
      * @public
      * @nodered true
      * @method getAllContactsInCache
-     * @category Contacts INFORMATIONS
+     * @category Contacts INFORMATION
      * @instance
      * @return {Contact[]} the list of _contacts
      * @description
@@ -538,9 +536,9 @@ class ContactsService extends GenericService {
      * @nodered true
      * @method getContactByJid
      * @instance
-     * @category Contacts INFORMATIONS
+     * @category Contacts INFORMATION
      * @param {string} jid The contact jid
-     * @param {boolean} forceServerSearch Boolean to force the search of the _contacts informations on the server.
+     * @param {boolean} forceServerSearch Boolean to force the search of the _contacts information on the server.
      * @description
      *  Get a contact by his JID by searching in the connected user _contacts list (full information) and if not found by searching on the server too (limited set of information) <br>
      * @async
@@ -616,9 +614,9 @@ class ContactsService extends GenericService {
      * @nodered true
      * @method getContactById
      * @instance
-     * @category Contacts INFORMATIONS
+     * @category Contacts INFORMATION
      * @param {string} id The contact id
-     * @param {boolean} forceServerSearch Boolean to force the search of the _contacts informations on the server.
+     * @param {boolean} forceServerSearch Boolean to force the search of the _contacts information on the server.
      * @description
      *  Get a contact by his id <br>
      * @async
@@ -697,9 +695,9 @@ class ContactsService extends GenericService {
      * @nodered true
      * @method getContactByLoginEmail
      * @instance
-     * @category Contacts INFORMATIONS
+     * @category Contacts INFORMATION
      * @param {string} loginEmail The contact loginEmail
-     * @param {boolean} forceServerSearch Boolean to force the search of the _contacts informations on the server.
+     * @param {boolean} forceServerSearch Boolean to force the search of the _contacts information on the server.
      * @description
      *  Get a contact by his loginEmail <br>
      * @async
@@ -790,9 +788,9 @@ class ContactsService extends GenericService {
      * @nodered true
      * @method getContactIdByLoginEmail
      * @instance
-     * @category Contacts INFORMATIONS
+     * @category Contacts INFORMATION
      * @param {string} loginEmail The contact loginEmail
-     * @param {boolean} forceServerSearch Boolean to force the search of the _contacts informations on the server.
+     * @param {boolean} forceServerSearch Boolean to force the search of the _contacts information on the server.
      * @description
      *  Get a contact Id by his loginEmail <br>
      * @async
@@ -854,13 +852,12 @@ class ContactsService extends GenericService {
      * @nodered true
      * @method getMyInformations
      * @instance
-     * @category Contacts INFORMATIONS
+     * @category Contacts INFORMATION
      * @description
-     *  Get informations about the connected user <br>
+     *  Get information about the connected user <br>
      * @async
      * @return {Promise<Object, ErrorManager>}
-     * @fulfil {Object} - Found informations or null or an error object depending on the result
-
+     * @fulfil {Object} - Found information or null or an error object depending on the result
      */
     getMyInformations(): Promise<Contact> {
         let that = this;
@@ -880,9 +877,95 @@ class ContactsService extends GenericService {
     /**
      * @public
      * @nodered true
+     * @method getPeerById
+     * @instance
+     * @param {string} peerId ID of another user, ID of a room or ID of a bot, according to value of type field:
+     *    user ID: id returned in Contact objects. user ID is also available in user vCard via a proprietary field name 'rainbowId'.
+     *    room ID: id returned in Bubble objects.
+     * @category Contacts INFORMATION
+     * @description
+     *  Get information about a peer by id. Can be a "user", a "room" <br>
+     * @async
+     * @return {Promise<Object, ErrorManager>}
+     * @fulfil {Object} - Found information or null or an error object depending on the result
+     */
+    public async getPeerById(peerId : string): Promise<any> {
+        let resultPeer: {peer : any, type: PEERTYPE } = {peer:null, type:PEERTYPE.UNKNOWN};
+        let that = this;
+
+        try {
+            if (this.userContact.id===peerId) {
+                resultPeer.peer = this.userContact;
+                resultPeer.type = PEERTYPE.USER;
+            } else {
+                const contact = await that.getContactById(peerId);
+                if (! contact) {
+                    const bubble = await that._core._bubbles.getBubbleById(peerId);
+                    if (! bubble) {
+                    } else {
+                        resultPeer.peer = bubble;
+                        resultPeer.type = PEERTYPE.ROOM;
+                    }
+                } else {
+                    resultPeer.peer = contact;
+                    resultPeer.type = PEERTYPE.USER;
+                }
+            }
+
+            return resultPeer;
+        } catch (error) {
+        }
+    }
+
+    /**
+     * @public
+     * @nodered true
+     * @method getPeerByJid
+     * @instance
+     * @param {string} peerJid JID of another user, JID of a room or JID of a bot, according to value of type field:
+     *    user JID: id returned in Contact objects.
+     *    room JID: id returned in Bubble objects.
+     * @category Contacts INFORMATION
+     * @description
+     *  Get information about a peer by jid. Can be a "user", a "room" <br>
+     * @async
+     * @return {Promise<Object, ErrorManager>}
+     * @fulfil {Object} - Found information or null or an error object depending on the result
+     */
+    public async getPeerByJid(peerJid : string): Promise<{peer : any, type: PEERTYPE }> {
+        let resultPeer: {peer : any, type: PEERTYPE } = {peer:null, type:PEERTYPE.UNKNOWN};
+        let that = this;
+
+        try {
+            if (this.userContact.jid===peerJid || this.userContact.jid_im===peerJid) {
+                resultPeer.peer = this.userContact;
+                resultPeer.type = PEERTYPE.USER;
+            } else {
+                const contact = await that.getContactByJid(peerJid);
+                if (! contact) {
+                    const bubble = await that._core._bubbles.getBubbleByJid(peerJid);
+                    if (! bubble) {
+                    } else {
+                        resultPeer.peer = bubble;
+                        resultPeer.type = PEERTYPE.ROOM;
+                    }
+                } else {
+                    resultPeer.peer = contact;
+                    resultPeer.type = PEERTYPE.USER;
+                }
+            }
+
+            return resultPeer;
+        } catch (error) {
+        }
+    }
+
+    /**
+     * @public
+     * @nodered true
      * @method getCompanyInfos
      * @instance
-     * @category Contacts INFORMATIONS
+     * @category Contacts INFORMATION
      * @param {string} companyId The company id unique identifier
      * @param {string} format Allows to retrieve more or less company details in response. </BR>
      * * small: id, name </BR>
@@ -1054,7 +1137,7 @@ class ContactsService extends GenericService {
      * @nodered true
      * @method getAvatarByContactId
      * @instance
-     * @category Contacts INFORMATIONS
+     * @category Contacts INFORMATION
      * @param {string} id The contact id
      * @param {string} lastAvatarUpdateDate use this field to give the stored date ( could be retrieved with contact.lastAvatarUpdateDate )
      *      if missing or null in case where no avatar available a local module file is provided instead of URL
@@ -1076,7 +1159,7 @@ class ContactsService extends GenericService {
      * @public
      * @nodered true
      * @method getConnectedUser
-     * @category Contacts INFORMATIONS
+     * @category Contacts INFORMATION
      * @instance
      * @description
      *    Get the connected user information <br>
@@ -1113,7 +1196,7 @@ class ContactsService extends GenericService {
      * @nodered true
      * @method getDisplayName
      * @instance
-     * @category Contacts INFORMATIONS
+     * @category Contacts INFORMATION
      * @param {Contact} contact  The contact to get display name
      * @return {string} The contact first name and last name
      * @description
@@ -1131,7 +1214,7 @@ class ContactsService extends GenericService {
      * @nodered true
      * @method updateMyInformations
      * @instance
-     * @category Contacts INFORMATIONS
+     * @category Contacts INFORMATION
      * @param {Object} dataToUpdate :
      * {
      * {string} number User phone number (as entered by user). Not mandatory if the PhoneNumber to update is a PhoneNumber linked to a system (pbx)
@@ -1199,7 +1282,7 @@ class ContactsService extends GenericService {
         });
     }
 
-    //endregion Contacts INFORMATIONS
+    //endregion Contacts INFORMATION
 
     //region Contacts Sources
 

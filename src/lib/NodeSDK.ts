@@ -78,6 +78,7 @@ let LOG_ID = "NodeSDK/IDX";
  * </BR>
  * Socket timeout in milliseconds. This will set the timeout after the socket is connected.</BR>
  * timeout: 60001 , // ?: number or undefined;</BR>
+ * rejectUnauthorized: true // If not false, the server certificate is verified against the list of supplied CAs. Default: true.
  * }</BR>,
  * gotRequestOptions : {</BR>
  *  timeout: { // This object describes the maximum allowed time for particular events.</BR>
@@ -435,6 +436,7 @@ class NodeSDK {
      * </BR>
      * Socket timeout in milliseconds. This will set the timeout after the socket is connected.</BR>
      * timeout: 60001 , // ?: number or undefined;</BR>
+     * rejectUnauthorized: true // If not false, the server certificate is verified against the list of supplied CAs. Default: true.
      * }</BR> ,
      * gotRequestOptions : {</BR>
      *  timeout: { // This object describes the maximum allowed time for particular events.</BR>

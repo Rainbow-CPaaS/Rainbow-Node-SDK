@@ -111,7 +111,7 @@ Object.defineProperty(exports, "__esModule", {value: true});
 // Load the SDK
 // For using the fiddler proxy which logs requests to server
 // process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0";
-import Bubble_1 from "../lib/common/models/Bubble";
+import Bubble_1, {getBubbleLogInfos} from "../lib/common/models/Bubble";
 import * as Utils from "../lib/common/Utils";
 import fs = require("fs");
 //import fileapi from "file-api";
@@ -140,8 +140,8 @@ import {tmpdir} from "node:os";
     output: process.stdout
 }); // */
 
-let rainbowMode = "s2s" ;
-//let rainbowMode = "xmpp";
+//let rainbowMode = "s2s" ;
+let rainbowMode = "xmpp";
 
 let ngrok = require('ngrok');
 //import ngrok from 'ngrok';
@@ -339,6 +339,8 @@ let expressEngine = undefined;
     }
 
     logLevelAreas.bubblesmanager.level = LEVELSNAMES.INTERNAL;
+    logLevelAreas.bubbles.api = true;
+    logLevelAreas.bubbles.level = LEVELSNAMES.INTERNAL;
 
 // */
 // Define your configuration
@@ -371,46 +373,50 @@ let expressEngine = undefined;
         },
         "rest": {
             "useRestAtStartup": true,
-            "useGotLibForHttp": true,
-            // "gotOptions": {
-            //     agentOptions: {
-            //         /**
-            //          * Keep sockets around in a pool to be used by other requests in the future. Default = false
-            //          */
-            //         keepAlive: true, // ?: boolean | undefined;
-            //         /**
-            //          * When using HTTP KeepAlive, how often to send TCP KeepAlive packets over sockets being kept alive. Default = 1000.
-            //          * Only relevant if keepAlive is set to true.
-            //          */
-            //         keepAliveMsecs: 4302, // ?: number | undefined;
-            //         /**
-            //          * Maximum number of sockets to allow per host. Default for Node 0.10 is 5, default for Node 0.12 is Infinity
-            //          */
-            //         maxSockets: Infinity, // ?: number | undefined;
-            //         /**
-            //          * Maximum number of sockets allowed for all hosts in total. Each request will use a new socket until the maximum is reached. Default: Infinity.
-            //          */
-            //         maxTotalSockets: Infinity, // ?: number | undefined;
-            //         /**
-            //          * Maximum number of sockets to leave open in a free state. Only relevant if keepAlive is set to true. Default = 256.
-            //          */
-            //         maxFreeSockets: 1002, // ?: number | undefined;
-            //         /**
-            //          * Socket timeout in milliseconds. This will set the timeout after the socket is connected.
-            //          */
-            //         timeout: 120002, // ?: number | undefined;
-            //     },
-            //     gotRequestOptions: {
-            //         timeout: { // This object describes the maximum allowed time for particular events.
-            //             lookup: 5252, // lookup: 100, Starts when a socket is assigned.  Ends when the hostname has been resolved.
-            //             connect: 10252, // connect: 50, Starts when lookup completes.  Ends when the socket is fully connected.
-            //             secureConnect: 10252, // secureConnect: 50, Starts when connect completes. Ends when the handshake process completes.
-            //             socket: 120002, // socket: 1000, Starts when the socket is connected. Resets when new data is transferred.
-            //             send: 120002, // send: 10000, // Starts when the socket is connected. Ends when all data have been written to the socket.
-            //             response: 120002 // response: 1000 // Starts when request has been flushed. Ends when the headers are received.
-            //         }
-            //     } // */
-            //}
+            "useGotLibForHttp": false,
+             "gotOptions": {
+                 agentOptions: {
+                     /**
+                      * Keep sockets around in a pool to be used by other requests in the future. Default = false
+                      */
+                     keepAlive: true, // ?: boolean | undefined;
+                     /**
+                      * When using HTTP KeepAlive, how often to send TCP KeepAlive packets over sockets being kept alive. Default = 1000.
+                      * Only relevant if keepAlive is set to true.
+                      */
+                     keepAliveMsecs: 4302, // ?: number | undefined;
+                     /**
+                      * Maximum number of sockets to allow per host. Default for Node 0.10 is 5, default for Node 0.12 is Infinity
+                      */
+                     maxSockets: Infinity, // ?: number | undefined;
+                     /**
+                      * Maximum number of sockets allowed for all hosts in total. Each request will use a new socket until the maximum is reached. Default: Infinity.
+                      */
+                     maxTotalSockets: Infinity, // ?: number | undefined;
+                     /**
+                      * Maximum number of sockets to leave open in a free state. Only relevant if keepAlive is set to true. Default = 256.
+                      */
+                     maxFreeSockets: 1002, // ?: number | undefined;
+                     /**
+                      * Socket timeout in milliseconds. This will set the timeout after the socket is connected.
+                      */
+                     timeout: 120002, // ?: number | undefined;
+                     /**
+                      * If not false, the server certificate is verified against the list of supplied CAs. Default: true.
+                      */
+                     rejectUnauthorized: false
+                 },
+                 gotRequestOptions: {
+                     timeout: { // This object describes the maximum allowed time for particular events.
+                         lookup: 5252, // lookup: 100, Starts when a socket is assigned.  Ends when the hostname has been resolved.
+                         connect: 10252, // connect: 50, Starts when lookup completes.  Ends when the socket is fully connected.
+                         secureConnect: 10252, // secureConnect: 50, Starts when connect completes. Ends when the handshake process completes.
+                         socket: 120002, // socket: 1000, Starts when the socket is connected. Resets when new data is transferred.
+                         send: 120002, // send: 10000, // Starts when the socket is connected. Ends when all data have been written to the socket.
+                         response: 120002 // response: 1000 // Starts when request has been flushed. Ends when the headers are received.
+                     }
+                 } // */
+            }
         }, // */
         "credentials": {
             "login": "",  // The Rainbow email account to use
@@ -450,7 +456,7 @@ let expressEngine = undefined;
             "enableConsoleLogs": true,
             "enableFileLogs": true,
             "enableEventsLogs": false,
-            "enableEncryptedLogs": true,
+            "enableEncryptedLogs": false,
             "color": true,
             //"level": "error",
             //"level": "info",
@@ -947,6 +953,10 @@ let expressEngine = undefined;
         _logger.log("debug", "MAIN - (rainbow_onbubblepresencechanged) - rainbow bubble presence, nameForLogs : ", data.nameForLogs, ", status :", data.status,", id :", data.id, ", name : ", data.name);
     });
 
+    rainbowSDK.events.on("rainbow_onchatstate", (data) => {
+        _logger.log("debug", "MAIN - (rainbow_onchatstate) - data : ", data);
+    });
+
     let bubbleInvitationReceived = null;
     rainbowSDK.events.on("rainbow_onbubbleinvitationreceived", async (bubble) => {
         _logger.log("debug", "MAIN - (rainbow_onbubbleinvitationreceived) - rainbow event received.", bubble);
@@ -964,6 +974,10 @@ let expressEngine = undefined;
 
     rainbowSDK.events.on("rainbow_onbubbleconferenceupdated", (conference: ConferenceSession) => {
         _logger.log("debug", "MAIN - (rainbow_onbubbleconferenceupdated) - rainbow event received.", conference);
+    });
+
+    rainbowSDK.events.on("rainbow_onbubbleprivilegechanged", (data) => {
+        _logger.log("debug", "MAIN - (rainbow_onbubbleprivilegechanged) - rainbow bubble privilege, getBubbleLogInfos : ", data.bubble.getBubbleLogInfos(),", members : ", data.bubble.members, ", privilege :", data.privilege);
     });
 
     function acceptReceivedInvitation() {
@@ -1252,6 +1266,10 @@ let expressEngine = undefined;
 
     rainbowSDK.events.on("rainbow_onrainbowcpaasreceived", async function (data: any) {
         _logger.log("debug", "MAIN - (rainbow_onrainbowcpaasreceived) data : ", data);
+    });
+
+    rainbowSDK.events.on("rainbow_onpinmanagement", async function (data: any) {
+        _logger.log("debug", "MAIN - (rainbow_onpinmanagement) data : ", data);
     });
 
     class Tests {
@@ -4335,6 +4353,48 @@ let expressEngine = undefined;
                             let conversationWithMessagesRemoved = await rainbowSDK.conversations.removeAllMessages(conversation);
                             _logger.log("debug", "MAIN - testremoveAllMessages - conversation with messages removed : ", conversationWithMessagesRemoved);
 
+                        });
+                    });
+                }
+            }); // */
+            //    let utc = new Date().toJSON().replace(/-/g, '/');
+        }
+
+    async testCreateBubbleWithNoInvitationAndSendMessageAndsendCorrectedMessage() {
+            let loginEmail = "vincent02@vbe.test.openrainbow.net";
+            let appointmentRoom = "testBot";
+            //let botappointment = "vincent01@vbe.test.openrainbow.net";
+
+            rainbowSDK.contacts.getContactByLoginEmail(loginEmail).then(async contact => {
+                if (contact) {
+                    _logger.log("debug", "MAIN - [testCreateBubbleWithNoInvitationAndSendMessageAndsendCorrectedMessage    ] :: getContactByLoginEmail contact : ", contact);
+                    let utc = new Date().toJSON().replace(/-/g, "/");
+                    await rainbowSDK.bubbles.createBubble(appointmentRoom + utc + contact + "_" + 1, appointmentRoom + utc + "_" + 1).then(async (bubble: any) => {
+                        _logger.log("debug", "MAIN - [testCreateBubbleWithNoInvitationAndSendMessageAndsendCorrectedMessage    ] :: createBubble request ok", bubble);
+                        rainbowSDK.bubbles.inviteContactToBubble(contact, bubble, false, false).then(async () => {
+                            let message = "message de **test** ";
+                            await rainbowSDK.im.sendMessageToBubbleJid(message, bubble.jid, "en", {
+                                "type": "text/markdown",
+                                "message": message + "_1"
+                            }, "subject", undefined, "middle");
+                            // */
+
+                            // Retrieve the associated conversation
+                            let conversation = await rainbowSDK.conversations.openConversationForBubble(bubble);
+                            _logger.log("debug", "MAIN - testCreateBubbleWithNoInvitationAndSendMessageAndsendCorrectedMessage - conversation.messages : ", conversation.messages);
+                            _logger.log("debug", "MAIN - testCreateBubbleWithNoInvitationAndSendMessageAndsendCorrectedMessage - bubble.members : ", bubble.members);
+
+                            if (conversation.messages?.length) {
+                                let msgSentOrig = conversation.messages[0];
+                                let msgStrModified = "Message updated.";
+                                setTimeout(async () => {
+                                    _logger.log("debug", "MAIN - testCreateBubbleWithNoInvitationAndSendMessageAndsendCorrectedMessage - msgStrModified : ", msgStrModified);
+                                    let msgCorrectedSent = await rainbowSDK.conversations.sendCorrectedChatMessage(conversation, msgStrModified, msgSentOrig.id).catch((err) => {
+                                        _logger.log("error", "MAIN- testCreateBubbleWithNoInvitationAndSendMessageAndsendCorrectedMessage - error sendCorrectedChatMessage : ", err);
+                                    });
+                                    _logger.log("debug", "MAIN- testCreateBubbleWithNoInvitationAndSendMessageAndsendCorrectedMessage - msgCorrectedSent : ", msgCorrectedSent);
+                                }, 5000);
+                            }
                         });
                     });
                 }
@@ -10309,6 +10369,20 @@ let expressEngine = undefined;
             }, 20000);
         }
 
+        async testsendIsTypingStateInConversation(state : boolean = true) {
+            //let that = this;
+            let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
+            // Retrieve a contact by its id
+            let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+            // Retrieve the associated conversation
+            let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
+            // let now = new Date().getTime();
+            // Send message
+            let msgSent = await rainbowSDK.im.sendIsTypingStateInConversation(conversation, state);
+            _logger.log("debug", "MAIN - sendIsTypingStateInConversation - result : ", msgSent);
+            //_logger.log("debug", "MAIN - sendIsTypingStateInConversation - conversation : ", conversation);
+        }
+
         //endregion Presence
 
         // region Telephony Voice Messages
@@ -10910,6 +10984,40 @@ to='user1@pdevdv3os18f.corp.intuit.net/BANL07R9AME9X' type='get' id='e2e1'>
             _logger.log("info", "MAIN - (testGotRequest) - res : ", _logger.stripStringForLogs(res));
             nock.cleanAll();
             nock.restore();
+        }
+
+        async testGetRequestOnServer() {
+            // To be use with the "serverweb" project started and listenning on port 8443.
+            let url = "/request";
+            _logger.log("info", "MAIN - (testGetRequestOnServer) - url : ", url);
+
+            let serverURLSaved = rainbowSDK._core._http.serverURL;
+            rainbowSDK._core._http.serverURL = "https://localhost:8443";
+
+            /*
+            await rainbowSDK._core._http.start() ;
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            // addParamToUrl(urlParamsTab, "callerNumber", callerNumber );
+            url = urlParamsTab[0];
+            // */
+
+            _logger.log("info", "MAIN - (testGetRequestOnServer) (get) REST url : ", url);
+            let headers = rainbowSDK._core._rest.getRequestHeader();
+            let param =  {"code":403,"message":"Forbidden"};
+            let nbTryBeforeFailed:number = 0, timeBetweenRetry :number=1000;
+            let res = await rainbowSDK._core._http.get(url, headers, param, 'application/json',  nbTryBeforeFailed, timeBetweenRetry).then((json) => {
+                _logger.log("info", "MAIN - (testGetRequestOnServer) (get) successfull");
+                _logger.log("info", "MAIN - (testGetRequestOnServer) (get) REST result : ", json);
+                //return (json?.data);
+                rainbowSDK._core._http.serverURL = serverURLSaved;
+            }).catch(function (err) {
+                _logger.log("error", "MAIN - (testGetRequestOnServer) (get) error");
+                _logger.log("error", "MAIN - (testGetRequestOnServer) (get) error : ", err);
+                //return (err);
+                rainbowSDK._core._http.serverURL = serverURLSaved;
+            });
+            _logger.log("info", "MAIN - (testGetRequestOnServer) - res : ", _logger.stripStringForLogs(res));
         }
 
         async testUserAppDataPath() {

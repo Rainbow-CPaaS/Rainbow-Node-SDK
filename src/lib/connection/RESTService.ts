@@ -9,7 +9,7 @@ import * as backoff from "backoff";
 import {
     addParamToUrl,
     addPropertyToObj,
-    getRandomInt,
+    getRandomInt, isDefined,
     logEntryExit,
     makeId,
     msToTime, orderByFilter,
@@ -24,7 +24,7 @@ import {Contact} from "../common/models/Contact";
 import EventEmitter = NodeJS.EventEmitter;
 import {Logger} from "../common/Logger";
 import {error} from "winston";
-import {ROOMROLE} from "../services/S2SService";
+import {ROOMROLE, CHATSTATE} from "../services/S2SService";
 import {urlencoded} from "body-parser";
 import {Core} from "../Core";
 import {Channel} from "../common/models/Channel";
@@ -7934,6 +7934,49 @@ kamEmailList?: string[], businessSpecific?: string, adminServiceNotificationsLev
         });
     }
 
+    // state Enum: "active" "composing" "paused" "inactive" "gone"
+    sendS2SChatState(conversationId: string, state: CHATSTATE): Promise<any> {
+        // PUT /api/rainbow/ucs/v1.0/connections/{cnxId}/conversations/{cvId}/chatstate/{state}
+        // API https://api.openrainbow.org/doc/api/ucs/redoc-index.html#tag/Conversation/operation/Conversation.chatstate
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that._logger.log(that.HTTP, LOG_ID + "(sendS2SChatState) REST.");
+            let url: string = "/api/rainbow/ucs/v1.0/connections/" + that.connectionS2SInfo.id + "/conversations/" + conversationId + "/chatstate/" + state;
+            if (!isDefined(conversationId)) {
+                that._logger.log(that.DEBUG, LOG_ID + "(sendS2SChatState) bad request paramater conversationId undefined.");
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+            if (!isDefined(state)) {
+                that._logger.log(that.DEBUG, LOG_ID + "(sendS2SChatState) bad request paramater state undefined.");
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+            /*let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            if (types!=undefined) {
+                addParamToUrl(urlParamsTab, "types", types);
+            }
+            url = urlParamsTab[0];
+            // */
+
+            let param = {
+            };
+            //let data: any = {};
+            //addPropertyToObj(param, "peerId", body.peerId, false);
+
+            that._logger.log(that.INTERNAL, LOG_ID + "(sendS2SChatState) REST peerId : ", conversationId, " state : ", state);
+
+            that.http.put(url, that.getRequestHeader(), param, undefined).then((json) => {
+                that._logger.log(that.INTERNAL, LOG_ID + "(sendS2SChatState) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(sendS2SChatState) REST success.");
+                resolve(json);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(sendS2SChatState) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(sendS2SChatState) error : ", err);
+                return reject(err);
+            });
+        });
+    };
+
     async getS2SServerConversation(conversationId): Promise<any> {
         let that = this;
         // https://openrainbow.com:443/api/rainbow/ucs/v1.0/connections/{cnxId}/conversations/{id}
@@ -8143,6 +8186,227 @@ kamEmailList?: string[], businessSpecific?: string, adminServiceNotificationsLev
             }
         });
     }
+
+    //region Pin list
+    addPinWithPeerId(peerId?: string, types ?: boolean, body ?: any): Promise<any> {
+        // POST /api/rainbow/enduser/v1.0/users/:userId/pins/:types/:peerId
+        // API https://api.openrainbow.org/enduser/#api-pin_list-createPin
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that._logger.log(that.INTERNAL, LOG_ID + "(addPinWithPeerId) REST.");
+            let url: string = "/api/rainbow/enduser/v1.0/users/" + that.userId + "/pins/" + types + "/" + peerId;
+            if (!isDefined(peerId)) {
+                that._logger.log(that.DEBUG, LOG_ID + "(addPinWithPeerId) bad request paramater peerId undefined.");
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+            if (!isDefined(types)) {
+                that._logger.log(that.DEBUG, LOG_ID + "(addPinWithPeerId) bad request paramater types undefined.");
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+            /*let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            if (types!=undefined) {
+                addParamToUrl(urlParamsTab, "types", types);
+            }
+            url = urlParamsTab[0];
+            // */
+
+            let param = {
+            };
+            //let data: any = {};
+            addPropertyToObj(param, "peerId", body.peerId, false);
+            addPropertyToObj(param, "peerJid", body.peerJid, false);
+            addPropertyToObj(param, "conversationJid", body.conversationJid, false);
+            addPropertyToObj(param, "messageId", body.messageId, false);
+            addPropertyToObj(param, "messageTimestamp", body.messageTimestamp, false);
+            addPropertyToObj(param, "text", body.text, false);
+            addPropertyToObj(param, "fileInfo", body.fileInfo, false);
+            addPropertyToObj(param, "creationDate", body.creationDate, false);
+
+            that._logger.log(that.INTERNAL, LOG_ID + "(addPinWithPeerId) REST peerId : ", peerId, " param : ", param);
+
+            that.http.post(url, that.getRequestHeader(), param, undefined).then((json) => {
+                that._logger.log(that.INTERNAL, LOG_ID + "(addPinWithPeerId) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(addPinWithPeerId) REST success.");
+                resolve(json?.data);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(addPinWithPeerId) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(addPinWithPeerId) error : ", err);
+                return reject(err);
+            });
+        });
+    };
+
+    getPinWithPeerIdById (types: string, peerId: string, pinId: string) {
+        // GET /api/rainbow/enduser/v1.0/users/:userId/pins/:types/:peerId/:pinId
+        // API https://api.openrainbow.org/enduser/#api-pin_list-GetUserPinById
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that._logger.log(that.INTERNAL, LOG_ID + "(getPinWithPeerIdById) REST.");
+            let url: string = "/api/rainbow/enduser/v1.0/users/" + that.userId + "/pins/"+types+"/"+peerId+"/"+pinId;
+            if (!isDefined(peerId)) {
+                that._logger.log(that.DEBUG, LOG_ID + "(getPinWithPeerIdById) bad request paramater peerId undefined.");
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+            if (!isDefined(types)) {
+                that._logger.log(that.DEBUG, LOG_ID + "(getPinWithPeerIdById) bad request paramater types undefined.");
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+            /*let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            if (types!=undefined) {
+                addParamToUrl(urlParamsTab, "types", types);
+            }
+            url = urlParamsTab[0];
+            // */
+
+                        /*
+            let param = {
+            };
+            //let data: any = {};
+            addPropertyToObj(param, "peerId", body.peerId, false);
+            // */
+
+            that._logger.log(that.INTERNAL, LOG_ID + "(getPinWithPeerIdById) REST peerId : ", peerId);
+
+            that.http.get(url, that.getRequestHeader(), undefined, undefined).then((json) => {
+                that._logger.log(that.INTERNAL, LOG_ID + "(getPinWithPeerIdById) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getPinWithPeerIdById) REST success.");
+                resolve(json?.data);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(getPinWithPeerIdById) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getPinWithPeerIdById) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    getAllPinsWithPeerId (types:string, peerId:string) {
+        // GET /api/rainbow/enduser/v1.0/users/:userId/pins/:types/:peerId
+        // API https://api.openrainbow.org/enduser/#api-pin_list-GetUserPins
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that._logger.log(that.INTERNAL, LOG_ID + "(getAllPinsWithPeerId) REST.");
+            let url: string = "/api/rainbow/enduser/v1.0/users/" + that.userId + "/pins/"+types+"/"+peerId;
+            if (!isDefined(peerId)) {
+                that._logger.log(that.DEBUG, LOG_ID + "(getAllPinsWithPeerId) bad request paramater peerId undefined.");
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+            if (!isDefined(types)) {
+                that._logger.log(that.DEBUG, LOG_ID + "(getAllPinsWithPeerId) bad request paramater types undefined.");
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+            /*let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            if (types!=undefined) {
+                addParamToUrl(urlParamsTab, "types", types);
+            }
+            url = urlParamsTab[0];
+            // */
+
+            /*
+let param = {
+};
+//let data: any = {};
+addPropertyToObj(param, "peerId", body.peerId, false);
+// */
+
+            that._logger.log(that.INTERNAL, LOG_ID + "(getAllPinsWithPeerId) REST peerId : ", peerId);
+
+            that.http.get(url, that.getRequestHeader(), undefined, undefined).then((json) => {
+                that._logger.log(that.INTERNAL, LOG_ID + "(getAllPinsWithPeerId) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(getAllPinsWithPeerId) REST success.");
+                resolve(json?.data);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(getAllPinsWithPeerId) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getAllPinsWithPeerId) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    removefromWithPeerId (types: string, peerId: string, pinId: string) {
+        // DELETE /api/rainbow/enduser/v1.0/users/:userId/pins/:types/:peerId/:pinId
+        // API https://api.openrainbow.org/enduser/#api-pin_list-removePin
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that._logger.log(that.INTERNAL, LOG_ID + "(removefromWithPeerId) REST.");
+            let url: string = "/api/rainbow/enduser/v1.0/users/" + that.userId + "/pins/"+types+"/"+peerId+"/"+pinId;
+            if (!isDefined(peerId)) {
+                that._logger.log(that.DEBUG, LOG_ID + "(removefromWithPeerId) bad request paramater peerId undefined.");
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+            if (!isDefined(types)) {
+                that._logger.log(that.DEBUG, LOG_ID + "(removefromWithPeerId) bad request paramater types undefined.");
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            let param = undefined;
+            that._logger.log(that.INTERNAL, LOG_ID + "(removefromWithPeerId) REST.");
+
+            that.http.delete(url, that.getRequestHeader(), param).then((json) => {
+                that._logger.log(that.DEBUG, LOG_ID + "(removefromWithPeerId) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(removefromWithPeerId) REST result : ", json);
+                resolve(json?.data);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(removefromWithPeerId) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(removefromWithPeerId) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    updatePinWithPeerId (peerId?: string, types ?: boolean, pinId? : string, body ?: any): Promise<any> {
+        // PUT /api/rainbow/enduser/v1.0/users/:userId/pins/:types/:peerId/:pinId
+        // API https://api.openrainbow.org/enduser/#api-pin_list-updatePin
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that._logger.log(that.INTERNAL, LOG_ID + "(updatePinWithPeerId) REST.");
+            let url: string = "/api/rainbow/enduser/v1.0/users/" + that.userId + "/pins/" + types + "/" + peerId + "/" + pinId;
+            if (!isDefined(peerId)) {
+                that._logger.log(that.DEBUG, LOG_ID + "(updatePinWithPeerId) bad request paramater peerId undefined.");
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+            if (!isDefined(types)) {
+                that._logger.log(that.DEBUG, LOG_ID + "(updatePinWithPeerId) bad request paramater types undefined.");
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+            if (!isDefined(pinId)) {
+                that._logger.log(that.DEBUG, LOG_ID + "(updatePinWithPeerId) bad request paramater pinId undefined.");
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+            /*let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            if (types!=undefined) {
+                addParamToUrl(urlParamsTab, "types", types);
+            }
+            url = urlParamsTab[0];
+            // */
+
+            let param = {
+            };
+            //let data: any = {};
+            addPropertyToObj(param, "peerId", body.peerId, false);
+            addPropertyToObj(param, "peerJid", body.peerJid, false);
+            addPropertyToObj(param, "conversationJid", body.conversationJid, false);
+            addPropertyToObj(param, "messageId", body.messageId, false);
+            addPropertyToObj(param, "messageTimestamp", body.messageTimestamp, false);
+            addPropertyToObj(param, "text", body.text, false);
+            addPropertyToObj(param, "fileInfo", body.fileInfo, false);
+            addPropertyToObj(param, "creationDate", body.creationDate, false);
+
+            that._logger.log(that.INTERNAL, LOG_ID + "(updatePinWithPeerId) REST peerId : ", peerId, " param : ", param);
+
+            that.http.put(url, that.getRequestHeader(), param, undefined).then((json) => {
+                that._logger.log(that.INTERNAL, LOG_ID + "(updatePinWithPeerId) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(updatePinWithPeerId) REST success.");
+                resolve(json?.data);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(updatePinWithPeerId) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(updatePinWithPeerId) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    //endregion Pin list
 
     //endregion Messages
 

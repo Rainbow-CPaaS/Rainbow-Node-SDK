@@ -194,6 +194,7 @@ class Emitter extends EventEmitterClass{
  * @fires Events#rainbow_ontelephonypcg
  * @fires Events#rainbow_ontelephonypcgpresence
  * @fires Events#rainbow_onconference
+ * @fires Events#rainbow_onpinmanagement
  */
 class Events {
     get logEmitter(): EventEmitter {
@@ -318,7 +319,8 @@ class Events {
         "rainbow_ontelephonyrvcppresence",
         "rainbow_ontelephonypcg",
         "rainbow_ontelephonypcgpresence",
-        "rainbow_onconference"
+        "rainbow_onconference",
+        "rainbow_onpinmanagement"
     ];
     public  waitBeforeBubblePresenceSend = false;
 
@@ -1704,6 +1706,24 @@ class Events {
              *  </br>
              */
             that.publishEvent("conference", data);
+        });
+
+        this._evReceiver.on("evt_internal_pinmanagement", function (data) {
+            /**
+             * @event Events#rainbow_onpinmanagement
+             * @public
+             * @param { any | error } data The data of the pin.
+             * @description
+             *      Fired when a `pined message` event is receveid from server.</br>
+             *  {</br>
+             *      pinId: string, // Id of the pin</br>
+             *      action: string, // Management action</br>
+             *      peerId: string, // peerId </br>
+             *      content: string // Content of the pined </br>
+             *  }</br>
+             *  </br>
+             */
+            that.publishEvent("pinmanagement", data);
         });
 
     }

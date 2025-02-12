@@ -669,8 +669,23 @@ body: 'Welcome to the MCQ Test'
 enum ROOMROLE  {
     MODERATOR = "moderator",
     MEMBER = "member"
-};
+}
 
-export { S2SService, ROOMROLE};
+/**
+ * The state of the Chat in the conversation.
+ * @public
+ * @enum {string}
+ * @readonly
+ */
+enum CHATSTATE {
+    ACTIVE = "active",
+    COMPOSING = "composing",
+    PAUSED = "paused",
+    INACTIVE = "inactive",
+    GONE = "gone"
+}
+
+export { S2SService, ROOMROLE, CHATSTATE};
 module.exports.S2SService = S2SService;
 module.exports.ROOMROLE = ROOMROLE;
+module.exports.CHATSTATE = CHATSTATE;

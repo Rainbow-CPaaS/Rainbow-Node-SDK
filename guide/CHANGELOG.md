@@ -35,7 +35,8 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Update default value of `maxReqByIntervalForRequestRate` to 20250.
 -   Update default value of `timeoutRequestForRequestRate` to 600.
 -   Update `Samples\index` to create and use a folder in %temp% directory.
--   Update sendMessageToConversation result to store the from if it is not present in the REST result.
+-   Update `sendMessageToConversation` result to store the from if it is not present in the REST result.
+-   Update `ImsService::sendIsTypingStateInConversation` API with ability to call it in S2S mode (Add sendS2SChatState).
 
 ### [2.32.0-lts.2] - 2024-11-26
 #### Removed

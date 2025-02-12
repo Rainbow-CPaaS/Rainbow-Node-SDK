@@ -1396,6 +1396,13 @@ Conversation.Status = {
     }
 };
 
+enum PEERTYPE {
+    "UNKNOWN"= "unknown",
+    "USER" = "user",
+    "ROOM" = "room"
+};
+
 module.exports.Conversation = Conversation;
 module.exports.MessagesQueue = MessagesQueue;
-export {Conversation, MessagesQueue};
+module.exports.MessagesQueue = PEERTYPE;
+export {Conversation, MessagesQueue, PEERTYPE};

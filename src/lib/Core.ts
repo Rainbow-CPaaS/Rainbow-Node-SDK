@@ -575,7 +575,7 @@ class Core extends LevelLogs{
                 }).then(() => {
                     return that._contacts.init(that.options._restOptions.useRestAtStartup);
                 }).then(() => {
-                    return that._presence._sendPresenceFromConfiguration();
+                    return that._presence._sendPresenceFromConfiguration(that.options._restOptions.useRestAtStartup);
                 }).then(() => {
                         return that._telephony.init(that.options._restOptions.useRestAtStartup);
                 }).then(() => {
@@ -692,7 +692,7 @@ class Core extends LevelLogs{
                     //return Utils.traceExecutionTime(that,"_contacts.init", that._contacts.init, [that.options._restOptions.useRestAtStartup]);
                     return that._contacts.init(that.options._restOptions.useRestAtStartup);
                 }).then(() => {
-                    return that._presence._sendPresenceFromConfiguration();
+                    return that._presence._sendPresenceFromConfiguration(that.options._restOptions.useRestAtStartup);
                     //    return Promise.resolve(undefined)
                 }).then(() => {
                         return that._telephony.init(that.options._restOptions.useRestAtStartup);

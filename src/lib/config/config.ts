@@ -80,6 +80,10 @@ let conf =  {
                      * Socket timeout in milliseconds. This will set the timeout after the socket is connected.
                      */
                     timeout: 120002, // ?: number | undefined;
+                    /**
+                     * If not false, the server certificate is verified against the list of supplied CAs. Default: true.
+                     */
+                    rejectUnauthorized: true
                 },
                 gotRequestOptions : {
                     timeout: { // This object describes the maximum allowed time for particular events.
@@ -148,6 +152,10 @@ let conf =  {
                      * Socket timeout in milliseconds. This will set the timeout after the socket is connected.
                      */
                     timeout: 60000, // ?: number | undefined;
+                    /**
+                     * If not false, the server certificate is verified against the list of supplied CAs. Default: true.
+                     */
+                    rejectUnauthorized: true
                 },
                 gotRequestOptions : {
                     timeout: { // This object describes the maximum allowed time for particular events.
@@ -217,6 +225,10 @@ let conf =  {
                      * Socket timeout in milliseconds. This will set the timeout after the socket is connected.
                      */
                     timeout: 120001, // ?: number | undefined;
+                    /**
+                     * If not false, the server certificate is verified against the list of supplied CAs. Default: true.
+                     */
+                    rejectUnauthorized: true
                 },
                 gotRequestOptions : {
                     timeout: { // This object describes the maximum allowed time for particular events.

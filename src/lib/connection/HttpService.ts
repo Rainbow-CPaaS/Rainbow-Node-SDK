@@ -139,7 +139,10 @@ class HTTPService extends LevelLogs{
              * Socket timeout in milliseconds. This will set the timeout after the socket is connected.
              */
             timeout: customLiveOption?.agentOptions?.timeout!==undefined ? customLiveOption.agentOptions.timeout:60000, // ?: number | undefined;
-         //   rejectUnauthorized: false
+            /**
+             * If not false, the server certificate is verified against the list of supplied CAs. Default: true.
+             */
+            rejectUnauthorized: customLiveOption?.agentOptions?.rejectUnauthorized!==undefined ? customLiveOption.agentOptions.rejectUnauthorized:true
         };
 
         if (that.proxy.isProxyConfigured) {

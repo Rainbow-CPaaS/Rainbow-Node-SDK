@@ -1799,7 +1799,7 @@ class XMPPService extends GenericService {
                 });
             });
         }
-        that._logger.log(that.WARN, LOG_ID + "(markMessageAsRead) No XMPP connection...");
+        that._logger.log(that.WARN, LOG_ID + "(sendIsTypingState) No XMPP connection...");
         return Promise.resolve(null);
     }
 

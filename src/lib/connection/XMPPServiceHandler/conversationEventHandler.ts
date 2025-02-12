@@ -174,7 +174,7 @@ class ConversationEventHandler extends GenericHandler {
         let jsonNode = await getJsonFromXML(xmlNodeStr);
         that._logger.log(that.INTERNAL, LOG_ID + "(parseConferenceV2UpdatedEvent) id : ", id, ", JSON conference-info : ", "\n", jsonNode);
         let conferenceInfo = jsonNode["conference-info"];
-        //that._logger.log(that.DEBUG, LOG_ID + "(onChatMessageReceived) conferenceInfo : ", conferenceInfo);
+        //that._logger.log(that.DEBUG, LOG_ID + "(parseConferenceV2UpdatedEvent) conferenceInfo : ", conferenceInfo);
 //                        let bubble = undefined;
 
         let xmlnsNode = conferenceInfo["$attrs"]["xmlns"];
@@ -207,10 +207,10 @@ class ConversationEventHandler extends GenericHandler {
                 newConferenceId = conferenceInfo["new-conference-id"];
                 /* let newConference: ConferenceSession = await that._bubbleService.getConferenceByIdFromCache(newConferenceId);
                 if (newConference==null) {
-                    that._logger.log(that.DEBUG, LOG_ID + "(onChatMessageReceived) id : ", id, ", " + " create new ConferenceSession. newConferenceId : ", newConferenceId);
+                    that._logger.log(that.DEBUG, LOG_ID + "(parseConferenceV2UpdatedEvent) id : ", id, ", " + " create new ConferenceSession. newConferenceId : ", newConferenceId);
                     newConference = new ConferenceSession(newConferenceId);
                 } else {
-                    that._logger.log(that.DEBUG, LOG_ID + "(onChatMessageReceived) id : ", id, ", " + " ConferenceSession found in BubblesService cache. newConference : ", newConference);
+                    that._logger.log(that.DEBUG, LOG_ID + "(parseConferenceV2UpdatedEvent) id : ", id, ", " + " ConferenceSession found in BubblesService cache. newConference : ", newConference);
                 } // */
 
                 try {
@@ -337,7 +337,7 @@ class ConversationEventHandler extends GenericHandler {
             }
 
             // talkers
-            //that._logger.log(that.INTERNAL, LOG_ID + "(onChatMessageReceived) id : ", id, ", " + ", conference : ", conference, ", talkers", conferenceInfo["talkers"]);
+            //that._logger.log(that.INTERNAL, LOG_ID + "(parseConferenceV2UpdatedEvent) id : ", id, ", " + ", conference : ", conference, ", talkers", conferenceInfo["talkers"]);
             if (conferenceInfo.hasOwnProperty("talkers")) {
                 let talkers = conferenceInfo["talkers"];
                 //let talkersId = that.parseParticipantsIdFromConferenceUpdatedEvent(talkers);
@@ -345,7 +345,7 @@ class ConversationEventHandler extends GenericHandler {
             }
 
             // silents
-            //that._logger.log(that.INTERNAL, LOG_ID + "(onChatMessageReceived) id : ", id, ", " + ", conference : ", conference, ", talkers", conferenceInfo["talkers"]);
+            //that._logger.log(that.INTERNAL, LOG_ID + "(parseConferenceV2UpdatedEvent) id : ", id, ", " + ", conference : ", conference, ", talkers", conferenceInfo["talkers"]);
             if (conferenceInfo.hasOwnProperty("silents")) {
                 let silents = conferenceInfo["silents"];
                 that.parsSilentsFromConferenceUpdatedEvent(conference, silents);
@@ -709,6 +709,22 @@ class ConversationEventHandler extends GenericHandler {
                         };
                         that._logger.log(that.INTERNAL, LOG_ID + "(onChatMessageReceived) id : ", id, ", message - someone is " + node.getName());
                         that.eventEmitter.emit("evt_internal_chatstate", chatstate);
+                        break;
+                    case "pin":
+                        let pinJson = jsonStanza?.message?.pin;
+                        that._logger.log(that.INTERNAL, LOG_ID + "(onChatMessageReceived) id : ", id, ", pinJson : ", pinJson);
+                        let pinManaged = {
+                            pinId: pinJson['$attrs'].id,
+                            action: pinJson['$attrs'].action,
+                            peerId: pinJson['$attrs'].peerId,
+                            peerType: jsonStanza?.message['$attrs'].type,
+                            peerPinId: pinJson['$attrs'].peerPinId,
+                            ownerId: pinJson['$attrs'].ownerId,
+                            ownerPinId: pinJson['$attrs'].ownerPinId,
+                            content: pinJson.content?._?pinJson.content?._:pinJson.content
+                        };
+                        that._logger.log(that.INTERNAL, LOG_ID + "(onChatMessageReceived) id : ", id, ", pinManaged : ", pinManaged);
+                        that.eventEmitter.emit("evt_internal_pinmanagement", pinManaged);
                         break;
                     case "archived":
                         break;
@@ -2253,7 +2269,7 @@ class ConversationEventHandler extends GenericHandler {
                                 "roomid": roomId,
                                 "pollid": pollId,
                             };
-                            that._logger.log(that.INTERNAL, LOG_ID + "(onChatMessageReceived) configure - poll : ", pollObj);
+                            that._logger.log(that.INTERNAL, LOG_ID + "(onManagementMessageReceived) configure - poll : ", pollObj);
                             that.eventEmitter.emit("evt_internal_bubblepollconfiguration", pollObj);
                         }
                         break;

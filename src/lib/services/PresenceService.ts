@@ -1,17 +1,15 @@
 "use strict";
 import {Logger} from "../common/Logger";
-import {XMPPService} from "../connection/XMPPService";
 import {ErrorManager} from "../common/ErrorManager";
 import * as PubSub from "pubsub-js";
 import {PresenceEventHandler} from "../connection/XMPPServiceHandler/presenceEventHandler";
 import {isDefined, isStarted, logEntryExit, until} from "../common/Utils";
 import {SettingsService} from "./SettingsService";
 import {EventEmitter} from "events";
-import {RESTService} from "../connection/RESTService";
-import {ROOMROLE, S2SService} from "./S2SService";
+import {ROOMROLE} from "./S2SService";
 import {Core} from "../Core";
 import {BubblesService} from "./BubblesService";
-import {PresenceCalendar, PresenceLevel, PresenceRainbow} from "../common/models/PresenceRainbow";
+import {PresenceLevel, PresenceRainbow, PresenceStatus} from "../common/models/PresenceRainbow";
 import {GenericService} from "./GenericService";
 import {interval} from "rxjs";
 import {Bubble, getBubbleLogInfos} from "../common/models/Bubble";
@@ -309,11 +307,12 @@ class PresenceService extends GenericService{
      * @description
      *      Send user presence according to user settings presence. <br>
      */
-    async _sendPresenceFromConfiguration() {
+    async _sendPresenceFromConfiguration(useRestAtStartup) {
         let that = this;
         return new Promise( (resolve, reject) => {
             let presenceRainbow : PresenceRainbow = new PresenceRainbow();
-            that._settings.getUserSettings().then(function(settings : any) {
+            if (useRestAtStartup) {
+                that._settings.getUserSettings().then(function (settings: any) {
                     //let message = "";
                     presenceRainbow.presenceLevel = settings.presence;
                     /*if (presence === "invisible") {
@@ -323,21 +322,38 @@ class PresenceService extends GenericService{
                         message = "away";
                     } // */
 
-                    that._logger.log(that.INTERNAL, LOG_ID + "(_sendPresenceFromConfiguration) -> getUserSettings are ", presenceRainbow );
+                    that._logger.log(that.INTERNAL, LOG_ID + "(_sendPresenceFromConfiguration) -> getUserSettings are ", presenceRainbow);
                     //if (that._currentPresence && (that._currentPresence !== presence || (that._currentPresence. === "xa" && message !== that._currentPresence.status))) {
                     //if (that._currentPresence && (that._currentPresence.presenceLevel !== presenceRainbow.presenceLevel )) {
-                    if (that._currentPresence ) {
-                        that._logger.log(that.INTERNAL, LOG_ID + "(_sendPresenceFromConfiguration) should update my status from ", that._currentPresence,  " to ", presenceRainbow);
-                        that._setUserPresenceStatus(presenceRainbow).then(() => { resolve(undefined); }).catch((err) => { reject(err); });
+                    if (that._currentPresence) {
+                        that._logger.log(that.INTERNAL, LOG_ID + "(_sendPresenceFromConfiguration) should update my status from ", that._currentPresence, " to ", presenceRainbow);
+                        that._setUserPresenceStatus(presenceRainbow).then(() => {
+                            resolve(undefined);
+                        }).catch((err) => {
+                            reject(err);
+                        });
                     } else {
                         resolve(undefined);
                     }
                 })
-                .catch(function(error) {
-                    that._logger.log(that.DEBUG, LOG_ID + "(_sendPresenceFromConfiguration) failure, send online");
-                    that._setUserPresenceStatus(new PresenceRainbow()).then(() => { resolve(undefined); }).catch(() => { reject(error); });
+                    .catch(function (error) {
+                        that._logger.log(that.DEBUG, LOG_ID + "(_sendPresenceFromConfiguration) failure, send online");
+                        that._setUserPresenceStatus(new PresenceRainbow()).then(() => {
+                            resolve(undefined);
+                        }).catch(() => {
+                            reject(error);
+                        });
+                    });
+            } else {
+                presenceRainbow.presenceLevel = PresenceLevel.Online;
+                presenceRainbow.presenceStatus = PresenceStatus.ModeAuto;
+                that._logger.log(that.INFO, LOG_ID + "(_sendPresenceFromConfiguration) -> Will send presence : ", presenceRainbow);
+                that._setUserPresenceStatus(presenceRainbow).then(() => {
+                    resolve(undefined);
+                }).catch((err) => {
+                    reject(err);
                 });
-
+            }
         });
     }
 
@@ -570,7 +586,7 @@ class PresenceService extends GenericService{
      */
     _onUserSettingsChanged() {
         let that = this;
-        that._sendPresenceFromConfiguration().catch(err=>{
+        that._sendPresenceFromConfiguration(that._options._restOptions.useRestAtStartup).catch(err=>{
             that._logger.log(that.WARN, LOG_ID + "(_onUserSettingsChanged) _sendPresenceFromConfiguration error : ", err);
         });
     }

@@ -155,6 +155,7 @@ class Message {
     public replacedByMessage: Message;
     public deleted : boolean;
     public modified : boolean;
+    public rainbowCpaas : any;
 
 
     constructor(serverAckTimer: any, 
@@ -218,7 +219,8 @@ class Message {
                 isForwarded:boolean,
                 forwardedMsg: any,
                 deleted:boolean = false,
-                modified : boolean = false) {
+                modified : boolean = false,
+                rainbowCpaas: any = null) {
         
         /**
          * @private
@@ -618,6 +620,14 @@ class Message {
          * @readonly
          */
         this.modified = modified;
+
+        /**
+         * @public
+         * @property {Object} rainbowCpaas the message CPaaS API hidden data.
+         * @readonly
+         */
+        this.rainbowCpaas = rainbowCpaas;
+
     }
 
     /**

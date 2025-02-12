@@ -1,27 +1,22 @@
 "use strict";
 import {ConversationsService} from "./ConversationsService";
-const Element = require('ltx').Element;
-
-export {};
-
-import {XMPPService} from "../connection/XMPPService";
 import {ErrorManager} from "../common/ErrorManager";
-import {Conversation} from "../common/models/Conversation";
+import {Conversation, PEERTYPE} from "../common/models/Conversation";
 import {shortnameToUnicode,} from "../common/Emoji";
 import {XMPPUTils} from "../common/XMPPUtils";
-import {isDefined, isNullOrEmpty, logEntryExit, until} from "../common/Utils";
-import {isStarted} from "../common/Utils";
+import {isDefined, isStarted, logEntryExit} from "../common/Utils";
 import {Logger} from "../common/Logger";
 import {EventEmitter} from "events";
 import {BubblesService} from "./BubblesService";
-import {FileStorageService} from "./FileStorageService";
-import {S2SService} from "./S2SService";
-import {RESTService} from "../connection/RESTService";
 import {Core} from "../Core";
 import {PresenceService} from "./PresenceService";
 import {GenericService} from "./GenericService";
 import {Message} from "../common/models/Message";
-import {HTTPoverXMPP} from "./HTTPoverXMPPService.js";
+import {CHATSTATE} from "./S2SService.js";
+
+const Element = require('ltx').Element;
+
+export {};
 
 const LOG_ID = "IM/SVCE - ";
 const API_ID = "API_CALL - ";
@@ -585,6 +580,29 @@ class ImsService extends GenericService{
             messageSent = Promise.reject("only supported in xmpp mode");
         }
 
+        return messageSent.then(async (messageSent) => {
+            if (!messageSent.from && !messageSent.fromJid) {
+                messageSent.from = that._rest.loggedInUser.jid_im;
+            }
+
+            let conversation = undefined;
+            let peer:{peer : any, type: PEERTYPE }  = await that._core.contacts.getPeerByJid(jid);
+            if (peer.type === PEERTYPE.USER) {
+                conversation = await that._conversations.openConversationForContact(peer.peer);
+            }
+            if (peer.type === PEERTYPE.ROOM) {
+                conversation = await that._conversations.openConversationForBubble(peer.peer);
+            }
+
+            if (conversation) {
+                this._conversations.storePendingMessage(conversation, messageSent);
+                that._logger.log(that.INTERNAL, LOG_ID + "(sendMessageToConversation) stored PendingMessage : ", messageSent);
+                //conversation.messages.push(messageSent);
+                //this.conversations.getServerConversations();
+            }
+            return messageSent;
+        });
+
         /*
         this.storePendingMessage(messageSent);
         await utils.until(() => {
@@ -594,7 +612,7 @@ class ImsService extends GenericService{
         this.removePendingMessage(messageSent);
         that._logger.log(that.DEBUG, LOG_ID + "(sendMessageToJid) _exiting_");
         // */
-        return messageSent;
+        //return messageSent;
     }
 
     /**
@@ -1079,8 +1097,17 @@ class ImsService extends GenericService{
                 if (!conversation) {
                     return reject(Object.assign( ErrorManager.getErrorManager().OTHERERROR("ERRORNOTFOUND", "ERRORNOTFOUND"), {msg: "Parameter 'conversation': this conversation doesn't exist"}));
                 } else {
-                    await that._xmpp.sendIsTypingState(conversation, status);
-                    resolve(undefined);
+                    if (that._useXMPP) {
+                        await that._xmpp.sendIsTypingState(conversation, status);
+                        resolve(undefined);
+                    } else if (that._useS2S) {
+                        let state: CHATSTATE = CHATSTATE.COMPOSING;
+                        if (!status) {
+                            state = CHATSTATE.ACTIVE;
+                        }
+                        await that._rest.sendS2SChatState(conversation.dbId, state);
+                        resolve(undefined);
+                    }
                 }
             }
         });
