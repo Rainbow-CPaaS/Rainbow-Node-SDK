@@ -38,6 +38,7 @@ import {Group} from "ts-generic-collections-linq";
 import {Task} from "../common/models/Task.js";
 import {TaskInput} from "../services/TasksService.js";
 import {HuntingGroup} from "../common/models/RainbowVoiceCloudPBX.js";
+import { PEERTYPE } from "../common/models/Conversation.js";
 
 let packageVersion = require("../../package.json");
 
@@ -8188,7 +8189,7 @@ kamEmailList?: string[], businessSpecific?: string, adminServiceNotificationsLev
     }
 
     //region Pin list
-    addPinWithPeerId(peerId?: string, types ?: boolean, body ?: any): Promise<any> {
+    addPinWithPeerId(peerId: string, types : PEERTYPE, body : any): Promise<any> {
         // POST /api/rainbow/enduser/v1.0/users/:userId/pins/:types/:peerId
         // API https://api.openrainbow.org/enduser/#api-pin_list-createPin
         let that = this;
@@ -8199,7 +8200,7 @@ kamEmailList?: string[], businessSpecific?: string, adminServiceNotificationsLev
                 that._logger.log(that.DEBUG, LOG_ID + "(addPinWithPeerId) bad request paramater peerId undefined.");
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
-            if (!isDefined(types)) {
+            if (!isDefined(types) || types === PEERTYPE.UNKNOWN) {
                 that._logger.log(that.DEBUG, LOG_ID + "(addPinWithPeerId) bad request paramater types undefined.");
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }

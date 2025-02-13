@@ -4,7 +4,7 @@ import {ErrorManager} from "../common/ErrorManager";
 import {Conversation, PEERTYPE} from "../common/models/Conversation";
 import {shortnameToUnicode,} from "../common/Emoji";
 import {XMPPUTils} from "../common/XMPPUtils";
-import {isDefined, isStarted, logEntryExit} from "../common/Utils";
+import {addPropertyToObj, isDefined, isStarted, logEntryExit} from "../common/Utils";
 import {Logger} from "../common/Logger";
 import {EventEmitter} from "events";
 import {BubblesService} from "./BubblesService";
@@ -1001,6 +1001,82 @@ class ImsService extends GenericService{
             });
         });
     }
+
+    //region Pin list
+    /**
+     * @public
+     * @nodered true
+     * @since 2.21.0
+     * @method addPinWithPeerId
+     * @category Ims MESSAGES Pin list
+     * @instance
+     * @description
+     *   This API can be used to add a pin in user's Pins list with peerId.<br>
+     *   This API can only be used by user himself<br>
+     * @param {string} peerId peerId unique identifier</BR>
+     * @param {PEERTYPE} types type of peer id Valeurs autorisées : rooms, users
+     * @param {Object} body Pin List Object.
+     *
+     * @return {Promise<any>} The result
+     *
+     *
+     * | Champ            | Type   | Description                                  |
+     * |-----------------|--------|----------------------------------------------|
+     * | `peerId`        | String | Id of the conversation's peer.              |
+     * | `peerJid`       | String | Jid of the conversation's peer.             |
+     * | `conversationJid` | String | Jid of the conversation's peer.          |
+     * | `messageId`     | String | XMPP message Id.                            |
+     * | `messageTimestamp` | Number | Timestamp of the message.               |
+     * | `text`          | String | Pin's text.                                 |
+     * | `fileInfo` *(optionnel)* | Object | File information.              |
+     * | `creationDate` *(optionnel)* | Number | Creation date in ms since Unix epoch. |
+     *
+     *
+     */
+    addPinWithPeerId(peerId: string, types : PEERTYPE, body : any): Promise<any> {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(addPinWithPeerId) is peerId defined : ", isDefined(peerId));
+        return new Promise((resolve, reject) => {
+            that._logger.log(that.INTERNAL, LOG_ID + "(addPinWithPeerId) peerId : ", peerId);
+
+            if (!peerId) {
+                that._logger.log(that.DEBUG, LOG_ID + "(addPinWithPeerId) bad or empty 'peerId' parameter : ", peerId);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            if (!types) {
+                that._logger.log(that.DEBUG, LOG_ID + "(addPinWithPeerId) bad or empty 'types' parameter : ", types);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            if (!body) {
+                that._logger.log(that.DEBUG, LOG_ID + "(addPinWithPeerId) bad or empty 'body' parameter : ", body);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            that._rest.addPinWithPeerId(peerId, types, body ).then(async (result) => {
+                that._logger.log(that.INTERNAL, LOG_ID + "(addPinWithPeerId) result from server : ", result);
+                return resolve(result);
+            }).catch((err) => {
+                return reject(err);
+            });
+        });
+    };
+
+    getPinWithPeerIdById (types: string, peerId: string, pinId: string) {
+    }
+
+    getAllPinsWithPeerId (types:string, peerId:string) {
+    }
+
+    removefromWithPeerId (types: string, peerId: string, pinId: string) {
+    }
+
+    updatePinWithPeerId (peerId?: string, types ?: boolean, pinId? : string, body ?: any): Promise<any> {
+        return Promise.resolve("");
+    }
+
+    //endregion Pin list
 
     //endregion Ims MESSAGES
 

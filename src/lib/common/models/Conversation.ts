@@ -906,6 +906,7 @@ class Conversation {
 	public currentHistoryId: any;
     public static Status: any;
     public static Type: any;
+    public static PEERTYPE: any;
     private static randomBase: string;
     private static messageId: string;
     preload: boolean;
@@ -1396,13 +1397,39 @@ Conversation.Status = {
     }
 };
 
+/**
+ * Enum peer type
+ *
+ * ```
+ * {
+ * "UNKNOWN" = "unknown", // when the peer type is unkwon
+ * "USER" = "user", // when the peer type is a user of the rainbow system
+ * "ROOM" = "room" // when the peer type is a bubble
+ *  }
+ * ```
+ *
+ * @public
+ * @enum {number}
+ * @readonly
+ *
+ */
 enum PEERTYPE {
+    /**
+     * when the peer type is unkwon
+     */
     "UNKNOWN"= "unknown",
+    /**
+     * when the peer type is a user of the rainbow system
+     */
     "USER" = "user",
+    /**
+     * when the peer type is a bubble
+     */
     "ROOM" = "room"
 };
 
 module.exports.Conversation = Conversation;
 module.exports.MessagesQueue = MessagesQueue;
-module.exports.MessagesQueue = PEERTYPE;
+module.exports.PEERTYPE = PEERTYPE;
 export {Conversation, MessagesQueue, PEERTYPE};
+//export {Conversation, MessagesQueue};
