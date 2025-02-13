@@ -34,6 +34,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add property `Message::rainbowCpaas` the message CPaaS API hidden data.
 -   Add `rejectUnauthorized` option in `gotRequestOptions` of the SDK's options. If not false, the server certificate is verified against the list of supplied CAs. Default: true.
 -   Add `ContactsService::getPeerByJid` Api to et information about a peer by jid. Can be a "user", a "room"
+-   Add `ImsService::addPinWithPeerId` API. It can be used to add a pin in user's Pins list with peerId.
 -   Add `ImsService::getPinWithPeerIdById` This API can be used to get a pin in user's Pins list by peerId and pinId.
 -   Add `ImsService::getAllPinsWithPeerId` This API can be used to get all pin in user's Pins list by peerId.
 -   Add `ImsService::removefromWithPeerIdAndPinId` This API can be used to remove a pin in user's Pins list by peerId and pinId
