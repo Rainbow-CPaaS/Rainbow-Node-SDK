@@ -1003,16 +1003,18 @@ class ImsService extends GenericService{
     }
 
     //region Pin list
+
     /**
      * @public
      * @nodered true
-     * @since 2.21.0
+     * @since 2.33.0
      * @method addPinWithPeerId
      * @category Ims MESSAGES Pin list
      * @instance
      * @description
      *   This API can be used to add a pin in user's Pins list with peerId.<br>
      *   This API can only be used by user himself<br>
+     *
      * @param {string} peerId peerId unique identifier</BR>
      * @param {PEERTYPE} types type of peer id Valeurs autorisées : rooms, users
      * @param {Object} body Pin List Object.
@@ -1030,6 +1032,7 @@ class ImsService extends GenericService{
      * | `text`          | String | Pin's text.                                 |
      * | `fileInfo` *(optionnel)* | Object | File information.              |
      * | `creationDate` *(optionnel)* | Number | Creation date in ms since Unix epoch. |
+     * |  id 	                  | String | Pin's Id                       |
      *
      *
      */
@@ -1063,17 +1066,236 @@ class ImsService extends GenericService{
         });
     };
 
-    getPinWithPeerIdById (types: string, peerId: string, pinId: string) {
+    /**
+     * @public
+     * @nodered true
+     * @since 2.33.0
+     * @method getPinWithPeerIdById
+     * @category Ims MESSAGES Pin list
+     * @instance
+     * @description
+     *   This API can be used to get a pin in user's Pins list by peerId and pinId.<br>
+     *   This API can only be used by user himself<br>
+     *
+     * @param {PEERTYPE} types type of peer id Valeurs autorisées : rooms, users
+     * @param {string} peerId peerId unique identifier</BR>
+     * @param {string} pinId id of Pin.
+     *
+     * @return {Promise<any>} The result
+     *
+     *
+     * | Champ            | Type   | Description                                  |
+     * |-----------------|--------|----------------------------------------------|
+     * | `peerId`        | String | Id of the conversation's peer.              |
+     * | `peerJid`       | String | Jid of the conversation's peer.             |
+     * | `conversationJid` | String | Jid of the conversation's peer.          |
+     * | `messageId`     | String | XMPP message Id.                            |
+     * | `messageTimestamp` | Number | Timestamp of the message.               |
+     * | `text`          | String | Pin's text.                                 |
+     * | `fileInfo` *(optionnel)* | Object | File information.              |
+     * | `creationDate` *(optionnel)* | Number | Creation date in ms since Unix epoch. |
+     * |  id 	                  | String | Pin's Id                       |
+     *
+     *
+     */
+    getPinWithPeerIdById (types: PEERTYPE, peerId: string, pinId: string) : Promise<any> {
+            let that = this;
+            that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getPinWithPeerIdById) is peerId defined : ", isDefined(peerId));
+            return new Promise((resolve, reject) => {
+                that._logger.log(that.INTERNAL, LOG_ID + "(getPinWithPeerIdById) peerId : ", peerId);
+
+                if (!peerId) {
+                    that._logger.log(that.DEBUG, LOG_ID + "(getPinWithPeerIdById) bad or empty 'peerId' parameter : ", peerId);
+                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                if (!types) {
+                    that._logger.log(that.DEBUG, LOG_ID + "(getPinWithPeerIdById) bad or empty 'types' parameter : ", types);
+                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                if (!pinId) {
+                    that._logger.log(that.DEBUG, LOG_ID + "(getPinWithPeerIdById) bad or empty 'pinId' parameter : ", pinId);
+                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                that._rest.getPinWithPeerIdById(types, peerId, pinId ).then(async (result) => {
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getPinWithPeerIdById) result from server : ", result);
+                    return resolve(result);
+                }).catch((err) => {
+                    return reject(err);
+                });
+            });
+        }
+
+    /**
+     * @public
+     * @nodered true
+     * @since 2.33.0
+     * @method getAllPinsWithPeerId
+     * @category Ims MESSAGES Pin list
+     * @instance
+     * @description
+     *   This API can be used to get all pin in user's Pins list by peerId.<br>
+     *   This API can only be used by user himself<br>
+     *
+     * @param {PEERTYPE} types type of peer id Valeurs autorisées : rooms, users
+     * @param {string} peerId peerId unique identifier</BR>
+     *
+     * @return {Promise<any>} The result
+     *
+     * Array of pin Object : </BR>
+     *
+     * | Champ            | Type   | Description                                  |
+     * |-----------------|--------|----------------------------------------------|
+     * | `peerId`        | String | Id of the conversation's peer.              |
+     * | `peerJid`       | String | Jid of the conversation's peer.             |
+     * | `conversationJid` | String | Jid of the conversation's peer.          |
+     * | `messageId`     | String | XMPP message Id.                            |
+     * | `messageTimestamp` | Number | Timestamp of the message.               |
+     * | `text`          | String | Pin's text.                                 |
+     * | `fileInfo` *(optionnel)* | Object | File information.              |
+     * | `creationDate` *(optionnel)* | Number | Creation date in ms since Unix epoch. |
+     * |  id 	                  | String | Pin's Id                       |
+     *
+     *
+     */
+    getAllPinsWithPeerId (types:PEERTYPE, peerId:string) {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getAllPinsWithPeerId) is peerId defined : ", isDefined(peerId));
+        return new Promise((resolve, reject) => {
+            that._logger.log(that.INTERNAL, LOG_ID + "(getAllPinsWithPeerId) peerId : ", peerId);
+
+            if (!peerId) {
+                that._logger.log(that.DEBUG, LOG_ID + "(getAllPinsWithPeerId) bad or empty 'peerId' parameter : ", peerId);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            if (!types) {
+                that._logger.log(that.DEBUG, LOG_ID + "(getAllPinsWithPeerId) bad or empty 'types' parameter : ", types);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            that._rest.getAllPinsWithPeerId(types, peerId ).then(async (result) => {
+                that._logger.log(that.INTERNAL, LOG_ID + "(getAllPinsWithPeerId) result from server : ", result);
+                return resolve(result);
+            }).catch((err) => {
+                return reject(err);
+            });
+        });
     }
 
-    getAllPinsWithPeerId (types:string, peerId:string) {
+    /**
+     * @public
+     * @nodered true
+     * @since 2.33.0
+     * @method removefromWithPeerIdAndPinId
+     * @category Ims MESSAGES Pin list
+     * @instance
+     * @description
+     *   This API can be used to remove a pin in user's Pins list by peerId and pinId.<br>
+     *   This API can only be used by user himself<br>
+     *
+     * @param {PEERTYPE} types type of peer id Valeurs autorisées : rooms, users
+     * @param {string} peerId peerId unique identifier</BR>
+     * @param {string} pinId id of Pin.
+     *
+     * @return {Promise<any>} The result
+     *
+     * Array of : </BR>
+     *
+     * | Champ            | Type   | Description                                  |
+     * |-----------------|--------|----------------------------------------------|
+     * | status 	     | String | deletion status.              |
+     *
+     *
+     */
+    removefromWithPeerIdAndPinId (types: PEERTYPE, peerId: string, pinId: string) {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(removefromWithPeerIdAndPinId) is peerId defined : ", isDefined(peerId));
+        return new Promise((resolve, reject) => {
+            that._logger.log(that.INTERNAL, LOG_ID + "(removefromWithPeerIdAndPinId) peerId : ", peerId);
+
+            if (!peerId) {
+                that._logger.log(that.DEBUG, LOG_ID + "(removefromWithPeerIdAndPinId) bad or empty 'peerId' parameter : ", peerId);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            if (!types) {
+                that._logger.log(that.DEBUG, LOG_ID + "(removefromWithPeerIdAndPinId) bad or empty 'types' parameter : ", types);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            that._rest.removefromWithPeerIdAndPinId(types, peerId, pinId ).then(async (result) => {
+                that._logger.log(that.INTERNAL, LOG_ID + "(removefromWithPeerIdAndPinId) result from server : ", result);
+                return resolve(result);
+            }).catch((err) => {
+                return reject(err);
+            });
+        });
     }
 
-    removefromWithPeerId (types: string, peerId: string, pinId: string) {
-    }
+    /**
+     * @public
+     * @nodered true
+     * @since 2.33.0
+     * @method updatePinWithPeerId
+     * @category Ims MESSAGES Pin list
+     * @instance
+     * @description
+     *   This API can be used to add a pin in user's Pins list with peerId.<br>
+     *   This API can only be used by user himself<br>
+     *
+     * @param {string} peerId peerId unique identifier</BR>
+     * @param {PEERTYPE} types type of peer id Valeurs autorisées : rooms, users
+     * @param {string} pinId id of Pin.
+     * @param {Object} body Pin List Object.
+     *
+     * @return {Promise<any>} The result
+     *
+     *
+     * | Champ            | Type   | Description                                  |
+     * |-----------------|--------|----------------------------------------------|
+     * | `peerId`        | String | Id of the conversation's peer.              |
+     * | `peerJid`       | String | Jid of the conversation's peer.             |
+     * | `conversationJid` | String | Jid of the conversation's peer.          |
+     * | `messageId`     | String | XMPP message Id.                            |
+     * | `messageTimestamp` | Number | Timestamp of the message.               |
+     * | `text`          | String | Pin's text.                                 |
+     * | `fileInfo` *(optionnel)* | Object | File information.              |
+     * | `creationDate` *(optionnel)* | Number | Creation date in ms since Unix epoch. |
+     * |  id 	                  | String | Pin's Id                       |
+     *
+     *
+     */
+    updatePinWithPeerId (peerId?: string, types ?: PEERTYPE, pinId? : string, body ?: any): Promise<any> {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updatePinWithPeerId) is peerId defined : ", isDefined(peerId));
+        return new Promise((resolve, reject) => {
+            that._logger.log(that.INTERNAL, LOG_ID + "(updatePinWithPeerId) peerId : ", peerId);
 
-    updatePinWithPeerId (peerId?: string, types ?: boolean, pinId? : string, body ?: any): Promise<any> {
-        return Promise.resolve("");
+            if (!peerId) {
+                that._logger.log(that.DEBUG, LOG_ID + "(updatePinWithPeerId) bad or empty 'peerId' parameter : ", peerId);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            if (!types) {
+                that._logger.log(that.DEBUG, LOG_ID + "(updatePinWithPeerId) bad or empty 'types' parameter : ", types);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            if (!body) {
+                that._logger.log(that.DEBUG, LOG_ID + "(updatePinWithPeerId) bad or empty 'body' parameter : ", body);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            that._rest.updatePinWithPeerId(peerId, types, pinId, body ).then(async (result) => {
+                that._logger.log(that.INTERNAL, LOG_ID + "(updatePinWithPeerId) result from server : ", result);
+                return resolve(result);
+            }).catch((err) => {
+                return reject(err);
+            });
+        });
     }
 
     //endregion Pin list

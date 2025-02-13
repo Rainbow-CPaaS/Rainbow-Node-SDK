@@ -1,0 +1,2 @@
+rem node .\Samples\index.js host=openrainbow.net login=vincent00@vbe.test.openrainbow.net password=Password_123 appID=68fcf4208b5111e883e2ab434dc8e4c5 appSecret=iYBx4aZ9LbqUpK6UFwRIEttpxPZcHqpqKz9nkDjt5q1rQqA5Rn4Lzc3EOmnhleEN
+node .\Samples\index.js host=openrainbow.com login=vincent.berder@al-enterprise.com password=Alcatel.01 appID=626143d03ae711eb84614bdd6458f47c appSecret=EpGfpNtDsUagNw2R1nxuDiQNGrd4JCoyXLlVwKmNoiiJjAXcy3oe8x6qvacY1whL

@@ -8238,7 +8238,7 @@ kamEmailList?: string[], businessSpecific?: string, adminServiceNotificationsLev
         });
     };
 
-    getPinWithPeerIdById (types: string, peerId: string, pinId: string) {
+    getPinWithPeerIdById (types: PEERTYPE, peerId: string, pinId: string) {
         // GET /api/rainbow/enduser/v1.0/users/:userId/pins/:types/:peerId/:pinId
         // API https://api.openrainbow.org/enduser/#api-pin_list-GetUserPinById
         let that = this;
@@ -8281,7 +8281,7 @@ kamEmailList?: string[], businessSpecific?: string, adminServiceNotificationsLev
             });
         });
     }
-    getAllPinsWithPeerId (types:string, peerId:string) {
+    getAllPinsWithPeerId (types:PEERTYPE, peerId:string) {
         // GET /api/rainbow/enduser/v1.0/users/:userId/pins/:types/:peerId
         // API https://api.openrainbow.org/enduser/#api-pin_list-GetUserPins
         let that = this;
@@ -8324,37 +8324,37 @@ addPropertyToObj(param, "peerId", body.peerId, false);
             });
         });
     }
-    removefromWithPeerId (types: string, peerId: string, pinId: string) {
+    removefromWithPeerIdAndPinId (types: string, peerId: string, pinId: string) {
         // DELETE /api/rainbow/enduser/v1.0/users/:userId/pins/:types/:peerId/:pinId
         // API https://api.openrainbow.org/enduser/#api-pin_list-removePin
         let that = this;
         return new Promise(function (resolve, reject) {
-            that._logger.log(that.INTERNAL, LOG_ID + "(removefromWithPeerId) REST.");
+            that._logger.log(that.INTERNAL, LOG_ID + "(removefromWithPeerIdAndPinId) REST.");
             let url: string = "/api/rainbow/enduser/v1.0/users/" + that.userId + "/pins/"+types+"/"+peerId+"/"+pinId;
             if (!isDefined(peerId)) {
-                that._logger.log(that.DEBUG, LOG_ID + "(removefromWithPeerId) bad request paramater peerId undefined.");
+                that._logger.log(that.DEBUG, LOG_ID + "(removefromWithPeerIdAndPinId) bad request paramater peerId undefined.");
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
             if (!isDefined(types)) {
-                that._logger.log(that.DEBUG, LOG_ID + "(removefromWithPeerId) bad request paramater types undefined.");
+                that._logger.log(that.DEBUG, LOG_ID + "(removefromWithPeerIdAndPinId) bad request paramater types undefined.");
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
 
             let param = undefined;
-            that._logger.log(that.INTERNAL, LOG_ID + "(removefromWithPeerId) REST.");
+            that._logger.log(that.INTERNAL, LOG_ID + "(removefromWithPeerIdAndPinId) REST.");
 
             that.http.delete(url, that.getRequestHeader(), param).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(removefromWithPeerId) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(removefromWithPeerId) REST result : ", json);
+                that._logger.log(that.DEBUG, LOG_ID + "(removefromWithPeerIdAndPinId) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(removefromWithPeerIdAndPinId) REST result : ", json);
                 resolve(json?.data);
             }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(removefromWithPeerId) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(removefromWithPeerId) error : ", err);
+                that._logger.log(that.ERROR, LOG_ID, "(removefromWithPeerIdAndPinId) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(removefromWithPeerIdAndPinId) error : ", err);
                 return reject(err);
             });
         });
     }
-    updatePinWithPeerId (peerId?: string, types ?: boolean, pinId? : string, body ?: any): Promise<any> {
+    updatePinWithPeerId (peerId?: string, types ?: PEERTYPE, pinId? : string, body ?: any): Promise<any> {
         // PUT /api/rainbow/enduser/v1.0/users/:userId/pins/:types/:peerId/:pinId
         // API https://api.openrainbow.org/enduser/#api-pin_list-updatePin
         let that = this;
