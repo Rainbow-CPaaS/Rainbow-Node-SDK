@@ -2092,7 +2092,7 @@ safeJsonParse(str) {
                             let response = secondInstance.get(urlEncoded, getOptions).catch((error) => {
                                 that._logger.warn("internal", LOG_ID + "(get) sent x-rainbow-request-node-id : ", xRainbowRequestNodeId, " error.code : ", error?.code, ", error.message : ", error?.message, ", urlEncoded : ", urlEncoded);
                             });
-                            that._logger.log(that.DEBUG, LOG_ID + "(get) done.");
+                            that._logger.log(that.DEBUG, LOG_ID + "(get) done by GOT.");
 
                             /*
                             if (response?.headers && (response?.headers["content-type"]).indexOf("application/json") === 0 ) {
@@ -2133,7 +2133,7 @@ safeJsonParse(str) {
                     for (let i = 0; i < nbRetryBeforeFailed + 1 ; i++) {
                         let responsePromRequest : any = new Promise(function(resolve2, reject2) {
                             let request = Request(req, (error, response, body) => {
-                                that._logger.log(that.DEBUG, LOG_ID + "(get) done.");
+                                that._logger.log(that.DEBUG, LOG_ID + "(get) done by request.");
                                 let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
                                 that._logger.log(that.HTTP, LOG_ID + "(get) done statusCode : ", response?.statusCode, " for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
 

@@ -339,7 +339,7 @@ class XMPPService extends GenericService {
                 that.fullJid = "";
                 that.userId = "";
                 that.initialPresence = true;
-                that._logger.log(that.INFO, LOG_ID + "(stop) __ entering __ stop XMPP connection");
+                that._logger.log(that.INFO, LOG_ID + "(stop) __ entering __ stop XMPP connection.");
                 if (that.useXMPP && forceStop) {
                     that.stopIdleTimer();
 
@@ -389,11 +389,11 @@ class XMPPService extends GenericService {
                             resolve(undefined);
                         });
                     } else {
-                        that._logger.log(that.DEBUG, LOG_ID + "(stop) nothing to stop that.xmppClient : ", that.xmppClient);
+                        that._logger.log(that.INFO, LOG_ID + "(stop) nothing to stop that.xmppClient : ", that.xmppClient);
                         resolve(undefined);
                     }
                 } else {
-                    that._logger.log(that.DEBUG, LOG_ID + "(stop) nothing to stop, that.useXMPP : ", that.useXMPP, ", forceStop : ", forceStop) ;
+                    that._logger.log(that.INFO, LOG_ID + "(stop) nothing to stop, that.useXMPP : ", that.useXMPP, ", forceStop : ", forceStop) ;
                     resolve(undefined);
                 }
             } catch (err) {
