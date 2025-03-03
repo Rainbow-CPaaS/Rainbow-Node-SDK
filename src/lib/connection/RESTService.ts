@@ -10285,7 +10285,7 @@ addPropertyToObj(param, "peerId", body.peerId, false);
         });
     }
 
-    getInformationOnImports(companyId?: string): any {
+    getInformationOnImports(companyId?: string, ldapConfigId?: string): any {
         // GET /api/rainbow/massprovisioning/v1.0/users/imports
         // API https://api.openrainbow.org/mass-provisiong/#api-Users_And_Devices-GetImports
         let that = this;
@@ -10294,6 +10294,7 @@ addPropertyToObj(param, "peerId", body.peerId, false);
             let urlParamsTab: string[] = [];
             urlParamsTab.push(url);
             addParamToUrl(urlParamsTab, "companyId", companyId);
+            addParamToUrl(urlParamsTab, "ldapConfigId", ldapConfigId);
             url = urlParamsTab[0];
 
             that._logger.log(that.INTERNAL, LOG_ID + "(getInformationOnImports) REST url : ", url);
@@ -10469,7 +10470,7 @@ addPropertyToObj(param, "peerId", body.peerId, false);
     A hidden field "ldap_id" corresponding to the AD objectGUID should be filled
     Mandatory field is loginEmail, isInitialized=true
     // */
-    synchronizeUsersAndDeviceswithCSV(CSVTxt?: string, companyId?: string, label: string = undefined, noemails: boolean = true, nostrict: boolean = false, delimiter?: string, comment: string = "%", commandId?: string): Promise<{
+    synchronizeUsersAndDeviceswithCSV(CSVTxt?: string, companyId?: string, label: string = undefined, noemails: boolean = true, nostrict: boolean = false, delimiter?: string, comment: string = "%", commandId?: string, ldapConfigId?: string): Promise<{
         reqId: string,
         mode: string,
         status: string,
@@ -10482,13 +10483,14 @@ addPropertyToObj(param, "peerId", body.peerId, false);
         let urlParams = "/api/rainbow/massprovisioning/v1.0/users/imports/synchronize";
         let urlParamsTab: string[] = [];
         urlParamsTab.push(urlParams);
-        addParamToUrl(urlParamsTab, "commandId", commandId);
         addParamToUrl(urlParamsTab, "companyId", companyId);
         addParamToUrl(urlParamsTab, "label", label);
         addParamToUrl(urlParamsTab, "noemails", String(noemails));
         addParamToUrl(urlParamsTab, "nostrict", String(nostrict));
         addParamToUrl(urlParamsTab, "delimiter", delimiter);
         addParamToUrl(urlParamsTab, "comment", comment);
+        addParamToUrl(urlParamsTab, "commandId", commandId);
+        addParamToUrl(urlParamsTab, "ldapConfigId", ldapConfigId);
         urlParams = urlParamsTab[0];
 
         return new Promise(function (resolve, reject) {
@@ -10629,7 +10631,7 @@ addPropertyToObj(param, "peerId", body.peerId, false);
             GET /api/rainbow/massprovisioning/v1.0/users/synchronize?ldap_id=true&&format=csv
     the ldap_id field will allow to compare rainbow users and ldap users
     // */
-    retrieveRainbowUserList(companyId?: string, format: string = "csv", ldap_id: boolean = true) {
+    retrieveRainbowUserList(companyId?: string, format: string = "csv", ldap_id: boolean = true, ldapConfigId?: string) {
         let that = this;
         return new Promise(function (resolve, reject) {
             let url: string = "/api/rainbow/massprovisioning/v1.0/users/synchronize";
@@ -10639,6 +10641,7 @@ addPropertyToObj(param, "peerId", body.peerId, false);
             addParamToUrl(urlParamsTab, "companyId", companyId);
             addParamToUrl(urlParamsTab, "format", format);
             addParamToUrl(urlParamsTab, "ldap_id", String(ldap_id));
+            addParamToUrl(urlParamsTab, "ldapConfigId", ldapConfigId);
             url = urlParamsTab[0];
 
             that._logger.log(that.INTERNAL, LOG_ID + "(retrieveRainbowUserList) REST url : ", url);
@@ -10690,7 +10693,7 @@ addPropertyToObj(param, "peerId", body.peerId, false);
         });
     }
 
-    importCSVdataForSynchronizeDirectory(delimiter: string, comment: string, commandId: string, label: string, csvData: string) {
+    importCSVdataForSynchronizeDirectory(delimiter: string, comment: string, commandId: string, label: string, csvData: string, ldapConfigId?: string) {
         // POST  /api/rainbow/massprovisioning/v1.0/directories/imports/synchronize     
         // API https://api.openrainbow.org/mass-provisiong/#api-Directories-PostSynchronizeData
         let that = this;
@@ -10706,6 +10709,7 @@ addPropertyToObj(param, "peerId", body.peerId, false);
             addParamToUrl(urlParamsTab, "comment", comment);
             addParamToUrl(urlParamsTab, "commandId", commandId);
             addParamToUrl(urlParamsTab, "label", label);
+            addParamToUrl(urlParamsTab, "ldapConfigId", ldapConfigId);
             url = urlParamsTab[0];
 
             that._logger.log(that.INTERNAL, LOG_ID + "(importCSVdataForSynchronizeDirectory) REST url : ", url);
@@ -10895,13 +10899,18 @@ addPropertyToObj(param, "peerId", body.peerId, false);
         });
     }
 
-    sendCommandToLdapConnectorUser(ldapId: string, command: string): Promise<any> {
+    sendCommandToLdapConnectorUser(ldapId: string, command: string, ldapConfigId: string): Promise<any> {
         // API https://api.openrainbow.org/admin/#api-connectors-CommandLdap
         // POST /api/rainbow/admin/v1.0/connectors/ldaps/:ldapId/command
 
         let that = this;
         return new Promise(function (resolve, reject) {
             let url: string = "/api/rainbow/admin/v1.0/connectors/ldaps/" + ldapId + "/command";
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "ldapConfigId", ldapConfigId);
+            url = urlParamsTab[0];
+
             that._logger.log(that.INTERNAL, LOG_ID + "(sendCommandToLdapConnectorUser) REST url : ", url);
             let data = {command};
 
@@ -10967,7 +10976,7 @@ addPropertyToObj(param, "peerId", body.peerId, false);
         });
     }
 
-    retrieveLdapConnectorConfig(companyId: string) {
+    retrieveLdapConnectorConfig(companyId: string, p_type?: string) {
         // API https://api.openrainbow.org/admin/#api-connectors-GetLdapConfig
         // GET /api/rainbow/admin/v1.0/connectors/ldaps/config 
 
@@ -10977,6 +10986,7 @@ addPropertyToObj(param, "peerId", body.peerId, false);
             let urlParamsTab: string[] = [];
             urlParamsTab.push(url);
             addParamToUrl(urlParamsTab, "companyId", companyId);
+            addParamToUrl(urlParamsTab, "type", p_type);
             url = urlParamsTab[0];
 
             that._logger.log(that.INTERNAL, LOG_ID + "(retrieveLdapConnectorConfig) REST url : ", url);
@@ -11046,7 +11056,7 @@ addPropertyToObj(param, "peerId", body.peerId, false);
         });
     }
 
-    retrieveLdapConnectorAllConfigs(companyId: string) {
+    retrieveLdapConnectorAllConfigs(companyId: string, supportMultiDomain: boolean = false) {
         // API https://api.openrainbow.org/admin/#api-connectors-GetAllLdapConfigs
         // GET /api/rainbow/admin/v1.0/connectors/ldaps/configs 
 
@@ -11056,6 +11066,7 @@ addPropertyToObj(param, "peerId", body.peerId, false);
             let urlParamsTab: string[] = [];
             urlParamsTab.push(url);
             addParamToUrl(urlParamsTab, "companyId", companyId);
+            addParamToUrl(urlParamsTab, "supportMultiDomain", supportMultiDomain);
             url = urlParamsTab[0];
 
             that._logger.log(that.INTERNAL, LOG_ID + "(retrieveLdapConnectorAllConfigs) REST url : ", url);

@@ -6,6 +6,27 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+### [2.34.0] - 2025-0X-XX
+#### Removed
+-   None
+
+#### Fixed
+-   None
+
+#### Added
+-   None
+
+#### Changed
+-   Update of synchronizeUsersAndDeviceswithCSV with ldapConfigId (API POST /api/rainbow/massprovisioning/v1.0/users/imports/synchronize
+-   Update of retrieveRainbowUserList with ldapConfigId (API GET /api/rainbow/massprovisioning/v1.0/users/synchronize)
+-   Update of getInformationOnImports with ldapConfigId (API GET /api/rainbow/massprovisioning/v1.0/users/imports)
+-   Update of importCSVdataForSynchronizeDirectory with ldapConfigId (API POST /api/rainbow/massprovisioning/v1.0/directories/imports/synchronize)
+-   No change in getAnImportStatus (API GET /api/rainbow/massprovisioning/v1.0/directories/imports/:companyId) (new field ldapConfigId in the report)
+-   No change in createConfigurationForLdapConnector (API POST /api/rainbow/admin/v1.0/connectors/ldaps/config) (now several configs for each type can be created)
+-   Update retrieveLdapConnectorConfig (API GET /api/rainbow/admin/v1.0/connectors/ldaps/config) add the parameter "p_type". returns oldest config (for retro-compatibility, field ldapConfigId is used to compute numbers). should no longer be used by ldap_connector
+-   Update sendCommandToLdapConnectorUser (API POST /api/rainbow/admin/v1.0/connectors/ldaps/:ldapId/command) new parameter ldapConfigId.
+-   Update event "rainbow_onconnectorcommand" with "ldapConfigId" property in the data object.
+
 ### [2.33.1] - 2025-02-14
 #### Removed
 -   None
@@ -18,7 +39,6 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 #### Changed
 -   None
-
 
 ### [2.33.0] - 2025-02-13
 #### Removed

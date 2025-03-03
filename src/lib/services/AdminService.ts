@@ -1186,6 +1186,48 @@ class AdminService extends GenericService {
     /**
      * @public
      * @nodered true
+     * @method getCompanieByName
+     * @instance
+     * @nodered true
+     * @description
+     *   This API allows users to get all companies by name. </BR>
+     *   Users with user role can only retrieve their own company and companies they can see (companies with visibility=public, companies having user's companyId in visibleBy field, companies being in user's company organization and having visibility=organization, BP company of user's company). </BR>
+     *   Users with analytics can retrieve all companies, but only the following fields are returned: id, creationDate, status, statusUpdatedDate, visibility, visibleBy, organisationId </BR>
+     * @async
+     * @category Companies and users management
+     * @return {Promise<Object, ErrorManager>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | data | Object\[\] | List of company Objects. |
+     * | limit | Number | Number of requested items |
+     * | offset | Number | Requested position of the first item to retrieve |
+     * | total | Number | Total number of items |
+     *
+     * @fulfil {Object} - the result
+     * @category async
+     * @param {string} format Allows to retrieve more or less company details in response. </BR>
+     * * small: id, name </BR>
+     * * medium: id, name, status, adminEmail, companyContactId, country, website, slogan, description, size, economicActivityClassification, lastAvatarUpdateDate, lastBannerUpdateDate, avatarShape </BR>
+     * * full: id, name, status, adminEmail, companyContactId, country, website, slogan, description, size, economicActivityClassification, lastAvatarUpdateDate, lastBannerUpdateDate, avatarShape </BR>
+     * Default value : small. Possibles values : small, medium, full
+     * @param {string} sortField Sort items list based on the given field. Default value : name
+     * @param {number} limit Allow to specify the number of items to retrieve. Default value : 100.
+     * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Default value : 0
+     * @param {number} sortOrder Specify order when sorting items list. Default value : 1. Possibles values -1, 1
+     * @param {string} name Allows to filter companies list on the given keyword(s) on field name. </BR>
+     * The filtering is case insensitive and on partial name match: all companies containing the provided name value will be returned (whatever the position of the match).
+     * Ex: if filtering is done on comp, companies with the following names are match the filter 'My company', 'Company', 'A comp 1', 'Comp of comps', ...
+     * @param {string} status Allows to filter companies list on the provided status(es). Possibles values initializing, active, alerting, hold, terminated
+     */
+    getCompanieByName (name ? : string, status : string = "active", sortField : string = "name", format : string = "small", limit  : number = 100, offset  : number = 0, sortOrder : number = 1){
+        return this.getAllCompaniesVisibleByUser ( format , sortField , limit, offset, sortOrder, name, status) ;
+    }
+
+    /**
+     * @public
+     * @nodered true
      * @method getCompanyAdministrators
      * @instance
      * @description
@@ -7976,6 +8018,7 @@ class AdminService extends GenericService {
      * @async
      * @category AD/LDAP - AD/LDAP Massprovisioning
      * @param {string} companyId the companyId to list imports of
+     * @param {boolean} ldapConfigId Allows to filter users containing a ldap_id and the ldapConfigId of the ldap domain.
      * @description
      *     This API provides information on all imports of the administrator's company. </BR>
      * </BR>
@@ -8000,13 +8043,13 @@ class AdminService extends GenericService {
      * | total | Integer | * total '#' of actions |
      *
      */
-    getInformationOnImports(companyId? : string): Promise<any> {
+    getInformationOnImports(companyId? : string, ldapConfigId?: string): Promise<any> {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getInformationOnImports) companyId : ", that._logger.stripStringForLogs(companyId));
 
         return new Promise(async (resolve, reject) => {
             try {
-                let result = await that._rest.getInformationOnImports(companyId);
+                let result = await that._rest.getInformationOnImports(companyId, ldapConfigId);
                 that._logger.log(that.DEBUG, "(getInformationOnImports) - sent.");
                 that._logger.log(that.INTERNAL, "(getInformationOnImports) - result : ", result);
                 resolve (result);
@@ -8302,6 +8345,7 @@ class AdminService extends GenericService {
      * @param {string} delimiter the CSV delimiter character (will be determined by analyzing the CSV file if not provided)
      * @param {string} comment the CSV comment start character, use double quotes in field values to escape this character
      * @param {string} commandId Command identifier. When runing the manual synchro, the commandId must be added as query parameter.
+     * @param {string} ldapConfigId Allows to specify the ldap domain on which the command should be run (in case of multi domain).
      * @description
      *     This API allows to synchronize Rainbow users or devices through a CSV UTF-8 encoded file. it is a merge from user mode and device mode </BR>
      *     The first line of the CSV data describes the content format. Most of the field names are the field names of the admin createUser API. </BR>
@@ -8348,7 +8392,7 @@ class AdminService extends GenericService {
      * </BR>
      * @return {Promise<any>} import summary result.
      */
-    synchronizeUsersAndDeviceswithCSV(csvTxt? : string, companyId? : string, label : string = undefined, noemails: boolean = true, nostrict : boolean = false, delimiter? : string, comment : string = "%", commandId? : string) : Promise<{
+    synchronizeUsersAndDeviceswithCSV(csvTxt? : string, companyId? : string, label : string = undefined, noemails: boolean = true, nostrict : boolean = false, delimiter? : string, comment : string = "%", commandId? : string, ldapConfigId?: string) : Promise<{
         reqId : string,
         mode : string,
         status : string,
@@ -8362,10 +8406,10 @@ class AdminService extends GenericService {
 
         return new Promise(async (resolve, reject) => {
             try {
-                let synchronizeRestResult = await that._rest.synchronizeUsersAndDeviceswithCSV(csvTxt, companyId , label, noemails, nostrict, delimiter, comment, commandId);
+                let synchronizeResult : any = await that._rest.synchronizeUsersAndDeviceswithCSV(csvTxt, companyId , label, noemails, nostrict, delimiter, comment, commandId, ldapConfigId);
                 that._logger.log(that.DEBUG, "(synchronizeUsersAndDeviceswithCSV) - sent.");
-                that._logger.log(that.INTERNAL, "(synchronizeUsersAndDeviceswithCSV) - synchronizeRestResult : ", synchronizeRestResult);
-                let synchronizeResult : {
+                that._logger.log(that.INTERNAL, "(synchronizeUsersAndDeviceswithCSV) - synchronizeResult : ", synchronizeResult);
+                /*let synchronizeResult : {
                     reqId : string,
                     mode : string,
                     status : string,
@@ -8374,6 +8418,7 @@ class AdminService extends GenericService {
                     label : string,
                     startTime : string
                 } = synchronizeRestResult;
+                // */
                 // synchronizeRestResult;
                 resolve (synchronizeResult);
             } catch (err) {
@@ -8692,18 +8737,19 @@ class AdminService extends GenericService {
      * @param {string} companyId ompanyId of the users in the CSV file, default to admin's companyId.
      * @param {string} format the CSV delimiter character (will be determined by analyzing the CSV file if not provided).
      * @param {boolean} ldap_id the CSV comment start character, use double quotes in field values to escape this character.
+     * @param {boolean} ldapConfigId Allows to filter users containing a ldap_id and the ldapConfigId of the ldap domain.
      * @description
      *      This API generates a file describing all users (csv or json format). </BR>
      *      return an {Object}  of synchronization data. </BR>
      * @return {Promise<any>}
      */
-    retrieveRainbowUserList(companyId? : string, format : string = "csv", ldap_id : boolean = true): Promise<any> {
+    retrieveRainbowUserList(companyId? : string, format : string = "csv", ldap_id : boolean = true, ldapConfigId?: string): Promise<any> {
         let that = this;
          that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(retrieveRainbowUserList) companyId : ", that._logger.stripStringForLogs(companyId), ", ldap_id : ", ldap_id);
 
         return new Promise(async (resolve, reject) => {
             try {
-                let result = await that._rest.retrieveRainbowUserList(companyId, format, ldap_id);
+                let result = await that._rest.retrieveRainbowUserList(companyId, format, ldap_id, ldapConfigId);
                 that._logger.log(that.DEBUG, "(retrieveRainbowUserList) - sent.");
                 that._logger.log(that.INTERNAL, "(retrieveRainbowUserList) - result : ", result);
 
@@ -8760,6 +8806,7 @@ class AdminService extends GenericService {
      * @param {string} delimiter CSV delimiter character (will be determined by analyzing the CSV file if not provided)
      * @param {string} comment CSV comment start character. Default value : %
      * @param {string} commandId commandId if the check csv request comes from connector on behalf of admin command, ity will generates a report
+     * @param {string} commandId label A text description of this import
      * @param {string} csvData string with the body of the CSV data.
      */
     checkCSVdataForSynchronizeDirectory (delimiter : string = "%", comment : string, commandId : string, csvData: string): Promise<any> {
@@ -8834,8 +8881,9 @@ class AdminService extends GenericService {
      * @param {string} commandId commandId if the check csv request comes from connector on behalf of admin command, ity will generates a report
      * @param {string} label A text description of this import. Default value : none
      * @param {string} csvData string with the body of the CSV data.
+     * @param {string} ldapConfigId Allows to specify the ldap domain on which the command should be run (in case of multi domain).
      */
-    importCSVdataForSynchronizeDirectory(delimiter : string = "%", comment : string, commandId : string, label : string = "none", csvData: string): Promise<any> {
+    importCSVdataForSynchronizeDirectory(delimiter : string = "%", comment : string, commandId : string, label : string = "none", csvData: string, ldapConfigId?: string): Promise<any> {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(importCSVdataForSynchronizeDirectory) commandId : ", that._logger.stripStringForLogs(commandId), ", comment : ", that._logger.stripStringForLogs(comment));
 
@@ -8848,7 +8896,7 @@ class AdminService extends GenericService {
                     return;
                 }
 
-                let result = await that._rest.importCSVdataForSynchronizeDirectory(delimiter, comment, commandId, label, csvData);
+                let result = await that._rest.importCSVdataForSynchronizeDirectory(delimiter, comment, commandId, label, csvData, ldapConfigId);
                 that._logger.log(that.DEBUG, "(importCSVdataForSynchronizeDirectory) - sent.");
                 that._logger.log(that.INTERNAL, "(importCSVdataForSynchronizeDirectory) - result : ", result);
 
@@ -9339,6 +9387,7 @@ class AdminService extends GenericService {
      * @category AD/LDAP - LDAP APIs to use
      * @param {string} ldapId ldap connector unique identifier.
      * @param {string} command Allows to specify a command to be performed by the ldap connector. Allowed commands are: "manual_synchro", "manual_dry_run", "manual_synchro_directories", "manual_dry_run_directories".
+     * @param {string} ldapConfigId Allows to specify the ldap domain on which the command should be run (in case of multi domain).
      * @description
      *      This API can be used to send a command to a ldap connector user. </BR>
      *      BP Admin and BP Finance users can only control users being in a company linked to their BP company. </BR>
@@ -9354,7 +9403,7 @@ class AdminService extends GenericService {
      * | commandId optionnel | string | Command identifier to retrieve the report (only for "manual\_dry\_run" command). |
      *
      */
-    sendCommandToLdapConnectorUser(ldapId : string, command : string) : Promise<any> {
+    sendCommandToLdapConnectorUser(ldapId : string, command : string, ldapConfigId: string) : Promise<any> {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendCommandToLdapConnectorUser) ldapId : ", that._logger.stripStringForLogs(ldapId), ", command : ", command);
 
@@ -9372,7 +9421,7 @@ class AdminService extends GenericService {
             }
 
             try {
-                let result = await that._rest.sendCommandToLdapConnectorUser (ldapId, command);
+                let result = await that._rest.sendCommandToLdapConnectorUser (ldapId, command, ldapConfigId);
                 that._logger.log(that.DEBUG, "(sendCommandToLdapConnectorUser) - sent.");
                 that._logger.log(that.INTERNAL, "(sendCommandToLdapConnectorUser) - result : ", result);
 
@@ -9395,7 +9444,7 @@ class AdminService extends GenericService {
      * @param {string} companyId the id of the company.
      * @param {string} name name of this configuration.
      * @param {Object} settings config settings.
-     * @param {string} type specify for which type of synchronisation this config is . Allowed types are: "ldap_config", "ldap_config_directories". Default value : ldap_config
+     * @param {string} type specify for which type of synchronisation this config is . Allowed types are: "ldap_config" for user synchronisation, "ldap_config_directories" for contcats synchronisation. Default value : ldap_config
      * @param {Object} settings.massproFromLdap list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal.
      * @param {string} settings.massproFromLdap.headerName headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap (only when a ldap field exists for this headerName, should never be empty).
      * @param {Object} settings.company specific settings for the company. Each key represent a setting.
@@ -9513,6 +9562,7 @@ class AdminService extends GenericService {
      * @async
      * @category AD/LDAP - LDAP APIs to use
      * @param {string} companyId Allows to filter connectors list on the companyId provided in this option. In the case of admin (except superadmin and support roles), provided companyId should correspond to a company visible by logged in user's company (if some of the provided companyId are not visible by logged in user's company, connectors from these companies will not be returned). if not provided, default is admin's company.
+     * @param {string} p_type Allows to filter connectors config list on the type provided in this option. Allowed types are: "ldap_config", "ldap_config_directories". Default value: "ldap_config"
      * @description
      *      This API allows to retrieve the configuration for the connector. </BR>
      *      A template is available : use retrieveLdapConnectorConfigTemplate API. </BR>
@@ -9536,7 +9586,7 @@ class AdminService extends GenericService {
      *          } </BR>
      * @return {Promise<any>}
      */
-    retrieveLdapConnectorConfig (companyId : string): Promise<any> {
+    retrieveLdapConnectorConfig (companyId : string, p_type: string = "ldap_config"): Promise<any> {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(retrieveLdapConnectorConfig) companyId : ", that._logger.stripStringForLogs(companyId));
 
@@ -9550,7 +9600,7 @@ class AdminService extends GenericService {
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
-                let result = await that._rest.retrieveLdapConnectorConfig(companyId);
+                let result = await that._rest.retrieveLdapConnectorConfig(companyId, p_type);
                 that._logger.log(that.DEBUG, "(retrieveLdapConnectorConfig) - sent.");
                 that._logger.log(that.INTERNAL, "(retrieveLdapConnectorConfig) - result : ", result);
 
@@ -9690,7 +9740,7 @@ class AdminService extends GenericService {
      *          } </BR>
      * @return {Promise<any>}
      */
-    retrieveLdapConnectorAllConfigs (companyId : string): Promise<any> {
+    retrieveLdapConnectorAllConfigs (companyId : string, supportMultiDomain: boolean = false): Promise<any> {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(retrieveLdapConnectorAllConfigs) companyId : ", that._logger.stripStringForLogs(companyId));
 
@@ -9704,7 +9754,7 @@ class AdminService extends GenericService {
                     return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
-                let result = await that._rest.retrieveLdapConnectorAllConfigs(companyId);
+                let result = await that._rest.retrieveLdapConnectorAllConfigs(companyId, supportMultiDomain);
                 that._logger.log(that.DEBUG, "(retrieveLdapConnectorAllConfigs) - sent.");
                 that._logger.log(that.INTERNAL, "(retrieveLdapConnectorAllConfigs) - result : ", result);
 

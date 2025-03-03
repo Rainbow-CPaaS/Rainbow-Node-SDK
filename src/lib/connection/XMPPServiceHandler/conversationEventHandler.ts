@@ -2911,10 +2911,11 @@ class ConversationEventHandler extends GenericHandler {
             that._logger.log(that.DEBUG, LOG_ID + "(onConnectorCommandManagementMessageReceived) connectorcommand : ", connectorcommand);
             let command = connectorcommand["$attrs"]["command"];
             let commandId = connectorcommand.$attrs.commandId;
+            let ldapConfigId = connectorcommand.$attrs.ldapConfigId;
 
             if (connectorcommand.$attrs.xmlns==="jabber:iq:configuration") {
                 that._logger.log(that.DEBUG, LOG_ID + "(onConnectorCommandManagementMessageReceived) connectorcommand.");
-                that.eventEmitter.emit("evt_internal_connectorcommand", {command, commandId});
+                that.eventEmitter.emit("evt_internal_connectorcommand", {command, commandId, ldapConfigId});
             } // */
         } catch (err) {
             // that._logger.log(that.ERROR, LOG_ID + "(onConnectorCommandManagementMessageReceived) CATCH Error !!! ");
