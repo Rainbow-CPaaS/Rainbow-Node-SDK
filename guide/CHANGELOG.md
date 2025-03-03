@@ -11,21 +11,24 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   None
 
 #### Fixed
--   None
+-   `xmppOptions.xmppRessourceName` value when no `xmpp` section is defined in SDK's options and a config file is defined with an `xmppRessourceName` property inside.
+-   Fix log when an xmpp connection is Replaced by an already existing resource.
 
 #### Added
 -   None
 
 #### Changed
--   Update of synchronizeUsersAndDeviceswithCSV with ldapConfigId (API POST /api/rainbow/massprovisioning/v1.0/users/imports/synchronize
--   Update of retrieveRainbowUserList with ldapConfigId (API GET /api/rainbow/massprovisioning/v1.0/users/synchronize)
--   Update of getInformationOnImports with ldapConfigId (API GET /api/rainbow/massprovisioning/v1.0/users/imports)
--   Update of importCSVdataForSynchronizeDirectory with ldapConfigId (API POST /api/rainbow/massprovisioning/v1.0/directories/imports/synchronize)
--   No change in getAnImportStatus (API GET /api/rainbow/massprovisioning/v1.0/directories/imports/:companyId) (new field ldapConfigId in the report)
--   No change in createConfigurationForLdapConnector (API POST /api/rainbow/admin/v1.0/connectors/ldaps/config) (now several configs for each type can be created)
--   Update retrieveLdapConnectorConfig (API GET /api/rainbow/admin/v1.0/connectors/ldaps/config) add the parameter "p_type". returns oldest config (for retro-compatibility, field ldapConfigId is used to compute numbers). should no longer be used by ldap_connector
--   Update sendCommandToLdapConnectorUser (API POST /api/rainbow/admin/v1.0/connectors/ldaps/:ldapId/command) new parameter ldapConfigId.
--   Update event "rainbow_onconnectorcommand" with "ldapConfigId" property in the data object.
+-   Update of `synchronizeUsersAndDeviceswithCSV` with `ldapConfigId` (API POST /api/rainbow/massprovisioning/v1.0/users/imports/synchronize
+-   Update of `retrieveRainbowUserList` with `ldapConfigId` (API GET /api/rainbow/massprovisioning/v1.0/users/synchronize)
+-   Update of `getInformationOnImports` with `ldapConfigId` (API GET /api/rainbow/massprovisioning/v1.0/users/imports)
+-   Update of `importCSVdataForSynchronizeDirectory` with `ldapConfigId` (API POST /api/rainbow/massprovisioning/v1.0/directories/imports/synchronize)
+-   No change in `getAnImportStatus` (API GET /api/rainbow/massprovisioning/v1.0/directories/imports/:companyId) (new field `ldapConfigId` in the report)
+-   No change in `createConfigurationForLdapConnector` (API POST /api/rainbow/admin/v1.0/connectors/ldaps/config) (now several configs for each type can be created)
+-   Update `retrieveLdapConnectorConfig` (API GET /api/rainbow/admin/v1.0/connectors/ldaps/config) add the parameter "p_type". returns oldest config (for retro-compatibility, field `ldapConfigId` is used to compute numbers). should no longer be used by ldap_connector.
+-   Update `sendCommandToLdapConnectorUser` (API POST /api/rainbow/admin/v1.0/connectors/ldaps/:ldapId/command) new parameter `ldapConfigId`.
+-   Update event "rainbow_onconnectorcommand" with `ldapConfigId` property in the data object.
+-   Update `testOutdatedVersion` default value to false.
+-   Update core `_retrieveInformation` calls to `getRainbowNodeSdkPackagePublishedInfos` with no await because this is only an information test, so it is not necessary to await it.
 
 ### [2.33.1] - 2025-02-14
 #### Removed
