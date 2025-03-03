@@ -484,29 +484,34 @@ class Core extends LevelLogs{
         return new Promise(async (resolve, reject) => {
 
             if (that.options.testOutdatedVersion) {
-                await that._rest.getRainbowNodeSdkPackagePublishedInfos().then((infos: any) => {
+                // This is only an information test, so it is not necessary to await it.
+                that._rest.getRainbowNodeSdkPackagePublishedInfos().then((infos: any) => {
                     // self._logger.log(self.INTERNAL, LOG_ID +  "(getRainbowNodeSdkPackagePublishedInfos) infos : ", infos);
-                    infos.results.forEach((packagePublished: any) => {
-                        if (packagePublished.package.name === packageVersion.name) {
-                            //if (packagePublished.package.version !== packageVersion.version) {
-                            if (lt(packageVersion.version, packagePublished.package.version)) {
-                                that._logger.log(that.ERROR, LOG_ID + "(getRainbowNodeSdkPackagePublishedInfos)  \n " +
+                    try {
+                        infos.results.forEach((packagePublished: any) => {
+                            if (packagePublished.package.name===packageVersion.name) {
+                                //if (packagePublished.package.version !== packageVersion.version) {
+                                if (lt(packageVersion.version, packagePublished.package.version)) {
+                                    that._logger.log(that.ERROR, LOG_ID + "(getRainbowNodeSdkPackagePublishedInfos)  \n " +
                                         "*******************************************************\n\n", that._logger.colors.red.underline("WARNING : "), that._logger.colors.italic("\n  curent rainbow-node-sdk version : " + packageVersion.version + " is OLDER than the latest available one on npmjs.com : " + packagePublished.package.version + "\n  please update it (npm install rainbow-node-sdk@latest) and use the CHANGELOG to consider the changes."), "\n\n*******************************************************");
-                                let error = {
-                                    "label": "curent rainbow-node-sdk version : " + packageVersion.version + " is OLDER than the latest available one on npmjs.com : " + packagePublished.package.version + " please update it (npm install rainbow-node-sdk@latest) and use the CHANGELOG to consider the changes.",
-                                    "currentPackage": packageVersion.version,
-                                    "latestPublishedPackage": packagePublished.package.version
-                                };
-                                that._eventEmitter.iee.emit("evt_internal_onrainbowversionwarning", error);
+                                    let error = {
+                                        "label": "curent rainbow-node-sdk version : " + packageVersion.version + " is OLDER than the latest available one on npmjs.com : " + packagePublished.package.version + " please update it (npm install rainbow-node-sdk@latest) and use the CHANGELOG to consider the changes.",
+                                        "currentPackage": packageVersion.version,
+                                        "latestPublishedPackage": packagePublished.package.version
+                                    };
+                                    that._eventEmitter.iee.emit("evt_internal_onrainbowversionwarning", error);
 
-                                //self.events.publish("rainbowversionwarning", error);
-                            } else {
-                                that._logger.log(that.INFO, LOG_ID + "(_retrieveInformation) using the last published version of the SDK.");
+                                    //self.events.publish("rainbowversionwarning", error);
+                                } else {
+                                    that._logger.log(that.INFO, LOG_ID + "(_retrieveInformation) using the last published version of the SDK.");
+                                }
                             }
-                        }
-                    });
+                        });
+                    } catch (e) {
+                        that._logger.log(that.WARN, LOG_ID + "(_retrieveInformation) CATCH Error !!! getRainbowNodeSdkPackagePublishedInfos error : ", e);
+                    }
                 }).catch((error) => {
-                    that._logger.log(that.DEBUG, LOG_ID + "(_retrieveInformation) getRainbowNodeSdkPackagePublishedInfos error : ", error);
+                    that._logger.log(that.WARN, LOG_ID + "(_retrieveInformation) getRainbowNodeSdkPackagePublishedInfos error : ", error);
                     // self._logger.log(self.INTERNALERROR, LOG_ID +  "(getRainbowNodeSdkPackagePublishedInfos) error : ", error);
                 });
             }
@@ -661,6 +666,7 @@ class Core extends LevelLogs{
             }
 
             if (that.options.useCLIMode) {
+                that._logger.log(that.INFO, LOG_ID + "(_retrieveInformation) useCLIMode, so stop  method.");
                 return resolve(undefined);
             }
 

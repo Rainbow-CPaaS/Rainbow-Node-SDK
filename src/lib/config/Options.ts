@@ -336,13 +336,6 @@ class Options {
             if (this._options.xmpp.xmppRessourceName) {
                 xmppOptions.xmppRessourceName = this._options.xmpp.xmppRessourceName;
             }
-            if (!xmppOptions.xmppRessourceName && this._configIniData.xmppRessourceName) {
-                xmppOptions.xmppRessourceName = this._configIniData.xmppRessourceName;
-            }
-            if (!xmppOptions.xmppRessourceName) {
-                xmppOptions.xmppRessourceName = xmppUtils.generateRandomID();
-                this._configIniData.xmppRessourceName = xmppOptions.xmppRessourceName;
-            }
             if (this._options.xmpp.raiseLowLevelXmppOutReq) {
                 xmppOptions.raiseLowLevelXmppOutReq = this._options.xmpp.raiseLowLevelXmppOutReq;
             }
@@ -364,6 +357,14 @@ class Options {
 
         updateObjectPropertiesFromAnOtherObject(paramArray, this._options.xmpp);
         // */
+        }
+        if (!xmppOptions.xmppRessourceName ) {
+            if (this._configIniData.xmppRessourceName) {
+                xmppOptions.xmppRessourceName = this._configIniData.xmppRessourceName;
+            } else {
+                xmppOptions.xmppRessourceName = xmppUtils.generateRandomID();
+                this._configIniData.xmppRessourceName = xmppOptions.xmppRessourceName;
+            }
         }
         return xmppOptions;
     }

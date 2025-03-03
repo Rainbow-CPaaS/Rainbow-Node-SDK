@@ -307,7 +307,7 @@ let conf =  {
     debug:true,
     permitSearchFromPhoneBook:true,
     displayOrder:"firstLast",
-    testOutdatedVersion: true,
+    testOutdatedVersion: false,
     testDNSentry: true,
     autoReconnectIgnoreErrors: false,
     httpoverxmppserver: false,

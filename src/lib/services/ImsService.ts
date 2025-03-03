@@ -575,7 +575,7 @@ class ImsService extends GenericService{
         let messageSent : any = undefined;
 
         if (this._useXMPP) {
-            messageSent = await this._xmpp.sendChatMessage(messageUnicode, jid, lang, content, subject, undefined, urgency);
+            messageSent = Promise.resolve(this._xmpp.sendChatMessage(messageUnicode, jid, lang, content, subject, undefined, urgency));
         } else {
             messageSent = Promise.reject("only supported in xmpp mode");
         }
@@ -676,7 +676,7 @@ class ImsService extends GenericService{
 
         jid = XMPPUTils.getXMPPUtils().getBareJIDFromFullJID(jid);
 
-        let messageSent = await this._xmpp.sendChatMessage(messageUnicode, jid, lang, content, subject, answeredMsg, urgency);
+        let messageSent = Promise.resolve(this._xmpp.sendChatMessage(messageUnicode, jid, lang, content, subject, answeredMsg, urgency));
 
         /*
         this.storePendingMessage(messageSent);

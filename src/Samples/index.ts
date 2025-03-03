@@ -709,7 +709,7 @@ let expressEngine = undefined;
                 "maxFiles": 5 // */
             }
         },
-        "testOutdatedVersion": false,
+        "testOutdatedVersion": true,
         "testDNSentry": true,
         "httpoverxmppserver": true,
         "intervalBetweenCleanMemoryCache": 1000 * 60 * 60 * 6, // Every 6 hours.
@@ -1058,72 +1058,79 @@ let expressEngine = undefined;
         // send manually a 'read' receipt to the sender
         //rainbowSDK.im.markMessageAsRead(message);
         let that = this;
-        let contactEmailToSearch = "alice01@vbe.test.openrainbow.net";
-        // Retrieve a contact by its id
-        //let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
-        /*
-        if (message.fromBubbleJid ) {
-            rainbowSDK.im.sendMessageToBubbleJidAnswer("hello from node sendMessageToJidAnswer", message.fromJid, 'FR', null, 'Le sujet de node sendMessageToBubbleJidAnswer', message).then((result) => {
-               _logger.log("debug", "MAIN - rainbow_onmessagereceived sendMessageToBubbleJidAnswer - result : ", result);
+        if (message?.content.includes("#test_charge ") ){
+            let utc = new Date().toJSON().replace(/-/g, "/");
+            let content = "_replyTo_" + message.content + " _at_ " + utc;
+            rainbowSDK.im.sendMessageToJid(content, message.fromJid, 'EN', null, utc, "std").then((result) => {
+                _logger.log("debug", "MAIN - rainbow_onmessagereceived reply to #test_charge received. sendMessageToJid - Acknowledged sent result : ", result);
             });
-
-        }  else {
-            rainbowSDK.im.sendMessageToJidAnswer("hello from node sendMessageToJidAnswer", message.fromJid, 'FR', null, 'Le sujet de node sendMessageToJidAnswer', message).then((result) => {
-               _logger.log("debug", "MAIN - rainbow_onmessagereceived sendMessageToJidAnswer - result : ", result);
-            });
-        } // */
-        /*
-         <message
-  xmlns='jabber:client' to='29b4874d1a4b48c9be13c559da4efe3e@openrainbow.net/node_VpzTvyYF' from='29b4874d1a4b48c9be13c559da4efe3e@openrainbow.net' type='chat'>
-  <sent
-    xmlns='urn:xmpp:carbons:2'>
-    <forwarded
-      xmlns='urn:xmpp:forward:0'>
-      <message xml:lang='en' to='adcf613d42984a79a7bebccc80c2b65e@openrainbow.net' from='29b4874d1a4b48c9be13c559da4efe3e@openrainbow.net/web_win_2.101.3_3QO8WdOK' type='chat' id='web_28273cf2-b320-43c5-a195-7dc88c0935c60'
-        xmlns='jabber:client'>
-        <archived stamp='2022-02-25T10:06:45.263921Z' by='29b4874d1a4b48c9be13c559da4efe3e@openrainbow.net' id='1645783605263921'
-          xmlns='urn:xmpp:mam:tmp'/>
-          <stanza-id by='29b4874d1a4b48c9be13c559da4efe3e@openrainbow.net' id='1645783605263921'
-            xmlns='urn:xmpp:sid:0'/>
-            <store
-              xmlns='urn:xmpp:hints'/>
-              <request
-                xmlns='urn:xmpp:receipts'/>
-                <active
-                  xmlns='http://jabber.org/protocol/chatstates'/>
-                  <answeredMsg stamp='1645783648376'>web_f0d90f96-ec85-41dc-969d-371a30a59aa80</answeredMsg>
-                  <body xml:lang='en'>Acknowledged</body>
-                </message>
-              </forwarded>
-            </sent>
-          </message>
-         */
-        let ackUngency = false;
-        if (ackUngency && message && message.urgency==="high") {
-            if (message.fromBubbleJid) {
-                rainbowSDK.im.sendMessageToBubbleJidAnswer("Acknowledged", message.fromJid, 'EN', null, 'Acknowledged', message, undefined, "std").then((result) => {
-                    _logger.log("debug", "MAIN - rainbow_onmessagereceived sendMessageToBubbleJidAnswer - Acknowledged sent result : ", result);
+        } else {
+            let contactEmailToSearch = "alice01@vbe.test.openrainbow.net";
+            // Retrieve a contact by its id
+            //let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+            /*
+            if (message.fromBubbleJid ) {
+                rainbowSDK.im.sendMessageToBubbleJidAnswer("hello from node sendMessageToJidAnswer", message.fromJid, 'FR', null, 'Le sujet de node sendMessageToBubbleJidAnswer', message).then((result) => {
+                   _logger.log("debug", "MAIN - rainbow_onmessagereceived sendMessageToBubbleJidAnswer - result : ", result);
                 });
-            } else {
-                rainbowSDK.im.sendMessageToJidAnswer("Acknowledged", message.fromJid, 'EN', null, "Acknowledged", message, "std").then((result) => {
-                    _logger.log("debug", "MAIN - rainbow_onmessagereceived sendMessageToJidAnswer - Acknowledged sent result : ", result);
+
+            }  else {
+                rainbowSDK.im.sendMessageToJidAnswer("hello from node sendMessageToJidAnswer", message.fromJid, 'FR', null, 'Le sujet de node sendMessageToJidAnswer', message).then((result) => {
+                   _logger.log("debug", "MAIN - rainbow_onmessagereceived sendMessageToJidAnswer - result : ", result);
                 });
             } // */
-        }
+            /*
+             <message
+      xmlns='jabber:client' to='29b4874d1a4b48c9be13c559da4efe3e@openrainbow.net/node_VpzTvyYF' from='29b4874d1a4b48c9be13c559da4efe3e@openrainbow.net' type='chat'>
+      <sent
+        xmlns='urn:xmpp:carbons:2'>
+        <forwarded
+          xmlns='urn:xmpp:forward:0'>
+          <message xml:lang='en' to='adcf613d42984a79a7bebccc80c2b65e@openrainbow.net' from='29b4874d1a4b48c9be13c559da4efe3e@openrainbow.net/web_win_2.101.3_3QO8WdOK' type='chat' id='web_28273cf2-b320-43c5-a195-7dc88c0935c60'
+            xmlns='jabber:client'>
+            <archived stamp='2022-02-25T10:06:45.263921Z' by='29b4874d1a4b48c9be13c559da4efe3e@openrainbow.net' id='1645783605263921'
+              xmlns='urn:xmpp:mam:tmp'/>
+              <stanza-id by='29b4874d1a4b48c9be13c559da4efe3e@openrainbow.net' id='1645783605263921'
+                xmlns='urn:xmpp:sid:0'/>
+                <store
+                  xmlns='urn:xmpp:hints'/>
+                  <request
+                    xmlns='urn:xmpp:receipts'/>
+                    <active
+                      xmlns='http://jabber.org/protocol/chatstates'/>
+                      <answeredMsg stamp='1645783648376'>web_f0d90f96-ec85-41dc-969d-371a30a59aa80</answeredMsg>
+                      <body xml:lang='en'>Acknowledged</body>
+                    </message>
+                  </forwarded>
+                </sent>
+              </message>
+             */
+            let ackUngency = false;
+            if (ackUngency && message && message.urgency==="high") {
+                if (message.fromBubbleJid) {
+                    rainbowSDK.im.sendMessageToBubbleJidAnswer("Acknowledged", message.fromJid, 'EN', null, 'Acknowledged', message, undefined, "std").then((result) => {
+                        _logger.log("debug", "MAIN - rainbow_onmessagereceived sendMessageToBubbleJidAnswer - Acknowledged sent result : ", result);
+                    });
+                } else {
+                    rainbowSDK.im.sendMessageToJidAnswer("Acknowledged", message.fromJid, 'EN', null, "Acknowledged", message, "std").then((result) => {
+                        _logger.log("debug", "MAIN - rainbow_onmessagereceived sendMessageToJidAnswer - Acknowledged sent result : ", result);
+                    });
+                } // */
+            }
 
-        let ignoreAckUngency = true;
-        if (ignoreAckUngency && message && message.urgency==="high") {
-            if (message.fromBubbleJid) {
-                rainbowSDK.im.sendMessageToBubbleJidAnswer("ign", message.fromJid, 'EN', null, 'Ignored', message, undefined, "std").then((result) => {
-                    _logger.log("debug", "MAIN - rainbow_onmessagereceived sendMessageToBubbleJidAnswer - Acknowledged sent result : ", result);
-                });
-            } else {
-                rainbowSDK.im.sendMessageToJidAnswer("Ignoré", message.fromJid, 'FR', null, "Ignored", message, "std").then((result) => {
-                    _logger.log("debug", "MAIN - rainbow_onmessagereceived sendMessageToJidAnswer - Acknowledged sent result : ", result);
-                });
-            } // */
+            let ignoreAckUngency = true;
+            if (ignoreAckUngency && message && message.urgency==="high") {
+                if (message.fromBubbleJid) {
+                    rainbowSDK.im.sendMessageToBubbleJidAnswer("ign", message.fromJid, 'EN', null, 'Ignored', message, undefined, "std").then((result) => {
+                        _logger.log("debug", "MAIN - rainbow_onmessagereceived sendMessageToBubbleJidAnswer - Acknowledged sent result : ", result);
+                    });
+                } else {
+                    rainbowSDK.im.sendMessageToJidAnswer("Ignoré", message.fromJid, 'FR', null, "Ignored", message, "std").then((result) => {
+                        _logger.log("debug", "MAIN - rainbow_onmessagereceived sendMessageToJidAnswer - Acknowledged sent result : ", result);
+                    });
+                } // */
+            }
         }
-
     });
     rainbowSDK.events.on("rainbow_onmessageserverreceiptreceived", (data) => {
         _logger.log("debug", "MAIN - (rainbow_onmessageserverreceiptreceived) - rainbow event received. data", data);
@@ -1164,9 +1171,10 @@ let expressEngine = undefined;
         }, "Waiting for the stop event after the rainbow_onerror event.", 10000).then(() => {
             rainbowSDK = undefined;
             stopped = false;
-            /*
+
             rainbowSDK = new RainbowSDK(options);
-           _logger = rainbowSDK._core._logger;
+            stopped = true;
+           /* _logger = rainbowSDK._core._logger;
             rainbowSDK.start().then(async(result) => {
                 try {
                     // Do something when the SDK is started
@@ -7505,6 +7513,86 @@ let expressEngine = undefined;
             let deletedCompany = await rainbowSDK.admin.removeCompany({id: newCompany.id});
         }
 
+        async testCreateCompanyCreateUsersForTests() {
+            // To use with rford@westworld.com
+
+            let utc = new Date().toJSON().replace(/-/g, '_');
+            let companyName = "VBRCompany";
+
+            let newCompany : any = await (rainbowSDK.admin.getCompanieByName(companyName));
+
+            if (!newCompany) {
+                newCompany = await (rainbowSDK.admin.createCompany(companyName, "USA", "AA", OFFERTYPES.PREMIUM).catch((e) => {
+                    _logger.log("error", "MAIN - testCreateCompanyCreateUsersForTests - createCompany Error : ", e);
+                }));
+                await pause(2000);
+            } else {
+                newCompany = newCompany?.data;
+                if (Array.isArray(newCompany) && newCompany.length === 1) {
+                    newCompany = newCompany[0];
+                }
+            }
+            for (let i = 0; i < 100; i++) {
+
+                let generatedId = i;
+                //let generatedId = makeId(15);
+                let email = "vbrTests" + generatedId + "@vbe.test.openrainbow.net";
+                let password = "Password_123";
+                let firstname = "vbrTests_" + generatedId;
+                let lastname = "vbrTests_" + generatedId;
+                await pause(2000);
+
+                let newUser: any = await rainbowSDK.admin.createUserInCompany(email, password, firstname, lastname, newCompany.id, "en-US", false /* admin or not */, ["user", "closed_channels_admin", "private_channels_admin", "public_channels_admin"]).catch((e) => {
+                    _logger.log("error", "MAIN - testCreateCompanyCreateUsersForTests - createUserInCompany Error : ", e);
+                });
+                _logger.log("debug", "MAIN - ",i, " contact created. Wait 5seconds before next creation.");
+                await pause(5000);
+
+            }
+        }
+
+        async testDeleteUsersForTestsWithComExtension() {
+            // To use with rford@westworld.com
+            // i created contacts with wrong emails extension, so this method is to clean server.
+
+            let utc = new Date().toJSON().replace(/-/g, '_');
+            let companyName = "VBRCompany";
+
+            let newCompany : any = await (rainbowSDK.admin.getCompanieByName(companyName));
+
+            if (!newCompany) {
+                await pause(2000);
+                _logger.log("debug", "MAIN - testDeleteUsersForTestsWithComExtension - newCompany ", companyName, " not found.");
+                return ;
+            } else {
+                newCompany = newCompany?.data;
+                if (Array.isArray(newCompany) && newCompany.length === 1) {
+                    newCompany = newCompany[0];
+                }
+            }
+            await pause(2000);
+            for (let i = 0; i < 100; i++) {
+
+                let generatedId = i;
+                //let generatedId = makeId(15);
+                let email = "vbrTests" + generatedId + "@vbe.test.openrainbow.com";
+                let password = "Password_123";
+                let firstname = "vbrTests_" + generatedId;
+                let lastname = "vbrTests_" + generatedId;
+
+                let contactEmailToSearch = email;
+                let utc = new Date().toJSON().replace(/-/g, "_");
+                let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+                let deletedUser = await rainbowSDK.admin.deleteUser(contact.id).then(async () => {
+                    _logger.log("debug", "MAIN - testDeleteUsersForTestsWithComExtension - ",i, " contact deleted. Wait 5seconds before next creation.");
+                    // */
+                    await pause(1000);
+                }).catch((err) => {
+                    _logger.log("error", "MAIN - testDeleteUsersForTestsWithComExtension - ",i, " failed to delete contact. Err : ", err);
+                });
+            }
+        }
+
         async testJoinCompanyInvitations() {
             // To use with rford@westworld.com
 
@@ -10493,7 +10581,7 @@ let expressEngine = undefined;
 
         async testcallRPCMethod_system() {
             let that = this;
-            let methodNames: any = await rainbowSDK.rpcoverxmpp.callRPCMethod();
+            let methodNames: any = await rainbowSDK.rpcoverxmpp.callRPCMethod(); // Call system.listMethods (default
             _logger.log("debug", "MAIN - testcallRPCMethod_system, methodNames : ", methodNames);
             for (const methodName of methodNames) {
                 _logger.log("debug", "MAIN - testcallRPCMethod_system, methodName : ", methodName);
