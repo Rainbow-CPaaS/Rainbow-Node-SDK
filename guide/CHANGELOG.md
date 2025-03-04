@@ -6,6 +6,19 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+### [2.35.0-lts.0] - 2024-03-04
+#### Removed
+-   None
+
+#### Fixed
+-   None
+
+#### Added
+-   None
+
+#### Changed
+-   Same as STS 2.34.0
+
 ### [2.34.0] - 2025-03-04
 #### Removed
 -   None
@@ -90,7 +103,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 #### Fixed
 -   Fix Jenkinsfile for new branch 'LTSDeliveryNew'
-  - Fix loadConfigFromIniFile()
+-   Fix loadConfigFromIniFile()
 
 #### Added
 -   None
