@@ -49,6 +49,23 @@ def getReleaseName(upper) {
     }
 }
 
+def targets = [
+    [
+        name: "bookworm",
+        node: "docker-slave-generic-bookworm",
+        debPublishRepository: "nightly-non-free-bookworm",
+        debPublishRepositoryRelease: "integration-non-free-bookworm",
+        debVersionName: "deb12"
+    ],
+    [
+        name: "bullseye",
+        node: "docker-slave-generic-bullseye",
+        debPublishRepository: "nightly-non-free-bullseye",
+        debPublishRepositoryRelease: "integration-non-free-bullseye",
+        debVersionName: "deb11"
+    ]
+]
+
 pipeline {
     agent {
         label {
@@ -641,119 +658,126 @@ pipeline {
                 steps { 
                     script   {
                          // node('docker-slave-nodebackend-buster-12.x') {  
-                        stage('Build Debian Folder') {
-                            try {                         
-                                echo "Build debian pkg ${params.RAINBOWNODESDKVERSION} ${workspace}"
-                                sh script: """
-                               
-                                echo "copy Docs and Debian config files to the folder Documentation ."
+                       parallelTargets(targets) { target ->
+                            stage("Build Debian Folder" + target.name) {
+                                try {
+                                    echo "Build debian pkg ${params.RAINBOWNODESDKVERSION} ${workspace}"
+                                    sh script: """
 
-                                cd "${workspace}"
-                                echo find debian in workspace
-                                find debian
-                                
-                                mkdir -p Documentation
-                                cp -R doc debian Documentation/
-                     
-                                echo "update files with doc/sdk/node path which should be doc/sdk/node/${RELEASENAMELOWERNAME} into the folder Documentation ."
-                                sed "s/otlite-sdk-node-doc/otlite-sdk-node-doc-${RELEASENAMELOWERNAME}/" debian/control |tee "${workspace}/Documentation/debian/control"
-                                sed "s/\\/usr\\/share\\/sdkdoc\\/node\\/sitemap.xml/\\/usr\\/share\\/sdkdoc\\/node\\/${RELEASENAMELOWERNAME}\\/sitemap.xml/" debian/postinst |tee "${workspace}/Documentation/debian/postinst"
-                                # more Documentation/debian/control
-                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "guide/RainbowNodeSDKNews.md"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/RainbowNodeSDKNews.md"
-                                # more Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/RainbowNodeSDKNews.md
-                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "guide/Answering_chat_message.md" |tee  "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/Answering_chat_message.md"
-                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "guide/Connecting_to_Rainbow_S2S_Mode.md"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/Connecting_to_Rainbow_S2S_Mode.md"
-                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "guide/Connecting_to_Rainbow_XMPP_Mode.md"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/Connecting_to_Rainbow_XMPP_Mode.md"
-                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "guide/Development_Kit.md"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/Development_Kit.md"
-                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "guide/Getting_Started.md"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/Getting_Started.md"
-                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "guide/Legals.md"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/Legals.md"
-                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "guide/Managing_bubbles.md"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/Managing_bubbles.md"
-                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "guide/Managing_conferences.md"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/Managing_conferences.md"
-                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "guide/Managing_RPCoverXMPP.md"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/Managing_RPCoverXMPP.md"
-                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "build/What_is_new_generated.md"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/What_is_new.md"
-                                 
-                                sed "s/ref:doc\\/sdk\\/node\\//ref:doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "index.yml"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/index.yml"
-                                sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "sitemap.xml"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/sitemap.xml"
-                                
+                                    echo "copy Docs and Debian config files to the folder Documentation ."
 
-                                """
+                                    cd "${workspace}"
+                                    echo find debian in workspace
+                                    find debian
 
-                                 stash includes: 'Documentation/**', name: 'DocumentationFolder'
-                            } catch (Exception e) {
-                                echo "Failure: ${currentBuild.result}: ${e}"
+                                    mkdir -p Documentation
+                                    cp -R doc debian Documentation/
+
+                                    echo "update files with doc/sdk/node path which should be doc/sdk/node/${RELEASENAMELOWERNAME} into the folder Documentation ."
+                                    sed "s/otlite-sdk-node-doc/otlite-sdk-node-doc-${RELEASENAMELOWERNAME}/" debian/control |tee "${workspace}/Documentation/debian/control"
+                                    sed "s/\\/usr\\/share\\/sdkdoc\\/node\\/sitemap.xml/\\/usr\\/share\\/sdkdoc\\/node\\/${RELEASENAMELOWERNAME}\\/sitemap.xml/" debian/postinst |tee "${workspace}/Documentation/debian/postinst"
+                                    # more Documentation/debian/control
+                                    sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "guide/RainbowNodeSDKNews.md"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/RainbowNodeSDKNews.md"
+                                    # more Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/RainbowNodeSDKNews.md
+                                    sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "guide/Answering_chat_message.md" |tee  "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/Answering_chat_message.md"
+                                    sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "guide/Connecting_to_Rainbow_S2S_Mode.md"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/Connecting_to_Rainbow_S2S_Mode.md"
+                                    sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "guide/Connecting_to_Rainbow_XMPP_Mode.md"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/Connecting_to_Rainbow_XMPP_Mode.md"
+                                    sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "guide/Development_Kit.md"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/Development_Kit.md"
+                                    sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "guide/Getting_Started.md"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/Getting_Started.md"
+                                    sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "guide/Legals.md"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/Legals.md"
+                                    sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "guide/Managing_bubbles.md"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/Managing_bubbles.md"
+                                    sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "guide/Managing_conferences.md"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/Managing_conferences.md"
+                                    sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "guide/Managing_RPCoverXMPP.md"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/Managing_RPCoverXMPP.md"
+                                    sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "build/What_is_new_generated.md"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/What_is_new.md"
+
+                                    sed "s/ref:doc\\/sdk\\/node\\//ref:doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "index.yml"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/index.yml"
+                                    sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "sitemap.xml"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/sitemap.xml"
+
+
+                                    """
+
+                                     stash includes: 'Documentation/**', name: 'DocumentationFolder'
+                                } catch (Exception e) {
+                                    echo "Failure: ${currentBuild.result}: ${e}"
+                                }
                             }
-                        }
 
-                        stage("Generate documentation search index") {
-                            try {
-                                echo "Build Hub V2 search index : "
-                                // unstash 'DocumentationFolder'
-                                sh script: """
-                                 # echo "folder where run the Build Hub V2 search index."
-                                 # pwd
-                                 # ls
-                                """
-                                // unstash "withBuildDir"
+                            stage('Generate documentation search index' + target.name) {
+                                try {
+                                    echo "Build Hub V2 search index : "
+                                    // unstash 'DocumentationFolder'
+                                    sh script: """
+                                     # echo "folder where run the Build Hub V2 search index."
+                                     # pwd
+                                     # ls
+                                    """
+                                    // unstash "withBuildDir"
 
-                                echo "Installation of developers_searchindex HUB V2 search library."
-                                sh """
-                                cd "${workspace}/Documentation"
-                                npm install developers_searchindex --registry https://nexus.openrainbow.io/repository/npm-dev
-                                npm list developers_searchindex
-                                """
+                                    echo "Installation of developers_searchindex HUB V2 search library."
+                                    sh """
+                                    cd "${workspace}/Documentation"
+                                    npm install developers_searchindex --registry https://nexus.openrainbow.io/repository/npm-dev
+                                    npm list developers_searchindex
+                                    """
 
-                                echo "build hub doc"
-                                sh script: """
-                                # cd "${workspace}/Documentation"
-                                sudo npm install npm -g
-                                npm exec -- developers_searchindex --docPath Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}
-                                # sh "npx developers_searchindex --docPath build/doc/hub"
-                                # ls -la build/doc/hub
-                                """
+                                    echo "build hub doc"
+                                    sh script: """
+                                    # cd "${workspace}/Documentation"
+                                    sudo npm install npm -g
+                                    npm exec -- developers_searchindex --docPath Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}
+                                    # sh "npx developers_searchindex --docPath build/doc/hub"
+                                    # ls -la build/doc/hub
+                                    """
 
-                                // generateHubV2DocumentationSearchIndex("Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}", "DocumentationFolder")
-                            } catch (Exception e) {
-                                echo "Failure: ${currentBuild.result}: ${e}"
+                                    // generateHubV2DocumentationSearchIndex("Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}", "DocumentationFolder")
+                                } catch (Exception e) {
+                                    echo "Failure: ${currentBuild.result}: ${e}"
+                                }
                             }
-                        }
 
-                        stage('Build Debian package') {
-                            try {
-                                echo "Build debian the package : "
-                                sh script: """
-                                    #find Documentation/
-                                    #cd "${workspace}/Documentation"
-                                    # apt-key adv --keyserver dl.google.com/linux/chrome/deb --recv-keys E88979FB9B30ACF2 2> /dev/null
-                                    # apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 78BD65473CB3BD13 2> /dev/null
-                                    sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E88979FB9B30ACF2
-                                """
+                            stage('Build Debian package' + target.name) {
+                                try {
+                                    echo "Build debian the package : "
+                                    sh script: """
+                                        #find Documentation/
+                                        #cd "${workspace}/Documentation"
+                                        # apt-key adv --keyserver dl.google.com/linux/chrome/deb --recv-keys E88979FB9B30ACF2 2> /dev/null
+                                        # apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 78BD65473CB3BD13 2> /dev/null
+                                        sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E88979FB9B30ACF2
+                                    """
 
-                                debianBuild(
-                                    debianPath: 'Documentation',
-                                    nextVersion: "${params.RAINBOWNODESDKVERSION}" ,
-                                    language: 'other'
-                                )
-                            } catch (Exception e) {
-                                echo "Failure: ${currentBuild.result}: ${e}"
+                                    debianBuild(
+                                        debianPath: 'Documentation',
+                                        nextVersion: "${params.RAINBOWNODESDKVERSION}" ,
+                                        language: 'other',
+                                        debVersionName: target.debVersionName,
+                                        artifactTarget: target.name,
+                                        stashName: target.name
+                                    )
+                                } catch (Exception e) {
+                                    echo "Failure: ${currentBuild.result}: ${e}"
+                                }
+                                finally {
+                                    //    notifyBuild(currentBuild.result)
+                                }
                             }
-                            finally {
-                                //    notifyBuild(currentBuild.result)
-                            }
-                        }
-                          
-                        stage('Debian Publish') {
-                            try {
-                                echo "Publish Debian package : "
-                                echo debianPublish.getDebianArtifacts().join('\n')
-                                debianPublish(
-                                    repository: 'nightly-non-free-bullseye',
-                                    stashName: "deb"
-                                )
-                            } catch (Exception e) {
-                                echo "Failure: ${currentBuild.result}: ${e}"
-                            }
-                            finally {
-                                //    notifyBuild(currentBuild.result)
+
+                            stage('Debian Publish' + target.name) {
+                                try {
+                                    echo "Publish Debian package : "
+                                    echo debianPublish.getDebianArtifacts().join('\n')
+                                    debianPublish(
+                                        repository: target.debPublishRepository,
+                                        package: '*.deb',
+                                        artifactTarget: target.name,
+                                        stashName: target.name
+                                    )
+                                } catch (Exception e) {
+                                    echo "Failure: ${currentBuild.result}: ${e}"
+                                }
+                                finally {
+                                    //    notifyBuild(currentBuild.result)
+                                }
                             }
                         }
                     }
