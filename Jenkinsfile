@@ -658,7 +658,6 @@ pipeline {
                 steps { 
                     script   {
                          // node('docker-slave-nodebackend-buster-12.x') {  
-                       parallelTargets(targets) { target ->
                             stage("Build Debian Folder" + target.name) {
                                 try {
                                     echo "Build debian pkg ${params.RAINBOWNODESDKVERSION} ${workspace}"
@@ -696,7 +695,7 @@ pipeline {
 
                                     """
 
-                                     stash includes: 'Documentation/**', name: 'DocumentationFolder'
+                                    // stash includes: 'Documentation/**', name: 'DocumentationFolder'
                                 } catch (Exception e) {
                                     echo "Failure: ${currentBuild.result}: ${e}"
                                 }
@@ -730,14 +729,18 @@ pipeline {
                                     """
 
                                     // generateHubV2DocumentationSearchIndex("Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}", "DocumentationFolder")
+
+                                    stash includes: 'Documentation/**', name: 'DocumentationFolder'
+
                                 } catch (Exception e) {
                                     echo "Failure: ${currentBuild.result}: ${e}"
                                 }
                             }
-
+                       parallelTargets(targets) { target ->
                             stage('Build Debian package' + target.name) {
                                 try {
                                     echo "Build debian the package : "
+                                    unstash 'DocumentationFolder'
                                     sh script: """
                                         #find Documentation/
                                         #cd "${workspace}/Documentation"
