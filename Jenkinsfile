@@ -742,6 +742,7 @@ pipeline {
                             stage('Build Debian package' + target.name) {
                                 try {
                                     echo "Build debian the package : "
+                                    checkout scm
                                     unstash 'DocumentationFolder'
                                     sh script: """
                                         #find Documentation/
