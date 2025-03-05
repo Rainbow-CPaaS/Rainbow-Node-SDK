@@ -658,6 +658,7 @@ pipeline {
                 steps { 
                     script   {
                          // node('docker-slave-nodebackend-buster-12.x') {  
+                            //stage("Build Debian Folder" + target.name) {
                             stage("Build Debian Folder" + target.name) {
                                 try {
                                     echo "Build debian pkg ${params.RAINBOWNODESDKVERSION} ${workspace}"
@@ -701,6 +702,7 @@ pipeline {
                                 }
                             }
 
+                            // stage('Generate documentation search index' + target.name) {
                             stage('Generate documentation search index' + target.name) {
                                 try {
                                     echo "Build Hub V2 search index : "
