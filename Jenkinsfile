@@ -70,7 +70,7 @@ pipeline {
     agent {
         label {
                   label "docker-slave-cpaas-bullseye-node18"
-                  customWorkspace "/home/jenkins/workspace/SDK-Node-SDK-${env.BRANCH_NAME}"
+                  //customWorkspace "/home/jenkins/workspace/SDK-Node-SDK-${env.BRANCH_NAME}"
         }        
     }
     options {
