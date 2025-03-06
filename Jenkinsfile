@@ -634,7 +634,7 @@ pipeline {
                         fi
                     """
                                   
-                    stash includes: 'doc/sdk/node/**/*.*, sitemap.yml, build/**/*.*, guide/**/*.*', name: 'pkgfiles'
+                    //stash includes: 'doc/sdk/node/**/*.*, sitemap.yml, build/**/*.*, guide/**/*.*', name: 'pkgfiles'
                 }
             }
               
@@ -658,13 +658,12 @@ pipeline {
                 steps { 
                     script   {
                          // node('docker-slave-nodebackend-buster-12.x') {  
-                       parallelTargets(targets) { target ->
-                            stage("Build Debian Folder" + target.name) {
-                            //stage("Build Debian Folder") {
+                            //stage("Build Debian Folder" + target.name) {
+                            stage("Build Debian Folder") {
                                 try {
                                     echo "Build debian pkg ${params.RAINBOWNODESDKVERSION} ${workspace}"
-                                    checkout scm
-                                    unstash 'pkgfiles'
+                                    //checkout scm
+                                    //unstash 'pkgfiles'
                                     sh script: """
 
                                     echo "copy Docs and Debian config files to the folder Documentation ."
@@ -705,8 +704,8 @@ pipeline {
                                 }
                             }
 
-                            stage('Generate documentation search index' + target.name) {
-                            //stage('Generate documentation search index') {
+                            //stage('Generate documentation search index' + target.name) {
+                            stage('Generate documentation search index') {
                                 try {
                                     echo "Build Hub V2 search index : "
                                     // unstash 'DocumentationFolder'
@@ -736,17 +735,18 @@ pipeline {
 
                                     // generateHubV2DocumentationSearchIndex("Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}", "DocumentationFolder")
 
-                                    //stash includes: 'Documentation/**', name: 'DocumentationFolder'
+                                    stash includes: 'Documentation/**', name: 'DocumentationFolder'
 
                                 } catch (Exception e) {
                                     echo "Failure: ${currentBuild.result}: ${e}"
                                 }
                             }
+                       parallelTargets(targets) { target ->
                             stage('Build Debian package' + target.name) {
                                 try {
                                     echo "Build debian the package : "
-                                    //checkout scm
-                                    //unstash 'DocumentationFolder'
+                                    checkout scm
+                                    unstash 'DocumentationFolder'
                                     sh script: """
                                        cd Documentation/debian
                                        ls -l
