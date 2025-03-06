@@ -634,7 +634,7 @@ pipeline {
                         fi
                     """
                                   
-                    stash includes: 'doc/sdk/node/**/*.*, doc/sdk/node/index.yml, doc/sdk/node/sitemap.yml', name: 'docfiles'
+                    stash includes: 'doc/sdk/node/**/*.*, sitemap.yml, build/**/*.*, guide/**/*.*', name: 'pkgfiles'
                 }
             }
               
@@ -664,7 +664,7 @@ pipeline {
                                 try {
                                     echo "Build debian pkg ${params.RAINBOWNODESDKVERSION} ${workspace}"
                                     checkout scm
-                                    unstash 'docfiles'
+                                    unstash 'pkgfiles'
                                     sh script: """
 
                                     echo "copy Docs and Debian config files to the folder Documentation ."
