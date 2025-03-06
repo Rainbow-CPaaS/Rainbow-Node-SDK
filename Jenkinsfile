@@ -719,7 +719,8 @@ pipeline {
 
                                     echo "Installation of developers_searchindex HUB V2 search library."
                                     sh """
-                                    cd "Documentation"
+                                    sudo npm install npm -g
+                                    #cd "Documentation"
                                     npm install developers_searchindex --registry https://nexus.openrainbow.io/repository/npm-dev
                                     npm list developers_searchindex
                                     """
@@ -727,11 +728,10 @@ pipeline {
                                     echo "build hub doc"
                                     sh script: """
                                     # cd "Documentation"
-                                    sudo npm install npm -g
                                     npm exec -- developers_searchindex --docPath Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}
                                     # sh "npx developers_searchindex --docPath build/doc/hub"
                                     # ls -la build/doc/hub
-                                    cd -
+                                    #cd -
                                     """
 
                                     // generateHubV2DocumentationSearchIndex("Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}", "DocumentationFolder")
