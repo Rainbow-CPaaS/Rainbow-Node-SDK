@@ -70,7 +70,7 @@ pipeline {
     agent {
         label {
                   label "docker-slave-cpaas-bullseye-node18"
-                  customWorkspace "/home/jenkins/workspace/SDK-Node-SDK-${env.BRANCH_NAME}"
+                  //customWorkspace "/home/jenkins/workspace/SDK-Node-SDK-${env.BRANCH_NAME}"
         }        
     }
     options {
@@ -634,7 +634,7 @@ pipeline {
                         fi
                     """
                                   
-                    //stash includes: 'doc/sdk/node/**/*.*, doc/sdk/node/index.yml, doc/sdk/node/sitemap.yml', name: 'docfiles'
+                    //stash includes: 'doc/sdk/node/**/*.*, sitemap.yml, build/**/*.*, guide/**/*.*', name: 'pkgfiles'
                 }
             }
               
@@ -658,15 +658,17 @@ pipeline {
                 steps { 
                     script   {
                          // node('docker-slave-nodebackend-buster-12.x') {  
-                       parallelTargets(targets) { target ->
-                            stage("Build Debian Folder" + target.name) {
+                            //stage("Build Debian Folder" + target.name) {
+                            stage("Build Debian Folder") {
                                 try {
                                     echo "Build debian pkg ${params.RAINBOWNODESDKVERSION} ${workspace}"
+                                    //checkout scm
+                                    //unstash 'pkgfiles'
                                     sh script: """
 
                                     echo "copy Docs and Debian config files to the folder Documentation ."
 
-                                    cd "${workspace}"
+                                    #cd "${workspace}"
                                     echo find debian in workspace
                                     find debian
 
@@ -674,8 +676,8 @@ pipeline {
                                     cp -R doc debian Documentation/
 
                                     echo "update files with doc/sdk/node path which should be doc/sdk/node/${RELEASENAMELOWERNAME} into the folder Documentation ."
-                                    sed "s/otlite-sdk-node-doc/otlite-sdk-node-doc-${RELEASENAMELOWERNAME}/" debian/control |tee "${workspace}/Documentation/debian/control"
-                                    sed "s/\\/usr\\/share\\/sdkdoc\\/node\\/sitemap.xml/\\/usr\\/share\\/sdkdoc\\/node\\/${RELEASENAMELOWERNAME}\\/sitemap.xml/" debian/postinst |tee "${workspace}/Documentation/debian/postinst"
+                                    sed "s/otlite-sdk-node-doc/otlite-sdk-node-doc-${RELEASENAMELOWERNAME}/" debian/control |tee "Documentation/debian/control"
+                                    sed "s/\\/usr\\/share\\/sdkdoc\\/node\\/sitemap.xml/\\/usr\\/share\\/sdkdoc\\/node\\/${RELEASENAMELOWERNAME}\\/sitemap.xml/" debian/postinst |tee "Documentation/debian/postinst"
                                     # more Documentation/debian/control
                                     sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "guide/RainbowNodeSDKNews.md"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/RainbowNodeSDKNews.md"
                                     # more Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/RainbowNodeSDKNews.md
@@ -696,13 +698,14 @@ pipeline {
 
                                     """
 
-                                     stash includes: 'Documentation/**', name: 'DocumentationFolder'
+                                    // stash includes: 'Documentation/**', name: 'DocumentationFolder'
                                 } catch (Exception e) {
                                     echo "Failure: ${currentBuild.result}: ${e}"
                                 }
                             }
 
-                            stage('Generate documentation search index' + target.name) {
+                            //stage('Generate documentation search index' + target.name) {
+                            stage('Generate documentation search index') {
                                 try {
                                     echo "Build Hub V2 search index : "
                                     // unstash 'DocumentationFolder'
@@ -715,35 +718,44 @@ pipeline {
 
                                     echo "Installation of developers_searchindex HUB V2 search library."
                                     sh """
-                                    cd "${workspace}/Documentation"
+                                    sudo npm install npm -g
+                                    #cd "Documentation"
                                     npm install developers_searchindex --registry https://nexus.openrainbow.io/repository/npm-dev
                                     npm list developers_searchindex
                                     """
 
                                     echo "build hub doc"
                                     sh script: """
-                                    # cd "${workspace}/Documentation"
-                                    sudo npm install npm -g
+                                    # cd "Documentation"
                                     npm exec -- developers_searchindex --docPath Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}
                                     # sh "npx developers_searchindex --docPath build/doc/hub"
                                     # ls -la build/doc/hub
+                                    #cd -
                                     """
 
                                     // generateHubV2DocumentationSearchIndex("Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}", "DocumentationFolder")
+
+                                    stash includes: 'Documentation/**', name: 'DocumentationFolder'
+
                                 } catch (Exception e) {
                                     echo "Failure: ${currentBuild.result}: ${e}"
                                 }
                             }
-
+                       parallelTargets(targets) { target ->
                             stage('Build Debian package' + target.name) {
                                 try {
                                     echo "Build debian the package : "
+                                    checkout scm
+                                    unstash 'DocumentationFolder'
                                     sh script: """
+                                       cd Documentation/debian
+                                       ls -l
                                         #find Documentation/
                                         #cd "${workspace}/Documentation"
                                         # apt-key adv --keyserver dl.google.com/linux/chrome/deb --recv-keys E88979FB9B30ACF2 2> /dev/null
                                         # apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 78BD65473CB3BD13 2> /dev/null
                                         sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E88979FB9B30ACF2
+                                        cd -
                                     """
 
                                     debianBuild(
