@@ -497,6 +497,7 @@ pipeline {
                         
                     npm version "${RAINBOWNODESDKVERSION}"  --allow-same-version
 
+
                     if [ "${DEBUGINTERNAL}" = "true" ]; then
                          echo "Build sources with Internal DEBUG activated."
                         echo ---------- STEP grunt : 
@@ -515,7 +516,8 @@ pipeline {
                         echo Sub Step 1 : To compil the sources
                         grunt --verbose
                         echo Sub Step 2 : To prepare the sources + doc for package
-                        grunt delivery --verbose
+                        grunt jsdoc2md --verbose
+                        #grunt delivery --verbose
                     fi
                         
                         
