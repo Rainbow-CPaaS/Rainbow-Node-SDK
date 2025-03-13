@@ -22,6 +22,7 @@ const ini = require('ini');
 
 import { dirname, join } from 'path';
 import { existsSync } from 'fs';
+import { ParsedResult } from 'xml2js';
 
 function isObject (value) {
     return (value !== null && typeof value === 'object');
@@ -745,7 +746,53 @@ function getAttrFromJSONObj(obj, name){
     }
     return result;
 }
+function getAlternateMessageFromJSONObj(content){
+    let result :{message:any, type:string} = {
+        message: undefined,
+        type: ""
+    }; //  msg?.body?.$attrs["xml:lang"]
+    if (content && isObject(content) && content.$attrs) {
+      result.type = content.$attrs["type"]
+    }
+    if (content && isObject(content) && content._) {
+      result.message = content._
+    }
+    return result;
+}
 
+type DecodedContent = Record<string, any>;
+
+/* Don t work has expected
+function getJsonFromXml2jsObject(parsedObject: ParsedResult): DecodedContent {
+    function cleanObject(obj: any): any {
+        if (typeof obj === 'object' && !Array.isArray(obj)) {
+            const result: Record<string, any> = {};
+            for (const [key, value] of Object.entries(obj)) {
+                if (Array.isArray(value)) {
+                    if (key === 'item') {
+                        // Si la clé est 'item', retourner directement le tableau nettoyé
+                        result[key] = value.map(cleanObject);
+                    } else if (value.length === 1) {
+                        result[key] = cleanObject(value[0]);
+                    } else {
+                        result[key] = value.map(cleanObject);
+                    }
+                } else {
+                    result[key] = cleanObject(value);
+                }
+            }
+            return result;
+        }
+        return obj;
+    }
+
+    // Suppression des métadonnées inutiles et nettoyage de l'objet
+    if (parsedObject && parsedObject._) {
+        return cleanObject(parsedObject);
+    }
+    return {};
+}
+ // */
 function getValueFromVariable(variable, defaultValue){
     return (isObject(variable)?variable:{});
 }
@@ -1086,6 +1133,7 @@ export let objToExport = {
     getJsonFromXML,
     getTextFromJSONProperty,
     getAttrFromJSONObj,
+    getAlternateMessageFromJSONObj,
     getValueFromVariable,
     getObjectFromVariable,
     findAllPropInJSONByPropertyName,
@@ -1143,6 +1191,7 @@ export {
     getJsonFromXML,
     getTextFromJSONProperty,
     getAttrFromJSONObj,
+    getAlternateMessageFromJSONObj,
     getValueFromVariable,
     getObjectFromVariable,
     findAllPropInJSONByPropertyName,
@@ -1199,6 +1248,7 @@ export default {
     getJsonFromXML,
     getTextFromJSONProperty,
     getAttrFromJSONObj,
+    getAlternateMessageFromJSONObj,
     getValueFromVariable,
     getObjectFromVariable,
     findAllPropInJSONByPropertyName,

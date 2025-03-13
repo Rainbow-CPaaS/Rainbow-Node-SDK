@@ -2,7 +2,6 @@
 
 import {XMPPService} from "../XMPPService";
 import {XMPPUTils, xu} from "../../common/XMPPUtils";
-import {ConversationEventHandler} from "./conversationEventHandler";
 
 export {};
 
@@ -22,9 +21,16 @@ global.window = undefined;
 const xml = require("@xmpp/xml");
 import {Message} from "../../common/models/Message";
 import {
-    findAllPropInJSONByPropertyName, findAllPropInJSONByPropertyNameByXmlNS,
+    findAllPropInJSONByPropertyName,
+    findAllPropInJSONByPropertyNameByXmlNS,
     getObjectFromVariable,
-    getTextFromJSONProperty, getAttrFromJSONObj, isDefined, isString, logEntryExit, msToTime
+    getTextFromJSONProperty,
+    getAttrFromJSONObj,
+    isDefined,
+    isString,
+    logEntryExit,
+    msToTime,
+    getAlternateMessageFromJSONObj
 } from "../../common/Utils";
 import {ConversationsService} from "../../services/ConversationsService";
 import {ContactsService} from "../../services/ContactsService";
@@ -402,7 +408,8 @@ class ConversationHistoryHandler  extends GenericHandler {
                     //let oobElmt = stanzaMessage?.getChild("x", "jabber:x:oob");
                     let conference = findAllPropInJSONByPropertyNameByXmlNS(jsonMessage, "x", "jabber:x:audioconference");//stanzaMessage?.getChild("x", "jabber:x:audioconference");
                     //let content = stanzaMessage?.getChild("content", "urn:xmpp:content");
-                    let content = findAllPropInJSONByPropertyNameByXmlNS(jsonMessage, "x", "urn:xmpp:content"); // stanzaMessage?.getChild("content", "urn:xmpp:content");
+                    let content = findAllPropInJSONByPropertyNameByXmlNS(jsonMessage, "content", "urn:xmpp:content"); // stanzaMessage?.getChild("content", "urn:xmpp:content");
+                    let contentObj = content?getAlternateMessageFromJSONObj(content):undefined;
                     let answeredMsg: Message;
                     let answeredMsgId: string;
                     let answeredMsgDate: string;
@@ -563,6 +570,7 @@ class ConversationHistoryHandler  extends GenericHandler {
                                       message = Message.createFileSharingMessage(messageId, date, from, side, body, false, shortFileDescriptor);
 
                                   } else {*/
+                                // contentObj
                                 let isMarkdown = content && content?.$attrs?.type==="text/markdown";
                                 body = isMarkdown ? getTextFromJSONProperty(content):body;
                                 //subject = stanzaMessage.find("subject")?.text();
@@ -823,7 +831,7 @@ class ConversationHistoryHandler  extends GenericHandler {
                                     subject,
                                     null, //data.geoloc,
                                     null, //data.voiceMessage,
-                                    body,
+                                    contentObj,
                                     attention,
                                     mentions,
                                     urgency,
