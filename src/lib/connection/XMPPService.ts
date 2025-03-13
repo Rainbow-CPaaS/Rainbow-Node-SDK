@@ -502,7 +502,7 @@ class XMPPService extends GenericService {
         let xmlStr="";
         if ( that._logger.enableEncryptedLogs == true || that.raiseLowLevelXmppInEvent) {
             //that._logger.log(that.XMPP, LOG_ID + "(handleXMPPConnection) raw in - Before prettydata");
-            let xmlStr = prettydata.xml(stanzaStr);
+            xmlStr = prettydata.xml(stanzaStr);
             //that._logger.log(that.INTERNAL, LOG_ID + "(handleXMPPConnection) ", that._logger.colors.cyan(" raw in - ⮈ stanza : ") + that._logger.colors.cyan(xmlStr));
             //that._logger.log(that.INTERNAL, LOG_ID + "(handleXMPPConnection) ", that._logger.colors.cyan(" raw in - ⮈ stanza : ") + that._logger.colors.cyan(xmlStr));
             that._logger.log(that.XMPP, LOG_ID + "(handleXMPPConnection) ", that._logger.colors.cyan(" raw in - ⮈ stanza : ") + that._logger.colors.cyan(xmlStr));
@@ -1138,7 +1138,7 @@ class XMPPService extends GenericService {
         return that.xmppClient.send(stanza);
     }
     
-    sendChatMessage(message, jid, lang, content, subject, answeredMsg, urgency: string = null) {
+    sendChatMessage(message, jid, lang, content, subject, answeredMsg, urgency: string = null, p_messagesDataStore: DataStoreType = undefined) {
         let that = this;
         if (that.useXMPP) {
             let id = that.xmppUtils.getUniqueMessageId();
@@ -1208,7 +1208,7 @@ class XMPPService extends GenericService {
             
             that._logger.log(that.INTERNAL, LOG_ID + "(sendChatMessage) send - 'message'", stanza.toString());
             return new Promise((resolve, reject) => {
-                that.xmppClient.send(stanza).then(() => {
+                that.xmppClient.send(stanza, p_messagesDataStore).then(() => {
                     that._logger.log(that.DEBUG, LOG_ID + "(sendChatMessage) sent");
                     resolve({from: that.jid_im, to: jid, lang: lang, type: "chat", id: id, date: new Date(), content: message, alternativeContent, urgency: urgency});
                 }).catch((err) => {
@@ -1221,7 +1221,7 @@ class XMPPService extends GenericService {
         return Promise.resolve(null);
     }
 
-    sendChatMessageToBubble(message, jid, lang, content, subject, answeredMsg, attention, urgency: string = null) {
+    sendChatMessageToBubble(message, jid, lang, content, subject, answeredMsg, attention, urgency: string = null, p_messagesDataStore: DataStoreType) {
         let that = this;
         if (that.useXMPP) {
 
@@ -1299,7 +1299,7 @@ class XMPPService extends GenericService {
             that._logger.log(that.INTERNAL, LOG_ID + "(sendChatMessageToBubble) send - 'message'", stanza.toString());
 
             return new Promise((resolve, reject) => {
-                that.xmppClient.send(stanza).then(() => {
+                that.xmppClient.send(stanza, p_messagesDataStore).then(() => {
                     that._logger.log(that.DEBUG, LOG_ID + "(sendChatMessageToBubble) sent");
                     resolve({
                         from: that.jid_im,
@@ -1326,7 +1326,7 @@ class XMPPService extends GenericService {
 
     }
 
-    async sendCorrectedChatMessage(conversation, originalMessage, data, origMsgId, lang, content = null) {
+    async sendCorrectedChatMessage(conversation, originalMessage, data, origMsgId, lang, content = null, urgency: string = null, p_messagesDataStore: DataStoreType) {
         let that = this;
 //        $log.info("[Conversation] >sendCorrectedChatMessage: origMsgId=" + origMsgId)
 
@@ -1475,7 +1475,7 @@ class XMPPService extends GenericService {
         //*/
 
         // Create and send message
-        that.xmppClient.send(xmppMessage);
+        that.xmppClient.send(xmppMessage, p_messagesDataStore);
 
         return messageToSendID;
     }
@@ -1634,7 +1634,7 @@ class XMPPService extends GenericService {
     }
 
 
-    sendChatExistingFSMessage(message, jid, lang, fileDescriptor) {
+    sendChatExistingFSMessage(message, jid, lang, fileDescriptor, p_messagesDataStore: DataStoreType) {
         let that = this;
         if (that.useXMPP) {
             if (!that.shouldSendMessageToConnectedUser && that.jid_im == jid) {
@@ -1684,7 +1684,7 @@ class XMPPService extends GenericService {
             return new Promise((resolve, reject) => {
                 that
                     .xmppClient
-                    .send(stanza).then(() => {
+                    .send(stanza, p_messagesDataStore).then(() => {
                     that._logger.log(that.DEBUG, LOG_ID + "(sendChatExistingFSMessage) sent");
                     resolve({from: that.jid_im, to: jid, type: "chat", id: id, date: new Date(), content: message});
                 }).catch((err) => {
@@ -1697,7 +1697,7 @@ class XMPPService extends GenericService {
         return Promise.resolve(null);
     }
 
-    sendChatExistingFSMessageToBubble(message, jid, lang, fileDescriptor) {
+    sendChatExistingFSMessageToBubble(message, jid, lang, fileDescriptor, p_messagesDataStore: DataStoreType) {
         let that = this;
         if (that.useXMPP) {
 
@@ -1746,7 +1746,7 @@ class XMPPService extends GenericService {
 
             that._logger.log(that.INTERNAL, LOG_ID + "(sendChatExistingFSMessageToBubble) send - 'message'", stanza.toString());
             return new Promise((resolve, reject) => {
-                that.xmppClient.send(stanza).then(() => {
+                that.xmppClient.send(stanza, p_messagesDataStore).then(() => {
                     that._logger.log(that.DEBUG, LOG_ID + "(sendChatExistingFSMessageToBubble) sent");
                     resolve({from: that.jid_im, to: jid, type: "chat", id: id, date: new Date(), content: message});
                 }).catch((err) => {
@@ -1759,7 +1759,7 @@ class XMPPService extends GenericService {
         return Promise.resolve(null);
     }
 
-    sendIsTypingState(conversation, isTypingState) {
+    sendIsTypingState(conversation, isTypingState, p_messagesDataStore: DataStoreType) {
         let that = this;
         let state = (isTypingState) ? "composing" : "active";
         if (that.useXMPP) {
@@ -1793,7 +1793,7 @@ class XMPPService extends GenericService {
 
             that._logger.log(that.INTERNAL, LOG_ID + "(sendIsTypingState) send - 'message'", stanzaRead.root().toString());
             return new Promise((resolve, reject) => {
-                that.xmppClient.send(stanzaRead).then(() => {
+                that.xmppClient.send(stanzaRead, p_messagesDataStore).then(() => {
                     that._logger.log(that.DEBUG, LOG_ID + "(sendIsTypingState) sent");
                     resolve(undefined);
                 }).catch((err) => {
@@ -1805,7 +1805,7 @@ class XMPPService extends GenericService {
         return Promise.resolve(null);
     }
 
-    async sendApplicationMessageAsync(jid, type, element :Element) {
+    async sendApplicationMessageAsync(jid, type, element :Element, p_messagesDataStore: DataStoreType) {
         let that = this;
         if (that.useXMPP) {
             let id = that.xmppUtils.getUniqueMessageId();
@@ -1839,7 +1839,7 @@ class XMPPService extends GenericService {
 
             that._logger.log(that.INTERNAL, LOG_ID + "(sendApplicationMessageAsync) send - 'message'", stanza.toString());
             return new Promise((resolve, reject) => {
-                that.xmppClient.send(stanza).then(() => {
+                that.xmppClient.send(stanza, p_messagesDataStore).then(() => {
                     that._logger.log(that.DEBUG, LOG_ID + "(sendApplicationMessageAsync) sent");
                     resolve({"from": that.jid_im, "to": jid, "type": type, "id": id, "date": new Date(), element: element});
                 }).catch((err) => {

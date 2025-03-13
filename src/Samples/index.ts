@@ -25,7 +25,7 @@ import {
     findAllPropInJSONByPropertyName,
     getTextFromJSONProperty,
     writeArrayToFile,
-    readArrayFromFile, addParamToUrl
+    readArrayFromFile, addParamToUrl, getStoreStanzaValue
 } from "../lib/common/Utils";
 import {XMPPUTils} from "../lib/common/XMPPUtils";
 import {TimeOutManager} from "../lib/common/TimeOutManager";
@@ -733,6 +733,7 @@ let expressEngine = undefined;
             "rateLimitPerHour": 100000,
 //        "messagesDataStore": DataStoreType.NoStore,
             "messagesDataStore": DataStoreType.StoreTwinSide,
+//            "messagesDataStore": DataStoreType.NoPermanentStore,
             "autoInitialGetBubbles": true,
             "autoInitialBubblePresence": true,
             "maxBubbleJoinInProgress": 10,
@@ -11374,6 +11375,210 @@ to='user1@pdevdv3os18f.corp.intuit.net/BANL07R9AME9X' type='get' id='e2e1'>
             }
         }
 
+        testgetStoreStanzaValue() {
+            let storeStanzaValue = getStoreStanzaValue(true, undefined, undefined);
+            if (storeStanzaValue != DataStoreType.StoreTwinSide) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(true, undefined, undefined) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(true, undefined, DataStoreType.NoStore);
+            if (storeStanzaValue != DataStoreType.NoStore) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(true, undefined, DataStoreType.NoStore) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(true, undefined, DataStoreType.NoPermanentStore);
+            if (storeStanzaValue != DataStoreType.NoPermanentStore) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(true, undefined, DataStoreType.NoPermanentStore) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(true, undefined, DataStoreType.StoreTwinSide);
+            if (storeStanzaValue != DataStoreType.StoreTwinSide) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(true, undefined, DataStoreType.StoreTwinSide) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(true, undefined, DataStoreType.UsestoreMessagesField);
+            if (storeStanzaValue != DataStoreType.StoreTwinSide) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(true, undefined, DataStoreType.UsestoreMessagesField) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(true, DataStoreType.NoStore, undefined);
+            if (storeStanzaValue != DataStoreType.NoStore) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(true, DataStoreType.NoStore, undefined) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(true, DataStoreType.NoStore, DataStoreType.NoStore);
+            if (storeStanzaValue != DataStoreType.NoStore) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(true, DataStoreType.NoStore, DataStoreType.NoStore) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(true, DataStoreType.NoStore, DataStoreType.NoPermanentStore);
+            if (storeStanzaValue != DataStoreType.NoPermanentStore) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(true, DataStoreType.NoStore, DataStoreType.NoPermanentStore) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(true, DataStoreType.NoStore, DataStoreType.StoreTwinSide);
+            if (storeStanzaValue != DataStoreType.StoreTwinSide) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(true, DataStoreType.NoStore, DataStoreType.StoreTwinSide) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(true, DataStoreType.NoStore, DataStoreType.UsestoreMessagesField);
+            if (storeStanzaValue != DataStoreType.StoreTwinSide) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(true, DataStoreType.NoStore, DataStoreType.UsestoreMessagesField) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(true, DataStoreType.NoPermanentStore, undefined);
+            if (storeStanzaValue != DataStoreType.NoPermanentStore) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(true, DataStoreType.NoPermanentStore, undefined) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(true, DataStoreType.NoPermanentStore, DataStoreType.NoStore);
+            if (storeStanzaValue != DataStoreType.NoStore) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(true, DataStoreType.NoPermanentStore, DataStoreType.NoStore) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(true, DataStoreType.NoPermanentStore, DataStoreType.NoPermanentStore);
+            if (storeStanzaValue != DataStoreType.NoPermanentStore) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(true, DataStoreType.NoPermanentStore, DataStoreType.NoPermanentStore) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(true, DataStoreType.NoPermanentStore, DataStoreType.StoreTwinSide);
+            if (storeStanzaValue != DataStoreType.StoreTwinSide) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(true, DataStoreType.NoPermanentStore, DataStoreType.StoreTwinSide) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(true, DataStoreType.NoPermanentStore, DataStoreType.UsestoreMessagesField);
+            if (storeStanzaValue != DataStoreType.StoreTwinSide) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(true, DataStoreType.NoPermanentStore, DataStoreType.UsestoreMessagesField) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(true, DataStoreType.StoreTwinSide, undefined);
+            if (storeStanzaValue != DataStoreType.StoreTwinSide) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(true, DataStoreType.StoreTwinSide, undefined) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(true, DataStoreType.StoreTwinSide, DataStoreType.NoStore);
+            if (storeStanzaValue != DataStoreType.NoStore) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(true, DataStoreType.StoreTwinSide, DataStoreType.NoStore) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(true, DataStoreType.StoreTwinSide, DataStoreType.NoPermanentStore);
+            if (storeStanzaValue != DataStoreType.NoPermanentStore) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(true, DataStoreType.StoreTwinSide, DataStoreType.NoPermanentStore) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(true, DataStoreType.StoreTwinSide, DataStoreType.StoreTwinSide);
+            if (storeStanzaValue != DataStoreType.StoreTwinSide) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(true, DataStoreType.StoreTwinSide, DataStoreType.StoreTwinSide) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(true, DataStoreType.StoreTwinSide, DataStoreType.UsestoreMessagesField);
+            if (storeStanzaValue != DataStoreType.StoreTwinSide) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(true, DataStoreType.StoreTwinSide, DataStoreType.UsestoreMessagesField) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(true, DataStoreType.UsestoreMessagesField, undefined);
+            if (storeStanzaValue != DataStoreType.StoreTwinSide) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(true, DataStoreType.UsestoreMessagesField, undefined) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(true, DataStoreType.UsestoreMessagesField, DataStoreType.NoStore);
+            if (storeStanzaValue != DataStoreType.NoStore) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(true, DataStoreType.UsestoreMessagesField, DataStoreType.NoStore) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(true, DataStoreType.UsestoreMessagesField, DataStoreType.NoPermanentStore);
+            if (storeStanzaValue != DataStoreType.NoPermanentStore) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(true, DataStoreType.UsestoreMessagesField, DataStoreType.NoPermanentStore) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(true, DataStoreType.UsestoreMessagesField, DataStoreType.StoreTwinSide);
+            if (storeStanzaValue != DataStoreType.StoreTwinSide) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(true, DataStoreType.UsestoreMessagesField, DataStoreType.StoreTwinSide) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(true, DataStoreType.UsestoreMessagesField, DataStoreType.UsestoreMessagesField);
+            if (storeStanzaValue != DataStoreType.StoreTwinSide) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(true, DataStoreType.UsestoreMessagesField, DataStoreType.UsestoreMessagesField) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(false, undefined, undefined);
+            if (storeStanzaValue != DataStoreType.NoStore) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(true, undefined, undefined) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(false, undefined, DataStoreType.NoStore);
+            if (storeStanzaValue != DataStoreType.NoStore) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(false, undefined, DataStoreType.NoStore) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(false, undefined, DataStoreType.NoPermanentStore);
+            if (storeStanzaValue != DataStoreType.NoPermanentStore) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(false, undefined, DataStoreType.NoPermanentStore) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(false, undefined, DataStoreType.StoreTwinSide);
+            if (storeStanzaValue != DataStoreType.StoreTwinSide) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(false, undefined, DataStoreType.StoreTwinSide) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(false, undefined, DataStoreType.UsestoreMessagesField);
+            if (storeStanzaValue != DataStoreType.NoStore) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(false, undefined, DataStoreType.UsestoreMessagesField) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(false, DataStoreType.NoStore, undefined);
+            if (storeStanzaValue != DataStoreType.NoStore) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(false, DataStoreType.NoStore, undefined) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(false, DataStoreType.NoStore, DataStoreType.NoStore);
+            if (storeStanzaValue != DataStoreType.NoStore) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(false, DataStoreType.NoStore, DataStoreType.NoStore) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(false, DataStoreType.NoStore, DataStoreType.NoPermanentStore);
+            if (storeStanzaValue != DataStoreType.NoPermanentStore) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(false, DataStoreType.NoStore, DataStoreType.NoPermanentStore) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(false, DataStoreType.NoStore, DataStoreType.StoreTwinSide);
+            if (storeStanzaValue != DataStoreType.StoreTwinSide) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(false, DataStoreType.NoStore, DataStoreType.StoreTwinSide) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(false, DataStoreType.NoStore, DataStoreType.UsestoreMessagesField);
+            if (storeStanzaValue != DataStoreType.NoStore) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(false, DataStoreType.NoStore, DataStoreType.UsestoreMessagesField) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(false, DataStoreType.NoPermanentStore, undefined);
+            if (storeStanzaValue != DataStoreType.NoPermanentStore) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(false, DataStoreType.NoPermanentStore, undefined) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(false, DataStoreType.NoPermanentStore, DataStoreType.NoStore);
+            if (storeStanzaValue != DataStoreType.NoStore) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(false, DataStoreType.NoPermanentStore, DataStoreType.NoStore) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(false, DataStoreType.NoPermanentStore, DataStoreType.NoPermanentStore);
+            if (storeStanzaValue != DataStoreType.NoPermanentStore) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(false, DataStoreType.NoPermanentStore, DataStoreType.NoPermanentStore) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(false, DataStoreType.NoPermanentStore, DataStoreType.StoreTwinSide);
+            if (storeStanzaValue != DataStoreType.StoreTwinSide) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(false, DataStoreType.NoPermanentStore, DataStoreType.StoreTwinSide) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(false, DataStoreType.NoPermanentStore, DataStoreType.UsestoreMessagesField);
+            if (storeStanzaValue != DataStoreType.NoStore) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(false, DataStoreType.NoPermanentStore, DataStoreType.UsestoreMessagesField) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(false, DataStoreType.StoreTwinSide, undefined);
+            if (storeStanzaValue != DataStoreType.StoreTwinSide) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(false, DataStoreType.StoreTwinSide, undefined) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(false, DataStoreType.StoreTwinSide, DataStoreType.NoStore);
+            if (storeStanzaValue != DataStoreType.NoStore) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(false, DataStoreType.StoreTwinSide, DataStoreType.NoStore) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(false, DataStoreType.StoreTwinSide, DataStoreType.NoPermanentStore);
+            if (storeStanzaValue != DataStoreType.NoPermanentStore) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(false, DataStoreType.StoreTwinSide, DataStoreType.NoPermanentStore) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(false, DataStoreType.StoreTwinSide, DataStoreType.StoreTwinSide);
+            if (storeStanzaValue != DataStoreType.StoreTwinSide) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(false, DataStoreType.StoreTwinSide, DataStoreType.StoreTwinSide) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(false, DataStoreType.StoreTwinSide, DataStoreType.UsestoreMessagesField);
+            if (storeStanzaValue != DataStoreType.NoStore) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(false, DataStoreType.StoreTwinSide, DataStoreType.UsestoreMessagesField) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(false, DataStoreType.UsestoreMessagesField, undefined);
+            if (storeStanzaValue != DataStoreType.NoStore) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(false, DataStoreType.UsestoreMessagesField, undefined) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(false, DataStoreType.UsestoreMessagesField, DataStoreType.NoStore);
+            if (storeStanzaValue != DataStoreType.NoStore) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(false, DataStoreType.UsestoreMessagesField, DataStoreType.NoStore) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(false, DataStoreType.UsestoreMessagesField, DataStoreType.NoPermanentStore);
+            if (storeStanzaValue != DataStoreType.NoPermanentStore) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(false, DataStoreType.UsestoreMessagesField, DataStoreType.NoPermanentStore) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(false, DataStoreType.UsestoreMessagesField, DataStoreType.StoreTwinSide);
+            if (storeStanzaValue != DataStoreType.StoreTwinSide) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(false, DataStoreType.UsestoreMessagesField, DataStoreType.StoreTwinSide) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(false, DataStoreType.UsestoreMessagesField, DataStoreType.UsestoreMessagesField);
+            if (storeStanzaValue != DataStoreType.NoStore) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(false, DataStoreType.UsestoreMessagesField, DataStoreType.UsestoreMessagesField) wrong value!");
+            }
+
+        }
+        
         async test5Start() {
             _logger.log("debug", "MAIN - (test5Start) __ begin __.");
             let options1: any = {};

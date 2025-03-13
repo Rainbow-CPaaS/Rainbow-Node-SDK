@@ -546,7 +546,7 @@ class Options {
         optionsIM.messageMaxLength = this._options.im.messageMaxLength ? this._options.im.messageMaxLength : config.im.messageMaxLength;
         optionsIM.sendMessageToConnectedUser = (this._options.im.sendMessageToConnectedUser == false) ? this._options.im.sendMessageToConnectedUser : config.im.sendMessageToConnectedUser;
         optionsIM.conversationsRetrievedFormat = this._options.im.conversationsRetrievedFormat ? this._options.im.conversationsRetrievedFormat : config.im.conversationsRetrievedFormat;
-        optionsIM.storeMessages = this._options.im.storeMessages ? this._options.im.storeMessages : config.im.storeMessages;
+        optionsIM.storeMessages = isDefined(this._options.im.storeMessages) ? this._options.im.storeMessages : config.im.storeMessages;
         optionsIM.copyMessage = (this._options.im.copyMessage == false) ? this._options.im.copyMessage : config.im.copyMessage;
         optionsIM.nbMaxConversations = this._options.im.nbMaxConversations ? this._options.im.nbMaxConversations : config.im.nbMaxConversations;
         optionsIM.rateLimitPerHour = this._options.im.rateLimitPerHour ? this._options.im.rateLimitPerHour : config.im.rateLimitPerHour;
