@@ -457,11 +457,13 @@ pipeline {
                     git config --global user.name "vincent.berder@al-enterprise.com"
 
                     if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM.LTS}" ]; then
-                        #echo ---------- Create a specific branch :
+                        echo ---------- Create a specific branch :
                         if [ "${PUBLISHTONPMANDSETTAGINGIT}" = "true" ]; then
+                            echo ---------- Create a specific branch :
 # REFACTOR                            git branch "delivered${RAINBOWNODESDKVERSION}"
 # REFACTOR                            git checkout "delivered${RAINBOWNODESDKVERSION}"
 # REFACTOR                            git push  --set-upstream origin "delivered${RAINBOWNODESDKVERSION}"
+
                         fi
                     fi
 
