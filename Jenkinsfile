@@ -457,11 +457,11 @@ pipeline {
                     git config --global user.name "vincent.berder@al-enterprise.com"
 
                     if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM.LTS}" ]; then
-                    #echo ---------- Create a specific branch :
+                        #echo ---------- Create a specific branch :
                         if [ "${PUBLISHTONPMANDSETTAGINGIT}" = "true" ]; then
-                            ${PUBLISHTONPMANDSETTAGINGIT} && git branch "delivered${RAINBOWNODESDKVERSION}"
-                            ${PUBLISHTONPMANDSETTAGINGIT} && git checkout "delivered${RAINBOWNODESDKVERSION}"
-                            ${PUBLISHTONPMANDSETTAGINGIT} && git push  --set-upstream origin "delivered${RAINBOWNODESDKVERSION}"
+# REFACTOR                            git branch "delivered${RAINBOWNODESDKVERSION}"
+# REFACTOR                            git checkout "delivered${RAINBOWNODESDKVERSION}"
+# REFACTOR                            git push  --set-upstream origin "delivered${RAINBOWNODESDKVERSION}"
                         fi
                     fi
 
@@ -522,11 +522,11 @@ pipeline {
                         
                     #echo ---------- STEP commit : 
                     if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM.LTS}" ]; then
-                        if [ "${PUBLISHTONPMANDSETTAGINGIT}" = "true" ]; then
-                            git reset --hard "origin/delivered${RAINBOWNODESDKVERSION}"
-                        else
+# REFACTOR                        if [ "${PUBLISHTONPMANDSETTAGINGIT}" = "true" ]; then
+# REFACTOR                            git reset --hard "origin/delivered${RAINBOWNODESDKVERSION}"
+# REFACTOR                        else
                             git reset --hard "origin/${env.BRANCH_NAME}"
-                        fi
+# REFACTOR                        fi
                     fi
                     if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM.STS}" ]; then
                         git reset --hard origin/${env.BRANCH_NAME}
@@ -569,8 +569,11 @@ pipeline {
                     fi
                     if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM.LTS}" ]; then
                         ${PUBLISHTONPMANDSETTAGINGIT} && git tag -a ${RAINBOWNODESDKVERSION} -m "${RAINBOWNODESDKVERSION} is a ${RELEASENAMELOWERNAME} version."
-                        ${PUBLISHTONPMANDSETTAGINGIT} && git push  origin "HEAD:delivered${RAINBOWNODESDKVERSION}"
-                        ${PUBLISHTONPMANDSETTAGINGIT} && git push --tags origin "HEAD:delivered${RAINBOWNODESDKVERSION}"
+                        ${PUBLISHTONPMANDSETTAGINGIT} && git push  origin HEAD:${env.BRANCH_NAME}
+                        ${PUBLISHTONPMANDSETTAGINGIT} && git push --tags origin HEAD:${env.BRANCH_NAME}
+# REFACTOR                        ${PUBLISHTONPMANDSETTAGINGIT} && git tag -a ${RAINBOWNODESDKVERSION} -m "${RAINBOWNODESDKVERSION} is a ${RELEASENAMELOWERNAME} version."
+# REFACTOR                        ${PUBLISHTONPMANDSETTAGINGIT} && git push  origin "HEAD:delivered${RAINBOWNODESDKVERSION}"
+# REFACTOR                        ${PUBLISHTONPMANDSETTAGINGIT} && git push --tags origin "HEAD:delivered${RAINBOWNODESDKVERSION}"
                     fi
 
                     echo ---------- send emails getDebianArtifacts parameters setted :
