@@ -455,16 +455,14 @@ pipeline {
                     git config --local credential.helper "!f() { echo username=\\$GITLABVBERDER_USR; echo password=\\$GITLABVBERDER_PSW; }; f"
                     git config --global user.email "vincent.berder@al-enterprise.com"
                     git config --global user.name "vincent.berder@al-enterprise.com"
-                        
-                    #echo ---------- Create a specific branch :
-                    #git branch "delivered${RAINBOWNODESDKVERSION}" 
-                    #git checkout "delivered${RAINBOWNODESDKVERSION}"
-                    #git push  --set-upstream origin "delivered${RAINBOWNODESDKVERSION}"
 
                     if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM.LTS}" ]; then
-                        ${PUBLISHTONPMANDSETTAGINGIT} && git branch "delivered${RAINBOWNODESDKVERSION}"
-                        ${PUBLISHTONPMANDSETTAGINGIT} && git checkout "delivered${RAINBOWNODESDKVERSION}"
-                        ${PUBLISHTONPMANDSETTAGINGIT} && git push  --set-upstream origin "delivered${RAINBOWNODESDKVERSION}"
+                    #echo ---------- Create a specific branch :
+                        if [ "${PUBLISHTONPMANDSETTAGINGIT}" = "true" ]; then
+                            ${PUBLISHTONPMANDSETTAGINGIT} && git branch "delivered${RAINBOWNODESDKVERSION}"
+                            ${PUBLISHTONPMANDSETTAGINGIT} && git checkout "delivered${RAINBOWNODESDKVERSION}"
+                            ${PUBLISHTONPMANDSETTAGINGIT} && git push  --set-upstream origin "delivered${RAINBOWNODESDKVERSION}"
+                        fi
                     fi
 
                     #echo "registry=https://10.10.13.10:4873/
@@ -549,7 +547,8 @@ pipeline {
                     echo ---------- STEP publish :
                     if [ "${PUBLISHTONPMANDSETTAGINGIT}" = "true" ]; then
                         if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM.LTS}" ]; then
-                            ${PUBLISHTONPMANDSETTAGINGIT} && npm publish
+                             echo "Publish latest on npmjs."
+                             npm publish
                         fi
                         if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM.STS}" ]; then
                             if [ "${PUBLISHONNPMJSWITHSTSTAG}" = "true" ]; then
