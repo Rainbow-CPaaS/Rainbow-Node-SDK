@@ -26,11 +26,11 @@ def getReleaseName(upper) {
 
     if ( upper)  {
        // echo "getReleaseName() will return STS"
-        return "STS";
+        return "LTS";
     }
     if ( !upper)  {
         //echo "getReleaseName() will return sts"
-        return "sts";
+        return "lts";
     }
 
     if ( "${env.BRANCH_NAME}" == "STSDelivery" && upper)  {
