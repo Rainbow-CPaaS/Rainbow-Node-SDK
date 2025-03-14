@@ -25,7 +25,7 @@ import {
     findAllPropInJSONByPropertyName,
     getTextFromJSONProperty,
     writeArrayToFile,
-    readArrayFromFile, addParamToUrl
+    readArrayFromFile, addParamToUrl, getStoreStanzaValue
 } from "../lib/common/Utils";
 import {XMPPUTils} from "../lib/common/XMPPUtils";
 import {TimeOutManager} from "../lib/common/TimeOutManager";
@@ -46,6 +46,7 @@ import {DataStoreType} from "../lib/config/config";
 import {FileUpdated} from "../lib/services/FileStorageService";
 import {Server as MockServer, WebSocket as WS} from 'mock-socket';
 import {v4 as uuidv4} from 'uuid';
+import { ParsedResult } from 'xml2js';
 
 const xml = require("@xmpp/xml");
 const xmppUtils = XMPPUTils.getXMPPUtils();
@@ -732,6 +733,7 @@ let expressEngine = undefined;
             "rateLimitPerHour": 100000,
 //        "messagesDataStore": DataStoreType.NoStore,
             "messagesDataStore": DataStoreType.StoreTwinSide,
+//            "messagesDataStore": DataStoreType.NoPermanentStore,
             "autoInitialGetBubbles": true,
             "autoInitialBubblePresence": true,
             "maxBubbleJoinInProgress": 10,
@@ -1061,7 +1063,7 @@ let expressEngine = undefined;
         if (message?.content.includes("#test_charge ") ){
             let utc = new Date().toJSON().replace(/-/g, "/");
             let content = "_replyTo_" + message.content + " _at_ " + utc;
-            rainbowSDK.im.sendMessageToJid(content, message.fromJid, 'EN', null, utc, "std").then((result) => {
+            rainbowSDK.im.sendMessageToJid(content, message.fromJid, 'EN', null, utc, "std", undefined).then((result) => {
                 _logger.log("debug", "MAIN - rainbow_onmessagereceived reply to #test_charge received. sendMessageToJid - Acknowledged sent result : ", result);
             });
         } else {
@@ -3056,6 +3058,138 @@ let expressEngine = undefined;
             //_logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
         }
 
+        formatCardLang (msg, utc) {
+            const adaptiveCard =  JSON.stringify( {
+                "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+                "type": "AdaptiveCard",
+                "version": "1.3",
+                "body": [
+                    {
+                        "type": "TextBlock",
+                        "text": "Configuration de la langue cible " + msg + " at " + utc,
+                        "weight": "Bolder",
+                        "size": "Medium"
+                    },
+                    {
+                        "type": "Input.ChoiceSet",
+                        "id": "targetLanguage",
+                        "style": "compact",  // affiché sous forme de dropdown
+                        "isMultiSelect": false,
+                        "choices": [
+                            { "title": "Albanian",                   "value": "sq" },
+                            { "title": "Arabic",                     "value": "ar" },
+                            { "title": "Armenian",                   "value": "hy" },
+                            { "title": "Azerbaijani",                "value": "az" },
+                            { "title": "Basque",                     "value": "eu" },
+                            { "title": "Bosnian",                    "value": "bs" },
+                            { "title": "Bulgarian",                  "value": "bg" },
+                            { "title": "Burmese",                    "value": "my" },
+                            { "title": "Catalan",                    "value": "ca" },
+                            { "title": "Chinese (Simplified)",       "value": "zh" },
+                            { "title": "Chinese (Traditional)",      "value": "zh-Hant" },
+                            { "title": "Chinese (Traditional Hong Kong)", "value": "zh-HK" },
+                            { "title": "Chinese (Traditional Taiwan)",    "value": "zh-TW" },
+                            { "title": "Croatian",                   "value": "hr" },
+                            { "title": "Czech",                      "value": "cs" },
+                            { "title": "Danish",                     "value": "da" },
+                            { "title": "Dutch",                      "value": "nl" },
+                            { "title": "English (United Kingdom)",   "value": "en-GB" },
+                            { "title": "English (United States)",    "value": "en" },
+                            { "title": "Estonian",                   "value": "et" },
+                            { "title": "Finnish",                    "value": "fi" },
+                            { "title": "French (Canada)",            "value": "fr-CA" },
+                            { "title": "French (France)",            "value": "fr" },
+                            { "title": "Georgian",                   "value": "ka" },
+                            { "title": "German (Germany)",           "value": "de" },
+                            { "title": "German (Switzerland)",       "value": "de-CH" },
+                            { "title": "Greek",                      "value": "el" },
+                            { "title": "Hausa",                      "value": "ha" },
+                            { "title": "Hebrew",                     "value": "he" },
+                            { "title": "Hindi",                      "value": "hi" },
+                            { "title": "Hungarian",                  "value": "hu" },
+                            { "title": "Icelandic",                  "value": "is" },
+                            { "title": "Indonesian",                 "value": "id" },
+                            { "title": "Italian",                    "value": "it" },
+                            { "title": "Japanese",                   "value": "ja" },
+                            { "title": "Javanese",                   "value": "jv" },
+                            { "title": "Kazakh",                     "value": "kk" },
+                            { "title": "Korean",                     "value": "ko" },
+                            { "title": "Kurdish",                    "value": "ku" },
+                            { "title": "Kyrgyz",                     "value": "ky" },
+                            { "title": "Latvian",                    "value": "lv" },
+                            { "title": "Lithuanian",                 "value": "lt" },
+                            { "title": "Macedonian",                 "value": "mk" },
+                            { "title": "Malay",                      "value": "ms" },
+                            { "title": "Mongolian",                  "value": "mn" },
+                            { "title": "Norwegian",                  "value": "no" },
+                            { "title": "Pashto",                     "value": "ps" },
+                            { "title": "Persian (Farsi)",            "value": "fa" },
+                            { "title": "Polish",                     "value": "pl" },
+                            { "title": "Portuguese (Brazil)",        "value": "pt-BR" },
+                            { "title": "Portuguese (Portugal)",      "value": "pt" },
+                            { "title": "Punjabi",                    "value": "pa" },
+                            { "title": "Romanian",                   "value": "ro" },
+                            { "title": "Russian",                    "value": "ru" },
+                            { "title": "Serbian",                    "value": "sr" },
+                            { "title": "Slovak",                     "value": "sk" },
+                            { "title": "Slovenian",                  "value": "sl" },
+                            { "title": "Somali",                     "value": "so" },
+                            { "title": "Spanish",                    "value": "es" },
+                            { "title": "Swahili",                    "value": "sw" },
+                            { "title": "Swedish",                    "value": "sv" },
+                            { "title": "Tagalog",                    "value": "tl" },
+                            { "title": "Tajik",                      "value": "tg" },
+                            { "title": "Tamil",                      "value": "ta" },
+                            { "title": "Thai",                       "value": "th" },
+                            { "title": "Turkish",                    "value": "tr" },
+                            { "title": "Turkmen",                    "value": "tk" },
+                            { "title": "Ukrainian",                  "value": "uk" },
+                            { "title": "Urdu",                       "value": "ur" },
+                            { "title": "Vietnamese",                 "value": "vi" }
+                        ]
+                    }
+                ],
+                "actions": [
+                    {
+                        "type": "Action.Submit",
+                        "title": "Submit",
+                        "data": {
+                            "action" : "submitform",
+                            "rainbow": {
+                                "type": "messageBack",
+                                "value": {"response": "mood_unhappy"},
+                                "text": ""
+                            }
+                        }
+                    }
+                ]
+            });
+            return adaptiveCard;
+        }
+
+        async testsendChatMessageWithContentAdaptiveCardLang() {
+            let that = this;
+            //let contactIdToSearch = "5bbdc3812cf496c07dd89128"; // vincent01 vberder
+            //let contactIdToSearch = "5bbb3ef9b0bb933e2a35454b"; // vincent00 official
+            let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
+            // Retrieve a contact by its id
+            let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+            // Retrieve the associated conversation
+            let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
+            let nbMsgToSend = 1;
+            let msgsSent = [];
+            let now = new Date().getTime();
+            let formattedMessage = that.formatCardLang(" test msg ", now);
+            let content = {
+                "type": "form/json",
+                "message": formattedMessage
+            }
+            // Send message
+            let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "Adaptive Card Lang Test", "en", content, undefined);
+            //_logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
+            //_logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
+        }
+
         async testdeleteMessageFromConversation() {
             let that = this;
             let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
@@ -3338,7 +3472,95 @@ let expressEngine = undefined;
             }
         }
 
+        async testgetMessagesFromConversationHistory(sendMsg:boolean=true, msgType:string = "adaptive") {
+            //let that = this;
+            let loginEmail = "vincent02@vbe.test.openrainbow.net";
+            let contact = await rainbowSDK.contacts.getContactByLoginEmail(loginEmail);
 
+            let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
+            let conversationId = conversation.id;
+
+            if (sendMsg && msgType == "adaptive") {
+                const card = JSON.stringify({
+                    $schema: 'http://adaptivecards.io/schemas/adaptive-card.json',
+                    version: '1.5',
+                    body: [{type: "TextBlock", text: "Vive le SDK Node"}]
+                });
+                //const content = { type: 'form/json', message: card }
+                const content = {
+                    type: 'form/json',
+                    message: this.formatCard3("modified msg : ", new Date().toLocaleTimeString())
+                }
+                let utc = new Date().toJSON().replace(/-/g, "_");
+                const sentMessage = await rainbowSDK.im.sendMessageToJid('du texte at ' + utc, conversationId, 'en', content, null);
+                _logger.log("debug", "MAIN - " +  `SENT MESS ID: ${sentMessage.id}, content : ${sentMessage.content}, alternativeContent: `, sentMessage.alternativeContent);
+
+            }
+            if (sendMsg && msgType == "markdown") {
+                const card = JSON.stringify({
+                    $schema: 'http://adaptivecards.io/schemas/adaptive-card.json',
+                    version: '1.5',
+                    body: [{type: "TextBlock", text: "Vive le SDK Node"}]
+                });
+                //const content = { type: 'form/json', message: card }
+                const content = {
+                    type: 'text/markdown',
+                    message: "message de **test** " + new Date().toLocaleTimeString()
+                }
+                let utc = new Date().toJSON().replace(/-/g, "_");
+                const sentMessage = await rainbowSDK.im.sendMessageToJid('du texte at ' + utc, conversationId, 'en', content, null);
+                _logger.log("debug", "MAIN - " +  `SENT MESS ID: ${sentMessage.id}, content : ${sentMessage.content}, alternativeContent: `, sentMessage.alternativeContent);
+            }
+            await pause(10000);
+            await rainbowSDK.im.getMessagesFromConversation(conversation, 1);
+            if (conversation.messages) {
+                _logger.log("debug", "MAIN - " +  `NB HISTORY MESSAGES : ${conversation.messages.length}`);
+                conversation.messages.forEach(message => {
+                    _logger.log("debug", "MAIN - " +  `message id: ${message.id}, content : ${message.content}, alternativeContent: `, message.alternativeContent);
+                });
+            }
+        }
+
+        async testDecodeXml2js () {
+
+// Exemple d'utilisation
+            let resultExpected = [
+                {
+                    message: '{"$schema":"http://adaptivecards.io/schemas/adaptive-card.json","version":"1.5","body":[{"type":"TextBlock","text":"Vive le SDK Node"}]}',
+                    type: 'form/json'
+                }
+            ];
+
+
+             let xmlStr = "<content xmlns=\"urn:xmpp:content\" type=\"form/json\">{\"$schema\":\"http://adaptivecards.io/schemas/adaptive-card.json\",\"version\":\"1.5\",\"body\":[{\"type\":\"TextBlock\",\"text\":\"Vive le SDK Node\"}]}</content>";
+            // */
+            let jsonedObject = await getJsonFromXML(xmlStr);
+            let parsedObject = jsonedObject.content;
+            _logger.log("debug", "MAIN - testDecodeXml2js jsonedObject : ", jsonedObject);
+            _logger.log("debug", "MAIN - testDecodeXml2js parsedObject : ", parsedObject);
+
+            /*const parsedObject = {
+                root: {
+                    $: {xmlns: 'urn:xmpp:content', type: 'form/json'},
+                    _: {
+                        schema: ['http://adaptivecards.io/schemas/adaptive-card.json'],
+                        version: ['1.5'],
+                        body: [
+                            {
+                                item: [
+                                    {type: ['TextBlock'], text: ['Vive le SDK Node']}
+                                ]
+                            }
+                        ]
+                    }
+                }
+            }; // */
+
+            /*const decoded = getJsonFromXml2jsObject(parsedObject);
+            _logger.log("debug", "MAIN - testDecodeXml2js decoded : ", decoded);
+            // */
+            //console.log(JSON.stringify(decoded, null, 2));
+        }
         //endregion Messages
 
         //region group
@@ -11153,6 +11375,210 @@ to='user1@pdevdv3os18f.corp.intuit.net/BANL07R9AME9X' type='get' id='e2e1'>
             }
         }
 
+        testgetStoreStanzaValue() {
+            let storeStanzaValue = getStoreStanzaValue(true, undefined, undefined);
+            if (storeStanzaValue != DataStoreType.StoreTwinSide) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(true, undefined, undefined) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(true, undefined, DataStoreType.NoStore);
+            if (storeStanzaValue != DataStoreType.NoStore) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(true, undefined, DataStoreType.NoStore) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(true, undefined, DataStoreType.NoPermanentStore);
+            if (storeStanzaValue != DataStoreType.NoPermanentStore) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(true, undefined, DataStoreType.NoPermanentStore) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(true, undefined, DataStoreType.StoreTwinSide);
+            if (storeStanzaValue != DataStoreType.StoreTwinSide) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(true, undefined, DataStoreType.StoreTwinSide) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(true, undefined, DataStoreType.UsestoreMessagesField);
+            if (storeStanzaValue != DataStoreType.StoreTwinSide) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(true, undefined, DataStoreType.UsestoreMessagesField) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(true, DataStoreType.NoStore, undefined);
+            if (storeStanzaValue != DataStoreType.NoStore) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(true, DataStoreType.NoStore, undefined) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(true, DataStoreType.NoStore, DataStoreType.NoStore);
+            if (storeStanzaValue != DataStoreType.NoStore) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(true, DataStoreType.NoStore, DataStoreType.NoStore) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(true, DataStoreType.NoStore, DataStoreType.NoPermanentStore);
+            if (storeStanzaValue != DataStoreType.NoPermanentStore) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(true, DataStoreType.NoStore, DataStoreType.NoPermanentStore) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(true, DataStoreType.NoStore, DataStoreType.StoreTwinSide);
+            if (storeStanzaValue != DataStoreType.StoreTwinSide) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(true, DataStoreType.NoStore, DataStoreType.StoreTwinSide) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(true, DataStoreType.NoStore, DataStoreType.UsestoreMessagesField);
+            if (storeStanzaValue != DataStoreType.StoreTwinSide) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(true, DataStoreType.NoStore, DataStoreType.UsestoreMessagesField) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(true, DataStoreType.NoPermanentStore, undefined);
+            if (storeStanzaValue != DataStoreType.NoPermanentStore) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(true, DataStoreType.NoPermanentStore, undefined) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(true, DataStoreType.NoPermanentStore, DataStoreType.NoStore);
+            if (storeStanzaValue != DataStoreType.NoStore) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(true, DataStoreType.NoPermanentStore, DataStoreType.NoStore) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(true, DataStoreType.NoPermanentStore, DataStoreType.NoPermanentStore);
+            if (storeStanzaValue != DataStoreType.NoPermanentStore) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(true, DataStoreType.NoPermanentStore, DataStoreType.NoPermanentStore) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(true, DataStoreType.NoPermanentStore, DataStoreType.StoreTwinSide);
+            if (storeStanzaValue != DataStoreType.StoreTwinSide) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(true, DataStoreType.NoPermanentStore, DataStoreType.StoreTwinSide) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(true, DataStoreType.NoPermanentStore, DataStoreType.UsestoreMessagesField);
+            if (storeStanzaValue != DataStoreType.StoreTwinSide) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(true, DataStoreType.NoPermanentStore, DataStoreType.UsestoreMessagesField) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(true, DataStoreType.StoreTwinSide, undefined);
+            if (storeStanzaValue != DataStoreType.StoreTwinSide) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(true, DataStoreType.StoreTwinSide, undefined) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(true, DataStoreType.StoreTwinSide, DataStoreType.NoStore);
+            if (storeStanzaValue != DataStoreType.NoStore) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(true, DataStoreType.StoreTwinSide, DataStoreType.NoStore) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(true, DataStoreType.StoreTwinSide, DataStoreType.NoPermanentStore);
+            if (storeStanzaValue != DataStoreType.NoPermanentStore) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(true, DataStoreType.StoreTwinSide, DataStoreType.NoPermanentStore) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(true, DataStoreType.StoreTwinSide, DataStoreType.StoreTwinSide);
+            if (storeStanzaValue != DataStoreType.StoreTwinSide) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(true, DataStoreType.StoreTwinSide, DataStoreType.StoreTwinSide) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(true, DataStoreType.StoreTwinSide, DataStoreType.UsestoreMessagesField);
+            if (storeStanzaValue != DataStoreType.StoreTwinSide) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(true, DataStoreType.StoreTwinSide, DataStoreType.UsestoreMessagesField) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(true, DataStoreType.UsestoreMessagesField, undefined);
+            if (storeStanzaValue != DataStoreType.StoreTwinSide) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(true, DataStoreType.UsestoreMessagesField, undefined) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(true, DataStoreType.UsestoreMessagesField, DataStoreType.NoStore);
+            if (storeStanzaValue != DataStoreType.NoStore) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(true, DataStoreType.UsestoreMessagesField, DataStoreType.NoStore) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(true, DataStoreType.UsestoreMessagesField, DataStoreType.NoPermanentStore);
+            if (storeStanzaValue != DataStoreType.NoPermanentStore) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(true, DataStoreType.UsestoreMessagesField, DataStoreType.NoPermanentStore) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(true, DataStoreType.UsestoreMessagesField, DataStoreType.StoreTwinSide);
+            if (storeStanzaValue != DataStoreType.StoreTwinSide) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(true, DataStoreType.UsestoreMessagesField, DataStoreType.StoreTwinSide) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(true, DataStoreType.UsestoreMessagesField, DataStoreType.UsestoreMessagesField);
+            if (storeStanzaValue != DataStoreType.StoreTwinSide) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(true, DataStoreType.UsestoreMessagesField, DataStoreType.UsestoreMessagesField) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(false, undefined, undefined);
+            if (storeStanzaValue != DataStoreType.NoStore) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(true, undefined, undefined) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(false, undefined, DataStoreType.NoStore);
+            if (storeStanzaValue != DataStoreType.NoStore) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(false, undefined, DataStoreType.NoStore) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(false, undefined, DataStoreType.NoPermanentStore);
+            if (storeStanzaValue != DataStoreType.NoPermanentStore) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(false, undefined, DataStoreType.NoPermanentStore) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(false, undefined, DataStoreType.StoreTwinSide);
+            if (storeStanzaValue != DataStoreType.StoreTwinSide) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(false, undefined, DataStoreType.StoreTwinSide) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(false, undefined, DataStoreType.UsestoreMessagesField);
+            if (storeStanzaValue != DataStoreType.NoStore) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(false, undefined, DataStoreType.UsestoreMessagesField) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(false, DataStoreType.NoStore, undefined);
+            if (storeStanzaValue != DataStoreType.NoStore) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(false, DataStoreType.NoStore, undefined) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(false, DataStoreType.NoStore, DataStoreType.NoStore);
+            if (storeStanzaValue != DataStoreType.NoStore) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(false, DataStoreType.NoStore, DataStoreType.NoStore) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(false, DataStoreType.NoStore, DataStoreType.NoPermanentStore);
+            if (storeStanzaValue != DataStoreType.NoPermanentStore) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(false, DataStoreType.NoStore, DataStoreType.NoPermanentStore) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(false, DataStoreType.NoStore, DataStoreType.StoreTwinSide);
+            if (storeStanzaValue != DataStoreType.StoreTwinSide) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(false, DataStoreType.NoStore, DataStoreType.StoreTwinSide) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(false, DataStoreType.NoStore, DataStoreType.UsestoreMessagesField);
+            if (storeStanzaValue != DataStoreType.NoStore) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(false, DataStoreType.NoStore, DataStoreType.UsestoreMessagesField) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(false, DataStoreType.NoPermanentStore, undefined);
+            if (storeStanzaValue != DataStoreType.NoPermanentStore) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(false, DataStoreType.NoPermanentStore, undefined) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(false, DataStoreType.NoPermanentStore, DataStoreType.NoStore);
+            if (storeStanzaValue != DataStoreType.NoStore) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(false, DataStoreType.NoPermanentStore, DataStoreType.NoStore) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(false, DataStoreType.NoPermanentStore, DataStoreType.NoPermanentStore);
+            if (storeStanzaValue != DataStoreType.NoPermanentStore) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(false, DataStoreType.NoPermanentStore, DataStoreType.NoPermanentStore) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(false, DataStoreType.NoPermanentStore, DataStoreType.StoreTwinSide);
+            if (storeStanzaValue != DataStoreType.StoreTwinSide) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(false, DataStoreType.NoPermanentStore, DataStoreType.StoreTwinSide) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(false, DataStoreType.NoPermanentStore, DataStoreType.UsestoreMessagesField);
+            if (storeStanzaValue != DataStoreType.NoStore) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(false, DataStoreType.NoPermanentStore, DataStoreType.UsestoreMessagesField) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(false, DataStoreType.StoreTwinSide, undefined);
+            if (storeStanzaValue != DataStoreType.StoreTwinSide) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(false, DataStoreType.StoreTwinSide, undefined) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(false, DataStoreType.StoreTwinSide, DataStoreType.NoStore);
+            if (storeStanzaValue != DataStoreType.NoStore) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(false, DataStoreType.StoreTwinSide, DataStoreType.NoStore) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(false, DataStoreType.StoreTwinSide, DataStoreType.NoPermanentStore);
+            if (storeStanzaValue != DataStoreType.NoPermanentStore) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(false, DataStoreType.StoreTwinSide, DataStoreType.NoPermanentStore) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(false, DataStoreType.StoreTwinSide, DataStoreType.StoreTwinSide);
+            if (storeStanzaValue != DataStoreType.StoreTwinSide) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(false, DataStoreType.StoreTwinSide, DataStoreType.StoreTwinSide) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(false, DataStoreType.StoreTwinSide, DataStoreType.UsestoreMessagesField);
+            if (storeStanzaValue != DataStoreType.NoStore) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(false, DataStoreType.StoreTwinSide, DataStoreType.UsestoreMessagesField) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(false, DataStoreType.UsestoreMessagesField, undefined);
+            if (storeStanzaValue != DataStoreType.NoStore) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(false, DataStoreType.UsestoreMessagesField, undefined) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(false, DataStoreType.UsestoreMessagesField, DataStoreType.NoStore);
+            if (storeStanzaValue != DataStoreType.NoStore) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(false, DataStoreType.UsestoreMessagesField, DataStoreType.NoStore) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(false, DataStoreType.UsestoreMessagesField, DataStoreType.NoPermanentStore);
+            if (storeStanzaValue != DataStoreType.NoPermanentStore) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(false, DataStoreType.UsestoreMessagesField, DataStoreType.NoPermanentStore) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(false, DataStoreType.UsestoreMessagesField, DataStoreType.StoreTwinSide);
+            if (storeStanzaValue != DataStoreType.StoreTwinSide) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(false, DataStoreType.UsestoreMessagesField, DataStoreType.StoreTwinSide) wrong value!");
+            }
+            storeStanzaValue = getStoreStanzaValue(false, DataStoreType.UsestoreMessagesField, DataStoreType.UsestoreMessagesField);
+            if (storeStanzaValue != DataStoreType.NoStore) {
+                _logger.log("error", "MAIN - (testgetStoreStanzaValue) - storeStanzaValue : " + storeStanzaValue + ", getStoreStanzaValue(false, DataStoreType.UsestoreMessagesField, DataStoreType.UsestoreMessagesField) wrong value!");
+            }
+
+        }
+        
         async test5Start() {
             _logger.log("debug", "MAIN - (test5Start) __ begin __.");
             let options1: any = {};
@@ -11983,6 +12409,7 @@ to='user1@pdevdv3os18f.corp.intuit.net/BANL07R9AME9X' type='get' id='e2e1'>
 
         function enterCmd() {
             _logger.log("info", "MAIN - commandLineInteraction (help, start, stop, by, quit, exit, search, history), enter a command to eval : "); //logger.colors.green(JSON.stringify(result)));
+            // _logger.log("info", "MAIN - test Array : ", [1,"2",{"11":"22"}], " JSON : ", {1:2,"2":[1]});
             //let result = search(searchQuestion).then(answers => {
             inquirer.prompt(questions).then(async answers => {
                 //console.log(`Hi ${cmd}!`);

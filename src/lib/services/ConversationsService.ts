@@ -31,6 +31,7 @@ import {use} from "chai";
 import {error} from "winston";
 import moment, {lang} from "moment";
 import {setInterval} from "timers";
+import {DataStoreType} from "../config/config.js";
 
 const LOG_ID = "CONVERSATIONS/SVCE - ";
 const API_ID = "API_CALL - ";
@@ -1003,7 +1004,7 @@ class ConversationsService extends GenericService {
      * @description
      *   Send an file sharing message <br>
      */
-    sendFSMessage(conversation, file, data) {
+    sendFSMessage(conversation, file, data, p_messagesDataStore: DataStoreType) {
         //let message = conversation.sendFSMessage(file, data);
         //Conversation.prototype.sendFSMessage = function(file, data) {
         let that = this;
@@ -1099,7 +1100,7 @@ class ConversationsService extends GenericService {
                         fileDescriptorResult.state = "uploaded";
                         fileDescriptorResult.chunkPerformed = 0;
                         fileDescriptorResult.chunkTotalNumber = 0;
-                        let messagefs = that.sendExistingFSMessage(conversation, message, fileDescriptorResult);
+                        let messagefs = that.sendExistingFSMessage(conversation, message, fileDescriptorResult, p_messagesDataStore);
                         that.storePendingMessage(conversation, messagefs);
                         resolve(messagefs);
                     },
@@ -1135,7 +1136,7 @@ class ConversationsService extends GenericService {
      * @param {string} message
      * @param {any} fileDescriptor
      */
-     sendExistingFSMessage(conversation : Conversation, message : string, fileDescriptor : any) {
+     sendExistingFSMessage(conversation : Conversation, message : string, fileDescriptor : any, p_messagesDataStore: DataStoreType) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendExistingFSMessage) conversation.id : ", conversation?.id);
        //conversation.sendAckReadMessages();
@@ -1149,10 +1150,10 @@ class ConversationsService extends GenericService {
 
         if (conversation.type === Conversation.Type.ONE_TO_ONE) {
             let to = conversation.contact.jid;
-            return that._xmpp.sendChatExistingFSMessage(unicodeData, to, lang, fileDescriptor);
+            return that._xmpp.sendChatExistingFSMessage(unicodeData, to, lang, fileDescriptor, p_messagesDataStore);
         } else {
             let to = conversation.bubble.jid;
-            return that._xmpp.sendChatExistingFSMessageToBubble(unicodeData, to, lang, fileDescriptor);
+            return that._xmpp.sendChatExistingFSMessageToBubble(unicodeData, to, lang, fileDescriptor, p_messagesDataStore);
         }
     }
 
@@ -1206,16 +1207,22 @@ class ConversationsService extends GenericService {
      *    This method works for sending messages to a one-to-one conversation or to a bubble conversation<br>
      *    The new message has the property originalMessageReplaced which spot on original message // Warning this is a circular depend. <br>
      *    The original message has the property replacedByMessage  which spot on the new message // Warning this is a circular depend. <br>
-     *    Note: only the last sent message on the conversation can be changed. The connected user must be the sender of the original message. <br>
+     *    Note: The connected user must be the sender of the original message. <br>
      * @param {Conversation} conversation
      * @param {string} data The message string corrected
      * @param {string} origMsgId The id of the original corrected message.
      * @param {Object} [content] Allow to send alternative text base content
      * @param {String} [content.type=text/markdown] The content message type
      * @param {String} [content.message] The content message body
+     * @param {string} urgency The urgence of the message. Value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
+     * @param {DataStoreType} p_messagesDataStore  used to override the general of SDK's parameter "messagesDataStore". default value `undefined` to use the general value.</br>
+     * DataStoreType.NoStore Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.</br>
+     * DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).</br>
+     * DataStoreType.StoreTwinSide The messages are fully stored.</br>
+     * DataStoreType.UsestoreMessagesField to follow the storeMessages SDK's parameter behaviour.</br>
      * @returns {Promise<string>} message the message new correction message sent. Throw an error if the send fails.
      */
-    async sendCorrectedChatMessage(conversation : Conversation, data : string, origMsgId : string, content : { message : string, type : string } = null) {
+    async sendCorrectedChatMessage(conversation : Conversation, data : string, origMsgId : string, content : { message : string, type : string } = null, urgency: string = "std", p_messagesDataStore: DataStoreType = undefined) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendCorrectedChatMessage) conversation.id : ", conversation?.id);
 
@@ -1260,7 +1267,7 @@ class ConversationsService extends GenericService {
 
             try {
                 if (this._useXMPP) {
-                    let sentMessageId = await that._xmpp.sendCorrectedChatMessage(conversation, originalMessage, messageUnicode, origMsgId, originalMessage.lang, content);
+                    let sentMessageId = await that._xmpp.sendCorrectedChatMessage(conversation, originalMessage, messageUnicode, origMsgId, originalMessage.lang, content, urgency, p_messagesDataStore); // , attention, urgency: string = null, p_messagesDataStore: DataStoreType
                     let newMsg = Object.assign({}, originalMessage);
                     newMsg.id = sentMessageId;
                     newMsg.content = messageUnicode;
@@ -1336,9 +1343,14 @@ class ConversationsService extends GenericService {
      *    Delete a message by sending an empty string in a correctedMessage <br>
      * @param {Conversation} conversation The conversation object
      * @param {string} messageId The id of the message to be deleted
+     * @param {DataStoreType} p_messagesDataStore  used to override the general of SDK's parameter "messagesDataStore". default value `undefined` to use the general value.</br>
+     * DataStoreType.NoStore Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.</br>
+     * DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).</br>
+     * DataStoreType.StoreTwinSide The messages are fully stored.</br>
+     * DataStoreType.UsestoreMessagesField to follow the storeMessages SDK's parameter behaviour.</br>
      * @return {Message} - message object with updated replaceMsgs property
      */
-    async deleteMessage (conversation : Conversation, messageId : string) : Promise<any> {
+    async deleteMessage (conversation : Conversation, messageId : string, p_messagesDataStore: DataStoreType = undefined) : Promise<any> {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteMessage) conversation.id : ", conversation?.id, ", messageId : ", messageId);
 
@@ -1352,8 +1364,9 @@ class ConversationsService extends GenericService {
             throw ErrorManager.getErrorManager().BAD_REQUEST();
         }
 
+        let urgency = "std";
         let messageOrig = conversation.getMessageById(messageId);
-        await that.sendCorrectedChatMessage(conversation, "", messageId);
+        await that.sendCorrectedChatMessage(conversation, "", messageId, undefined, urgency, p_messagesDataStore);
         return messageOrig;
     }
 
@@ -1547,7 +1560,7 @@ class ConversationsService extends GenericService {
      * @param {boolean} status The status, true for setting "is Typing", false to remove it
      * @return a promise with no success parameter
      */
-    sendIsTypingState(conversation : Conversation, status : boolean) {
+    sendIsTypingState(conversation : Conversation, status : boolean, p_messagesDataStore: DataStoreType) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendIsTypingState) conversation.id : ", conversation?.id, " status : ", status);
 
@@ -1563,7 +1576,7 @@ class ConversationsService extends GenericService {
                 if (!conversation) {
                     return reject(Object.assign(  ErrorManager.getErrorManager().OTHERERROR("ERRORNOTFOUND", "Parameter \'conversation\': this conversation doesn\'t exist"), {msg: "Parameter 'conversation': this conversation doesn't exist"}));
                 } else {
-                    resolve(that._xmpp.sendIsTypingState(conversation, status));
+                    resolve(that._xmpp.sendIsTypingState(conversation, status, p_messagesDataStore));
                 }
             }
         });

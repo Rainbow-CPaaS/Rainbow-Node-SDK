@@ -13,6 +13,7 @@ import {PresenceService} from "./PresenceService";
 import {GenericService} from "./GenericService";
 import {Message} from "../common/models/Message";
 import {CHATSTATE} from "./S2SService.js";
+import {DataStoreType} from "../config/config.js";
 
 const Element = require('ltx').Element;
 
@@ -376,11 +377,16 @@ class ImsService extends GenericService{
      * @param {String} [content.message] The content message body
      * @param {String} [subject] The message subject
      * @param {string} urgency The urgence of the message. Value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
+     * @param {DataStoreType} p_messagesDataStore  used to override the general of SDK's parameter "messagesDataStore". default value `undefined` to use the general value.</br>
+     * DataStoreType.NoStore Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.</br>
+     * DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).</br>
+     * DataStoreType.StoreTwinSide The messages are fully stored.</br>
+     * DataStoreType.UsestoreMessagesField to follow the storeMessages SDK's parameter behaviour.</br>
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
 
      */
-    async sendMessageToConversation(conversation, message, lang, content, subject, urgency: string = null) {
+    async sendMessageToConversation(conversation : Conversation, message: string, lang: string, content :any, subject : string, urgency: string = null, p_messagesDataStore: DataStoreType = undefined) :Promise<any> {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendMessageToConversation) is conversation defined : ", isDefined(conversation), " is message defined : ", isDefined(message));
         if (!conversation) {
@@ -401,7 +407,7 @@ class ImsService extends GenericService{
 
         let msgSent : any = undefined; //Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: " sent message failed."}));
         if (this._useXMPP) {
-            msgSent = conversation.type === Conversation.Type.ONE_TO_ONE ? this.sendMessageToJid(message, conversation.id, lang, content, subject, urgency) : this.sendMessageToBubbleJid(message, conversation.id, lang, content, subject, undefined, urgency);
+            msgSent = conversation.type === Conversation.Type.ONE_TO_ONE ? this.sendMessageToJid(message, conversation.id, lang, content, subject, urgency, p_messagesDataStore) : this.sendMessageToBubbleJid(message, conversation.id, lang, content, subject, undefined, urgency, p_messagesDataStore);
         }
         if ((this._useS2S)) {
             /*
@@ -473,11 +479,16 @@ class ImsService extends GenericService{
      * @param {String} [content.message] The content message body
      * @param {String} [subject] The message subject
      * @param {string} urgency The urgence of the message. Value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
+     * @param {DataStoreType} p_messagesDataStore  used to override the general of SDK's parameter "messagesDataStore". default value `undefined` to use the general value.</br>
+     * DataStoreType.NoStore Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.</br>
+     * DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).</br>
+     * DataStoreType.StoreTwinSide The messages are fully stored.</br>
+     * DataStoreType.UsestoreMessagesField to follow the storeMessages SDK's parameter behaviour.</br>
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
 
      */
-    async sendMessageToContact(message, contact, lang, content, subject, urgency: string = null) {
+    async sendMessageToContact(message, contact, lang, content, subject, urgency: string = null, p_messagesDataStore: DataStoreType = undefined) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendMessageToContact) is contact defined : ", isDefined(contact), " is message defined : ", isDefined(message));
         if (!contact || !contact.jid_im) {
@@ -490,7 +501,7 @@ class ImsService extends GenericService{
 
         let conversation = await that._conversations.openConversationForContact(contact);
         //that._logger.log(that.DEBUG, "MAIN - testSendMultipleMessages - message to be sent in conversation : ", conversation);
-        return that.sendMessageToConversation(conversation, message, lang, content, subject, urgency);
+        return that.sendMessageToConversation(conversation, message, lang, content, subject, urgency, p_messagesDataStore);
     }
 
     /**
@@ -536,10 +547,15 @@ class ImsService extends GenericService{
      * @param {String} [content.message] The content message body
      * @param {String} [subject] The message subject
      * @param {string} urgency The urgence of the message. Value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
+     * @param {DataStoreType} p_messagesDataStore  used to override the general of SDK's parameter "messagesDataStore". default value `undefined` to use the general value.</br>
+     * DataStoreType.NoStore Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.</br>
+     * DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).</br>
+     * DataStoreType.StoreTwinSide The messages are fully stored.</br>
+     * DataStoreType.UsestoreMessagesField to follow the storeMessages SDK's parameter behaviour.</br>
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} - the message sent, or null in case of error, as parameter of the resolve
      */
-    async sendMessageToJid(message, jid, lang, content, subject, urgency: string = null) {
+    async sendMessageToJid(message, jid, lang, content, subject, urgency: string = null,  p_messagesDataStore: DataStoreType = undefined) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendMessageToContact) is jid defined : ", isDefined(jid), " is message defined : ", isDefined(message));
         if (!lang) {
@@ -575,7 +591,7 @@ class ImsService extends GenericService{
         let messageSent : any = undefined;
 
         if (this._useXMPP) {
-            messageSent = Promise.resolve(this._xmpp.sendChatMessage(messageUnicode, jid, lang, content, subject, undefined, urgency));
+            messageSent = Promise.resolve(this._xmpp.sendChatMessage(messageUnicode, jid, lang, content, subject, undefined, urgency, p_messagesDataStore));
         } else {
             messageSent = Promise.reject("only supported in xmpp mode");
         }
@@ -633,11 +649,16 @@ class ImsService extends GenericService{
      * @param {String} [subject] The message subject
      * @param {String} [answeredMsg] The message answered
      * @param {string} urgency The urgence of the message. Value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
+     * @param {DataStoreType} p_messagesDataStore  used to override the general of SDK's parameter "messagesDataStore". default value `undefined` to use the general value.</br>
+     * DataStoreType.NoStore Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.</br>
+     * DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).</br>
+     * DataStoreType.StoreTwinSide The messages are fully stored.</br>
+     * DataStoreType.UsestoreMessagesField to follow the storeMessages SDK's parameter behaviour.</br>
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} - the message sent, or null in case of error, as parameter of the resolve
 
      */
-    async sendMessageToJidAnswer(message, jid, lang, content, subject, answeredMsg, urgency: string = null) {
+    async sendMessageToJidAnswer(message, jid, lang, content, subject, answeredMsg, urgency: string = null, p_messagesDataStore: DataStoreType = undefined) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendMessageToJidAnswer) is jid defined : ", isDefined(jid), " is message defined : ", isDefined(message));
         if (!lang) {
@@ -676,7 +697,7 @@ class ImsService extends GenericService{
 
         jid = XMPPUTils.getXMPPUtils().getBareJIDFromFullJID(jid);
 
-        let messageSent = Promise.resolve(this._xmpp.sendChatMessage(messageUnicode, jid, lang, content, subject, answeredMsg, urgency));
+        let messageSent = Promise.resolve(this._xmpp.sendChatMessage(messageUnicode, jid, lang, content, subject, answeredMsg, urgency, p_messagesDataStore));
 
         /*
         this.storePendingMessage(messageSent);
@@ -705,16 +726,16 @@ class ImsService extends GenericService{
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} - the message 
      */
-    async sendMessageToJidAcknowledged(message : Message, lang : string = "EN", ackLabel : string = "Acknowledged") {
+    async sendMessageToJidAcknowledged(message : Message, lang : string = "EN", ackLabel : string = "Acknowledged", attention, p_messagesDataStore: DataStoreType) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendMessageToJidAcknowledged) is lang defined : ", isDefined(lang), " is message defined : ", isDefined(message));
         if ( message && message.urgency === "high" ) {
             if (message.fromBubbleJid ) {
-                return that.sendMessageToBubbleJidAnswer(ackLabel, message.fromJid, lang, null, ackLabel, message,undefined,"std").then((result) => {
+                return that.sendMessageToBubbleJidAnswer(ackLabel, message.fromJid, lang, null, ackLabel, message,attention,"std", p_messagesDataStore).then((result) => {
                     that._logger.log(that.DEBUG, "(sendMessageToJidAcknowledged) - Acknowledged sent result : ", result);
                 });
             }  else {
-                return that.sendMessageToJidAnswer(ackLabel, message.fromJid, lang, null, ackLabel, message, "std").then((result) => {
+                return that.sendMessageToJidAnswer(ackLabel, message.fromJid, lang, null, ackLabel, message, "std", p_messagesDataStore).then((result) => {
                     that._logger.log(that.DEBUG, "(sendMessageToJidAcknowledged) - Acknowledged sent result : ", result);
                 });
             } // */
@@ -736,16 +757,16 @@ class ImsService extends GenericService{
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} - the message 
      */
-    async sendMessageToJidIgnored(message : Message, lang : string = "EN", ignLabel : string = "Ignored") {
+    async sendMessageToJidIgnored(message : Message, lang : string = "EN", ignLabel : string = "Ignored", p_messagesDataStore: DataStoreType) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendMessageToJidIgnored) is lang defined : ", isDefined(lang), " is message defined : ", isDefined(message));
         if ( message && message.urgency === "high" ) {
             if (message.fromBubbleJid ) {
-                return that.sendMessageToBubbleJidAnswer(ignLabel, message.fromJid, lang, null, ignLabel, message,undefined,"std").then((result) => {
+                return that.sendMessageToBubbleJidAnswer(ignLabel, message.fromJid, lang, null, ignLabel, message,undefined,"std", p_messagesDataStore).then((result) => {
                     that._logger.log(that.DEBUG, "(sendMessageToJidIgnored) - Ignored sent result : ", result);
                 });
             }  else {
-                return that.sendMessageToJidAnswer(ignLabel, message.fromJid, lang, null, ignLabel, message, "std").then((result) => {
+                return that.sendMessageToJidAnswer(ignLabel, message.fromJid, lang, null, ignLabel, message, "std", p_messagesDataStore).then((result) => {
                     that._logger.log(that.DEBUG, "(sendMessageToJidIgnored) - Ignored sent result : ", result);
                 });
             } // */
@@ -773,7 +794,7 @@ class ImsService extends GenericService{
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
      */
-    async sendMessageToBubble(message, bubble, lang, content, subject, mentions, urgency: string = null) {
+    async sendMessageToBubble(message, bubble, lang, content, subject, mentions, urgency: string = null, p_messagesDataStore: DataStoreType) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendMessageToBubble) is bubble defined : ", isDefined(bubble), " is message defined : ", isDefined(message));
         if (!bubble || !bubble.jid) {
@@ -782,7 +803,7 @@ class ImsService extends GenericService{
             return Promise.reject(Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'bubble' parameter"}));
         }
 
-        return this.sendMessageToBubbleJid(message, bubble.jid, lang, content, subject, mentions, urgency);
+        return this.sendMessageToBubbleJid(message, bubble.jid, lang, content, subject, mentions, urgency, p_messagesDataStore);
     }
 
     /**
@@ -801,12 +822,17 @@ class ImsService extends GenericService{
      * @param {String} [content.type=text/markdown] The content message type
      * @param {String} [content.message] The content message body
      * @param {String} [subject] The message subject
-     * @param {array} mentions array containing a list of JID of contact to mention or a string containing a sigle JID of the contact.
+     * @param {array|string} mentions array containing a list of JID of contact to mention or a string containing a sigle JID of the contact.
      * @param {string} urgency The urgence of the message. Value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
+     * @param {DataStoreType} p_messagesDataStore  used to override the general of SDK's parameter "messagesDataStore". default value `undefined` to use the general value.</br>
+     * DataStoreType.NoStore Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.</br>
+     * DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).</br>
+     * DataStoreType.StoreTwinSide The messages are fully stored.</br>
+     * DataStoreType.UsestoreMessagesField to follow the storeMessages SDK's parameter behaviour.</br>
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
      */
-    async sendMessageToBubbleJid(message, jid, lang, content, subject, mentions = null, urgency: string = null) {
+    async sendMessageToBubbleJid(message : string, jid: string, lang: string, content: any, subject: string, mentions : Array<any> | string = null, urgency: string = null, p_messagesDataStore: DataStoreType = undefined) : Promise<any> {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendMessageToBubbleJid) is jid defined : ", isDefined(jid), " is message defined : ", isDefined(message));
         if (!lang) {
@@ -840,7 +866,7 @@ class ImsService extends GenericService{
         let bubble = await that._bulles.getBubbleByJid(jid);
         that._logger.log(that.INTERNAL, LOG_ID + "(sendMessageToBubbleJid) getBubbleByJid ", bubble);
         if (bubble.isActive ) {
-            let messageSent1 = that._xmpp.sendChatMessageToBubble(messageUnicode, jid, lang, content, subject, undefined, mentions, urgency);
+            let messageSent1 = that._xmpp.sendChatMessageToBubble(messageUnicode, jid, lang, content, subject, undefined, mentions, urgency, p_messagesDataStore);
             return messageSent1;
         } else {
             try {
@@ -854,7 +880,7 @@ class ImsService extends GenericService{
                 }, "Wait for the Bubble " + bubble.jid + " to be active");
                 // */
                 //that._logger.log(that.DEBUG, LOG_ID + "(sendMessageToBubbleJid) until succeed, so the bubble is now active, send the message.");
-                let messageSent = that._xmpp.sendChatMessageToBubble(messageUnicode, jid, lang, content, subject, undefined, mentions, urgency);
+                let messageSent = that._xmpp.sendChatMessageToBubble(messageUnicode, jid, lang, content, subject, undefined, mentions, urgency, p_messagesDataStore);
                 return messageSent;
             } catch (err) {
                 return Promise.reject({message: "The sending message process failed!", error: err});
@@ -881,10 +907,15 @@ class ImsService extends GenericService{
      * @param {String} [answeredMsg] The message answered
      * @param {array} mentions array containing a list of JID of contact to mention or a string containing a sigle JID of the contact.
      * @param {string} urgency The urgence of the message. Value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
+     * @param {DataStoreType} p_messagesDataStore  used to override the general of SDK's parameter "messagesDataStore". default value `undefined` to use the general value.</br>
+     * DataStoreType.NoStore Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.</br>
+     * DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).</br>
+     * DataStoreType.StoreTwinSide The messages are fully stored.</br>
+     * DataStoreType.UsestoreMessagesField to follow the storeMessages SDK's parameter behaviour.</br>
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
      */
-    async sendMessageToBubbleJidAnswer(message, jid, lang, content, subject, answeredMsg, mentions, urgency: string = null) {
+    async sendMessageToBubbleJidAnswer(message, jid, lang, content, subject, answeredMsg, mentions, urgency: string = null, p_messagesDataStore: DataStoreType = undefined) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendMessageToBubbleJidAnswer) is jid defined : ", isDefined(jid), " is message defined : ", isDefined(message));
         if (!lang) {
@@ -924,7 +955,7 @@ class ImsService extends GenericService{
         let bubble = await that._bulles.getBubbleByJid(jid);
         that._logger.log(that.INTERNAL, LOG_ID + "(sendMessageToBubbleJidAnswer) getBubbleByJid ", bubble);
         if (bubble.isActive) {
-            let messageSent = that._xmpp.sendChatMessageToBubble(messageUnicode, jid, lang, content, subject, answeredMsg, mentions, urgency);
+            let messageSent = that._xmpp.sendChatMessageToBubble(messageUnicode, jid, lang, content, subject, answeredMsg, mentions, urgency, p_messagesDataStore);
             return messageSent;
         } else {
             try {
@@ -938,7 +969,7 @@ class ImsService extends GenericService{
                 }, "Wait for the Bubble " + bubble.jid + " to be active");
                  */
                 //that._logger.log(that.DEBUG, LOG_ID + "(sendMessageToBubbleJidAnswer) until succeed, so the bubble is now active, send the message.");
-                let messageSent = that._xmpp.sendChatMessageToBubble(messageUnicode, jid, lang, content, subject, answeredMsg, mentions, urgency);
+                let messageSent = that._xmpp.sendChatMessageToBubble(messageUnicode, jid, lang, content, subject, answeredMsg, mentions, urgency, p_messagesDataStore);
                 return messageSent;
             } catch (err) {
                 return Promise.reject({message: "The sending message process failed!", error: err});
@@ -1333,7 +1364,7 @@ class ImsService extends GenericService{
      * @param {boolean} status The status, true for setting "is Typing", false to remove it
      * @return {Object} Return a promise with no parameter when succeed.
      */
-    async sendIsTypingStateInBubble(bubble, status) {
+    async sendIsTypingStateInBubble(bubble, status, p_messagesDataStore: DataStoreType) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendIsTypingStateInBubble) is bubble defined : ", isDefined(bubble), " is status defined : ", isDefined(status));
         return new Promise(async (resolve,reject) => {
@@ -1354,7 +1385,7 @@ class ImsService extends GenericService{
                             return reject(Object.assign( ErrorManager.getErrorManager().OTHERERROR("ERRORNOTFOUND", "ERRORNOTFOUND"), {msg: "No 'conversation' found for this bubble"}));
                         }
                         else {
-                            await that._xmpp.sendIsTypingState(conversation, status) ;
+                            await that._xmpp.sendIsTypingState(conversation, status, p_messagesDataStore) ;
                             //conversationService.sendIsTypingState(conversation, status);
                             resolve(undefined);
                         }
@@ -1378,9 +1409,14 @@ class ImsService extends GenericService{
      *    Switch the "is typing" state in a conversation<br>
      * @param {Conversation} conversation The conversation recipient
      * @param {boolean} status The status, true for setting "is Typing", false to remove it
+     * @param {DataStoreType} p_messagesDataStore  used to override the general of SDK's parameter "messagesDataStore". default value `undefined` to use the general value.</br>
+     * DataStoreType.NoStore Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.</br>
+     * DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).</br>
+     * DataStoreType.StoreTwinSide The messages are fully stored.</br>
+     * DataStoreType.UsestoreMessagesField to follow the storeMessages SDK's parameter behaviour.</br>
      * @return Return a promise with no parameter when succeed
      */
-    async sendIsTypingStateInConversation(conversation, status) {
+    async sendIsTypingStateInConversation(conversation : Conversation, status: boolean, p_messagesDataStore: DataStoreType = undefined) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendIsTypingStateInConversation) is conversation defined : ", isDefined(conversation), " is status defined : ", isDefined(status));
         return new Promise(async (resolve, reject) => {
@@ -1396,7 +1432,7 @@ class ImsService extends GenericService{
                     return reject(Object.assign( ErrorManager.getErrorManager().OTHERERROR("ERRORNOTFOUND", "ERRORNOTFOUND"), {msg: "Parameter 'conversation': this conversation doesn't exist"}));
                 } else {
                     if (that._useXMPP) {
-                        await that._xmpp.sendIsTypingState(conversation, status);
+                        await that._xmpp.sendIsTypingState(conversation, status, p_messagesDataStore);
                         resolve(undefined);
                     } else if (that._useS2S) {
                         let state: CHATSTATE = CHATSTATE.COMPOSING;
@@ -1430,6 +1466,11 @@ class ImsService extends GenericService{
      *
      * @param jid - The Contact Jid to which the message is sent
      * @param xmlElements - List of XML elements to create
+     * @param {DataStoreType} p_messagesDataStore  used to override the general of SDK's parameter "messagesDataStore". default value `undefined` to use the general value.</br>
+     * DataStoreType.NoStore Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.</br>
+     * DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).</br>
+     * DataStoreType.StoreTwinSide The messages are fully stored.</br>
+     * DataStoreType.UsestoreMessagesField to follow the storeMessages SDK's parameter behaviour.</br>
      * @return {Promise<any>} - that resolves on success
      *
      *
@@ -1453,7 +1494,7 @@ class ImsService extends GenericService{
      * ```
      *
      */
-    async sendApplicationMessageContactJid(jid: any, xmlElements: Element): Promise<boolean> {
+    async sendApplicationMessageContactJid(jid: any, xmlElements: Element, p_messagesDataStore: DataStoreType = undefined): Promise<boolean> {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendApplicationMessageContactJid) is conversation defined : ", isDefined(jid), " is xmlElements defined : ", isDefined(xmlElements));
         return new Promise(async (resolve, reject) => {
@@ -1469,7 +1510,7 @@ class ImsService extends GenericService{
             }
 
             try {
-                const result = await that._xmpp.sendApplicationMessageAsync(jid, type, xmlElements);
+                const result = await that._xmpp.sendApplicationMessageAsync(jid, type, xmlElements, p_messagesDataStore);
                 return resolve(result);
             } catch (error) {
                 return reject( error);
@@ -1490,14 +1531,19 @@ class ImsService extends GenericService{
      * Useful for bots to communicate with other bots in the same conversation
      * without involving other users via the default application.
      *
-     * @param jid - The Bubble Jid to which the message is sent
-     * @param xmlElements - List of XML elements to create
+     * @param {any} jid - The Bubble Jid to which the message is sent
+     * @param {Element} xmlElements - List of XML elements to create
+     * @param {DataStoreType} p_messagesDataStore  used to override the general of SDK's parameter "messagesDataStore". default value `undefined` to use the general value.</br>
+     * DataStoreType.NoStore Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.</br>
+     * DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).</br>
+     * DataStoreType.StoreTwinSide The messages are fully stored.</br>
+     * DataStoreType.UsestoreMessagesField to follow the storeMessages SDK's parameter behaviour.</br>
      * @return {Promise<any>} - that resolves on success
      *
      *
      *
      */
-    async sendApplicationMessageBubbleJid(jid: any, xmlElements: Element): Promise<boolean> {
+    async sendApplicationMessageBubbleJid(jid: any, xmlElements: Element, p_messagesDataStore: DataStoreType = undefined): Promise<boolean> {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendApplicationMessageBubbleJid) is conversation defined : ", isDefined(jid), " is xmlElements defined : ", isDefined(xmlElements));
         return new Promise(async (resolve, reject) => {
@@ -1514,7 +1560,7 @@ class ImsService extends GenericService{
             }
 
             try {
-                const result = await that._xmpp.sendApplicationMessageAsync(jid, type, xmlElements);
+                const result = await that._xmpp.sendApplicationMessageAsync(jid, type, xmlElements, p_messagesDataStore);
                 return resolve(result);
             } catch (error) {
                 return reject( error);

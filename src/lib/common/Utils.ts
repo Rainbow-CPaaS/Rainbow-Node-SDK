@@ -5,13 +5,13 @@
 
 //import {start} from "repl";
 
-import src from "../../index.js";
+import {atob} from "atob";
+import {Jimp, JimpMime} from "jimp";
+import {dirname, join} from 'path';
+import {existsSync} from 'fs';
+import {DataStoreType} from "../config/config.js";
 
 const config = require ("../config/config");
-import {atob} from "atob";
-import {isArray} from "node:util";
-import { Jimp } from "jimp";
-import { JimpMime } from "jimp";
 const dns = require('dns');
 const utilTypes = require('util').types;
 const xml2js = require('xml2js');
@@ -19,9 +19,6 @@ const util = require("util");
 
 const fs = require('fs');
 const ini = require('ini');
-
-import { dirname, join } from 'path';
-import { existsSync } from 'fs';
 
 function isObject (value) {
     return (value !== null && typeof value === 'object');
@@ -745,7 +742,53 @@ function getAttrFromJSONObj(obj, name){
     }
     return result;
 }
+function getAlternateMessageFromJSONObj(content){
+    let result :{message:any, type:string} = {
+        message: undefined,
+        type: ""
+    }; //  msg?.body?.$attrs["xml:lang"]
+    if (content && isObject(content) && content.$attrs) {
+      result.type = content.$attrs["type"]
+    }
+    if (content && isObject(content) && content._) {
+      result.message = content._
+    }
+    return result;
+}
 
+type DecodedContent = Record<string, any>;
+
+/* Don t work has expected
+function getJsonFromXml2jsObject(parsedObject: ParsedResult): DecodedContent {
+    function cleanObject(obj: any): any {
+        if (typeof obj === 'object' && !Array.isArray(obj)) {
+            const result: Record<string, any> = {};
+            for (const [key, value] of Object.entries(obj)) {
+                if (Array.isArray(value)) {
+                    if (key === 'item') {
+                        // Si la clé est 'item', retourner directement le tableau nettoyé
+                        result[key] = value.map(cleanObject);
+                    } else if (value.length === 1) {
+                        result[key] = cleanObject(value[0]);
+                    } else {
+                        result[key] = value.map(cleanObject);
+                    }
+                } else {
+                    result[key] = cleanObject(value);
+                }
+            }
+            return result;
+        }
+        return obj;
+    }
+
+    // Suppression des métadonnées inutiles et nettoyage de l'objet
+    if (parsedObject && parsedObject._) {
+        return cleanObject(parsedObject);
+    }
+    return {};
+}
+ // */
 function getValueFromVariable(variable, defaultValue){
     return (isObject(variable)?variable:{});
 }
@@ -1049,6 +1092,38 @@ function findPackageJson(startDir: string): string | null {
     return null; // Return null if package.json not found
 }
 
+function getStoreStanzaValue(storeMessages:boolean, messagesDataStore : DataStoreType, p_messagesDataStore : DataStoreType) : string {
+    let storeStanzaValue :string = DataStoreType.StoreTwinSide;
+    if (isDefined(p_messagesDataStore)) {
+        if (p_messagesDataStore != DataStoreType.UsestoreMessagesField) {
+            storeStanzaValue = p_messagesDataStore;
+        } else {
+            if (storeMessages) {
+                storeStanzaValue = DataStoreType.StoreTwinSide;
+            } else {
+                storeStanzaValue = DataStoreType.NoStore;
+            }
+        }
+    } else if (isDefined(messagesDataStore)) {
+        if (messagesDataStore != DataStoreType.UsestoreMessagesField) {
+            storeStanzaValue = messagesDataStore;
+        } else {
+            if (storeMessages) {
+                storeStanzaValue = DataStoreType.StoreTwinSide;
+            } else {
+                storeStanzaValue = DataStoreType.NoStore;
+            }
+        }
+    } else if (isDefined(storeMessages)) {
+        if (storeMessages) {
+           storeStanzaValue = DataStoreType.StoreTwinSide;
+        } else {
+            storeStanzaValue = DataStoreType.NoStore;
+        }
+    }
+    return storeStanzaValue;
+}
+
 export let objToExport = {
     makeId,
     createPassword,
@@ -1086,6 +1161,7 @@ export let objToExport = {
     getJsonFromXML,
     getTextFromJSONProperty,
     getAttrFromJSONObj,
+    getAlternateMessageFromJSONObj,
     getValueFromVariable,
     getObjectFromVariable,
     findAllPropInJSONByPropertyName,
@@ -1102,7 +1178,8 @@ export let objToExport = {
     safeJsonParse,
     writeArrayToFile,
     readArrayFromFile,
-    findPackageJson
+    findPackageJson,
+    getStoreStanzaValue
 };
 
 module.exports = objToExport;
@@ -1143,6 +1220,7 @@ export {
     getJsonFromXML,
     getTextFromJSONProperty,
     getAttrFromJSONObj,
+    getAlternateMessageFromJSONObj,
     getValueFromVariable,
     getObjectFromVariable,
     findAllPropInJSONByPropertyName,
@@ -1159,7 +1237,8 @@ export {
     safeJsonParse,
     writeArrayToFile,
     readArrayFromFile,
-    findPackageJson
+    findPackageJson,
+    getStoreStanzaValue
 };
 
 export default {
@@ -1199,6 +1278,7 @@ export default {
     getJsonFromXML,
     getTextFromJSONProperty,
     getAttrFromJSONObj,
+    getAlternateMessageFromJSONObj,
     getValueFromVariable,
     getObjectFromVariable,
     findAllPropInJSONByPropertyName,
@@ -1215,5 +1295,6 @@ export default {
     safeJsonParse,
     writeArrayToFile,
     readArrayFromFile,
-    findPackageJson
+    findPackageJson,
+    getStoreStanzaValue
 };

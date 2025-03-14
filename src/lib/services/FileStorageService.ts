@@ -28,6 +28,8 @@ import {GenericService} from "./GenericService";
 import * as fs from "fs";
 import * as path from "path";
 import { default as mime} from "mime";
+import {DataStoreType} from "../config/config.js";
+import {Bubble} from "../common/models/Bubble.js";
 // if ( ! mime.lookup) mime.lookup = mime.getType;
 
 function FileUpdated(input) {
@@ -264,12 +266,17 @@ class FileStorage extends GenericService{
      * @param {Conversation} conversation   The conversation where the message will be added
      * @param {{size, type, name, preview, path}} object reprensenting The file to add. Properties are : the Size of the file in octets, the mimetype, the name, a thumbnail preview if it is an image, the path to the file to share.
      * @param {String} strMessage   An optional message to add with the file
+     * @param {DataStoreType} p_messagesDataStore  used to override the general of SDK's parameter "messagesDataStore". default value `undefined` to use the general value.</br>
+     * DataStoreType.NoStore Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.</br>
+     * DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).</br>
+     * DataStoreType.StoreTwinSide The messages are fully stored.</br>
+     * DataStoreType.UsestoreMessagesField to follow the storeMessages SDK's parameter behaviour.</br>
      * @description
      *    Allow to add a file to an existing conversation (ie: conversation with a contact) <br>
      *    Return the promise <br>
      * @return {Message} Return the message sent <br>
      */
-    async uploadFileToConversation(conversation: Conversation, file, strMessage: string) {
+    async uploadFileToConversation(conversation: Conversation, file, strMessage: string, p_messagesDataStore: DataStoreType = undefined) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(uploadFileToConversation) conversation.id : ", that._logger.stripStringForLogs(conversation?.id));
 
@@ -300,7 +307,7 @@ class FileStorage extends GenericService{
                 }); // */
             } else {
                 that._logger.log(that.INTERNAL, LOG_ID + "[uploadFileToConversation ] ::  Try to add a file ", file, " to the conversation ", conversation.id);
-                that._addFileToConversation(conversation, file, strMessage).then(function(msg) {
+                that._addFileToConversation(conversation, file, strMessage, p_messagesDataStore).then(function(msg) {
                     that._logger.log(that.INFO, LOG_ID + "[uploadFileToConversation ] ::  file added");
                     resolve(msg);
                 }).catch(function(err) {
@@ -323,12 +330,17 @@ class FileStorage extends GenericService{
      * @param {Bubble} bubble   The bubble where the message will be added
      * @param {File} file The file to add
      * @param {String} strMessage   An optional message to add with the file
+     * @param {DataStoreType} p_messagesDataStore  used to override the general of SDK's parameter "messagesDataStore". default value `undefined` to use the general value.</br>
+     * DataStoreType.NoStore Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.</br>
+     * DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).</br>
+     * DataStoreType.StoreTwinSide The messages are fully stored.</br>
+     * DataStoreType.UsestoreMessagesField to follow the storeMessages SDK's parameter behaviour.</br>
      * @description
      *    Allow to add a file to an existing Bubble conversation <br>
      *    Return a promise <br>
      * @return {Message} Return the message sent <br>
      */
-    async uploadFileToBubble(bubble, file, strMessage) {
+    async uploadFileToBubble(bubble: Bubble, file : File, strMessage : string, p_messagesDataStore: DataStoreType = undefined) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(uploadFileToBubble) bubble.id : ", that._logger.stripStringForLogs(bubble?.id));
 
@@ -382,7 +394,7 @@ class FileStorage extends GenericService{
                     }); // */
                 } else {
                     that._logger.log(that.INTERNAL, LOG_ID + "(uploadFileToBubble) ::  Try to add a file " + file + " to the bubble " + bubble.id);
-                    that._addFileToConversation(conversation, file, strMessage).then(function(msg) {
+                    that._addFileToConversation(conversation, file, strMessage, p_messagesDataStore).then(function(msg) {
                         that._logger.log(that.INFO, LOG_ID + "(uploadFileToBubble) ::  file added");
                         resolve(msg);
                     }).catch(function(err) {
@@ -784,7 +796,7 @@ class FileStorage extends GenericService{
      *    Return a promise <br>
      * @return {Message} Return the message sent
      */
-    _addFileToConversation(conversation: Conversation, file: any, data: string | any[]): any {
+    _addFileToConversation(conversation: Conversation, file: any, data: string | any[], p_messagesDataStore: DataStoreType): any {
         let that = this;
 
         return new Promise(function(resolve, reject) {
@@ -844,7 +856,7 @@ class FileStorage extends GenericService{
                         data = file.name;
                     }
 
-                    that._conversations.sendFSMessage(conversation, _file, data).then(function(message) {
+                    that._conversations.sendFSMessage(conversation, _file, data, p_messagesDataStore).then(function(message) {
                         resolve(message);
                     }).catch((err)=> {
                         return reject(err);

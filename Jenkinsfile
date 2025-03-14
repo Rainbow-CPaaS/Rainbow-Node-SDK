@@ -450,7 +450,7 @@ pipeline {
                             
                     sh script: """
                     #echo "Build's  shell the Rainbow-Node-SDK : ${RAINBOWNODESDKVERSION} with send email : ${SENDEMAIL} and is LTSBETA : ${LTSBETA}"
-                        
+                    export NODE_TLS_REJECT_UNAUTHORIZED=0
                     echo ---------- Set the GIT config to be able to upload to server :
                     git config --local credential.helper "!f() { echo username=\\$GITLABVBERDER_USR; echo password=\\$GITLABVBERDER_PSW; }; f"
                     git config --global user.email "vincent.berder@al-enterprise.com"
@@ -497,6 +497,7 @@ pipeline {
                         
                     npm version "${RAINBOWNODESDKVERSION}"  --allow-same-version
 
+
                     if [ "${DEBUGINTERNAL}" = "true" ]; then
                          echo "Build sources with Internal DEBUG activated."
                         echo ---------- STEP grunt : 
@@ -515,6 +516,7 @@ pipeline {
                         echo Sub Step 1 : To compil the sources
                         grunt --verbose
                         echo Sub Step 2 : To prepare the sources + doc for package
+                        #grunt jsdoc2md --verbose
                         grunt delivery --verbose
                     fi
                         

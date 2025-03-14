@@ -24,7 +24,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   None
 
 #### Fixed
--   `xmppOptions.xmppRessourceName` value when no `xmpp` section is defined in SDK's options and a config file is defined with an `xmppRessourceName` property inside.
+-   Fix `xmppOptions.xmppRessourceName` value when no `xmpp` section is defined in SDK's options and a config file is defined with an `xmppRessourceName` property inside.
 -   Fix log when an xmpp connection is Replaced by an already existing resource.
 
 #### Added
@@ -103,7 +103,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 #### Fixed
 -   Fix Jenkinsfile for new branch 'LTSDeliveryNew'
-  - Fix loadConfigFromIniFile()
+-   Fix loadConfigFromIniFile()
 
 #### Added
 -   None
