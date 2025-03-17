@@ -6,6 +6,19 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+### [2.36.0] - 2024-03-XX
+#### Removed
+-   None
+
+#### Fixed
+-   None
+
+#### Added
+-   None
+
+#### Changed
+-   Rename HTTP Header from "x-rainbow-request-node-id" to "x-rainbow-correlation-id"    
+
 ### [2.35.0-lts.0] - 2024-03-13
 #### Removed
 -   None

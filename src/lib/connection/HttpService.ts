@@ -404,9 +404,9 @@ safeJsonParse(str) {
         let req : RequestForQueue = new RequestForQueue();
         req.method = that._getUrlRaw.bind(this);
         req.params = arguments;
-        let xRainbowRequestNodeId = headers["x-rainbow-request-node-id"] ;
+        let xRainbowRequestNodeId = headers["x-rainbow-correlation-id"] ;
         let whoCallMe = callerName();
-        req.label = whoCallMe + " method called (getUrlRaw) x-rainbow-request-node-id : " + xRainbowRequestNodeId + ", url : " +  (url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g);
+        req.label = whoCallMe + " method called (getUrlRaw) x-rainbow-correlation-id : " + xRainbowRequestNodeId + ", url : " +  (url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g);
         if (that.useRequestRateLimiter) {
             return that.httpManager.add(req);
         } else {
@@ -427,8 +427,8 @@ safeJsonParse(str) {
                 let httpConfig = {URL : urlEncoded, method : "GET", headers : headers};
                 that.addAdditionalHeaders(httpConfig);
 
-                let xRainbowRequestNodeId = headers["x-rainbow-request-node-id"] ;
-                that._logger.log(that.HTTP, LOG_ID + "(_getUrlRaw) url : ", ( urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-request-node-id : ", xRainbowRequestNodeId);
+                let xRainbowRequestNodeId = headers["x-rainbow-correlation-id"] ;
+                that._logger.log(that.HTTP, LOG_ID + "(_getUrlRaw) url : ", ( urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-correlation-id : ", xRainbowRequestNodeId);
                 that._logger.log(that.INTERNAL, LOG_ID + "(_getUrlRaw) url : ", urlEncoded, ", headers : ", headers, ", params : ", params);
 
                 if (that._options.restOptions.useGotLibForHttp) {
@@ -511,7 +511,7 @@ safeJsonParse(str) {
                                     (response, retryWithMergedOptions) => {
                                         let body;
                                         let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
-                                        that._logger.log(that.HTTP, LOG_ID + "(_getUrlRaw) done statusCode : ", response?.statusCode, " for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                                        that._logger.log(that.HTTP, LOG_ID + "(_getUrlRaw) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
 
                                         if (response) {
                                             if (response?.statusCode) {
@@ -598,7 +598,7 @@ safeJsonParse(str) {
                         let getOptions = newAliveAgent();
 
                         let response = secondInstance.get(urlEncoded, getOptions).catch((error) => {
-                            that._logger.warn("internal", LOG_ID + "(_getUrlRaw) sent x-rainbow-request-node-id : ", xRainbowRequestNodeId, " error.code : ", error?.code, ", error.message : ", error?.message, ", urlEncoded : ", urlEncoded);
+                            that._logger.warn("internal", LOG_ID + "(_getUrlRaw) sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " error.code : ", error?.code, ", error.message : ", error?.message, ", urlEncoded : ", urlEncoded);
                         });
                         that._logger.log(that.DEBUG, LOG_ID + "(_getUrlRaw) done.");
 
@@ -636,7 +636,7 @@ safeJsonParse(str) {
                 }, (error, response, body) => {
                     //that._logger.log(that.INFO, LOG_ID + "(_getUrlRaw) successfull");
                     let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
-                    that._logger.log(that.HTTP, LOG_ID + "(_getUrlRaw) done statusCode : ", response?.statusCode, " for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                    that._logger.log(that.HTTP, LOG_ID + "(_getUrlRaw) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
                     if (error) {
                         return reject({
                             code: -1,
@@ -668,9 +668,9 @@ safeJsonParse(str) {
         let req : RequestForQueue = new RequestForQueue();
         req.method = that._headUrlRaw.bind(this);
         req.params = arguments;
-        let xRainbowRequestNodeId = headers["x-rainbow-request-node-id"] ;
+        let xRainbowRequestNodeId = headers["x-rainbow-correlation-id"] ;
         let whoCallMe = callerName();
-        req.label = whoCallMe + " method called (head) x-rainbow-request-node-id : " + xRainbowRequestNodeId + ", url : " +  (url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g);
+        req.label = whoCallMe + " method called (head) x-rainbow-correlation-id : " + xRainbowRequestNodeId + ", url : " +  (url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g);
         if (that.useRequestRateLimiter) {
             return that.httpManager.add(req);
         } else {
@@ -691,8 +691,8 @@ safeJsonParse(str) {
                 let httpConfig = {URL : urlEncoded, method : "HEAD", headers : headers};
                 that.addAdditionalHeaders(httpConfig);
 
-                let xRainbowRequestNodeId = headers["x-rainbow-request-node-id"] ;
-                that._logger.log(that.HTTP, LOG_ID + "(_headUrlRaw) url : ", ( urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-request-node-id : ", xRainbowRequestNodeId);
+                let xRainbowRequestNodeId = headers["x-rainbow-correlation-id"] ;
+                that._logger.log(that.HTTP, LOG_ID + "(_headUrlRaw) url : ", ( urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-correlation-id : ", xRainbowRequestNodeId);
                 that._logger.log(that.INTERNAL, LOG_ID + "(_headUrlRaw) url : ", urlEncoded, ", headers : ", headers);
 
 
@@ -778,7 +778,7 @@ safeJsonParse(str) {
                                     (response, retryWithMergedOptions) => {
                                         let body;
                                         let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
-                                        that._logger.log(that.HTTP, LOG_ID + "(_headUrlRaw) done statusCode : ", response?.statusCode, " for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                                        that._logger.log(that.HTTP, LOG_ID + "(_headUrlRaw) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
 
                                         if (response) {
                                             if (response?.statusCode) {
@@ -843,7 +843,7 @@ safeJsonParse(str) {
                         let getOptions = newAliveAgent();
 
                         let response = secondInstance.head(urlEncoded, getOptions).catch((error) => {
-                            that._logger.warn("internal", LOG_ID + "(head) sent x-rainbow-request-node-id : ", xRainbowRequestNodeId, " error.code : ", error?.code, ", error.message : ", error?.message, ", urlEncoded : ", urlEncoded);
+                            that._logger.warn("internal", LOG_ID + "(head) sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " error.code : ", error?.code, ", error.message : ", error?.message, ", urlEncoded : ", urlEncoded);
                         });
                         that._logger.log(that.DEBUG, LOG_ID + "(head) done.");
 
@@ -877,7 +877,7 @@ safeJsonParse(str) {
                 }, (error, response, body) => {
                     //that._logger.log(that.INFO, LOG_ID + "(_headUrlRaw) successfull");
                     let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
-                    that._logger.log(that.HTTP, LOG_ID + "(_headUrlRaw) done statusCode : ", response?.statusCode, " for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                    that._logger.log(that.HTTP, LOG_ID + "(_headUrlRaw) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
                     if (error) {
                         return reject({
                             code: -1,
@@ -909,9 +909,9 @@ safeJsonParse(str) {
         let req : RequestForQueue = new RequestForQueue();
         req.method = that._postUrlRaw.bind(this);
         req.params = arguments;
-        let xRainbowRequestNodeId = headers["x-rainbow-request-node-id"] ;
+        let xRainbowRequestNodeId = headers["x-rainbow-correlation-id"] ;
         let whoCallMe = callerName();
-        req.label = whoCallMe + " method called (postUrlRaw) x-rainbow-request-node-id : " + xRainbowRequestNodeId + ", url : " +  (url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g);
+        req.label = whoCallMe + " method called (postUrlRaw) x-rainbow-correlation-id : " + xRainbowRequestNodeId + ", url : " +  (url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g);
         if (that.useRequestRateLimiter) {
             return that.httpManager.add(req);
         } else {
@@ -944,8 +944,8 @@ safeJsonParse(str) {
                     }
                 } // */
 
-                let xRainbowRequestNodeId = headers["x-rainbow-request-node-id"] ;
-                that._logger.log(that.HTTP, LOG_ID + "(_postUrlRaw) url : ", ( urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-request-node-id : ", xRainbowRequestNodeId);
+                let xRainbowRequestNodeId = headers["x-rainbow-correlation-id"] ;
+                that._logger.log(that.HTTP, LOG_ID + "(_postUrlRaw) url : ", ( urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-correlation-id : ", xRainbowRequestNodeId);
                 that._logger.log(that.INTERNAL, LOG_ID + "(_postUrlRaw) url : ", urlEncoded, ", headers : ", headers, ", body : ", body);
 
                 if (that._options.restOptions.useGotLibForHttp) {
@@ -971,7 +971,7 @@ safeJsonParse(str) {
                                     (response, retryWithMergedOptions) => {
                                         let body;
                                         let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
-                                        that._logger.log(that.HTTP, LOG_ID + "(_postUrlRaw) done statusCode : ", response?.statusCode, " for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                                        that._logger.log(that.HTTP, LOG_ID + "(_postUrlRaw) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
 
                                         if (response) {
                                             if (response?.statusCode) {
@@ -1031,7 +1031,7 @@ safeJsonParse(str) {
                         let getOptions = newAliveAgent();
 
                         let response = secondInstance.post(urlEncoded, getOptions).catch((error) => {
-                            that._logger.warn("internal", LOG_ID + "(_postUrlRaw) sent x-rainbow-request-node-id : ", xRainbowRequestNodeId, " error.code : ", error?.code, ", error.message : ", error?.message, ", urlEncoded : ", urlEncoded);
+                            that._logger.warn("internal", LOG_ID + "(_postUrlRaw) sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " error.code : ", error?.code, ", error.message : ", error?.message, ", urlEncoded : ", urlEncoded);
                         });
                         that._logger.log(that.DEBUG, LOG_ID + "(_postUrlRaw) done.");
 
@@ -1064,7 +1064,7 @@ safeJsonParse(str) {
                 }, (error, response, body) => {
                     //that._logger.log(that.INFO, LOG_ID + "(_postUrlRaw) successfull");
                     let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
-                    that._logger.log(that.HTTP, LOG_ID + "(_postUrlRaw) done statusCode : ", response?.statusCode, " for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                    that._logger.log(that.HTTP, LOG_ID + "(_postUrlRaw) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
                     that._logger.log(that.INTERNAL, LOG_ID + "(_postUrlRaw) successfull - error.message : ", error?.message, ", body : ", body);
                     if (error) {
                         return reject({
@@ -1097,9 +1097,9 @@ safeJsonParse(str) {
         let req : RequestForQueue = new RequestForQueue();
         req.method = that._putUrlRaw.bind(this);
         req.params = arguments;
-        let xRainbowRequestNodeId = headers["x-rainbow-request-node-id"] ;
+        let xRainbowRequestNodeId = headers["x-rainbow-correlation-id"] ;
         let whoCallMe = callerName();
-        req.label = whoCallMe + " method called (putUrlRaw) x-rainbow-request-node-id : " + xRainbowRequestNodeId + ", url : " +  (url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g);
+        req.label = whoCallMe + " method called (putUrlRaw) x-rainbow-correlation-id : " + xRainbowRequestNodeId + ", url : " +  (url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g);
         if (that.useRequestRateLimiter) {
             return that.httpManager.add(req);
         } else {
@@ -1118,8 +1118,8 @@ safeJsonParse(str) {
                 let httpConfig = {URL : urlEncoded, method : "PUT", headers : headers};
                 that.addAdditionalHeaders(httpConfig);
 
-                let xRainbowRequestNodeId = headers["x-rainbow-request-node-id"] ;
-                that._logger.log(that.HTTP, LOG_ID + "(_putUrlRaw) url : ", ( urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-request-node-id : ", xRainbowRequestNodeId);
+                let xRainbowRequestNodeId = headers["x-rainbow-correlation-id"] ;
+                that._logger.log(that.HTTP, LOG_ID + "(_putUrlRaw) url : ", ( urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-correlation-id : ", xRainbowRequestNodeId);
 
                 headers["user-agent"] = USER_AGENT;
                 that._logger.log(that.INTERNAL, LOG_ID + "(_putUrlRaw) url : ", urlEncoded, ", headers : ", headers, ", data : ", data);
@@ -1149,7 +1149,7 @@ safeJsonParse(str) {
                                     (response, retryWithMergedOptions) => {
                                         let body;
                                         let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
-                                        that._logger.log(that.HTTP, LOG_ID + "(_putUrlRaw) done statusCode : ", response?.statusCode, " for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                                        that._logger.log(that.HTTP, LOG_ID + "(_putUrlRaw) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
 
                                         if (response) {
                                             if (response?.statusCode) {
@@ -1205,7 +1205,7 @@ safeJsonParse(str) {
 
                         let getOptions = newAliveAgent();
                         let response = secondInstance.put(urlEncoded, getOptions).catch((error) => {
-                            that._logger.warn("internal", LOG_ID + "(_putUrlRaw) sent x-rainbow-request-node-id : ", xRainbowRequestNodeId, " error.code : ", error?.code, ", error.message : ", error?.message, ", urlEncoded : ", urlEncoded);
+                            that._logger.warn("internal", LOG_ID + "(_putUrlRaw) sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " error.code : ", error?.code, ", error.message : ", error?.message, ", urlEncoded : ", urlEncoded);
                         });
                         that._logger.log(that.DEBUG, LOG_ID + "(_putUrlRaw) done.");
 
@@ -1236,7 +1236,7 @@ safeJsonParse(str) {
                 }, (error, response, body) => {
                     //that._logger.log(that.INFO, LOG_ID + "(_putUrlRaw) successfull");
                     let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
-                    that._logger.log(that.HTTP, LOG_ID + "(_putUrlRaw) done statusCode : ", response?.statusCode, " for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                    that._logger.log(that.HTTP, LOG_ID + "(_putUrlRaw) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
                     if (error) {
                         return reject({
                             code: -1,
@@ -1268,9 +1268,9 @@ safeJsonParse(str) {
         let req : RequestForQueue = new RequestForQueue();
         req.method = that._deleteUrlRaw.bind(this);
         req.params = arguments;
-        let xRainbowRequestNodeId = headers["x-rainbow-request-node-id"] ;
+        let xRainbowRequestNodeId = headers["x-rainbow-correlation-id"] ;
         let whoCallMe = callerName();
-        req.label = whoCallMe + " method called (deleteUrlRaw) x-rainbow-request-node-id : " + xRainbowRequestNodeId + ", url : " +  (url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g);
+        req.label = whoCallMe + " method called (deleteUrlRaw) x-rainbow-correlation-id : " + xRainbowRequestNodeId + ", url : " +  (url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g);
         if (that.useRequestRateLimiter) {
             return that.httpManager.add(req);
         } else {
@@ -1294,8 +1294,8 @@ safeJsonParse(str) {
 
                 let body = data;
 
-                let xRainbowRequestNodeId = headers["x-rainbow-request-node-id"] ;
-                that._logger.log(that.HTTP, LOG_ID + "(_deleteUrlRaw) url : ", ( urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-request-node-id : ", xRainbowRequestNodeId);
+                let xRainbowRequestNodeId = headers["x-rainbow-correlation-id"] ;
+                that._logger.log(that.HTTP, LOG_ID + "(_deleteUrlRaw) url : ", ( urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-correlation-id : ", xRainbowRequestNodeId);
 
                 headers["user-agent"] = USER_AGENT;
                 that._logger.log(that.INTERNAL, LOG_ID + "(_deleteUrlRaw) url : ", urlEncoded, ", headers : ", headers, ", body : ", body);
@@ -1381,7 +1381,7 @@ safeJsonParse(str) {
                                     (response, retryWithMergedOptions) => {
                                         let body;
                                         let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
-                                        that._logger.log(that.HTTP, LOG_ID + "(_deleteUrlRaw) done statusCode : ", response?.statusCode, " for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                                        that._logger.log(that.HTTP, LOG_ID + "(_deleteUrlRaw) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
 
                                         if (response) {
                                             if (response?.statusCode) {
@@ -1464,7 +1464,7 @@ safeJsonParse(str) {
 
                         let getOptions = newAliveAgent();
                         let response = secondInstance.delete(urlEncoded, getOptions).catch((error) => {
-                            that._logger.warn("internal", LOG_ID + "(_deleteUrlRaw) sent x-rainbow-request-node-id : ", xRainbowRequestNodeId, " error.code : ", error?.code, ", error.message : ", error?.message, ", urlEncoded : ", urlEncoded);
+                            that._logger.warn("internal", LOG_ID + "(_deleteUrlRaw) sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " error.code : ", error?.code, ", error.message : ", error?.message, ", urlEncoded : ", urlEncoded);
                         });
                         that._logger.log(that.DEBUG, LOG_ID + "(_deleteUrlRaw) done.");
 
@@ -1499,7 +1499,7 @@ safeJsonParse(str) {
 
                 let request = Request.delete(deleteOptions, (error, response, body) => {
                     let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
-                    that._logger.log(that.HTTP, LOG_ID + "(_deleteUrlRaw) done statusCode : ", response?.statusCode, " for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                    that._logger.log(that.HTTP, LOG_ID + "(_deleteUrlRaw) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
                     // that._logger.log(that.INFO, LOG_ID + "(_deleteUrlRaw) successfull");
                     if (error) {
                         return reject({
@@ -1533,9 +1533,9 @@ safeJsonParse(str) {
         let req : RequestForQueue = new RequestForQueue();
         req.method = that._getUrlJson.bind(this);
         req.params = arguments;
-        let xRainbowRequestNodeId = headers["x-rainbow-request-node-id"] ;
+        let xRainbowRequestNodeId = headers["x-rainbow-correlation-id"] ;
         let whoCallMe = callerName();
-        req.label = whoCallMe + " method called (getUrl) x-rainbow-request-node-id : " + xRainbowRequestNodeId + ", url : " +  (url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g);
+        req.label = whoCallMe + " method called (getUrl) x-rainbow-correlation-id : " + xRainbowRequestNodeId + ", url : " +  (url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g);
         if (that.useRequestRateLimiter) {
             return that.httpManager.add(req);
         } else {
@@ -1556,8 +1556,8 @@ safeJsonParse(str) {
                 let httpConfig = {URL : urlEncoded, method : "GET", headers : headers};
                 that.addAdditionalHeaders(httpConfig);
 
-                let xRainbowRequestNodeId = headers["x-rainbow-request-node-id"] ;
-                that._logger.log(that.HTTP, LOG_ID + "(_getUrlJson) url : ", ( urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-request-node-id : ", xRainbowRequestNodeId);
+                let xRainbowRequestNodeId = headers["x-rainbow-correlation-id"] ;
+                that._logger.log(that.HTTP, LOG_ID + "(_getUrlJson) url : ", ( urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-correlation-id : ", xRainbowRequestNodeId);
 
                 that._logger.log(that.INTERNAL, LOG_ID + "(_getUrlJson) url : ", urlEncoded, ", headers : ", headers, ", params : ", params);
 
@@ -1641,7 +1641,7 @@ safeJsonParse(str) {
                                     (response, retryWithMergedOptions) => {
                                         let body;
                                         let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
-                                        that._logger.log(that.HTTP, LOG_ID + "(_getUrlJson) done statusCode : ", response?.statusCode, " for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                                        that._logger.log(that.HTTP, LOG_ID + "(_getUrlJson) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
 
                                         if (response) {
                                             if (response?.statusCode) {
@@ -1752,7 +1752,7 @@ safeJsonParse(str) {
                         let getOptions = newAliveAgent();
 
                         let response = secondInstance.get(urlEncoded, getOptions).catch((error) => {
-                            that._logger.warn("internal", LOG_ID + "(_getUrlJson) sent x-rainbow-request-node-id : ", xRainbowRequestNodeId, " error.code : ", error?.code, ", error.message : ", error?.message, ", urlEncoded : ", urlEncoded);
+                            that._logger.warn("internal", LOG_ID + "(_getUrlJson) sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " error.code : ", error?.code, ", error.message : ", error?.message, ", urlEncoded : ", urlEncoded);
                         });
                         that._logger.log(that.DEBUG, LOG_ID + "(_getUrlJson) done.");
 
@@ -1788,7 +1788,7 @@ safeJsonParse(str) {
                 }, (error, response, body) => {
                     //that._logger.log(that.INFO, LOG_ID + "(_getUrlJson) successfull");
                     let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
-                    that._logger.log(that.HTTP, LOG_ID + "(_getUrlJson) done statusCode : ", response?.statusCode, " for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                    that._logger.log(that.HTTP, LOG_ID + "(_getUrlJson) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
                     if (error) {
                         return reject({
                             code: -1,
@@ -1862,10 +1862,10 @@ safeJsonParse(str) {
         let req : RequestForQueue = new RequestForQueue();
         req.method = that._get.bind(this);
         req.params = arguments;
-        let xRainbowRequestNodeId = headers["x-rainbow-request-node-id"] ;
+        let xRainbowRequestNodeId = headers["x-rainbow-correlation-id"] ;
         let whoCallMe = callerName();
         //that._logger.log(that.INFO, LOG_ID + "(get) whoCallMe : ", whoCallMe);
-        req.label = whoCallMe + " method called (get) x-rainbow-request-node-id : " + xRainbowRequestNodeId + ", url : " +  (that.serverURL + url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g);
+        req.label = whoCallMe + " method called (get) x-rainbow-correlation-id : " + xRainbowRequestNodeId + ", url : " +  (that.serverURL + url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g);
         if (that.useRequestRateLimiter) {
             return that.httpManager.add(req);
         } else {
@@ -1886,8 +1886,8 @@ safeJsonParse(str) {
                 let httpConfig = {URL : urlEncoded, method : "GET", headers : headers};
                 that.addAdditionalHeaders(httpConfig);
 
-                let xRainbowRequestNodeId = headers["x-rainbow-request-node-id"] ;
-                that._logger.log(that.HTTP, LOG_ID + "(get) url : ", (urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-request-node-id : ", xRainbowRequestNodeId);
+                let xRainbowRequestNodeId = headers["x-rainbow-correlation-id"] ;
+                that._logger.log(that.HTTP, LOG_ID + "(get) url : ", (urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-correlation-id : ", xRainbowRequestNodeId);
 
                 that._logger.log(that.INTERNAL, LOG_ID + "(get) url : ", urlEncoded, ", headers : ", headers, ", params : ", params);
 
@@ -1976,7 +1976,7 @@ safeJsonParse(str) {
                                         (response, retryWithMergedOptions) => {
                                             let body;
                                             let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
-                                            that._logger.log(that.HTTP, LOG_ID + "(get) done statusCode : ", response?.statusCode, " for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                                            that._logger.log(that.HTTP, LOG_ID + "(get) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
 
                                             if (response?.statusCode >= 200 && response?.statusCode <= 206) {
                                                 if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
@@ -2090,7 +2090,7 @@ safeJsonParse(str) {
                             let getOptions = newAliveAgent();
 
                             let response = secondInstance.get(urlEncoded, getOptions).catch((error) => {
-                                that._logger.warn("internal", LOG_ID + "(get) sent x-rainbow-request-node-id : ", xRainbowRequestNodeId, " error.code : ", error?.code, ", error.message : ", error?.message, ", urlEncoded : ", urlEncoded);
+                                that._logger.warn("internal", LOG_ID + "(get) sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " error.code : ", error?.code, ", error.message : ", error?.message, ", urlEncoded : ", urlEncoded);
                             });
                             that._logger.log(that.DEBUG, LOG_ID + "(get) done by GOT.");
 
@@ -2135,7 +2135,7 @@ safeJsonParse(str) {
                             let request = Request(req, (error, response, body) => {
                                 that._logger.log(that.DEBUG, LOG_ID + "(get) done by request.");
                                 let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
-                                that._logger.log(that.HTTP, LOG_ID + "(get) done statusCode : ", response?.statusCode, " for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                                that._logger.log(that.HTTP, LOG_ID + "(get) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
 
                                 if (error) {
                                     responseRequest = {
@@ -2278,7 +2278,7 @@ safeJsonParse(str) {
                         // that._logger.log(that.INFO, LOG_ID + "(get) status code:" + response.statusCode); // 200
                         that._logger.log(that.DEBUG, LOG_ID + "(get) response headers: " + response.headers["content-type"]); // 'image/png'
                         let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
-                        that._logger.log(that.HTTP, LOG_ID + "(get) done statusCode : ", response?.statusCode, " for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                        that._logger.log(that.HTTP, LOG_ID + "(get) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
                         if (response.statusCode === 400) {
                             req.abort();
                             err.statusCode = response.statusCode;
@@ -2331,9 +2331,9 @@ safeJsonParse(str) {
         let req : RequestForQueue = new RequestForQueue();
         req.method = that._post.bind(this);
         req.params = arguments;
-        let xRainbowRequestNodeId = headers["x-rainbow-request-node-id"] ;
+        let xRainbowRequestNodeId = headers["x-rainbow-correlation-id"] ;
         let whoCallMe = callerName();
-        req.label = whoCallMe + " method called (post) x-rainbow-request-node-id : " + xRainbowRequestNodeId + ", url : " +  (that.serverURL + url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g);
+        req.label = whoCallMe + " method called (post) x-rainbow-correlation-id : " + xRainbowRequestNodeId + ", url : " +  (that.serverURL + url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g);
         if (that.useRequestRateLimiter) {
             return that.httpManager.add(req);
         } else {
@@ -2368,8 +2368,8 @@ safeJsonParse(str) {
                 body = typeof data !== "string" ? JSON.stringify(data) : data;
             }
 
-            let xRainbowRequestNodeId = headers["x-rainbow-request-node-id"] ;
-            that._logger.log(that.HTTP, LOG_ID + "(post) url : ", ( urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-request-node-id : ", xRainbowRequestNodeId);
+            let xRainbowRequestNodeId = headers["x-rainbow-correlation-id"] ;
+            that._logger.log(that.HTTP, LOG_ID + "(post) url : ", ( urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-correlation-id : ", xRainbowRequestNodeId);
 
             that._logger.log(that.INTERNAL, LOG_ID + "(post) url : ", urlEncoded, ", headers : ", headers, ", body : ", body);
 
@@ -2452,13 +2452,13 @@ safeJsonParse(str) {
                         },
                         hooks: {
                             beforeRequest: [function(options) {
-                                //that._logger.log(that.HTTP, LOG_ID + "(post) beforeRequest url : ", ( urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-request-node-id : ", xRainbowRequestNodeId,", options : ", options);
+                                //that._logger.log(that.HTTP, LOG_ID + "(post) beforeRequest url : ", ( urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-correlation-id : ", xRainbowRequestNodeId,", options : ", options);
                             }],
                             afterResponse: [
                                 (response, retryWithMergedOptions) => {
                                     let body;
                                     let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
-                                    that._logger.log(that.HTTP, LOG_ID + "(post) done statusCode : ", response?.statusCode, " for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                                    that._logger.log(that.HTTP, LOG_ID + "(post) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
 
                                     if (response?.statusCode) {
                                         if (response?.statusCode >= 200 && response?.statusCode <= 206) {
@@ -2563,7 +2563,7 @@ safeJsonParse(str) {
 
                     let getOptions = newAliveAgent();
                     let response = secondInstance.post(urlEncoded, getOptions).catch((error) => {
-                        that._logger.warn("internal", LOG_ID + "(post) sent x-rainbow-request-node-id : ", xRainbowRequestNodeId, " error.code : ", error?.code, ", error.message : ", error?.message, ", urlEncoded : ", urlEncoded);
+                        that._logger.warn("internal", LOG_ID + "(post) sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " error.code : ", error?.code, ", error.message : ", error?.message, ", urlEncoded : ", urlEncoded);
                     });
                     that._logger.log(that.DEBUG, LOG_ID + "(post) done.");
 
@@ -2600,7 +2600,7 @@ safeJsonParse(str) {
                 body: body
             }, (error, response, body) => {
                     let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
-                    that._logger.log(that.HTTP, LOG_ID + "(post) done statusCode : ", response?.statusCode, " for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                    that._logger.log(that.HTTP, LOG_ID + "(post) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
                 if (error) {
                     that._logger.log(that.WARN, LOG_ID + "(post) failed:", error, ", url:", urlEncoded, ", response : ", response);
                     return reject({"msg": "post failed", "error" : error});
@@ -2698,9 +2698,9 @@ safeJsonParse(str) {
         let req : RequestForQueue = new RequestForQueue();
         req.method = that._head.bind(this);
         req.params = arguments;
-        let xRainbowRequestNodeId = headers["x-rainbow-request-node-id"] ;
+        let xRainbowRequestNodeId = headers["x-rainbow-correlation-id"] ;
         let whoCallMe = callerName();
-        req.label = whoCallMe + " method called (head) x-rainbow-request-node-id : " + xRainbowRequestNodeId + ", url : " +  (that.serverURL + url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g);
+        req.label = whoCallMe + " method called (head) x-rainbow-correlation-id : " + xRainbowRequestNodeId + ", url : " +  (that.serverURL + url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g);
         if (that.useRequestRateLimiter) {
             return that.httpManager.add(req);
         } else {
@@ -2720,8 +2720,8 @@ safeJsonParse(str) {
 
             headers["user-agent"] = USER_AGENT;
 
-            let xRainbowRequestNodeId = headers["x-rainbow-request-node-id"] ;
-            that._logger.log(that.HTTP, LOG_ID + "(head) url : ", ( urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-request-node-id : ", xRainbowRequestNodeId);
+            let xRainbowRequestNodeId = headers["x-rainbow-correlation-id"] ;
+            that._logger.log(that.HTTP, LOG_ID + "(head) url : ", ( urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-correlation-id : ", xRainbowRequestNodeId);
 
             that._logger.log(that.INTERNAL, LOG_ID + "(head) url : ", urlEncoded, ", headers : ", headers);
 
@@ -2807,7 +2807,7 @@ safeJsonParse(str) {
                                 (response, retryWithMergedOptions) => {
                                     let body;
                                     let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
-                                    that._logger.log(that.HTTP, LOG_ID + "(head) done statusCode : ", response?.statusCode, " for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                                    that._logger.log(that.HTTP, LOG_ID + "(head) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
 
                                     if (response?.statusCode) {
                                         if (response?.statusCode >= 200 && response?.statusCode <= 206) {
@@ -2917,11 +2917,11 @@ safeJsonParse(str) {
                     let getOptions = newAliveAgent();
 
                     let response = secondInstance.head(urlEncoded, getOptions).catch((error) => {
-                        that._logger.warn("internal", LOG_ID + "(head) sent x-rainbow-request-node-id : ", xRainbowRequestNodeId, " error.code : ", error?.code, ", error.message : ", error?.message, ", urlEncoded : ", urlEncoded);
+                        that._logger.warn("internal", LOG_ID + "(head) sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " error.code : ", error?.code, ", error.message : ", error?.message, ", urlEncoded : ", urlEncoded);
                     });
                     that._logger.log(that.DEBUG, LOG_ID + "(head) done.");
                     let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
-                    that._logger.log(that.HTTP, LOG_ID + "(head) done statusCode : ", response?.statusCode, " for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                    that._logger.log(that.HTTP, LOG_ID + "(head) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
 
                 } catch (error) {
                     //
@@ -2956,7 +2956,7 @@ safeJsonParse(str) {
                 body: undefined
             }, (error, response, body) => {
                 let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
-                that._logger.log(that.HTTP, LOG_ID + "(head) done statusCode : ", response?.statusCode, " for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                that._logger.log(that.HTTP, LOG_ID + "(head) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
                 if (error) {
                     that._logger.log(that.INTERNALERROR, LOG_ID + "(head) failed:", error, ", url:", urlEncoded);
                     return reject("post failed");
@@ -3047,9 +3047,9 @@ safeJsonParse(str) {
         let req : RequestForQueue = new RequestForQueue();
         req.method = that._patch.bind(this);
         req.params = arguments;
-        let xRainbowRequestNodeId = headers["x-rainbow-request-node-id"] ;
+        let xRainbowRequestNodeId = headers["x-rainbow-correlation-id"] ;
         let whoCallMe = callerName();
-        req.label = whoCallMe + " method called (patch) x-rainbow-request-node-id : " + xRainbowRequestNodeId + ", url : " +  (that.serverURL + url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g);
+        req.label = whoCallMe + " method called (patch) x-rainbow-correlation-id : " + xRainbowRequestNodeId + ", url : " +  (that.serverURL + url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g);
         if (that.useRequestRateLimiter) {
             return that.httpManager.add(req);
         } else {
@@ -3067,8 +3067,8 @@ safeJsonParse(str) {
             let httpConfig = {URL : urlEncoded, method : "PATCH", headers : headers};
             that.addAdditionalHeaders(httpConfig);
 
-            let xRainbowRequestNodeId = headers["x-rainbow-request-node-id"] ;
-            that._logger.log(that.HTTP, LOG_ID + "(patch) url : ", ( urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-request-node-id : ", xRainbowRequestNodeId);
+            let xRainbowRequestNodeId = headers["x-rainbow-correlation-id"] ;
+            that._logger.log(that.HTTP, LOG_ID + "(patch) url : ", ( urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-correlation-id : ", xRainbowRequestNodeId);
 
             headers["user-agent"] = USER_AGENT;
             that._logger.log(that.INTERNAL, LOG_ID + "(patch) url : ", urlEncoded, ", headers : ", headers, ", data : ", data);
@@ -3170,7 +3170,7 @@ safeJsonParse(str) {
                                 (response, retryWithMergedOptions) => {
                                     let body;
                                     let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
-                                    that._logger.log(that.HTTP, LOG_ID + "(patch) done statusCode : ", response?.statusCode, " for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                                    that._logger.log(that.HTTP, LOG_ID + "(patch) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
 
                                     if (response?.statusCode) {
                                         // that._logger.log(that.INFO, LOG_ID + "(patch) HTTP statusCode", response.statusCode);
@@ -3272,11 +3272,11 @@ safeJsonParse(str) {
 
                     let getOptions = newAliveAgent();
                     let response = secondInstance.patch(urlEncoded, getOptions).catch((error) => {
-                        that._logger.warn("internal", LOG_ID + "(patch) sent x-rainbow-request-node-id : ", xRainbowRequestNodeId, " error.code : ", error?.code, ", error.message : ", error?.message, ", urlEncoded : ", urlEncoded);
+                        that._logger.warn("internal", LOG_ID + "(patch) sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " error.code : ", error?.code, ", error.message : ", error?.message, ", urlEncoded : ", urlEncoded);
                     });
                     that._logger.log(that.DEBUG, LOG_ID + "(patch) done.");
                     let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
-                    that._logger.log(that.HTTP, LOG_ID + "(patch) done statusCode : ", response?.statusCode, " for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                    that._logger.log(that.HTTP, LOG_ID + "(patch) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
 
                 } catch (error) {
                     //
@@ -3324,7 +3324,7 @@ safeJsonParse(str) {
                 body: body
             }, (error, response, body) => {
                 let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
-                that._logger.log(that.HTTP, LOG_ID + "(patch) done statusCode : ", response?.statusCode, " for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                that._logger.log(that.HTTP, LOG_ID + "(patch) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
                 if (error) {
                     that._logger.log(that.INTERNALERROR, LOG_ID + "(patch) patch failed:", error, ', url : ', urlEncoded);
                     return reject("patch failed");
@@ -3414,9 +3414,9 @@ safeJsonParse(str) {
         let req : RequestForQueue = new RequestForQueue();
         req.method = that._put.bind(this);
         req.params = arguments;
-        let xRainbowRequestNodeId = headers["x-rainbow-request-node-id"] ;
+        let xRainbowRequestNodeId = headers["x-rainbow-correlation-id"] ;
         let whoCallMe = callerName();
-        req.label = whoCallMe + " method called (put) x-rainbow-request-node-id : " + xRainbowRequestNodeId + ", url : " +  (that.serverURL + url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g);
+        req.label = whoCallMe + " method called (put) x-rainbow-correlation-id : " + xRainbowRequestNodeId + ", url : " +  (that.serverURL + url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g);
         if (that.useRequestRateLimiter) {
             return that.httpManager.add(req);
         } else {
@@ -3458,8 +3458,8 @@ safeJsonParse(str) {
             }
             // */
 
-            let xRainbowRequestNodeId = headers["x-rainbow-request-node-id"] ;
-            that._logger.log(that.HTTP, LOG_ID + "(put) url : ", ( urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-request-node-id : ", xRainbowRequestNodeId);
+            let xRainbowRequestNodeId = headers["x-rainbow-correlation-id"] ;
+            that._logger.log(that.HTTP, LOG_ID + "(put) url : ", ( urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-correlation-id : ", xRainbowRequestNodeId);
 
            //  that._logger.log(that.INTERNAL, LOG_ID + "(put) url : ", urlEncoded, ", headers : ", headers, ", body : ", body);
 
@@ -3542,13 +3542,13 @@ safeJsonParse(str) {
                         },
                         hooks: {
                             beforeRequest: [function(options) {
-                                //that._logger.log(that.HTTP, LOG_ID + "(put) beforeRequest url : ", ( urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-request-node-id : ", xRainbowRequestNodeId,", options : ", options);
+                                //that._logger.log(that.HTTP, LOG_ID + "(put) beforeRequest url : ", ( urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-correlation-id : ", xRainbowRequestNodeId,", options : ", options);
                             }],
                             afterResponse: [
                                 (response, retryWithMergedOptions) => {
                                     let body;
                                     let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
-                                    that._logger.log(that.HTTP, LOG_ID + "(put) done statusCode : ", response?.statusCode, " for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                                    that._logger.log(that.HTTP, LOG_ID + "(put) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
 
                                     if (response?.statusCode) {
                                         if (response?.statusCode >= 200 && response?.statusCode <= 206) {
@@ -3659,7 +3659,7 @@ safeJsonParse(str) {
                     let getOptions = newAliveAgent();
 
                     let response = secondInstance.put(urlEncoded, getOptions).catch((error) => {
-                        that._logger.warn("internal", LOG_ID + "(put) sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," error.code : ", error?.code, ", error.message : ", error?.message, ", urlEncoded : ", urlEncoded);
+                        that._logger.warn("internal", LOG_ID + "(put) sent x-rainbow-correlation-id : ", xRainbowRequestNodeId," error.code : ", error?.code, ", error.message : ", error?.message, ", urlEncoded : ", urlEncoded);
                     });
                     that._logger.log(that.DEBUG, LOG_ID + "(put) done.");
 
@@ -3694,7 +3694,7 @@ safeJsonParse(str) {
                 body: body
             }, (error, response, body) => {
                 let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
-                that._logger.log(that.HTTP, LOG_ID + "(put) done statusCode : ", response?.statusCode, " for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                that._logger.log(that.HTTP, LOG_ID + "(put) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
 
                 if (error) {
                     that._logger.log(that.INTERNALERROR, LOG_ID + "(put) put failed:", error, ', url : ', urlEncoded);
@@ -3785,9 +3785,9 @@ safeJsonParse(str) {
         let req : RequestForQueue = new RequestForQueue();
         req.method = that._putBuffer.bind(this);
         req.params = arguments;
-        let xRainbowRequestNodeId = headers["x-rainbow-request-node-id"] ;
+        let xRainbowRequestNodeId = headers["x-rainbow-correlation-id"] ;
         let whoCallMe = callerName();
-        req.label = whoCallMe + " method called (putBuffer) x-rainbow-request-node-id : " + xRainbowRequestNodeId + ", url : " +  (that.serverURL + url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g);
+        req.label = whoCallMe + " method called (putBuffer) x-rainbow-correlation-id : " + xRainbowRequestNodeId + ", url : " +  (that.serverURL + url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g);
         if (that.useRequestRateLimiter) {
             return that.httpManager.add(req);
         } else {
@@ -3807,8 +3807,8 @@ safeJsonParse(str) {
             let httpConfig = {URL : urlEncoded, method : "PUT", headers : headers};
             that.addAdditionalHeaders(httpConfig);
 
-            let xRainbowRequestNodeId = headers["x-rainbow-request-node-id"] ;
-            that._logger.log(that.HTTP, LOG_ID + "(_putBuffer) url : ", ( urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-request-node-id : ", xRainbowRequestNodeId);
+            let xRainbowRequestNodeId = headers["x-rainbow-correlation-id"] ;
+            that._logger.log(that.HTTP, LOG_ID + "(_putBuffer) url : ", ( urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-correlation-id : ", xRainbowRequestNodeId);
 
             headers["user-agent"] = USER_AGENT;
 
@@ -3836,7 +3836,7 @@ safeJsonParse(str) {
                                 (response, retryWithMergedOptions) => {
                                     let body;
                                     let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
-                                    that._logger.log(that.HTTP, LOG_ID + "(_putBuffer) done statusCode : ", response?.statusCode, " for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                                    that._logger.log(that.HTTP, LOG_ID + "(_putBuffer) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
 
                                     if (response) {
                                         if (response?.statusCode) {
@@ -3892,7 +3892,7 @@ safeJsonParse(str) {
 
                     let getOptions = newAliveAgent();
                     let response = secondInstance.put(urlEncoded, getOptions).catch((error) => {
-                        that._logger.warn("internal", LOG_ID + "(_putBuffer) sent x-rainbow-request-node-id : ", xRainbowRequestNodeId, " error.code : ", error?.code, ", error.message : ", error?.message, ", urlEncoded : ", urlEncoded);
+                        that._logger.warn("internal", LOG_ID + "(_putBuffer) sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " error.code : ", error?.code, ", error.message : ", error?.message, ", urlEncoded : ", urlEncoded);
                     });
                     that._logger.log(that.DEBUG, LOG_ID + "(_putBuffer) done.");
 
@@ -3924,7 +3924,7 @@ safeJsonParse(str) {
                 },
                 function (error, response, body) {
                     let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
-                    that._logger.log(that.HTTP, LOG_ID + "(putBuffer) done statusCode : ", response?.statusCode, " for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                    that._logger.log(that.HTTP, LOG_ID + "(putBuffer) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
                     if (error) {
                         that._logger.log(that.INTERNALERROR, LOG_ID + "(putBuffer) upload failed:", error);
                         return reject("upload failed");
@@ -3945,8 +3945,8 @@ safeJsonParse(str) {
             let httpConfig = {URL : urlEncoded, method : "PUT", headers : headers};
             that.addAdditionalHeaders(httpConfig);
 
-            let xRainbowRequestNodeId = headers["x-rainbow-request-node-id"] ;
-            that._logger.log(that.HTTP, LOG_ID + "(putStream) url : ", ( urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-request-node-id : ", xRainbowRequestNodeId);
+            let xRainbowRequestNodeId = headers["x-rainbow-correlation-id"] ;
+            that._logger.log(that.HTTP, LOG_ID + "(putStream) url : ", ( urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-correlation-id : ", xRainbowRequestNodeId);
 
             that._logger.log(that.INTERNAL, LOG_ID + "(putStream) url : ", urlEncoded, " stream path : ", stream?.path);
 
@@ -4040,7 +4040,7 @@ safeJsonParse(str) {
                                 (response, retryWithMergedOptions) => {
                                     let body;
                                     let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
-                                    that._logger.log(that.HTTP, LOG_ID + "(putStream) done statusCode : ", response?.statusCode, " for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                                    that._logger.log(that.HTTP, LOG_ID + "(putStream) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
 
                                     if (response?.statusCode) {
                                         if (response?.statusCode >= 200 && response?.statusCode <= 206) {
@@ -4157,7 +4157,7 @@ safeJsonParse(str) {
                     result = secondInstance.put(urlEncoded, getOptions).catch((err) => {
                         if (err) {
 //                            console.error('Pipeline failed', err);
-                            that._logger.warn("internal", LOG_ID + "(put) sent x-rainbow-request-node-id : ", xRainbowRequestNodeId, " error.code : ", error?.code, ", error.message : ", error?.message, ", urlEncoded : ", urlEncoded);
+                            that._logger.warn("internal", LOG_ID + "(put) sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " error.code : ", error?.code, ", error.message : ", error?.message, ", urlEncoded : ", urlEncoded);
 
                             reject(err);
                         } else {
@@ -4175,7 +4175,7 @@ safeJsonParse(str) {
                     let streamRes = _(pipeline(stream, (secondInstance.stream.put(urlEncoded, getOptions)), (err) => {
                         if (err) {
 //                            console.error('Pipeline failed', err);
-                            that._logger.warn("internal", LOG_ID + "(putStream) sent x-rainbow-request-node-id : ", xRainbowRequestNodeId, " error.code : ", error?.code, ", error.message : ", error?.message, ", urlEncoded : ", urlEncoded);
+                            that._logger.warn("internal", LOG_ID + "(putStream) sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " error.code : ", error?.code, ", error.message : ", error?.message, ", urlEncoded : ", urlEncoded);
 
                             reject(err);
                         } else {
@@ -4287,7 +4287,7 @@ safeJsonParse(str) {
                 // that._logger.log(that.INFO, LOG_ID + "(putStream) status code:" + response?.statusCode); // 200
                 that._logger.log(that.DEBUG, LOG_ID + "(putStream) response headers: " + response?.headers["content-type"]); // 'image/png'
                 let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
-                that._logger.log(that.HTTP, LOG_ID + "(putStream) done statusCode : ", response?.statusCode, " for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                that._logger.log(that.HTTP, LOG_ID + "(putStream) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
             }).on("end", () => {
                 // that._logger.log(that.INFO, LOG_ID + "(putStream) successfull");
                 that._logger.log(that.INFO, LOG_ID + "(putStream) put file buffer in Url successfull");
@@ -4304,7 +4304,7 @@ safeJsonParse(str) {
         let req : RequestForQueue = new RequestForQueue();
         req.method = that._delete.bind(this);
         req.params = arguments;
-        let xRainbowRequestNodeId = headers["x-rainbow-request-node-id"] ;
+        let xRainbowRequestNodeId = headers["x-rainbow-correlation-id"] ;
         let whoCallMe = callerName();
         req.label = whoCallMe + " method called (delete) x-rainbow-request-node-id : " + xRainbowRequestNodeId + ", url : " +  (that.serverURL + url).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g);
         if (that.useRequestRateLimiter) {
