@@ -24,6 +24,7 @@ enum RELEASENAMEENUM {
 def getReleaseName(upper) {
     println "getReleaseName - upper : " + upper;
 
+    /*
     if ( upper)  {
        // echo "getReleaseName() will return STS"
         return "LTS";
@@ -32,6 +33,7 @@ def getReleaseName(upper) {
         //echo "getReleaseName() will return sts"
         return "lts";
     }
+    // */
 
     if ( "${env.BRANCH_NAME}" == "STSDelivery" && upper)  {
        // echo "getReleaseName() will return STS"
