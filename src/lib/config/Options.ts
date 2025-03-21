@@ -1,6 +1,6 @@
 "use strict";
 import {Logger} from "../common/Logger";
-import { updateObjectPropertiesFromAnOtherObject } from "../common/Utils";
+import {isNotDefined, updateObjectPropertiesFromAnOtherObject} from "../common/Utils";
 
 export {};
 
@@ -74,8 +74,11 @@ class Options {
         if (!this._options.credentials) {
             this._logger.log("error", LOG_ID + "(constructor) 'credentials' property is not defined. Can't sign-in. Check the documentation to configure it");
             this._hasCredentials = false;
-        } else if (!this._options.credentials.login || !this._options.credentials.password) {
+        } else if (( !this._options.credentials.login || !this._options.credentials.password ) && isNotDefined(this._options.credentials.apikey)) {
             this._logger.log("error", LOG_ID + "(constructor) 'login' or 'password' is not defined. Can't sign-in. Check the documentation to configure it");
+            this._hasCredentials = false;
+        } else if (isNotDefined(this._options.credentials.apikey)) {
+            this._logger.log("error", LOG_ID + "(constructor) 'apikey' is not defined. Can't sign-in. Check the documentation to configure it");
             this._hasCredentials = false;
         }
 

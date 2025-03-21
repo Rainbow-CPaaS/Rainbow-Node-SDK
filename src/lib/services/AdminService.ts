@@ -14842,6 +14842,375 @@ class AdminService extends GenericService {
 
     //endregion multifactor rainbow authentication
 
+    //region apikeys rainbow authentication
+
+    /**
+     * @public
+     * @nodered true
+     * @method deleteApiKey
+     * @since 2.36.0
+     * @instance
+     * @async
+     * @param {string} apiKeyId API_KEY unique identifier
+     * @category Apikeys Rainbow Authentication
+     * @description
+     *     This API allows Rainbow users to delete an Api Key. </BR>
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Field | Type | Description |
+     * | --- | --- | --- |
+     * | status | String | Deletion status |
+     * | data | Object | Response Object. |
+     * | id  | String | The identifier of the API_KEY |
+     * | scope | String\[\] | The scope of the API_KEY |
+     * | description | String | The description of the API_KEY |
+     * | isActive | Boolean | Indicate if the API_KEY is active |
+     * | userId | String | The identifier of the API_KEY owner |
+     * | loginEmail | String | The Email of the API_KEY owner |
+     * | expirationDate optional | Date-Time | The expiration date of the API_KEY |
+     * | creationDate | Date-Time | The creation date of the API_KEY |
+     * | lastUpdateDate optional | Date-Time | The last date of update of the API_KEY |
+     * | createdBy | Object | The object containing some information about the creator of the API_KEY |
+     * | userId | String | The identifier the creator of the API_KEY |
+     * | loginEmail | String | The Email the creator of the API_KEY |
+     * | appId | String | The identifier of the application associated to the creator of the API_KEY |
+     * | appName | String | The name of the application associated to the creator of the API_KEY |
+     * | clientMetadata | Object | The metadata of the client |
+     *
+     */
+    deleteApiKey(apiKeyId: string) {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteApiKey) apiKeyId : ", that._logger.stripStringForLogs(apiKeyId));
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._rest.deleteApiKey(apiKeyId).then((result) => {
+                    that._logger.log(that.DEBUG, LOG_ID + "(deleteApiKey) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(deleteApiKey) Successfully - result : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log(that.ERROR, LOG_ID + "(deleteApiKey) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log(that.ERROR, LOG_ID + "(deleteApiKey) CATCH error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteApiKey) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @nodered true
+     * @method generateApiKey
+     * @since 2.36.0
+     * @instance
+     * @async
+     * @param {Array<string>} scope The scope of the API_KEY. Allowed values: all
+     * @param {string} description The description of the API_KEY
+     * @param {boolean} isActive Indicate if the API_KEY is active
+     * @param {string} expirationDate The expiration date of the API_KEY. If expirationDate is null or not set, the API_KEY never expire
+     * @category Apikeys Rainbow Authentication
+     * @description
+     *     This API allows Rainbow users create an API_KEY for authentication. </BR>
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Field | Type | Description |
+     * | --- | --- | --- |
+     * | id  | String | The identifier of the API_KEY |
+     * | apiKey | String | The value of the API_KEY |
+     * | scope | String\[\] | The scope of the API_KEY |
+     * | description | String | The description of the API_KEY |
+     * | isActive | Boolean | Indicate if the API_KEY is active |
+     * | userId | String | The identifier of the API_KEY owner |
+     * | loginEmail | String | The Email of the API_KEY owner |
+     * | expirationDate optional | Date-Time | The expiration date of the API_KEY |
+     * | creationDate | Date-Time | The creation date of the API_KEY |
+     * | lastUpdateDate optional | Date-Time | The last date of update of the API_KEY |
+     * | createdBy | Object | The object containing some information about the creator of the API_KEY |
+     * | userId | String | The identifier the creator of the API_KEY |
+     * | loginEmail | String | The Email the creator of the API_KEY |
+     * | appId | String | The identifier of the application associated to the creator of the API_KEY |
+     * | appName | String | The name of the application associated to the creator of the API_KEY |
+     * | clientMetadata | Object | The metadata of the client |
+     *
+     */
+    generateApiKey (scope:Array<string> = ["all"], description: string = "", isActive: boolean = true, expirationDate?: string): Promise<any> {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(generateApiKey) description : ", that._logger.stripStringForLogs(description));
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._rest.generateApiKey(scope, description, isActive, expirationDate).then((result) => {
+                    that._logger.log(that.DEBUG, LOG_ID + "(generateApiKey) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(generateApiKey) Successfully - result : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log(that.ERROR, LOG_ID + "(generateApiKey) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log(that.ERROR, LOG_ID + "(generateApiKey) CATCH error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(generateApiKey) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @nodered true
+     * @method getAllApiKey
+     * @since 2.36.0
+     * @instance
+     * @async
+     * @param {boolean} isActive Allows to filter API_KEYs list on the isActive value provided in this option.
+     * @param {string} fromCreationDate Allows to filter API_KEYs list on the fromCreationDate value provided in this option.
+     * @param {string} toCreationDate Allows to filter API_KEYs list on the toCreationDate value provided in this option.
+     * @param {string} limit Allow to specify the number of API_KEYs to retrieve. Default value: 100
+     * @param {string} offset Allow to specify the position of first API_KEY to retrieve (first API_KEY if not specified). Warning: if offset > total, no results are returned.
+     * @param {string} sortField Sort API_KEYs list based on the given field. Default value: creationDate
+     * @param {string} sortOrder Specify order when sorting API_KEYs list. Default value: -1. Allowed values: -1, 1
+     * @param {string} format Allows to retrieve more or less details in response.</br>
+     * - small: id, description </br>
+     * - medium: id, description scope isActive expirationDate</br>
+     * - full: all of fields, except apiKey value</br>
+     * </br>
+     * Allowed values: small, medium, full
+     * @param {string} userId Allows an administrator to retrieve API_KEYs of a specific user.</br>
+     *     userId is not taken into account if the logged in user has not administration role(s)</br>
+     *     if userId parameter is not set, the API_KEYs of the logged in user are listed</br>
+     *     if userId parameter is set, the logged in user must be administrator of this user's company</br>
+     * @category Apikeys Rainbow Authentication
+     * @description
+     *     This API Allow a user to get all his API_KEYs, or an administrator to get all API_KEYs of a user that he's responsible. </BR>
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Field | Type | Description |
+     * | --- | --- | --- |
+     * | data | Object\[\] | Response Object. |
+     * | id  | String | The identifier of the API_KEY |
+     * | scope | String\[\] | The scope of the API_KEY |
+     * | description | String | The description of the API_KEY |
+     * | isActive | Boolean | Indicate if the API_KEY is active |
+     * | userId | String | The identifier of the API_KEY owner |
+     * | loginEmail | String | The Email of the API_KEY owner |
+     * | expirationDate optional | Date-Time | The expiration date of the API_KEY |
+     * | creationDate | Date-Time | The creation date of the API_KEY |
+     * | lastUpdateDate optional | Date-Time | The last date of update of the API_KEY |
+     * | createdBy | Object | The object containing some information about the creator of the API_KEY |
+     * | userId | String | The identifier the creator of the API_KEY |
+     * | loginEmail | String | The Email the creator of the API_KEY |
+     * | appId | String | The identifier of the application associated to the creator of the API_KEY |
+     * | appName | String | The name of the application associated to the creator of the API_KEY |
+     * | clientMetadata | Object | The metadata of the client |
+     *
+     */
+    getAllApiKey(isActive:boolean = undefined, fromCreationDate:string = undefined, toCreationDate:string = undefined, limit:number = 100, offset:number = 0, sortField:string = "creationDate", sortOrder : number = -1, format : string = "small", userId : string): Promise<any> {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getAllApiKey)");
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._rest.getAllApiKey(isActive, fromCreationDate, toCreationDate, limit, offset, sortField, sortOrder, format, userId).then((result) => {
+                    that._logger.log(that.DEBUG, LOG_ID + "(getAllApiKey) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getAllApiKey) Successfully - result : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log(that.ERROR, LOG_ID + "(getAllApiKey) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log(that.ERROR, LOG_ID + "(getAllApiKey) CATCH error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getAllApiKey) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @nodered true
+     * @method getApiKey
+     * @since 2.36.0
+     * @instance
+     * @async
+     * @param {string} apiKeyId API_KEY unique identifier.
+     * @category Apikeys Rainbow Authentication
+     * @description
+     *     This API Allow a user to get an API_KEYs. </BR>
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Field | Type | Description |
+     * | --- | --- | --- |
+     * | data | Object\[\] | Response Object. |
+     * | id  | String | The identifier of the API_KEY |
+     * | scope | String\[\] | The scope of the API_KEY |
+     * | description | String | The description of the API_KEY |
+     * | isActive | Boolean | Indicate if the API_KEY is active |
+     * | userId | String | The identifier of the API_KEY owner |
+     * | loginEmail | String | The Email of the API_KEY owner |
+     * | expirationDate optional | Date-Time | The expiration date of the API_KEY |
+     * | creationDate | Date-Time | The creation date of the API_KEY |
+     * | lastUpdateDate optional | Date-Time | The last date of update of the API_KEY |
+     * | createdBy | Object | The object containing some information about the creator of the API_KEY |
+     * | userId | String | The identifier the creator of the API_KEY |
+     * | loginEmail | String | The Email the creator of the API_KEY |
+     * | appId | String | The identifier of the application associated to the creator of the API_KEY |
+     * | appName | String | The name of the application associated to the creator of the API_KEY |
+     * | clientMetadata | Object | The metadata of the client |
+     *
+     */
+    getApiKey(apiKeyId:string = undefined) {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getApiKey) apiKeyId : ", that._logger.stripStringForLogs(apiKeyId));
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._rest.getApiKey(apiKeyId).then((result) => {
+                    that._logger.log(that.DEBUG, LOG_ID + "(getApiKey) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getApiKey) Successfully - result : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log(that.ERROR, LOG_ID + "(getApiKey) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log(that.ERROR, LOG_ID + "(getApiKey) CATCH error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getApiKey) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @nodered true
+     * @method getCurrentApiKey
+     * @since 2.36.0
+     * @instance
+     * @async
+     * @category Apikeys Rainbow Authentication
+     * @description
+     *     This API Allow a user to get data of the currently used API_KEY. </BR>
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Field | Type | Description |
+     * | --- | --- | --- |
+     * | data | Object\[\] | Response Object. |
+     * | id  | String | The identifier of the API_KEY |
+     * | scope | String\[\] | The scope of the API_KEY |
+     * | description | String | The description of the API_KEY |
+     * | isActive | Boolean | Indicate if the API_KEY is active |
+     * | userId | String | The identifier of the API_KEY owner |
+     * | loginEmail | String | The Email of the API_KEY owner |
+     * | expirationDate optional | Date-Time | The expiration date of the API_KEY |
+     * | creationDate | Date-Time | The creation date of the API_KEY |
+     * | lastUpdateDate optional | Date-Time | The last date of update of the API_KEY |
+     * | createdBy | Object | The object containing some information about the creator of the API_KEY |
+     * | userId | String | The identifier the creator of the API_KEY |
+     * | loginEmail | String | The Email the creator of the API_KEY |
+     * | appId | String | The identifier of the application associated to the creator of the API_KEY |
+     * | appName | String | The name of the application associated to the creator of the API_KEY |
+     * | clientMetadata | Object | The metadata of the client |
+     *
+     */
+    getCurrentApiKey() {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getCurrentApiKey)");
+
+        return new Promise(function (resolve, reject) {
+            try {
+                let apiKeyId:string = that._rest.credentials?.apiKey;
+                that._rest.getCurrentApiKey(apiKeyId).then((result) => {
+                    that._logger.log(that.DEBUG, LOG_ID + "(getCurrentApiKey) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getCurrentApiKey) Successfully - result : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log(that.ERROR, LOG_ID + "(getCurrentApiKey) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log(that.ERROR, LOG_ID + "(getCurrentApiKey) CATCH error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getCurrentApiKey) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @nodered true
+     * @method updateApiKey
+     * @since 2.36.0
+     * @instance
+     * @async
+     * @param {string} apiKeyId API_KEY unique identifier
+     * @param {string} description The description of the API_KEY
+     * @param {boolean} isActive Indicate if the API_KEY is active
+     * @param {string} expirationDate The expiration date of the API_KEY. If expirationDate is null or not set, the API_KEY never expire
+     * @category Apikeys Rainbow Authentication
+     * @description
+     *     This API allows Rainbow users create an API_KEY for authentication. </BR>
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Field | Type | Description |
+     * | --- | --- | --- |
+     * | id  | String | The identifier of the API_KEY |
+     * | apiKey | String | The value of the API_KEY |
+     * | scope | String\[\] | The scope of the API_KEY |
+     * | description | String | The description of the API_KEY |
+     * | isActive | Boolean | Indicate if the API_KEY is active |
+     * | userId | String | The identifier of the API_KEY owner |
+     * | loginEmail | String | The Email of the API_KEY owner |
+     * | expirationDate optional | Date-Time | The expiration date of the API_KEY |
+     * | creationDate | Date-Time | The creation date of the API_KEY |
+     * | lastUpdateDate optional | Date-Time | The last date of update of the API_KEY |
+     * | createdBy | Object | The object containing some information about the creator of the API_KEY |
+     * | userId | String | The identifier the creator of the API_KEY |
+     * | loginEmail | String | The Email the creator of the API_KEY |
+     * | appId | String | The identifier of the application associated to the creator of the API_KEY |
+     * | appName | String | The name of the application associated to the creator of the API_KEY |
+     * | clientMetadata | Object | The metadata of the client |
+     *
+     */
+    updateApiKey(apiKeyId : string, description : string, isActive : boolean, expirationDate: string = undefined) : Promise<any> {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateApiKey)");
+
+        return new Promise(function (resolve, reject) {
+            try {
+                that._rest.updateApiKey(apiKeyId, description, isActive, expirationDate).then((result) => {
+                    that._logger.log(that.DEBUG, LOG_ID + "(updateApiKey) Successfully - sent. ");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(updateApiKey) Successfully - result : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log(that.ERROR, LOG_ID + "(updateApiKey) ErrorManager error : ", err);
+                    return reject(err);
+                });
+
+            } catch (err) {
+                that._logger.log(that.ERROR, LOG_ID + "(updateApiKey) CATCH error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(updateApiKey) CATCH error !!! : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    //endregion apikeys rainbow authentication
+
     //region Customer Care
 
     //region Customer Care - Administrators Group

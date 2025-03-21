@@ -6,7 +6,7 @@ import {Contact, NameUpdatePrio} from "../common/models/Contact";
 import * as util from 'util';
 import * as md5 from 'md5';
 import * as path from 'path';
-import {isStarted, logEntryExit} from "../common/Utils";
+import {getRandomInt, isStarted, logEntryExit} from "../common/Utils";
 import {PresenceService} from "./PresenceService";
 import {EventEmitter} from "events";
 import {Logger} from "../common/Logger";
@@ -212,6 +212,7 @@ class ContactsService extends GenericService {
         // this._eventEmitter.on("evt_internal_userinvitecanceled", this._onUserInviteCanceled.bind(this));
         this._eventEmitter.on("evt_internal_onrosters", this._onRostersUpdate.bind(this));
         this._eventEmitter.on("evt_internal_rainbowcpaasreceived", this._onrainbowcpaasreceived.bind(this));
+        this._eventEmitter.on("evt_internal_userpasswordconfig", this._onuserpasswordconfig.bind(this));
 
     }
 
@@ -3968,6 +3969,29 @@ class ContactsService extends GenericService {
         that._logger.log(that.INTERNAL, LOG_ID + "(_rainbowcpaasreceived) enter rainbowcpaasdata : ", rainbowcpaasdata);
 
         this._eventEmitter.emit("evt_internal_onrainbowcpaasreceived", rainbowcpaasdata);
+    }
+
+    /**
+     * @private
+     * @method _onuserpasswordconfig
+     * @instance
+     * @param {Object} userPasswordConfigdata {action: string, contextid: string} The action on password.
+     * @description
+     *      Method called when the user's password is managed. <br>
+     */
+    _onuserpasswordconfig(userPasswordConfigdata : any) {
+        let that = this;
+        that._logger.log(that.DEBUG, LOG_ID + "(_onuserpasswordconfig) enter userPasswordConfigdata : ", userPasswordConfigdata);
+
+        switch (userPasswordConfigdata.action) {
+            case "update":
+                setTimeout(() => {
+                    that._eventEmitter.emit("evt_internal_signinrequired");
+                }, 5000 + getRandomInt(5000));
+                break;
+            default:
+                break;
+        }
     }
 
     //endregion Events

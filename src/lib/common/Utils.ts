@@ -122,6 +122,18 @@ let isDefined = function(value) {
     return _isDefined;
 }
 
+let isDefinedAndNotEmpty = function(value) {
+    return (isDefined(value) && !isNullOrEmpty(value));
+}
+
+let isNotDefined = function(value) {
+    return (! isDefined(value));
+}
+
+let isNotDefinedOrEmpty = function(value) {
+    return ((! isDefined(value)) || value === "");
+}
+
 let isNumber = function  isNumber(data) {
     return (typeof data === 'number' && !(isNaN(data)));
 }
@@ -297,8 +309,8 @@ function addDaysToDate(date, days) {
     return result;
 }
 
-function addParamToUrl(urlParams : Array<string>, paramName : string, paramValue : any) {
-    if (paramValue == undefined || paramValue == null) {
+function addParamToUrl(urlParams : Array<string>, paramName : string, paramValue : any,  addEmptyParam: boolean = false) {
+    if (!addEmptyParam && isNotDefined(paramValue)) {
         return;
     } 
     if (paramName && urlParams) {
@@ -313,7 +325,7 @@ function addParamToUrl(urlParams : Array<string>, paramName : string, paramValue
 }
 
 function addPropertyToObj(objetToUpdate : Object, methodName : string, methodValue : any, addEmptyProperty: boolean = false) {
-    if (!addEmptyProperty && ( methodValue === null || methodValue === undefined )) {
+    if (!addEmptyProperty && isNotDefined(methodValue)) {
         return;
     } 
     if (objetToUpdate && methodName && (typeof objetToUpdate === "object" || typeof objetToUpdate === "function") ) {
@@ -1132,6 +1144,9 @@ export let objToExport = {
     equalIgnoreCase,
     isNullOrEmpty,
     isDefined,
+    isDefinedAndNotEmpty,
+    isNotDefined,
+    isNotDefinedOrEmpty,
     isNumber,
     isString,
     Deferred,
@@ -1191,6 +1206,9 @@ export {
     equalIgnoreCase,
     isNullOrEmpty,
     isDefined,
+    isDefinedAndNotEmpty,
+    isNotDefined,
+    isNotDefinedOrEmpty,
     isNumber,
     isString,
     Deferred,
@@ -1249,6 +1267,9 @@ export default {
     equalIgnoreCase,
     isNullOrEmpty,
     isDefined,
+    isDefinedAndNotEmpty,
+    isNotDefined,
+    isNotDefinedOrEmpty,
     isNumber,
     isString,
     Deferred,

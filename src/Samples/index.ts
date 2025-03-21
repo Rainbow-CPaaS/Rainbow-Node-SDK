@@ -25,7 +25,7 @@ import {
     findAllPropInJSONByPropertyName,
     getTextFromJSONProperty,
     writeArrayToFile,
-    readArrayFromFile, addParamToUrl, getStoreStanzaValue
+    readArrayFromFile, addParamToUrl, getStoreStanzaValue, isDefined
 } from "../lib/common/Utils";
 import {XMPPUTils} from "../lib/common/XMPPUtils";
 import {TimeOutManager} from "../lib/common/TimeOutManager";
@@ -422,6 +422,7 @@ let expressEngine = undefined;
         "credentials": {
             "login": "",  // The Rainbow email account to use
             "password": "",
+            "apikey":""
         },
         // Application identifier
         "application": {
@@ -797,6 +798,9 @@ let expressEngine = undefined;
         }
         if (`${val}`.startsWith("password=")) {
             options.credentials.password = `${val}`.substring(9);
+        }
+        if (`${val}`.startsWith("apikey=")) {
+            options.credentials.apikey = `${val}`.substring(7);
         }
         if (`${val}`.startsWith("host=")) {
             options.rainbow.host = `${val}`.substring(5);
@@ -1894,6 +1898,14 @@ let expressEngine = undefined;
             rainbowSDK.contacts.joinContacts(contactVincent00, tab);
         }
 
+        async testmockuserPasswordChanged() {
+            let stanza = "<message xmlns=\"jabber:client\" xml:lang=\"en\" to=\"adcf613d42984a79a7bebccc80c2b65e@openrainbow.net\" from=\"pcloud_enduser_8@openrainbow.net/11279522985945659245966242\" type=\"management\" id=\"6b34fdc2-f4d3-4063-a986-c910b13a259d_7\">" +
+                "<no-store xmlns=\"urn:xmpp:hints\"/>" +
+                "<userpassword xmlns=\"jabber:iq:configuration\" action=\"update\"/>" +
+                "</message>";
+            await rainbowSDK._core._xmpp.mockStanza(stanza);
+        }
+
         async testsendSubscription() {
             let contactEmailToSearchVincent00 = "vincent00@vbe.test.openrainbow.net";
             let contactEmailToSearchVincent01 = "vincent01@vbe.test.openrainbow.net";
@@ -2381,7 +2393,7 @@ let expressEngine = undefined;
         // */
         }
 
-        async testremoveAllMessages(contactEmailToSearch : string = "vincent01@vbe.test.openrainbow.net") {
+        async testremoveAllMessages(contactEmailToSearch: string = "vincent01@vbe.test.openrainbow.net") {
             //let that = this;
             //let contactIdToSearch = "5bbdc3812cf496c07dd89128"; // vincent01 vberder
             //let contactIdToSearch = "5bbb3ef9b0bb933e2a35454b"; // vincent00 official
@@ -2408,7 +2420,7 @@ let expressEngine = undefined;
             _logger.log("debug", "MAIN - testremoveAllMessages - conversation with messages removed : ", conversationWithMessagesRemoved);
         }
 
-    async  testsendMessageToConversationForContact(nbMsgToSend = 2) {
+        async testsendMessageToConversationForContact(nbMsgToSend = 2) {
             //let that = this;
             //let contactIdToSearch = "5bbdc3812cf496c07dd89128"; // vincent01 vberder
             //let contactIdToSearch = "5bbb3ef9b0bb933e2a35454b"; // vincent00 official
@@ -2417,7 +2429,7 @@ let expressEngine = undefined;
             let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
             // Retrieve the associated conversation
             let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
-        //let nbMsgToSend = 2;
+            //let nbMsgToSend = 2;
             let msgsSent = [];
             for (let i = 1; i <= nbMsgToSend; i++) {
                 let now = new Date().getTime();
@@ -2436,48 +2448,48 @@ let expressEngine = undefined;
             }
             // let conversationWithMessagesRemoved = await rainbowSDK.conversations.removeAllMessages(conversation);
             //_logger.log("debug", "MAIN - testsendMessageToConversationForContact - conversation with messages removed : ", conversationWithMessagesRemoved);
-    }
+        }
 
-    async  testsendApplicationMessageContactJid() {
-        //let that = this;
-        let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
-        // Retrieve a contact by its id
-        let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
-        // Retrieve the associated conversation
-        let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
-        let now = new Date().getTime();
-        let xmlElements = new Element('instance', {'xmlns': 'tests:rainbownodesdk', 'id': now });
-        xmlElements.cnode(new Element('displayName').t("My displayName"));
-        xmlElements.cnode(new Element('description').t("My description"));
-        // Send message
-        let msgSent = await rainbowSDK.im.sendApplicationMessageContactJid(contact.jid, xmlElements);
-        //_logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
-        //_logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
-        //a rainbow_onrainbowcpaasreceived event should be received on other side.
-    }
-
-    async  testsendApplicationMessageBubbleJid() {
-        //let that = this;
-        _logger.log("debug", "MAIN - testsendApplicationMessageBubbleJid - getAll bubbles : ", rainbowSDK.bubbles.getAll());
-
-        //let bubbles = rainbowSDK.bubbles.getAllOwnedBubbles();
-        let bubbles = rainbowSDK.bubbles.getAllActiveBubbles();
-        _logger.log("debug", "MAIN - testsendApplicationMessageBubbleJid - getAllOwnedBubbles bubble : ", bubbles);
-        let bubble = bubbles.find(element => element.name==="bulle1")
-        _logger.log("debug", "MAIN - testsendApplicationMessageBubbleJid -  bubble \"bulle1\" : ", bubble);
-        if (bubble) {
-            let bubbleJid = bubble.jid;
+        async testsendApplicationMessageContactJid() {
+            //let that = this;
+            let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
+            // Retrieve a contact by its id
+            let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+            // Retrieve the associated conversation
+            let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
             let now = new Date().getTime();
             let xmlElements = new Element('instance', {'xmlns': 'tests:rainbownodesdk', 'id': now});
             xmlElements.cnode(new Element('displayName').t("My displayName"));
             xmlElements.cnode(new Element('description').t("My description"));
             // Send message
-            let msgSent = await rainbowSDK.im.sendApplicationMessageBubbleJid(bubbleJid, xmlElements);
+            let msgSent = await rainbowSDK.im.sendApplicationMessageContactJid(contact.jid, xmlElements);
             //_logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
             //_logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
             //a rainbow_onrainbowcpaasreceived event should be received on other side.
         }
-    }
+
+        async testsendApplicationMessageBubbleJid() {
+            //let that = this;
+            _logger.log("debug", "MAIN - testsendApplicationMessageBubbleJid - getAll bubbles : ", rainbowSDK.bubbles.getAll());
+
+            //let bubbles = rainbowSDK.bubbles.getAllOwnedBubbles();
+            let bubbles = rainbowSDK.bubbles.getAllActiveBubbles();
+            _logger.log("debug", "MAIN - testsendApplicationMessageBubbleJid - getAllOwnedBubbles bubble : ", bubbles);
+            let bubble = bubbles.find(element => element.name==="bulle1")
+            _logger.log("debug", "MAIN - testsendApplicationMessageBubbleJid -  bubble \"bulle1\" : ", bubble);
+            if (bubble) {
+                let bubbleJid = bubble.jid;
+                let now = new Date().getTime();
+                let xmlElements = new Element('instance', {'xmlns': 'tests:rainbownodesdk', 'id': now});
+                xmlElements.cnode(new Element('displayName').t("My displayName"));
+                xmlElements.cnode(new Element('description').t("My description"));
+                // Send message
+                let msgSent = await rainbowSDK.im.sendApplicationMessageBubbleJid(bubbleJid, xmlElements);
+                //_logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
+                //_logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
+                //a rainbow_onrainbowcpaasreceived event should be received on other side.
+            }
+        }
 
         /*
             testeventrainbow_onconversationchanged() {
@@ -2512,113 +2524,114 @@ let expressEngine = undefined;
                     _logger.log("debug", "MAIN - testsendMessageToConversationForContact - wait for message to be in conversation : ", msgSent);
                     await pause(300);
                     // */
-            /* await Utils.until(() => {
-                return conversation.getMessageById(msgSent.id)!==undefined;
-            }, "Wait for message to be added in conversation num : " + i);
-            let msgDeleted = await rainbowSDK.conversations.deleteMessage(conversation, msgSent.id);
-            _logger.log("debug", "MAIN - testsendMessageToConversationForContact - deleted in conversation the message : ", msgDeleted);
-            // */
-/*        }
-    }
-// */
+        /* await Utils.until(() => {
+            return conversation.getMessageById(msgSent.id)!==undefined;
+        }, "Wait for message to be added in conversation num : " + i);
+        let msgDeleted = await rainbowSDK.conversations.deleteMessage(conversation, msgSent.id);
+        _logger.log("debug", "MAIN - testsendMessageToConversationForContact - deleted in conversation the message : ", msgDeleted);
+        // */
 
-    testeventrainbow_onconversationchanged() {
-        _logger.log("info", "MAIN - (testeventrainbow_onconversationchanged) ", _logger.colors.cyan("rainbow_onconversationchanged"), " started.");
-        rainbowSDK.events.on("rainbow_onconversationchanged", async function (conversation) {
+        /*        }
+            }
+        // */
+
+        testeventrainbow_onconversationchanged() {
+            _logger.log("info", "MAIN - (testeventrainbow_onconversationchanged) ", _logger.colors.cyan("rainbow_onconversationchanged"), " started.");
+            rainbowSDK.events.on("rainbow_onconversationchanged", async function (conversation) {
+                try {
+                    _logger.log("debug", "MAIN - (testeventrainbow_onconversationchanged) ", _logger.colors.cyan("rainbow_onconversationchanged"), " conversation.name : ", conversation.name, ", conversation.id : ", conversation.id, ", conversation.messages.length : ", conversation?.messages?.length);
+                } catch (err) {
+                    _logger.log("error", "MAIN - (testeventrainbow_onconversationchanged) rainbow_onconversationchanged CATCH Error !!!");
+                }
+            });
+        }
+
+        testLogs() {
+            /*
+             "error" = 0,
+     "warn" = 1,
+     "info" = 2,
+     "trace" = 3,
+     "http" = 4,
+     "xmpp" = 5,
+     "debug" = 6,
+     "internalerror" = 7,
+     "internal" = 8,
+             */
+            _logger.log("error", "MAIN - testLogs error.");
+            _logger.log("warn", "MAIN - testLogs warn.");
+            _logger.log("info", "MAIN - testLogs info.");
+            _logger.log("trace", "MAIN - testLogs trace.");
+            _logger.log("http", "MAIN - testLogs http.");
+            _logger.log("xmpp", "MAIN - testLogs xmpp.");
+            _logger.log("debug", "MAIN - testLogs debug.");
+            _logger.log("internalerror", "MAIN - testLogs internalerror.");
+            _logger.log("internal", "MAIN - testLogs internal.");
+        }
+
+        testMessagesQueue() {
             try {
-                _logger.log("debug", "MAIN - (testeventrainbow_onconversationchanged) ", _logger.colors.cyan("rainbow_onconversationchanged"), " conversation.name : ", conversation.name, ", conversation.id : ", conversation.id, ", conversation.messages.length : ", conversation?.messages?.length);
+                let msg1 = {id: "MSG1", content: "message1"};
+                let msg2 = {id: "MSG2", content: "message2"};
+                let msg3 = {id: "MSG3", content: "message3"};
+                let msgQueue = new MessagesQueue(_logger, 10);
+
+                msgQueue.updateMessageIfExistsElseEnqueueIt(msg1, true);
+                msgQueue.updateMessageIfExistsElseEnqueueIt(msg2, true);
+                msgQueue.updateMessageIfExistsElseEnqueueIt(msg3, true);
+                _logger.log("debug", "MAIN - testMessagesQueue after store 3 messages msgQueue : ", msgQueue);
+                _logger.log("debug", "MAIN - testMessagesQueue msgQueue[0] : ", msgQueue[0]);
+                // _logger.log("debug","MAIN - testMessagesQueue msgQueue.queue[0] : ", msgQueue.queue[0]);
+
+                // update an already existing message
+                let msg2ToUpdate = {id: "MSG2", content: "message2Update"};
+                msgQueue.updateMessageIfExistsElseEnqueueIt(msg2ToUpdate, true);
+                _logger.log("debug", "MAIN - testMessagesQueue after update message (id=MSG2) msgQueue.toSmallString() : ", msgQueue.toSmallString());
+
+                // remove a message
+                msgQueue.removeMessage(msg2);
+                _logger.log("debug", "MAIN - testMessagesQueue after removeMessage (id=MSG2) msgQueue : ", msgQueue);
+
+                let msgIter = {id: "MSGiter", content: "messageIter"};
+                for (let i = 0; i < 9; i++) {
+                    msgIter = {id: "MSGiter" + i, content: "messageIter" + i};
+                    msgQueue.updateMessageIfExistsElseEnqueueIt(msgIter, true);
+                }
+                _logger.log("debug", "MAIN - testMessagesQueue after adding 8 message to overflow the queue size msgQueue : ", msgQueue);
+                msgQueue.clear();
+                _logger.log("debug", "MAIN - testMessagesQueue after clear message : ", msgQueue);
             } catch (err) {
-                _logger.log("error", "MAIN - (testeventrainbow_onconversationchanged) rainbow_onconversationchanged CATCH Error !!!");
+                _logger.log("error", "MAIN - testMessagesQueue CATCH Error !!! error : ", err);
             }
-        });
-    }
+        }
 
-    testLogs () {
-        /*
-         "error" = 0,
- "warn" = 1,
- "info" = 2,
- "trace" = 3,
- "http" = 4,
- "xmpp" = 5,
- "debug" = 6,
- "internalerror" = 7,
- "internal" = 8,
-         */
-        _logger.log("error","MAIN - testLogs error.");
-        _logger.log("warn","MAIN - testLogs warn.");
-        _logger.log("info","MAIN - testLogs info.");
-        _logger.log("trace","MAIN - testLogs trace.");
-        _logger.log("http","MAIN - testLogs http.");
-        _logger.log("xmpp","MAIN - testLogs xmpp.");
-        _logger.log("debug","MAIN - testLogs debug.");
-        _logger.log("internalerror","MAIN - testLogs internalerror.");
-        _logger.log("internal","MAIN - testLogs internal.");
-    }
-
-    testMessagesQueue () {
-        try {
-            let msg1 = {id: "MSG1", content: "message1"};
-            let msg2 = {id: "MSG2", content: "message2"};
-            let msg3 = {id: "MSG3", content: "message3"};
-            let msgQueue = new MessagesQueue(_logger, 10);
-
-            msgQueue.updateMessageIfExistsElseEnqueueIt(msg1, true);
-            msgQueue.updateMessageIfExistsElseEnqueueIt(msg2, true);
-            msgQueue.updateMessageIfExistsElseEnqueueIt(msg3, true);
-            _logger.log("debug", "MAIN - testMessagesQueue after store 3 messages msgQueue : ", msgQueue);
-            _logger.log("debug", "MAIN - testMessagesQueue msgQueue[0] : ", msgQueue[0]);
-            // _logger.log("debug","MAIN - testMessagesQueue msgQueue.queue[0] : ", msgQueue.queue[0]);
-
-            // update an already existing message
-            let msg2ToUpdate = {id: "MSG2", content: "message2Update"};
-            msgQueue.updateMessageIfExistsElseEnqueueIt(msg2ToUpdate, true);
-            _logger.log("debug", "MAIN - testMessagesQueue after update message (id=MSG2) msgQueue.toSmallString() : ", msgQueue.toSmallString());
-
-            // remove a message
-            msgQueue.removeMessage(msg2);
-            _logger.log("debug", "MAIN - testMessagesQueue after removeMessage (id=MSG2) msgQueue : ", msgQueue);
-
-            let msgIter = {id: "MSGiter", content: "messageIter"};
-            for (let i = 0; i < 9; i++) {
-                msgIter = {id: "MSGiter" + i, content: "messageIter" + i};
-                msgQueue.updateMessageIfExistsElseEnqueueIt(msgIter, true);
+        async testsendMessageToConversationForContactSeveralTimes(contactEmailToSearch = "vincent03@vbe.test.openrainbow.net", nbMsgToSend = 2, removeAllMessagesBeforeSend = false) {
+            //let that = this;
+            // Retrieve a contact by its id
+            let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+            // Retrieve the associated conversation
+            let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
+            if (removeAllMessagesBeforeSend && conversation?.id) {
+                await rainbowSDK.conversations.deleteAllMessageInOneToOneConversation(conversation);
             }
-            _logger.log("debug", "MAIN - testMessagesQueue after adding 8 message to overflow the queue size msgQueue : ", msgQueue);
-            msgQueue.clear();
-            _logger.log("debug", "MAIN - testMessagesQueue after clear message : ", msgQueue);
-        } catch (err) {
-            _logger.log("error", "MAIN - testMessagesQueue CATCH Error !!! error : ", err);
-        }
-    }
-
-    async  testsendMessageToConversationForContactSeveralTimes(contactEmailToSearch = "vincent03@vbe.test.openrainbow.net", nbMsgToSend = 2, removeAllMessagesBeforeSend = false) {
-        //let that = this;
-        // Retrieve a contact by its id
-        let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
-        // Retrieve the associated conversation
-        let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
-        if (removeAllMessagesBeforeSend && conversation?.id) {
-            await rainbowSDK.conversations.deleteAllMessageInOneToOneConversation(conversation);
-        }
-        let msgsSent = [];
-        for (let i = 1; i <= nbMsgToSend; i++) {
-            let now = new Date().getTime();
-            // Send message
-            //let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "hello num " + i + " from node : " + now, "FR", null, "Le sujet de node : " + now, "middle");
-            let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "hello num " + i + " from node : " + now, "FR", null, "Le sujet de node : " + now);
-            // _logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
-            // _logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
-            msgsSent.push(msgSent);
-            _logger.log("debug", "MAIN - testsendMessageToConversationForContact - wait for message to be in conversation : ", msgSent);
-            await pause(300);
-            /* await Utils.until(() => {
-                return conversation.getMessageById(msgSent.id)!==undefined;
-            }, "Wait for message to be added in conversation num : " + i);
-            let msgDeleted = await rainbowSDK.conversations.deleteMessage(conversation, msgSent.id);
-            _logger.log("debug", "MAIN - testsendMessageToConversationForContact - deleted in conversation the message : ", msgDeleted);
-            // */
-        }
+            let msgsSent = [];
+            for (let i = 1; i <= nbMsgToSend; i++) {
+                let now = new Date().getTime();
+                // Send message
+                //let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "hello num " + i + " from node : " + now, "FR", null, "Le sujet de node : " + now, "middle");
+                let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "hello num " + i + " from node : " + now, "FR", null, "Le sujet de node : " + now);
+                // _logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
+                // _logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
+                msgsSent.push(msgSent);
+                _logger.log("debug", "MAIN - testsendMessageToConversationForContact - wait for message to be in conversation : ", msgSent);
+                await pause(300);
+                /* await Utils.until(() => {
+                    return conversation.getMessageById(msgSent.id)!==undefined;
+                }, "Wait for message to be added in conversation num : " + i);
+                let msgDeleted = await rainbowSDK.conversations.deleteMessage(conversation, msgSent.id);
+                _logger.log("debug", "MAIN - testsendMessageToConversationForContact - deleted in conversation the message : ", msgDeleted);
+                // */
+            }
         }
 
         async testsendMessageToConversationForContactIrles() {
@@ -3058,8 +3071,8 @@ let expressEngine = undefined;
             //_logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
         }
 
-        formatCardLang (msg, utc) {
-            const adaptiveCard =  JSON.stringify( {
+        formatCardLang(msg, utc) {
+            const adaptiveCard = JSON.stringify({
                 "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
                 "type": "AdaptiveCard",
                 "version": "1.3",
@@ -3076,76 +3089,76 @@ let expressEngine = undefined;
                         "style": "compact",  // affiché sous forme de dropdown
                         "isMultiSelect": false,
                         "choices": [
-                            { "title": "Albanian",                   "value": "sq" },
-                            { "title": "Arabic",                     "value": "ar" },
-                            { "title": "Armenian",                   "value": "hy" },
-                            { "title": "Azerbaijani",                "value": "az" },
-                            { "title": "Basque",                     "value": "eu" },
-                            { "title": "Bosnian",                    "value": "bs" },
-                            { "title": "Bulgarian",                  "value": "bg" },
-                            { "title": "Burmese",                    "value": "my" },
-                            { "title": "Catalan",                    "value": "ca" },
-                            { "title": "Chinese (Simplified)",       "value": "zh" },
-                            { "title": "Chinese (Traditional)",      "value": "zh-Hant" },
-                            { "title": "Chinese (Traditional Hong Kong)", "value": "zh-HK" },
-                            { "title": "Chinese (Traditional Taiwan)",    "value": "zh-TW" },
-                            { "title": "Croatian",                   "value": "hr" },
-                            { "title": "Czech",                      "value": "cs" },
-                            { "title": "Danish",                     "value": "da" },
-                            { "title": "Dutch",                      "value": "nl" },
-                            { "title": "English (United Kingdom)",   "value": "en-GB" },
-                            { "title": "English (United States)",    "value": "en" },
-                            { "title": "Estonian",                   "value": "et" },
-                            { "title": "Finnish",                    "value": "fi" },
-                            { "title": "French (Canada)",            "value": "fr-CA" },
-                            { "title": "French (France)",            "value": "fr" },
-                            { "title": "Georgian",                   "value": "ka" },
-                            { "title": "German (Germany)",           "value": "de" },
-                            { "title": "German (Switzerland)",       "value": "de-CH" },
-                            { "title": "Greek",                      "value": "el" },
-                            { "title": "Hausa",                      "value": "ha" },
-                            { "title": "Hebrew",                     "value": "he" },
-                            { "title": "Hindi",                      "value": "hi" },
-                            { "title": "Hungarian",                  "value": "hu" },
-                            { "title": "Icelandic",                  "value": "is" },
-                            { "title": "Indonesian",                 "value": "id" },
-                            { "title": "Italian",                    "value": "it" },
-                            { "title": "Japanese",                   "value": "ja" },
-                            { "title": "Javanese",                   "value": "jv" },
-                            { "title": "Kazakh",                     "value": "kk" },
-                            { "title": "Korean",                     "value": "ko" },
-                            { "title": "Kurdish",                    "value": "ku" },
-                            { "title": "Kyrgyz",                     "value": "ky" },
-                            { "title": "Latvian",                    "value": "lv" },
-                            { "title": "Lithuanian",                 "value": "lt" },
-                            { "title": "Macedonian",                 "value": "mk" },
-                            { "title": "Malay",                      "value": "ms" },
-                            { "title": "Mongolian",                  "value": "mn" },
-                            { "title": "Norwegian",                  "value": "no" },
-                            { "title": "Pashto",                     "value": "ps" },
-                            { "title": "Persian (Farsi)",            "value": "fa" },
-                            { "title": "Polish",                     "value": "pl" },
-                            { "title": "Portuguese (Brazil)",        "value": "pt-BR" },
-                            { "title": "Portuguese (Portugal)",      "value": "pt" },
-                            { "title": "Punjabi",                    "value": "pa" },
-                            { "title": "Romanian",                   "value": "ro" },
-                            { "title": "Russian",                    "value": "ru" },
-                            { "title": "Serbian",                    "value": "sr" },
-                            { "title": "Slovak",                     "value": "sk" },
-                            { "title": "Slovenian",                  "value": "sl" },
-                            { "title": "Somali",                     "value": "so" },
-                            { "title": "Spanish",                    "value": "es" },
-                            { "title": "Swahili",                    "value": "sw" },
-                            { "title": "Swedish",                    "value": "sv" },
-                            { "title": "Tagalog",                    "value": "tl" },
-                            { "title": "Tajik",                      "value": "tg" },
-                            { "title": "Tamil",                      "value": "ta" },
-                            { "title": "Thai",                       "value": "th" },
-                            { "title": "Turkish",                    "value": "tr" },
-                            { "title": "Turkmen",                    "value": "tk" },
-                            { "title": "Ukrainian",                  "value": "uk" },
-                            { "title": "Urdu",                       "value": "ur" },
-                            { "title": "Vietnamese",                 "value": "vi" }
+                            {"title": "Albanian", "value": "sq"},
+                            {"title": "Arabic", "value": "ar"},
+                            {"title": "Armenian", "value": "hy"},
+                            {"title": "Azerbaijani", "value": "az"},
+                            {"title": "Basque", "value": "eu"},
+                            {"title": "Bosnian", "value": "bs"},
+                            {"title": "Bulgarian", "value": "bg"},
+                            {"title": "Burmese", "value": "my"},
+                            {"title": "Catalan", "value": "ca"},
+                            {"title": "Chinese (Simplified)", "value": "zh"},
+                            {"title": "Chinese (Traditional)", "value": "zh-Hant"},
+                            {"title": "Chinese (Traditional Hong Kong)", "value": "zh-HK"},
+                            {"title": "Chinese (Traditional Taiwan)", "value": "zh-TW"},
+                            {"title": "Croatian", "value": "hr"},
+                            {"title": "Czech", "value": "cs"},
+                            {"title": "Danish", "value": "da"},
+                            {"title": "Dutch", "value": "nl"},
+                            {"title": "English (United Kingdom)", "value": "en-GB"},
+                            {"title": "English (United States)", "value": "en"},
+                            {"title": "Estonian", "value": "et"},
+                            {"title": "Finnish", "value": "fi"},
+                            {"title": "French (Canada)", "value": "fr-CA"},
+                            {"title": "French (France)", "value": "fr"},
+                            {"title": "Georgian", "value": "ka"},
+                            {"title": "German (Germany)", "value": "de"},
+                            {"title": "German (Switzerland)", "value": "de-CH"},
+                            {"title": "Greek", "value": "el"},
+                            {"title": "Hausa", "value": "ha"},
+                            {"title": "Hebrew", "value": "he"},
+                            {"title": "Hindi", "value": "hi"},
+                            {"title": "Hungarian", "value": "hu"},
+                            {"title": "Icelandic", "value": "is"},
+                            {"title": "Indonesian", "value": "id"},
+                            {"title": "Italian", "value": "it"},
+                            {"title": "Japanese", "value": "ja"},
+                            {"title": "Javanese", "value": "jv"},
+                            {"title": "Kazakh", "value": "kk"},
+                            {"title": "Korean", "value": "ko"},
+                            {"title": "Kurdish", "value": "ku"},
+                            {"title": "Kyrgyz", "value": "ky"},
+                            {"title": "Latvian", "value": "lv"},
+                            {"title": "Lithuanian", "value": "lt"},
+                            {"title": "Macedonian", "value": "mk"},
+                            {"title": "Malay", "value": "ms"},
+                            {"title": "Mongolian", "value": "mn"},
+                            {"title": "Norwegian", "value": "no"},
+                            {"title": "Pashto", "value": "ps"},
+                            {"title": "Persian (Farsi)", "value": "fa"},
+                            {"title": "Polish", "value": "pl"},
+                            {"title": "Portuguese (Brazil)", "value": "pt-BR"},
+                            {"title": "Portuguese (Portugal)", "value": "pt"},
+                            {"title": "Punjabi", "value": "pa"},
+                            {"title": "Romanian", "value": "ro"},
+                            {"title": "Russian", "value": "ru"},
+                            {"title": "Serbian", "value": "sr"},
+                            {"title": "Slovak", "value": "sk"},
+                            {"title": "Slovenian", "value": "sl"},
+                            {"title": "Somali", "value": "so"},
+                            {"title": "Spanish", "value": "es"},
+                            {"title": "Swahili", "value": "sw"},
+                            {"title": "Swedish", "value": "sv"},
+                            {"title": "Tagalog", "value": "tl"},
+                            {"title": "Tajik", "value": "tg"},
+                            {"title": "Tamil", "value": "ta"},
+                            {"title": "Thai", "value": "th"},
+                            {"title": "Turkish", "value": "tr"},
+                            {"title": "Turkmen", "value": "tk"},
+                            {"title": "Ukrainian", "value": "uk"},
+                            {"title": "Urdu", "value": "ur"},
+                            {"title": "Vietnamese", "value": "vi"}
                         ]
                     }
                 ],
@@ -3154,7 +3167,7 @@ let expressEngine = undefined;
                         "type": "Action.Submit",
                         "title": "Submit",
                         "data": {
-                            "action" : "submitform",
+                            "action": "submitform",
                             "rainbow": {
                                 "type": "messageBack",
                                 "value": {"response": "mood_unhappy"},
@@ -3403,7 +3416,7 @@ let expressEngine = undefined;
                 if (bubble.name.indexOf("testBotName_2024/02/09T10:35:36.732ZGuestUser")!= -1) {
                     _logger.log("debug", "MAIN - testgetMessagesFromConversation Found bubble.name : ", bubble.name, ", bubble.isActive : ", bubble.isActive);
                     rainbowSDK.conversations.getConversationByBubbleId(bubble.id).then((result) => {
-                    //rainbowSDK.conversations.getConversationByBubbleId("65c5fff8f3c002518b2e2a29").then((result) => {
+                        //rainbowSDK.conversations.getConversationByBubbleId("65c5fff8f3c002518b2e2a29").then((result) => {
                         _logger.log("debug", "MAIN - testgetMessagesFromConversation getConversationByBubbleId result : ", result);
                         rainbowSDK.im.getMessagesFromConversation(result).then((res2) => {
                             _logger.log("debug", "MAIN - testgetMessagesFromConversation res2 : ", res2);
@@ -3421,21 +3434,22 @@ let expressEngine = undefined;
                 let msg2 = {id: "MSG2", content: "message2"};
                 let msg3 = {id: "MSG3", content: "message3"};
 
-                class ConversationService{
+                class ConversationService {
                     public conversations: any;
-                    constructor(){
+
+                    constructor() {
                         this.conversations = {};
                     }
 
-                    getConversationById(conversationId : string) {
+                    getConversationById(conversationId: string) {
                         let that = this;
                         _logger.log("debug", "(getConversationById) conversationId : ", conversationId);
                         //that._logger.log(that.DEBUG, LOG_ID + " (getConversationById) conversationId : ", conversationId);
                         if (!this.conversations) {
                             return null;
                         }
-                        let conv =  this.conversations[conversationId];
-                        _logger.log("debug", "(getConversationById) conversation by id, id of conversation found : ", conv ? conv.id : "");
+                        let conv = this.conversations[conversationId];
+                        _logger.log("debug", "(getConversationById) conversation by id, id of conversation found : ", conv ? conv.id:"");
                         /* if (!conv) {
                             conv = that.getConversationByDbId(conversationId);
                             _logger.log("debug", "(getConversationById) conversation not found by id, so searched by dbId result : ", conv);
@@ -3448,7 +3462,7 @@ let expressEngine = undefined;
                 let conversationService = new ConversationService();
 
                 let conversationInitial = {
-                    "id" : "123",
+                    "id": "123",
                     "msgQueue": new MessagesQueue(_logger, 10)
                 };
 
@@ -3472,7 +3486,7 @@ let expressEngine = undefined;
             }
         }
 
-        async testgetMessagesFromConversationHistory(sendMsg:boolean=true, msgType:string = "adaptive") {
+        async testgetMessagesFromConversationHistory(sendMsg: boolean = true, msgType: string = "adaptive") {
             //let that = this;
             let loginEmail = "vincent02@vbe.test.openrainbow.net";
             let contact = await rainbowSDK.contacts.getContactByLoginEmail(loginEmail);
@@ -3480,7 +3494,7 @@ let expressEngine = undefined;
             let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
             let conversationId = conversation.id;
 
-            if (sendMsg && msgType == "adaptive") {
+            if (sendMsg && msgType=="adaptive") {
                 const card = JSON.stringify({
                     $schema: 'http://adaptivecards.io/schemas/adaptive-card.json',
                     version: '1.5',
@@ -3493,10 +3507,10 @@ let expressEngine = undefined;
                 }
                 let utc = new Date().toJSON().replace(/-/g, "_");
                 const sentMessage = await rainbowSDK.im.sendMessageToJid('du texte at ' + utc, conversationId, 'en', content, null);
-                _logger.log("debug", "MAIN - " +  `SENT MESS ID: ${sentMessage.id}, content : ${sentMessage.content}, alternativeContent: `, sentMessage.alternativeContent);
+                _logger.log("debug", "MAIN - " + `SENT MESS ID: ${sentMessage.id}, content : ${sentMessage.content}, alternativeContent: `, sentMessage.alternativeContent);
 
             }
-            if (sendMsg && msgType == "markdown") {
+            if (sendMsg && msgType=="markdown") {
                 const card = JSON.stringify({
                     $schema: 'http://adaptivecards.io/schemas/adaptive-card.json',
                     version: '1.5',
@@ -3509,19 +3523,19 @@ let expressEngine = undefined;
                 }
                 let utc = new Date().toJSON().replace(/-/g, "_");
                 const sentMessage = await rainbowSDK.im.sendMessageToJid('du texte at ' + utc, conversationId, 'en', content, null);
-                _logger.log("debug", "MAIN - " +  `SENT MESS ID: ${sentMessage.id}, content : ${sentMessage.content}, alternativeContent: `, sentMessage.alternativeContent);
+                _logger.log("debug", "MAIN - " + `SENT MESS ID: ${sentMessage.id}, content : ${sentMessage.content}, alternativeContent: `, sentMessage.alternativeContent);
             }
             await pause(10000);
             await rainbowSDK.im.getMessagesFromConversation(conversation, 1);
             if (conversation.messages) {
-                _logger.log("debug", "MAIN - " +  `NB HISTORY MESSAGES : ${conversation.messages.length}`);
+                _logger.log("debug", "MAIN - " + `NB HISTORY MESSAGES : ${conversation.messages.length}`);
                 conversation.messages.forEach(message => {
-                    _logger.log("debug", "MAIN - " +  `message id: ${message.id}, content : ${message.content}, alternativeContent: `, message.alternativeContent);
+                    _logger.log("debug", "MAIN - " + `message id: ${message.id}, content : ${message.content}, alternativeContent: `, message.alternativeContent);
                 });
             }
         }
 
-        async testDecodeXml2js () {
+        async testDecodeXml2js() {
 
 // Exemple d'utilisation
             let resultExpected = [
@@ -3532,7 +3546,7 @@ let expressEngine = undefined;
             ];
 
 
-             let xmlStr = "<content xmlns=\"urn:xmpp:content\" type=\"form/json\">{\"$schema\":\"http://adaptivecards.io/schemas/adaptive-card.json\",\"version\":\"1.5\",\"body\":[{\"type\":\"TextBlock\",\"text\":\"Vive le SDK Node\"}]}</content>";
+            let xmlStr = "<content xmlns=\"urn:xmpp:content\" type=\"form/json\">{\"$schema\":\"http://adaptivecards.io/schemas/adaptive-card.json\",\"version\":\"1.5\",\"body\":[{\"type\":\"TextBlock\",\"text\":\"Vive le SDK Node\"}]}</content>";
             // */
             let jsonedObject = await getJsonFromXML(xmlStr);
             let parsedObject = jsonedObject.content;
@@ -3561,6 +3575,7 @@ let expressEngine = undefined;
             // */
             //console.log(JSON.stringify(decoded, null, 2));
         }
+
         //endregion Messages
 
         //region group
@@ -4283,13 +4298,13 @@ let expressEngine = undefined;
             let loginEmail = "mailto:representaive2@al-mydemo.com";
 
             //rainbowSDK.contacts.getContactByLoginEmail(loginEmail).then((contact: any) => {
-              //  if (contact) {
-                   // _logger.log("debug", "MAIN - [testretrieveSentFiles    ] :: getContactByLoginEmail result : ", contact);
-                    rainbowSDK.fileStorage.retrieveSentFiles("5bc462d10ea5fc3e2d1384c7").then((fileDescriptorsReceived) => {
-                        _logger.log("debug", "Main - testretrieveSentFiles, retrieveSentFiles - result : ", fileDescriptorsReceived);
-                    });
+            //  if (contact) {
+            // _logger.log("debug", "MAIN - [testretrieveSentFiles    ] :: getContactByLoginEmail result : ", contact);
+            rainbowSDK.fileStorage.retrieveSentFiles("5bc462d10ea5fc3e2d1384c7").then((fileDescriptorsReceived) => {
+                _logger.log("debug", "Main - testretrieveSentFiles, retrieveSentFiles - result : ", fileDescriptorsReceived);
+            });
 //                }
- //           });
+            //           });
         }
 
         async testgetFileDescriptorsByCompanyId() {
@@ -4590,7 +4605,7 @@ let expressEngine = undefined;
             //    let utc = new Date().toJSON().replace(/-/g, '/');
         }
 
-    async testCreateBubbleWithNoInvitationAndSendMessageAndsendCorrectedMessage() {
+        async testCreateBubbleWithNoInvitationAndSendMessageAndsendCorrectedMessage() {
             let loginEmail = "vincent02@vbe.test.openrainbow.net";
             let appointmentRoom = "testBot";
             //let botappointment = "vincent01@vbe.test.openrainbow.net";
@@ -4679,7 +4694,7 @@ let expressEngine = undefined;
             //    let utc = new Date().toJSON().replace(/-/g, '/');
         }
 
-        async testCreate50BubblesAndActivateThem(nbCreateBubbles : number =50) {
+        async testCreate50BubblesAndActivateThem(nbCreateBubbles: number = 50) {
             let loginEmail = "vincent02@vbe.test.openrainbow.net";
             let appointmentRoom = "testBot";
             //let botappointment = "vincent01@vbe.test.openrainbow.net";
@@ -5248,11 +5263,11 @@ let expressEngine = undefined;
             });
         }
 
-       async testdeleteAllBubbles() {
-        //let bubbles = await rainbowSDK.bubbles.getAllOwnedBubbles();
-        //_logger.log("debug", "MAIN - testdeleteAllBubbles bubbles : ", bubbles); //logger.colors.green(JSON.stringify(result)));
-        rainbowSDK.bubbles.deleteAllBubbles();
-    }
+        async testdeleteAllBubbles() {
+            //let bubbles = await rainbowSDK.bubbles.getAllOwnedBubbles();
+            //_logger.log("debug", "MAIN - testdeleteAllBubbles bubbles : ", bubbles); //logger.colors.green(JSON.stringify(result)));
+            rainbowSDK.bubbles.deleteAllBubbles();
+        }
 
         async testDeleteBubble_ByBubbleId(bubbleId) {
             let bubble = await rainbowSDK.bubbles.getBubbleById(bubbleId);
@@ -6710,7 +6725,7 @@ let expressEngine = undefined;
             });
         }
 
-        async testgetS2SMessagesByConversationId(contactEmailToSearch : string = "vincent01@vbe.test.openrainbow.net") {
+        async testgetS2SMessagesByConversationId(contactEmailToSearch: string = "vincent01@vbe.test.openrainbow.net") {
             let that = this;
             //let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
             let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
@@ -6792,7 +6807,7 @@ let expressEngine = undefined;
             });
         }
 
-        async testgetAllS2SMessagesByConversationId(contactEmailToSearch : string = "vincent01@vbe.test.openrainbow.net") {
+        async testgetAllS2SMessagesByConversationId(contactEmailToSearch: string = "vincent01@vbe.test.openrainbow.net") {
             let that = this;
             //let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
             let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
@@ -6826,7 +6841,7 @@ let expressEngine = undefined;
             });
         }
 
-        async testloadConversationHistory(contactEmailToSearch : string = "vincent01@vbe.test.openrainbow.net") {
+        async testloadConversationHistory(contactEmailToSearch: string = "vincent01@vbe.test.openrainbow.net") {
             let that = this;
             //let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
             let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
@@ -6871,11 +6886,11 @@ let expressEngine = undefined;
                     rainbowSDK.conversations.getHistoryPage(conversation, 20).then((conversationUpdated) => {
                         _logger.log("debug", "MAIN - testGetHistoryPageBubbleOpenrainbowNet getHistoryPage, conversationUpdated : ", conversationUpdated);
 
-                      /*
-                      let result = conversationUpdated.historyComplete ? conversationUpdated:that.getConversationHistoryMaxime(conversationUpdated);
-                        _logger.log("debug", "MAIN - testGetHistoryPageBubbleOpenrainbowNet getHistoryPage result : ", result);
-                        return result;
-                        // */
+                        /*
+                        let result = conversationUpdated.historyComplete ? conversationUpdated:that.getConversationHistoryMaxime(conversationUpdated);
+                          _logger.log("debug", "MAIN - testGetHistoryPageBubbleOpenrainbowNet getHistoryPage result : ", result);
+                          return result;
+                          // */
                     });
 
                 });
@@ -6917,12 +6932,12 @@ let expressEngine = undefined;
 
             for (const bubble of bubbles) {
                 //if (bubble.name.indexOf("testBubbleEvents")!= -1) {
-               // if (bubble.name.indexOf("bulleDeTest")!= -1) {
+                // if (bubble.name.indexOf("bulleDeTest")!= -1) {
                 if (bubble.name.indexOf("testBotName_2024/02/09T10:35:36.732ZGuestUser")!= -1) {
                     _logger.log("debug", "MAIN - testloadConversationHistoryAsyncBubbleTestBotName_2024 Found bubble.name : ", bubble.name, ", bubble.isActive : ", bubble.isActive);
-                  that.testloadConversationHistoryAsyncBubbleByJid(bubble.jid).then((res) => {
-                      _logger.log("debug", "MAIN - testloadConversationHistoryAsyncBubbleTestBotName_2024 testloadConversationHistoryAsyncBubbleByJid treated.");
-                  });
+                    that.testloadConversationHistoryAsyncBubbleByJid(bubble.jid).then((res) => {
+                        _logger.log("debug", "MAIN - testloadConversationHistoryAsyncBubbleTestBotName_2024 testloadConversationHistoryAsyncBubbleByJid treated.");
+                    });
                 } else {
                     _logger.log("debug", "MAIN - testloadConversationHistoryAsyncBubbleTestBotName_2024 NOT Found bubble.name : ", bubble.name, ", buibble.isActive : ", bubble.isActive);
                 }
@@ -6930,15 +6945,15 @@ let expressEngine = undefined;
         }
 
         async teststring() {
-            let msg = {"content":undefined};
-            msg.content = {"body":"testString"} ;
-            let res = isString(msg.content)? msg.content?.replace(/\n/g,"").replace(/\r/g,""):""+msg.content;
+            let msg = {"content": undefined};
+            msg.content = {"body": "testString"};
+            let res = isString(msg.content) ? msg.content?.replace(/\n/g, "").replace(/\r/g, ""):"" + msg.content;
             _logger.log("debug", "MAIN - teststring res : ", res);
 
         }
 
         async testfindAllPropInJSONByPropertyNameByXmlNS() {
-            let jsonMessage : any = {
+            let jsonMessage: any = {
                 "$attrs": {
                     "xml:lang": "fr",
                     "from": "room_4ffb3ac439d048549eff81ec273fcf46@muc.openrainbow.net/adcf613d42984a79a7bebccc80c2b65e@openrainbow.net/web_win_2.143.1_vX7Xa0OG",
@@ -7012,34 +7027,34 @@ let expressEngine = undefined;
                 }
             };
 
-            let oobElmt = findAllPropInJSONByPropertyNameByXmlNS(jsonMessage, "x", "jabber:x:oob") ; //? jsonMessage?.x //: undefined; // stanzaMessage?.getChild("x", "jabber:x:oob");
+            let oobElmt = findAllPropInJSONByPropertyNameByXmlNS(jsonMessage, "x", "jabber:x:oob"); //? jsonMessage?.x //: undefined; // stanzaMessage?.getChild("x", "jabber:x:oob");
             _logger.log("debug", "MAIN - testfindAllPropInJSONByPropertyNameByXmlNS : ", oobElmt);
         }
 
         async testfindAllPropInJSONByPropertyName() {
-            let jsonMessage : any = {
-                '$attrs': { xmlns: 'urn:xmpp:attention:0' },
+            let jsonMessage: any = {
+                '$attrs': {xmlns: 'urn:xmpp:attention:0'},
                 jid: '4c4400e242b946b08f79c2ee01c2f044@openrainbow.net',
                 length: 1
             };
 
-            let oobElmt = findAllPropInJSONByPropertyName(jsonMessage, "jid") ; //? jsonMessage?.x //: undefined; // stanzaMessage?.getChild("x", "jabber:x:oob");
+            let oobElmt = findAllPropInJSONByPropertyName(jsonMessage, "jid"); //? jsonMessage?.x //: undefined; // stanzaMessage?.getChild("x", "jabber:x:oob");
             _logger.log("debug", "MAIN - testfindAllPropInJSONByPropertyName : ", oobElmt);
         }
 
         async testgetTextFromJSONProperty() {
-            let jsonMessage : any = {
-                '$attrs': { xmlns: 'urn:xmpp:attention:0' },
+            let jsonMessage: any = {
+                '$attrs': {xmlns: 'urn:xmpp:attention:0'},
                 jid: '4c4400e242b946b08f79c2ee01c2f044@openrainbow.net',
                 length: 1
             };
 
-            let  attention = getTextFromJSONProperty(jsonMessage.attention)==="true" ? true:false;
+            let attention = getTextFromJSONProperty(jsonMessage.attention)==="true" ? true:false;
             _logger.log("debug", "MAIN - testgetTextFromJSONProperty : ", attention);
         }
 
         async testgetTextFromJSONProperty_forwardedElmt_message() {
-            let jsonMessage : any = {
+            let jsonMessage: any = {
                 '$attrs': {
                     xmlns: 'jabber:client',
                     to: 'b1e0d314a3a54bbd84c40c638976fab4@openrainbow.com',
@@ -7051,7 +7066,7 @@ let expressEngine = undefined;
                 body: 'Hi All, Voip calls are not working. when make call it shows dialing but not reaching to the destination.'
             };
 
-            let  result = getTextFromJSONProperty(jsonMessage.body);
+            let result = getTextFromJSONProperty(jsonMessage.body);
             _logger.log("debug", "MAIN - testgetTextFromJSONProperty_forwardedElmt_message - result : ", result);
         }
 
@@ -7062,12 +7077,12 @@ let expressEngine = undefined;
 
             for (const bubble of bubbles) {
                 //if (bubble.name.indexOf("testBubbleEvents")!= -1) {
-               // if (bubble.name.indexOf("bulleDeTest")!= -1) {
+                // if (bubble.name.indexOf("bulleDeTest")!= -1) {
                 if (bubble.name.indexOf("TestBubbleBot2023_03_13T16:15:24.673Z")!= -1) {
                     _logger.log("debug", "MAIN - testloadConversationHistoryAsyncBubbleTestBubbleBot2023_03_13T16 Found bubble.name : ", bubble.name, ", bubble.isActive : ", bubble.isActive);
-                  that.testloadConversationHistoryAsyncBubbleByJid(bubble.jid).then((res) => {
-                      _logger.log("debug", "MAIN - testloadConversationHistoryAsyncBubbleTestBubbleBot2023_03_13T16 testloadConversationHistoryAsyncBubbleByJid treated.");
-                  });
+                    that.testloadConversationHistoryAsyncBubbleByJid(bubble.jid).then((res) => {
+                        _logger.log("debug", "MAIN - testloadConversationHistoryAsyncBubbleTestBubbleBot2023_03_13T16 testloadConversationHistoryAsyncBubbleByJid treated.");
+                    });
                 } else {
                     _logger.log("debug", "MAIN - testloadConversationHistoryAsyncBubbleTestBubbleBot2023_03_13T16 NOT Found bubble.name : ", bubble.name, ", buibble.isActive : ", bubble.isActive);
                 }
@@ -7089,14 +7104,14 @@ let expressEngine = undefined;
                 // */
             });
 
-                for (const bubble of bubbles) {
+            for (const bubble of bubbles) {
                 //if (bubble.name.indexOf("testBubbleEvents")!= -1) {
-               // if (bubble.name.indexOf("bulleDeTest")!= -1) {
+                // if (bubble.name.indexOf("bulleDeTest")!= -1) {
                 if (bubble.name.indexOf("bulle1")!= -1) {
                     _logger.log("debug", "MAIN - testloadConversationHistoryAsyncBubblebulle1 Found bubble.name : ", bubble.name, ", bubble.isActive : ", bubble.isActive);
-                  that.testloadConversationHistoryAsyncBubbleByJid(bubble.jid).then((res) => {
-                      _logger.log("debug", "MAIN - testloadConversationHistoryAsyncBubblebulle1 testloadConversationHistoryAsyncBubbleByJid treated.");
-                  });
+                    that.testloadConversationHistoryAsyncBubbleByJid(bubble.jid).then((res) => {
+                        _logger.log("debug", "MAIN - testloadConversationHistoryAsyncBubblebulle1 testloadConversationHistoryAsyncBubbleByJid treated.");
+                    });
                 } else {
                     _logger.log("debug", "MAIN - testloadConversationHistoryAsyncBubblebulle1 NOT Found bubble.name : ", bubble.name, ", buibble.isActive : ", bubble.isActive);
                 }
@@ -7130,21 +7145,21 @@ let expressEngine = undefined;
                     let stopDate = new Date();
                     // @ts-ignore
                     let startDuration = Math.round(stopDate - startDate);
-                    let historyDelay : number = rainbowSDK.conversations.conversationHistoryHandler.historyDelay;
+                    let historyDelay: number = rainbowSDK.conversations.conversationHistoryHandler.historyDelay;
                     _logger.log("info", "MAIN - testloadConversationHistoryAsyncBubbleByJid loadConversationHistoryAsync duration : " + startDuration + " ms => ", msToTime(startDuration));
                     _logger.log("info", "MAIN - testloadConversationHistoryAsyncBubbleByJid loadConversationHistoryAsync treatment in callback duration historyDelay : " + historyDelay + " ms => ", msToTime(historyDelay));
-                    let utc = new Date().toJSON().replace(/-/g, "_").replace(/:/g,"_");
-                    let fileName = "listMsgs_"+utc ;
-                    const path = 'c:/Temp/'+fileName+'.txt';
+                    let utc = new Date().toJSON().replace(/-/g, "_").replace(/:/g, "_");
+                    let fileName = "listMsgs_" + utc;
+                    const path = 'c:/Temp/' + fileName + '.txt';
                     //writeFileSync(path, "", "utf8");
 
-                        try {
-                            let data = conversationHistoryUpdated.messages.toSmallString() + "MAIN - testloadConversationHistoryAsyncBubbleByJid loadConversationHistoryAsync duration : " + startDuration + " ms => " + msToTime(startDuration) + "\n MAIN - testloadConversationHistoryAsyncBubbleByJid loadConversationHistoryAsync treatment in callback duration historyDelay : " + historyDelay + " ms => " + msToTime(historyDelay);
-                            writeFileSync(path, data, "utf8");
-                            //appendFileSync(path, data);
-                        } catch (err) {
-                            _logger.log("error", "MAIN - testloadConversationHistoryAsyncBubbleByJid loadConversationHistoryAsync CATCH Error !!! : ", err);
-                        }
+                    try {
+                        let data = conversationHistoryUpdated.messages.toSmallString() + "MAIN - testloadConversationHistoryAsyncBubbleByJid loadConversationHistoryAsync duration : " + startDuration + " ms => " + msToTime(startDuration) + "\n MAIN - testloadConversationHistoryAsyncBubbleByJid loadConversationHistoryAsync treatment in callback duration historyDelay : " + historyDelay + " ms => " + msToTime(historyDelay);
+                        writeFileSync(path, data, "utf8");
+                        //appendFileSync(path, data);
+                    } catch (err) {
+                        _logger.log("error", "MAIN - testloadConversationHistoryAsyncBubbleByJid loadConversationHistoryAsync CATCH Error !!! : ", err);
+                    }
 
                     /*
                      for (let i = 0; i < conversationHistoryUpdated?.messages?.length ; i++) {
@@ -7176,11 +7191,11 @@ let expressEngine = undefined;
                     rainbowSDK.conversations.loadConversationHistoryAsync(conversation, 400, useBulk).then((running) => {
                         _logger.log("info", "MAIN - testloadConversationHistoryAsyncBubbleByJid loadConversationHistoryAsync running : ", running);
 
-                      /*
-                      let result = conversationUpdated.historyComplete ? conversationUpdated:that.getConversationHistoryMaxime(conversationUpdated);
-                        _logger.log("debug", "MAIN - testloadConversationHistoryAsyncBubbleByJid getHistoryPage result : ", result);
-                        return result;
-                        // */
+                        /*
+                        let result = conversationUpdated.historyComplete ? conversationUpdated:that.getConversationHistoryMaxime(conversationUpdated);
+                          _logger.log("debug", "MAIN - testloadConversationHistoryAsyncBubbleByJid getHistoryPage result : ", result);
+                          return result;
+                          // */
                     });
 
                 });
@@ -7200,7 +7215,7 @@ let expressEngine = undefined;
                 _logger.log("info", "MAIN - testloadConversationHistoryAsyncP2P loadConversationHistoryAsync duration : " + startDuration + " ms.");
 
                 if (conversationHistoryUpdated && conversationHistoryUpdated.messages) {
-                    for (let i = 0; i < conversationHistoryUpdated.messages.length ; i++) {
+                    for (let i = 0; i < conversationHistoryUpdated.messages.length; i++) {
                         _logger.log("info", "MAIN - testloadConversationHistoryAsyncP2P conversationHistoryUpdated.messages[" + i + "] : ", conversationHistoryUpdated.messages[i]);
                     }
                 }
@@ -7220,7 +7235,7 @@ let expressEngine = undefined;
             let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
             let utc = new Date().toJSON().replace(/-/g, "_");
             let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
-            let conversation : Conversation = await rainbowSDK.conversations.openConversationForContact(contact);
+            let conversation: Conversation = await rainbowSDK.conversations.openConversationForContact(contact);
             if (conversation && conversation.id) {
                 _logger.log("info", "MAIN - testloadConversationHistoryAsyncP2P - getBubbleConversation, conversation.id : ", conversation.id, ", conversation?.messages.length : ", conversation?.messages.length);
                 /* that.getConversationHistoryMaxime(conversation).then(() => {
@@ -7257,9 +7272,9 @@ let expressEngine = undefined;
         testgetAllConversations() {
             let conversations = rainbowSDK.conversations.getAllConversations();
             if (conversations) {
-                _logger.log("info", "MAIN - [testgetAllConversations ] :: rainbowSDK.conversations.pendingMessages.length : ",  rainbowSDK.conversations?.pendingMessages?.length  );
+                _logger.log("info", "MAIN - [testgetAllConversations ] :: rainbowSDK.conversations.pendingMessages.length : ", rainbowSDK.conversations?.pendingMessages?.length);
                 conversations.forEach((conversation) => {
-                    _logger.log("info", "MAIN - [testgetAllConversations ] :: conversation.d : ", conversation.id, ", conversations.messages.length : ", conversation?.messages?.length, ", conversations.pendingMessages.length : ", conversation?.pendingMessages?.length  );
+                    _logger.log("info", "MAIN - [testgetAllConversations ] :: conversation.d : ", conversation.id, ", conversations.messages.length : ", conversation?.messages?.length, ", conversations.pendingMessages.length : ", conversation?.pendingMessages?.length);
                 });
             }
         }
@@ -7268,9 +7283,9 @@ let expressEngine = undefined;
             rainbowSDK._core.rest.getApiConfigurationFromServer();
             let apiSettings = rainbowSDK._core._rest.http.apiHeadersConfiguration;
             if (apiSettings) {
-                _logger.log("info", "MAIN - [testgetApiConfigurationFromServer ] :: apiSettings : ", apiSettings );
+                _logger.log("info", "MAIN - [testgetApiConfigurationFromServer ] :: apiSettings : ", apiSettings);
                 apiSettings.forEach((apiConfig) => {
-                    _logger.log("info", "MAIN - [testgetApiConfigurationFromServer ] :: apiConfig.method : ", apiConfig.method, ", apiConfig.URL : ", apiConfig.URL, ", apiConfig.headers : ", apiConfig.headers );
+                    _logger.log("info", "MAIN - [testgetApiConfigurationFromServer ] :: apiConfig.method : ", apiConfig.method, ", apiConfig.URL : ", apiConfig.URL, ", apiConfig.headers : ", apiConfig.headers);
                 });
             }
         }
@@ -7741,7 +7756,7 @@ let expressEngine = undefined;
             let utc = new Date().toJSON().replace(/-/g, '_');
             let companyName = "VBRCompany";
 
-            let newCompany : any = await (rainbowSDK.admin.getCompanieByName(companyName));
+            let newCompany: any = await (rainbowSDK.admin.getCompanieByName(companyName));
 
             if (!newCompany) {
                 newCompany = await (rainbowSDK.admin.createCompany(companyName, "USA", "AA", OFFERTYPES.PREMIUM).catch((e) => {
@@ -7750,7 +7765,7 @@ let expressEngine = undefined;
                 await pause(2000);
             } else {
                 newCompany = newCompany?.data;
-                if (Array.isArray(newCompany) && newCompany.length === 1) {
+                if (Array.isArray(newCompany) && newCompany.length===1) {
                     newCompany = newCompany[0];
                 }
             }
@@ -7767,7 +7782,7 @@ let expressEngine = undefined;
                 let newUser: any = await rainbowSDK.admin.createUserInCompany(email, password, firstname, lastname, newCompany.id, "en-US", false /* admin or not */, ["user", "closed_channels_admin", "private_channels_admin", "public_channels_admin"]).catch((e) => {
                     _logger.log("error", "MAIN - testCreateCompanyCreateUsersForTests - createUserInCompany Error : ", e);
                 });
-                _logger.log("debug", "MAIN - ",i, " contact created. Wait 5seconds before next creation.");
+                _logger.log("debug", "MAIN - ", i, " contact created. Wait 5seconds before next creation.");
                 await pause(5000);
 
             }
@@ -7780,15 +7795,15 @@ let expressEngine = undefined;
             let utc = new Date().toJSON().replace(/-/g, '_');
             let companyName = "VBRCompany";
 
-            let newCompany : any = await (rainbowSDK.admin.getCompanieByName(companyName));
+            let newCompany: any = await (rainbowSDK.admin.getCompanieByName(companyName));
 
             if (!newCompany) {
                 await pause(2000);
                 _logger.log("debug", "MAIN - testDeleteUsersForTestsWithComExtension - newCompany ", companyName, " not found.");
-                return ;
+                return;
             } else {
                 newCompany = newCompany?.data;
-                if (Array.isArray(newCompany) && newCompany.length === 1) {
+                if (Array.isArray(newCompany) && newCompany.length===1) {
                     newCompany = newCompany[0];
                 }
             }
@@ -7806,11 +7821,11 @@ let expressEngine = undefined;
                 let utc = new Date().toJSON().replace(/-/g, "_");
                 let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
                 let deletedUser = await rainbowSDK.admin.deleteUser(contact.id).then(async () => {
-                    _logger.log("debug", "MAIN - testDeleteUsersForTestsWithComExtension - ",i, " contact deleted. Wait 5seconds before next creation.");
+                    _logger.log("debug", "MAIN - testDeleteUsersForTestsWithComExtension - ", i, " contact deleted. Wait 5seconds before next creation.");
                     // */
                     await pause(1000);
                 }).catch((err) => {
-                    _logger.log("error", "MAIN - testDeleteUsersForTestsWithComExtension - ",i, " failed to delete contact. Err : ", err);
+                    _logger.log("error", "MAIN - testDeleteUsersForTestsWithComExtension - ", i, " failed to delete contact. Err : ", err);
                 });
             }
         }
@@ -8009,12 +8024,16 @@ let expressEngine = undefined;
 
         }
 
-        async testregisterUserByEmailFirstStep(userInfo: {"email":string,"lang":string}) {
+        async testregisterUserByEmailFirstStep(userInfo: { "email": string, "lang": string }) {
             let result = await rainbowSDK.admin.registerUserByEmailFirstStep(userInfo);
             _logger.log("debug", "MAIN - testregisterUserByEmailFirstStep - result : ", result);
         }
 
-        async testregisterUserByEmailSecondStepWithToken(userLoginInfo: {"loginEmail":string,"password":string,"temporaryToken":string}) {
+        async testregisterUserByEmailSecondStepWithToken(userLoginInfo: {
+            "loginEmail": string,
+            "password": string,
+            "temporaryToken": string
+        }) {
             let result = await rainbowSDK.admin.registerUserByEmailSecondStepWithToken(userLoginInfo);
             _logger.log("debug", "MAIN - registerUserByEmailSecondStepWithToken - result : ", result);
         }
@@ -8134,6 +8153,114 @@ let expressEngine = undefined;
             _logger.log("debug", "MAIN - [testgetConnectionStatus    ] :: SDKSTATUSENUM.CONNECTED state : ", state);
 
         }
+
+        //region apikeys rainbow authentication
+
+        public apiKeyGetted = "";
+
+        testdeleteApiKey(apiKeyId: string) {
+            let that = this;
+            _logger.log("debug", "MAIN - (testdeleteApiKey) apiKeyId : ", apiKeyId);
+
+            try {
+                apiKeyId = isDefined(apiKeyId) ? apiKeyId:that.apiKeyGetted;
+                rainbowSDK.admin.deleteApiKey(apiKeyId).then((result) => {
+                    _logger.log("debug", "MAIN - (testdeleteApiKey) Successfully - result : ", result);
+                }).catch((err) => {
+                    _logger.log("debug", "MAIN - (testdeleteApiKey) ErrorManager error : ", err);
+                });
+            } catch (err) {
+                _logger.log("debug", "MAIN - (testdeleteApiKey) CATCH error !!! : ", err);
+            }
+        }
+
+        testgenerateApiKey(scope: Array<string> = ["all"], description: string = "Generated with R-node-SDK Sample", isActive: boolean = true, expirationDate?: string) {
+            let that = this;
+            _logger.log("debug", "MAIN - (testgenerateApiKey)");
+
+            try {
+                //apiKeyId = isDefined(apiKeyId) ? apiKeyId:that.apiKeyGetted;
+                rainbowSDK.admin.generateApiKey(scope, description, isActive, expirationDate).then((result) => {
+                    _logger.log("debug", "MAIN - (testgenerateApiKey) Successfully - result : ", result);
+                    that.apiKeyGetted = result?.apiKey;
+                }).catch((err) => {
+                    _logger.log("debug", "MAIN - (testgenerateApiKey) ErrorManager error : ", err);
+                });
+            } catch (err) {
+                _logger.log("debug", "MAIN - (testgenerateApiKey) CATCH error !!! : ", err);
+            }
+        }
+
+
+        testgetAllApiKey(isActive:boolean = undefined, fromCreationDate:string = undefined, toCreationDate:string = undefined, limit:number = 100, offset:number = 0, sortField:string = "creationDate", sortOrder : number = -1, format : string = "small", userId : string) {
+            let that = this;
+            _logger.log("debug", "MAIN - (testgetAllApiKey)");
+
+            try {
+                //apiKeyId = isDefined(apiKeyId) ? apiKeyId:that.apiKeyGetted;
+                rainbowSDK.admin.getAllApiKey(isActive, fromCreationDate, toCreationDate, limit, offset, sortField, sortOrder, format, userId).then((result) => {
+                    _logger.log("debug", "MAIN - (testgetAllApiKey) Successfully - result : ", result);
+                }).catch((err) => {
+                    _logger.log("debug", "MAIN - (testgetAllApiKey) ErrorManager error : ", err);
+                });
+            } catch (err) {
+                _logger.log("debug", "MAIN - (testgetAllApiKey) CATCH error !!! : ", err);
+            }
+        }
+
+
+        testgetApiKey(apiKeyId:string = undefined) {
+            let that = this;
+            _logger.log("debug", "MAIN - (testgetApiKey)");
+
+            try {
+                apiKeyId = isDefined(apiKeyId) ? apiKeyId:that.apiKeyGetted;
+                rainbowSDK.admin.getApiKey(apiKeyId).then((result) => {
+                    _logger.log("debug", "MAIN - (testgetApiKey) Successfully - result : ", result);
+                }).catch((err) => {
+                    _logger.log("debug", "MAIN - (testgetApiKey) ErrorManager error : ", err);
+                });
+            } catch (err) {
+                _logger.log("debug", "MAIN - (testgetApiKey) CATCH error !!! : ", err);
+            }
+        }
+
+        testgetCurrentApiKey() {
+                    //that._rest.getCurrentApiKey(apiKeyId).then((result) => {
+            let that = this;
+            _logger.log("debug", "MAIN - (getCurrentApiKey)");
+
+            try {
+                //apiKeyId = isDefined(apiKeyId) ? apiKeyId:that.apiKeyGetted;
+                rainbowSDK.admin.getCurrentApiKey().then((result) => {
+                    _logger.log("debug", "MAIN - (getCurrentApiKey) Successfully - result : ", result);
+                }).catch((err) => {
+                    _logger.log("debug", "MAIN - (getCurrentApiKey) ErrorManager error : ", err);
+                });
+            } catch (err) {
+                _logger.log("debug", "MAIN - (getCurrentApiKey) CATCH error !!! : ", err);
+            }
+        }
+
+        testupdateApiKey(apiKeyId : string, description : string, isActive : boolean, expirationDate: string = undefined) {
+                    //that._rest.updateApiKey(apiKeyId, description, isActive, expirationDate).then((result) => {
+            let that = this;
+            _logger.log("debug", "MAIN - (testgetApiKey)");
+
+            try {
+                apiKeyId = isDefined(apiKeyId) ? apiKeyId:that.apiKeyGetted;
+                rainbowSDK.admin.getApiKey(apiKeyId).then((result) => {
+                    _logger.log("debug", "MAIN - (testgetApiKey) Successfully - result : ", result);
+                }).catch((err) => {
+                    _logger.log("debug", "MAIN - (testgetApiKey) ErrorManager error : ", err);
+                });
+
+            } catch (err) {
+                _logger.log("debug", "MAIN - (testgetApiKey) CATCH error !!! : ", err);
+            }
+        }
+
+        //endregion apikeys rainbow authentication
 
         //endregion Connections
 

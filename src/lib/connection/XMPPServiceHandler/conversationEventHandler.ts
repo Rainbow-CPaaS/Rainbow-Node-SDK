@@ -2294,6 +2294,12 @@ class ConversationEventHandler extends GenericHandler {
                     case "logs":
                         that.onLogsMessageReceived(node);
                         break;
+                    case "no-store":
+                        // ignore that information
+                        break;
+                    case "userpassword":
+                        that.onUserPasswordMessageReceived(jsonStanza[stanza.getName()]["userpassword"]);
+                        break;
                     case "todo":
                         // treated in tasksEventHandler
                         break;
@@ -2988,6 +2994,24 @@ class ConversationEventHandler extends GenericHandler {
         }
     };
     
+    async onUserPasswordMessageReceived(jsonNode) {
+        let that = this;
+        try {
+            that._logger.log(that.INTERNAL, LOG_ID + "(onLogsMessageReceived) _entering_ : ", "\n", jsonNode);
+            that._logger.log(that.DEBUG, LOG_ID + "(onLogsMessageReceived) JSON : ", jsonNode); // action="update" xmlns="jabber:iq:configuration"
+            let action = jsonNode["$attrs"]["action"];
+            let contextid = jsonNode["$attrs"]["contextid"];
+
+            if (jsonNode.$attrs.xmlns==="jabber:iq:configuration") {
+                that._logger.log(that.DEBUG, LOG_ID + "(onLogsMessageReceived) connectorconfig with action : ", action, ", contextid : ", contextid);
+                that.eventEmitter.emit("evt_internal_userpasswordconfig", {action, contextid});
+            } // */
+        } catch (err) {
+            // that._logger.log(that.ERROR, LOG_ID + "(onLogsMessageReceived) CATCH Error !!! ");
+            that._logger.log(that.ERROR, LOG_ID + "(onLogsMessageReceived) CATCH Error !!! : ", err);
+        }
+    };
+
     onReceiptMessageReceived (msg, stanza){
     }
 
