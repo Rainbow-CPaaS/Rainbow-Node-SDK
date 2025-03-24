@@ -14,10 +14,12 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   None
 
 #### Added
--   None
+-   Add `ContactsService::getContactsInformationByJIDs` API to get a list of _contacts details by JIDs.
+-   Add `autoInitialLoadContactsInfoBulk` SDK's option to get information of contacts one by one or with bulk mode. (more information are provided in one to one mode than in bulk mode).
 
 #### Changed
 -   Rename HTTP Header from "x-rainbow-request-node-id" to "x-rainbow-correlation-id"    
+-   Update At startups the default value of get information of contacts is now done with in bulk mode. autoInitialLoadContactsInfoBulk is set to true. So the contact's provided informations are less than before by default.
 
 ### [2.35.0-lts.0] - 2024-03-13
 #### Removed
