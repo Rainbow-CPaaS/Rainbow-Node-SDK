@@ -2120,7 +2120,7 @@ class ContactsService extends GenericService {
      * @fulfil {ErrorManager} - ErrorManager object depending on the result (ErrorManager.getErrorManager().OK in case of success)
 
      */
-    getRosters() : Promise<Array<Contact>> {
+    getRosters(bulkLoadOfInformations:boolean = true) : Promise<Array<Contact>> {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getRosters) .");
 
@@ -2162,50 +2162,99 @@ class ContactsService extends GenericService {
                 }
 
                 // store/update contacts in cache with infos of roster list from server.
-                listOfContacts.forEach((contactData: any) => {
-                    that._logger.log(that.INTERNAL, LOG_ID + "(getRosters) contact find on the server : id : ", contactData.id, ", jid_im : ", contactData.jid_im, ", displayName : ", contactData.displayName);
+                if (bulkLoadOfInformations) {
+                    let listOfJidOContacts = listOfContacts.map(aContact => aContact.jid_im);
+                    await that.getContactsInformationByJIDs(listOfJidOContacts, 1).then((contactsInfos) => {
+                        if (contactsInfos && contactsInfos.length > 0) {
+                            that._logger.log(that.INFO, LOG_ID + "(getRosters) contacts found on the server");
+                            for (let i = 0; i < contactsInfos.length; i++) {
+                                let _contactFromServer: any = contactsInfos [0];
+                                //that._logger.log(that.INTERNAL, LOG_ID + "(getRosters) contact found on the server : ", util.inspect(_contactFromServer));
+                                that._logger.log(that.INTERNAL, LOG_ID + "(getRosters) contact found on the server : id : ", _contactFromServer.id, ", jid_im : ", _contactFromServer.jid_im, ", displayName : ", _contactFromServer.displayName);
+                                // Update or Add contact
+                                let contactIndex = that._contacts.findIndex((_contact: any) => {
+                                    return _contact.jid_im===_contactFromServer.jid_im;
+                                });
 
-                    //for (const contactData of listOfContacts) {
-                    //await that._rest.getContactInformationByJID(contactData.jid_im).then((_contactFromServer: any) => {
-                     that._rest.getContactInformationByJID(contactData.jid_im).then((_contactFromServer: any) => {
-                        that._logger.log(that.INFO, LOG_ID + "(getRosters) contact found on the server");
-                        //that._logger.log(that.INTERNAL, LOG_ID + "(getRosters) contact found on the server : ", util.inspect(_contactFromServer));
-                        that._logger.log(that.INTERNAL, LOG_ID + "(getRosters) contact found on the server : id : ", _contactFromServer.id, ", jid_im : ", _contactFromServer.jid_im, ", displayName : ", _contactFromServer.displayName);
-                        // Update or Add contact
-                        let contactIndex = that._contacts.findIndex((_contact: any) => {
-                            return _contact.jid_im===_contactFromServer.jid_im;
-                        });
+                                let contact = null;
+                                //that._logger.log(that.INTERNAL, LOG_ID + "(_onRosterContactInfoChanged) contact found on the server : ", contact);
 
-                        let contact = null;
-                        //that._logger.log(that.INTERNAL, LOG_ID + "(_onRosterContactInfoChanged) contact found on the server : ", contact);
+                                if (contactIndex!== -1) {
+                                    contact = that._contacts[contactIndex];
+                                    //that._logger.log(that.INTERNAL, LOG_ID + "(_onRosterContactInfoChanged) local contact before updateFromUserData ", contact);
+                                    contact.updateFromUserData(_contactFromServer);
+                                    contact.avatar = that.getAvatarByContactId(_contactFromServer.id, _contactFromServer.lastAvatarUpdateDate);
 
-                        if (contactIndex!== -1) {
-                            contact = that._contacts[contactIndex];
-                            //that._logger.log(that.INTERNAL, LOG_ID + "(_onRosterContactInfoChanged) local contact before updateFromUserData ", contact);
-                            contact.updateFromUserData(_contactFromServer);
-                            contact.avatar = that.getAvatarByContactId(_contactFromServer.id, _contactFromServer.lastAvatarUpdateDate);
+                                    that._rosterPresenceQueue.treatPresenceForContact(contact, that._onRosterPresenceChanged.bind(this));
 
-                            that._rosterPresenceQueue.treatPresenceForContact(contact, that._onRosterPresenceChanged.bind(this));
+                                    // this._eventEmitter.emit("evt_internal_contactinformationchanged", that._contacts[contactIndex]);
+                                } else {
+                                    contact = that.createBasicContact(_contactFromServer.jid_im, undefined);
+                                    //that._logger.log(that.INTERNAL, LOG_ID + "(_onRosterContactInfoChanged) from server contact before updateFromUserData ", contact);
+                                    contact.updateFromUserData(_contactFromServer);
+                                    contact.roster = true;
+                                    contact.avatar = that.getAvatarByContactId(_contactFromServer.id, _contactFromServer.lastAvatarUpdateDate);
 
-                            // this._eventEmitter.emit("evt_internal_contactinformationchanged", that._contacts[contactIndex]);
-                        } else {
-                            contact = that.createBasicContact(_contactFromServer.jid_im, undefined);
-                            //that._logger.log(that.INTERNAL, LOG_ID + "(_onRosterContactInfoChanged) from server contact before updateFromUserData ", contact);
-                            contact.updateFromUserData(_contactFromServer);
-                            contact.roster = true;
-                            contact.avatar = that.getAvatarByContactId(_contactFromServer.id, _contactFromServer.lastAvatarUpdateDate);
+                                    that._rosterPresenceQueue.treatPresenceForContact(contact, that._onRosterPresenceChanged.bind(this));
 
-                            that._rosterPresenceQueue.treatPresenceForContact(contact, that._onRosterPresenceChanged.bind(this));
-
-                            // this._eventEmitter.emit("evt_internal_contactinformationchanged", contact);
+                                    // this._eventEmitter.emit("evt_internal_contactinformationchanged", contact);
+                                }
+                            }
                         }
 
-
                     }).catch((err) => {
-                        that._logger.log(that.INFO, LOG_ID + "(getRosters) no contact found with contactData.jid_im " + contactData.jid_im);
+                        that._logger.log(that.INFO, LOG_ID + "(getRosters) no contacts found with listOfJidOContacts ", listOfJidOContacts);
                     });
-                //};
-                });
+
+
+                } else {
+                    // Get information of contacts one by one (more informations provided than bulk mode).
+                    listOfContacts.forEach((contactData: any) => {
+                        that._logger.log(that.INTERNAL, LOG_ID + "(getRosters) contact find on the server : id : ", contactData.id, ", jid_im : ", contactData.jid_im, ", displayName : ", contactData.displayName);
+
+                        //for (const contactData of listOfContacts) {
+                        //await that._rest.getContactInformationByJID(contactData.jid_im).then((_contactFromServer: any) => {
+                        that._rest.getContactInformationByJID(contactData.jid_im).then((_contactFromServer: any) => {
+                            that._logger.log(that.INFO, LOG_ID + "(getRosters) contact found on the server");
+                            //that._logger.log(that.INTERNAL, LOG_ID + "(getRosters) contact found on the server : ", util.inspect(_contactFromServer));
+                            that._logger.log(that.INTERNAL, LOG_ID + "(getRosters) contact found on the server : id : ", _contactFromServer.id, ", jid_im : ", _contactFromServer.jid_im, ", displayName : ", _contactFromServer.displayName);
+                            // Update or Add contact
+                            let contactIndex = that._contacts.findIndex((_contact: any) => {
+                                return _contact.jid_im===_contactFromServer.jid_im;
+                            });
+
+                            let contact = null;
+                            //that._logger.log(that.INTERNAL, LOG_ID + "(_onRosterContactInfoChanged) contact found on the server : ", contact);
+
+                            if (contactIndex!== -1) {
+                                contact = that._contacts[contactIndex];
+                                //that._logger.log(that.INTERNAL, LOG_ID + "(_onRosterContactInfoChanged) local contact before updateFromUserData ", contact);
+                                contact.updateFromUserData(_contactFromServer);
+                                contact.avatar = that.getAvatarByContactId(_contactFromServer.id, _contactFromServer.lastAvatarUpdateDate);
+
+                                that._rosterPresenceQueue.treatPresenceForContact(contact, that._onRosterPresenceChanged.bind(this));
+
+                                // this._eventEmitter.emit("evt_internal_contactinformationchanged", that._contacts[contactIndex]);
+                            } else {
+                                contact = that.createBasicContact(_contactFromServer.jid_im, undefined);
+                                //that._logger.log(that.INTERNAL, LOG_ID + "(_onRosterContactInfoChanged) from server contact before updateFromUserData ", contact);
+                                contact.updateFromUserData(_contactFromServer);
+                                contact.roster = true;
+                                contact.avatar = that.getAvatarByContactId(_contactFromServer.id, _contactFromServer.lastAvatarUpdateDate);
+
+                                that._rosterPresenceQueue.treatPresenceForContact(contact, that._onRosterPresenceChanged.bind(this));
+
+                                // this._eventEmitter.emit("evt_internal_contactinformationchanged", contact);
+                            }
+
+
+                        }).catch((err) => {
+                            that._logger.log(that.INFO, LOG_ID + "(getRosters) no contact found with contactData.jid_im " + contactData.jid_im);
+                        });
+                        //};
+                    });
+                }
+                // */
 
                 that._logger.log(that.INFO, LOG_ID + "(getRosters) contacts retrieved, return the one from roster.");
                 resolve(that._contacts.filter((contact) => { return contact.roster === true; }));
@@ -2232,6 +2281,38 @@ class ContactsService extends GenericService {
             }).catch((err) => {
                 that._logger.log(that.ERROR, LOG_ID + "(getRosters) error");
                 that._logger.log(that.INTERNALERROR, LOG_ID + "(getRosters) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    /**
+     * @public
+     * @nodered true
+     * @method getContactsInformationByJIDs
+     * @instance
+     * @category Contacts NETWORK
+     * @param {Array<string>} jid_im Allows to search users having jid_im equal to one of the jids provided in this option.
+     * @param {string} sortOrder Users are sorted by jid_im. sortOrder allows to specify order when sorting user list. Default value : 1. Possible values : -1, 1.
+     * @description
+     *      Get a list of _contacts details by JIDs. <br>
+     * @async
+     * @return {Promise<Array<Contact>,ErrorManager>}
+     * @fulfil {ErrorManager} - ErrorManager object depending on the result (ErrorManager.getErrorManager().OK in case of success)
+     */
+    getContactsInformationByJIDs(jid_im : Array<string>, sortOrder: number = 1) : Promise<Array<Contact>> {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getContactsInformationByJIDs) .");
+
+        return new Promise((resolve, reject) => {
+            that._rest.getContactsInformationByJIDs(jid_im, sortOrder).then(async (listOfContacts: any) => {
+                for (const aContact of listOfContacts) {
+                    that._logger.log(that.INFO, LOG_ID + "(getContactsInformationByJIDs) contact : ", aContact);
+                }
+                resolve(listOfContacts);
+            }).catch((err) => {
+                that._logger.log(that.ERROR, LOG_ID + "(getContactsInformationByJIDs) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getContactsInformationByJIDs) error : ", err);
                 return reject(err);
             });
         });

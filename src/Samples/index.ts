@@ -745,6 +745,7 @@ let expressEngine = undefined;
             "autoLoadConversations": true,
             "autoLoadConversationHistory": false,
             "autoLoadContacts": true,
+            "autoInitialLoadContactsInfoBulk": false,
             "autoLoadCallLog": false,
             "enableCarbon": true,
             "enablesendurgentpushmessages": true,
@@ -1978,6 +1979,25 @@ let expressEngine = undefined;
             let searchEmail = "cord";
             let users = await rainbowSDK.admin.getAllUsersBySearchEmailByCompanyId("small", 2, 5, "firstName", contactVincent00.companyId, searchEmail);
             _logger.log("debug", "MAIN - [testgetAllUsersBySearchEmailByCompanyId] after getAllUsersBySearchEmailByCompanyId : ", users);
+        }
+
+        async testgetContactsInformationByJIDs() {
+            let contactEmailToSearchVincent01 = "vincent01@vbe.test.openrainbow.net";
+            let contactEmailToSearchVincent02 = "vincent02@vbe.test.openrainbow.net";
+            let contactEmailToSearchVincent03 = "vincent03@vbe.test.openrainbow.net";
+            let contactsJids = [];
+            //let utc = new Date().toJSON().replace(/-/g, "_");
+            let contactVincent01 = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent01);
+            contactsJids.push(contactVincent01?.jid);
+            let contactVincent02 = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent02);
+            contactsJids.push(contactVincent02?.jid);
+            let contactVincent03 = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent03);
+            contactsJids.push(contactVincent03?.jid);
+            let listOfContacts = await rainbowSDK.contacts.getContactsInformationByJIDs(contactsJids, 1);
+            _logger.log("debug", "MAIN - [testgetContactsInformationByJIDs] after getContactsInformationByJIDs listOfContacts : ", listOfContacts);
+            for (const aContact of listOfContacts) {
+                _logger.log("debug", "MAIN - [getContactsInformationByJIDs] contact : ", aContact);
+            }
         }
 
         //region Favorites

@@ -568,7 +568,7 @@ class Core extends LevelLogs{
             if (that.options.useS2S) {
                 try {
                     if (that.options.imOptions.autoLoadContacts) {
-                        let result = await that._contacts.getRosters();
+                        let result = await that._contacts.getRosters(that.options.imOptions.autoInitialLoadContactsInfoBulk);
                     } else {
                         that._logger.log(that.INFO, LOG_ID + "(_retrieveInformation) load of getRosters IGNORED by config autoLoadContacts : ", that.options.imOptions.autoLoadContacts);
                     }
@@ -675,7 +675,7 @@ class Core extends LevelLogs{
                     if (that.options._restOptions.useRestAtStartup ) {
                         if (that.options.imOptions.autoLoadContacts) {
                             //let result = await that._contacts.getRosters();
-                            await that._contacts.getRosters().then((result)=> {
+                            await that._contacts.getRosters(that.options.imOptions.autoInitialLoadContactsInfoBulk).then((result)=> {
                                 that._logger.log(that.INFO, LOG_ID + "(_retrieveInformation) contacts from roster retrieved.");
                                 that.getDurationSinceStart("_retrieveInformation after contacts from roster retrieved ");
                             });

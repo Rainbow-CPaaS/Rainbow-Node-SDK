@@ -530,6 +530,7 @@ class Options {
             autoLoadConversations: true,
             autoLoadConversationHistory: false,
             autoLoadContacts: true,
+            "autoInitialLoadContactsInfoBulk": true,
             autoLoadCallLog: false,
             forceHistoryGetContactFromServer: false,
             enableCarbon: true,
@@ -562,6 +563,7 @@ class Options {
         optionsIM.autoLoadConversations = isDefined(this._options.im.autoLoadConversations) ? this._options.im.autoLoadConversations : config.im.autoLoadConversations;
         optionsIM.autoLoadConversationHistory = (this._options.im.autoLoadConversationHistory == true) ? this._options.im.autoLoadConversationHistory : config.im.autoLoadConversationHistory;
         optionsIM.autoLoadContacts = (this._options.im.autoLoadContacts == false) ? this._options.im.autoLoadContacts : config.im.autoLoadContacts;
+        optionsIM.autoInitialLoadContactsInfoBulk = isDefined(this._options.im.autoInitialLoadContactsInfoBulk) ? this._options.im.autoInitialLoadContactsInfoBulk : config.im.autoInitialLoadContactsInfoBulk;
         optionsIM.autoLoadCallLog = isDefined(this._options.im.autoLoadCallLog) ? this._options.im.autoLoadCallLog : config.im.autoLoadCallLog;
         optionsIM.forceHistoryGetContactFromServer = (this._options.im.forceHistoryGetContactFromServer == true) ? this._options.im.forceHistoryGetContactFromServer : config.im.forceHistoryGetContactFromServer;
         optionsIM.enableCarbon = (this._options.im.enableCarbon == false) ? this._options.im.enableCarbon : config.im.enableCarbon;

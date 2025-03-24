@@ -1969,6 +1969,8 @@ class RESTService extends GenericRESTService {
     }
 
     async getContacts() {
+        // API https://api.openrainbow.org/enduser/#api-users-getUserNetwork
+        // GET "/api/rainbow/enduser/v1.0/users/networks"
         let that = this;
         return new Promise(function (resolve, reject) {
             that.http.get("/api/rainbow/enduser/v1.0/users/networks?format=full", that.getRequestHeader(), undefined, "", 5, 10000).then(function (json) {
@@ -2078,6 +2080,39 @@ class RESTService extends GenericRESTService {
                     return reject(err);
                 }
             });
+        });
+    }
+
+    async getContactsInformationByJIDs(jid_im : Array<string>, sortOrder: number = 1): Promise<[any]> {
+        // API https://api.openrainbow.org/enduser/#api-users-searchUsersByJids
+        // POST "/api/rainbow/enduser/v1.0/users/jids"
+
+        let that = this;
+        return new Promise(async function (resolve, reject) {
+            if (!jid_im) {
+                that._logger.log(that.DEBUG, LOG_ID + "(getContactsInformationByJIDs) failed : No jid_im provided");
+                resolve(null);
+            } else {
+                let url = "/api/rainbow/enduser/v1.0/users/jids";
+                let urlParamsTab: string[] = [];
+                urlParamsTab.push(url);
+                addParamToUrl(urlParamsTab, "sortOrder", sortOrder);
+                url = urlParamsTab[0];
+
+                let filter: any = {};
+                addPropertyToObj(filter, "jid_im", jid_im, false);
+
+                //that._logger.log(that.INTERNAL, LOG_ID + "(getContactInformationByLoginEmail) with params : ", { "loginEmail": email });
+                await that.http.post(url, that.getRequestHeader(), filter, undefined).then(function (json) {
+                    that._logger.log(that.DEBUG, LOG_ID + "(getContactsInformationByJIDs) successfull");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getContactsInformationByJIDs) REST result : ", json);
+                    resolve(json?.data);
+                }).catch(function (err) {
+                    that._logger.log(that.ERROR, LOG_ID, "(getContactsInformationByJIDs) error");
+                    that._logger.log(that.INTERNALERROR, LOG_ID, "(getContactsInformationByJIDs) error : ", err);
+                    return reject(err);
+                });
+            }
         });
     }
 

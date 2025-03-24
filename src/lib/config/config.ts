@@ -286,6 +286,7 @@ let conf =  {
         autoLoadConversations: true,
         autoLoadConversationHistory: false,
         autoLoadContacts: true,
+        "autoInitialLoadContactsInfoBulk": true,
         autoLoadCallLog: false,
         forceHistoryGetContactFromServer: false,
         // manage carbon copy https://xmpp.org/extensions/xep-0280.html
