@@ -467,7 +467,7 @@ class Logger {
                     if (logInternals===true) {
                         //level = (level === "internal") ? "debug" : "error";
                         let datatolog = that.colors.italic(that.colors.red("FORBIDDEN TO LOG THIS DATA IN PROD ENV !!! Sorry."));
-
+                        // console.log(datatolog);
                         // dev-code-internal //
                         if (levelOfLog==="internal") {
                             levelOfLog = LEVELSNAMES.DEBUG;

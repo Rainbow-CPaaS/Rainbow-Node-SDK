@@ -23,6 +23,18 @@ enum RELEASENAMEENUM {
 
 def getReleaseName(upper) {
     println "getReleaseName - upper : " + upper;
+
+    /*
+    if ( upper)  {
+       // echo "getReleaseName() will return STS"
+        return "LTS";
+    }
+    if ( !upper)  {
+        //echo "getReleaseName() will return sts"
+        return "lts";
+    }
+    // */
+
     if ( "${env.BRANCH_NAME}" == "STSDelivery" && upper)  {
        // echo "getReleaseName() will return STS"
         return "STS";
@@ -450,21 +462,21 @@ pipeline {
                             
                     sh script: """
                     #echo "Build's  shell the Rainbow-Node-SDK : ${RAINBOWNODESDKVERSION} with send email : ${SENDEMAIL} and is LTSBETA : ${LTSBETA}"
-                        
+                    export NODE_TLS_REJECT_UNAUTHORIZED=0
                     echo ---------- Set the GIT config to be able to upload to server :
                     git config --local credential.helper "!f() { echo username=\\$GITLABVBERDER_USR; echo password=\\$GITLABVBERDER_PSW; }; f"
                     git config --global user.email "vincent.berder@al-enterprise.com"
                     git config --global user.name "vincent.berder@al-enterprise.com"
-                        
-                    #echo ---------- Create a specific branch :
-                    #git branch "delivered${RAINBOWNODESDKVERSION}" 
-                    #git checkout "delivered${RAINBOWNODESDKVERSION}"
-                    #git push  --set-upstream origin "delivered${RAINBOWNODESDKVERSION}"
 
                     if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM.LTS}" ]; then
-                        ${PUBLISHTONPMANDSETTAGINGIT} && git branch "delivered${RAINBOWNODESDKVERSION}"
-                        ${PUBLISHTONPMANDSETTAGINGIT} && git checkout "delivered${RAINBOWNODESDKVERSION}"
-                        ${PUBLISHTONPMANDSETTAGINGIT} && git push  --set-upstream origin "delivered${RAINBOWNODESDKVERSION}"
+                        echo ---------- Create a specific branch :
+                        if [ "${PUBLISHTONPMANDSETTAGINGIT}" = "true" ]; then
+                            echo ---------- Create a specific branch :
+# REFACTOR                            git branch "delivered${RAINBOWNODESDKVERSION}"
+# REFACTOR                            git checkout "delivered${RAINBOWNODESDKVERSION}"
+# REFACTOR                            git push  --set-upstream origin "delivered${RAINBOWNODESDKVERSION}"
+
+                        fi
                     fi
 
                     #echo "registry=https://10.10.13.10:4873/
@@ -497,6 +509,7 @@ pipeline {
                         
                     npm version "${RAINBOWNODESDKVERSION}"  --allow-same-version
 
+
                     if [ "${DEBUGINTERNAL}" = "true" ]; then
                          echo "Build sources with Internal DEBUG activated."
                         echo ---------- STEP grunt : 
@@ -515,6 +528,7 @@ pipeline {
                         echo Sub Step 1 : To compil the sources
                         grunt --verbose
                         echo Sub Step 2 : To prepare the sources + doc for package
+                        #grunt jsdoc2md --verbose
                         grunt delivery --verbose
                     fi
                         
@@ -522,11 +536,11 @@ pipeline {
                         
                     #echo ---------- STEP commit : 
                     if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM.LTS}" ]; then
-                        if [ "${PUBLISHTONPMANDSETTAGINGIT}" = "true" ]; then
-                            git reset --hard "origin/delivered${RAINBOWNODESDKVERSION}"
-                        else
+# REFACTOR                        if [ "${PUBLISHTONPMANDSETTAGINGIT}" = "true" ]; then
+# REFACTOR                            git reset --hard "origin/delivered${RAINBOWNODESDKVERSION}"
+# REFACTOR                        else
                             git reset --hard "origin/${env.BRANCH_NAME}"
-                        fi
+# REFACTOR                        fi
                     fi
                     if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM.STS}" ]; then
                         git reset --hard origin/${env.BRANCH_NAME}
@@ -547,7 +561,8 @@ pipeline {
                     echo ---------- STEP publish :
                     if [ "${PUBLISHTONPMANDSETTAGINGIT}" = "true" ]; then
                         if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM.LTS}" ]; then
-                            ${PUBLISHTONPMANDSETTAGINGIT} && npm publish
+                             echo "Publish latest on npmjs."
+                             npm publish
                         fi
                         if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM.STS}" ]; then
                             if [ "${PUBLISHONNPMJSWITHSTSTAG}" = "true" ]; then
@@ -568,8 +583,11 @@ pipeline {
                     fi
                     if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM.LTS}" ]; then
                         ${PUBLISHTONPMANDSETTAGINGIT} && git tag -a ${RAINBOWNODESDKVERSION} -m "${RAINBOWNODESDKVERSION} is a ${RELEASENAMELOWERNAME} version."
-                        ${PUBLISHTONPMANDSETTAGINGIT} && git push  origin "HEAD:delivered${RAINBOWNODESDKVERSION}"
-                        ${PUBLISHTONPMANDSETTAGINGIT} && git push --tags origin "HEAD:delivered${RAINBOWNODESDKVERSION}"
+                        ${PUBLISHTONPMANDSETTAGINGIT} && git push  origin HEAD:${env.BRANCH_NAME}
+                        ${PUBLISHTONPMANDSETTAGINGIT} && git push --tags origin HEAD:${env.BRANCH_NAME}
+# REFACTOR                        ${PUBLISHTONPMANDSETTAGINGIT} && git tag -a ${RAINBOWNODESDKVERSION} -m "${RAINBOWNODESDKVERSION} is a ${RELEASENAMELOWERNAME} version."
+# REFACTOR                        ${PUBLISHTONPMANDSETTAGINGIT} && git push  origin "HEAD:delivered${RAINBOWNODESDKVERSION}"
+# REFACTOR                        ${PUBLISHTONPMANDSETTAGINGIT} && git push --tags origin "HEAD:delivered${RAINBOWNODESDKVERSION}"
                     fi
 
                     echo ---------- send emails getDebianArtifacts parameters setted :

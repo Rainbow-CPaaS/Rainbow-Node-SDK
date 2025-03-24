@@ -6,7 +6,7 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-### [2.35.0-lts.0] - 2024-03-04
+### [2.36.0] - 2024-03-XX
 #### Removed
 -   None
 
@@ -17,14 +17,53 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   None
 
 #### Changed
--   Same as STS 2.34.0
+-   Rename HTTP Header from "x-rainbow-request-node-id" to "x-rainbow-correlation-id"    
+
+### [2.35.0-lts.0] - 2024-03-13
+#### Removed
+-   None
+
+#### Fixed
+-   jenkins
+
+#### Added
+-   None
+
+#### Changed
+-   None
+
+### [2.34.2] - 2024-03-13
+#### Removed
+-   None
+
+#### Fixed
+-   Fix content in Message received in conversationHistoryHandler.
+
+#### Added
+-   None
+
+#### Changed
+-   Add p_messagesDataStore: DataStoreType = undefined parameter to several method to send messages. It is used to override the general of SDK's parameter "messagesDataStore".
+
+### [2.34.1] - 2025-03-04
+#### Removed
+-   None
+
+#### Fixed
+-   Jenkins
+
+#### Added
+-   None
+
+#### Changed
+-   None
 
 ### [2.34.0] - 2025-03-04
 #### Removed
 -   None
 
 #### Fixed
--   `xmppOptions.xmppRessourceName` value when no `xmpp` section is defined in SDK's options and a config file is defined with an `xmppRessourceName` property inside.
+-   Fix `xmppOptions.xmppRessourceName` value when no `xmpp` section is defined in SDK's options and a config file is defined with an `xmppRessourceName` property inside.
 -   Fix log when an xmpp connection is Replaced by an already existing resource.
 
 #### Added

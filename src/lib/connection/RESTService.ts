@@ -491,16 +491,41 @@ class RESTService extends GenericRESTService {
             // */
         }
         // If no token is provided, then signin with user/pwd credentials.
-        return new Promise(function (resolve, reject) {
-            that.http.get("/api/rainbow/authentication/v1.0/login", that.getLoginHeader(), undefined).then(async function (JSON) {
-                that.account = JSON.loggedInUser;
-                that.account.jid = that.account.jid ? that.account.jid:that.account.jid_im;
-                that.app = JSON.loggedInApplication;
-                that.tokenRest = JSON.token;
+        return new Promise(async function (resolve, reject) {
+            if (that.isUserCredentialsLogin()) {
+                that.http.get("/api/rainbow/authentication/v1.0/login", that.getLoginHeader(), undefined).then(async function (JSON) {
+                    that.account = JSON.loggedInUser;
+                    that.account.jid = that.account.jid ? that.account.jid:that.account.jid_im;
+                    that.app = JSON.loggedInApplication;
+                    that.tokenRest = JSON.token;
 
-                let companyInfo = await that.getCompanyInfos(that.account.companyId, "full", false, undefined, undefined, undefined, undefined, undefined, undefined, undefined).catch((err) => {
+                    let companyInfo = await that.getCompanyInfos(that.account.companyId, "full", false, undefined, undefined, undefined, undefined, undefined, undefined, undefined).catch((err) => {
                             that._logger.log(that.WARN, LOG_ID + "(signin) failed to get company information : ", err);
                         }
+                    );
+                    that.account.company = companyInfo;
+
+                    that._logger.log(that.INTERNAL, LOG_ID + "(signin) welcome " + that.account.displayName + "!");
+                    //that._logger.log(that.DEBUG, LOG_ID + "(signin) user information ", that.account);
+                    that._logger.log(that.INTERNAL, LOG_ID + "(signin) application information : ", that.app);
+                    that.getApiConfigurationFromServer();
+                    resolve(JSON);
+                }).catch(function (err) {
+                    that._logger.log(that.ERROR, LOG_ID, "(signin) ErrorManager during REST signin");
+                    that._logger.log(that.INTERNALERROR, LOG_ID, "(signin) ErrorManager during REST signin : ", err);
+                    return reject(err);
+                });
+            } else if (that.isAPIKeyCredentialsLogin()) {
+                let myInformations = await that.getMyInformations();
+                that._logger.log(that.INTERNAL, LOG_ID + "(signin) myInformations : ", myInformations);
+                that.account = myInformations;
+                that.account.jid = that.account.jid ? that.account.jid:that.account.jid_im;
+                //that.app = JSON.loggedInApplication;
+                //that.tokenRest = JSON.token;
+
+                let companyInfo = await that.getCompanyInfos(that.account.companyId, "full", false, undefined, undefined, undefined, undefined, undefined, undefined, undefined).catch((err) => {
+                        that._logger.log(that.WARN, LOG_ID + "(signin) failed to get company information : ", err);
+                    }
                 );
                 that.account.company = companyInfo;
 
@@ -509,11 +534,18 @@ class RESTService extends GenericRESTService {
                 that._logger.log(that.INTERNAL, LOG_ID + "(signin) application information : ", that.app);
                 that.getApiConfigurationFromServer();
                 resolve(JSON);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(signin) ErrorManager during REST signin");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(signin) ErrorManager during REST signin : ", err);
-                return reject(err);
-            });
+
+                /*
+                let loggedInUser = await that.getContactInformationByID(decodedtoken.user.id).then(async (contactsFromServeur: any) => {
+                    if (contactsFromServeur) {
+
+                    }
+                }); // */
+                return resolve(that.account);
+            } else {
+                //throw new Error("Error, no credentials defined. You must define a couple of login/password or define an apikey");
+                reject({"message":"Error, no credentials defined. You must define a couple of login/password or define an apikey"});
+            }
         });
     }
 
@@ -659,6 +691,12 @@ class RESTService extends GenericRESTService {
     async startTokenSurvey() {
 
         let that = this;
+
+        if (that.isAPIKeyCredentialsLogin()) {
+            that._logger.log(that.INFO, LOG_ID + "(startTokenSurvey) - API_KEY used for log, so no token survey has to be done.");
+
+            return;
+        }
 
         let decodedToken : any = jwtDecode(that.token);
         //that._logger.log(that.DEBUG, LOG_ID + "(startTokenSurvey) - token.");
@@ -844,6 +882,197 @@ class RESTService extends GenericRESTService {
     }
 
     //endregion
+
+    //region apikeys rainbow authentication
+
+    deleteApiKey(apiKeyId: string) {
+        // API https://api.openrainbow.org/authentication/#api-apikeys-DeleteApiKey
+        // DELETE /api/rainbow/authentication/v1.0/apikeys/:apiKeyId
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let data: any = {};
+
+            //let userId = userId ? userId : that.account.id;
+            let userId = that.account.id;
+
+            let url = "/api/rainbow/authentication/v1.0/apikeys/" + apiKeyId;
+            that._logger.log(that.INTERNAL, LOG_ID + "(deleteApiKey) args : ", data);
+            that.http.delete(url, that.getRequestHeader(), undefined).then(function (json) {
+                that._logger.log(that.DEBUG, LOG_ID + "(deleteApiKey) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(deleteApiKey) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(deleteApiKey) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteApiKey) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    generateApiKey (scope:Array<string> = ["all"], description: string = "", isActive: boolean = true, expirationDate?: string): Promise<[any]> {
+        // API https://api.openrainbow.org/authentication/#api-apikeys-PostApiKeys
+        // POST "/api/rainbow/authentication/v1.0/apikeys"
+        // for authentication
+
+        let that = this;
+        return new Promise(async function (resolve, reject) {
+            let url = "/api/rainbow/authentication/v1.0/apikeys";
+            /*let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "sortOrder", sortOrder);
+            addParamToUrl(urlParamsTab, "limit", limit);
+            addParamToUrl(urlParamsTab, "offset", offset);
+            url = urlParamsTab[0];
+            // */
+
+            let body: any = {};
+            addPropertyToObj(body, "scope", scope, false);
+            addPropertyToObj(body, "description", description, false);
+            addPropertyToObj(body, "isActive", isActive, false);
+            addPropertyToObj(body, "expirationDate", expirationDate, false);
+
+            //that._logger.log(that.INTERNAL, LOG_ID + "(generateApiKey) with params : ",body);
+            await that.http.post(url, that.getRequestHeader(), body, undefined).then(function (json) {
+                that._logger.log(that.DEBUG, LOG_ID + "(generateApiKey) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(generateApiKey) REST result : ", json);
+                resolve(json?.data);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(generateApiKey) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(generateApiKey) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    getAllApiKey(isActive:boolean = undefined, fromCreationDate:string = undefined, toCreationDate:string = undefined, limit:number = 100, offset:number = 0, sortField:string = "creationDate", sortOrder : number = -1, format : string = "small", userId : string) {
+        // API https://api.openrainbow.org/authentication/#api-apikeys-GetAllApiKeys
+        // GET /api/rainbow/authentication/v1.0/apikeys
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            //that._logger.log(that.INTERNAL, LOG_ID + "(getMultifactorInformation) REST numberE164 : ", numberE164);
+            //let userId = that.account.id;
+
+            let url: string = "/api/rainbow/authentication/v1.0/apikeys";
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "isActive", isActive, false);
+            addParamToUrl(urlParamsTab, "fromCreationDate", fromCreationDate, false);
+            addParamToUrl(urlParamsTab, "toCreationDate", toCreationDate, false);
+            addParamToUrl(urlParamsTab, "limit", limit, false);
+            addParamToUrl(urlParamsTab, "offset", offset, false);
+            addParamToUrl(urlParamsTab, "sortField", sortField, false);
+            addParamToUrl(urlParamsTab, "sortOrder", sortOrder, false);
+            addParamToUrl(urlParamsTab, "format", format, false);
+            addParamToUrl(urlParamsTab, "userId", userId, false);
+            url = urlParamsTab[0];
+
+            that._logger.log(that.INTERNAL, LOG_ID + "(getAllApiKey) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
+                that._logger.log(that.DEBUG, LOG_ID + "(getAllApiKey) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getAllApiKey) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(getAllApiKey) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getAllApiKey) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    getApiKey(apiKeyId:string = undefined) {
+        // API https://api.openrainbow.org/authentication/#api-apikeys-GetAnApiKey
+        // GET /api/rainbow/authentication/v1.0/apikeys/:apiKeyId
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            //that._logger.log(that.INTERNAL, LOG_ID + "(getMultifactorInformation) REST numberE164 : ", numberE164);
+            //let userId = that.account.id;
+
+            let url: string = "/api/rainbow/authentication/v1.0/apikeys/"+apiKeyId;
+/*
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "isActive", isActive, false);
+            url = urlParamsTab[0];
+//*/
+
+            that._logger.log(that.INTERNAL, LOG_ID + "(getApiKey) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
+                that._logger.log(that.DEBUG, LOG_ID + "(getApiKey) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getApiKey) REST result : ", json);
+                resolve(json?.data);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(getApiKey) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getApiKey) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    getCurrentApiKey(apiKeyId:string = undefined) {
+        // API https://api.openrainbow.org/authentication/#api-apikeys-GetCurrentApiKey
+        // GET /api/rainbow/authentication/v1.0/apikeys/current
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            //that._logger.log(that.INTERNAL, LOG_ID + "(getMultifactorInformation) REST numberE164 : ", numberE164);
+            //let userId = that.account.id;
+
+            let url: string = "/api/rainbow/authentication/v1.0/apikeys/current";
+            /*
+                        let urlParamsTab: string[] = [];
+                        urlParamsTab.push(url);
+                        addParamToUrl(urlParamsTab, "isActive", isActive, false);
+                        url = urlParamsTab[0];
+            //*/
+
+            that._logger.log(that.INTERNAL, LOG_ID + "(getCurrentApiKey) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
+                that._logger.log(that.DEBUG, LOG_ID + "(getCurrentApiKey) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getCurrentApiKey) REST result : ", json);
+                resolve(json?.data);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(getCurrentApiKey) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getCurrentApiKey) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    updateApiKey(apiKeyId : string, description : string, isActive : boolean, expirationDate: string = undefined) {
+        // API https://api.openrainbow.org/authentication/#api-apikeys-PutApiKeys
+        // PUT /api/rainbow/authentication/v1.0/apikeys/:apiKeyId
+
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let data: any = {};
+            //let userId = that.account.id;
+            let url = "/api/rainbow/authentication/v1.0/apikeys/" + apiKeyId;
+
+            let body: any = {};
+            addPropertyToObj(body, "description", description, false);
+            addPropertyToObj(body, "isActive", isActive, false);
+            addPropertyToObj(body, "expirationDate", expirationDate, false);
+
+            that._logger.log(that.INTERNAL, LOG_ID + "(updateApiKey) args : ", body);
+            that.http.put(url, that.getRequestHeader(), body, undefined).then(function (json) {
+                that._logger.log(that.DEBUG, LOG_ID + "(updateApiKey) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(updateApiKey) REST result : ", json);
+                resolve(json?.data);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(updateApiKey) error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateApiKey) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    //endregion apikeys rainbow authentication
 
     //region multifactor rainbow authentication
 

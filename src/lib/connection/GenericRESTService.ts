@@ -2,7 +2,14 @@
 
 import * as btoa from "btoa";
 import * as CryptoJS from "crypto-js";
-import {makeId, stackTrace} from "../common/Utils.js";
+import {
+    isDefined,
+    isDefinedAndNotEmpty,
+    isNotDefined,
+    isNotDefinedOrEmpty,
+    makeId,
+    stackTrace
+} from "../common/Utils.js";
 import {Logger} from "../common/Logger.js";
 import {LevelLogs} from "../common/LevelLogs.js";
 let packageVersion = require("../../package.json");
@@ -81,6 +88,14 @@ class GenericRESTService extends LevelLogs{
         return this._auth;
     }
 
+    isUserCredentialsLogin(): boolean {
+        return (isDefinedAndNotEmpty(this._credentials.login) && isDefinedAndNotEmpty(this._credentials.password) && isNotDefinedOrEmpty(this._credentials.apikey));
+    }
+
+    isAPIKeyCredentialsLogin(): boolean {
+        return (isNotDefinedOrEmpty(this._credentials.login) && isNotDefinedOrEmpty(this._credentials.password) && isDefinedAndNotEmpty(this._credentials.apikey));
+    }
+
     get p_decodedtokenRest(): any {
         return this._decodedtokenRest;
     }
@@ -93,18 +108,53 @@ class GenericRESTService extends LevelLogs{
         let that = this;
 
         let headers = {
-            "Authorization": "Bearer " + that._token,
+        //    "Authorization": "Bearer " + that._token,
             "Accept": accept || "application/json",
             "Range": undefined,
             "x-rainbow-client": "sdk_node",
             "x-rainbow-client-version": packageVersion.version,
             "x-rainbow-client-id": that.application?that.application.appID:"",
-            "x-rainbow-request-node-id" :  makeId(9)
+            "x-rainbow-correlation-id" :  makeId(16)
+            //"x-rainbow-request-node-id" :  makeId(9)
         };
 
         //let caller = arguments.callee.caller.toString();
         // let caller = arguments.callee.caller.prototype;
         //console.log("caller : ", caller);
+
+        if (that._credentials.apikey) {
+            /*var uuid = require('uuid');
+            var btoa = require('btoa');
+            var cryptojs = require('crypto-js');
+            //*/
+            headers['x-rainbow-api-key'] = that._credentials.apikey;
+            let challenge = makeId(22);
+            console.log('challenge: ' + challenge);
+            headers['x-rainbow-challenge'] = challenge;
+            let xapp = "XXX";
+            // Basic <base64encode(appId:sha256(appSecret challenge))> (Concatenation of appSecret and provided challenge, hashed with sha256).
+            let appIdNet = that.application.appID;
+            console.log('appIdNet: ' + appIdNet);
+            let appSecretNet = that.application.appSecret;
+            console.log('appSecretNet: ' + appSecretNet);
+
+            let toEncrypt = appSecretNet + challenge;
+            console.log('appSecretNet + challenge : ' + toEncrypt);
+
+            let encrypted = CryptoJS.SHA256(toEncrypt).toString();
+            console.log('appSecretNet + challenge encrypted : ' + encrypted);
+
+            let appCode = appIdNet + ':' + encrypted
+            console.log('appIdNet:encrypted : ' + appCode);
+            let base64 = btoa(appCode);
+            console.log('base64: ' + base64);
+
+            xapp = base64;
+
+            headers["x-rainbow-app-auth"] = "Basic " + xapp;
+        } else {
+            headers["Authorization"] = "Bearer " + that._token;
+        }
 
         return headers;
     }
@@ -113,13 +163,48 @@ class GenericRESTService extends LevelLogs{
         let that = this;
 
         let headers = {
-            "Authorization": "Bearer " + that._token,
+            //"Authorization": "Bearer " + that._token,
             "accept": accept || "application/json",
             "x-rainbow-client": "sdk_node",
             "x-rainbow-client-version": packageVersion.version,
             "x-rainbow-client-id": that.application?that.application.appID:"",
-            "x-rainbow-request-node-id" :  makeId(9)
+            "x-rainbow-correlation-id" :  makeId(16)
+            //"x-rainbow-request-node-id" :  makeId(9)
         };
+
+        if (that._credentials.apikey) {
+            /*var uuid = require('uuid');
+            var btoa = require('btoa');
+            var cryptojs = require('crypto-js');
+            //*/
+            headers['x-rainbow-api-key'] = that._credentials.apikey;
+            let challenge = makeId(22);
+            console.log('challenge: ' + challenge);
+            headers['x-rainbow-challenge'] = challenge;
+            let xapp = "XXX";
+            // Basic <base64encode(appId:sha256(appSecret challenge))> (Concatenation of appSecret and provided challenge, hashed with sha256).
+            let appIdNet = that.application.appID;
+            console.log('appIdNet: ' + appIdNet);
+            let appSecretNet = that.application.appSecret;
+            console.log('appSecretNet: ' + appSecretNet);
+
+            let toEncrypt = appSecretNet + challenge;
+            console.log('appSecretNet + challenge : ' + toEncrypt);
+
+            let encrypted = CryptoJS.SHA256(toEncrypt).toString();
+            console.log('appSecretNet + challenge encrypted : ' + encrypted);
+
+            let appCode = appIdNet + ':' + encrypted
+            console.log('appIdNet:encrypted : ' + appCode);
+            let base64 = btoa(appCode);
+            console.log('base64: ' + base64);
+
+            xapp = base64;
+
+            headers["x-rainbow-app-auth"] = "Basic " + xapp;
+        } else {
+            headers["Authorization"] = "Bearer " + that._token;
+        }
 
         return headers;
     }
@@ -156,24 +241,56 @@ class GenericRESTService extends LevelLogs{
         let headers = {
             "Accept": "application/json",
             "Content-Type": "application/json",
-            "Authorization": "Basic " + (auth || that._auth),
             "x-rainbow-client": "sdk_node",
             "x-rainbow-client-version": packageVersion.version,
             "x-rainbow-client-id": that.application?that.application.appID:"",
-            "x-rainbow-request-node-id" :  makeId(9)
+            "x-rainbow-correlation-id" :  makeId(16)
+            //"x-rainbow-request-node-id" :  makeId(9)
         };
 
-        let toEncrypt = that._application.appSecret + (password || that._credentials.password);
-        //that._logger.log(that.DEBUG, LOG_ID + "toEncrypt : " + toEncrypt);
-        let encrypted = CryptoJS.SHA256(toEncrypt).toString();
-        //that._logger.log(that.DEBUG, LOG_ID + "encrypted : " + encrypted);
-        let base64 = btoa(that._application.appID + ':' + encrypted);
-        //that._logger.log(that.DEBUG, LOG_ID + "base64 : " + base64);
+        if (that._credentials.apikey) {
+            /*var uuid = require('uuid');
+            var btoa = require('btoa');
+            var cryptojs = require('crypto-js');
+            //*/
+            headers['x-rainbow-api-key'] = that._credentials.apikey;
+            let challenge = makeId(22);
+            console.log('challenge: ' + challenge);
+            headers['x-rainbow-challenge'] = challenge;
+            let xapp = "XXX";
+            // Basic <base64encode(appId:sha256(appSecret challenge))> (Concatenation of appSecret and provided challenge, hashed with sha256).
+            let appIdNet = that.application.appID;
+            console.log('appIdNet: ' + appIdNet);
+            let appSecretNet = that.application.appSecret;
+            console.log('appSecretNet: ' + appSecretNet);
 
-        if (that._application.appSecret && base64 && base64.length) {
-            headers["x-rainbow-app-auth"] = "Basic " + base64 || "";
+            let toEncrypt = appSecretNet + challenge;
+            console.log('appSecretNet + challenge : ' + toEncrypt);
+
+            let encrypted = CryptoJS.SHA256(toEncrypt).toString();
+            console.log('appSecretNet + challenge encrypted : ' + encrypted);
+
+            let appCode = appIdNet + ':' + encrypted
+            console.log('appIdNet:encrypted : ' + appCode);
+            let base64 = btoa(appCode);
+            console.log('base64: ' + base64);
+
+            xapp = base64;
+
+            headers["x-rainbow-app-auth"] = "Basic " + xapp;
+        } else {
+            headers["Authorization"] = "Basic " + (auth || that._auth);
+            let toEncrypt = that._application.appSecret + (password || that._credentials.password);
+            //that._logger.log(that.DEBUG, LOG_ID + "toEncrypt : " + toEncrypt);
+            let encrypted = CryptoJS.SHA256(toEncrypt).toString();
+            //that._logger.log(that.DEBUG, LOG_ID + "encrypted : " + encrypted);
+            let base64 = btoa(that._application.appID + ':' + encrypted);
+            //that._logger.log(that.DEBUG, LOG_ID + "base64 : " + base64);
+
+            if (that._application.appSecret && base64 && base64.length) {
+                headers["x-rainbow-app-auth"] = "Basic " + base64 || "";
+            }
         }
-
         return headers;
     };
 
@@ -186,7 +303,8 @@ class GenericRESTService extends LevelLogs{
             "x-rainbow-client": "sdk_node",
             "x-rainbow-client-version": packageVersion.version,
             "x-rainbow-client-id": that.application?that.application.appID:"",
-            "x-rainbow-request-node-id" :  makeId(9)
+            "x-rainbow-correlation-id" :  makeId(16)
+            //"x-rainbow-request-node-id" :  makeId(9)
         };
     };
     

@@ -348,7 +348,7 @@ class Core extends LevelLogs{
                 while (loginSucceed == false) {
                     let loginResult = undefined;
                     await that._xmpp.stop(forceStopXMPP).then(() => {
-                        return that._rest.signin(token);
+                            return that._rest.signin(token);
                     }).then((_json) => {
                         json = _json;
                         let headers = {
@@ -368,8 +368,8 @@ class Core extends LevelLogs{
                         loginResult = json;
                         loginSucceed = true;
                     }).catch(function (err) {
-                        that._logger.log(that.ERROR, LOG_ID + "(signin) can't signed-in.");
-                        that._logger.log(that.INTERNALERROR, LOG_ID + "(signin) can't signed-in", err);
+                        //that._logger.log(that.ERROR, LOG_ID + "(signin) can't signed-in.");
+                        that._logger.log(that.ERROR, LOG_ID + "(signin) can't signed-in", err);
                         that._logger.log(that.DEBUG, LOG_ID + "(signin) _exiting_");
                         //return reject(err);
                         loginSucceed = false;

@@ -103,6 +103,7 @@ class Emitter extends EventEmitterClass{
  * @fires Events#rainbow_onchatstate
  * @fires Events#rainbow_oncontactinformationchanged
  * @fires Events#rainbow_onuserinformationchanged
+ * @fires Events#rainbow_onuserpasswordconfig
  * @fires Events#rainbow_onuserinvitereceived
  * @fires Events#rainbow_onuserinviteaccepted
  * @fires Events#rainbow_onuserinvitecanceled
@@ -229,6 +230,7 @@ class Events {
         "rainbow_onchatstate",
         "rainbow_oncontactinformationchanged",
         "rainbow_onuserinformationchanged",
+        "rainbow_onuserpasswordconfig",
         "rainbow_onuserinvitereceived",
         "rainbow_onuserinviteaccepted",
         "rainbow_onuserinvitecanceled",
@@ -585,6 +587,18 @@ class Events {
              *      This event is fired when informations about the connected user changed.
              */
             that.publishEvent("userinformationchanged", contact);
+        });
+
+        this._evReceiver.on("evt_internal_userpasswordconfig", function(contact) {
+
+            /**
+             * @public
+             * @event Events#rainbow_onuserpasswordconfig
+             * @param {  Object }  {action: string, contextid: string} The action on password.
+             * @description
+             *      This event is fired when password about the connected user is managed.
+             */
+            that.publishEvent("userpasswordconfig", contact);
         });
 
         this._evReceiver.on("evt_internal_userinvitereceived", function(invitation) {
