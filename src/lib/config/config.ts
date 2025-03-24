@@ -26,17 +26,17 @@ enum DataStoreType {
 }
 
 let conf =  {
-    sandbox: {
-        http: {
-            host: "sandbox.openrainbow.com",
-            port: "443",
-            protocol: "https",
+    "sandbox": {
+        "http": {
+            "host": "sandbox.openrainbow.com",
+            "port": "443",
+            "protocol": "https",
         },
-        xmpp: {
-            host: "sandbox.openrainbow.com",
-            port: "443",
-            protocol: "wss",
-            timeBetweenXmppRequests: "20",
+        "xmpp": {
+            "host": "sandbox.openrainbow.com",
+            "port": "443",
+            "protocol": "wss",
+            "timeBetweenXmppRequests": "20",
             "raiseLowLevelXmppInEvent": false,
             "raiseLowLevelXmppOutReq": false,
             "maxIdleTimer": 15000,
@@ -44,71 +44,71 @@ let conf =  {
             "xmppRessourceName": undefined,
             "maxPendingAsyncLockXmppQueue": 10000
         },
-        s2s: {
-            hostCallback: "nrock",
-            locallistenningport: "4000",
+        "s2s": {
+            "hostCallback": "nrock",
+            "locallistenningport": "4000",
             "expressEngine": undefined
         },
-        rest:{
-            useRestAtStartup : true,
+        "rest":{
+            "useRestAtStartup" : true,
             "useGotLibForHttp":true,
             "gotOptions": {
-                agentOptions: {
+                "agentOptions": {
                     /**
                      * Keep sockets around in a pool to be used by other requests in the future. Default = false
                      */
-                    keepAlive: true, // ?: boolean | undefined;
+                    "keepAlive": true, // ?: boolean | undefined;
                     /**
                      * When using HTTP KeepAlive, how often to send TCP KeepAlive packets over sockets being kept alive. Default = 1000.
                      * Only relevant if keepAlive is set to true.
                      * Note that rainbow server keep it opennen 5000 milliseconds.
                      */
-                    keepAliveMsecs: 4301, // ?: number | undefined;
+                    "keepAliveMsecs": 4301, // ?: number | undefined;
                     /**
                      * Maximum number of sockets to allow per host. Default for Node 0.10 is 5, default for Node 0.12 is Infinity
                      */
-                    maxSockets: Infinity, // ?: number | undefined;
+                    "maxSockets": Infinity, // ?: number | undefined;
                     /**
                      * Maximum number of sockets allowed for all hosts in total. Each request will use a new socket until the maximum is reached. Default: Infinity.
                      */
-                    maxTotalSockets: Infinity, // ?: number | undefined;
+                    "maxTotalSockets": Infinity, // ?: number | undefined;
                     /**
                      * Maximum number of sockets to leave open in a free state. Only relevant if keepAlive is set to true. Default = 256.
                      */
-                    maxFreeSockets: 1000, // ?: number | undefined;
+                    "maxFreeSockets": 1000, // ?: number | undefined;
                     /**
                      * Socket timeout in milliseconds. This will set the timeout after the socket is connected.
                      */
-                    timeout: 120002, // ?: number | undefined;
+                    "timeout": 120002, // ?: number | undefined;
                     /**
                      * If not false, the server certificate is verified against the list of supplied CAs. Default: true.
                      */
-                    rejectUnauthorized: true
+                    "rejectUnauthorized": true
                 },
-                gotRequestOptions : {
-                    timeout: { // This object describes the maximum allowed time for particular events.
-                        lookup: 100, // lookup: 100, Starts when a socket is assigned.  Ends when the hostname has been resolved.
-                        connect: 100, // connect: 50, Starts when lookup completes.  Ends when the socket is fully connected.
-                        secureConnect: 100, // secureConnect: 50, Starts when connect completes. Ends when the handshake process completes.
-                        socket: 10000, // socket: 1000, Starts when the socket is connected. Resets when new data is transferred.
-                        send: 120002, // send: 10000, // Starts when the socket is connected. Ends when all data have been written to the socket.
-                        response: 120002 // response: 1000 // Starts when request has been flushed. Ends when the headers are received.
+                "gotRequestOptions" : {
+                    "timeout": { // This object describes the maximum allowed time for particular events.
+                        "lookup": 100, // lookup: 100, Starts when a socket is assigned.  Ends when the hostname has been resolved.
+                        "connect": 100, // connect: 50, Starts when lookup completes.  Ends when the socket is fully connected.
+                        "secureConnect": 100, // secureConnect: 50, Starts when connect completes. Ends when the handshake process completes.
+                        "socket": 10000, // socket: 1000, Starts when the socket is connected. Resets when new data is transferred.
+                        "send": 120002, // send: 10000, // Starts when the socket is connected. Ends when all data have been written to the socket.
+                        "response": 120002 // response: 1000 // Starts when request has been flushed. Ends when the headers are received.
                     }
                 }
             }
         }
     },
-    official: {
-        http: {
-            host: "openrainbow.com",
-            port: "443",
-            protocol: "https",
+    "official": {
+        "http": {
+            "host": "openrainbow.com",
+            "port": "443",
+            "protocol": "https",
         },
-        xmpp: {
-            host: "openrainbow.com",
-            port: "443",
-            protocol: "wss",
-            timeBetweenXmppRequests: "20",
+        "xmpp": {
+            "host": "openrainbow.com",
+            "port": "443",
+            "protocol": "wss",
+            "timeBetweenXmppRequests": "20",
             "raiseLowLevelXmppInEvent": false,
             "raiseLowLevelXmppOutReq": false,
             "maxIdleTimer": 15000,
@@ -116,71 +116,71 @@ let conf =  {
             "xmppRessourceName": undefined,
             "maxPendingAsyncLockXmppQueue": 10000
         },
-        s2s: {
-            hostCallback: "nrock",
-            locallistenningport: "4000",
+        "s2s": {
+            "hostCallback": "nrock",
+            "locallistenningport": "4000",
             "expressEngine": undefined
         },
-        rest:{
-            useRestAtStartup : true,
+        "rest":{
+            "useRestAtStartup" : true,
             "useGotLibForHttp": true,
             "gotOptions":  {
-                agentOptions: {
+                "agentOptions": {
                     /**
                      * Keep sockets around in a pool to be used by other requests in the future. Default = false
                      */
-                    keepAlive: true, // ?: boolean | undefined;
+                    "keepAlive": true, // ?: boolean | undefined;
                     /**
                      * When using HTTP KeepAlive, how often to send TCP KeepAlive packets over sockets being kept alive. Default = 1000.
                      * Only relevant if keepAlive is set to true.
                      * Note that rainbow server keep it opennen 5000 milliseconds.
                      */
-                    keepAliveMsecs: 4301, // ?: number | undefined;
+                    "keepAliveMsecs": 4301, // ?: number | undefined;
                     /**
                      * Maximum number of sockets to allow per host. Default for Node 0.10 is 5, default for Node 0.12 is Infinity
                      */
-                    maxSockets: 25, // ?: number | undefined;
+                    "maxSockets": 25, // ?: number | undefined;
                     /**
                      * Maximum number of sockets allowed for all hosts in total. Each request will use a new socket until the maximum is reached. Default: Infinity.
                      */
-                    maxTotalSockets: Infinity, // ?: number | undefined;
+                    "maxTotalSockets": Infinity, // ?: number | undefined;
                     /**
                      * Maximum number of sockets to leave open in a free state. Only relevant if keepAlive is set to true. Default = 256.
                      */
-                    maxFreeSockets: 1000, // ?: number | undefined;
+                    "maxFreeSockets": 1000, // ?: number | undefined;
                     /**
                      * Socket timeout in milliseconds. This will set the timeout after the socket is connected.
                      */
-                    timeout: 60000, // ?: number | undefined;
+                    "timeout": 60000, // ?: number | undefined;
                     /**
                      * If not false, the server certificate is verified against the list of supplied CAs. Default: true.
                      */
-                    rejectUnauthorized: true
+                    "rejectUnauthorized": true
                 },
-                gotRequestOptions : {
-                    timeout: { // This object describes the maximum allowed time for particular events.
-                        lookup: 800, // lookup: 100, Starts when a socket is assigned.  Ends when the hostname has been resolved.
-                        connect: 1250, // connect: 50, Starts when lookup completes.  Ends when the socket is fully connected.
-                        secureConnect: 1250, // secureConnect: 50, Starts when connect completes. Ends when the handshake process completes.
-                        socket: 2000, // socket: 1000, Starts when the socket is connected. Resets when new data is transferred.
-                        send: 90000, // send: 10000, // Starts when the socket is connected. Ends when all data have been written to the socket.
-                        response: 2000 // response: 1000 // Starts when request has been flushed. Ends when the headers are received.
+                "gotRequestOptions" : {
+                    "timeout": { // This object describes the maximum allowed time for particular events.
+                        "lookup": 800, // lookup: 100, Starts when a socket is assigned.  Ends when the hostname has been resolved.
+                        "connect": 1250, // connect: 50, Starts when lookup completes.  Ends when the socket is fully connected.
+                        "secureConnect": 1250, // secureConnect: 50, Starts when connect completes. Ends when the handshake process completes.
+                        "socket": 2000, // socket: 1000, Starts when the socket is connected. Resets when new data is transferred.
+                        "send": 90000, // send: 10000, // Starts when the socket is connected. Ends when all data have been written to the socket.
+                        "response": 2000 // response: 1000 // Starts when request has been flushed. Ends when the headers are received.
                     }
                 }
             }
         }
     },
-    any: {
-        http: {
-            host: "",
-            port: "443",
-            protocol: "https"
+    "any": {
+        "http": {
+            "host": "",
+            "port": "443",
+            "protocol": "https"
         },
-        xmpp: {
-            host: "",
-            port: "443",
-            protocol: "wss",
-            timeBetweenXmppRequests: "20",
+        "xmpp": {
+            "host": "",
+            "port": "443",
+            "protocol": "wss",
+            "timeBetweenXmppRequests": "20",
             "raiseLowLevelXmppInEvent": false,
             "raiseLowLevelXmppOutReq": false,
             "maxIdleTimer": 15000,
@@ -188,82 +188,82 @@ let conf =  {
             "xmppRessourceName": undefined,
             "maxPendingAsyncLockXmppQueue": 10000
         },
-        s2s: {
-            hostCallback: "nrock",
-            locallistenningport: "4000",
+        "s2s": {
+            "hostCallback": "nrock",
+            "locallistenningport": "4000",
             "expressEngine": undefined
         }
         ,
-        rest:{
-            useRestAtStartup : true,
+        "rest":{
+            "useRestAtStartup" : true,
             "useGotLibForHttp": true,
             "gotOptions":  {
-                agentOptions: {
+                "agentOptions": {
                     /**
                      * Keep sockets around in a pool to be used by other requests in the future. Default = false
                      */
-                    keepAlive: true, // ?: boolean | undefined;
+                    "keepAlive": true, // ?: boolean | undefined;
                     /**
                      * When using HTTP KeepAlive, how often to send TCP KeepAlive packets over sockets being kept alive. Default = 1000.
                      * Only relevant if keepAlive is set to true.
                      * Note that rainbow server keep it opennen 5000 milliseconds.
                      */
-                    keepAliveMsecs: 4301, // ?: number | undefined;
+                    "keepAliveMsecs": 4301, // ?: number | undefined;
                     /**
                      * Maximum number of sockets to allow per host. Default for Node 0.10 is 5, default for Node 0.12 is Infinity
                      */
-                    maxSockets: 25, // ?: number | undefined;
+                    "maxSockets": 25, // ?: number | undefined;
                     /**
                      * Maximum number of sockets allowed for all hosts in total. Each request will use a new socket until the maximum is reached. Default: Infinity.
                      */
-                    maxTotalSockets: Infinity, // ?: number | undefined;
+                    "maxTotalSockets": Infinity, // ?: number | undefined;
                     /**
                      * Maximum number of sockets to leave open in a free state. Only relevant if keepAlive is set to true. Default = 256.
                      */
-                    maxFreeSockets: 1001, // ?: number | undefined;
+                    "maxFreeSockets": 1001, // ?: number | undefined;
                     /**
                      * Socket timeout in milliseconds. This will set the timeout after the socket is connected.
                      */
-                    timeout: 120001, // ?: number | undefined;
+                    "timeout": 120001, // ?: number | undefined;
                     /**
                      * If not false, the server certificate is verified against the list of supplied CAs. Default: true.
                      */
-                    rejectUnauthorized: true
+                    "rejectUnauthorized": true
                 },
-                gotRequestOptions : {
-                    timeout: { // This object describes the maximum allowed time for particular events.
-                        lookup: 5251, // lookup: 100, Starts when a socket is assigned.  Ends when the hostname has been resolved.
-                        connect: 5251, // connect: 50, Starts when lookup completes.  Ends when the socket is fully connected.
-                        secureConnect: 5251, // secureConnect: 50, Starts when connect completes. Ends when the handshake process completes.
-                        socket: 120001, // socket: 1000, Starts when the socket is connected. Resets when new data is transferred.
-                        send: 120001, // send: 10000, // Starts when the socket is connected. Ends when all data have been written to the socket.
-                        response: 120001 // response: 1000 // Starts when request has been flushed. Ends when the headers are received.
+                "gotRequestOptions" : {
+                    "timeout": { // This object describes the maximum allowed time for particular events.
+                        "lookup": 5251, // lookup: 100, Starts when a socket is assigned.  Ends when the hostname has been resolved.
+                        "connect": 5251, // connect: 50, Starts when lookup completes.  Ends when the socket is fully connected.
+                        "secureConnect": 5251, // secureConnect: 50, Starts when connect completes. Ends when the handshake process completes.
+                        "socket": 120001, // socket: 1000, Starts when the socket is connected. Resets when new data is transferred.
+                        "send": 120001, // send: 10000, // Starts when the socket is connected. Ends when all data have been written to the socket.
+                        "response": 120001 // response: 1000 // Starts when request has been flushed. Ends when the headers are received.
                     }
                 }
             }
         }
     },
-    logs: {
-        path: "/var/tmp/rainbowsdk/",
-        level: LEVELSNAMES.INFO,
-        color: false,
-        enableConsoleLog: true,
-        enableEventsLogs: false,
-        enableEncryptedLogs: false,
+    "logs": {
+        "path": "/var/tmp/rainbowsdk/",
+        "level": LEVELSNAMES.INFO,
+        "color": false,
+        "enableConsoleLog": true,
+        "enableEventsLogs": false,
+        "enableEncryptedLogs": false,
         "system-dev": {
-            internals: false,
-            http: false
+            "internals": false,
+            "http": false
         },
-        zippedArchive: true,
-        maxSize : "10m",
-        maxFiles : null
+        "zippedArchive": true,
+        "maxSize" : "10m",
+        "maxFiles" : null
     },
-    im: {
-        sendReadReceipt: true,
-        messageMaxLength: 16384,
-        sendMessageToConnectedUser: false,
-        conversationsRetrievedFormat: "small",
-        storeMessages: true, /* https://xmpp.org/extensions/xep-0334.html#hints :
+    "im": {
+        "sendReadReceipt": true,
+        "messageMaxLength": 16384,
+        "sendMessageToConnectedUser": false,
+        "conversationsRetrievedFormat": "small",
+        "storeMessages": true, /* https://xmpp.org/extensions/xep-0334.html#hints :
          No store :
             A message containing a <no-store/> hint should not be stored by a server either permanently (as above) or temporarily,
             e.g. for later delivery to an offline client, or to users not currently present in a chatroom.
@@ -274,29 +274,29 @@ let conf =  {
             This hint MUST only be included on messages addressed to full JIDs and explicitly does not override the behaviour defined in XMPP IM [1] for handling messages to bare JIDs,
             which may involve copying to multiple resources, or multiple occupants in a Multi-User Chat (XEP-0045) [6] room.
         // */
-        copyMessage: true,
-        nbMaxConversations: 15,
-        rateLimitPerHour: 10000,
-        messagesDataStore: DataStoreType.UsestoreMessagesField,
-        autoInitialGetBubbles: true,
-        autoInitialBubblePresence: true,
-        maxBubbleJoinInProgress: 10,
+        "copyMessage": true,
+        "nbMaxConversations": 15,
+        "rateLimitPerHour": 10000,
+        "messagesDataStore": DataStoreType.UsestoreMessagesField,
+        "autoInitialGetBubbles": true,
+        "autoInitialBubblePresence": true,
+        "maxBubbleJoinInProgress": 10,
         "autoInitialBubbleFormat": "full",
         "autoInitialBubbleUnsubscribed": true,
-        autoLoadConversations: true,
-        autoLoadConversationHistory: false,
-        autoLoadContacts: true,
+        "autoLoadConversations": true,
+        "autoLoadConversationHistory": false,
+        "autoLoadContacts": true,
         "autoInitialLoadContactsInfoBulk": true,
-        autoLoadCallLog: false,
-        forceHistoryGetContactFromServer: false,
+        "autoLoadCallLog": false,
+        "forceHistoryGetContactFromServer": false,
         // manage carbon copy https://xmpp.org/extensions/xep-0280.html
-        enableCarbon: true,
-        enablesendurgentpushmessages: false,
-        useMessageEditionAndDeletionV2: true,
-        storeMessagesInConversation: true,
-        maxMessagesStoredInConversation: 1000
+        "enableCarbon": true,
+        "enablesendurgentpushmessages": false,
+        "useMessageEditionAndDeletionV2": true,
+        "storeMessagesInConversation": true,
+        "maxMessagesStoredInConversation": 1000
     },
-    mode:"xmpp",
+    "mode":"xmpp",
     "concurrentRequests": 1000,
     "requestsRate": {
         "useRequestRateLimiter": true,
@@ -304,130 +304,130 @@ let conf =  {
         "intervalForRequestRate": 60, // nb of seconds used for the calcul of the rate limit.
         "timeoutRequestForRequestRate": 600, // nb seconds Request stay in queue before being rejected if queue is full.
     },
-    intervalBetweenCleanMemoryCache: 1000 * 60 * 60 * 6, // Every 6 hours 
-    debug:true,
-    permitSearchFromPhoneBook:true,
-    displayOrder:"firstLast",
-    testOutdatedVersion: false,
-    testDNSentry: true,
-    autoReconnectIgnoreErrors: false,
-    httpoverxmppserver: false,
-    servicesToStart : {
-            s2s: {
-                start_up:true,
-                optional:true,
-                logEntryParameters:false
+    "intervalBetweenCleanMemoryCache": 1000 * 60 * 60 * 6, // Every 6 hours
+    "debug":true,
+    "permitSearchFromPhoneBook":true,
+    "displayOrder":"firstLast",
+    "testOutdatedVersion": false,
+    "testDNSentry": true,
+    "autoReconnectIgnoreErrors": false,
+    "httpoverxmppserver": false,
+    "servicesToStart" : {
+            "s2s": {
+                "start_up":true,
+                "optional":true,
+                "logEntryParameters":false
             }, //need services :  (that._xmpp, that._settings);
-            presence: {
-                start_up:true,
-                optional:true,
-                logEntryParameters:false
+            "presence": {
+                "start_up":true,
+                "optional":true,
+                "logEntryParameters":false
             }, //need services :  (that._xmpp, that._settings);
-            contacts:  {
-                start_up:true,
-                optional:true,
-                logEntryParameters:false
+            "contacts":  {
+                "start_up":true,
+                "optional":true,
+                "logEntryParameters":false
             }, //need services :  (that._xmpp, that._rest);
-            conversations :  {
-                start_up:true,
-                optional:true,
-                logEntryParameters:false
+            "conversations" :  {
+                "start_up":true,
+                "optional":true,
+                "logEntryParameters":false
             }, //need services :  (that._xmpp, that._rest, that._contacts, that._bubbles, that._fileStorage, that._fileServer);
-            im :  {
-                start_up:true,
-                optional:true,
-                logEntryParameters:false
+            "im" :  {
+                "start_up":true,
+                "optional":true,
+                "logEntryParameters":false
             }, //need services :  (that._xmpp, that._conversations, that._bubbles, that._fileStorage);
-            profiles :  {
-                start_up:true,
-                optional:true,
-                logEntryParameters:false
+            "profiles" :  {
+                "start_up":true,
+                "optional":true,
+                "logEntryParameters":false
             }, //need services :  (that._xmpp, that._rest);
-            groups :  {
-                start_up:true,
-                optional:true,
-                logEntryParameters:false
+            "groups" :  {
+                "start_up":true,
+                "optional":true,
+                "logEntryParameters":false
             }, //need services :  (that._xmpp, that._rest);
 
-            bubbles:  {
-                start_up:true,
-                optional:true,
-                logEntryParameters:false
+            "bubbles":  {
+                "start_up":true,
+                "optional":true,
+                "logEntryParameters":false
             }, //need services :  (that._xmpp, that._rest);
-            telephony:  {
-                start_up:true,
-                optional:true,
-                logEntryParameters:false
+            "telephony":  {
+                "start_up":true,
+                "optional":true,
+                "logEntryParameters":false
             }, //need services :  (that._xmpp, that._rest, that._contacts, that._bubbles, that._profiles);
-            channels:  {
-                start_up:true,
-                optional:true,
-                logEntryParameters:false
+            "channels":  {
+                "start_up":true,
+                "optional":true,
+                "logEntryParameters":false
             }, //need services :  (that._xmpp, that._rest);
-            admin:  {
-                start_up:true,
-                optional:true,
-                logEntryParameters:false
+            "admin":  {
+                "start_up":true,
+                "optional":true,
+                "logEntryParameters":false
             }, //need services :  (that._xmpp, that._rest);
-            fileServer:  {
-                start_up:true,
-                optional:true,
-                logEntryParameters:false
+            "fileServer":  {
+                "start_up":true,
+                "optional":true,
+                "logEntryParameters":false
             }, //need services :  (that._xmpp, that._rest, that._fileStorage);
-            fileStorage:  {
-                start_up:true,
-                optional:true,
-                logEntryParameters:false
+            "fileStorage":  {
+                "start_up":true,
+                "optional":true,
+                "logEntryParameters":false
             }, //need services :  (that._xmpp, that._rest, that._fileServer, that._conversations);
-            calllog:  {
-                start_up:true,
-                optional:true,
-                logEntryParameters:false
+            "calllog":  {
+                "start_up":true,
+                "optional":true,
+                "logEntryParameters":false
             }, //need services :  (that._xmpp, that._rest, that._contacts, that._profiles, that._telephony);
-            favorites:  {
-                start_up:true,
-                optional:true,
-                logEntryParameters:false
+            "favorites":  {
+                "start_up":true,
+                "optional":true,
+                "logEntryParameters":false
             }, //need services :  (that._xmpp, that._rest);
-            alerts:  {
-                start_up:true,
-                optional:true,
-                logEntryParameters:false
+            "alerts":  {
+                "start_up":true,
+                "optional":true,
+                "logEntryParameters":false
             }, //need services :  (that._xmpp, that._rest);
-            invitation:  {
-                start_up:true,
-                optional:true,
-                logEntryParameters:false
+            "invitation":  {
+                "start_up":true,
+                "optional":true,
+                "logEntryParameters":false
             }, //need services :  (that._xmpp, that._rest);
-            settings:  {
-                start_up:true,
-                optional:true,
-                logEntryParameters:false
+            "settings":  {
+                "start_up":true,
+                "optional":true,
+                "logEntryParameters":false
             }, //need services : ( XMPPService, _rest : RESTService)
-            webinar:  {
-                start_up:true,
-                optional:true,
-                logEntryParameters:false
+            "webinar":  {
+                "start_up":true,
+                "optional":true,
+                "logEntryParameters":false
             }, //need services : ( )
-            rbvoice:  {
-                start_up:true,
-                optional:true,
-                logEntryParameters:false
+            "rbvoice":  {
+                "start_up":true,
+                "optional":true,
+                "logEntryParameters":false
             }, //need services : ( )
-            httpoverxmpp:  {
-                start_up:true,
-                optional:true,
-                logEntryParameters:false
+            "httpoverxmpp":  {
+                "start_up":true,
+                "optional":true,
+                "logEntryParameters":false
             }, //need services : ( )
-            rpcoverxmpp:  {
-                start_up:true,
-                optional:true,
-                logEntryParameters:false
+            "rpcoverxmpp":  {
+                "start_up":true,
+                "optional":true,
+                "logEntryParameters":false
             }, //need services : ( )
-            tasks:  {
-                start_up:true,
-                optional:true,
-                logEntryParameters:false
+            "tasks":  {
+                "start_up":true,
+                "optional":true,
+                "logEntryParameters":false
             } //need services : ( )
     }
 

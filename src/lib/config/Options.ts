@@ -462,12 +462,12 @@ class Options {
     _getProxyOptions() {
 
         let proxyOptions = {
-            protocol: "http",
-            host: "",
-            port: 80,
-            user: undefined,
-            password: undefined,
-            secureProtocol: undefined
+            "protocol": "http",
+            "host": "",
+            "port": 80,
+            "user": undefined,
+            "password": undefined,
+            "secureProtocol": undefined
         };
 
         if (!("host" in this._options.proxy)) {
@@ -513,31 +513,31 @@ class Options {
     _getIMOptions() {
 
         let optionsIM = {
-            sendReadReceipt:config.im.sendReadReceipt,
-            messageMaxLength : 1024,
-            sendMessageToConnectedUser: false,
-            conversationsRetrievedFormat: "small",
-            storeMessages: false,
-            copyMessage: true,
-            nbMaxConversations: 15,
-            rateLimitPerHour: 10000,
-            messagesDataStore: DataStoreType.UsestoreMessagesField,
-            autoInitialGetBubbles: true,
-            autoInitialBubblePresence: true,
-            maxBubbleJoinInProgress: 10,
+            "sendReadReceipt":config.im.sendReadReceipt,
+            "messageMaxLength" : 1024,
+            "sendMessageToConnectedUser": false,
+            "conversationsRetrievedFormat": "small",
+            "storeMessages": false,
+            "copyMessage": true,
+            "nbMaxConversations": 15,
+            "rateLimitPerHour": 10000,
+            "messagesDataStore": DataStoreType.UsestoreMessagesField,
+            "autoInitialGetBubbles": true,
+            "autoInitialBubblePresence": true,
+            "maxBubbleJoinInProgress": 10,
             "autoInitialBubbleFormat": "full",
             "autoInitialBubbleUnsubscribed": false,
-            autoLoadConversations: true,
-            autoLoadConversationHistory: false,
-            autoLoadContacts: true,
+            "autoLoadConversations": true,
+            "autoLoadConversationHistory": false,
+            "autoLoadContacts": true,
             "autoInitialLoadContactsInfoBulk": true,
-            autoLoadCallLog: false,
-            forceHistoryGetContactFromServer: false,
-            enableCarbon: true,
-            enablesendurgentpushmessages: false,
-            useMessageEditionAndDeletionV2: true,
-            storeMessagesInConversation: true,
-            maxMessagesStoredInConversation: 1000
+            "autoLoadCallLog": false,
+            "forceHistoryGetContactFromServer": false,
+            "enableCarbon": true,
+            "enablesendurgentpushmessages": false,
+            "useMessageEditionAndDeletionV2": true,
+            "storeMessagesInConversation": true,
+            "maxMessagesStoredInConversation": 1000
         };
 
         if (!("sendReadReceipt" in this._options.im)) {
@@ -577,8 +577,8 @@ class Options {
 
     _getApplicationsOptions() {
         let applicationOptions = {
-            appID: "",
-            appSecret: ""
+            "appID": "",
+            "appSecret": ""
         };
 
         if ("application" in this._options) {
