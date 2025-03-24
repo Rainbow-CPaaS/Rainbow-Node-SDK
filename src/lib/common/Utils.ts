@@ -139,6 +139,33 @@ let isNumber = function  isNumber(data) {
 }
 
 /**
+ * @name toBoolean
+ * @param value
+ * @returns {boolean}
+ *
+ *
+ * exemples :
+ * ```
+ * console.log(toBoolean(true));           // true
+ * console.log(toBoolean(false));          // false
+ * console.log(toBoolean(1));              // true
+ * console.log(toBoolean(0));              // false
+ * console.log(toBoolean("Hello"));        // true
+ * console.log(toBoolean("false"));        // false
+ * console.log(toBoolean("False"));        // false
+ * console.log(toBoolean("  FaLsE  "));    // false
+ * console.log(toBoolean(""));             // false
+ * console.log(toBoolean(null));           // false
+ * console.log(toBoolean(undefined));      // false
+ * ```
+ */
+function toBoolean(value: any): boolean {
+    if (typeof value === "string" && value.trim().toLowerCase() === "false") {
+        return false;
+    }
+    return Boolean(value);
+}
+/**
  * @name setTimeoutPromised
  * @description
  *  function to wait for milliseconds and return a resolved promise.
@@ -1149,6 +1176,7 @@ export let objToExport = {
     isNotDefinedOrEmpty,
     isNumber,
     isString,
+    toBoolean,
     Deferred,
     isSuperAdmin,
     setTimeoutPromised,
@@ -1211,6 +1239,7 @@ export {
     isNotDefinedOrEmpty,
     isNumber,
     isString,
+    toBoolean,
     Deferred,
     isSuperAdmin,
     setTimeoutPromised,
@@ -1272,6 +1301,7 @@ export default {
     isNotDefinedOrEmpty,
     isNumber,
     isString,
+    toBoolean,
     Deferred,
     isSuperAdmin,
     setTimeoutPromised,

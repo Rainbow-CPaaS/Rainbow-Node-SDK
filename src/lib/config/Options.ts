@@ -1,6 +1,6 @@
 "use strict";
 import {Logger} from "../common/Logger";
-import {isNotDefined, updateObjectPropertiesFromAnOtherObject} from "../common/Utils";
+import {isNotDefined, toBoolean, updateObjectPropertiesFromAnOtherObject} from "../common/Utils";
 
 export {};
 
@@ -118,7 +118,7 @@ class Options {
     }
 
     set testOutdatedVersion(value: boolean) {
-        this._testOutdatedVersion = value;
+        this._testOutdatedVersion = toBoolean(value);
     }
 
     get testDNSentry(): boolean {
@@ -126,7 +126,7 @@ class Options {
     }
 
     set testDNSentry(value: boolean) {
-        this._testDNSentry = value;
+        this._testDNSentry = toBoolean(value);
     }
 
     get autoReconnectIgnoreErrors(): boolean {
@@ -134,7 +134,7 @@ class Options {
     }
 
     set autoReconnectIgnoreErrors(value: boolean) {
-        this._autoReconnectIgnoreErrors = value;
+        this._autoReconnectIgnoreErrors = toBoolean(value);
     }
 
     get testhttpoverxmppserver(): boolean {
@@ -142,7 +142,7 @@ class Options {
     }
 
     set testhttpoverxmppserver(value: boolean) {
-        this._httpoverxmppserver = value;
+        this._httpoverxmppserver = toBoolean(value);
     }
 
     get intervalBetweenCleanMemoryCache(): number {
@@ -222,39 +222,39 @@ class Options {
     }
 
     _gettestOutdatedVersion() {
-        if ( this._options["testOutdatedVersion"] !== undefined ) {
-            return this._options.testOutdatedVersion;
+        if ( isDefined(this._options["testOutdatedVersion"]) ) {
+            return toBoolean(this._options.testOutdatedVersion);
         } else {
             return config.testOutdatedVersion;
         }
     }
 
     _gettestDNSentry() {
-        if ( this._options["testDNSentry"] !== undefined ) {
-            return this._options.testDNSentry;
+        if ( isDefined(this._options["testDNSentry"] ) ) {
+            return toBoolean(this._options.testDNSentry);
         } else {
             return config.testDNSentry;
         }
     }
 
     _getautoReconnectIgnoreErrors() {
-        if ( this._options["autoReconnectIgnoreErrors"] !== undefined ) {
-            return this._options.autoReconnectIgnoreErrors;
+        if ( isDefined(this._options["autoReconnectIgnoreErrors"]) ) {
+            return toBoolean(this._options.autoReconnectIgnoreErrors);
         } else {
             return config.autoReconnectIgnoreErrors;
         }
     }
 
     _gethttpoverxmppserver() {
-        if ( this._options["httpoverxmppserver"] !== undefined ) {
-            return this._options.httpoverxmppserver;
+        if ( isDefined(this._options["httpoverxmppserver"]) ) {
+            return toBoolean(this._options.httpoverxmppserver);
         } else {
             return config.httpoverxmppserver;
         }
     }
 
     _getintervalBetweenCleanMemoryCache() {
-        if ( this._options["intervalBetweenCleanMemoryCache"] !== undefined ) {
+        if ( isDefined(this._options["intervalBetweenCleanMemoryCache"])) {
             return this._options.intervalBetweenCleanMemoryCache;
         } else {
             return config.intervalBetweenCleanMemoryCache;
@@ -333,25 +333,25 @@ class Options {
                 break;
         }
         if ( this._options.xmpp ) {
-            if (this._options.xmpp.raiseLowLevelXmppInEvent) {
-                xmppOptions.raiseLowLevelXmppInEvent = this._options.xmpp.raiseLowLevelXmppInEvent;
+            if (isDefined(this._options.xmpp.raiseLowLevelXmppInEvent)) {
+                xmppOptions.raiseLowLevelXmppInEvent = toBoolean(this._options.xmpp.raiseLowLevelXmppInEvent);
             }
-            if (this._options.xmpp.xmppRessourceName) {
+            if (isDefined(this._options.xmpp.xmppRessourceName)) {
                 xmppOptions.xmppRessourceName = this._options.xmpp.xmppRessourceName;
             }
-            if (this._options.xmpp.raiseLowLevelXmppOutReq) {
-                xmppOptions.raiseLowLevelXmppOutReq = this._options.xmpp.raiseLowLevelXmppOutReq;
+            if (isDefined(this._options.xmpp.raiseLowLevelXmppOutReq)) {
+                xmppOptions.raiseLowLevelXmppOutReq = toBoolean(this._options.xmpp.raiseLowLevelXmppOutReq);
             }
-            if (this._options.xmpp.maxIdleTimer) {
+            if (isDefined(this._options.xmpp.maxIdleTimer)) {
                 xmppOptions.maxIdleTimer = this._options.xmpp.maxIdleTimer;
             }
-            if (this._options.xmpp.timeBetweenXmppRequests) {
+            if (isDefined(this._options.xmpp.timeBetweenXmppRequests)) {
                 xmppOptions.timeBetweenXmppRequests = this._options.xmpp.timeBetweenXmppRequests;
             }
-            if (this._options.xmpp.maxPendingAsyncLockXmppQueue) {
+            if (isDefined(this._options.xmpp.maxPendingAsyncLockXmppQueue)) {
                 xmppOptions.maxPendingAsyncLockXmppQueue = this._options.xmpp.maxPendingAsyncLockXmppQueue;
             }
-            if (this._options.xmpp.maxPingAnswerTimer) {
+            if (isDefined(this._options.xmpp.maxPingAnswerTimer)) {
                 xmppOptions.maxPingAnswerTimer = this._options.xmpp.maxPingAnswerTimer;
             }
               /*
@@ -362,7 +362,7 @@ class Options {
         // */
         }
         if (!xmppOptions.xmppRessourceName ) {
-            if (this._configIniData.xmppRessourceName) {
+            if (isDefined(this._configIniData.xmppRessourceName)) {
                 xmppOptions.xmppRessourceName = this._configIniData.xmppRessourceName;
             } else {
                 xmppOptions.xmppRessourceName = xmppUtils.generateRandomID();
@@ -513,7 +513,7 @@ class Options {
     _getIMOptions() {
 
         let optionsIM = {
-            "sendReadReceipt":config.im.sendReadReceipt,
+            "sendReadReceipt":true,
             "messageMaxLength" : 1024,
             "sendMessageToConnectedUser": false,
             "conversationsRetrievedFormat": "small",
@@ -540,37 +540,31 @@ class Options {
             "maxMessagesStoredInConversation": 1000
         };
 
-        if (!("sendReadReceipt" in this._options.im)) {
-            this._logger.log("debug", LOG_ID + "(constructor) 'sendReadReceipt' property is not defined. Use default true");
-        }
-        else {
-                optionsIM.sendReadReceipt = this._options.im.sendReadReceipt;
-        }
-
-        optionsIM.messageMaxLength = this._options.im.messageMaxLength ? this._options.im.messageMaxLength : config.im.messageMaxLength;
-        optionsIM.sendMessageToConnectedUser = (this._options.im.sendMessageToConnectedUser == false) ? this._options.im.sendMessageToConnectedUser : config.im.sendMessageToConnectedUser;
-        optionsIM.conversationsRetrievedFormat = this._options.im.conversationsRetrievedFormat ? this._options.im.conversationsRetrievedFormat : config.im.conversationsRetrievedFormat;
-        optionsIM.storeMessages = isDefined(this._options.im.storeMessages) ? this._options.im.storeMessages : config.im.storeMessages;
-        optionsIM.copyMessage = (this._options.im.copyMessage == false) ? this._options.im.copyMessage : config.im.copyMessage;
-        optionsIM.nbMaxConversations = this._options.im.nbMaxConversations ? this._options.im.nbMaxConversations : config.im.nbMaxConversations;
-        optionsIM.rateLimitPerHour = this._options.im.rateLimitPerHour ? this._options.im.rateLimitPerHour : config.im.rateLimitPerHour;
-        optionsIM.messagesDataStore = this._options.im.messagesDataStore ? this._options.im.messagesDataStore : config.im.messagesDataStore;
-        optionsIM.autoInitialGetBubbles = (this._options.im.autoInitialGetBubbles == false) ? this._options.im.autoInitialGetBubbles : config.im.autoInitialGetBubbles;
-        optionsIM.autoInitialBubblePresence = (this._options.im.autoInitialBubblePresence == false) ? this._options.im.autoInitialBubblePresence : config.im.autoInitialBubblePresence;
-        optionsIM.maxBubbleJoinInProgress = (this._options.im.maxBubbleJoinInProgress ) ? this._options.im.maxBubbleJoinInProgress : config.im.maxBubbleJoinInProgress;
-        optionsIM.autoInitialBubbleFormat = this._options.im.autoInitialBubbleFormat ? this._options.im.autoInitialBubbleFormat : config.im.autoInitialBubbleFormat;
-        optionsIM.autoInitialBubbleUnsubscribed = (this._options.im.autoInitialBubbleUnsubscribed == false) ? this._options.im.autoInitialBubbleUnsubscribed : config.im.autoInitialBubbleUnsubscribed;
-        optionsIM.autoLoadConversations = isDefined(this._options.im.autoLoadConversations) ? this._options.im.autoLoadConversations : config.im.autoLoadConversations;
-        optionsIM.autoLoadConversationHistory = (this._options.im.autoLoadConversationHistory == true) ? this._options.im.autoLoadConversationHistory : config.im.autoLoadConversationHistory;
-        optionsIM.autoLoadContacts = (this._options.im.autoLoadContacts == false) ? this._options.im.autoLoadContacts : config.im.autoLoadContacts;
-        optionsIM.autoInitialLoadContactsInfoBulk = isDefined(this._options.im.autoInitialLoadContactsInfoBulk) ? this._options.im.autoInitialLoadContactsInfoBulk : config.im.autoInitialLoadContactsInfoBulk;
-        optionsIM.autoLoadCallLog = isDefined(this._options.im.autoLoadCallLog) ? this._options.im.autoLoadCallLog : config.im.autoLoadCallLog;
-        optionsIM.forceHistoryGetContactFromServer = (this._options.im.forceHistoryGetContactFromServer == true) ? this._options.im.forceHistoryGetContactFromServer : config.im.forceHistoryGetContactFromServer;
-        optionsIM.enableCarbon = (this._options.im.enableCarbon == false) ? this._options.im.enableCarbon : config.im.enableCarbon;
-        optionsIM.enablesendurgentpushmessages = (this._options.im.enablesendurgentpushmessages == true) ? this._options.im.enablesendurgentpushmessages : config.im.enablesendurgentpushmessages;
-        optionsIM.useMessageEditionAndDeletionV2 = (this._options.im.useMessageEditionAndDeletionV2 == false) ? this._options.im.useMessageEditionAndDeletionV2 : config.im.useMessageEditionAndDeletionV2;
-        optionsIM.storeMessagesInConversation = (this._options.im.storeMessagesInConversation == false) ? this._options.im.storeMessagesInConversation : config.im.storeMessagesInConversation;
-        optionsIM.maxMessagesStoredInConversation = this._options.im.maxMessagesStoredInConversation ? this._options.im.maxMessagesStoredInConversation : config.im.maxMessagesStoredInConversation;
+        optionsIM.sendReadReceipt = isDefined(config.im.sendReadReceipt) ? toBoolean(config.im.sendReadReceipt) : this._options.im.sendReadReceipt;
+        optionsIM.messageMaxLength = isDefined(this._options.im.messageMaxLength) ? this._options.im.messageMaxLength : config.im.messageMaxLength;
+        optionsIM.sendMessageToConnectedUser = isDefined(this._options.im.sendMessageToConnectedUser) ? toBoolean(this._options.im.sendMessageToConnectedUser) : config.im.sendMessageToConnectedUser;
+        optionsIM.conversationsRetrievedFormat = isDefined(this._options.im.conversationsRetrievedFormat) ? this._options.im.conversationsRetrievedFormat : config.im.conversationsRetrievedFormat;
+        optionsIM.storeMessages = isDefined(this._options.im.storeMessages) ? toBoolean(this._options.im.storeMessages) : config.im.storeMessages;
+        optionsIM.copyMessage = isDefined(this._options.im.copyMessage) ? toBoolean(this._options.im.copyMessage) : config.im.copyMessage;
+        optionsIM.nbMaxConversations = isDefined(this._options.im.nbMaxConversations) ? this._options.im.nbMaxConversations : config.im.nbMaxConversations;
+        optionsIM.rateLimitPerHour = isDefined(this._options.im.rateLimitPerHour) ? this._options.im.rateLimitPerHour : config.im.rateLimitPerHour;
+        optionsIM.messagesDataStore = isDefined(this._options.im.messagesDataStore) ? this._options.im.messagesDataStore : config.im.messagesDataStore;
+        optionsIM.autoInitialGetBubbles = isDefined(this._options.im.autoInitialGetBubbles) ? toBoolean(this._options.im.autoInitialGetBubbles) : config.im.autoInitialGetBubbles;
+        optionsIM.autoInitialBubblePresence = isDefined(this._options.im.autoInitialBubblePresence) ? toBoolean(this._options.im.autoInitialBubblePresence) : config.im.autoInitialBubblePresence;
+        optionsIM.maxBubbleJoinInProgress = isDefined(this._options.im.maxBubbleJoinInProgress) ? this._options.im.maxBubbleJoinInProgress : config.im.maxBubbleJoinInProgress;
+        optionsIM.autoInitialBubbleFormat = isDefined(this._options.im.autoInitialBubbleFormat) ? this._options.im.autoInitialBubbleFormat : config.im.autoInitialBubbleFormat;
+        optionsIM.autoInitialBubbleUnsubscribed = isDefined(this._options.im.autoInitialBubbleUnsubscribed) ? toBoolean(this._options.im.autoInitialBubbleUnsubscribed) : config.im.autoInitialBubbleUnsubscribed;
+        optionsIM.autoLoadConversations = isDefined(this._options.im.autoLoadConversations) ? toBoolean(this._options.im.autoLoadConversations) : config.im.autoLoadConversations;
+        optionsIM.autoLoadConversationHistory = isDefined(this._options.im.autoLoadConversationHistory) ? toBoolean(this._options.im.autoLoadConversationHistory) : config.im.autoLoadConversationHistory;
+        optionsIM.autoLoadContacts = isDefined(this._options.im.autoLoadContacts) ? toBoolean(this._options.im.autoLoadContacts) : config.im.autoLoadContacts;
+        optionsIM.autoInitialLoadContactsInfoBulk = isDefined(this._options.im.autoInitialLoadContactsInfoBulk) ? toBoolean(this._options.im.autoInitialLoadContactsInfoBulk) : config.im.autoInitialLoadContactsInfoBulk;
+        optionsIM.autoLoadCallLog = isDefined(this._options.im.autoLoadCallLog) ? toBoolean(this._options.im.autoLoadCallLog) : config.im.autoLoadCallLog;
+        optionsIM.forceHistoryGetContactFromServer = isDefined(this._options.im.forceHistoryGetContactFromServer) ? toBoolean(this._options.im.forceHistoryGetContactFromServer) : config.im.forceHistoryGetContactFromServer;
+        optionsIM.enableCarbon = isDefined(this._options.im.enableCarbon) ? toBoolean(this._options.im.enableCarbon) : config.im.enableCarbon;
+        optionsIM.enablesendurgentpushmessages = isDefined(this._options.im.enablesendurgentpushmessages) ? toBoolean(this._options.im.enablesendurgentpushmessages) : config.im.enablesendurgentpushmessages;
+        optionsIM.useMessageEditionAndDeletionV2 = isDefined(this._options.im.useMessageEditionAndDeletionV2) ? toBoolean(this._options.im.useMessageEditionAndDeletionV2) : config.im.useMessageEditionAndDeletionV2;
+        optionsIM.storeMessagesInConversation = isDefined(this._options.im.storeMessagesInConversation) ? toBoolean(this._options.im.storeMessagesInConversation) : config.im.storeMessagesInConversation;
+        optionsIM.maxMessagesStoredInConversation = isDefined(this._options.im.maxMessagesStoredInConversation) ? this._options.im.maxMessagesStoredInConversation : config.im.maxMessagesStoredInConversation;
 
         return optionsIM;
     }
