@@ -23,7 +23,7 @@ const Cryptr = require('cryptr');
 //let defaultConfig = require("../config/config");
 import {config as defaultConfig} from "../config/config";
 import {from} from "rxjs";
-import {findPackageJson, isDefined, stackTrace} from "./Utils.js";
+import {findPackageJson, isDefined, isInstanceOfClass, isJsonObject, isPlainObject, stackTrace} from "./Utils.js";
 import {LEVELS, LEVELSCOLORS, LEVELSNAMES, LogLevelAreas} from './LevelLogs.js';
 import path from "path";
 import {fileURLToPath} from "node:url";
@@ -65,6 +65,7 @@ class Logger {
     }
     private enableEncryptedLogs: boolean = false;
     public logLevel: LEVELSNAMES;
+    public logColor: boolean;
     private _areasLogs : LogLevelAreas;
 
     // public levels: { debug: number; warning: number; error: number;   "http": number, "xmpp": number; info: number , "warn": number, "trace": number, "internal": number, "internalerror": number};
@@ -157,7 +158,7 @@ class Logger {
 
         let logDir = logs.path;
         self.logLevel = logs.level;
-        let logColor = logs.color;
+        self.logColor = logs.color;
         let logHttp = logs["system-dev"].http;
         let logInternals = logs["system-dev"].internals;
         let logFormat = myFormat;
@@ -182,7 +183,7 @@ class Logger {
         }
 
         if (("logs" in config) && ("color" in config.logs))  {
-            logColor = config.logs.color;
+            self.logColor = config.logs.color;
         }
 
         if (("logs" in config) && ("system-dev" in config.logs) &&("http" in config.logs["system-dev"]))  {
@@ -193,7 +194,7 @@ class Logger {
             logInternals = config.logs["system-dev"].internals;
         }
 
-        if (!logColor) {
+        if (!self.logColor) {
             this.colors?.disable();
             logFormat=myFormatNoColors;
         } else {
@@ -497,12 +498,13 @@ class Logger {
                         // */
                     }
                 } else {
+                    let datatolog = that.argumentsToString(arguments);
                     if (logInternals) {
-                        that._winston.log.apply(that._winston, [levelOfLog, that._logger.customLabel + that.argumentsToString(arguments)]);
-                        that.emit(levelOfLog, that._logger.customLabel + that.argumentsToString(arguments));
+                        that._winston.log.apply(that._winston, [levelOfLog, that._logger.customLabel + datatolog]);
+                        that.emit(levelOfLog, that._logger.customLabel + datatolog);
                     } else {
-                        that._winston.log.apply(that._winston, [levelOfLog, that._logger.customLabel + that.hideId(that.hideUuid(that.argumentsToString(arguments)))]);
-                        that.emit(levelOfLog, that._logger.customLabel + that.hideId(that.hideUuid(that.argumentsToString(arguments))));
+                        that._winston.log.apply(that._winston, [levelOfLog, that._logger.customLabel + that.hideId(that.hideUuid(datatolog))]);
+                        that.emit(levelOfLog, that._logger.customLabel + that.hideId(that.hideUuid(datatolog)));
                     }
                 }
             } catch (err) {
@@ -524,7 +526,7 @@ class Logger {
                         label: "MonLabel"
                     }), // */
                     winston.format.errors({ stack: true }), // <-- use errors format
-                    winston.format.colorize({ all: logColor }),
+                    winston.format.colorize({ all: self.logColor }),
                     //winston.format.label({ label: 'right meow!' }),
                     //winston.format.colorize({ all: false }),
                     winston.format.simple(),
@@ -563,7 +565,7 @@ class Logger {
                 levels: LEVELS,
                 format: winston.format.combine(
                         winston.format.errors({ stack: true }), // <-- use errors format
-                    winston.format.colorize({ all: logColor }),
+                    winston.format.colorize({ all: self.logColor }),
                     winston.format.simple(),
                     //winston.format.label({ label: 'right meow!' }),
                     winston.format.timestamp({
@@ -591,7 +593,7 @@ class Logger {
                 levels: LEVELS,
                 format: winston.format.combine(
                         winston.format.errors({ stack: true }), // <-- use errors format
-                    winston.format.colorize({ all: logColor }),
+                    winston.format.colorize({ all: self.logColor }),
                     //winston.format.label({ label: 'right meow!' }),
                     winston.format.timestamp({
                         // 03/20/2025 10:00:11:846
@@ -672,17 +674,29 @@ class Logger {
     argumentsToStringReduced (v, delemiter : string = " "){
         // convert arguments object to real array
         let args = Array.prototype.slice.call(v, 1);
-        for(let k in args){
-            if (typeof args[k] === "object"){
-                // args[k] = JSON.stringify(args[k]);
-                let options = {
-                    showHidden  : false,
-                    depth : 3,
-                    colors : true,
-                    maxArrayLength : 3
-                };
+        let options = {
+            showHidden  : false,
+            depth : 3,
+            colors : this.logColor,
+            maxArrayLength : 3
+        };
+        for(let k in args) {
+           /* if (isPlainObject(args[k])) {
                 args[k] = util.inspect(args[k], options);
+            }// */
+
+//            if (typeof args[k] === "object"){
+            if (isInstanceOfClass(args[k])) {
+                // args[k] = JSON.stringify(args[k]);
+                args[k] = util.inspect(args[k], options);
+            } else if (isJsonObject(args[k])) {
+                if (isPlainObject(args[k])) {
+                    args[k] = util.inspect(args[k], options);
+                } else {
+                    args[k] = JSON.stringify(args[k]);
+                }
             }
+            // */
         }
         //let str =  Array.prototype.join.call(args, delemiter);
         let str =  args.join(delemiter);
@@ -692,11 +706,29 @@ class Logger {
     argumentsToStringFull (v, delemiter : string = " ") {
         // convert arguments object to real array
         let args = Array.prototype.slice.call(v, 1);
+        let options = {
+            showHidden  : false,
+            depth : null,
+            colors : this.logColor
+            //maxArrayLength : 5
+        };
         for(let k in args){
-            if (typeof args[k] === "object"){
-                // args[k] = JSON.stringify(args[k]);
-                args[k] = util.inspect(args[k], false, null, true);
+            if (isPlainObject(args[k])) {
+                args[k] = util.inspect(args[k], options);
             }
+            /*
+                   //if (typeof args[k] === "object"){
+                   if (isInstanceOfClass(args[k])){
+                       // args[k] = JSON.stringify(args[k]);
+                       args[k] = util.inspect(args[k], false, null, this.logColor);
+                   } else if (isJsonObject(args[k])){
+                       if (isPlainObject(args[k])) {
+                           args[k] = util.inspect(args[k], false, null, this.logColor);
+                       } else {
+                           args[k] = JSON.stringify(args[k]);
+                       }
+                   }
+                   // */
         } // */
         let str = args.join(delemiter);
         return str;

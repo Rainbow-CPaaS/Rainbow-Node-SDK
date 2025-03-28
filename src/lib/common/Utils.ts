@@ -138,6 +138,66 @@ let isNumber = function  isNumber(data) {
     return (typeof data === 'number' && !(isNaN(data)));
 }
 
+
+/**
+ *
+ * @name isPlainObject
+ * @description
+ * Vérifier si c'est un objet JSON (littéral)
+ * @returns {boolean}
+ *
+ *
+ * example:
+ * '''
+ * console.log(isPlainObject(jsonObject)); // true
+ * console.log(isPlainObject(instance));  // false
+ * '''
+ *
+ */
+let isPlainObject = function isPlainObject(obj: any): boolean {
+    return Object.prototype.toString.call(obj) === "[object Object]";
+}
+
+/**
+ *
+ * @name isInstanceOfClass
+ * @description
+ * Combinaison pour différencier un JSON et une instance
+ * @returns {boolean}
+ *
+ *
+ * example:
+ * '''
+ * console.log(isInstanceOfClass(instance));  // true (instance de classe)
+ * console.log(isInstanceOfClass(jsonObject)); // false (objet JSON)
+ * console.log(isInstanceOfClass(null));      // false
+ * console.log(isInstanceOfClass([]));        // false
+ * '''
+ *
+ */
+let isInstanceOfClass = function isInstanceOfClass(obj: any): boolean {
+    return obj instanceof Object && obj.constructor !== Object;
+}
+
+/**
+ *
+ * @name isJsonObject
+ * @description
+ * Détection avancée : présence du constructeur
+ * @param obj
+ * @returns {boolean}
+ *
+ * example:
+ * '''
+ * console.log(isJsonObject(jsonObject)); // true
+ * console.log(isJsonObject(instance));   // false
+ * '''
+ *
+ */
+let isJsonObject = function isJsonObject(obj: any): boolean {
+    return obj !== null && typeof obj === "object" && obj.constructor === Object;
+}
+
 /**
  * @name toBoolean
  * @param value
@@ -1176,6 +1236,9 @@ export let objToExport = {
     isNotDefinedOrEmpty,
     isNumber,
     isString,
+    isPlainObject,
+    isInstanceOfClass,
+    isJsonObject,
     toBoolean,
     Deferred,
     isSuperAdmin,
@@ -1239,6 +1302,9 @@ export {
     isNotDefinedOrEmpty,
     isNumber,
     isString,
+    isPlainObject,
+    isInstanceOfClass,
+    isJsonObject,
     toBoolean,
     Deferred,
     isSuperAdmin,
@@ -1301,6 +1367,9 @@ export default {
     isNotDefinedOrEmpty,
     isNumber,
     isString,
+    isPlainObject,
+    isInstanceOfClass,
+    isJsonObject,
     toBoolean,
     Deferred,
     isSuperAdmin,
