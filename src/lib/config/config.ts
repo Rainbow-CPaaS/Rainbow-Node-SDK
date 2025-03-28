@@ -260,7 +260,7 @@ let conf =  {
     },
     "im": {
         "sendReadReceipt": true,
-        "messageMaxLength": 16384,
+        "messageMaxLength": 16384, // Max stanza size on server is 18432
         "sendMessageToConnectedUser": false,
         "conversationsRetrievedFormat": "small",
         "storeMessages": true, /* https://xmpp.org/extensions/xep-0334.html#hints :

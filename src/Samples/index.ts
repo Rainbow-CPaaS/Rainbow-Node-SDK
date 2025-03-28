@@ -25,7 +25,7 @@ import {
     findAllPropInJSONByPropertyName,
     getTextFromJSONProperty,
     writeArrayToFile,
-    readArrayFromFile, addParamToUrl, getStoreStanzaValue, isDefined
+    readArrayFromFile, addParamToUrl, getStoreStanzaValue, isDefined, isPlainObject, isInstanceOfClass, isJsonObject
 } from "../lib/common/Utils";
 import {XMPPUTils} from "../lib/common/XMPPUtils";
 import {TimeOutManager} from "../lib/common/TimeOutManager";
@@ -131,7 +131,7 @@ import {Message} from "../lib/common/models/Message.js";
 import {catchError} from "rxjs";
 import {NameSpacesLabels} from "../lib/connection/XMPPService.js";
 import {jwtDecode} from "jwt-decode";
-import {LEVELSNAMES} from "../lib/common/LevelLogs.js";
+import {LevelLogs, LEVELSNAMES} from "../lib/common/LevelLogs.js";
 import {TaskInput} from "../lib/services/TasksService.js";
 import {Task} from "../lib/common/models/Task.js";
 import * as v8 from "v8";
@@ -725,7 +725,7 @@ let expressEngine = undefined;
         // IM options
         "im": {
             "sendReadReceipt": true,
-//            "messageMaxLength": 1024,
+//            "messageMaxLength": 16384,
             "sendMessageToConnectedUser": false,
             "conversationsRetrievedFormat": "full",
             "storeMessages": false,
@@ -745,7 +745,7 @@ let expressEngine = undefined;
             "autoLoadConversations": true,
             "autoLoadConversationHistory": false,
             "autoLoadContacts": true,
-            "autoInitialLoadContactsInfoBulk": false,
+            "autoInitialLoadContactsInfoBulk": "true",
             "autoLoadCallLog": false,
             "enableCarbon": true,
             "enablesendurgentpushmessages": true,
@@ -11820,7 +11820,7 @@ to='user1@pdevdv3os18f.corp.intuit.net/BANL07R9AME9X' type='get' id='e2e1'>
                     connectedUser = result.loggedInUser;
                     token = result.token;
                     _logger.log("debug", "MAIN - rainbow SDK started with result 1 : ", result); //logger.colors.green(JSON.stringify(result)));
-                    console.log("MAIN - rainbow SDK started with result 1 : ", inspect(result)); //logger.colors.green(JSON.stringify(result)));
+                    console.log("MAIN - rainbow SDK started with result 1 : " + inspect(result, false, 4, true)); //logger.colors.green(JSON.stringify(result)));
                     _logger.log("debug", "MAIN - rainbow SDK started with credentials result 1 : ", _logger.colors.green(connectedUser)); //logger.colors.green(JSON.stringify(result)));
 
                     //let startDuration = Math.round(new Date() - startDate);
@@ -12420,6 +12420,52 @@ to='user1@pdevdv3os18f.corp.intuit.net/BANL07R9AME9X' type='get' id='e2e1'>
             _logger.log("info", "MAIN - str strEncoded : ", strEncoded);
             let decrypted = _logger.decrypt(strEncoded);
             _logger.log("info", "MAIN - str Decrypted : ", decrypted);
+        }
+
+        testTypes() {
+            let num : number = 12;
+            _logger.log("info", "MAIN - type of num : ", typeof num, ", num : ", num);
+
+            let str : string = "myStr";
+            _logger.log("info", "MAIN - type of str : ", typeof str, ", str : ", str);
+
+            let json : any = {"az":2,"by":"DD"}  ;
+            _logger.log("info", "MAIN - type of json : ", typeof json, ", json : ", json);
+
+            let json2 : any = {"az":2,"by":"DD", "cx":undefined}  ;
+            _logger.log("info", "MAIN - type of json : ", typeof json2, ", json : ", json2);
+
+            json2.cx=json2;
+            _logger.log("info", "MAIN - with circular type of json : ", typeof json2, ", json : ", json2);
+            _logger.log("info", "MAIN - with circular type of json : ", typeof json2, ", inspect json : ", inspect(json2));
+
+            let levelLogs : LevelLogs = new LevelLogs();
+            _logger.log("info", "MAIN - type of object : ", typeof levelLogs, ", levelLogs : ", levelLogs);
+
+        }
+
+        testJsonFunction() {
+            let json : any = {"az":2,"by":"DD"}  ;
+            _logger.log("info", "MAIN - isPlainObject(json) : ", isPlainObject(json), ", json : ", json);
+            _logger.log("info", "MAIN - isInstanceOfClass(json) : ", isInstanceOfClass(json), ", json : ", json);
+            _logger.log("info", "MAIN - isJsonObject(json) : ", isJsonObject(json), ", json : ", json);
+
+            let json2 : any = {"az":2,"by":"DD", "cx":undefined}  ;
+            _logger.log("info", "MAIN - isPlainObject(json2) : ", isPlainObject(json2), ", json2 : ", json2);
+            _logger.log("info", "MAIN - isInstanceOfClass(json2) : ", isInstanceOfClass(json2), ", json2 : ", json2);
+            _logger.log("info", "MAIN - isJsonObject(json2) : ", isJsonObject(json2), ", json2 : ", json2);
+
+            json2.cx=json2;
+            _logger.log("info", "MAIN - with circular isPlainObject(json2) : ", isPlainObject(json2), ", json2 : ", json2);
+            _logger.log("info", "MAIN - with circular isInstanceOfClass(json2) : ", isInstanceOfClass(json2), ", json2 : ", json2);
+            _logger.log("info", "MAIN - with circular isJsonObject(json2) : ", isJsonObject(json2), ", json2 : ", json2);
+            //_logger.log("info", "MAIN - with circular json2 : ", typeof json2, ", inspect json : ", inspect(json2));
+
+            let levelLogs : LevelLogs = new LevelLogs();
+            _logger.log("info", "MAIN - isPlainObject(levelLogs) : ", isPlainObject(levelLogs), ", levelLogs : ", levelLogs);
+            _logger.log("info", "MAIN - isInstanceOfClass(levelLogs) : ", isInstanceOfClass(levelLogs), ", levelLogs : ", levelLogs);
+            _logger.log("info", "MAIN - isJsonObject(levelLogs) : ", isJsonObject(levelLogs), ", levelLogs : ", levelLogs);
+
         }
 
         //endregion Logguer

@@ -518,9 +518,16 @@ class RESTService extends GenericRESTService {
             } else if (that.isAPIKeyCredentialsLogin()) {
                 let myInformations = await that.getMyInformations();
                 that._logger.log(that.INTERNAL, LOG_ID + "(signin) myInformations : ", myInformations);
-                that.account = myInformations;
+                let JSON : any = {};
+                JSON.loggedInUser = myInformations;
+                that.account = JSON.loggedInUser;
                 that.account.jid = that.account.jid ? that.account.jid:that.account.jid_im;
-                //that.app = JSON.loggedInApplication;
+                await that.getApplicationDataById(that.application.appID).then((applicationData) => {
+                    JSON.loggedInApplication = applicationData;
+                    that.app = JSON.loggedInApplication;
+                }).catch ( (error) => {
+                    that._logger.log(that.WARN, LOG_ID + "(signin) getApplicationDataById failed : ", error);
+                })
                 //that.tokenRest = JSON.token;
 
                 let companyInfo = await that.getCompanyInfos(that.account.companyId, "full", false, undefined, undefined, undefined, undefined, undefined, undefined, undefined).catch((err) => {
@@ -2545,6 +2552,47 @@ class RESTService extends GenericRESTService {
     }
 
     //endregion Contacts API
+
+    //region Applications
+
+    async blockApplication () {}
+    async createApplication () {}
+    async declineApplicationDeployment () {}
+    async deleteApplication () {}
+    async deployApplication () {}
+    async getAllApplicationsCreatedByUser () {}
+    async getApplicationDataById (appId : string) {
+        // API https://api.openrainbow.org/application/#api-applications-applications_applications_getAppById
+        // GET /api/rainbow/applications/v1.0/applications/:appId
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url = "/api/rainbow/applications/v1.0/applications/" + appId;
+            that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
+                that._logger.log(that.DEBUG, LOG_ID + "(getApplicationDataById) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getApplicationDataById) REST result : ", json);
+                resolve(json?.data);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(getApplicationDataById) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getApplicationDataById) error : ", err);
+                if (err && err.code===404) {
+                    resolve(null);
+                } else {
+                    return reject(err);
+                }
+            });
+        });
+    }
+    async renewExpiredApplication () {}
+    async requestDeploymentOfApplication () {}
+    async restartApplication () {}
+    async stopApplication () {}
+    async unblockApplication () {}
+    async updateApplication () {}
+
+    async getCountersForApplication () {}
+    async updateCounterForApplication () {}
+
+    //endregion Applications
 
     //region Favorites
 

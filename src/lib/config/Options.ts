@@ -1,6 +1,12 @@
 "use strict";
 import {Logger} from "../common/Logger";
-import {isNotDefined, toBoolean, updateObjectPropertiesFromAnOtherObject} from "../common/Utils";
+import {
+    isDefinedAndNotEmpty,
+    isNotDefined,
+    isNotDefinedOrEmpty,
+    toBoolean,
+    updateObjectPropertiesFromAnOtherObject
+} from "../common/Utils";
 
 export {};
 
@@ -99,7 +105,13 @@ class Options {
         this._applicationOptions = this._getApplicationsOptions();
 
         let mode = this._getModeOption();
-        this._withXMPP = mode === "xmpp";
+        // Disable the xmpp mode if the ApiKey is used to connect SDK.
+        if (this._hasCredentials === true) {
+            if (isNotDefinedOrEmpty(this._options.credentials.login) && isNotDefinedOrEmpty(this._options.credentials.password) && isDefinedAndNotEmpty(this._options.credentials.apikey)) {
+                mode = "cli";
+            }
+        }
+        this._withXMPP = mode==="xmpp";
         this._withS2S = mode === "s2s";
         this._CLIMode = mode === "cli";
         this._servicesToStart = this._getservicesToStart();
@@ -514,7 +526,7 @@ class Options {
 
         let optionsIM = {
             "sendReadReceipt":true,
-            "messageMaxLength" : 1024,
+            "messageMaxLength" : 16384, // Max stanza size on server is 18432
             "sendMessageToConnectedUser": false,
             "conversationsRetrievedFormat": "small",
             "storeMessages": false,
@@ -601,7 +613,7 @@ class Options {
 
     /*
     get messageMaxLength () {
-        let messageMaxLength = 1024;
+        let messageMaxLength = 16384;
 
         messageMaxLength = this._options.im.messageMaxLength ? this._options.im.messageMaxLength : config.im.messageMaxLength;
 

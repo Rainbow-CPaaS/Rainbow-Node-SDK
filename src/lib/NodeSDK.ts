@@ -121,7 +121,7 @@ let LOG_ID = "NodeSDK/IDX";
  * @property {number} options.requestsRate.intervalForRequestRate 60, // nb of seconds used for the calcul of the rate limit of the rate limit of the http requests to server.
  * @property {number} options.requestsRate.timeoutRequestForRequestRate 600 // nb seconds Request stay in queue before being rejected if queue is full of the rate limit of the http requests to server.
  * @property {boolean} options.im.sendReadReceipt true, Allow to automatically send back a 'read' status of the received message. Usefull for Bots.
- * @property {number} options.im.messageMaxLength 1024, Maximum size of messages send by rainbow. Note that this value should not be modified without ALE Agreement.
+ * @property {number} options.im.messageMaxLength 16384, Maximum size of messages send by rainbow. Note that this value should not be modified without ALE Agreement. Max stanza's size on server is 18432.
  * @property {boolean} options.im.sendMessageToConnectedUser false, Forbid the SDK to send a message to the connected user it self. This is to avoid bot loopback.
  * @property {string} options.im.conversationsRetrievedFormat "small", Set the size of the conversation's content retrieved from server. Can be `small`, `medium`, `full`.
  * @property {boolean} options.im.storeMessages false, Tell the server to store the message for delay distribution and also for history. Please avoid to set it to true for a bot which will not read anymore the messages. It is a better way to store it in your own CPaaS application.
@@ -262,7 +262,7 @@ type OptionsType = {
     // IM options
     "im": {
         "sendReadReceipt": boolean,
-        "messageMaxLength": number,
+        "messageMaxLength": number, // Max stanza size on server is 18432
         "sendMessageToConnectedUser": boolean,
         "conversationsRetrievedFormat": string,
         "storeMessages": boolean,
@@ -479,7 +479,7 @@ class NodeSDK {
      * @param {string} options.requestsRate.intervalForRequestRate 60, // nb of seconds used for the calcul of the rate limit of the rate limit of the http requests to server.
      * @param {string} options.requestsRate.timeoutRequestForRequestRate 600 // nb seconds Request stay in queue before being rejected if queue is full of the rate limit of the http requests to server.
      * @param {boolean} options.im.sendReadReceipt true, Allow to automatically send back a 'read' status of the received message. Usefull for Bots.
-     * @param {string} options.im.messageMaxLength 1024, Maximum size of messages send by rainbow. Note that this value should not be modified without ALE Agreement.
+     * @param {string} options.im.messageMaxLength 16384, Maximum size of messages send by rainbow. Note that this value should not be modified without ALE Agreement. Max stanza's size on server is 18432.
      * @param {boolean} options.im.sendMessageToConnectedUser false, Forbid the SDK to send a message to the connected user it self. This is to avoid bot loopback.
      * @param {string} options.im.conversationsRetrievedFormat "small", Set the size of the conversation's content retrieved from server. Can be `small`, `medium`, `full`.
      * @param {string} options.im.storeMessages false, Tell the server to store the message for delay distribution and also for history. Please avoid to set it to true for a bot which will not read anymore the messages. It is a better way to store it in your own CPaaS application.
