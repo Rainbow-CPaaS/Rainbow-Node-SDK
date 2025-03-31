@@ -751,7 +751,9 @@ class XMPPService extends GenericService {
         });
 
         that.xmppClient.on(STATUS_EVENT, function fn_STATUS_EVENT (status, value) {
-            that._logger.log(that.INFO, LOG_ID + "(handleXMPPConnection) event - STATUS_EVENT : " + STATUS_EVENT + " | ", status,  " | ", value ? value.toString() : "");
+            that._logger.log(that.INFO, LOG_ID + "(handleXMPPConnection) event - STATUS_EVENT : " + STATUS_EVENT + " | ", status,  " | ", value);
+            //that._logger.log(that.INFO, LOG_ID + "(handleXMPPConnection) event - STATUS_EVENT : " + STATUS_EVENT + " | ", status,  " | ", "" + util.inspect(value, false, null, true));
+            //that._logger.log(that.INFO, LOG_ID + "(handleXMPPConnection) event - STATUS_EVENT : " + STATUS_EVENT + " | ", status,  " | ", value ? value.toString() : "");
             //that._logger.log(that.INFO, LOG_ID + "(handleXMPPConnection) event - STATUS_EVENT : " + STATUS_EVENT + " | ", status,  " | ", value?.name , value ? util.inspect(value, false, null, true) : "");
             /* if (msg === "closing") {
                  that.xmppClient.restartConnect().then((res) => {
