@@ -343,6 +343,11 @@ let expressEngine = undefined;
     logLevelAreas.bubbles.api = true;
     logLevelAreas.bubbles.level = LEVELSNAMES.INTERNAL;
 
+    logLevelAreas.telephony.api = true;
+    logLevelAreas.telephony.level = LEVELSNAMES.INTERNAL;
+    logLevelAreas.profiles.api = true;
+    logLevelAreas.profiles.level = LEVELSNAMES.INTERNAL;
+
 // */
 // Define your configuration
     let options: any = {
@@ -951,15 +956,15 @@ let expressEngine = undefined;
     rainbowSDK.events.on("rainbow_onvoicemessageupdated", (data) => {
         _logger.log("debug", "MAIN - (rainbow_onvoicemessageupdated) - rainbow voice message updated.", data);
     });
-
+    rainbowSDK.events.on("rainbow_onserviceinitialized", (data) => {
+        _logger.log("debug", "MAIN - (rainbow_onserviceinitialized) - rainbow service initialized : ", data);
+    });
     rainbowSDK.events.on("rainbow_on429BackoffError", (data) => {
         _logger.log("debug", "MAIN - (rainbow_on429BackoffError) - rainbow http code 429 raised, backoff.", data);
     });
-
     rainbowSDK.events.on("rainbow_onbubblepresencechanged", (data) => {
         _logger.log("debug", "MAIN - (rainbow_onbubblepresencechanged) - rainbow bubble presence, nameForLogs : ", data.nameForLogs, ", status :", data.status,", id :", data.id, ", name : ", data.name);
     });
-
     rainbowSDK.events.on("rainbow_onchatstate", (data) => {
         _logger.log("debug", "MAIN - (rainbow_onchatstate) - data : ", data);
     });

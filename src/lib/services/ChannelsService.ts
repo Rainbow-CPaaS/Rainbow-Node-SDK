@@ -79,7 +79,7 @@ class ChannelsService extends GenericService {
         start_up:boolean,
         optional:boolean
     }) {
-        super(_logger, LOG_ID);
+        super(_logger, LOG_ID, _eventEmitter);
         this.setLogLevels(this);
         this._startConfig = _startConfig;
         this._xmpp = null;

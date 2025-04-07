@@ -81,7 +81,7 @@ class TelephonyService extends GenericService {
         start_up:boolean,
         optional:boolean
     }) {
-        super(logger, LOG_ID);
+        super(logger, LOG_ID, _eventEmitter);
         this.setLogLevels(this);
         let that = this;
         this._startConfig = _startConfig;
@@ -197,6 +197,8 @@ class TelephonyService extends GenericService {
             let that = this;
             that._calls = [];
 
+            that._logger.log(that.INFO, LOG_ID + "(init) -- entry  -- ");
+
             //that.started = false;
             that.agentStatus = {phoneApi: "disconnected", xmppAgent: "stopped", agentVersion: "unknown"};
             that.voicemailNumber = that._contacts.userContact.voicemailNumber;
@@ -210,7 +212,7 @@ class TelephonyService extends GenericService {
             that.nomadicAnswerNotTakedIntoAccount = false;
 
             if (useRestAtStartup) {
-
+                that._logger.log(that.INFO, LOG_ID + "(init) before profile.");
                 that.isBasicCallAllowed = that._profiles.isFeatureEnabled(that._profiles.getFeaturesEnum().TELEPHONY_BASIC_CALL);
                 that.isSecondCallAllowed = that._profiles.isFeatureEnabled(that._profiles.getFeaturesEnum().TELEPHONY_SECOND_CALL);
                 that.isTransferAllowed = that._profiles.isFeatureEnabled(that._profiles.getFeaturesEnum().TELEPHONY_TRANSFER_CALL);
@@ -219,27 +221,33 @@ class TelephonyService extends GenericService {
                 that.voiceMailFeatureEnabled = that._profiles.isFeatureEnabled(that._profiles.getFeaturesEnum().TELEPHONY_VOICE_MAIL);
                 that.isForwardEnabled = that._profiles.isFeatureEnabled(that._profiles.getFeaturesEnum().TELEPHONY_CALL_FORWARD);
                 that.isNomadicEnabled = that._profiles.isFeatureEnabled(that._profiles.getFeaturesEnum().TELEPHONY_NOMADIC);
+                that._logger.log(that.INFO, LOG_ID + "(init) after profile.");
 
                 // Store the user jid tel
                 //that.userJidTel = authService.jidTel;
                 that.userJidTel = that._rest.loggedInUser ? that._rest.loggedInUser.jid_tel:"";
 
                 try {
-                    await that._xmpp.getAgentStatus().then((data) => {
-                        that._logger.log(that.INFO, LOG_ID + "[init] getAgentStatus  -- ", data);
-                        that.setInitialized();
+                    that._logger.log(that.INFO, LOG_ID + "(init) before getAgentStatus.");
+                    // No await because the result is not need in the next process.
+                    //that._xmpp.getAgentStatus().then((data) => {
+                    that.getAgentStatus().then((data) => {
+                        that._logger.log(that.INFO, LOG_ID + "(init) getAgentStatus  -- ", data);
+                        //that.setInitialized();
                         //resolve(undefined);
                     });
+                    that._logger.log(that.INFO, LOG_ID + "(init) after getAgentStatus.");
                 } catch (err) {
-                    that._logger.log(that.WARN, LOG_ID + "[init] getAgentStatus failed : ", err);
-                    that.setInitialized();
+                    that._logger.log(that.WARN, LOG_ID + "(init) getAgentStatus failed : ", err);
+                    //that.setInitialized();
                     //resolve(undefined);
                 }
                 //resolve(undefined);
             } else {
-                that.setInitialized();
+                //that.setInitialized();
                 //resolve(undefined);
             }
+            that.setInitialized();
             resolve(undefined);
         });
     }
@@ -410,7 +418,7 @@ class TelephonyService extends GenericService {
     getAgentVersion() {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getAgentVersion) .");
-        return that.agentStatus.agentVersion || "unknown";
+        return that.agentStatus?.agentVersion || "unknown";
     }
 
     /**
@@ -426,7 +434,7 @@ class TelephonyService extends GenericService {
     getXMPPAgentStatus() {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getXMPPAgentStatus) .");
-        return that.agentStatus.xmppAgent || "unknown";
+        return that.agentStatus?.xmppAgent || "unknown";
     }
 
     /**

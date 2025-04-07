@@ -51,9 +51,11 @@ class GenericService extends LevelLogs{
         readyDate: new Date()
     };
 
+    protected getAccessorName(){ return "GenericService"; }
 
-    constructor( _logger : Logger, logId : string = "UNDF/SVCE - ") {
+    constructor( _logger : Logger, logId : string = "UNDF/SVCE - ", _eventEmitter) {
         super();
+        this._eventEmitter = _eventEmitter;
         this.setLogLevels(this);
         let that = this;
         that._started = false;
@@ -86,28 +88,29 @@ class GenericService extends LevelLogs{
     setConstructed () {
         let that = this;
         that.startingInfos.constructorDate = new Date();
-        that._logger.log(that.INFO, that._logId + `=== CONSTRUCTED at (${that.startingInfos.constructorDate} ===`);
+        that._logger.log("info", that._logId + `=== CONSTRUCTED at (${that.startingInfos.constructorDate} ===`);
     }
 
     setStarted () {
         let that = this;
         that.startingInfos.startedDate = new Date();
-        that._logger.log(that.INFO, that._logId + `=== STARTED (${that.startedDuration} ms) ===`);
+        that._logger.log("info", that._logId + `=== STARTED (${that.startedDuration} ms) ===`);
         that._started = true;
     }
 
     setInitialized () {
         let that = this;
         that.startingInfos.initilizedDate = new Date();
-        that._logger.log(that.INFO, that._logId + `=== INITIALIZED (${that.initializedDuration} ms) ===`);
+        that._logger.log("info", that._logId + `=== INITIALIZED (${that.initializedDuration} ms) ===`);
         that._initialized = true;
+        that._eventEmitter.emit("evt_internal_serviceinitialized", {"name": that.getAccessorName(), "infos":{"msSinceStart": that.initializedDuration}});
     }
 
     setStopped () {
         let that = this;
         that._started = false;
         that._initialized = false;
-        that._logger.log(that.INFO, that._logId + `=== STOPPED () ===`);
+        that._logger.log("info", that._logId + `=== STOPPED () ===`);
     }
 
     callRestMethod (methodName : string = "methodNameUnknown", lesarguments) : Promise<any> {

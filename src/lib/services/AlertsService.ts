@@ -56,7 +56,7 @@ class AlertsService extends GenericService{
         start_up:boolean,
         optional:boolean
     }) {
-        super(logger, LOG_ID);
+        super(logger, LOG_ID, _eventEmitter);
         this.setLogLevels(this);
 
         /*********************************************************/

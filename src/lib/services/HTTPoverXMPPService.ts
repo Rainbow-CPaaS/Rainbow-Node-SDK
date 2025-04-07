@@ -57,7 +57,7 @@ class HTTPoverXMPP extends GenericService {
         start_up: boolean,
         optional: boolean
     }) {
-        super(_logger, LOG_ID);
+        super(_logger, LOG_ID, _eventEmitter);
         this.setLogLevels(this);
         this._xmpp = null;
         this._rest = null;

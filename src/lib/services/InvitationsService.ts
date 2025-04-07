@@ -58,7 +58,7 @@ class InvitationsService extends GenericService {
         getAccessorName(){ return InvitationsService.getAccessorName(); }
 
         constructor(_core:Core, _eventEmitter: EventEmitter, _logger: Logger, _startConfig: { start_up: boolean; optional: boolean }) {//$q, $log, $http, $rootScope, authService, Invitation, contactService, xmppService, errorHelperService, settingsService) {
-                super(_logger, LOG_ID);
+                super(_logger, LOG_ID, _eventEmitter);
                 this.setLogLevels(this);
                 let that = this;
                 this._startConfig = _startConfig;

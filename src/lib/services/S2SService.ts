@@ -68,7 +68,7 @@ class S2SService extends GenericService{
     getAccessorName(){ return S2SService.getAccessorName(); }
 
     constructor(_core:Core, _s2s: { hostCallback:string, locallistenningport:string, expressEngine:any }, _im, _application, _eventEmitter : EventEmitter, _logger: Logger, _proxy: ProxyImpl, _startConfig: { start_up:boolean, optional:boolean }) {
-        super(_logger, LOG_ID);
+        super(_logger, LOG_ID, _eventEmitter);
         this.setLogLevels(this);
         let that = this;
         this._startConfig = _startConfig;
