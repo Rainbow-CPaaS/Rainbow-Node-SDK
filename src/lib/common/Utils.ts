@@ -745,6 +745,12 @@ function isPromise (x) {
     //return Object(x).constructor===Promise;
 }
 
+function promiseState(p) {
+    const t = {};
+    return Promise.race([p, t])
+        .then(v => (v === t) ? "pending" : "fulfilled", () => "rejected");
+}
+
 // Function to test if variable is a string
 function isString(variable) {
     return typeof variable === "string";
@@ -1260,6 +1266,7 @@ export let objToExport = {
     cleanEmptyMembersFromObject,
     resolveDns,
     isPromise,
+    promiseState,
     doWithinInterval,
     addPropertyToObj,
     generateRamdomEmail,
@@ -1326,6 +1333,7 @@ export {
     cleanEmptyMembersFromObject,
     resolveDns,
     isPromise,
+    promiseState,
     doWithinInterval,
     addPropertyToObj,
     generateRamdomEmail,
@@ -1391,6 +1399,7 @@ export default {
     cleanEmptyMembersFromObject,
     resolveDns,
     isPromise,
+    promiseState,
     doWithinInterval,
     addPropertyToObj,
     generateRamdomEmail,
