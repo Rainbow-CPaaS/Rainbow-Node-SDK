@@ -32,24 +32,25 @@ import { dirname, join } from 'path';
 
 const LOG_ID = "LOGS - ";
 
-const tsFormat = (p_date) => {
+const tsFormat = (p_date = undefined) => {
 
-    let date = new Date(p_date);
+    //let date = new Date(p_date);
+    let date = new Date();
 
-    //return date.toLocaleDateString() + " " + date.toLocaleTimeString() + ":" + date.getMilliseconds() + " [" + date.valueOf() + "]";
-    return date.valueOf();
+    return date.toLocaleDateString() + " " + date.toLocaleTimeString() + ":" + date.getMilliseconds() + " [" + date.valueOf() + "]";
+    //return date.valueOf();
 };
 
 const myFormat = winston.format.printf( (info: any) => {
     // 12/03/2025 10:00:11:846 [1741770011846]
     //return `${info.timestamp} [${info._processInfo.pid}] ${info.level}: ${info.message}`;
-    //return `${tsFormat()} - ${info.level}: ${info.message}`;
-    return `${info.timestamp} [` + tsFormat(info.timestamp) + `] - ${info.level}: ${info.message}`;
+    return `${tsFormat()} - ${info.level}: ${info.message}`;
+    //return `${info.timestamp} [` + tsFormat(info.timestamp) + `] - ${info.level}: ${info.message}`;
 });
 
 const myFormatNoColors = winston.format.printf(info => {
-    return `${info.timestamp} [` + tsFormat(info.timestamp) + `] - ${info.level}: ${info.message}`;
-    //return `${tsFormat()} - ${info.level}: ${info.message}`;
+    //return `${info.timestamp} [` + tsFormat(info.timestamp) + `] - ${info.level}: ${info.message}`;
+    return `${tsFormat()} - ${info.level}: ${info.message}`;
     // The following code is necessary when the colors lib disabled.
     //return `${tsFormat()}` + ' - ' + stripAnsi(info.level) + ':' + stripAnsi(info.message);
 }) ;
@@ -518,10 +519,12 @@ class Logger {
             this._winston = winston.createLogger({
                 levels: LEVELS,
                 format: winston.format.combine(
+                    /*
                     winston.format.timestamp({
                         // 03/20/2025 10:00:11:846
                         format: 'MM/DD/YYYY HH:MM:SS:SSS'
                     }),
+                    // */
                     /* winston.format.label({
                         label: "MonLabel"
                     }), // */
@@ -530,6 +533,7 @@ class Logger {
                     //winston.format.label({ label: 'right meow!' }),
                     //winston.format.colorize({ all: false }),
                     winston.format.simple(),
+                    winston.format.timestamp(),
                     logFormat
                     //winston.format.prettyPrint()
                 ),
@@ -568,10 +572,11 @@ class Logger {
                     winston.format.colorize({ all: self.logColor }),
                     winston.format.simple(),
                     //winston.format.label({ label: 'right meow!' }),
-                    winston.format.timestamp({
+                    winston.format.timestamp(),
+                    /*winston.format.timestamp({
                         // 03/20/2025 10:00:11:846
                         format: 'MM/DD/YYYY HH:MM:SS:SSS'
-                    }),
+                    }), // */
                     logFormat
                     //winston.format.prettyPrint()
                 ),
@@ -595,10 +600,11 @@ class Logger {
                         winston.format.errors({ stack: true }), // <-- use errors format
                     winston.format.colorize({ all: self.logColor }),
                     //winston.format.label({ label: 'right meow!' }),
-                    winston.format.timestamp({
+                    winston.format.timestamp(),
+                    /* winston.format.timestamp({
                         // 03/20/2025 10:00:11:846
                         format: 'MM/DD/YYYY HH:MM:SS:SSS'
-                    }),
+                    }), // */
                     logFormat
                     //winston.format.prettyPrint()
                 ),
