@@ -89,7 +89,7 @@ class BubblesManager extends LevelLogs {
         that.lockEngine = new AsyncLock({timeout: 5000, maxPending: 1000});
 
 
-        //this._eventEmitter.on("evt_internal_affiliationdetailschanged", this._onAffiliationDetailsChanged.bind(this));
+        //this._eventEmitter.on("evt_internal_bubbleaffiliationchanged", this._onBubbleaffiliationchanged.bind(this));
         this._eventEmitter.on("evt_internal_ownaffiliationchanged", this._onOwnAffiliationChanged.bind(this));
         this._eventEmitter.on("evt_internal_onbubblepresencechanged", this._onbubblepresencechanged.bind(this));
 
@@ -241,84 +241,123 @@ class BubblesManager extends LevelLogs {
         });
     }
 
-    async treatAllBubblesToJoin() {
+    async treatAllBubblesToJoin(bulkSendPresence : boolean = true) {
         let that = this;
+
         return new Promise(async (resolve, reject) => {
             that._logger.log(that.DEBUG, LOG_ID + "(treatAllBubblesToJoin) start with nbBubbleAdded : ", that.nbBubbleAdded, ", that.poolBubbleToJoin.length : ", that.poolBubbleToJoin.length, ", that.poolBubbleJoinInProgress.length : ", that.poolBubbleJoinInProgress.length);
 
-            if (that.poolBubbleToJoin.length > 0 && that.poolBubbleJoinInProgress.length == 0) {
-                let start = true;
-                that.fibonacciStrategy.reset();
-                that.delay = that.fibonacciStrategy.getInitialDelay();
-
-                // @ts-ignore
-                if (that.poolBubbleToJoin && Array.isArray(that.poolBubbleToJoin?.list)) {
-                    // @ts-ignore
-                    that.poolBubbleToJoin.list.sort((a, b) => that._rest.getBubbleLastActivityDate(b?.value) - that._rest.getBubbleLastActivityDate(a?.value));
-                    // lastActivityDate
-                    //bubbles = orderByFilter( bubbles, that.getBubbleLastActivityDate, true, that.sortByDate);
-                }
-
-                while ((that.poolBubbleToJoin.length > 0 || that.poolBubbleJoinInProgress.length > 0 ) || start == true) {
-                    that._logger.log(that.DEBUG, LOG_ID + "(treatAllBubblesToJoin) START with pause value : ", that.delay, "  treat a group of " + that.maxBubbleJoinInProgress + " bubbles to join, that.poolBubbleToJoin.length : ", that.poolBubbleToJoin.length, ", that.poolBubbleJoinInProgress.length : ", that.poolBubbleJoinInProgress.length);
-                    start = false;
-                    let prom = [];
-                    for (let iterBubbleToJoin = 0; that.poolBubbleJoinInProgress.length < (that.maxBubbleJoinInProgress+1)  && iterBubbleToJoin < that.maxBubbleJoinInProgress ; iterBubbleToJoin++ ) {
-                        let bubble = await that.getBubbleToJoin();
-                        if ( bubble ) {
-                            that._logger.log(that.INTERNAL, LOG_ID + "(treatAllBubblesToJoin) bubble found at ", iterBubbleToJoin, ", for the initial presence to bubbleLogInfos : ", getBubbleLogInfos(bubble));
+            if (bulkSendPresence) {
+                if (that._useXMPP) {
+                    //for (let iterBubbleToJoin = 0; that.poolBubbleJoinInProgress.length < (that.maxBubbleJoinInProgress + 1) && iterBubbleToJoin < that.maxBubbleJoinInProgress; iterBubbleToJoin++) {
+                    let iterBubbleToJoin = 0;
+                    let bubble = await that.getBubbleToJoin();
+                    if (bubble) {
+                        while (bubble) {
+                            that._logger.log(that.DEBUG, LOG_ID + "(treatAllBubblesToJoin) bulkSendPresence bubble found at ", iterBubbleToJoin, ", for the initial presence to bubbleLogInfos : ", getBubbleLogInfos(bubble));
                             await that.addBubbleToJoinInProgress(bubble); // poolBubbleJoinInProgress.add(bubble.jid, bubble);
-                            let test = false;
-                            if (getRandomInt(2) == 1 || !test) {
-                                that._logger.log(that.DEBUG, LOG_ID + "(treatAllBubblesToJoin) bubble found at ", iterBubbleToJoin, ", send the initial presence to bubbleLogInfos : ", getBubbleLogInfos(bubble));
-                                prom.push(that._presence.sendInitialBubblePresenceSync(bubble,3 * 1000 * 60).catch((errOfSent) => {
-                                    that._logger.log(that.WARN, LOG_ID + "(treatAllBubblesToJoin) Error while sendInitialBubblePresenceSync : ", errOfSent);
-                                }) );
-                            } else {
-                                that._logger.log(that.DEBUG, LOG_ID + "(treatAllBubblesToJoin) bubble found at ", iterBubbleToJoin, ", because of random test do not send the initial presence to bubble?.id : ", bubble?.id, ", bubble?.jid : ", bubble?.jid, ", bubble?.name : ", bubble?.name, ", bubble?.status : ", bubble?.status);
-                            }
-                        } else {
-                            that._logger.log(that.DEBUG, LOG_ID + "(treatAllBubblesToJoin) bubble undefined at ", iterBubbleToJoin, ", so do not send the initial presence to bubble?.id : ", bubble?.id, ", bubble?.jid : ", bubble?.jid, ", bubble?.name : ", bubble?.name, ", bubble?.status : ", bubble?.status);
+                            bubble = await that.getBubbleToJoin();
+                            iterBubbleToJoin++;
                         }
+                        that._logger.log(that.DEBUG, LOG_ID + "(treatAllBubblesToJoin) bulkSendPresence ", iterBubbleToJoin, " bubbles found and setted in poolBubbleJoinInProgress.");
+                    } else {
+                        that._logger.log(that.DEBUG, LOG_ID + "(treatAllBubblesToJoin) bulkSendPresence bubble undefined at ", iterBubbleToJoin, ", so do not send the initial presence to bubbleLogInfos : ", getBubbleLogInfos(bubble));
                     }
-
-                    await Promise.all(prom).then((result) => {
-                        that._logger.log(that.DEBUG, LOG_ID + "(treatAllBubblesToJoin) Promise.all DONE , that.poolBubbleJoinInProgress.length : ", that.poolBubbleJoinInProgress.length);
-                        /*
-                        // For testing, force empty join in progress to continue the send
-                        that.poolBubbleJoinInProgress.clear();
-                        that._logger.log(that.DEBUG, LOG_ID + "(treatAllBubblesToJoin) Promise.all DONE , that.poolBubbleJoinInProgress.length cleared : ", that.poolBubbleJoinInProgress.length);
-                        // */
+                    //}
+                    await that._presence.sendInitialAllBubblePresence().then(() => {
+                        that._logger.log(that.DEBUG, LOG_ID + "(treatAllBubblesToJoin) bulkSendPresence sent");
                     }).catch(async (err) => {
-                        that._logger.log(that.ERROR, LOG_ID + "(treatAllBubblesToJoin) FAILED wait treat group of that.maxBubbleJoinInProgress : " + that.maxBubbleJoinInProgress + " bubbles to join from poolBubbleJoinInProgress, before pause : ", that.delay, ", it left that.poolBubbleJoinInProgress.length : ", that.poolBubbleJoinInProgress.length, ", error : ", err);
+                        that._logger.log(that.ERROR, LOG_ID + "(treatAllBubblesToJoin) bulkSendPresence FAILED wait treat group of that.maxBubbleJoinInProgress : " + that.maxBubbleJoinInProgress + " bubbles to join from poolBubbleJoinInProgress, before pause : ", that.delay, ", it left that.poolBubbleJoinInProgress.length : ", that.poolBubbleJoinInProgress.length, ", error : ", err);
                         await pause(that.delay);
-                        that._logger.log(that.ERROR, LOG_ID + "(treatAllBubblesToJoin) FAILED wait treat group of that.maxBubbleJoinInProgress : " + that.maxBubbleJoinInProgress + " bubbles to join from poolBubbleJoinInProgress, after pause : ", that.delay, ", it left that.poolBubbleJoinInProgress.length : ", that.poolBubbleJoinInProgress.length);
+                        that._logger.log(that.ERROR, LOG_ID + "(treatAllBubblesToJoin) bulkSendPresence FAILED wait treat group of that.maxBubbleJoinInProgress : " + that.maxBubbleJoinInProgress + " bubbles to join from poolBubbleJoinInProgress, after pause : ", that.delay, ", it left that.poolBubbleJoinInProgress.length : ", that.poolBubbleJoinInProgress.length);
                         await that.resetBubbleFromJoinInProgressToBubbleToJoin();
                         that.delay = that.fibonacciStrategy.next();
                     });
                     await until(() => {
-                        return (that.poolBubbleJoinInProgress.length === 0 );
-                    }, "Wait treat group of " + that.maxBubbleJoinInProgress + " bubbles to join from poolBubbleJoinInProgress.", 3 * 1000 * 60).then(() => {
-                        that._logger.log(that.INTERNAL, LOG_ID + "(treatAllBubblesToJoin) SUCCEED to send the poolBubbleJoinInProgress pool.");
-                        that.fibonacciStrategy.reset();
-                        that.delay = that.fibonacciStrategy.getInitialDelay();
-                    }).catch(async (err) => {
-                        that._logger.log(that.ERROR, LOG_ID + "(treatAllBubblesToJoin) FAILED wait treat group of " + that.maxBubbleJoinInProgress + " bubbles to join from poolBubbleJoinInProgress, before pause : ", that.delay, ", it left that.poolBubbleJoinInProgress.length : ", that.poolBubbleJoinInProgress.length, ", error : ", err);
-                        await pause(that.delay);
-                        that._logger.log(that.ERROR, LOG_ID + "(treatAllBubblesToJoin) FAILED wait treat group of " + that.maxBubbleJoinInProgress + " bubbles to join from poolBubbleJoinInProgress, after pause : ", that.delay, ", it left that.poolBubbleJoinInProgress.length : ", that.poolBubbleJoinInProgress.length);
-                        await that.resetBubbleFromJoinInProgressToBubbleToJoin();
-                        that.delay = that.fibonacciStrategy.next();
-                    }); // */
-                    that._logger.log(that.DEBUG, LOG_ID + "(treatAllBubblesToJoin) END treat group of that.maxBubbleJoinInProgress : " + that.maxBubbleJoinInProgress + " bubbles to join from poolBubbleJoinInProgress, that.poolBubbleToJoin.length : ", that.poolBubbleToJoin.length, ", that.poolBubbleJoinInProgress.length : ", that.poolBubbleJoinInProgress.length);
+                        return (that.poolBubbleJoinInProgress.length==0 && that.poolBubbleToJoin.length==0);
+                    }, "Wait for the Bubbles from that.poolBubbleToJoin to be joined.", 120000).catch((err) => {
+                        that._logger.log(that.INTERNAL, LOG_ID + "(treatAllBubblesToJoin) FAILED wait for the bubbles to be joined, it left that.poolBubbleJoinInProgress.length : ", that.poolBubbleJoinInProgress.length, ", it left that.poolBubbleToJoin.length : ", that.poolBubbleToJoin.length, ", error : ", err);
+                    });
+                    that._logger.log(that.DEBUG, LOG_ID + "(treatAllBubblesToJoin) End of treatment of bubbles to join, that.poolBubbleToJoin.length : ", that.poolBubbleToJoin.length, ", that.poolBubbleJoinInProgress.length : ", that.poolBubbleJoinInProgress.length, ", that.poolBubbleAlreadyJoined.length : ", that.poolBubbleAlreadyJoined.length);
+                } else if (that._useS2S) {
+// en S2S: https://api.openrainbow.org/doc/api/ucs/redoc-index.html#tag/Room/operation/Room.join_all
                 }
-                await until(() => {
-                    return (that.poolBubbleJoinInProgress.length == 0 && that.poolBubbleToJoin.length == 0);
-                }, "Wait for the Bubbles from that.poolBubbleToJoin to be joined.", 120000).catch((err) => {
-                    that._logger.log(that.INTERNAL, LOG_ID + "(treatAllBubblesToJoin) FAILED wait for the bubbles to be joined, it left that.poolBubbleJoinInProgress.length : ", that.poolBubbleJoinInProgress.length, ", it left that.poolBubbleToJoin.length : ", that.poolBubbleToJoin.length, ", error : ", err);
-                });
-                that._logger.log(that.DEBUG, LOG_ID + "(treatAllBubblesToJoin) End of treatment of bubbles to join, that.poolBubbleToJoin.length : ", that.poolBubbleToJoin.length, ", that.poolBubbleJoinInProgress.length : ", that.poolBubbleJoinInProgress.length, ", that.poolBubbleAlreadyJoined.length : ", that.poolBubbleAlreadyJoined.length);
             } else {
-                that._logger.log(that.WARN, LOG_ID + "(treatAllBubblesToJoin) No bubble to join, and no bublle already in progress to join.");
+                // Need to keep the bulle by bulle send process for S2S.
+                if (that.poolBubbleToJoin.length > 0 && that.poolBubbleJoinInProgress.length==0) {
+                    let start = true;
+                    that.fibonacciStrategy.reset();
+                    that.delay = that.fibonacciStrategy.getInitialDelay();
+
+                    // @ts-ignore
+                    if (that.poolBubbleToJoin && Array.isArray(that.poolBubbleToJoin?.list)) {
+                        // @ts-ignore
+                        that.poolBubbleToJoin.list.sort((a, b) => that._rest.getBubbleLastActivityDate(b?.value) - that._rest.getBubbleLastActivityDate(a?.value));
+                        // lastActivityDate
+                        //bubbles = orderByFilter( bubbles, that.getBubbleLastActivityDate, true, that.sortByDate);
+                    }
+
+                    while ((that.poolBubbleToJoin.length > 0 || that.poolBubbleJoinInProgress.length > 0) || start==true) {
+                        that._logger.log(that.DEBUG, LOG_ID + "(treatAllBubblesToJoin) START with pause value : ", that.delay, "  treat a group of " + that.maxBubbleJoinInProgress + " bubbles to join, that.poolBubbleToJoin.length : ", that.poolBubbleToJoin.length, ", that.poolBubbleJoinInProgress.length : ", that.poolBubbleJoinInProgress.length);
+                        start = false;
+                        let prom = [];
+                        for (let iterBubbleToJoin = 0; that.poolBubbleJoinInProgress.length < (that.maxBubbleJoinInProgress + 1) && iterBubbleToJoin < that.maxBubbleJoinInProgress; iterBubbleToJoin++) {
+                            let bubble = await that.getBubbleToJoin();
+                            if (bubble) {
+                                that._logger.log(that.INTERNAL, LOG_ID + "(treatAllBubblesToJoin) bubble found at ", iterBubbleToJoin, ", for the initial presence to bubbleLogInfos : ", getBubbleLogInfos(bubble));
+                                await that.addBubbleToJoinInProgress(bubble); // poolBubbleJoinInProgress.add(bubble.jid, bubble);
+                                let test = false;
+                                if (getRandomInt(2)==1 || !test) {
+                                    that._logger.log(that.DEBUG, LOG_ID + "(treatAllBubblesToJoin) bubble found at ", iterBubbleToJoin, ", send the initial presence to bubbleLogInfos : ", getBubbleLogInfos(bubble));
+                                    prom.push(that._presence.sendInitialBubblePresenceSync(bubble, 3 * 1000 * 60).catch((errOfSent) => {
+                                        that._logger.log(that.WARN, LOG_ID + "(treatAllBubblesToJoin) Error while sendInitialBubblePresenceSync : ", errOfSent);
+                                    }));
+                                } else {
+                                    that._logger.log(that.DEBUG, LOG_ID + "(treatAllBubblesToJoin) bubble found at ", iterBubbleToJoin, ", because of random test do not send the initial presence to bubble?.id : ", bubble?.id, ", bubble?.jid : ", bubble?.jid, ", bubble?.name : ", bubble?.name, ", bubble?.status : ", bubble?.status);
+                                }
+                            } else {
+                                that._logger.log(that.DEBUG, LOG_ID + "(treatAllBubblesToJoin) bubble undefined at ", iterBubbleToJoin, ", so do not send the initial presence to bubble?.id : ", bubble?.id, ", bubble?.jid : ", bubble?.jid, ", bubble?.name : ", bubble?.name, ", bubble?.status : ", bubble?.status);
+                            }
+                        }
+
+                        await Promise.all(prom).then((result) => {
+                            that._logger.log(that.DEBUG, LOG_ID + "(treatAllBubblesToJoin) Promise.all DONE , that.poolBubbleJoinInProgress.length : ", that.poolBubbleJoinInProgress.length);
+                            /*
+                            // For testing, force empty join in progress to continue the send
+                            that.poolBubbleJoinInProgress.clear();
+                            that._logger.log(that.DEBUG, LOG_ID + "(treatAllBubblesToJoin) Promise.all DONE , that.poolBubbleJoinInProgress.length cleared : ", that.poolBubbleJoinInProgress.length);
+                            // */
+                        }).catch(async (err) => {
+                            that._logger.log(that.ERROR, LOG_ID + "(treatAllBubblesToJoin) FAILED wait treat group of that.maxBubbleJoinInProgress : " + that.maxBubbleJoinInProgress + " bubbles to join from poolBubbleJoinInProgress, before pause : ", that.delay, ", it left that.poolBubbleJoinInProgress.length : ", that.poolBubbleJoinInProgress.length, ", error : ", err);
+                            await pause(that.delay);
+                            that._logger.log(that.ERROR, LOG_ID + "(treatAllBubblesToJoin) FAILED wait treat group of that.maxBubbleJoinInProgress : " + that.maxBubbleJoinInProgress + " bubbles to join from poolBubbleJoinInProgress, after pause : ", that.delay, ", it left that.poolBubbleJoinInProgress.length : ", that.poolBubbleJoinInProgress.length);
+                            await that.resetBubbleFromJoinInProgressToBubbleToJoin();
+                            that.delay = that.fibonacciStrategy.next();
+                        });
+                        await until(() => {
+                            return (that.poolBubbleJoinInProgress.length===0);
+                        }, "Wait treat group of " + that.maxBubbleJoinInProgress + " bubbles to join from poolBubbleJoinInProgress.", 3 * 1000 * 60).then(() => {
+                            that._logger.log(that.INTERNAL, LOG_ID + "(treatAllBubblesToJoin) SUCCEED to send the poolBubbleJoinInProgress pool.");
+                            that.fibonacciStrategy.reset();
+                            that.delay = that.fibonacciStrategy.getInitialDelay();
+                        }).catch(async (err) => {
+                            that._logger.log(that.ERROR, LOG_ID + "(treatAllBubblesToJoin) FAILED wait treat group of " + that.maxBubbleJoinInProgress + " bubbles to join from poolBubbleJoinInProgress, before pause : ", that.delay, ", it left that.poolBubbleJoinInProgress.length : ", that.poolBubbleJoinInProgress.length, ", error : ", err);
+                            await pause(that.delay);
+                            that._logger.log(that.ERROR, LOG_ID + "(treatAllBubblesToJoin) FAILED wait treat group of " + that.maxBubbleJoinInProgress + " bubbles to join from poolBubbleJoinInProgress, after pause : ", that.delay, ", it left that.poolBubbleJoinInProgress.length : ", that.poolBubbleJoinInProgress.length);
+                            await that.resetBubbleFromJoinInProgressToBubbleToJoin();
+                            that.delay = that.fibonacciStrategy.next();
+                        }); // */
+                        that._logger.log(that.DEBUG, LOG_ID + "(treatAllBubblesToJoin) END treat group of that.maxBubbleJoinInProgress : " + that.maxBubbleJoinInProgress + " bubbles to join from poolBubbleJoinInProgress, that.poolBubbleToJoin.length : ", that.poolBubbleToJoin.length, ", that.poolBubbleJoinInProgress.length : ", that.poolBubbleJoinInProgress.length);
+                    }
+                    await until(() => {
+                        return (that.poolBubbleJoinInProgress.length==0 && that.poolBubbleToJoin.length==0);
+                    }, "Wait for the Bubbles from that.poolBubbleToJoin to be joined.", 120000).catch((err) => {
+                        that._logger.log(that.INTERNAL, LOG_ID + "(treatAllBubblesToJoin) FAILED wait for the bubbles to be joined, it left that.poolBubbleJoinInProgress.length : ", that.poolBubbleJoinInProgress.length, ", it left that.poolBubbleToJoin.length : ", that.poolBubbleToJoin.length, ", error : ", err);
+                    });
+                    that._logger.log(that.DEBUG, LOG_ID + "(treatAllBubblesToJoin) End of treatment of bubbles to join, that.poolBubbleToJoin.length : ", that.poolBubbleToJoin.length, ", that.poolBubbleJoinInProgress.length : ", that.poolBubbleJoinInProgress.length, ", that.poolBubbleAlreadyJoined.length : ", that.poolBubbleAlreadyJoined.length);
+                } else {
+                    that._logger.log(that.WARN, LOG_ID + "(treatAllBubblesToJoin) No bubble to join, and no bublle already in progress to join.");
+                }
             }
             resolve("done");
         });
@@ -326,15 +365,15 @@ class BubblesManager extends LevelLogs {
 
     /**
      * @private
-     * @method _onAffiliationDetailsChanged
+     * @method _onBubbleaffiliationchanged
      * @instance
      * @param {Object} bubble contains information about bubble and user's jid
      * @description
      *      Method called when affilitation (presence) to a bubble changed
      */
-    async _onAffiliationDetailsChanged(bubble : any) {
+    async _onBubbleaffiliationchanged(bubble : any) {
         let that = this;
-        that._logger.log(that.INTERNAL, LOG_ID + "(_onAffiliationDetailsChanged) bubbleLogInfos : ", getBubbleLogInfos(bubble));
+        that._logger.log(that.INTERNAL, LOG_ID + "(_onBubbleaffiliationchanged) bubbleLogInfos : ", getBubbleLogInfos(bubble));
         if (bubble) {
             await that.removeBubbleToJoinInProgress(bubble);
             await that.addBubbleAlreadyJoined(bubble);

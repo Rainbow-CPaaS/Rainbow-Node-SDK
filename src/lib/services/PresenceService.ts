@@ -54,7 +54,7 @@ class PresenceService extends GenericService{
         start_up:boolean,
         optional:boolean
     }) {
-        super(_logger, LOG_ID);
+        super(_logger, LOG_ID, _eventEmitter);
         this.setLogLevels(this);
         let that = this;
         this._startConfig = _startConfig;
@@ -412,6 +412,30 @@ class PresenceService extends GenericService{
     //endregion Presence CONNECTED USER
 
     //region Presence Bubbles
+
+    /**
+     * @private
+     * @method sendInitialAllBubblePresence
+     * @instance
+     * @async
+     * @category Presence Bubbles
+     * @param {Bubble} bubble The Bubble
+     * @param {number} intervalDelay The interval between sending presence to a Bubble while it failed. default value is 75000 ms.
+     * @description
+     *      Method called when receiving an invitation to join a bubble <br>
+     */
+    async sendInitialAllBubblePresence(webinar : boolean = false, acknowledge : boolean = true): Promise<any> {
+        let that = this;
+        that._logger.log(that.INFO, LOG_ID + API_ID + "(sendInitialAllBubblePresence) -- entry -- ");
+
+        return new Promise(async function (resolve, reject) {
+            if (that._useXMPP) {
+                let result = that._xmpp.sendInitialAllBubblePresence(webinar, acknowledge);
+                that._logger.log(that.DEBUG, LOG_ID + "(sendInitialAllBubblePresence) sent.");
+                resolve(result);
+            }
+        });
+    }
 
     /**
      * @private

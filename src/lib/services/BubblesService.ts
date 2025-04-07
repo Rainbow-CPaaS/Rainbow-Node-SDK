@@ -84,7 +84,7 @@ class Bubbles extends GenericService {
         start_up: boolean,
         optional: boolean
     }) {
-        super(_logger, LOG_ID);
+        super(_logger, LOG_ID, _eventEmitter);
         this.setLogLevels(this);
         this._xmpp = null;
         this._rest = null;
@@ -224,6 +224,8 @@ class Bubbles extends GenericService {
                 that._logger.log(that.WARN, LOG_ID + "(init) autoInitialGetBubbles setted to false, so do not retrieve the bubbles at startup. ");
                 that.setInitialized();
             }
+        } else {
+            that.setInitialized();
         }
     }
     
@@ -345,7 +347,7 @@ class Bubbles extends GenericService {
                 that._bubbles.push(bubbleUpdated);
             } // */
 
-            that._eventEmitter.emit("evt_internal_affiliationdetailschanged", bubble);
+            that._eventEmitter.emit("evt_internal_bubbleaffiliationchanged", bubble);
         }).catch((err) => {
             that._logger.log(that.WARN, LOG_ID + "(_onAffiliationChanged) get bubble failed for affiliation : ", affiliation, ", : ", err);
             //that._logger.log(that.INTERNALERROR, LOG_ID + "(_onAffiliationChanged) get bubble failed for affiliation : ", affiliation, ", : ", err);
@@ -694,10 +696,10 @@ class Bubbles extends GenericService {
                     bubbleInMemory.initialPresence.initPresencePromise = null;
                     bubbleInMemory.initialPresence.initPresencePromiseResolve = null;
                     // */
-                    //this.eventService.publish(this.ROOM_UPDATE_EVENT, bubbleInMemory);
-                    //this.sendEvent(this.ROOM_UPDATE_EVENT, bubbleInMemory);
-                    that._eventEmitter.emit("evt_internal_bubblepresencechanged", bubbleInMemory);
                 }
+                //this.eventService.publish(this.ROOM_UPDATE_EVENT, bubbleInMemory);
+                //this.sendEvent(this.ROOM_UPDATE_EVENT, bubbleInMemory);
+                that._eventEmitter.emit("evt_internal_bubblepresencechanged", bubbleInMemory);
             }
         } else {
             that._logger.log(that.WARN, LOG_ID + "(_onbubblepresencechanged) bubble not found !");
@@ -2405,56 +2407,59 @@ class Bubbles extends GenericService {
                     }
                     
                     that._logger.log(that.INFO, LOG_ID + "(getBubbles) get successfully");
-                    let prom = [];
-                    let nbBubblesToJoin = 0;
-                    for (let i = 0; i < listOfBubbles.length; i++) {
-                        //listOfBubbles.forEach(async function (bubble: any) {
-                        let bubble = listOfBubbles[i];
-                        let bubbleObj = await that.getBubbleById(bubble.id);
-                        if (!bubbleObj) bubbleObj = await that.getBubbleByJid(bubble.jid);
+                    if (that._options._imOptions.autoInitialBubblePresence) {
+                        let prom = [];
+                        let nbBubblesToJoin = 0;
+                        for (let i = 0; i < listOfBubbles.length; i++) {
+                            //listOfBubbles.forEach(async function (bubble: any) {
+                            let bubble = listOfBubbles[i];
+                            let bubbleObj = await that.getBubbleById(bubble.id);
+                            if (!bubbleObj) bubbleObj = await that.getBubbleByJid(bubble.jid);
 
-                        if (bubbleObj) {
-                            let users = bubble.users ? bubble.users:[];
-                            //for (const user of users) {
-                            for (let i = 0; i < users.length; i++) {
-                                let user = users[i];
-                                //users.forEach(function (user) {
-                                if (user.userId===that._rest.userId && user.status==="accepted") {
-                                    if (that._options._imOptions.autoInitialBubblePresence) {
-                                        if (bubbleObj.isActive) {
-                                            that._logger.log(that.DEBUG, LOG_ID + "(getBubbles) send initial presence to bubble : ", bubbleObj.jid);
-                                            //prom.push(that._presence.sendInitialBubblePresence(bubble));
-                                            nbBubblesToJoin++;
-                                            prom.push(that.bubblesManager.addBubbleToJoin(bubbleObj));
-                                        } else {
-                                            that._logger.log(that.DEBUG, LOG_ID + "(getBubbles) bubble not active, so do not send initial presence to bubble : ", bubbleObj.jid);
-                                        }
-                                    } else {
-                                        that._logger.log(that.DEBUG, LOG_ID + "(getBubbles)  autoInitialBubblePresence not active, so do not send initial presence to bubble : ", bubbleObj.jid);
+                            if (bubbleObj) {
+                                let users = bubble.users ? bubble.users:[];
+                                //for (const user of users) {
+                                for (let i = 0; i < users.length; i++) {
+                                    let user = users[i];
+                                    //users.forEach(function (user) {
+                                    if (user.userId===that._rest.userId && user.status==="accepted") {
+                                        //if (that._options._imOptions.autoInitialBubblePresence) {
+                                            if (bubbleObj.isActive) {
+                                                that._logger.log(that.DEBUG, LOG_ID + "(getBubbles) send initial presence to bubble : ", bubbleObj.jid);
+                                                //prom.push(that._presence.sendInitialBubblePresence(bubble));
+                                                nbBubblesToJoin++;
+                                                prom.push(that.bubblesManager.addBubbleToJoin(bubbleObj));
+                                            } else {
+                                                that._logger.log(that.DEBUG, LOG_ID + "(getBubbles) bubble not active, so do not send initial presence to bubble : ", bubbleObj.jid);
+                                            }
+                                        //} else {
+                                        //    that._logger.log(that.DEBUG, LOG_ID + "(getBubbles)  autoInitialBubblePresence not active, so do not send initial presence to bubble : ", bubbleObj.jid);
+                                        //}
                                     }
+                                    //});
                                 }
-                                //});
                             }
                         }
-                    }
-                    //});
-    
-                    Promise.all(prom).then(async () => {
-                        if (that._options._imOptions.autoInitialBubblePresence) {
+                        //});
+
+                        Promise.all(prom).then(async () => {
+                            //   if (that._options._imOptions.autoInitialBubblePresence) {
                             that._logger.log(that.DEBUG, LOG_ID + "(getBubbles)  autoInitialBubblePresence active, so treatAllBubblesToJoin, nbBubblesToJoin : ", nbBubblesToJoin);
                             //await that.bubblesManager.treatAllBubblesToJoin();
                             await traceExecutionTime(that.bubblesManager, "treatAllBubblesToJoin", that.bubblesManager.treatAllBubblesToJoin, undefined);
-                        } else {
-                            that._logger.log(that.DEBUG, LOG_ID + "(getBubbles)  autoInitialBubblePresence not active, so do not treatAllBubblesToJoin");
-                        }
-    
-                        return resolve(undefined);
-                        
-                    }).catch(function (err) {
-                        that._logger.log(that.ERROR, LOG_ID + "(getBubbles) error");
-                        that._logger.log(that.INTERNALERROR, LOG_ID + "(getBubbles) error : ", err);
-                        return reject(err);
-                    }); // */
+                            that._eventEmitter.emit("evt_internal_allbubbleinitialaffiliationchanged", {});
+                            //    } else {
+                            //        that._logger.log(that.DEBUG, LOG_ID + "(getBubbles)  autoInitialBubblePresence not active, so do not treatAllBubblesToJoin");
+                            //    }
+
+                            return resolve(undefined);
+
+                        }).catch(function (err) {
+                            that._logger.log(that.ERROR, LOG_ID + "(getBubbles) error");
+                            that._logger.log(that.INTERNALERROR, LOG_ID + "(getBubbles) error : ", err);
+                            return reject(err);
+                        }); // */
+                    }
                 }).catch(function (err) {
                     that._logger.log(that.ERROR, LOG_ID + "(getBubbles) error");
                     that._logger.log(that.INTERNALERROR, LOG_ID + "(getBubbles) error : ", err);
@@ -3785,7 +3790,7 @@ class Bubbles extends GenericService {
     
                                 // We send the result here, because sometimes the xmpp server does not send us the resulting event.
                                 // So this event change will be sent twice time.
-                                that._eventEmitter.emit("evt_internal_affiliationdetailschanged", bubble);
+                                that._eventEmitter.emit("evt_internal_bubbleaffiliationchanged", bubble);
                                 resolve(bubble);
                             }).catch((err) => {
                                 that._logger.log(that.ERROR, LOG_ID + "(removeContactFromBubble) get bubble failed for bubble : ", bubble, ", : ", err);

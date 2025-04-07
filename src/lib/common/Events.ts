@@ -430,6 +430,17 @@ class Events {
             that.publishEvent("xmmprequestsent", ...args);
         });
         
+        this._evReceiver.on("evt_internal_serviceinitialized", function(...args) {
+
+            /**
+             * @event Events#rainbow_onserviceinitialized
+             * @public
+             * @description
+             *      Fired when a service is initialized, so it is ready to be used.
+             */
+            that.publishEvent("serviceinitialized", ...args);
+        });
+
         this._evReceiver.on("evt_internal_onmessagereceived", function(message) {
             if (_filterCallback && _filterCallback(message.fromJid)) {
                 that._logger.log("warn", `${LOG_ID} filtering event rainbow_onmessagereceived for jid: ${message.fromJid}` );
@@ -649,7 +660,7 @@ class Events {
             that.publishEvent("contactremovedfromnetwork", invitation);
         });
 
-        this._evReceiver.on("evt_internal_affiliationdetailschanged", function(bubble) {
+        this._evReceiver.on("evt_internal_bubbleaffiliationchanged", function(bubble) {
             /**
              * @event Events#rainbow_onbubbleaffiliationchanged
              * @public
@@ -658,6 +669,17 @@ class Events {
              *      Fired when a user changes his affiliation with a bubble
              */
             that.publishEvent("bubbleaffiliationchanged", bubble);
+        });
+
+        this._evReceiver.on("evt_internal_allbubbleinitialaffiliationchanged", function(bubble) {
+            /**
+             * @event Events#rainbow_onallbubbleinitialaffiliationchanged
+             * @public
+             * @param { Bubble } bubble The bubble updated
+             * @description
+             *      Fired when all buble's presence of the connected user hes been successfully sent.
+             */
+            that.publishEvent("allbubbleinitialaffiliationchanged", bubble);
         });
 
         this._evReceiver.on("evt_internal_bubblepresencechanged", function(bubble) {

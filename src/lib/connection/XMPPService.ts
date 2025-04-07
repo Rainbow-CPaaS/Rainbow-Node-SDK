@@ -181,7 +181,7 @@ class XMPPService extends GenericService {
     getAccessorName(){ return XMPPService.getAccessorName(); }
 
     constructor(_core, _xmpp, _im, _application, _eventEmitter, _logger, _proxy, _rest, _options) {
-        super(_logger, LOG_ID);
+        super(_logger, LOG_ID, _eventEmitter);
         this.setLogLevels(this);
         let that = this;
         that.serverURL = _xmpp.protocol + "://" + _xmpp.host + ":" + _xmpp.port + "/websocket";
@@ -1902,6 +1902,48 @@ class XMPPService extends GenericService {
         that._logger.log(that.INTERNAL, LOG_ID + "(getAgentStatus) send - 'iq get'", stanza.root().toString());
         return that.xmppClient.sendIq(stanza);
     };
+
+    sendInitialAllBubblePresence(webinar : boolean = false, acknowledge : boolean = true) {
+        /*
+        <presence to='muc.openrainbow.net/0ca9ad90371e499ca0f4d31f2f596f67@openrainbow.net/web_win_2.106.3_rSww1yYQ'
+          from='0ca9ad90371e499ca0f4d31f2f596f67@openrainbow.net'
+          xmlns='jabber:client'>
+  <x xmlns='http://jabber.org/protocol/muc'>
+    <history maxchars="0"/>
+    <options webinar='true'
+             acknowledge='true'
+             subject='false'
+             capability='false'/>
+  </x>
+</presence>
+         */
+        let that = this;
+        let id = that.xmppUtils.getUniqueMessageId();
+        let domain = that.xmppUtils.getDomainFromFullJID(that.fullJid);
+
+        if (that.useXMPP) {
+            let xNode =xml("x", {"xmlns": NameSpacesLabels.MucNameSpace});
+            xNode.append(xml("history", {maxchars: "0"}))
+            xNode.append(xml("options",
+                    {
+                        xmlns: NameSpacesLabels.ApplicationNameSpace, "webinar" : webinar, "acknowledge" : acknowledge, /*, subject : false, capability : false, // */
+                    },
+                )
+            );
+            let stanza = xml("presence", {
+                "id": id,
+                to: "muc." + domain + "/" + that.fullJid,
+            }, xNode);
+
+                stanza.append(xml("priority", {}, "5"));
+
+            that._logger.log(that.INTERNAL, LOG_ID + "(sendInitialAllBubblePresence) send - 'message'", stanza.root().toString());
+            return that.xmppClient.send(stanza);
+        } else {
+            that._logger.log(that.WARN, LOG_ID + "(sendInitialAllBubblePresence) No XMPP connection...");
+            return Promise.resolve(undefined);
+        }
+    }
 
     sendInitialBubblePresence(jid) {
         let that = this;
