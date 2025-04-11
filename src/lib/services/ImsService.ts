@@ -1464,6 +1464,7 @@ class ImsService extends GenericService{
      * Useful for bots to communicate with other bots in the same conversation
      * without involving other users via the default application.
      *
+     * Note: If a peer send the same kind of message, then the SDK receive the `rainbow_onrainbowcpaasreceived` event. It is Fired when a `rainbow-cpaas` event is receveid for a private data exchange.
      * @param jid - The Contact Jid to which the message is sent
      * @param xmlElements - List of XML elements to create
      * @param {DataStoreType} p_messagesDataStore  used to override the general of SDK's parameter "messagesDataStore". default value `undefined` to use the general value.</br>
