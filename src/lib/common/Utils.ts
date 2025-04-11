@@ -455,7 +455,6 @@ function updateObjectPropertiesFromAnOtherObject (dstObjectArray: number | any[]
             });
 }
 
-
 function cleanEmptyMembersFromObject(objParams : Object) {
     if (objParams) {
         for (let objParamsKey in objParams) {

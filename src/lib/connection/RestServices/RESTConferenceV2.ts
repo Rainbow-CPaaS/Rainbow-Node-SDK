@@ -97,6 +97,7 @@ class RESTConferenceV2 extends GenericRESTService {
     }
     
     delegateConference(roomId : string, userId : string) {
+        // API
         // PUT  https://openrainbow.com/api/rainbow/conference/v1.0/rooms/:roomId/users/:userId/delegate
         let that = this;
         return new Promise(function (resolve, reject) {
