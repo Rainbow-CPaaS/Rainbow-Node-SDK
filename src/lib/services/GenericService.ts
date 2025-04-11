@@ -10,7 +10,7 @@ import {Contact} from "../common/models/Contact";
 import {EventEmitter} from "events";
 import {RESTService} from "../connection/RESTService";
 import {ContactsService} from "./ContactsService";
-import {stackTrace} from "../common/Utils.js";
+import {msToTime, stackTrace} from "../common/Utils.js";
 import {LevelLogs} from "../common/LevelLogs.js";
 
 const API_ID = "API_CALL - ";
@@ -94,16 +94,18 @@ class GenericService extends LevelLogs{
     setStarted () {
         let that = this;
         that.startingInfos.startedDate = new Date();
-        that._logger.log("info", that._logId + `=== STARTED (${that.startedDuration} ms) ===`);
+        let timeSinceStart = msToTime(that.startedDuration);
+        that._logger.log("info", that._logId + `=== STARTED (${that.startedDuration} ms => ${timeSinceStart} ) ===`);
         that._started = true;
     }
 
     setInitialized () {
         let that = this;
         that.startingInfos.initilizedDate = new Date();
-        that._logger.log("info", that._logId + `=== INITIALIZED (${that.initializedDuration} ms) ===`);
+        let timeSinceStart = msToTime(that.initializedDuration);
+        that._logger.log("info", that._logId + `=== INITIALIZED (${that.initializedDuration} ms => ${timeSinceStart} ) ===`);
         that._initialized = true;
-        that._eventEmitter.emit("evt_internal_serviceinitialized", {"name": that.getAccessorName(), "infos":{"msSinceStart": that.initializedDuration}});
+        that._eventEmitter.emit("evt_internal_serviceinitialized", {"name": that.getAccessorName(), "infos":{"msSinceStart": that.initializedDuration, "timeSinceStart": timeSinceStart}});
     }
 
     setStopped () {
