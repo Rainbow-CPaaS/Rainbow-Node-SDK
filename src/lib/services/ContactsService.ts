@@ -26,13 +26,13 @@ const API_ID = "API_CALL - ";
 class RosterPresenceQueue {
     private _logger : Logger;
     private _rosterPresenceQueue: any;
-    private _contacts : ContactsService;
+    private _contactsService : ContactsService;
 
 
     constructor(_logger : Logger, _contacts: ContactsService) {
         let that = this;
         that._logger = _logger;
-        that._contacts = _contacts;
+        that._contactsService = _contacts;
         that._rosterPresenceQueue = [];
 
         // timeout: 5000, Specify timeout - max amount of time an item can remain in the queue before acquiring the lock
@@ -47,31 +47,31 @@ class RosterPresenceQueue {
         let that = this;
         let resultLock = "Lock failed.";
         try {
-            that._logger.log(that._contacts.INTERNAL, LOG_ID + "(lock) - id : ", id, " - will acquire lock the ", that.lockKey);
+            that._logger.log(that._contactsService.INTERNAL, LOG_ID + "(lock) - id : ", id, " - will acquire lock the ", that.lockKey);
             await that.lockEngine.acquire(that.lockKey, async () => {
                 // that._logger.log(that._contacts.DEBUG, LOG_ID + "(lock) lock the ", that.lockKey);
-                that._logger.log(that._contacts.INTERNAL, LOG_ID + "(lock) - id : ", id, " - lock the ", that.lockKey);
+                that._logger.log(that._contactsService.INTERNAL, LOG_ID + "(lock) - id : ", id, " - lock the ", that.lockKey);
                 let result = undefined;
                 try {
                     result = await fn(); // async work
                     return result;
                 } catch (err3) {
-                    that._logger.log(that._contacts.ERROR, LOG_ID + "(lock) - id : ", id, " - CATCH Error !!! error at run : ", that.lockKey, ", error : ", err3);
+                    that._logger.log(that._contactsService.ERROR, LOG_ID + "(lock) - id : ", id, " - CATCH Error !!! error at run : ", that.lockKey, ", error : ", err3);
                 }
             }).then((result) => {
                 // that._logger.log(that.DEBUG, LOG_ID + "(lock) release the ", that.lockKey);
-                that._logger.log(that._contacts.INTERNAL, LOG_ID + "(lock) - id : ", id, " - release the ", that.lockKey, ", result : ", result);
+                that._logger.log(that._contactsService.INTERNAL, LOG_ID + "(lock) - id : ", id, " - release the ", that.lockKey, ", result : ", result);
                 resultLock = result;
             }).catch((err2) => {
-                        that._logger.log(that._contacts.WARN, LOG_ID + "(lock) - id : ", id, " - catch at acquire : ", that.lockKey, ", error : ", err2);
+                        that._logger.log(that._contactsService.WARN, LOG_ID + "(lock) - id : ", id, " - catch at acquire : ", that.lockKey, ", error : ", err2);
                         throw resultLock = err2;
                     }
             );
         } catch (err) {
-            that._logger.log(that._contacts.ERROR, LOG_ID + "(lock) - id : ", id, " - CATCH Error !!! error at acquire : ", that.lockKey, ", error : ", err);
+            that._logger.log(that._contactsService.ERROR, LOG_ID + "(lock) - id : ", id, " - CATCH Error !!! error at acquire : ", that.lockKey, ", error : ", err);
             throw resultLock = err;
         }
-        that._logger.log(that._contacts.INTERNAL, LOG_ID + "(lock) - id : ", id, " - __ exiting __ ", that.lockKey, ", resultLock : ", resultLock);
+        that._logger.log(that._contactsService.INTERNAL, LOG_ID + "(lock) - id : ", id, " - __ exiting __ ", that.lockKey, ", resultLock : ", resultLock);
         return resultLock;
     }
 
@@ -81,14 +81,14 @@ class RosterPresenceQueue {
         let that = this;
         let id = (new Date()).getTime();
 
-        that._logger.log(that._contacts.INTERNAL, LOG_ID + "(add) - id : ", id, " - will lock.");
+        that._logger.log(that._contactsService.INTERNAL, LOG_ID + "(add) - id : ", id, " - will lock.");
         that.lock(() => {
-            that._logger.log(that._contacts.INTERNAL, LOG_ID + "(add) - id : ", id, " - will call fn for presence.jid : ", presenceToSave.presence.jid);
+            that._logger.log(that._contactsService.INTERNAL, LOG_ID + "(add) - id : ", id, " - will call fn for presence.jid : ", presenceToSave.presence.jid);
             this._rosterPresenceQueue.push(presenceToSave);
         }, id).then(() => {
-            that._logger.log(that._contacts.DEBUG, LOG_ID + "(add) - id : ", id, " -  lock succeed.");
+            that._logger.log(that._contactsService.DEBUG, LOG_ID + "(add) - id : ", id, " -  lock succeed.");
         }).catch((error) => {
-            that._logger.log(that._contacts.ERROR, LOG_ID + "(add) - id : ", id, " - Catch Error, error : ", error);
+            that._logger.log(that._contactsService.ERROR, LOG_ID + "(add) - id : ", id, " - Catch Error, error : ", error);
         });
     }
 
@@ -96,18 +96,18 @@ class RosterPresenceQueue {
         let that = this;
         let id = (new Date()).getTime();
 
-        that._logger.log(that._contacts.INTERNAL, LOG_ID + "(treatPresenceForContact) - id : ", id, " - will lock.");
+        that._logger.log(that._contactsService.INTERNAL, LOG_ID + "(treatPresenceForContact) - id : ", id, " - will lock.");
         that.lock(() => {
             that._rosterPresenceQueue.filter(presenceItem => presenceItem.presence.jid===contact.jid).forEach(item => {
-                that._logger.log(that._contacts.INTERNAL, LOG_ID + "(treatPresenceForContact) - id : ", id, " - will call treat presence : ", item.presence, " for contact.jid : ", contact.jid);
+                that._logger.log(that._contactsService.INTERNAL, LOG_ID + "(treatPresenceForContact) - id : ", id, " - will call treat presence : ", item.presence, " for contact.jid : ", contact.jid);
                 fn(item.presence);
             });
             let currentDate = Date.now();
             that._rosterPresenceQueue = that._rosterPresenceQueue.filter(presenceItem => presenceItem.presence.jid!==contact.jid || (presenceItem.date + 10000) < currentDate);
         }, id).then(() => {
-            that._logger.log(that._contacts.DEBUG, LOG_ID + "(treatPresenceForContact) - id : ", id, " -  lock succeed.");
+            that._logger.log(that._contactsService.DEBUG, LOG_ID + "(treatPresenceForContact) - id : ", id, " -  lock succeed.");
         }).catch((error) => {
-            that._logger.log(that._contacts.ERROR, LOG_ID + "(treatPresenceForContact) - id : ", id, " - Catch Error, error : ", error);
+            that._logger.log(that._contactsService.ERROR, LOG_ID + "(treatPresenceForContact) - id : ", id, " - Catch Error, error : ", error);
         });
     }
 
@@ -115,18 +115,18 @@ class RosterPresenceQueue {
         let that = this;
         let id = (new Date()).getTime();
 
-        that._logger.log(that._contacts.INTERNAL, LOG_ID + "(treatPresenceForAllContacts) - id : ", id, " - will lock.");
+        that._logger.log(that._contactsService.INTERNAL, LOG_ID + "(treatPresenceForAllContacts) - id : ", id, " - will lock.");
         that.lock(() => {
             that._rosterPresenceQueue.forEach(item => {
-                that._logger.log(that._contacts.INTERNAL, LOG_ID + "(treatPresenceForAllContacts) - id : ", id, " - will call fn for presence.jid : ", item.presence.jid);
+                that._logger.log(that._contactsService.INTERNAL, LOG_ID + "(treatPresenceForAllContacts) - id : ", id, " - will call fn for presence.jid : ", item.presence.jid);
                 fn(item.presence);
             });
             let currentDate = Date.now();
             that._rosterPresenceQueue = [];
         }, id).then(() => {
-            that._logger.log(that._contacts.DEBUG, LOG_ID + "(treatPresenceForAllContacts) - id : ", id, " -  lock succeed.");
+            that._logger.log(that._contactsService.DEBUG, LOG_ID + "(treatPresenceForAllContacts) - id : ", id, " -  lock succeed.");
         }).catch((error) => {
-            that._logger.log(that._contacts.ERROR, LOG_ID + "(treatPresenceForAllContacts) - id : ", id, " - Catch Error, error : ", error);
+            that._logger.log(that._contactsService.ERROR, LOG_ID + "(treatPresenceForAllContacts) - id : ", id, " - Catch Error, error : ", error);
         });
     }
 
@@ -138,9 +138,9 @@ class RosterPresenceQueue {
             let currentDate = Date.now();
             that._rosterPresenceQueue = that._rosterPresenceQueue.filter(presenceItem => presenceItem.presence.jid!==contact.jid || (presenceItem.date + 10000) < currentDate);
         }, id).then(() => {
-            that._logger.log(that._contacts.DEBUG, LOG_ID + "(remove) - id : ", id, " -  lock succeed.");
+            that._logger.log(that._contactsService.DEBUG, LOG_ID + "(remove) - id : ", id, " -  lock succeed.");
         }).catch((error) => {
-            that._logger.log(that._contacts.ERROR, LOG_ID + "(remove) - id : ", id, " - Catch Error, error : ", error);
+            that._logger.log(that._contactsService.ERROR, LOG_ID + "(remove) - id : ", id, " - Catch Error, error : ", error);
         });
     }
 
@@ -959,6 +959,178 @@ class ContactsService extends GenericService {
             return resultPeer;
         } catch (error) {
         }
+    }
+
+    /**
+     * @public
+     * @nodered true
+     * @method getContactsInformationByIds
+     * @instance
+     * @category Contacts INFORMATION
+     * @param {Array<string>} iDs Allows to search users having id equal to one of the ids provided in this option.
+     * @param {string} sortOrder Users are sorted by id. sortOrder allows to specify order when sorting user list. Default value : 1. Possible values : -1, 1.
+     * @param {boolean} forceServerSearch Boolean to force the search of the _contacts information on the server.
+     * @description
+     *      Get a list of _contacts details by IDs. <br>
+     * @async
+     * @return {Promise<Array<Contact>,ErrorManager>}
+     * @fulfil {ErrorManager} - ErrorManager object depending on the result (ErrorManager.getErrorManager().OK in case of success)
+     */
+    getContactsInformationByIds(iDs : Array<string>, sortOrder: number = 1, forceServerSearch : boolean = false) : Promise<Array<Contact>> {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getContactsInformationByIds) .");
+
+        return new Promise((resolve, reject) => {
+            if (!iDs) {
+                that._logger.log(that.WARN, LOG_ID + "(getContactsInformationByIds) bad or empty 'iDs' parameter.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getContactsInformationByIds) bad or empty 'iDs' parameter : ", iDs);
+                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                return;
+            }
+            let result = [];
+            let id_im_server = [];
+            if (!forceServerSearch) {
+                for (const id of iDs) {
+                    that._logger.log(that.INFO, LOG_ID + "(getContactsInformationByIds) id : ", id);
+                    let contactFound: any = false;
+                    if (that._contacts) {
+                        contactFound = that._contacts.find((contact) => {
+                            return contact.id===id;
+                        });
+                    }
+
+                    if (contactFound) {
+                        that._logger.log(that.DEBUG, LOG_ID + "(getContactsInformationByIds) contact found locally with id ", id);
+                        result.push(contactFound);
+                    } else {
+                        id_im_server.push(id);
+                    }
+                }
+            } else {
+                id_im_server = iDs;
+            }
+            if (id_im_server && id_im_server.length > 0) {
+                that._rest.getContactsInformationByJIDs(id_im_server, sortOrder).then(async (listOfContacts: any) => {
+                    for (const aContact of listOfContacts) {
+                        that._logger.log(that.INFO, LOG_ID + "(getContactsInformationByIds) contact : ", aContact);
+                        // Update or Add contact
+                        let contactIndex = that._contacts.findIndex((_contact: any) => {
+                            return _contact.id_im===aContact.id_im;
+                        });
+
+                        let contact = null;
+                        //that._logger.log(that.INTERNAL, LOG_ID + "(_onRosterContactInfoChanged) contact found on the server : ", contact);
+
+                        if (contactIndex!== -1) {
+                            contact = that._contacts[contactIndex];
+                            //that._logger.log(that.INTERNAL, LOG_ID + "(_onRosterContactInfoChanged) local contact before updateFromUserData ", contact);
+                            contact.updateFromUserData(aContact);
+                            contact.avatar = that.getAvatarByContactId(aContact.id, aContact.lastAvatarUpdateDate);
+                        } else {
+                            contact = that.createBasicContact(aContact.id_im, undefined);
+                            //that._logger.log(that.INTERNAL, LOG_ID + "(_onRosterContactInfoChanged) from server contact before updateFromUserData ", contact);
+                            contact.updateFromUserData(aContact);
+                            contact.roster = true;
+                            contact.avatar = that.getAvatarByContactId(aContact.id, aContact.lastAvatarUpdateDate);
+                        }
+                        result.push(contact);
+                    }
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log(that.ERROR, LOG_ID + "(getContactsInformationByIds) error");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getContactsInformationByIds) error : ", err);
+                    return reject(err);
+                });
+            } else {
+                resolve(result);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @nodered true
+     * @method getContactsInformationByJIDs
+     * @instance
+     * @category Contacts INFORMATION
+     * @param {Array<string>} JIDs Allows to search users having jid_im equal to one of the jids provided in this option.
+     * @param {string} sortOrder Users are sorted by jid_im. sortOrder allows to specify order when sorting user list. Default value : 1. Possible values : -1, 1.
+     * @param {boolean} forceServerSearch Boolean to force the search of the _contacts information on the server.
+     * @description
+     *      Get a list of _contacts details by JIDs. <br>
+     * @async
+     * @return {Promise<Array<Contact>,ErrorManager>}
+     * @fulfil {ErrorManager} - ErrorManager object depending on the result (ErrorManager.getErrorManager().OK in case of success)
+     */
+    getContactsInformationByJIDs(JIDs : Array<string>, sortOrder: number = 1, forceServerSearch : boolean = false) : Promise<Array<Contact>> {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getContactsInformationByJIDs) .");
+
+        return new Promise((resolve, reject) => {
+            if (!JIDs) {
+                that._logger.log(that.WARN, LOG_ID + "(getContactsInformationByJIDs) bad or empty 'JIDs' parameter.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getContactsInformationByJIDs) bad or empty 'JIDs' parameter : ", JIDs);
+                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                return;
+            }
+            let result = [];
+            let JIDs_server = [];
+            if (!forceServerSearch) {
+                for (const jid of JIDs) {
+                    that._logger.log(that.INFO, LOG_ID + "(getContactsInformationByJIDs) jid : ", jid);
+                    let contactFound: any = false;
+                    if (that._contacts) {
+                        contactFound = that._contacts.find((contact) => {
+                            return contact.jid_im===jid;
+                        });
+                    }
+
+                    if (contactFound) {
+                        that._logger.log(that.DEBUG, LOG_ID + "(getContactsInformationByJIDs) contact found locally with jid ", jid);
+                        result.push(contactFound);
+                    } else {
+                        JIDs_server.push(jid);
+                    }
+                }
+            } else {
+                JIDs_server = JIDs;
+            }
+            if (JIDs_server && JIDs_server.length > 0) {
+                that._rest.getContactsInformationByJIDs(JIDs_server, sortOrder).then(async (listOfContacts: any) => {
+                    for (const aContact of listOfContacts) {
+                        that._logger.log(that.INFO, LOG_ID + "(getContactsInformationByJIDs) contact : ", aContact);
+                        // Update or Add contact
+                        let contactIndex = that._contacts.findIndex((_contact: any) => {
+                            return _contact.jid_im===aContact.jid_im;
+                        });
+
+                        let contact = null;
+                        //that._logger.log(that.INTERNAL, LOG_ID + "(_onRosterContactInfoChanged) contact found on the server : ", contact);
+
+                        if (contactIndex!== -1) {
+                            contact = that._contacts[contactIndex];
+                            //that._logger.log(that.INTERNAL, LOG_ID + "(_onRosterContactInfoChanged) local contact before updateFromUserData ", contact);
+                            contact.updateFromUserData(aContact);
+                            contact.avatar = that.getAvatarByContactId(aContact.id, aContact.lastAvatarUpdateDate);
+                        } else {
+                            contact = that.createBasicContact(aContact.jid_im, undefined);
+                            //that._logger.log(that.INTERNAL, LOG_ID + "(_onRosterContactInfoChanged) from server contact before updateFromUserData ", contact);
+                            contact.updateFromUserData(aContact);
+                            contact.roster = true;
+                            contact.avatar = that.getAvatarByContactId(aContact.id, aContact.lastAvatarUpdateDate);
+                        }
+                        result.push(contact);
+                    }
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log(that.ERROR, LOG_ID + "(getContactsInformationByJIDs) error");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getContactsInformationByJIDs) error : ", err);
+                    return reject(err);
+                });
+            } else {
+                resolve(result);
+            }
+        });
     }
 
     /**
@@ -2281,38 +2453,6 @@ class ContactsService extends GenericService {
             }).catch((err) => {
                 that._logger.log(that.ERROR, LOG_ID + "(getRosters) error");
                 that._logger.log(that.INTERNALERROR, LOG_ID + "(getRosters) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    /**
-     * @public
-     * @nodered true
-     * @method getContactsInformationByJIDs
-     * @instance
-     * @category Contacts NETWORK
-     * @param {Array<string>} jid_im Allows to search users having jid_im equal to one of the jids provided in this option.
-     * @param {string} sortOrder Users are sorted by jid_im. sortOrder allows to specify order when sorting user list. Default value : 1. Possible values : -1, 1.
-     * @description
-     *      Get a list of _contacts details by JIDs. <br>
-     * @async
-     * @return {Promise<Array<Contact>,ErrorManager>}
-     * @fulfil {ErrorManager} - ErrorManager object depending on the result (ErrorManager.getErrorManager().OK in case of success)
-     */
-    getContactsInformationByJIDs(jid_im : Array<string>, sortOrder: number = 1) : Promise<Array<Contact>> {
-        let that = this;
-        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getContactsInformationByJIDs) .");
-
-        return new Promise((resolve, reject) => {
-            that._rest.getContactsInformationByJIDs(jid_im, sortOrder).then(async (listOfContacts: any) => {
-                for (const aContact of listOfContacts) {
-                    that._logger.log(that.INFO, LOG_ID + "(getContactsInformationByJIDs) contact : ", aContact);
-                }
-                resolve(listOfContacts);
-            }).catch((err) => {
-                that._logger.log(that.ERROR, LOG_ID + "(getContactsInformationByJIDs) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(getContactsInformationByJIDs) error : ", err);
                 return reject(err);
             });
         });

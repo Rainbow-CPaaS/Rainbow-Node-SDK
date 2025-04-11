@@ -1987,19 +1987,37 @@ let expressEngine = undefined;
         }
 
         async testgetContactsInformationByJIDs() {
-            let contactEmailToSearchVincent01 = "vincent01@vbe.test.openrainbow.net";
+            // to be used with .Net platform (vincent00)
+            let contactsJids = [];
+            /* let contactEmailToSearchVincent01 = "vincent01@vbe.test.openrainbow.net";
             let contactEmailToSearchVincent02 = "vincent02@vbe.test.openrainbow.net";
             let contactEmailToSearchVincent03 = "vincent03@vbe.test.openrainbow.net";
-            let contactsJids = [];
+            let contactEmailToSearchVincent11 = "vincent11@vbe.test.openrainbow.net";
             //let utc = new Date().toJSON().replace(/-/g, "_");
             let contactVincent01 = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent01);
             contactsJids.push(contactVincent01?.jid);
+            _logger.log("debug", "MAIN - [testgetContactsInformationByJIDs] contactVincent01?.jid : ", contactVincent01?.jid);
             let contactVincent02 = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent02);
             contactsJids.push(contactVincent02?.jid);
+            _logger.log("debug", "MAIN - [testgetContactsInformationByJIDs] contactVincent02?.jid : ", contactVincent02?.jid);
             let contactVincent03 = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent03);
             contactsJids.push(contactVincent03?.jid);
+            _logger.log("debug", "MAIN - [testgetContactsInformationByJIDs] contactVincent03?.jid : ", contactVincent03?.jid);
+            let contactVincent11 = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent11);
+            contactsJids.push(contactVincent03?.jid);
+            _logger.log("debug", "MAIN - [testgetContactsInformationByJIDs] contactVincent11?.jid : ", contactVincent11?.jid);
+            // */
+            let contactVincent01Jid =  "98091bcde14d4eadac763d9cc0851719@openrainbow.net";
+            contactsJids.push(contactVincent01Jid);
+            let contactVincent02Jid =  "6ac069e5eb4741e2af64a8beac59406f@openrainbow.net"
+            contactsJids.push(contactVincent02Jid);
+            let contactVincent03Jid =  "37dc2adbdf3c456e99ccc639742f177c@openrainbow.net"
+            contactsJids.push(contactVincent03Jid);
+            let contactVincent11Jid =  "29b4874d1a4b48c9be13c559da4efe3e@openrainbow.net"
+            contactsJids.push(contactVincent11Jid);
+
             let listOfContacts = await rainbowSDK.contacts.getContactsInformationByJIDs(contactsJids, 1);
-            _logger.log("debug", "MAIN - [testgetContactsInformationByJIDs] after getContactsInformationByJIDs listOfContacts : ", listOfContacts);
+            // _logger.log("debug", "MAIN - [testgetContactsInformationByJIDs] after getContactsInformationByJIDs listOfContacts : ", listOfContacts);
             for (const aContact of listOfContacts) {
                 _logger.log("debug", "MAIN - [getContactsInformationByJIDs] contact : ", aContact);
             }

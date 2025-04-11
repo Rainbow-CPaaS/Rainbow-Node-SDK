@@ -2123,6 +2123,38 @@ class RESTService extends GenericRESTService {
         });
     }
 
+    async getContactsInformationByIds(ids : Array<string>, sortOrder: number = 1): Promise<[any]> {
+        // API https://api.openrainbow.org/enduser/#api-users-searchUsersByIds
+        // POST "/api/rainbow/enduser/v1.0/users/ids"
+
+        let that = this;
+        return new Promise(async function (resolve, reject) {
+            if (!ids) {
+                that._logger.log(that.DEBUG, LOG_ID + "(getContactsInformationByIds) failed : No ids provided");
+                resolve(null);
+            } else {
+                let url = "/api/rainbow/enduser/v1.0/users/ids";
+                let urlParamsTab: string[] = [];
+                urlParamsTab.push(url);
+                addParamToUrl(urlParamsTab, "sortOrder", sortOrder);
+                url = urlParamsTab[0];
+
+                let filter: any = {};
+                addPropertyToObj(filter, "id", ids, false);
+
+                await that.http.post(url, that.getRequestHeader(), filter, undefined).then(function (json) {
+                    that._logger.log(that.DEBUG, LOG_ID + "(getContactsInformationByIds) successfull");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getContactsInformationByIds) REST result : ", json);
+                    resolve(json?.data);
+                }).catch(function (err) {
+                    that._logger.log(that.ERROR, LOG_ID, "(getContactsInformationByIds) error");
+                    that._logger.log(that.INTERNALERROR, LOG_ID, "(getContactsInformationByIds) error : ", err);
+                    return reject(err);
+                });
+            }
+        });
+    }
+
     async getContactInformationByLoginEmail(email, sortOrder: number = 1, limit: number = 100, offset: number = 0): Promise<[any]> {
         // API https://api.openrainbow.org/enduser/#api-users-getUsersByloginEmails
         // POST "/api/rainbow/enduser/v1.0/users/loginEmails" 

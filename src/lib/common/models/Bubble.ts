@@ -555,14 +555,44 @@ class Bubble {
             }
 
             if (data.users) {
-                data.users.forEach((userData: any) => {
-                    const contact = contactsService.getContactById(userData.userId);
-                    //if (contact) {                      
+                let bulkLoadOfInformations = false;
+                let listOfContacts = data.users
+                if (bulkLoadOfInformations) {
+                    // It is not working because it does not use the contact cache, so we does search on server with potentialy already known contacts.
+                    let listOfIdOfContacts = listOfContacts.map(aContact => aContact.jid_im);
+                    await contactsService.getContactsInformationByIds(listOfIdOfContacts, 1).then((contactsInfos) => {
+                        if (contactsInfos && contactsInfos.length > 0) {
+                            //that._logger.log(that.INFO, LOG_ID + "(getRosters) contacts found on the server");
+                            let userIndex = data.users.findIndex((_contact: any) => {
+                                return _contact.jid_im===contactsInfos.id;
+                            });
+                            let contactIndex = contactsInfos.findIndex((_contact: any) => {
+                                return _contact.jid_im===contactsInfos.jid_im;
+                            });
+
+                            let contact = null;
+                            //that._logger.log(that.INTERNAL, LOG_ID + "(_onRosterContactInfoChanged) contact found on the server : ", contact);
+
+                            if (contactIndex!== -1) {
+                                if (contactsService.isUserContact(contact)) {
+                                    //that.status = userData.status;
+                                }                            }
+                        }
+
+                    }).catch((err) => {
+                        //that._logger.log(that.INFO, LOG_ID + "(getRosters) no contacts found with listOfJidOContacts ", listOfJidOContacts);
+                    });
+
+                } else {
+                    data.users.forEach((userData: any) => {
+                        const contact = contactsService.getContactById(userData.userId);
+                        //if (contact) {
                         if (contactsService.isUserContact(contact)) {
                             that.status = userData.status;
                         }
-                    //}
-                })
+                        //}
+                    })
+                }
             }
         }
 
