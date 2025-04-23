@@ -15,6 +15,7 @@ import {PresenceLevel, PresenceRainbow, PresenceShow, PresenceStatus} from "../c
 import {Invitation} from "../common/models/Invitation";
 import {GenericService} from "./GenericService";
 import {PEERTYPE} from "../common/models/Conversation.js";
+import {isObject, isString} from "../common/Utils";
 
 let AsyncLock = require('async-lock');
 
@@ -494,6 +495,51 @@ class ContactsService extends GenericService {
         return contact;
     }
 
+    /**
+     * @private
+     * @name getContactIdByCriteria
+     * @param {string|Object} info it can be a string (for a `jid`  or an `email`) or a `Contact` to retrieve an id.
+     * @param {string} typeInfo if the `info` parameter is a string, it is possible to specify the kind of info. Possible values : "jid"
+     * @instance
+     * @description
+     *    this method allows to retrieve a contact id
+     * @returns {Promise<string>}
+     *
+     */
+    async getContactIdByCriteria(info:any, typeInfo : string = "jid") : Promise<string> {
+        let that = this;
+        let id : string="";
+        if (isObject(info)) {
+            // it is an object so get id in it
+            id = info.id;
+        } else
+        if (isString(info)) {
+            //const emailRegex = /[\w.-]+@[\w.-]+\.\w+/; // const info = "Voici mon mail : vincent@test.com";
+            const strictEmailRegex = /^[\w.-]+@[\w.-]+\.\w+$/; // const info = "vincent@test.com";
+
+            if (strictEmailRegex.test(info)) {
+                //console.log("Email détecté !");
+                typeInfo = "email";
+            }
+            switch (typeInfo) {
+                case "jid":
+                case "JID":
+                    id = (await that.getContactByJid(info))?.id;
+                    break;
+                case "email":
+                case "EMAIL":
+                    id = await that.getContactIdByLoginEmail(info);
+                    break;
+                default:
+                    id = info;
+                    break;
+            }
+        } else {
+            id = info;
+        }
+        return id;
+    }
+
     //endregion Contacts MANAGEMENT
 
     //region Contacts INFORMATION
@@ -796,10 +842,10 @@ class ContactsService extends GenericService {
      *  Get a contact Id by his loginEmail <br>
      * @async
      * @return {Promise<String, ErrorManager>}
-     * @fulfil {String} - Found contact Id or null or an error object depending on the result
+     * @fulfil {string} - Found contact Id or null or an error object depending on the result
 
      */
-    async getContactIdByLoginEmail(loginEmail : string, forceServerSearch: boolean = false): Promise<String> {
+    async getContactIdByLoginEmail(loginEmail : string, forceServerSearch: boolean = false): Promise<string> {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getContactIdByLoginEmail) loginEmail : ", that._logger.stripStringForLogs(loginEmail), ", forceServerSearch : ", forceServerSearch);
 

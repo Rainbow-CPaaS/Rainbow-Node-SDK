@@ -2023,6 +2023,37 @@ let expressEngine = undefined;
             }
         }
 
+        async testgetContactIdByCriteria() {
+            let that = this;
+            /*
+            id: '61a4dca03f613c33358b4b0c',
+            _displayName: 'Vincent03 Berder03',
+            name: { value: 'Vincent03 Berder03' },
+            displayNameMD5: '15457533c9c313f67208561bcb75ba81',
+            companyName: 'vbe.test.openrainbow.net',
+            company: null,
+            loginEmail: 'vincent03@vbe.test.openrainbow.net',
+            nickName: '',
+            title: '',
+            jobTitle: '',
+            country: 'FRA',
+            timezone: 'Europe/Paris',
+            organisationId: undefined,
+            siteId: undefined,
+            companyId: '5ebaa8866412a73aaa066484',
+            jid_im: '37dc2adbdf3c456e99ccc639742f177c@openrainbow.net',
+             */
+            let id = "";
+            let infoContact = {id:"61a4dca03f613c33358b4b0c"};
+            let infoEmail = "vincent03@vbe.test.openrainbow.net";
+            let infoJid = "37dc2adbdf3c456e99ccc639742f177c@openrainbow.net";
+            id = await rainbowSDK.contacts.getContactIdByCriteria(infoContact);
+            _logger.log("debug", "MAIN - (testgetContactIdByCriteria) infoContact : ",infoContact, ", id :  ", id);
+            id = await rainbowSDK.contacts.getContactIdByCriteria(infoEmail);
+            _logger.log("debug", "MAIN - (testgetContactIdByCriteria) infoEmail : ",infoEmail, ", id :  ", id);
+            id = await rainbowSDK.contacts.getContactIdByCriteria(infoJid, "jid");
+            _logger.log("debug", "MAIN - (testgetContactIdByCriteria) infoJid : ",infoJid, ", id :  ", id);
+        }
         //region Favorites
 
         async testgetServerFavorites() {
