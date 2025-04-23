@@ -20,7 +20,7 @@ const util = require("util");
 const fs = require('fs');
 const ini = require('ini');
 
-function isObject (value) {
+let isObject =  (value) => {
     return (value !== null && typeof value === 'object');
 }
 
@@ -1235,6 +1235,7 @@ export let objToExport = {
     anonymizePhoneNumber,
     equalIgnoreCase,
     isNullOrEmpty,
+    isObject,
     isDefined,
     isDefinedAndNotEmpty,
     isNotDefined,
@@ -1302,6 +1303,7 @@ export {
     anonymizePhoneNumber,
     equalIgnoreCase,
     isNullOrEmpty,
+    isObject,
     isDefined,
     isDefinedAndNotEmpty,
     isNotDefined,
@@ -1368,6 +1370,7 @@ export default {
     anonymizePhoneNumber,
     equalIgnoreCase,
     isNullOrEmpty,
+    isObject,
     isDefined,
     isDefinedAndNotEmpty,
     isNotDefined,
