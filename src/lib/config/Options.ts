@@ -80,6 +80,12 @@ class Options {
         if (!this._options.credentials) {
             this._logger.log("error", LOG_ID + "(constructor) 'credentials' property is not defined. Can't sign-in. Check the documentation to configure it");
             this._hasCredentials = false;
+        } else if (( this._options.credentials.login || this._options.credentials.password ) && isNotDefined(this._options.credentials.apikey)) {
+            this._logger.log("info", LOG_ID + "(constructor) 'credentials' property is defined. login.");
+            this._hasCredentials = true;
+        } else if (( !this._options.credentials.login || !this._options.credentials.password ) && isDefined(this._options.credentials.apikey)) {
+            this._logger.log("info", LOG_ID + "(constructor) 'credentials' property is defined. apikey.");
+            this._hasCredentials = true;
         } else if (( !this._options.credentials.login || !this._options.credentials.password ) && isNotDefined(this._options.credentials.apikey)) {
             this._logger.log("error", LOG_ID + "(constructor) 'login' or 'password' is not defined. Can't sign-in. Check the documentation to configure it");
             this._hasCredentials = false;
