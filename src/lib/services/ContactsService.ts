@@ -503,6 +503,8 @@ class ContactsService extends GenericService {
      * @instance
      * @description
      *    this method allows to retrieve a contact id
+     *
+     *    WARNING : this method is not finished ! Issue to make difference between email and jid.
      * @returns {Promise<string>}
      *
      */
