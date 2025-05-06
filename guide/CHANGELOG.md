@@ -11,15 +11,25 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   None
 
 #### Fixed
--   None
+-   Fix default value to `messageMaxLength`: 16384, and add comment : **Max stanza size on server is 18432**.
+-   Fix Logger wrong timestamp (issue in version 2.35.0-lts.0).
 
 #### Added
 -   Add `ContactsService::getContactsInformationByJIDs` API to get a list of _contacts details by JIDs.
+-   Add `ContactsService::getContactsInformationByIds` Get a list of _contacts details by IDs.
 -   Add `autoInitialLoadContactsInfoBulk` SDK's option to get information of contacts one by one or with bulk mode. (more information are provided in one to one mode than in bulk mode).
+-   Add `rainbow_onuserpasswordconfig` event. It is fired when password about the connected user is managed.
+-   Add `credentials.apikey` SDK's Option.
+-   Add in `AdminService` service the management of APIKey : `deleteApiKey`, `generateApiKey`, `getAllApiKey`, `getApiKey`, `getCurrentApiKey`, `updateApiKey`.
+-   Add `sendInitialAllBubblePresence` to send presence in bubbles in mode bulk. It is used in BubblesManager::treatAllBubblesToJoin.
+-   Add event `rainbow_onserviceinitialized` raised when a service is ready to be used.
+-   Add human-readable format of duration of start/init of services.
 
 #### Changed
 -   Rename HTTP Header from "x-rainbow-request-node-id" to "x-rainbow-correlation-id"    
--   Update At startups the default value of get information of contacts is now done with in bulk mode. autoInitialLoadContactsInfoBulk is set to true. So the contact's provided informations are less than before by default.
+-   Update At startups the default value of get information of contacts is now done with in bulk mode. `autoInitialLoadContactsInfoBulk` is set to true. So the contact's provided informations are less than before by default.
+-   Cleanning of SDK's Options with boolean and undefined parameters.
+-   Optimization of `argumentsToString` in Logger
 
 ### [2.35.0-lts.0] - 2024-03-13
 #### Removed
