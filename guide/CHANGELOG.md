@@ -6,7 +6,7 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-### [2.36.0] - 2024-03-XX
+### [2.36.0] - 2024-05-07
 #### Removed
 -   None
 
@@ -21,9 +21,12 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add `rainbow_onuserpasswordconfig` event. It is fired when password about the connected user is managed.
 -   Add `credentials.apikey` SDK's Option.
 -   Add in `AdminService` service the management of APIKey : `deleteApiKey`, `generateApiKey`, `getAllApiKey`, `getApiKey`, `getCurrentApiKey`, `updateApiKey`.
--   Add `sendInitialAllBubblePresence` to send presence in bubbles in mode bulk. It is used in BubblesManager::treatAllBubblesToJoin.
+-   Add `ImsService::sendInitialAllBubblePresence` to send presence in bubbles in mode bulk. It is used in BubblesManager::treatAllBubblesToJoin.
 -   Add event `rainbow_onserviceinitialized` raised when a service is ready to be used.
 -   Add human-readable format of duration of start/init of services.
+-   Add `ImsService::sendVoicemailTranscriptionMessage` API to send a message to a contact Jid to add a voice message in the list.
+-   Add event `rainbow_onvoicemailreceived` raised when a `voiceMail item` event is received from server.
+-   Add `FileStorageService::getFilesTemporaryURL` API to In order to use a download manager, get a file backend temporary URL.
 
 #### Changed
 -   Rename HTTP Header from "x-rainbow-request-node-id" to "x-rainbow-correlation-id"    
