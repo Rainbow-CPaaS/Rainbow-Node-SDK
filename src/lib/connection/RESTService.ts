@@ -4958,6 +4958,32 @@ Request Method: PUT
         });
     }
 
+    getFilesTemporaryURL(fileId : string ) {
+        // API https://api.openrainbow.org/filestorage/#api-files_server_download-files_getFileTemporaryURL
+        // GET /api/rainbow/fileserver/v1.0/files/:fileId/temporary-url
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url: string = "/api/rainbow/fileserver/v1.0/files/" + fileId + "/temporary-url";
+            /*let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "category", category);
+            url = urlParamsTab[0];
+            // */
+
+            that._logger.log(that.INTERNAL, LOG_ID + "(getFilesTemporaryURL) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
+                that._logger.log(that.DEBUG, LOG_ID + "(getFilesTemporaryURL) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getFilesTemporaryURL) REST result : ", json);
+                resolve(json?.data);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(getFilesTemporaryURL) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getFilesTemporaryURL) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
     //endregion FileServer
 
     //region Settings

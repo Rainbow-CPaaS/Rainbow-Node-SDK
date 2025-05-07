@@ -725,6 +725,46 @@ class FileStorage extends GenericService{
      * @public
      * @since 1.47.1
      * @nodered true
+     * @method getFilesTemporaryURL
+     * @instance
+     * @async
+     * @category Files TRANSFER
+     * @param {string} fileId   The id of description of the file to get download url.
+     * @description
+     *    In order to use a download manager, get a file backend temporary URL. <br>
+     *    Return a promise <br>
+     * @return {Object} Return a SDK OK Object or a SDK error object depending the result
+     */
+    async getFilesTemporaryURL(fileId : string ) {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getFilesTemporaryURL) fileId : ", fileId);
+
+        return new Promise(function (resolve, reject) {
+
+            if (!fileId) {
+                let errorMessage = "Parameter 'fileDescriptor' is missing or null";
+                that._logger.log(that.ERROR, LOG_ID + "(getFilesTemporaryURL) " + errorMessage);
+                return reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage, errorMessage));
+                /*reject({
+                    code: SDK.ERRORBADREQUEST,
+                    label: "Parameter 'fileDescriptor' is missing or null"
+                }); // */
+            }
+
+            that._rest.getFilesTemporaryURL(fileId).then(function (urlFileData) {
+                that._logger.log(that.DEBUG, LOG_ID + "(getFilesTemporaryURL) file's url received.");
+                resolve(urlFileData);
+            }).catch(function (err) {
+                return reject(err);
+            });
+
+        });
+    }
+
+    /**
+     * @public
+     * @since 1.47.1
+     * @nodered true
      * @method removeFile
      * @instance
      * @async
@@ -780,7 +820,7 @@ class FileStorage extends GenericService{
         });
     }
 
-    //endregion Files TRANSFER 
+    //endregion Files TRANSFER
 
     //region Files FILE MANAGEMENT / PROPERTIES 
 
