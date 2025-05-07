@@ -136,6 +136,7 @@ import {TaskInput} from "../lib/services/TasksService.js";
 import {Task} from "../lib/common/models/Task.js";
 import * as v8 from "v8";
 import {tmpdir} from "node:os";
+import {isArray} from "node:util";
 /*const readline = require('readline').createInterface({
     input: process.stdin,
     output: process.stdout
@@ -4170,6 +4171,23 @@ let expressEngine = undefined;
                     _logger.log("debug", `File ${fd.fileName} already downloaded`)
                 }
             }
+        }
+
+        async testgetFilesTemporaryURL() {
+            let that = this;
+
+            let filesDescriptors: [any] = await rainbowSDK.fileStorage.retrieveFileDescriptorsListPerOwner();
+            //for (let fileDescriptor of filesDescriptors) {
+            if (Array.isArray(filesDescriptors) && filesDescriptors.length > 0) {
+                let fileDescriptor = filesDescriptors[0];
+                let fileName = fileDescriptor.fileName;
+                _logger.log("debug", "Main - testgetFilesTemporaryURL Checking file : ", fileName);
+                let fileDescriptorFull = await rainbowSDK.fileStorage.retrieveOneFileDescriptor(fileDescriptor.id);
+                _logger.log("debug", "Main - testgetFilesTemporaryURL fileDescriptorFull : ", fileDescriptorFull);
+                let fileUrlInfo = await rainbowSDK.fileStorage.getFilesTemporaryURL(fileDescriptorFull.id);
+                _logger.log("debug", "Main - testgetFilesTemporaryURL file : ", fileName, " shared by url : ", fileUrlInfo);
+            }
+
         }
 
         testUploadFileToConversation() {
@@ -10895,6 +10913,80 @@ let expressEngine = undefined;
         }
 
         //endregion Presence
+
+        //region voicemail
+        async testsendVoicemailTranscriptionMessage() {
+            /*
+            const message = $iq({ id: this.xmppService.connection.getUniqueId(), from: this.xmppService.jid, to: this.xmppService.fullJid, type: 'set' });
+            message.c('voiceMail', {
+                xmlns: 'jabber:iq:voicemailTranscription',
+                jid: this.xmppService.jid,
+                date: new Date().toISOString(),
+                duration: 145,
+                url:'http://url',
+                transcript: 'Une chouette transcription de mon message'
+            });
+            // await this.xmppService.sendIQ(message);
+            // */
+
+            //const xml = require("@xmpp/xml");
+            //import {XMPPUTils} from "../lib/common/XMPPUtils";
+            //const xmppUtils = XMPPUTils.getXMPPUtils();
+
+            /*
+            let stanza = xml("iq", {
+                    "from": rainbowSDK._core._xmpp.jid,
+                    "type": "set",
+                    "to": rainbowSDK._core._xmpp.jid,
+                    //"to": rainbowSDK._core._xmpp.fullJid,
+                    "id": id
+                }, xml("voiceMail", {
+                        xmlns: 'jabber:iq:voicemailTranscription',
+                        jid: rainbowSDK._core._xmpp.jid,
+                        date: new Date().toISOString(),
+                        duration: 145,
+                        url:'http://url',
+                        transcript: 'Une chouette transcription de mon message'
+                    },
+                )
+            );
+            _logger.log("debug", "MAIN - (testsendVoicemailTranscriptionMessage) send - 'stanza'", stanza.root().toString());
+
+            let sendIqResult = await rainbowSDK._core._xmpp.xmppClient.sendIq(stanza);
+            // */
+/*
+            let id = xmppUtils.getUniqueMessageId();
+
+            const stanza = xml("message", {
+                    "from": rainbowSDK._core._xmpp.jid,
+                    "type": "set",
+                    "to": rainbowSDK._core._xmpp.jid,
+                    //"to": rainbowSDK._core._xmpp.fullJid,
+                    "id": id
+                }, xml("voiceMail", {
+                        xmlns: 'jabber:iq:voicemailTranscription',
+                        jid: rainbowSDK._core._xmpp.jid,
+                        date: new Date().toISOString(),
+                        duration: 145,
+                        url: 'http://url',
+                        transcript: 'Une chouette transcription de mon message'
+                    },
+                )
+            );
+            _logger.log("debug", "MAIN - (testsendVoicemailTranscriptionMessage) send - 'stanza'", stanza.root().toString());
+            let sendIqResult = await rainbowSDK._core._xmpp.xmppClient.send(stanza);
+// */
+            let transcriptInfo : { jid : string, date : string, duration : number, url : string, transcript : string} = { jid : rainbowSDK._core._xmpp.jid, date : new Date().toISOString(), duration : 145, fileDescId: "fileid1234", fromNumber: "from", transcript : 'Une chouette transcription de mon message'};
+            let sendIqResult = await rainbowSDK.im.sendVoicemailTranscriptionMessage( rainbowSDK._core._xmpp.jid, transcriptInfo, undefined);
+            _logger.log("debug", "MAIN - (testsendVoicemailTranscriptionMessage) sendIqResult : ", sendIqResult);
+        }
+
+        async testsendVoicemailTranscriptionMessage_mock() {
+            let stanzamocked = "<message xmlns=\"jabber:client\" xml:lang=\"en\" to=\"adcf613d42984a79a7bebccc80c2b65e@openrainbow.net\" from=\"adcf613d42984a79a7bebccc80c2b65e@openrainbow.net/node_ciBHlrJd\" id=\"node_2cb9f697-f45b-42e4-beea-b819fb5c7fe86\"><voiceMail xmlns=\"jabber:iq:voicemailTranscription\" jid=\"adcf613d42984a79a7bebccc80c2b65e@openrainbow.net\" date=\"2025-05-06T08:54:19.218Z\" duration=\"145\" url=\"http://url\" transcript=\"Une chouette transcription de mon message\"/></message>";
+            await rainbowSDK._core._xmpp.mockStanza(stanzamocked);
+        }
+
+        //endregion voicemail
 
         // region Telephony Voice Messages
 

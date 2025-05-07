@@ -1570,6 +1570,75 @@ class ImsService extends GenericService{
     }
 
     //endregion Ims Application Messages
+
+    //region Voicemail
+
+    /**
+     * @public
+     * @nodered true
+     * @method sendVoicemailTranscriptionMessage
+     * @instance
+     * @async
+     * @category Voicemail
+     * @description
+     * Sends a message to a contact Jid to add a voice message in the list.
+     *
+     * @param {string} to - The Jid to which the message is sent
+     * @param {any} transcriptInfo : { jid : string, date : string, duration : number, url : string, transcript : string} = { jid : undefined, date : new Date().toISOString(), duration : 0, url : undefined, transcript : undefined} - informations of the voice mail.
+     * @param {DataStoreType} p_messagesDataStore  used to override the general of SDK's parameter "messagesDataStore". default value `undefined` to use the general value.</br>
+     * DataStoreType.NoStore Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.</br>
+     * DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).</br>
+     * DataStoreType.StoreTwinSide The messages are fully stored.</br>
+     * DataStoreType.UsestoreMessagesField to follow the storeMessages SDK's parameter behaviour.</br>
+     * @return {Promise<any>} - that resolves on success
+     *
+     *
+     *
+     */
+    async sendVoicemailTranscriptionMessage(to : string, transcriptInfo : { jid : string, date : string, duration : number, fileDescId: string, fromNumber: string, transcript : string} = { jid : undefined, date : new Date().toISOString(), duration : 0, fileDescId: undefined, fromNumber: undefined, transcript : undefined}, p_messagesDataStore: DataStoreType ) {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendApplicationMessageBubbleJid) is transcriptInfo.url defined : ", isDefined(transcriptInfo?.url), " is transcriptInfo.transcript defined : ", isDefined(transcriptInfo?.transcript));
+        return new Promise(async (resolve, reject) => {
+            let type = "groupchat";
+            // const TYPE_CHAT = "chat";
+            // const TYPE_GROUPCHAT = "groupchat";
+
+            if (!isDefined(to)) {
+                to = that._xmpp.jid;
+            }
+
+            if (!isDefined(transcriptInfo.jid)) {
+                to = that._xmpp.jid;
+            }
+
+            if (!isDefined(transcriptInfo.duration)) {
+                return reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'duration' is missing or null"}));
+            }
+
+            if (!isDefined(transcriptInfo.fileDescId)) {
+                return reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'fileDescId' is missing or null"}));
+            }
+
+            if (!isDefined(transcriptInfo.fromNumber)) {
+                return reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'fromNumber' is missing or null"}));
+            }
+
+            if (!isDefined(transcriptInfo.transcript)) {
+                return reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'transcript' is missing or null"}));
+            }
+
+            try {
+                const result = await that._xmpp.sendVoicemailTranscriptionMessage(to, transcriptInfo, p_messagesDataStore);
+                return resolve(result);
+            } catch (error) {
+                return reject( error);
+            }
+        });
+
+    }
+
+    //endregion Voicemail
+
 }
 
 module.exports.ImsService = ImsService;

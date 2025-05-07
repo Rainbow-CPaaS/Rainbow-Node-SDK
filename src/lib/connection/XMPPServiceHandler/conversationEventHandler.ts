@@ -47,6 +47,7 @@ const TYPE_GROUPCHAT = "groupchat";
 class ConversationEventHandler extends GenericHandler {
     public MESSAGE: string;
     public MESSAGE_CHAT: string;
+    public MESSAGE_SET: string;
     public MESSAGE_GROUPCHAT: string;
     public MESSAGE_WEBRTC: string;
     public MESSAGE_MANAGEMENT: string;
@@ -75,6 +76,7 @@ class ConversationEventHandler extends GenericHandler {
 
         this.MESSAGE = "jabber:client.message";
         this.MESSAGE_CHAT = "jabber:client.message.chat";
+        this.MESSAGE_SET = "jabber:client.message.set";
         this.MESSAGE_GROUPCHAT = "jabber:client.message.groupchat";
         this.MESSAGE_WEBRTC = "jabber:client.message.webrtc";
         this.MESSAGE_MANAGEMENT = "jabber:client.message.management";
@@ -392,6 +394,62 @@ class ConversationEventHandler extends GenericHandler {
             // */
         } else {
             that._logger.log(that.INTERNAL, LOG_ID + "(parseConferenceV2UpdatedEvent) xmlnsNode is not jabber:iq:conference:2 id : ", id);
+        }
+    }
+
+    async onMessageReceived(msg, stanzaTab: Element) {
+        let that = this;
+        let stanza = stanzaTab[0];
+        let prettyStanza = stanzaTab[1];
+        let jsonStanza = stanzaTab[2];
+
+        try {
+            if (jsonStanza?.message['$attrs'].type == "chat" || jsonStanza?.message['$attrs'].type == "groupchat") {
+                return;
+            }
+            //that._logger.log(that.INTERNAL, LOG_ID + "(onMessageReceived) _entering_ : ", msg, "\n", prettyStanza);
+            that._logger.log(that.INTERNAL, LOG_ID + "(onMessageReceived) jsonStanza : ", jsonStanza);
+            /*jsonStanza :  {
+              message: {
+                '$attrs': {
+                  xmlns: 'jabber:client',
+                  'xml:lang': 'en',
+                  to: 'adcf613d42984a79a7bebccc80c2b65e@openrainbow.net',
+                  from: 'adcf613d42984a79a7bebccc80c2b65e@openrainbow.net/node_ciBHlrJd',
+                  id: 'node_e126e64f-edcd-4fbf-90d9-665c0796c5545'
+                },
+                voiceMail: {
+                  '$attrs': {
+                    xmlns: 'jabber:iq:voicemailTranscription',
+                    jid: 'adcf613d42984a79a7bebccc80c2b65e@openrainbow.net',
+                    date: '2025-05-07T09:28:48.594Z',
+                    duration: 145,
+                    fileDescId: 'fileid1234',
+                    fromNumber: 'from',
+                    transcript: 'Une chouette transcription de mon message'
+                  }
+                }
+              }
+            }
+            // */
+            let voiceMailJson = jsonStanza?.message?.voiceMail;
+            that._logger.log(that.INTERNAL, LOG_ID + "(onMessageReceived) id : voiceMailJson : ", voiceMailJson);
+            if (voiceMailJson) {
+                let voiceMailReceived = {
+                    jid: voiceMailJson['$attrs'].jid,
+                    date: voiceMailJson['$attrs'].date,
+                    duration: voiceMailJson['$attrs'].duration,
+                    // peerType: jsonStanza?.message['$attrs'].type,
+                    fileDescId: voiceMailJson['$attrs'].fileDescId,
+                    fromNumber: voiceMailJson['$attrs'].fromNumber,
+                    transcript: voiceMailJson['$attrs'].transcript,
+                };
+                that._logger.log(that.INTERNAL, LOG_ID + "(onMessageReceived) voiceMailReceived : ", voiceMailReceived);
+                that.eventEmitter.emit("evt_internal_voicemailreceived", voiceMailReceived);
+            }
+        } catch (err) {
+            //that._logger.log(that.ERROR, LOG_ID + "(onMessageReceived) CATCH Error !!! ");
+            that._logger.log(that.ERROR, LOG_ID + "(onMessageReceived) CATCH Error !!! : ", err);
         }
     }
 

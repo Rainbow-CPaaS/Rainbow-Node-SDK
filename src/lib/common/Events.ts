@@ -196,6 +196,7 @@ class Emitter extends EventEmitterClass{
  * @fires Events#rainbow_ontelephonypcgpresence
  * @fires Events#rainbow_onconference
  * @fires Events#rainbow_onpinmanagement
+ * @fires Events#rainbow_onvoicemailreceived
  */
 class Events {
     get logEmitter(): EventEmitter {
@@ -322,7 +323,8 @@ class Events {
         "rainbow_ontelephonypcg",
         "rainbow_ontelephonypcgpresence",
         "rainbow_onconference",
-        "rainbow_onpinmanagement"
+        "rainbow_onpinmanagement",
+        "rainbow_onvoicemailreceived"
     ];
     public  waitBeforeBubblePresenceSend = false;
 
@@ -1750,7 +1752,7 @@ class Events {
              * @public
              * @param { any | error } data The data of the pin.
              * @description
-             *      Fired when a `pined message` event is receveid from server.</br>
+             *      Fired when a `pined message` event is received from server.</br>
              *  {</br>
              *      pinId: string, // Id of the pin</br>
              *      action: string, // Management action</br>
@@ -1760,6 +1762,26 @@ class Events {
              *  </br>
              */
             that.publishEvent("pinmanagement", data);
+        });
+
+        this._evReceiver.on("evt_internal_voicemailreceived", function (data) {
+            /**
+             * @event Events#rainbow_onvoicemailreceived
+             * @public
+             * @param { any | error } data The data of a received voiceMail item.
+             * @description
+             *      Fired when a `voiceMail item` event is received from server.</br>
+             *  {</br>
+             *      jid: voiceMailJson['$attrs'].jid, </br>
+             *      date: voiceMailJson['$attrs'].date,</br>
+             *      duration: voiceMailJson['$attrs'].duration,</br>
+             *      fileDescId: voiceMailJson['$attrs'].fileDescId,</br>
+             *      fromNumber: voiceMailJson['$attrs'].fromNumber,</br>
+             *      transcript: pinJvoiceMailJsonson['$attrs'].transcript,</br>
+             *  }</br>
+             *  </br>
+             */
+            that.publishEvent("voicemailreceived", data);
         });
 
     }

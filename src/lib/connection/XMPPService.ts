@@ -2,7 +2,7 @@
 
 import * as util from "util";
 import {
-    equalIgnoreCase, getJsonFromXML,
+    equalIgnoreCase, getJsonFromXML, isDefined,
     isNullOrEmpty,
     isNumber,
     isStarted,
@@ -25,6 +25,7 @@ import { RpcoverxmppEventHandler } from "./XMPPServiceHandler/rpcoverxmppEventHa
 import {Core} from "../Core.js";
 import {ConversationHistoryHandler} from "./XMPPServiceHandler/conversationHistoryHandler.js";
 import {CallLogEventHandler} from "./XMPPServiceHandler/calllogEventHandler.js";
+import {ErrorManager} from "../common/ErrorManager.js";
 
 const packageVersion = require("../../package");
 const url = require('url');
@@ -1853,6 +1854,54 @@ class XMPPService extends GenericService {
         that._logger.log(that.WARN, LOG_ID + "(sendApplicationMessageAsync) No XMPP connection...");
         return Promise.resolve(null);
     }
+
+    //region voicemail
+
+    async sendVoicemailTranscriptionMessage(to : string, transcriptInfo : { jid : string, date : string, duration : number, transcript : string} = { jid : undefined, date : new Date().toISOString(), duration : 0, fileDescId: string, fromNumber: string, transcript : undefined} , p_messagesDataStore: DataStoreType) {
+        let that = this;
+        if (that.useXMPP) {
+            /*
+           <message from="adcf613d42984a79a7bebccc80c2b65e@openrainbow.net" type="set" to="adcf613d42984a79a7bebccc80c2b65e@openrainbow.net" id="node_2cb9f697-f45b-42e4-beea-b819fb5c7fe86"
+  xmlns="jabber:client">
+  <voiceMail
+    xmlns="jabber:iq:voicemailTranscription" jid="adcf613d42984a79a7bebccc80c2b65e@openrainbow.net" date="2025-05-06T08:54:19.218Z" duration="145" url="http://url" transcript="Une chouette transcription de mon message"/>
+  </message>
+            // */
+
+            let id = that.xmppUtils.getUniqueMessageId();
+
+            const stanza = xml("message", {
+                    "from": that.jid,
+                    "type": "set",
+                    "to": to,
+                    "id": id
+                }, xml("voiceMail", {
+                        xmlns: 'jabber:iq:voicemailTranscription',
+                        jid: transcriptInfo.jid,
+                        date: transcriptInfo.date,
+                        duration: transcriptInfo.duration,
+                        fileDescId: transcriptInfo.fileDescId,
+                        fromNumber: transcriptInfo.fromNumber,
+                        transcript: transcriptInfo.transcript
+                    },
+                )
+            );
+            that._logger.log("debug", "(sendVoicemailTranscriptionMessage) send - 'stanza'", stanza.root().toString());
+            return new Promise((resolve, reject) => {
+                that.xmppClient.send(stanza, p_messagesDataStore).then((result) => {
+                    that._logger.log(that.DEBUG, LOG_ID + "(sendVoicemailTranscriptionMessage) sent");
+                    resolve(result);
+                }).catch((err) => {
+                    return reject(err);
+                });
+            });
+        }
+
+        that._logger.log(that.WARN, LOG_ID + "(sendVoicemailTranscriptionMessage) No XMPP connection...");
+        return Promise.resolve(null);
+    }
+
+    //endregion voicemail
 
     /*
     getRosters() {
