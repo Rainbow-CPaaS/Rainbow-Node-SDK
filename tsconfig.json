@@ -1,39 +1,24 @@
 {
   "compilerOptions": {
-  //  "ignoreDeprecations": "5.0",
     "noImplicitAny": false,
-    //"module": "bundler",
     "module": "commonjs",
-    //"moduleResolution": "node",
-    //"module": "node16",
-    //"moduleResolution": "node16",
     "target": "es2020",
     "sourceMap": true,
     "declaration": true,
     "allowJs": false,
     "allowUnusedLabels": true,
-//    "charset": "utf-8",
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
-    // "esModuleInterop": true,
     "removeComments": false,
     "skipLibCheck": true,
-    //"noFallthroughCasesInSwitch": false,
-    //"noImplicitReturns": true,
     "pretty": true,
-    //"removeComments": true,
     "rootDir": "./src",
     "project": "./src",
-    //"stripInternal": true,
     "outDir": "./",
     "lib": [
       "es6",
       "es2020"
     ],
-    //, "dom"
-    //"moduleResolution": "node",
-    //"moduleResolution": "classic",
-    //"checkJs": true,
     "explainFiles": true,
     "diagnostics": true
   },
@@ -60,8 +45,6 @@
   ],
   "include": [
     "./src/**/*.ts",
-    // "!**/*.d.ts",
-    //"./**/*.ts",
     "./node_modules/typescript/lib/typescript.d.ts",
     "./node_modules/typescript/lib/typescript.ts"
   ]
