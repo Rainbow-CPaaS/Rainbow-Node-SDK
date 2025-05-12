@@ -1597,7 +1597,7 @@ class ImsService extends GenericService{
      */
     async sendVoicemailTranscriptionMessage(to : string, transcriptInfo : { jid : string, date : string, duration : number, fileDescId: string, fromNumber: string, transcript : string} = { jid : undefined, date : new Date().toISOString(), duration : 0, fileDescId: undefined, fromNumber: undefined, transcript : undefined}, p_messagesDataStore: DataStoreType ) {
         let that = this;
-        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendApplicationMessageBubbleJid) is transcriptInfo.url defined : ", isDefined(transcriptInfo?.url), " is transcriptInfo.transcript defined : ", isDefined(transcriptInfo?.transcript));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendApplicationMessageBubbleJid) is transcriptInfo.fileDescId defined : ", isDefined(transcriptInfo?.fileDescId), " is transcriptInfo.transcript defined : ", isDefined(transcriptInfo?.transcript));
         return new Promise(async (resolve, reject) => {
             let type = "groupchat";
             // const TYPE_CHAT = "chat";

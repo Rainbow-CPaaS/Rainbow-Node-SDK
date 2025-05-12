@@ -1857,7 +1857,7 @@ class XMPPService extends GenericService {
 
     //region voicemail
 
-    async sendVoicemailTranscriptionMessage(to : string, transcriptInfo : { jid : string, date : string, duration : number, transcript : string} = { jid : undefined, date : new Date().toISOString(), duration : 0, fileDescId: string, fromNumber: string, transcript : undefined} , p_messagesDataStore: DataStoreType) {
+    async sendVoicemailTranscriptionMessage(to : string, transcriptInfo : { jid : string, date : string, duration : number, fileDescId: string, fromNumber: string, transcript : string} = { jid : undefined, date : new Date().toISOString(), duration : 0, fileDescId: undefined, fromNumber: undefined, transcript : undefined} , p_messagesDataStore: DataStoreType) {
         let that = this;
         if (that.useXMPP) {
             /*

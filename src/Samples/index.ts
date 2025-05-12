@@ -4492,11 +4492,12 @@ let expressEngine = undefined;
                                 return res;
                             }).length===1) {
                                 let utcMsg = new Date().getTime();
-                                let message = "** Test message ** at " + utcMsg;
+                                let messageMD = "**Test message MD** at " + utcMsg;
                                 await setTimeoutPromised(2000);
-                                await rainbowSDK.im.sendMessageToBubbleJid(message, bubbleAffiliated.jid, "en", {
+                                await rainbowSDK.im.sendMessageToBubbleJid(" ", bubbleAffiliated.jid, "en", {
+                                //await rainbowSDK.im.sendMessageToBubbleJid(message, bubbleAffiliated.jid, "en", {
                                     "type": "text/markdown",
-                                    "message": message
+                                    "message": messageMD
                                 }, "subject", undefined);
                             }
                         });
@@ -10976,7 +10977,7 @@ let expressEngine = undefined;
             _logger.log("debug", "MAIN - (testsendVoicemailTranscriptionMessage) send - 'stanza'", stanza.root().toString());
             let sendIqResult = await rainbowSDK._core._xmpp.xmppClient.send(stanza);
 // */
-            let transcriptInfo : { jid : string, date : string, duration : number, url : string, transcript : string} = { jid : rainbowSDK._core._xmpp.jid, date : new Date().toISOString(), duration : 145, fileDescId: "fileid1234", fromNumber: "from", transcript : 'Une chouette transcription de mon message'};
+            let transcriptInfo : { jid : string, date : string, duration : number, fileDescId: string, fromNumber: string, transcript : string} = { jid : rainbowSDK._core._xmpp.jid, date : new Date().toISOString(), duration : 145, fileDescId: "fileid1234", fromNumber: "from", transcript : 'Une chouette transcription de mon message'};
             let sendIqResult = await rainbowSDK.im.sendVoicemailTranscriptionMessage( rainbowSDK._core._xmpp.jid, transcriptInfo, undefined);
             _logger.log("debug", "MAIN - (testsendVoicemailTranscriptionMessage) sendIqResult : ", sendIqResult);
         }
