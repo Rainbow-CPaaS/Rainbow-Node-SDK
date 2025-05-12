@@ -39,9 +39,11 @@
     "placeOpenBraceOnNewLineForControlBlocks": false
   },
   "exclude": [
-    "./build/**/*",
-    "./node_modules/**/*",
-    "./typings/**/*"
+    "build",
+    "typings",
+    "**/*.spec.ts",
+    "**/*.d.ts",
+    "node_modules"
   ],
   "include": [
     "./src/**/*.ts",

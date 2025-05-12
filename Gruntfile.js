@@ -416,19 +416,27 @@ module.exports = function(grunt) {
         }
     },
     "ts": {
-        /*"default": {
-            options: {
-                verbose: true
-            }
-        }, */
         "options": {
             // disable the grunt-ts fast feature
             "fast": 'never',
             "verbose": true
         },
         "build": {
-            "src": ["src/**/*.ts", "!node_modules/**"],
-            "tsconfig": true
+            // "src": [
+            //     "src/**/*.ts",
+            //     "!node_modules/**",
+            //     "!build",
+            //     "!typings",
+            //     "!**/*.spec.ts",
+            //     "!**/*.d.ts",
+            //     "!node_modules"
+            // ]
+            //  ,
+            tsconfig: {
+                tsconfig: "./",
+                passThrough: true
+            }
+          //  "tsconfig": true
         }
       },
     dtsGenerator: {
