@@ -167,6 +167,11 @@ let logger = rainbowSDK._core._logger;
 
 // logger.log("internal", "MAIN - options : ", options);
 
+rainbowSDK.events.on("rainbow_onserviceinitialized", (data) => {
+    // do something when a service of the SDK is ready to be used
+    logger.log("debug", "MAIN - rainbow_onserviceinitialized - service : ", data);
+});
+
 rainbowSDK.events.on("rainbow_onready", () => {
     // do something when the SDK is ready to be used
     logger.log("debug", "MAIN - rainbow_onready - rainbow onready");
