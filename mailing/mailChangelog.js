@@ -246,7 +246,7 @@ function sendMail(config, vars, mailjet) {
                     "<p>Hi all,</p>",
                     "<p>Component <b>" +
                     vars.component +
-                    "</b> as been delivered to <b>" +
+                    "</b> has been delivered to <b>" +
                     vars.environment +
                     "</b></p>",
                     "<p>Here is the complete changelog for version <b>" + minVersion + "</b>",
