@@ -3746,11 +3746,16 @@ let expressEngine = undefined;
 
         // region Channels
 
-        tesgetAllOwnedChannels() {
+        testgetAllOwnedChannels() {
             let mychannels = rainbowSDK.channels.getAllOwnedChannels();
             //let mychannel = mychannels ? mychannels[0]:null;
             //let utc = new Date().toJSON().replace(/-/g, "_");
-            _logger.log("debug", "MAIN - tesgetAllOwnedChannels - mychannels : ", mychannels);
+            _logger.log("debug", "MAIN - testgetAllOwnedChannels - mychannels : ", mychannels);
+        }
+
+        async testfindChannelsByName(channelName : string = "RNodeSdkChangeLog") {
+            let mychannels = await rainbowSDK.channels.findChannelsByName(channelName);
+            _logger.log("debug", "MAIN - testfindChannelsByName - mychannels : ", mychannels);
         }
 
         testChannelImage() {
