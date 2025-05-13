@@ -2459,6 +2459,9 @@ class Bubbles extends GenericService {
                             that._logger.log(that.INTERNALERROR, LOG_ID + "(getBubbles) error : ", err);
                             return reject(err);
                         }); // */
+                    } else {
+                        that._eventEmitter.emit("evt_internal_allbubbleinitialaffiliationchanged", {});
+                        return resolve(undefined);
                     }
                 }).catch(function (err) {
                     that._logger.log(that.ERROR, LOG_ID + "(getBubbles) error");
