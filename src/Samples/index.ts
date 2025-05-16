@@ -2841,10 +2841,15 @@ let expressEngine = undefined;
             let msgStrModified = "modified : " + msgSentOrig.content;
             _logger.log("debug", "MAIN - testsendCorrectedChatMessage - msgStrModified : ", msgStrModified);
             setTimeout(async () => {
+                const maintenant = new Date();
                 let msgCorrectedSent = await rainbowSDK.conversations.sendCorrectedChatMessage(conversation, msgStrModified, msgSentOrig.id).catch((err) => {
                     _logger.log("error", "MAIN- testsendCorrectedChatMessage - error sendCorrectedChatMessage : ", err);
                 });
                 _logger.log("debug", "MAIN- testsendCorrectedChatMessage - msgCorrectedSent : ", msgCorrectedSent);
+                //const maintenant = new Date();
+                const timestamp = String(maintenant.getTime());
+                let msg = await rainbowSDK.conversations.getOneMessageFromConversationId(conversation.id, msgSentOrig.id, timestamp.toString());
+                _logger.log("debug", "MAIN - testsendCorrectedChatMessage - msg orig after modify : ", msg);
             }, 10000);
         }
 
@@ -9222,6 +9227,119 @@ let expressEngine = undefined;
                         });
                         _logger.log("debug", "MAIN - testCompanyCleanAfterbuild - deletedCompany : ", deletedCompany);
                     }
+                }
+            }
+        }
+
+        async testCompanyVBETESTOPENRAINBOWNETCleanAfterbuild() {
+            // To use with rford@westworld.com
+
+            let utc = new Date().toJSON().replace(/-/g, '_');
+            let format: string = "small";
+            let sortField: string = "name";
+            let bpId: string = undefined;
+            let catalogId: string = undefined;
+            let offerId: string = undefined;
+            let offerCanBeSold: boolean = undefined;
+            let externalReference: string = undefined;
+            let externalReference2: string = undefined;
+            let salesforceAccountId: string = undefined;
+            let selectedAppCustomisationTemplate: string = undefined
+            let selectedThemeObj: boolean = undefined;
+            let offerGroupName: string = undefined;
+            let limit: number = 500;
+            let offset: number = 0;
+            let sortOrder: number = 1;
+            //let name: string = "Westworld_Guest_1583336606191";
+            // let name: string = "Westworld_Guest_";
+            let names: Array<string> = ["vbe.test.openrainbow.net"];
+            //let names: Array<string> = ["Westworld_Host_1611262600870"];
+            let status: string = undefined;
+            let visibility: string = undefined;
+            let organisationId: string = undefined
+            let isBP: boolean = undefined;
+            let hasBP: boolean = undefined;
+            let bpType: string = undefined;
+
+            for (let name of names) {
+                _logger.log("debug", "MAIN - testCompanyCleanAfterbuildtestCompanyVBETESTOPENRAINBOWNETCleanAfterbuild - name : ", name);
+                let allCompaniesResult: any = await rainbowSDK.admin.getAllCompanies(format, sortField, bpId, catalogId, offerId, offerCanBeSold, externalReference, externalReference2, salesforceAccountId, selectedAppCustomisationTemplate, selectedThemeObj, offerGroupName, limit, offset, sortOrder, name, status, visibility, organisationId, isBP, hasBP, bpType);
+                let allCompanies: Array<any> = allCompaniesResult.data;
+                _logger.log("debug", "MAIN - testCompanyCleanAfterbuildtestCompanyVBETESTOPENRAINBOWNETCleanAfterbuild - allCompanies : ", allCompanies.length);
+                await pause(2000);
+
+                for (let i = 0; i < allCompanies.length; i++) {
+                    let companie = allCompanies[i];
+                    /*
+    {
+      "settings": {
+        "singleSignOn": [],
+        "rainbowMfaPolicies": [],
+        "fileStorage": {}
+      },
+      "name": "Westworld_Guest_1583336606191",
+      "id": "5e5fccadfe3b6715b0f098f1"
+    }
+    // */
+                    _logger.log("debug", "MAIN - testCompanyCleanAfterbuildtestCompanyVBETESTOPENRAINBOWNETCleanAfterbuild - Companie : ", companie);
+
+                    let allUsersCompany: any = await rainbowSDK.admin.getAllUsersByCompanyId("small", 0, 100, undefined, companie.id).catch(err => {
+                        _logger.log("error", "MAIN - testCompanyCleanAfterbuildtestCompanyVBETESTOPENRAINBOWNETCleanAfterbuild - getAllUsersByCompanyId() err : ", err);
+                    });
+
+                    /*
+                    vincent++@vbe.test.openrainbow.net Berder++ Vincent++
+                    vincent.berder.afterbuild@vbe.test.openrainbow.net Berder-Afterbuild VincentAF
+                    vincentadmin00@vbe.test.openrainbow.net Berderadmin00 Vincentadmin00
+                    vincent00@vbe.test.openrainbow.net berder00 vincent00
+                    vincent03@vbe.test.openrainbow.net berder03 vincent03
+                    vincent07@vbe.test.openrainbow.net berder07 vincent07
+                    vincent09@vbe.test.openrainbow.net berder09 vincent09
+                    vincent10@vbe.test.openrainbow.net berder10 vincent10
+                    vincent11@vbe.test.openrainbow.net berder11 vincent11
+                    vincentfree@vbe.test.openrainbow.net BerderFree VincentFree
+                    vincent00_01@vbe.test.openrainbow.net
+                    // */
+                    let usersToKeep = ["vincent++@vbe.test.openrainbow.net",
+                        "vincent.berder.afterbuild@vbe.test.openrainbow.net",
+                    "vincentadmin00@vbe.test.openrainbow.net",
+                        "vincent00@vbe.test.openrainbow.net",
+                        "vincent03@vbe.test.openrainbow.net",
+                        "vincent07@vbe.test.openrainbow.net",
+                        "vincent09@vbe.test.openrainbow.net",
+                    "vincent10@vbe.test.openrainbow.net",
+                    "vincent11@vbe.test.openrainbow.net",
+                    "vincentfree@vbe.test.openrainbow.net",
+                        "vincent00_01@vbe.test.openrainbow.net"
+                    ];
+
+                    let keepedUsers = [];
+                    let deletedUsers = [];
+                    const regex = /vincent/i; // 'i' pour insensible à la casse
+
+                    for (let j = 0; j < allUsersCompany.length; j++) {
+                        let userCompany = allUsersCompany[j];
+                        //_logger.log("debug", "MAIN - testCompanyCleanAfterbuildtestCompanyVBETESTOPENRAINBOWNETCleanAfterbuild - treat userCompany : ", userCompany);
+
+                        let ignoreTheUser : boolean = (usersToKeep.find((elt) => { return ( elt === userCompany.loginEmail || regex.test(userCompany.loginEmail) || regex.test(userCompany.firstName) || regex.test(userCompany.lastName)) } ) != undefined);
+                        
+                        if (!ignoreTheUser) {
+                            //_logger.log("debug", "MAIN - testCompanyCleanAfterbuildtestCompanyVBETESTOPENRAINBOWNETCleanAfterbuild - delete userDeleted.id : ", userCompany.id, ", userDeleted.loginEmail : ", userCompany.loginEmail);
+                            deletedUsers.push(userCompany);
+                            let userDeleted = await rainbowSDK.admin.deleteUser(userCompany.id).catch(err => {
+                                _logger.log("error", "MAIN - testCompanyCleanAfterbuildtestCompanyVBETESTOPENRAINBOWNETCleanAfterbuild - deleteUser() err : ", err);
+                            });
+                            _logger.log("debug", "MAIN - testCompanyCleanAfterbuildtestCompanyVBETESTOPENRAINBOWNETCleanAfterbuild - userDeleted : ", userDeleted);
+                            // */
+                        } else {
+                            //_logger.log("debug", "MAIN - testCompanyCleanAfterbuildtestCompanyVBETESTOPENRAINBOWNETCleanAfterbuild - Keep userDeleted.id : ", userCompany.id, ", userDeleted.loginEmail : ", userCompany.loginEmail);
+                            keepedUsers.push(userCompany);
+                        }
+                    }
+
+                    _logger.log("debug", "MAIN - testCompanyCleanAfterbuildtestCompanyVBETESTOPENRAINBOWNETCleanAfterbuild - Keeped users : ", keepedUsers.map(u => `${u.loginEmail} ${u.displayName} ${u.id}`).join('\n'));
+                    _logger.log("debug", "MAIN - testCompanyCleanAfterbuildtestCompanyVBETESTOPENRAINBOWNETCleanAfterbuild - Deleted users : ", deletedUsers.map(u => `${u.loginEmail} ${u.displayName} ${u.id}`).join('\n'));
+
                 }
             }
         }
