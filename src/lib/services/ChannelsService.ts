@@ -249,28 +249,6 @@ class ChannelsService extends GenericService {
         });
     }
 
-    /*
-    *
-     * @public
-     * @method createPrivateChannel (ex: createPrivateChannel)
-     * @instance
-     * @async
-     * @category Channels MANAGEMENT
-     * @deprecated [#1] since version 1.55 [#2].
-     * [#3] Will be deleted in future version
-     * [#4] In case you need similar behavior use the createClosedChannel method instead,
-     * @param {string} name  The name of the channel to create (max-length=255)
-     * @param {string} [description]  The description of the channel to create (max-length=255)
-     * @return {Promise<Channel>} New Channel
-     * @description
-     *  Create a new private channel <br>
-    createPrivateChannel(name : string, description : string) {
-        let that = this;
-        
-        return that.createClosedChannel(name, description, "globalnews");
-    }
-     // */
-
     /**
      * @public
      * @nodered true
@@ -452,27 +430,6 @@ class ChannelsService extends GenericService {
         });
     }
 
-    /*
-     * @public
-     * @method getChannelById
-     * @instance
-     * @async
-     * @category Channels MANAGEMENT
-     * @deprecated [#1] since version 1.55 [#2].
-     * [#3] Will be deleted in future version
-     * [#4] In case you need similar behavior use the fetchChannel method instead,
-     * @param {string} id The id of the channel)
-     * @param {boolean} [force=false] True to force a request to the server
-     * @return {Promise<Channel>} The channel found
-     * @description
-     * Find a channel by its id (locally if exists or by sending a request to Rainbow) <br>
-    getChannelById(id : string, force? : boolean) : Promise <Channel> {
-        let that = this;
-        
-        return that.fetchChannel(id,  force);
-    }
-     // */
-
     /**
      * @public
      * @nodered true
@@ -586,26 +543,6 @@ class ChannelsService extends GenericService {
         });
     };
 
-    /*
-     * @public
-     * @method getChannels
-     * @since 1.38
-     * @category Channels MANAGEMENT
-     * @instance
-     * @deprecated [#1] since version 1.55 [#2].
-     * [#3] Will be deleted in future version
-     * [#4] In case you need similar behavior use the fetchMyChannels method instead,
-     * @description
-     *    Get the channels you own, are subscribed to, are publisher<br>
-     *    Return a promise. <br>
-     * @return {{Promise<Channel[]>} } Return Promise with a list of channels or an empty array if no channel has been found
-    getChannels() {
-        let that = this;
-        
-        return that.fetchMyChannels();
-    }
-     */
-
     /**
      * @public
      * @nodered true
@@ -701,23 +638,6 @@ class ChannelsService extends GenericService {
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getAllChannels) .");
         return that._channels;
     }
-
-    /*
-     * @public
-     * @method getAllOwnedChannel
-     * @instance
-     * @category Channels MANAGEMENT
-     * @deprecated [#1] since version 1.55 [#2].
-     * [#3] Will be deleted in future version
-     * [#4] In case you need similar behavior use the getAllOwnedChannels method instead,
-     * @return {Channel[]} An array of channels (owned only)
-     * @description
-     *  Return the list of owned channels only <br>
-    getAllOwnedChannel(){
-        let that = this;
-        return that.getAllOwnedChannels();
-    }
-     */
 
     /**
      * @public
@@ -1344,25 +1264,6 @@ class ChannelsService extends GenericService {
         });
     }
 
-    /*
-     * @public
-     * @method getMessagesFromChannel
-     * @instance
-     * @async
-     * @category Channels MESSAGES/ITEMS
-     * @deprecated [#1] since version 1.55 [#2].
-     * [#3] Will be deleted in future version
-     * [#4] In case you need similar behavior use the fetchChannelItems method instead,
-     * @param {Channel} channel The channel
-     * @return {Promise<Object[]>} The list of messages received
-     * @description
-     *  Retrieve the last messages from a channel <br>
-    getMessagesFromChannel (channel : Channel) {
-        let that = this;
-        return that.fetchChannelItems(channel);
-    }
-    // */     
-
     /**
      * @public
      * @nodered true
@@ -1434,26 +1335,6 @@ class ChannelsService extends GenericService {
             });
         });
     }
-
-    /*
-     * @public
-     * @method deleteMessageFromChannel
-     * @instance
-     * @async
-     * @category Channels MESSAGES/ITEMS
-     * @deprecated [#1] since version 1.55 [#2]. <br>
-     * [#3] Will be deleted in future version <br>
-     * [#4] In case you need similar behavior use the deleteItemFromChannel method instead, <br>
-     * @param  {string} channelId The Id of the channel
-     * @param  {string} messageId The Id of the message
-     * @return {Promise<Channel>} The channel updated
-     * @description
-     *  Delete a message from a channel <br>
-    deleteMessageFromChannel(channelId : string, messageId : string) {
-        let that = this;
-        return that.deleteItemFromChannel(channelId, messageId);
-    }
-    // */
 
     /**
      * @public
@@ -1617,23 +1498,6 @@ class ChannelsService extends GenericService {
 
     //region Channels SUBSCRIPTION
 
-    /*
-     * @public
-     * @method getAllSubscribedChannel
-     * @instance
-     * @category Channels SUBSCRIPTION
-     * @deprecated [#1] since version 1.55 [#2].
-     * [#3] Will be deleted in future version
-     * [#4] In case you need similar behavior use the getAllSubscribedChannels method instead,
-     * @return {Channel[]} An array of channels (subscribed only)
-     * @description
-     *  Return the list of subscribed channels only <br>
-    getAllSubscribedChannel() {
-        let that = this;
-        return that.getAllSubscribedChannels();
-    }
-     // */
-
     /**
      * @public
      * @nodered true
@@ -1790,30 +1654,6 @@ class ChannelsService extends GenericService {
 
     //region Channels USERS
 
-    /*
-     * @public
-     * @method fetchChannelUsers
-     * @instance
-     * @async
-     * @category Channels USERS
-     * @deprecated [#1] since version 1.55 [#2]. <br>
-     * [#3] Will be deleted in future version <br>
-     * [#4] In case you need similar behavior use the fetchChannelUsers method instead, <br>
-     * @param {Channel} channel The channel
-     * @param {Object} [options] A filter parameter
-     * @param {Number} [options.page = 0] Display a specific page of results
-     * @param {Number} [options.limit=100] Number of results per page (max 1000)
-     * @param {Boolean} [options.onlyPublishers=false] Filter to publishers only
-     * @param {Boolean} [options.onlyOwners=false] Filter to owners only
-     * @return {Promise<Array<any>>} An array of users who belong to this channel
-     * @description
-     *  Get a pagined list of users who belongs to a channel <br>
-    getUsersFromChannel(channel: Channel, options: any) {
-        let that = this;
-        return that.fetchChannelUsers(channel, options);
-    }
-    // */
-
     /**
      * @public
      * @nodered true
@@ -1879,25 +1719,6 @@ class ChannelsService extends GenericService {
         });
     }
 
-    /*
-     * @public
-     * @method removeAllUsersFromChannel
-     * @instance
-     * @async
-     * @category Channels USERS
-     * @deprecated [#1] since version 1.55 [#2]. <br>
-     * [#3] Will be deleted in future version <br>
-     * [#4] In case you need similar behavior use the deleteAllUsersFromChannel method instead, <br>
-     * @param {Channel} channel The channel
-     * @return {Promise<Channel>} The channel updated
-     * @description
-     *  Remove all users from a channel <br>
-    removeAllUsersFromChannel(channel : Channel) {
-        let that = this;
-        return that.deleteAllUsersFromChannel(channel);
-    }
-    // */
-    
     /**
      * @public
      * @nodered true
@@ -2381,26 +2202,6 @@ class ChannelsService extends GenericService {
         return that.updateChannelUsers(channel, usersId);
     }
 
-    /*
-     * @public
-     * @method removeUsersFromChannel1
-     * @instance
-     * @async
-     * @category Channels USERS
-     * @deprecated [#1] since version 1.55 [#2]. <br>
-     * [#3] Will be deleted in future version <br>
-     * [#4] In case you need similar behavior use the deleteUsersFromChannel method instead, <br>
-     * @param {Channel} channel The channel
-     * @param {Array<Contact>} users An array of users to remove
-     * @return {Promise<Channel>} The updated channel
-     * @description
-     *  Remove a list of users from a channel <br>    
-    removeUsersFromChannel1(channel : Channel, users: Array<Contact>) {
-        let that = this;
-        return that.deleteUsersFromChannel(channel, users);
-    }
-     // */
-    
     /**
      * @public
      * @nodered true

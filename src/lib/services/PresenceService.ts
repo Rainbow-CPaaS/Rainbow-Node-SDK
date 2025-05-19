@@ -845,6 +845,7 @@ class PresenceService extends GenericService{
      *    }, ErrorManager>}
      * @fulfil {ErrorManager} - ErrorManager object depending on the result.
      */
+    /*
     private async enableCalendar( ) {
         let that = this;
 
@@ -864,6 +865,7 @@ class PresenceService extends GenericService{
             });
         });
     }
+    // */
     
     /**
      * @private
@@ -884,6 +886,7 @@ class PresenceService extends GenericService{
      * @fulfil {ErrorManager} - ErrorManager object depending on the result.
      
      */
+    /*
   private async disableCalendar( ) {
         let that = this;
 
@@ -903,6 +906,7 @@ class PresenceService extends GenericService{
             });
         });
     }
+    // */
 
     /**
      * @public

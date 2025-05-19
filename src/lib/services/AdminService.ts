@@ -1835,6 +1835,7 @@ class AdminService extends GenericService {
      * @nodered true
      * @method createAnonymousGuestUser
      * @since 1.31
+     * @deprecated since version 2.38.0
      * @instance
      * @description
      *      Create a new anonymous guest user in the same company as the requester admin   </BR>

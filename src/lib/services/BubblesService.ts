@@ -954,6 +954,7 @@ class Bubbles extends GenericService {
      * @returns {Promise<any>} a promise that resolves when conference are retrieved. Note: If no parameter is specified, then all mediaTypes are retrieved
      * @memberof ConferenceService
      */
+    /*
     public retrieveConferences(mediaType?: string, scheduled?: boolean, provisioning?: boolean): Promise<any> {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(retrieveConferences)  with mediaType=" + mediaType + " and scheduled=" + scheduled);
@@ -1001,7 +1002,7 @@ class Bubbles extends GenericService {
                 resolve(undefined);
             });
         });
-    };
+    }; // */
 
  //endregion CONFERENCE SPECIFIC
 
@@ -1018,10 +1019,12 @@ class Bubbles extends GenericService {
      * To get teh Id of the Personal Conference
      * @return {string} Id of the Personal Conference or NULL
      */
+    /*
     personalConferenceGetId(): string {
         let that = this;
         return that._personalConferenceConfEndpointId;
     }
+    // */
 
     /**
      * @private
@@ -1034,6 +1037,7 @@ class Bubbles extends GenericService {
      * To get the bubble which contains the Personal Meeting of the end-user (if he has the permission)
      * @return {Promise<Bubble>} The Bubble which contains the Personal Meeting or null
      */
+    /*
     async personalConferenceGetBubbleFromCache(): Promise<Bubble> {
         let that = this;
 //    if (!String.IsNullOrEmpty(personalConferenceBubbleId))
@@ -1043,6 +1047,7 @@ class Bubbles extends GenericService {
         }
         return null;
     }
+    // */
 
     /**
      * @private
@@ -1055,10 +1060,11 @@ class Bubbles extends GenericService {
      * To retrieve the public URL to access the Personal Meeting - So a Guest or a Rainbow user can access to it just using a URL
      * @return {Promise<any>}
      */
+    /*
     async personalConferenceGetPublicUrl(): Promise<any> {
         let that = this;
         return that.createPublicUrl(that._personalConferenceBubbleId);
-
+// */
         /*
         // Cf. https://api.openrainbow.org/enduser/#api-users_rooms_public_link-getOpenInviteIdsOfUser
 
@@ -1070,7 +1076,7 @@ class Bubbles extends GenericService {
 
         CreatePublicUrl(personalConferenceBubbleId, callback);
         // */
-    }
+    //}
 
     /**
      * @private
@@ -1084,10 +1090,12 @@ class Bubbles extends GenericService {
      * The previous URL is no more functional !
      * @return {Promise<any>}
      */
+    /*
     async personalConferenceGenerateNewPublicUrl(): Promise<any> {
         let that = this;
         return that.generateNewPublicUrl(that._personalConferenceBubbleId);
     }
+    // */
 
 //endregion PERSONAL CONFERENCE SPECIFIC
 
