@@ -717,6 +717,36 @@ function getRandomInt(max) {
     return Math.floor(Math.random() * Math.floor(max?max:10));
 }
 
+/**
+ * @private
+ * @description
+ * Genere un code avec le format suivant : l'année + le mois + le jour + l'heure + les minutes + un nombre aléatoire sur 5 chiffres.
+ *  un code au format :
+ *     YYYYMMDDHHmm + un nombre aléatoire sur 5 chiffres
+ * @returns {string}
+ */
+function genererCode(): string {
+    const maintenant = new Date();
+
+    const annee = maintenant.getFullYear().toString();
+    const mois = (maintenant.getMonth() + 1).toString().padStart(2, '0');
+    const jour = maintenant.getDate().toString().padStart(2, '0');
+    const heures = maintenant.getHours().toString().padStart(2, '0');
+    const minutes = maintenant.getMinutes().toString().padStart(2, '0');
+
+    const dateHeure = `${annee}${mois}${jour}${heures}${minutes}`;
+
+    const nombreAleatoire = Math.floor(Math.random() * 100000)
+        .toString()
+        .padStart(5, '0');
+
+    const code = `${dateHeure}${nombreAleatoire}`;
+    return code;
+}
+
+console.log(genererCode());
+// Exemple : "20250516144638429"
+
 function throwError() {
     throw new Error();
 }
@@ -1258,6 +1288,7 @@ export let objToExport = {
     resizeImage,
     getBinaryData,
     getRandomInt,
+    genererCode,
     pause,
     pauseSync,
     stackTrace,
@@ -1326,6 +1357,7 @@ export {
     resizeImage,
     getBinaryData,
     getRandomInt,
+    genererCode,
     pause,
     pauseSync,
     stackTrace,
@@ -1393,6 +1425,7 @@ export default {
     resizeImage,
     getBinaryData,
     getRandomInt,
+    genererCode,
     pause,
     pauseSync,
     stackTrace,
