@@ -2266,12 +2266,24 @@ class ConversationEventHandler extends GenericHandler {
         let jsonStanza = stanzaTab[2];
 
         try {
-            that._logger.log(that.INTERNAL, LOG_ID + "(onManagementMessageReceived) _entering_ : ", msg, prettyStanza);
+            that._logger.log(that.INTERNAL, LOG_ID + "(onManagementMessageReceived) _entering_ : ", msg, prettyStanza, jsonStanza);
+            /*
+            let conversation = that._conversationService.getConversationById(msg.conversationId);
+            if (conversation) {
+                that._logger.log(that.INTERNAL, LOG_ID + "(onManagementMessageReceived) conversation found in cache by Id : ", msg.conversationId, ", for new message : ", msg);
+                msg.conversation = conversation;
+                that.eventEmitter.emit("evt_internal_onmessagereceived", msg);
+                that.eventEmitter.emit("evt_internal_conversationupdated", conversation);
+            } else {
+                that._logger.log(that.INTERNAL, LOG_ID + "(onManagementMessageReceived) conversation NOT found in cache by Id : ", msg.conversationId, ", for new message : ", msg);
+            }
+            // */
             let children = stanza.children;
             children.forEach(function (node) {
+                let nodeJson = jsonStanza.message[node.getName()];
                 switch (node.getName()) {
                     case "room":
-                        that.onRoomManagementMessageReceived(node);
+                        that.onRoomManagementMessageReceived(node, nodeJson);
                         break;
                     case "usersettings":
                         that.onUserSettingsManagementMessageReceived(node);
@@ -2372,10 +2384,10 @@ class ConversationEventHandler extends GenericHandler {
         }
     };
 
-    onRoomManagementMessageReceived (node) {
+    onRoomManagementMessageReceived (node, nodeJson) {
         let that = this;
         try {
-            that._logger.log(that.INTERNAL, LOG_ID + "(onRoomManagementMessageReceived) _entering_ : ", "\n", node.root ? prettydata.xml(node.root().toString()) : node);
+            that._logger.log(that.INTERNAL, LOG_ID + "(onRoomManagementMessageReceived) _entering_ : ", "\n", node.root ? prettydata.xml(node.root().toString()) : node, nodeJson);
             if (node.attrs.xmlns === "jabber:iq:configuration") {
 
                 // Affiliation changed (my own or for a member)
@@ -2390,11 +2402,23 @@ class ConversationEventHandler extends GenericHandler {
                         });
                     } else {
                         that._logger.log(that.DEBUG, LOG_ID + "(onRoomManagementMessageReceived) bubble affiliation received");
+                        let payloads = nodeJson?.payload;
+                        let userdata = undefined;
+                        if (payloads) {
+                            for (let i = 0; i < payloads.length; i++) {
+                                if (payloads[i]['$attrs'].datatype === "urn:rainbow:json:userdata") {
+                                    userdata = payloads[i].json?._;
+                                    that._logger.log(that.DEBUG, LOG_ID + "(onRoomManagementMessageReceived) userdata : ", userdata);
+                                }
+                            }
+                        }
+
                         that.eventEmitter.emit("evt_internal_affiliationchanged", {
                             "bubbleId": node.attrs.roomid,
                             "bubbleJid": node.attrs.roomjid,
                             "userJid": node.attrs.userjid,
                             "status": node.attrs.status,
+                            "userdata": userdata
                         });
                     }
                 }

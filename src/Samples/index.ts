@@ -25,7 +25,14 @@ import {
     findAllPropInJSONByPropertyName,
     getTextFromJSONProperty,
     writeArrayToFile,
-    readArrayFromFile, addParamToUrl, getStoreStanzaValue, isDefined, isPlainObject, isInstanceOfClass, isJsonObject
+    readArrayFromFile,
+    addParamToUrl,
+    getStoreStanzaValue,
+    isDefined,
+    isPlainObject,
+    isInstanceOfClass,
+    isJsonObject,
+    genererCode
 } from "../lib/common/Utils";
 import {XMPPUTils} from "../lib/common/XMPPUtils";
 import {TimeOutManager} from "../lib/common/TimeOutManager";
@@ -5695,9 +5702,9 @@ let expressEngine = undefined;
         //region Conference V1
 
         testGetAllConferences() {
-            rainbowSDK.bubbles.retrieveConferences(undefined, false, false).then((conferences) => {
+           /* rainbowSDK.bubbles.retrieveConferences(undefined, false, false).then((conferences) => {
                 _logger.log("debug", "MAIN - retrieveAllConferences : ", conferences);
-            });
+            }); // */
         }
 
 
@@ -5798,7 +5805,7 @@ let expressEngine = undefined;
         //region Guests
 
         async testCreateAGuestAndAddItToACreatedBubble() {
-            let loginEmail = "vincentGuest@vbe.test.openrainbow.net";
+            let loginEmail = "vincentGuest+" + genererCode() + "@vbe.test.openrainbow.net";
             let password = "Password_123"
             let bubbleName = "testBotName_";
             let bubbleDescription = "testBotDescription_";
@@ -5809,6 +5816,9 @@ let expressEngine = undefined;
             bubbleName += utc + "GuestUser";
             bubbleDescription += utc;
             bubbleMessageSubject += utc;
+
+            _logger.log("debug", "MAIN - [testCreateAGuestAndAddItToACreatedBubble    ] :: loginEmail : ", loginEmail);
+
             await rainbowSDK.bubbles.createBubble(bubbleName, bubbleDescription, false).then(async (bubble: any) => {
                 _logger.log("debug", "MAIN - [testCreateAGuestAndAddItToACreatedBubble    ] :: createBubble request ok : ", bubble);
                 rainbowSDK.bubbles.createPublicUrl(bubble).then(async (publicUrl) => {

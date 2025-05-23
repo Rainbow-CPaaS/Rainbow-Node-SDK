@@ -972,17 +972,17 @@ class Bubbles extends GenericService {
 
         return new Promise((resolve, reject) => {
 
-            if (/*!this.pstnConferenceService.isPstnConferenceAvailable && */ !(that._profileService.isFeatureEnabled(that._profileService.getFeaturesEnum().WEBRTC_CONFERENCE_ALLOWED))) {
+            if (/*!this.pstnConferenceService.isPstnConferenceAvailable && */ /* !(that._profileService.isFeatureEnabled(that._profileService.getFeaturesEnum().WEBRTC_CONFERENCE_ALLOWED))) {
                 that._logger.log(that.INTERNAL, LOG_ID + "(retrieveConferences)  - user is not allowed");
                 reject(new Error("notAllowed"));
                 return;
             }
-
+// */
             /*let urlParameters = "conferences?format=full&userId=" + this.contactService.userContact.dbId;
             if (angular.isDefined(scheduled)) {
                 urlParameters += "&scheduled=" + scheduled;
             } // */
-
+/*
             that._rest.retrieveAllConferences(scheduled).then((result: Iterable<any>) => {
                 for (let conferenceData of result) {
                     switch (conferenceData.mediaType) {
@@ -1111,7 +1111,6 @@ class Bubbles extends GenericService {
      * @private
      * @instance
      * @param {string} conferenceId
-     * @param {boolean} deleteLinkWithBubble
      */
     removeConferenceFromCache(conferenceId: string) {
         let that = this;
