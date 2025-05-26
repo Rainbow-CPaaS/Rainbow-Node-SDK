@@ -6,6 +6,26 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+### [2.38.0] - 2024-05-XX
+#### Removed
+-   None
+
+#### Fixed
+-   None
+
+#### Added
+-   Add `Utils::genererCode`
+-   Add payload about user (guest) when `rainbow_onbubbleaffiliationchanged` is raised.
+-   Add `datastoretypeOfMsg` property in Message.
+-   Add `Store` value in `DataStoreType` enum. Offline storage and Message Archive Management (XEP-0313) [4] can define their own rules on what messages to store and usually only store messages that contain a body element. However a sender may want to indicate that a message is worth storing even though it might not match those rules (e.g. an encrypted message that carries the payload outside the body element). Such a message can be marked with a <store/> hint.
+ 
+#### Changed
+-   Update @deprecated of methods.
+-   Update `XmppClient::send` `nbMessagesSentThisHour` to be increased when the message has a body.
+-   Update `XmppClient::send` `nostoreTag` is added to stanza only if a body is present in Message.
+-   Update `ImsService::sendMessageToJidAnswer` to forbid the sending of answer to a message with a datastoretypeOfMsg equals to DataStoreType.NoStore or DataStoreType.NoPermanentStore.
+-   Update `ImsService::sendMessageToBubbleJidAnswer` to forbid the sending of answer to a message with a datastoretypeOfMsg equals to DataStoreType.NoStore or DataStoreType.NoPermanentStore.
+
 ### [2.37.0-lts.0] - 2024-03-13
 #### Removed
 -   None
@@ -24,7 +44,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   None
 
 #### Fixed
--   Fix BubblesService::getBubbles when autoInitialBubblePresence is set to false.
+-   Fix `BubblesService::getBubbles` when autoInitialBubblePresence is set to false.
 
 #### Added
 -   None
