@@ -332,9 +332,11 @@ class XmppClient  {
                 if (storeStanzaValue && storeStanzaValue != DataStoreType.UsestoreMessagesField) {
                     nostoreTag = storeStanzaValue;
                 }
-                stanza.append(xml(nostoreTag, {
-                    "xmlns": NameSpacesLabels.HintsNameSpace
-                }));
+                if (stanzaJson.message.body) {
+                    stanza.append(xml(nostoreTag, {
+                        "xmlns": NameSpacesLabels.HintsNameSpace
+                    }));
+                }
                 // */
                 //that.logger.log("internal", LOG_ID + "(send) no-store stanza : ", stanza);
             }
@@ -365,11 +367,13 @@ class XmppClient  {
 
             try {
                 await this.client.send(...args).then(() => {
-                    that.nbMessagesSentThisHour++;
+                    if (stanzaJson?.message?.body || stanzaJson?.message?.content) {
+                        that.nbMessagesSentThisHour++;
+                    }
                     resolve2({"code": 1, "label": "OK"});
                 });
             } catch (err) {
-                that.logger.log("error", LOG_ID + "(send) _catch error_ at super.send", err);
+                that.logger.log("error", LOG_ID + "(send) _catch error_ at super.send", err, ", stanzaJson : ", stanzaJson);
                 //that.logger.log("debug", LOG_ID + "(send) restart the xmpp client");
                 return reject2(err);
             }
