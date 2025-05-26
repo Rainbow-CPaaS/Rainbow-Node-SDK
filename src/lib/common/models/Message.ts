@@ -4,6 +4,7 @@ import {stringify} from "querystring";
 import {xu} from "../XMPPUtils";
 import {Conversation} from "./Conversation";
 import {isDefined} from "../Utils.js";
+import {DataStoreType} from "../../config/config.js";
 
 export {};
 
@@ -156,6 +157,7 @@ class Message {
     public deleted : boolean;
     public modified : boolean;
     public rainbowCpaas : any;
+    public datastoretypeOfMsg : DataStoreType;
 
 
     constructor(serverAckTimer: any, 
@@ -220,7 +222,9 @@ class Message {
                 forwardedMsg: any,
                 deleted:boolean = false,
                 modified : boolean = false,
-                rainbowCpaas: any = null) {
+                rainbowCpaas: any = null,
+                datastoretypeOfMsg: DataStoreType = DataStoreType.StoreTwinSide
+    ) {
         
         /**
          * @private
@@ -628,6 +632,8 @@ class Message {
          */
         this.rainbowCpaas = rainbowCpaas;
 
+        this.datastoretypeOfMsg = datastoretypeOfMsg;
+
     }
 
     /**
@@ -635,7 +641,7 @@ class Message {
      * @method
      * @instance
      */
-    static create(serverAckTimer: any, index: any, id: string, type: any, date: Date, from: any, side: string, /*  data: string ,*/ status: string, receiptStatus: number, /* fileId: string, */ /* fileName: string, */ isMarkdown: boolean, subject: string, geoloc: GeoLoc, voiceMessage: any, alternativeContent: any, attention: any, mentions : any,  urgency: string, urgencyAck: boolean = false, urgencyHandler: any = null,/* translatedText: string = null, */ /* isMerged: boolean, */ historyIndex: string = null, /*showCorrectedMessages: boolean,*//* replaceMsgs: any[],*/ /* fileErrorMsg: string = null, */ attachedMsgId: string = null, attachIndex: number, attachNumber: number, /* fromJid: any, */resource: any, toJid: any, content: any, lang: any, cc: any, cctype: any, isEvent: any, event: any, oob: { url: string, mime: string, filename: string, filesize: string }, fromBubbleJid: any, fromBubbleUserJid: any, answeredMsg: Message, answeredMsgId: string, answeredMsgDate: string, answeredMsgStamp: string, /* fileTransfer: any,*/ eventJid: string, originalMessageReplaced: Message, confOwnerId: string, confOwnerDisplayName: string, confOwnerJid: string, isForwarded: boolean, forwardedMsg : any, deleted : boolean = false, modified : boolean = false) {
+    static create(serverAckTimer: any, index: any, id: string, type: any, date: Date, from: any, side: string, /*  data: string ,*/ status: string, receiptStatus: number, /* fileId: string, */ /* fileName: string, */ isMarkdown: boolean, subject: string, geoloc: GeoLoc, voiceMessage: any, alternativeContent: any, attention: any, mentions : any,  urgency: string, urgencyAck: boolean = false, urgencyHandler: any = null,/* translatedText: string = null, */ /* isMerged: boolean, */ historyIndex: string = null, /*showCorrectedMessages: boolean,*//* replaceMsgs: any[],*/ /* fileErrorMsg: string = null, */ attachedMsgId: string = null, attachIndex: number, attachNumber: number, /* fromJid: any, */resource: any, toJid: any, content: any, lang: any, cc: any, cctype: any, isEvent: any, event: any, oob: { url: string, mime: string, filename: string, filesize: string }, fromBubbleJid: any, fromBubbleUserJid: any, answeredMsg: Message, answeredMsgId: string, answeredMsgDate: string, answeredMsgStamp: string, /* fileTransfer: any,*/ eventJid: string, originalMessageReplaced: Message, confOwnerId: string, confOwnerDisplayName: string, confOwnerJid: string, isForwarded: boolean, forwardedMsg : any, deleted : boolean = false, modified : boolean = false, rainbowCpaas: any = null, datastoretypeOfMsg : DataStoreType = DataStoreType.StoreTwinSide) {
         // convert emojione from unicode to short
         //let message = $filter("emojiUnicodeToShort")(data);
         //const message = data;
@@ -698,7 +704,9 @@ class Message {
             isForwarded,
             forwardedMsg,
             deleted,
-            modified
+            modified,
+            rainbowCpaas,
+            datastoretypeOfMsg
         });
     }
 
@@ -881,7 +889,10 @@ class Message {
                     data.isForwarded,
                     data.forwardedMsg,
                     data.deleted,
-                    data.modified);
+                    data.modified,
+                    data.rainbowCpaas,
+                    data.datastoretypeOfMsg
+            );
             if (data) {
                 let messageproperties = Object.getOwnPropertyNames(message);
                 Object.getOwnPropertyNames(data).forEach(

@@ -22,10 +22,9 @@ import {
     Talker
 } from "../../common/models/ConferenceSession";
 import {List} from "ts-generic-collections-linq";
-import {MEDIATYPE} from "../RESTService";
 import {PresenceService} from "../../services/PresenceService";
-import {url} from "inspector";
 import {NameSpacesLabels, XMPPService} from "../XMPPService";
+import {DataStoreType} from "../../config/config.js";
 
 export {};
 
@@ -509,6 +508,7 @@ class ConversationEventHandler extends GenericHandler {
             let mentions = [];
 
             let rainbowCpaas = undefined;
+            let datastoretypeOfMsg : DataStoreType = DataStoreType.StoreTwinSide;
 
             voiceMessage = stanza.find("voicemessage").text();
             historyIndex = id;
@@ -954,10 +954,13 @@ class ConversationEventHandler extends GenericHandler {
                         break;
                     }
                     case "no-store":
+                        datastoretypeOfMsg = DataStoreType.NoStore;
                         break;
                     case "no-permanent-store":
+                        datastoretypeOfMsg = DataStoreType.NoPermanentStore;
                         break;
                     case "store":
+                        datastoretypeOfMsg = DataStoreType.Store;
                         break;
                     case "geoloc": {
                         let datum = node.find("datum").text();
@@ -1305,7 +1308,8 @@ class ConversationEventHandler extends GenericHandler {
                     attachNumber,
                     deleted : false,
                     modified : false,
-                    rainbowCpaas
+                    rainbowCpaas,
+                    datastoretypeOfMsg
                 };
 
                 if (eventName) {
@@ -1465,7 +1469,9 @@ class ConversationEventHandler extends GenericHandler {
                         data.isForwarded,
                         data.forwardedMsg,
                         data.deleted,
-                        data.modified
+                        data.modified,
+                        data.rainbowCpaas,
+                        data.datastoretypeOfMsg
                     );
                     that._logger.log(that.INTERNAL, LOG_ID + "(onChatMessageReceived) with dataMessage Message : ", dataMessage);
                     dataMessage.updateMessage(data);
