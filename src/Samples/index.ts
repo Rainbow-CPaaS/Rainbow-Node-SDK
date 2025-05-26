@@ -1,5 +1,5 @@
 "use strict";
-import {NodeSDK as RainbowSDK, LogLevelAreas} from "../index";
+import {LogLevelAreas, NodeSDK as RainbowSDK} from "../index";
 /*
  * @name index.ts
  *
@@ -7,40 +7,38 @@ import {NodeSDK as RainbowSDK, LogLevelAreas} from "../index";
  * The index.ts file is not a "best practice", but it is a file used by developper to test/validate the SDK, so you can find in it some help.
  *
  */
+import * as Utils from "../lib/common/Utils";
 import {
-    pause,
-    setTimeoutPromised,
-    until,
-    getRandomInt,
-    addPropertyToObj,
-    generateRamdomEmail,
-    functionName,
-    makeId,
-    Deferred,
-    msToTime,
-    flattenObject,
-    getJsonFromXML,
-    isString,
-    findAllPropInJSONByPropertyNameByXmlNS,
-    findAllPropInJSONByPropertyName,
-    getTextFromJSONProperty,
-    writeArrayToFile,
-    readArrayFromFile,
     addParamToUrl,
+    addPropertyToObj,
+    Deferred,
+    findAllPropInJSONByPropertyName,
+    findAllPropInJSONByPropertyNameByXmlNS,
+    flattenObject,
+    functionName,
+    genererCode,
+    getJsonFromXML,
+    getRandomInt,
     getStoreStanzaValue,
+    getTextFromJSONProperty,
     isDefined,
-    isPlainObject,
     isInstanceOfClass,
     isJsonObject,
-    genererCode
+    isPlainObject,
+    isString,
+    makeId,
+    msToTime,
+    pause,
+    readArrayFromFile,
+    setTimeoutPromised,
+    until,
+    writeArrayToFile
 } from "../lib/common/Utils";
 import {XMPPUTils} from "../lib/common/XMPPUtils";
 import {TimeOutManager} from "../lib/common/TimeOutManager";
-import set = Reflect.set;
-import {url} from "inspector";
-import {AdminService, OFFERTYPES} from "../lib/services/AdminService";
+import {OFFERTYPES} from "../lib/services/AdminService";
 import {Conversation, MessagesQueue} from "../lib/common/models/Conversation";
-import {createWriteStream, readFileSync, writeFileSync, appendFileSync} from "fs";
+import {appendFileSync, createWriteStream, writeFileSync} from "fs";
 import {SDKSTATUSENUM} from "../lib/common/StateManager";
 import {AlertFilter} from "../lib/common/models/AlertFilter";
 import {List} from "ts-generic-collections-linq";
@@ -53,32 +51,48 @@ import {DataStoreType} from "../lib/config/config";
 import {FileUpdated} from "../lib/services/FileStorageService";
 import {Server as MockServer, WebSocket as WS} from 'mock-socket';
 import {v4 as uuidv4} from 'uuid';
-import { ParsedResult } from 'xml2js';
-
-const xml = require("@xmpp/xml");
-const xmppUtils = XMPPUTils.getXMPPUtils();
-import moment from 'moment';
 //const moment = global.get('moment');
-import serialize from 'safe-stable-stringify' ;
+import serialize from 'safe-stable-stringify';
 //const serialize = global.get('safestablestringify');
 import * as ACData from "adaptivecards-templating";
 //const ACData = global.get('adaptivecardstemplating');
 import * as path from "path";
-
-const prettydata = require("../lib/connection/pretty-data").pd;
 import mime from 'mime';
 
 import * as nock from 'nock'
 
 import * as ini from 'ini';
 //const ini = require('ini')
-
 //const MockServer = require("mock-socket").Server;
 //const WS = require("mock-socket").WebSocket;
-
 // global.it = () => {return true};
+// Load the SDK
+// For using the fiddler proxy which logs requests to server
+// process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0";
+import Bubble_1 from "../lib/common/models/Bubble";
+//import fileapi from "file-api";
+//let fileapi = require('file-api');
+import * as util from "util";
+import {inspect} from "util";
 
-import { readFile } from 'fs/promises';
+//const inquirer = require("inquirer");
+import inquirer from "inquirer";
+import inquirerPrompt from 'inquirer-autocomplete-prompt';
+import {search} from '@inquirer/prompts';
+import figures from '@inquirer/figures'
+import chalk from 'chalk'
+import {NameSpacesLabels} from "../lib/connection/XMPPService.js";
+import {jwtDecode} from "jwt-decode";
+import {LevelLogs, LEVELSNAMES} from "../lib/common/LevelLogs.js";
+import {TaskInput} from "../lib/services/TasksService.js";
+import * as v8 from "v8";
+import {tmpdir} from "node:os";
+import fs = require("fs");
+
+const xml = require("@xmpp/xml");
+const xmppUtils = XMPPUTils.getXMPPUtils();
+
+const prettydata = require("../lib/connection/pretty-data").pd;
 
 const Element = require('ltx').Element;
 const express = require( "express" );
@@ -116,34 +130,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", {value: true});
-// Load the SDK
-// For using the fiddler proxy which logs requests to server
-// process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0";
-import Bubble_1, {getBubbleLogInfos} from "../lib/common/models/Bubble";
-import * as Utils from "../lib/common/Utils";
-import fs = require("fs");
-//import fileapi from "file-api";
-//let fileapi = require('file-api');
-import {inspect, toUSVString} from "util";
 
-//const inquirer = require("inquirer");
-import inquirer from "inquirer";
-import inquirerPrompt from 'inquirer-autocomplete-prompt';
-import { search, Separator } from '@inquirer/prompts';
-import figures from '@inquirer/figures'
-import chalk from 'chalk'
-
-import * as util from "util";
-import {Message} from "../lib/common/models/Message.js";
-import {catchError} from "rxjs";
-import {NameSpacesLabels} from "../lib/connection/XMPPService.js";
-import {jwtDecode} from "jwt-decode";
-import {LevelLogs, LEVELSNAMES} from "../lib/common/LevelLogs.js";
-import {TaskInput} from "../lib/services/TasksService.js";
-import {Task} from "../lib/common/models/Task.js";
-import * as v8 from "v8";
-import {tmpdir} from "node:os";
-import {isArray} from "node:util";
 /*const readline = require('readline').createInterface({
     input: process.stdin,
     output: process.stdout
@@ -1130,10 +1117,16 @@ let expressEngine = undefined;
                 if (message.fromBubbleJid) {
                     rainbowSDK.im.sendMessageToBubbleJidAnswer("Acknowledged", message.fromJid, 'EN', null, 'Acknowledged', message, undefined, "std").then((result) => {
                         _logger.log("debug", "MAIN - rainbow_onmessagereceived sendMessageToBubbleJidAnswer - Acknowledged sent result : ", result);
+                    }).catch((err) => {
+                        //_logger.log("error", "MAIN - rainbow_onmessagereceived Error when sendMessageToBubbleJidAnswer.");
+                        _logger.log("error", "MAIN - rainbow_onmessagereceived sendMessageToBubbleJidAnswer Error : ", err);
                     });
                 } else {
                     rainbowSDK.im.sendMessageToJidAnswer("Acknowledged", message.fromJid, 'EN', null, "Acknowledged", message, "std").then((result) => {
                         _logger.log("debug", "MAIN - rainbow_onmessagereceived sendMessageToJidAnswer - Acknowledged sent result : ", result);
+                    }).catch((err) => {
+                        //_logger.log("error", "MAIN - rainbow_onmessagereceived Error when sendMessageToJidAnswer.");
+                        _logger.log("error", "MAIN - rainbow_onmessagereceived sendMessageToJidAnswer Error : ", err);
                     });
                 } // */
             }
@@ -1143,10 +1136,16 @@ let expressEngine = undefined;
                 if (message.fromBubbleJid) {
                     rainbowSDK.im.sendMessageToBubbleJidAnswer("ign", message.fromJid, 'EN', null, 'Ignored', message, undefined, "std").then((result) => {
                         _logger.log("debug", "MAIN - rainbow_onmessagereceived sendMessageToBubbleJidAnswer - Acknowledged sent result : ", result);
+                    }).catch((err) => {
+                        //_logger.log("error", "MAIN - rainbow_onmessagereceived Error when sendMessageToBubbleJidAnswer.");
+                        _logger.log("error", "MAIN - rainbow_onmessagereceived sendMessageToBubbleJidAnswer Error : ", err);
                     });
                 } else {
                     rainbowSDK.im.sendMessageToJidAnswer("Ignoré", message.fromJid, 'FR', null, "Ignored", message, "std").then((result) => {
                         _logger.log("debug", "MAIN - rainbow_onmessagereceived sendMessageToJidAnswer - Acknowledged sent result : ", result);
+                    }).catch((err) => {
+                        //_logger.log("error", "MAIN - rainbow_onmessagereceived Error when sendMessageToJidAnswer.");
+                        _logger.log("error", "MAIN - rainbow_onmessagereceived sendMessageToJidAnswer Error : ", err);
                     });
                 } // */
             }
@@ -2811,12 +2810,13 @@ let expressEngine = undefined;
             });
         }
 
-        async testSendMessageToVincent02() {
+        async testSendMessageToUser(contactEmailToSearch : string = "vincent02@vbe.test.openrainbow.net") {
             let that = this;
-            let contactEmailToSearch = "vincent02@vbe.test.openrainbow.net";
+
             // Retrieve a contact by its id
             let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
-            rainbowSDK.im.sendMessageToJid("hello from node testSendMessageToJid", contact.jid, "FR", null, "Le sujet de node testSendMessageToJid").then((result) => {
+            //rainbowSDK.im.sendMessageToJid("hello from node testSendMessageToJid", contact.jid, "FR", null, "Le sujet de node testSendMessageToJid", "high", DataStoreType.NoStore ).then((result) => {
+            rainbowSDK.im.sendMessageToJid("hello from node testSendMessageToJid", contact.jid, "FR", null, "Le sujet de node testSendMessageToJid", "high", DataStoreType.StoreTwinSide ).then((result) => {
                 _logger.log("debug", "MAIN - testSendMessageToJid sendMessageToJid - result : ", result);
             });
         }

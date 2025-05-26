@@ -673,9 +673,15 @@ class ImsService extends GenericService{
 
         let typofansweredMsg = answeredMsg instanceof Object ;
         if (!typofansweredMsg && answeredMsg !== null ) {
-            that._logger.log(that.WARN, LOG_ID + "(sendMessageToJidAnswer) bad  'answeredMsg' parameter.");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(sendMessageToJidAnswer) bad  'answeredMsg' parameter : ", answeredMsg);
+            that._logger.log(that.WARN, LOG_ID + "(sendMessageToJidAnswer) bad 'answeredMsg' parameter.");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(sendMessageToJidAnswer) bad 'answeredMsg' parameter : ", answeredMsg);
             return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad 'answeredMsg' parameter"}));
+        } else {
+            if (answeredMsg?.datastoretypeOfMsg === DataStoreType.NoStore || answeredMsg?.datastoretypeOfMsg === DataStoreType.NoPermanentStore) {
+                that._logger.log(that.WARN, LOG_ID + "(sendMessageToJidAnswer) bad 'answeredMsg' parameter. Can not answer a message with a datastoretypeOfMsg set to not store message.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(sendMessageToJidAnswer) bad 'answeredMsg' parameter : Can not answer a message with a datastoretypeOfMsg set to not store message.");
+                return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Can not answer a message with a datastoretypeOfMsg set to not store message : " + answeredMsg.datastoretypeOfMsg}));
+            }
         }
 
         // Check size of the message
@@ -931,6 +937,12 @@ class ImsService extends GenericService{
             that._logger.log(that.WARN, LOG_ID + "(sendMessageToBubbleJidAnswer) bad  'answeredMsg' parameter.");
             that._logger.log(that.INTERNALERROR, LOG_ID + "(sendMessageToBubbleJidAnswer) bad  'answeredMsg' parameter : ", answeredMsg);
             return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad 'answeredMsg' parameter"}));
+        } else {
+            if (answeredMsg?.datastoretypeOfMsg === DataStoreType.NoStore || answeredMsg?.datastoretypeOfMsg === DataStoreType.NoPermanentStore) {
+                that._logger.log(that.WARN, LOG_ID + "(sendMessageToBubbleJidAnswer) bad 'answeredMsg' parameter. Can not answer a message with a datastoretypeOfMsg set to not store message.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(sendMessageToBubbleJidAnswer) bad 'answeredMsg' parameter : Can not answer a message with a datastoretypeOfMsg set to not store message.");
+                return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Can not answer a message with a datastoretypeOfMsg set to not store message : " + answeredMsg.datastoretypeOfMsg}));
+            }
         }
 
         // Check size of the message
