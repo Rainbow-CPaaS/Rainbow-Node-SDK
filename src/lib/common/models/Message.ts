@@ -158,6 +158,7 @@ class Message {
     public modified : boolean;
     public rainbowCpaas : any;
     public datastoretypeOfMsg : DataStoreType;
+    public shortFileDescriptor: any;
 
 
     constructor(serverAckTimer: any, 

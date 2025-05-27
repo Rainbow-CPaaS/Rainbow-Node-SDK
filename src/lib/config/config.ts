@@ -24,7 +24,7 @@ enum DataStoreType {
     StoreTwinSide = "storetwinside",
     /** To follow the storeMessages SDK's parameter behaviour. */
     UsestoreMessagesField = "OldstoreMessagesUsed",
-    /** Tell the SDK to send message with out above tag about store
+    /**
      * Offline storage and Message Archive Management (XEP-0313) [4] can define their own rules on what messages to store and usually only store messages that contain a body element.
      * However a sender may want to indicate that a message is worth storing even though it might not match those rules
      * (e.g. an encrypted message that carries the payload outside the body element). Such a message can be marked with a <store/> hint.

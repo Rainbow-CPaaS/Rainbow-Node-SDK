@@ -14,6 +14,8 @@ import {GenericService} from "./GenericService";
 import {Message} from "../common/models/Message";
 import {CHATSTATE} from "./S2SService.js";
 import {DataStoreType, UrgencyType} from "../config/config.js";
+import {Bubble} from "../common/models/Bubble.js";
+import {Contact} from "../common/models/Contact.js";
 
 const Element = require('ltx').Element;
 
@@ -206,7 +208,7 @@ class ImsService extends GenericService{
      *    <b>(beta)</b> Retrieve the list of messages from a conversation <br>
      *    Calling several times this method will load older message from the history (pagination) <br>
      * @param {Conversation} conversation The conversation
-     * @param {Number} intNbMessage The number of messages to retrieve. Optional. Default value is 30. Maximum value is 100
+     * @param {number} intNbMessage The number of messages to retrieve. Optional. Default value is 30. Maximum value is 100
      * @async
      * @category Ims MESSAGES
      * @return {Promise<Conversation, ErrorManager>}
@@ -240,10 +242,10 @@ class ImsService extends GenericService{
      * @description
      *    <b>(beta)</b> Retrieve a specific message in a conversation using its id <br>
      * @param {Conversation} conversation The conversation where to search for the message
-     * @param {String} strMessageId The message id
+     * @param {string} strMessageId The message id
      * @return {Message} The message if found or null
      */
-    async getMessageFromConversationById(conversation, strMessageId) {
+    async getMessageFromConversationById(conversation: Conversation, strMessageId: string) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getMessageFromConversationById) is conversation defined : ", isDefined(conversation));
 
@@ -277,10 +279,10 @@ class ImsService extends GenericService{
      * @description
      *    Retrieve a specific message in a bubble using its id <br>
      * @param {Bubble} bubble The bubble where to search for the message
-     * @param {String} strMessageId The message id
+     * @param {string} strMessageId The message id
      * @return {Message} The message if found or null
      */
-    async getMessageFromBubbleById(bubble, strMessageId) {
+    async getMessageFromBubbleById(bubble : Bubble, strMessageId : string) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getMessageFromBubbleById) is conversation defined : ", isDefined(bubble));
 
@@ -329,7 +331,7 @@ class ImsService extends GenericService{
      * @fulfil {} return nothing in case of success or an ErrorManager Object depending the result
     
      */
-    async markMessageAsRead(messageReceived) {
+    async markMessageAsRead(messageReceived: Message) {
         let that =this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(markMessageAsRead) is messageReceived defined : ", isDefined(messageReceived));
         if (!messageReceived) {
@@ -370,18 +372,21 @@ class ImsService extends GenericService{
      *    <b>(beta)</b> Send a instant message to a conversation<br>
      *    This method works for sending messages to a one-to-one conversation or to a bubble conversation <br>
      * @param {Conversation} conversation The conversation recipient
-     * @param {String} message The message to send
-     * @param {String} [lang=en] The content language used
+     * @param {string} message The message to send
+     * @param {string} [lang=en] The content language used
      * @param {Object} [content] Allow to send alternative text base content
-     * @param {String} [content.type=text/markdown] The content message type
-     * @param {String} [content.message] The content message body
-     * @param {String} [subject] The message subject
+     * @param {string} [content.type=text/markdown] The content message type
+     * @param {string} [content.message] The content message body
+     * @param {string} [subject] The message subject
      * @param {UrgencyType} urgency The urgence of the message. String value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
      * @param {DataStoreType} p_messagesDataStore  used to override the general of SDK's parameter "messagesDataStore". default value `undefined` to use the general value.</br>
      * DataStoreType.NoStore Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.</br>
      * DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).</br>
      * DataStoreType.StoreTwinSide The messages are fully stored.</br>
      * DataStoreType.UsestoreMessagesField to follow the storeMessages SDK's parameter behaviour.</br>
+     * DataStoreType.Store Offline storage and Message Archive Management (XEP-0313) [4] can define their own rules on what messages to store and usually only store messages that contain a body element.
+     * However a sender may want to indicate that a message is worth storing even though it might not match those rules
+     * (e.g. an encrypted message that carries the payload outside the body element). Such a message can be marked with a <store/> hint.
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
 
@@ -471,24 +476,27 @@ class ImsService extends GenericService{
      * @category Ims MESSAGES
      * @description
      *  Send a one-2-one message to a contact <br>
-     * @param {String} message The message to send
+     * @param {string} message The message to send
      * @param {Contact} contact The contact (should have at least a jid_im property)
-     * @param {String} [lang=en] The content language used
+     * @param {string} [lang=en] The content language used
      * @param {Object} [content] Allow to send alternative text base content
-     * @param {String} [content.type=text/markdown] The content message type
-     * @param {String} [content.message] The content message body
-     * @param {String} [subject] The message subject
+     * @param {string} [content.type=text/markdown] The content message type
+     * @param {string} [content.message] The content message body
+     * @param {string} [subject] The message subject
      * @param {UrgencyType} urgency The urgence of the message. String value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
      * @param {DataStoreType} p_messagesDataStore  used to override the general of SDK's parameter "messagesDataStore". default value `undefined` to use the general value.</br>
      * DataStoreType.NoStore Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.</br>
      * DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).</br>
      * DataStoreType.StoreTwinSide The messages are fully stored.</br>
      * DataStoreType.UsestoreMessagesField to follow the storeMessages SDK's parameter behaviour.</br>
+     * DataStoreType.Store Offline storage and Message Archive Management (XEP-0313) [4] can define their own rules on what messages to store and usually only store messages that contain a body element.
+     * However a sender may want to indicate that a message is worth storing even though it might not match those rules
+     * (e.g. an encrypted message that carries the payload outside the body element). Such a message can be marked with a <store/> hint.
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
 
      */
-    async sendMessageToContact(message, contact, lang, content, subject, urgency: UrgencyType = null, p_messagesDataStore: DataStoreType = undefined) {
+    async sendMessageToContact(message: string, contact: Contact, lang : string, content : any, subject : string, urgency: UrgencyType = null, p_messagesDataStore: DataStoreType = undefined) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendMessageToContact) is contact defined : ", isDefined(contact), " is message defined : ", isDefined(message));
         if (!contact || !contact.jid_im) {
@@ -539,23 +547,26 @@ class ImsService extends GenericService{
      * @category Ims MESSAGES
      * @description
      *  Send a one-2-one message to a contact identified by his Jid <br>
-     * @param {String} message The message to send
-     * @param {String} jid The contact Jid
-     * @param {String} [lang=en] The content language used
+     * @param {string} message The message to send
+     * @param {string} jid The contact Jid
+     * @param {string} [lang=en] The content language used
      * @param {Object} [content] Allow to send alternative text base content
-     * @param {String} [content.type=text/markdown] The content message type
-     * @param {String} [content.message] The content message body
-     * @param {String} [subject] The message subject
+     * @param {string} [content.type=text/markdown] The content message type
+     * @param {string} [content.message] The content message body
+     * @param {string} [subject] The message subject
      * @param {UrgencyType} urgency The urgence of the message. String value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
      * @param {DataStoreType} p_messagesDataStore  used to override the general of SDK's parameter "messagesDataStore". default value `undefined` to use the general value.</br>
      * DataStoreType.NoStore Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.</br>
      * DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).</br>
      * DataStoreType.StoreTwinSide The messages are fully stored.</br>
      * DataStoreType.UsestoreMessagesField to follow the storeMessages SDK's parameter behaviour.</br>
+     * DataStoreType.Store Offline storage and Message Archive Management (XEP-0313) [4] can define their own rules on what messages to store and usually only store messages that contain a body element.
+     * However a sender may want to indicate that a message is worth storing even though it might not match those rules
+     * (e.g. an encrypted message that carries the payload outside the body element). Such a message can be marked with a <store/> hint.
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} - the message sent, or null in case of error, as parameter of the resolve
      */
-    async sendMessageToJid(message, jid, lang, content, subject, urgency: UrgencyType = null,  p_messagesDataStore: DataStoreType = undefined) {
+    async sendMessageToJid(message : string, jid : string, lang : string, content: any, subject: string, urgency: UrgencyType = null,  p_messagesDataStore: DataStoreType = undefined) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendMessageToContact) is jid defined : ", isDefined(jid), " is message defined : ", isDefined(message));
         if (!lang) {
@@ -640,25 +651,28 @@ class ImsService extends GenericService{
      * @category Ims MESSAGES
      * @description
      *  Send a reply to a one-2-one message to a contact identified by his Jid <br>
-     * @param {String} message The message to send
-     * @param {String} jid The contact Jid
-     * @param {String} [lang=en] The content language used
+     * @param {string} message The message to send
+     * @param {string} jid The contact Jid
+     * @param {string} [lang=en] The content language used
      * @param {Object} [content] Allow to send alternative text base content
-     * @param {String} [content.type=text/markdown] The content message type
-     * @param {String} [content.message] The content message body
-     * @param {String} [subject] The message subject
-     * @param {String} [answeredMsg] The message answered
+     * @param {string} [content.type=text/markdown] The content message type
+     * @param {string} [content.message] The content message body
+     * @param {string} [subject] The message subject
+     * @param {Object} [answeredMsg] The message answered
      * @param {UrgencyType} urgency The urgence of the message. String value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
      * @param {DataStoreType} p_messagesDataStore  used to override the general of SDK's parameter "messagesDataStore". default value `undefined` to use the general value.</br>
      * DataStoreType.NoStore Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.</br>
      * DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).</br>
      * DataStoreType.StoreTwinSide The messages are fully stored.</br>
      * DataStoreType.UsestoreMessagesField to follow the storeMessages SDK's parameter behaviour.</br>
+     * DataStoreType.Store Offline storage and Message Archive Management (XEP-0313) [4] can define their own rules on what messages to store and usually only store messages that contain a body element.
+     * However a sender may want to indicate that a message is worth storing even though it might not match those rules
+     * (e.g. an encrypted message that carries the payload outside the body element). Such a message can be marked with a <store/> hint.
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} - the message sent, or null in case of error, as parameter of the resolve
 
      */
-    async sendMessageToJidAnswer(message, jid, lang, content, subject, answeredMsg, urgency: UrgencyType = null, p_messagesDataStore: DataStoreType = undefined) {
+    async sendMessageToJidAnswer(message : string, jid : string, lang : string, content : any, subject : string, answeredMsg : any, urgency: UrgencyType = null, p_messagesDataStore: DataStoreType = undefined) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendMessageToJidAnswer) is jid defined : ", isDefined(jid), " is message defined : ", isDefined(message));
         if (!lang) {
@@ -729,10 +743,19 @@ class ImsService extends GenericService{
      * @param {Message} message The message to acknoledge 
      * @param {string} lang the lang used to acknowledged the message.
      * @param {string} ackLabel the label used to acknowledged the message.
+     * @param {Array<string>} attention array containing a list of JID of contact to mention or a string containing a sigle JID of the contact.
+     * @param {DataStoreType} p_messagesDataStore  used to override the general of SDK's parameter "messagesDataStore". default value `undefined` to use the general value.</br>
+     * DataStoreType.NoStore Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.</br>
+     * DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).</br>
+     * DataStoreType.StoreTwinSide The messages are fully stored.</br>
+     * DataStoreType.UsestoreMessagesField to follow the storeMessages SDK's parameter behaviour.</br>
+     * DataStoreType.Store Offline storage and Message Archive Management (XEP-0313) [4] can define their own rules on what messages to store and usually only store messages that contain a body element.
+     * However a sender may want to indicate that a message is worth storing even though it might not match those rules
+     * (e.g. an encrypted message that carries the payload outside the body element). Such a message can be marked with a <store/> hint.
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} - the message 
      */
-    async sendMessageToJidAcknowledged(message : Message, lang : string = "EN", ackLabel : string = "Acknowledged", attention, p_messagesDataStore: DataStoreType) {
+    async sendMessageToJidAcknowledged(message : Message, lang : string = "EN", ackLabel : string = "Acknowledged", attention : Array<string>, p_messagesDataStore: DataStoreType) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendMessageToJidAcknowledged) is lang defined : ", isDefined(lang), " is message defined : ", isDefined(message));
         if ( message && message.urgency === UrgencyType.HIGH ) {
@@ -760,6 +783,14 @@ class ImsService extends GenericService{
      * @param {Message} message The message to Ignored
      * @param {string} lang the lang used to ignore the message.
      * @param {string} ignLabel the label used to ignore the message.
+     * @param {DataStoreType} p_messagesDataStore  used to override the general of SDK's parameter "messagesDataStore". default value `undefined` to use the general value.</br>
+     * DataStoreType.NoStore Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.</br>
+     * DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).</br>
+     * DataStoreType.StoreTwinSide The messages are fully stored.</br>
+     * DataStoreType.UsestoreMessagesField to follow the storeMessages SDK's parameter behaviour.</br>
+     * DataStoreType.Store Offline storage and Message Archive Management (XEP-0313) [4] can define their own rules on what messages to store and usually only store messages that contain a body element.
+     * However a sender may want to indicate that a message is worth storing even though it might not match those rules
+     * (e.g. an encrypted message that carries the payload outside the body element). Such a message can be marked with a <store/> hint.
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} - the message 
      */
@@ -788,19 +819,27 @@ class ImsService extends GenericService{
      * @category Ims MESSAGES
      * @description
      *  Send a message to a bubble <br>
-     * @param {String} message The message to send
+     * @param {string} message The message to send
      * @param {Bubble} bubble The bubble (should at least have a jid property)
-     * @param {String} [lang=en] The content language used
+     * @param {string} [lang=en] The content language used
      * @param {Object} [content] Allow to send alternative text base content
-     * @param {String} [content.type=text/markdown] The content message type
-     * @param {String} [content.message] The content message body
-     * @param {String} [subject] The message subject
-     * @param {array} mentions array containing a list of JID of contact to mention or a string containing a single JID of the contact.
+     * @param {string} [content.type=text/markdown] The content message type
+     * @param {string} [content.message] The content message body
+     * @param {string} [subject] The message subject
+     * @param {Array<string> | string} mentions array containing a list of JID of contact to mention or a string containing a single JID of the contact.
      * @param {UrgencyType} urgency The urgence of the message. String value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
+     * @param {DataStoreType} p_messagesDataStore  used to override the general of SDK's parameter "messagesDataStore". default value `undefined` to use the general value.</br>
+     * DataStoreType.NoStore Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.</br>
+     * DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).</br>
+     * DataStoreType.StoreTwinSide The messages are fully stored.</br>
+     * DataStoreType.UsestoreMessagesField to follow the storeMessages SDK's parameter behaviour.</br>
+     * DataStoreType.Store Offline storage and Message Archive Management (XEP-0313) [4] can define their own rules on what messages to store and usually only store messages that contain a body element.
+     * However a sender may want to indicate that a message is worth storing even though it might not match those rules
+     * (e.g. an encrypted message that carries the payload outside the body element). Such a message can be marked with a <store/> hint.
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
      */
-    async sendMessageToBubble(message, bubble, lang, content, subject, mentions, urgency: UrgencyType = null, p_messagesDataStore: DataStoreType) {
+    async sendMessageToBubble(message : string, bubble : Bubble, lang: string, content: any, subject : string, mentions : Array<string> | string = null, urgency: UrgencyType = null, p_messagesDataStore: DataStoreType) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendMessageToBubble) is bubble defined : ", isDefined(bubble), " is message defined : ", isDefined(message));
         if (!bubble || !bubble.jid) {
@@ -821,20 +860,23 @@ class ImsService extends GenericService{
      * @category Ims MESSAGES
      * @description
      *  Send a message to a bubble identified by its JID <br>
-     * @param {String} message The message to send
-     * @param {String} jid The bubble JID
-     * @param {String} [lang=en] The content language used
+     * @param {string} message The message to send
+     * @param {string} jid The bubble JID
+     * @param {string} [lang=en] The content language used
      * @param {Object} [content] Allow to send alternative text base content
-     * @param {String} [content.type=text/markdown] The content message type
-     * @param {String} [content.message] The content message body
-     * @param {String} [subject] The message subject
-     * @param {array|string} mentions array containing a list of JID of contact to mention or a string containing a sigle JID of the contact.
+     * @param {string} [content.type=text/markdown] The content message type
+     * @param {string} [content.message] The content message body
+     * @param {string} [subject] The message subject
+     * @param {Array<string> | string} mentions array containing a list of JID of contact to mention or a string containing a sigle JID of the contact.
      * @param {UrgencyType} urgency The urgence of the message. String value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
      * @param {DataStoreType} p_messagesDataStore  used to override the general of SDK's parameter "messagesDataStore". default value `undefined` to use the general value.</br>
      * DataStoreType.NoStore Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.</br>
      * DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).</br>
      * DataStoreType.StoreTwinSide The messages are fully stored.</br>
      * DataStoreType.UsestoreMessagesField to follow the storeMessages SDK's parameter behaviour.</br>
+     * DataStoreType.Store Offline storage and Message Archive Management (XEP-0313) [4] can define their own rules on what messages to store and usually only store messages that contain a body element.
+     * However a sender may want to indicate that a message is worth storing even though it might not match those rules
+     * (e.g. an encrypted message that carries the payload outside the body element). Such a message can be marked with a <store/> hint.
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
      */
@@ -911,17 +953,20 @@ class ImsService extends GenericService{
      * @param {string} [content.message] The content message body
      * @param {string} [subject] The message subject
      * @param {Object} [answeredMsg] The message answered
-     * @param {Array<string>} mentions array containing a list of JID of contact to mention or a string containing a sigle JID of the contact.
+     * @param {Array<string>|string} mentions array containing a list of JID of contact to mention or a string containing a sigle JID of the contact.
      * @param {UrgencyType} urgency The urgence of the message. String value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
      * @param {DataStoreType} p_messagesDataStore  used to override the general of SDK's parameter "messagesDataStore". default value `undefined` to use the general value.</br>
      * DataStoreType.NoStore Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.</br>
      * DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).</br>
      * DataStoreType.StoreTwinSide The messages are fully stored.</br>
      * DataStoreType.UsestoreMessagesField to follow the storeMessages SDK's parameter behaviour.</br>
+     * DataStoreType.Store Offline storage and Message Archive Management (XEP-0313) [4] can define their own rules on what messages to store and usually only store messages that contain a body element.
+     * However a sender may want to indicate that a message is worth storing even though it might not match those rules
+     * (e.g. an encrypted message that carries the payload outside the body element). Such a message can be marked with a <store/> hint.
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
      */
-    async sendMessageToBubbleJidAnswer(message: string, jid: string, lang: string, content: any, subject: string, answeredMsg: any, mentions: Array<string>, urgency: UrgencyType = null, p_messagesDataStore: DataStoreType = undefined) {
+    async sendMessageToBubbleJidAnswer(message: string, jid: string, lang: string, content: any, subject: string, answeredMsg: any, mentions: Array<string> | string = null, urgency: UrgencyType = null, p_messagesDataStore: DataStoreType = undefined) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendMessageToBubbleJidAnswer) is jid defined : ", isDefined(jid), " is message defined : ", isDefined(message));
         if (!lang) {
@@ -1373,7 +1418,15 @@ class ImsService extends GenericService{
      * @description
      *    Switch the "is typing" state in a bubble/room<br> <br>
      * @param {Bubble} bubble The destination bubble
-     * @param {boolean} status The status, true for setting "is Typing", false to remove it
+     * @param {boolean} status The status, true for setting "is Typing", false to remove it.
+     * @param {DataStoreType} p_messagesDataStore  used to override the general of SDK's parameter "messagesDataStore". default value `undefined` to use the general value.</br>
+     * DataStoreType.NoStore Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.</br>
+     * DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).</br>
+     * DataStoreType.StoreTwinSide The messages are fully stored.</br>
+     * DataStoreType.UsestoreMessagesField to follow the storeMessages SDK's parameter behaviour.</br>
+     * DataStoreType.Store Offline storage and Message Archive Management (XEP-0313) [4] can define their own rules on what messages to store and usually only store messages that contain a body element.
+     * However a sender may want to indicate that a message is worth storing even though it might not match those rules
+     * (e.g. an encrypted message that carries the payload outside the body element). Such a message can be marked with a <store/> hint.
      * @return {Object} Return a promise with no parameter when succeed.
      */
     async sendIsTypingStateInBubble(bubble, status, p_messagesDataStore: DataStoreType) {
@@ -1426,6 +1479,9 @@ class ImsService extends GenericService{
      * DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).</br>
      * DataStoreType.StoreTwinSide The messages are fully stored.</br>
      * DataStoreType.UsestoreMessagesField to follow the storeMessages SDK's parameter behaviour.</br>
+     * DataStoreType.Store Offline storage and Message Archive Management (XEP-0313) [4] can define their own rules on what messages to store and usually only store messages that contain a body element.
+     * However a sender may want to indicate that a message is worth storing even though it might not match those rules
+     * (e.g. an encrypted message that carries the payload outside the body element). Such a message can be marked with a <store/> hint.
      * @return Return a promise with no parameter when succeed
      */
     async sendIsTypingStateInConversation(conversation : Conversation, status: boolean, p_messagesDataStore: DataStoreType = undefined) {
@@ -1484,6 +1540,10 @@ class ImsService extends GenericService{
      * DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).</br>
      * DataStoreType.StoreTwinSide The messages are fully stored.</br>
      * DataStoreType.UsestoreMessagesField to follow the storeMessages SDK's parameter behaviour.</br>
+     * DataStoreType.Store Offline storage and Message Archive Management (XEP-0313) [4] can define their own rules on what messages to store and usually only store messages that contain a body element.
+     * However a sender may want to indicate that a message is worth storing even though it might not match those rules
+     * (e.g. an encrypted message that carries the payload outside the body element). Such a message can be marked with a <store/> hint.
+     *
      * @return {Promise<any>} - that resolves on success
      *
      *
@@ -1551,6 +1611,9 @@ class ImsService extends GenericService{
      * DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).</br>
      * DataStoreType.StoreTwinSide The messages are fully stored.</br>
      * DataStoreType.UsestoreMessagesField to follow the storeMessages SDK's parameter behaviour.</br>
+     * DataStoreType.Store Offline storage and Message Archive Management (XEP-0313) [4] can define their own rules on what messages to store and usually only store messages that contain a body element.
+     * However a sender may want to indicate that a message is worth storing even though it might not match those rules
+     * (e.g. an encrypted message that carries the payload outside the body element). Such a message can be marked with a <store/> hint.
      * @return {Promise<any>} - that resolves on success
      *
      *
@@ -1602,6 +1665,9 @@ class ImsService extends GenericService{
      * DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).</br>
      * DataStoreType.StoreTwinSide The messages are fully stored.</br>
      * DataStoreType.UsestoreMessagesField to follow the storeMessages SDK's parameter behaviour.</br>
+     * DataStoreType.Store Offline storage and Message Archive Management (XEP-0313) [4] can define their own rules on what messages to store and usually only store messages that contain a body element.
+     * However a sender may want to indicate that a message is worth storing even though it might not match those rules
+     * (e.g. an encrypted message that carries the payload outside the body element). Such a message can be marked with a <store/> hint.
      * @return {Promise<any>} - that resolves on success
      *
      *
