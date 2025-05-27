@@ -13,7 +13,7 @@ import {PresenceService} from "./PresenceService";
 import {GenericService} from "./GenericService";
 import {Message} from "../common/models/Message";
 import {CHATSTATE} from "./S2SService.js";
-import {DataStoreType} from "../config/config.js";
+import {DataStoreType, UrgencyType} from "../config/config.js";
 
 const Element = require('ltx').Element;
 
@@ -376,7 +376,7 @@ class ImsService extends GenericService{
      * @param {String} [content.type=text/markdown] The content message type
      * @param {String} [content.message] The content message body
      * @param {String} [subject] The message subject
-     * @param {string} urgency The urgence of the message. Value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
+     * @param {UrgencyType} urgency The urgence of the message. String value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
      * @param {DataStoreType} p_messagesDataStore  used to override the general of SDK's parameter "messagesDataStore". default value `undefined` to use the general value.</br>
      * DataStoreType.NoStore Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.</br>
      * DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).</br>
@@ -386,7 +386,7 @@ class ImsService extends GenericService{
      * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
 
      */
-    async sendMessageToConversation(conversation : Conversation, message: string, lang: string, content :any, subject : string, urgency: string = null, p_messagesDataStore: DataStoreType = undefined) :Promise<any> {
+    async sendMessageToConversation(conversation : Conversation, message: string, lang: string, content :any, subject : string, urgency: UrgencyType = null, p_messagesDataStore: DataStoreType = undefined) :Promise<any> {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendMessageToConversation) is conversation defined : ", isDefined(conversation), " is message defined : ", isDefined(message));
         if (!conversation) {
@@ -437,7 +437,7 @@ class ImsService extends GenericService{
                     // }
                     // ],
                     "body": message,
-                    urgency
+                    urgency: UrgencyType
                 }
             };
 
@@ -478,7 +478,7 @@ class ImsService extends GenericService{
      * @param {String} [content.type=text/markdown] The content message type
      * @param {String} [content.message] The content message body
      * @param {String} [subject] The message subject
-     * @param {string} urgency The urgence of the message. Value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
+     * @param {UrgencyType} urgency The urgence of the message. String value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
      * @param {DataStoreType} p_messagesDataStore  used to override the general of SDK's parameter "messagesDataStore". default value `undefined` to use the general value.</br>
      * DataStoreType.NoStore Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.</br>
      * DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).</br>
@@ -488,7 +488,7 @@ class ImsService extends GenericService{
      * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
 
      */
-    async sendMessageToContact(message, contact, lang, content, subject, urgency: string = null, p_messagesDataStore: DataStoreType = undefined) {
+    async sendMessageToContact(message, contact, lang, content, subject, urgency: UrgencyType = null, p_messagesDataStore: DataStoreType = undefined) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendMessageToContact) is contact defined : ", isDefined(contact), " is message defined : ", isDefined(message));
         if (!contact || !contact.jid_im) {
@@ -546,7 +546,7 @@ class ImsService extends GenericService{
      * @param {String} [content.type=text/markdown] The content message type
      * @param {String} [content.message] The content message body
      * @param {String} [subject] The message subject
-     * @param {string} urgency The urgence of the message. Value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
+     * @param {UrgencyType} urgency The urgence of the message. String value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
      * @param {DataStoreType} p_messagesDataStore  used to override the general of SDK's parameter "messagesDataStore". default value `undefined` to use the general value.</br>
      * DataStoreType.NoStore Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.</br>
      * DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).</br>
@@ -555,7 +555,7 @@ class ImsService extends GenericService{
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} - the message sent, or null in case of error, as parameter of the resolve
      */
-    async sendMessageToJid(message, jid, lang, content, subject, urgency: string = null,  p_messagesDataStore: DataStoreType = undefined) {
+    async sendMessageToJid(message, jid, lang, content, subject, urgency: UrgencyType = null,  p_messagesDataStore: DataStoreType = undefined) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendMessageToContact) is jid defined : ", isDefined(jid), " is message defined : ", isDefined(message));
         if (!lang) {
@@ -648,7 +648,7 @@ class ImsService extends GenericService{
      * @param {String} [content.message] The content message body
      * @param {String} [subject] The message subject
      * @param {String} [answeredMsg] The message answered
-     * @param {string} urgency The urgence of the message. Value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
+     * @param {UrgencyType} urgency The urgence of the message. String value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
      * @param {DataStoreType} p_messagesDataStore  used to override the general of SDK's parameter "messagesDataStore". default value `undefined` to use the general value.</br>
      * DataStoreType.NoStore Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.</br>
      * DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).</br>
@@ -658,7 +658,7 @@ class ImsService extends GenericService{
      * @fulfil {Message} - the message sent, or null in case of error, as parameter of the resolve
 
      */
-    async sendMessageToJidAnswer(message, jid, lang, content, subject, answeredMsg, urgency: string = null, p_messagesDataStore: DataStoreType = undefined) {
+    async sendMessageToJidAnswer(message, jid, lang, content, subject, answeredMsg, urgency: UrgencyType = null, p_messagesDataStore: DataStoreType = undefined) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendMessageToJidAnswer) is jid defined : ", isDefined(jid), " is message defined : ", isDefined(message));
         if (!lang) {
@@ -735,13 +735,13 @@ class ImsService extends GenericService{
     async sendMessageToJidAcknowledged(message : Message, lang : string = "EN", ackLabel : string = "Acknowledged", attention, p_messagesDataStore: DataStoreType) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendMessageToJidAcknowledged) is lang defined : ", isDefined(lang), " is message defined : ", isDefined(message));
-        if ( message && message.urgency === "high" ) {
+        if ( message && message.urgency === UrgencyType.HIGH ) {
             if (message.fromBubbleJid ) {
-                return that.sendMessageToBubbleJidAnswer(ackLabel, message.fromJid, lang, null, ackLabel, message,attention,"std", p_messagesDataStore).then((result) => {
+                return that.sendMessageToBubbleJidAnswer(ackLabel, message.fromJid, lang, null, ackLabel, message,attention,UrgencyType.STANDARD, p_messagesDataStore).then((result) => {
                     that._logger.log(that.DEBUG, "(sendMessageToJidAcknowledged) - Acknowledged sent result : ", result);
                 });
             }  else {
-                return that.sendMessageToJidAnswer(ackLabel, message.fromJid, lang, null, ackLabel, message, "std", p_messagesDataStore).then((result) => {
+                return that.sendMessageToJidAnswer(ackLabel, message.fromJid, lang, null, ackLabel, message, UrgencyType.STANDARD, p_messagesDataStore).then((result) => {
                     that._logger.log(that.DEBUG, "(sendMessageToJidAcknowledged) - Acknowledged sent result : ", result);
                 });
             } // */
@@ -766,13 +766,13 @@ class ImsService extends GenericService{
     async sendMessageToJidIgnored(message : Message, lang : string = "EN", ignLabel : string = "Ignored", p_messagesDataStore: DataStoreType) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendMessageToJidIgnored) is lang defined : ", isDefined(lang), " is message defined : ", isDefined(message));
-        if ( message && message.urgency === "high" ) {
+        if ( message && message.urgency === UrgencyType.HIGH ) {
             if (message.fromBubbleJid ) {
-                return that.sendMessageToBubbleJidAnswer(ignLabel, message.fromJid, lang, null, ignLabel, message,undefined,"std", p_messagesDataStore).then((result) => {
+                return that.sendMessageToBubbleJidAnswer(ignLabel, message.fromJid, lang, null, ignLabel, message,undefined,UrgencyType.STANDARD, p_messagesDataStore).then((result) => {
                     that._logger.log(that.DEBUG, "(sendMessageToJidIgnored) - Ignored sent result : ", result);
                 });
             }  else {
-                return that.sendMessageToJidAnswer(ignLabel, message.fromJid, lang, null, ignLabel, message, "std", p_messagesDataStore).then((result) => {
+                return that.sendMessageToJidAnswer(ignLabel, message.fromJid, lang, null, ignLabel, message, UrgencyType.STANDARD, p_messagesDataStore).then((result) => {
                     that._logger.log(that.DEBUG, "(sendMessageToJidIgnored) - Ignored sent result : ", result);
                 });
             } // */
@@ -796,11 +796,11 @@ class ImsService extends GenericService{
      * @param {String} [content.message] The content message body
      * @param {String} [subject] The message subject
      * @param {array} mentions array containing a list of JID of contact to mention or a string containing a single JID of the contact.
-     * @param {string} urgency The urgence of the message. Value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
+     * @param {UrgencyType} urgency The urgence of the message. String value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
      */
-    async sendMessageToBubble(message, bubble, lang, content, subject, mentions, urgency: string = null, p_messagesDataStore: DataStoreType) {
+    async sendMessageToBubble(message, bubble, lang, content, subject, mentions, urgency: UrgencyType = null, p_messagesDataStore: DataStoreType) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendMessageToBubble) is bubble defined : ", isDefined(bubble), " is message defined : ", isDefined(message));
         if (!bubble || !bubble.jid) {
@@ -829,7 +829,7 @@ class ImsService extends GenericService{
      * @param {String} [content.message] The content message body
      * @param {String} [subject] The message subject
      * @param {array|string} mentions array containing a list of JID of contact to mention or a string containing a sigle JID of the contact.
-     * @param {string} urgency The urgence of the message. Value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
+     * @param {UrgencyType} urgency The urgence of the message. String value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
      * @param {DataStoreType} p_messagesDataStore  used to override the general of SDK's parameter "messagesDataStore". default value `undefined` to use the general value.</br>
      * DataStoreType.NoStore Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.</br>
      * DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).</br>
@@ -838,7 +838,7 @@ class ImsService extends GenericService{
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
      */
-    async sendMessageToBubbleJid(message : string, jid: string, lang: string, content: any, subject: string, mentions : Array<any> | string = null, urgency: string = null, p_messagesDataStore: DataStoreType = undefined) : Promise<any> {
+    async sendMessageToBubbleJid(message : string, jid: string, lang: string, content: any, subject: string, mentions : Array<any> | string = null, urgency: UrgencyType = null, p_messagesDataStore: DataStoreType = undefined) : Promise<any> {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendMessageToBubbleJid) is jid defined : ", isDefined(jid), " is message defined : ", isDefined(message));
         if (!lang) {
@@ -903,16 +903,16 @@ class ImsService extends GenericService{
      * @instance
      * @description
      *  Send a message to a bubble identified by its JID <br>
-     * @param {String} message The message to send
-     * @param {String} jid The bubble JID
-     * @param {String} [lang=en] The content language used
+     * @param {string} message The message to send
+     * @param {string} jid The bubble JID
+     * @param {string} [lang=en] The content language used
      * @param {Object} [content] Allow to send alternative text base content
-     * @param {String} [content.type=text/markdown] The content message type
-     * @param {String} [content.message] The content message body
-     * @param {String} [subject] The message subject
-     * @param {String} [answeredMsg] The message answered
-     * @param {array} mentions array containing a list of JID of contact to mention or a string containing a sigle JID of the contact.
-     * @param {string} urgency The urgence of the message. Value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
+     * @param {string} [content.type=text/markdown] The content message type
+     * @param {string} [content.message] The content message body
+     * @param {string} [subject] The message subject
+     * @param {Object} [answeredMsg] The message answered
+     * @param {Array<string>} mentions array containing a list of JID of contact to mention or a string containing a sigle JID of the contact.
+     * @param {UrgencyType} urgency The urgence of the message. String value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
      * @param {DataStoreType} p_messagesDataStore  used to override the general of SDK's parameter "messagesDataStore". default value `undefined` to use the general value.</br>
      * DataStoreType.NoStore Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.</br>
      * DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).</br>
@@ -921,7 +921,7 @@ class ImsService extends GenericService{
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
      */
-    async sendMessageToBubbleJidAnswer(message, jid, lang, content, subject, answeredMsg, mentions, urgency: string = null, p_messagesDataStore: DataStoreType = undefined) {
+    async sendMessageToBubbleJidAnswer(message: string, jid: string, lang: string, content: any, subject: string, answeredMsg: any, mentions: Array<string>, urgency: UrgencyType = null, p_messagesDataStore: DataStoreType = undefined) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendMessageToBubbleJidAnswer) is jid defined : ", isDefined(jid), " is message defined : ", isDefined(message));
         if (!lang) {

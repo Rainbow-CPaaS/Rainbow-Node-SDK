@@ -29,7 +29,7 @@ import {ConversationsService} from "./services/ConversationsService";
 import {ContactsService} from "./services/ContactsService";
 import {AlertsService} from "./services/AlertsService";
 import {ProfilesService} from "./services/ProfilesService";
-import {DataStoreType} from "./config/config";
+import {DataStoreType, UrgencyType} from "./config/config";
 import {WebinarsService} from "./services/WebinarsService";
 import {RBVoiceService} from "./services/RBVoiceService";
 import {Logger} from "./common/Logger";
@@ -1249,6 +1249,17 @@ class NodeSDK {
      */
     static get DataStoreType() {
         return DataStoreType;
+    }
+
+    /**
+     * @public
+     * @property {Object} UrgencyType
+     * @description
+     *    Get access to the UrgencyType type
+     * @return {UrgencyType}
+     */
+    static get UrgencyType() {
+        return UrgencyType;
     }
 
     get Utils() {

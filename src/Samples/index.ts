@@ -47,7 +47,7 @@ import {Alert} from "../lib/common/models/Alert";
 import {AlertDevice, AlertDevicesData} from "../lib/common/models/AlertDevice";
 import {Contact} from "../lib/common/models/Contact";
 import {ConferenceSession} from "../lib/common/models/ConferenceSession";
-import {DataStoreType} from "../lib/config/config";
+import {DataStoreType, UrgencyType} from "../lib/config/config";
 import {FileUpdated} from "../lib/services/FileStorageService";
 import {Server as MockServer, WebSocket as WS} from 'mock-socket';
 import {v4 as uuidv4} from 'uuid';
@@ -972,11 +972,11 @@ let expressEngine = undefined;
         let utc = new Date().toJSON().replace(/-/g, "/");
         _logger.log("debug", "MAIN - [rainbow_onbubbleinvitationreceived    ] :: bubble : ", bubble);
         let message = "message de test : " + utc;
-        await rainbowSDK.im.sendMessageToBubbleJid(message, bubble.jid, "en", undefined, "subject", undefined, "middle");
+        await rainbowSDK.im.sendMessageToBubbleJid(message, bubble.jid, "en", undefined, "subject", undefined, UrgencyType.MIDDLE);
         /* await rainbowSDK.im.sendMessageToBubbleJid(message, bubble.jid, "en", {
             "type": "text/markdown",
             "message": message
-        }, "subject", undefined, "middle"); // */
+        }, "subject", undefined, UrgencyType.MIDDLE); // */
     });
 
     rainbowSDK.events.on("rainbow_onbubbleconferenceupdated", (conference: ConferenceSession) => {
@@ -1068,7 +1068,7 @@ let expressEngine = undefined;
         if (message?.content.includes("#test_charge ") ){
             let utc = new Date().toJSON().replace(/-/g, "/");
             let content = "_replyTo_" + message.content + " _at_ " + utc;
-            rainbowSDK.im.sendMessageToJid(content, message.fromJid, 'EN', null, utc, "std", undefined).then((result) => {
+            rainbowSDK.im.sendMessageToJid(content, message.fromJid, 'EN', null, utc, UrgencyType.STANDARD, undefined).then((result) => {
                 _logger.log("debug", "MAIN - rainbow_onmessagereceived reply to #test_charge received. sendMessageToJid - Acknowledged sent result : ", result);
             });
         } else {
@@ -1115,14 +1115,14 @@ let expressEngine = undefined;
             let ackUngency = false;
             if (ackUngency && message && message.urgency==="high") {
                 if (message.fromBubbleJid) {
-                    rainbowSDK.im.sendMessageToBubbleJidAnswer("Acknowledged", message.fromJid, 'EN', null, 'Acknowledged', message, undefined, "std").then((result) => {
+                    rainbowSDK.im.sendMessageToBubbleJidAnswer("Acknowledged", message.fromJid, 'EN', null, 'Acknowledged', message, undefined, UrgencyType.STANDARD).then((result) => {
                         _logger.log("debug", "MAIN - rainbow_onmessagereceived sendMessageToBubbleJidAnswer - Acknowledged sent result : ", result);
                     }).catch((err) => {
                         //_logger.log("error", "MAIN - rainbow_onmessagereceived Error when sendMessageToBubbleJidAnswer.");
                         _logger.log("error", "MAIN - rainbow_onmessagereceived sendMessageToBubbleJidAnswer Error : ", err);
                     });
                 } else {
-                    rainbowSDK.im.sendMessageToJidAnswer("Acknowledged", message.fromJid, 'EN', null, "Acknowledged", message, "std").then((result) => {
+                    rainbowSDK.im.sendMessageToJidAnswer("Acknowledged", message.fromJid, 'EN', null, "Acknowledged", message, UrgencyType.STANDARD).then((result) => {
                         _logger.log("debug", "MAIN - rainbow_onmessagereceived sendMessageToJidAnswer - Acknowledged sent result : ", result);
                     }).catch((err) => {
                         //_logger.log("error", "MAIN - rainbow_onmessagereceived Error when sendMessageToJidAnswer.");
@@ -1134,14 +1134,14 @@ let expressEngine = undefined;
             let ignoreAckUngency = true;
             if (ignoreAckUngency && message && message.urgency==="high") {
                 if (message.fromBubbleJid) {
-                    rainbowSDK.im.sendMessageToBubbleJidAnswer("ign", message.fromJid, 'EN', null, 'Ignored', message, undefined, "std").then((result) => {
+                    rainbowSDK.im.sendMessageToBubbleJidAnswer("ign", message.fromJid, 'EN', null, 'Ignored', message, undefined, UrgencyType.STANDARD).then((result) => {
                         _logger.log("debug", "MAIN - rainbow_onmessagereceived sendMessageToBubbleJidAnswer - Acknowledged sent result : ", result);
                     }).catch((err) => {
                         //_logger.log("error", "MAIN - rainbow_onmessagereceived Error when sendMessageToBubbleJidAnswer.");
                         _logger.log("error", "MAIN - rainbow_onmessagereceived sendMessageToBubbleJidAnswer Error : ", err);
                     });
                 } else {
-                    rainbowSDK.im.sendMessageToJidAnswer("Ignoré", message.fromJid, 'FR', null, "Ignored", message, "std").then((result) => {
+                    rainbowSDK.im.sendMessageToJidAnswer("Ignoré", message.fromJid, 'FR', null, "Ignored", message, UrgencyType.STANDARD).then((result) => {
                         _logger.log("debug", "MAIN - rainbow_onmessagereceived sendMessageToJidAnswer - Acknowledged sent result : ", result);
                     }).catch((err) => {
                         //_logger.log("error", "MAIN - rainbow_onmessagereceived Error when sendMessageToJidAnswer.");
@@ -2515,7 +2515,7 @@ let expressEngine = undefined;
             for (let i = 1; i <= nbMsgToSend; i++) {
                 let now = new Date().getTime();
                 // Send message
-                //let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "hello num " + i + " from node : " + now, "FR", null, "Le sujet de node : " + now, "middle");
+                //let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "hello num " + i + " from node : " + now, "FR", null, "Le sujet de node : " + now, UrgencyType.MIDDLE);
                 let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "hello num " + i + " from node : " + now, "FR", null, "Le sujet de node : " + now);
                 //_logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
                 //_logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
@@ -2597,7 +2597,7 @@ let expressEngine = undefined;
                 for (let i = 1; i <= nbMsgToSend; i++) {
                     let now = new Date().getTime();
                     // Send message
-                    //let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "hello num " + i + " from node : " + now, "FR", null, "Le sujet de node : " + now, "middle");
+                    //let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "hello num " + i + " from node : " + now, "FR", null, "Le sujet de node : " + now, UrgencyType.MIDDLE);
                     let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "hello num " + i + " from node : " + now, "FR", null, "Le sujet de node : " + now);
                     // _logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
                     // _logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
@@ -2699,7 +2699,7 @@ let expressEngine = undefined;
             for (let i = 1; i <= nbMsgToSend; i++) {
                 let now = new Date().getTime();
                 // Send message
-                //let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "hello num " + i + " from node : " + now, "FR", null, "Le sujet de node : " + now, "middle");
+                //let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "hello num " + i + " from node : " + now, "FR", null, "Le sujet de node : " + now, UrgencyType.MIDDLE);
                 let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "hello num " + i + " from node : " + now, "FR", null, "Le sujet de node : " + now);
                 // _logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
                 // _logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
@@ -2735,7 +2735,7 @@ let expressEngine = undefined;
             };
             let now = new Date().getTime();
             // Send message
-            //let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "hello num " + i + " from node : " + now, "FR", null, "Le sujet de node : " + now, "middle");
+            //let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "hello num " + i + " from node : " + now, "FR", null, "Le sujet de node : " + now, UrgencyType.MIDDLE);
             let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "hello from node at " + now, "FR", content, "Le sujet de node : " + now);
             //_logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
             //_logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
@@ -2816,7 +2816,7 @@ let expressEngine = undefined;
             // Retrieve a contact by its id
             let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
             //rainbowSDK.im.sendMessageToJid("hello from node testSendMessageToJid", contact.jid, "FR", null, "Le sujet de node testSendMessageToJid", "high", DataStoreType.NoStore ).then((result) => {
-            rainbowSDK.im.sendMessageToJid("hello from node testSendMessageToJid", contact.jid, "FR", null, "Le sujet de node testSendMessageToJid", "high", DataStoreType.StoreTwinSide ).then((result) => {
+            rainbowSDK.im.sendMessageToJid("hello from node testSendMessageToJid", contact.jid, "FR", null, "Le sujet de node testSendMessageToJid", UrgencyType.HIGH, DataStoreType.StoreTwinSide ).then((result) => {
                 _logger.log("debug", "MAIN - testSendMessageToJid sendMessageToJid - result : ", result);
             });
         }
@@ -3475,7 +3475,7 @@ let expressEngine = undefined;
             //let utc = new Date().toJSON().replace(/-/g, "_");
             let contactVincent00 = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent00);
             _logger.log("debug", "MAIN - [testsendMessageToContactUrgencyMiddle] after getContactByLoginEmail : ", contactVincent00);
-            rainbowSDK.im.sendMessageToContact("Middle important message test", contactVincent00, null, null, null, 'middle').then((result) => {
+            rainbowSDK.im.sendMessageToContact("Middle important message test", contactVincent00, null, null, null, UrgencyType.MIDDLE).then((result) => {
                 _logger.log("debug", "MAIN - [testsendMessageToContactUrgencyMiddle] after sendMessageToContact result : ", result);
             });
         }
@@ -3486,7 +3486,7 @@ let expressEngine = undefined;
             //let utc = new Date().toJSON().replace(/-/g, "_");
             let contactVincent00 = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent00);
             _logger.log("debug", "MAIN - [testsendMessageToContactUrgencyMiddle] after getContactByLoginEmail : ", contactVincent00);
-            rainbowSDK.im.sendMessageToContact("High important message test", contactVincent00, null, null, null, 'high').then((result) => {
+            rainbowSDK.im.sendMessageToContact("High important message test", contactVincent00, null, null, null, UrgencyType.HIGH).then((result) => {
                 _logger.log("debug", "MAIN - [testsendMessageToContactUrgencyMiddle] after sendMessageToContact result : ", result);
             });
         }
@@ -4611,7 +4611,7 @@ let expressEngine = undefined;
                             await rainbowSDK.im.sendMessageToBubbleJid(message, bubble.jid, "en", {
                                 "type": "text/markdown",
                                 "message": message
-                            }, "subject", undefined, "middle");
+                            }, "subject", undefined, UrgencyType.MIDDLE);
                         });
                     });
                 }
@@ -4634,7 +4634,7 @@ let expressEngine = undefined;
                         await rainbowSDK.im.sendMessageToBubbleJid(message, bubble.jid, "en", {
                             "type": "text/markdown",
                             "message": message
-                        }, "subject", undefined, "middle");
+                        }, "subject", undefined, UrgencyType.MIDDLE);
                         // */
                         });
                     });
@@ -4658,7 +4658,7 @@ let expressEngine = undefined;
                         await rainbowSDK.im.sendMessageToBubbleJid(message, bubble.jid, "en", {
                             "type": "text/markdown",
                             "message": message
-                        }, "subject", undefined, "middle");
+                        }, "subject", undefined, UrgencyType.MIDDLE);
                         // */
                         });
                     });
@@ -4682,11 +4682,11 @@ let expressEngine = undefined;
                             await rainbowSDK.im.sendMessageToBubbleJid(message, bubble.jid, "en", {
                                 "type": "text/markdown",
                                 "message": message + "_1"
-                            }, "subject", undefined, "middle");
+                            }, "subject", undefined, UrgencyType.MIDDLE);
                             await rainbowSDK.im.sendMessageToBubbleJid(message, bubble.jid, "en", {
                                 "type": "text/markdown",
                                 "message": message + "_2"
-                            }, "subject", undefined, "middle");
+                            }, "subject", undefined, UrgencyType.MIDDLE);
                             // */
 
                             // Retrieve the associated conversation
@@ -4731,7 +4731,7 @@ let expressEngine = undefined;
                             await rainbowSDK.im.sendMessageToBubbleJid(message, bubble.jid, "en", {
                                 "type": "text/markdown",
                                 "message": message + "_1"
-                            }, "subject", undefined, "middle");
+                            }, "subject", undefined, UrgencyType.MIDDLE);
                             // */
 
                             // Retrieve the associated conversation
@@ -4773,7 +4773,7 @@ let expressEngine = undefined;
                                 await rainbowSDK.im.sendMessageToBubbleJid(message, bubble.jid, "en", {
                                     "type": "text/markdown",
                                     "message": message
-                                }, "subject", undefined, "middle");
+                                }, "subject", undefined, UrgencyType.MIDDLE);
                                 /*await rainbowSDK.im.sendMessageToBubbleJid(message, bubble.jid, "en", { "type": "text/markdown", "message": message }, "subject");
                             await rainbowSDK.im.sendMessageToBubbleJid(message, bubble.jid, "en", { "type": "text/markdown", "message": message }, "subject"); // */
                                 rainbowSDK.bubbles.archiveBubble(bubble).then(() => {
@@ -4857,7 +4857,7 @@ let expressEngine = undefined;
                     await rainbowSDK.im.sendMessageToBubbleJid(message, bubble.jid, "en", {
                         "type": "text/markdown",
                         "message": message
-                    }, "subject", undefined, "middle");
+                    }, "subject", undefined, UrgencyType.MIDDLE);
                 });
             });
             //    let utc = new Date().toJSON().replace(/-/g, '/');
@@ -4878,7 +4878,7 @@ let expressEngine = undefined;
                 await rainbowSDK.im.sendMessageToBubbleJid(message, bubble.jid, "en", {
                     "type": "text/markdown",
                     "message": message
-                }, "subject", undefined, "middle");
+                }, "subject", undefined, UrgencyType.MIDDLE);
  */
                     await pause(45000);
                     let invitationsSent = await rainbowSDK.invitations.searchInvitationsSentFromServer("lastNotificationDate", "pending", "full", 50, 0, 1);
@@ -4919,7 +4919,7 @@ let expressEngine = undefined;
                 await rainbowSDK.im.sendMessageToBubbleJid(message, bubble.jid, "en", {
                     "type": "text/markdown",
                     "message": message
-                }, "subject", undefined, "middle");
+                }, "subject", undefined, UrgencyType.MIDDLE);
  */
                     await pause(15000);
 
@@ -5157,8 +5157,8 @@ let expressEngine = undefined;
                             }
                             //imsService.sendMessageToBubble(message, bubble, [lang], [content], [subject], mentions, urgency)
                             let urgency = (rainbowMessage.messageType ? rainbowMessage.messageType.toLowerCase() : null);
-                            if (urgency === "high") {
-                                urgency = "middle"
+                            if (urgency === UrgencyType.HIGHT) {
+                                urgency = UrgencyType.MIDDLE
                             }
                             res = await rainbowClient.im.sendMessageToBubble(message, bubble, lang, content, "", [], urgency);
                         }
@@ -10299,7 +10299,7 @@ let expressEngine = undefined;
                             //console.log("-------------------------------");
                             date = new Date(); //Date.now();
                             index = index + 1;
-                            botSender.im.sendMessageToJid("#ECHO " + index + " " + date.toLocaleDateString() + " " + date.toLocaleTimeString() + ":" + date.getMilliseconds() + " [" + date.valueOf() + "]", botVNA, "en", undefined, undefined, "std");
+                            botSender.im.sendMessageToJid("#ECHO " + index + " " + date.toLocaleDateString() + " " + date.toLocaleTimeString() + ":" + date.getMilliseconds() + " [" + date.valueOf() + "]", botVNA, "en", undefined, undefined, UrgencyType.STANDARD);
                         }
                     }, timeoutMilliSeconds);
 

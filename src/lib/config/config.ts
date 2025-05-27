@@ -10,6 +10,7 @@ import {LEVELSNAMES} from "../common/LevelLogs.js";
  *                          DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).
  *                          DataStoreType.StoreTwinSide The messages are fully stored.
  *                          DataStoreType.UsestoreMessagesField to follow the storeMessages SDK's parameter behaviour.
+ *                          DataStoreType.Store Offline storage and Message Archive Management (XEP-0313) [4] can define their own rules on what messages to store and usually only store messages that contain a body element. However a sender may want to indicate that a message is worth storing even though it might not match those rules.
  * @public
  * @enum {string}
  * @readonly
@@ -29,6 +30,29 @@ enum DataStoreType {
      * (e.g. an encrypted message that carries the payload outside the body element). Such a message can be marked with a <store/> hint.
      * */
     Store = "store"
+}
+
+enum UrgencyType {
+    /**
+     * Urgent message
+     * @type {UrgencyType.HIGH}
+     */
+    HIGH = 'high',
+    /**
+     *  important message
+     * @type {UrgencyType.MIDDLE}
+     */
+    MIDDLE = 'middle',
+    /**
+     *  information message
+      * @type {UrgencyType.LOW}
+     */
+    LOW = 'low',
+    /**
+     *  standard message (null/undefined value is also treated as a standard message)
+     * @type {UrgencyType.STANDARD}
+     */
+    STANDARD = 'std'
 }
 
 let conf =  {
@@ -441,4 +465,5 @@ let conf =  {
 module.exports.config = conf;
 //module.exports.OptionsType = OptionsType;
 module.exports.DataStoreType = DataStoreType;
-export {conf as config , DataStoreType};
+module.exports.UrgencyType = UrgencyType;
+export {conf as config , DataStoreType, UrgencyType};

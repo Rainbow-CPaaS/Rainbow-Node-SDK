@@ -25,6 +25,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Update `XmppClient::send` `nostoreTag` is added to stanza only if a body is present in Message.
 -   Update `ImsService::sendMessageToJidAnswer` to forbid the sending of answer to a message with a datastoretypeOfMsg equals to DataStoreType.NoStore or DataStoreType.NoPermanentStore.
 -   Update `ImsService::sendMessageToBubbleJidAnswer` to forbid the sending of answer to a message with a datastoretypeOfMsg equals to DataStoreType.NoStore or DataStoreType.NoPermanentStore.
+-   Replace type `string` to `UrgencyType` in the parameter `urgency` of the send message APIs.   
 
 ### [2.37.0-lts.0] - 2024-03-13
 #### Removed
