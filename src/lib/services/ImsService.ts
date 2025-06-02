@@ -208,7 +208,7 @@ class ImsService extends GenericService{
      *    <b>(beta)</b> Retrieve the list of messages from a conversation <br>
      *    Calling several times this method will load older message from the history (pagination) <br>
      * @param {Conversation} conversation The conversation
-     * @param {number} intNbMessage The number of messages to retrieve. Optional. Default value is 30. Maximum value is 100
+     * @param {number} intNbMessage=30 The number of messages to retrieve. Optional. Default value is 30. Maximum value is 100
      * @async
      * @category Ims MESSAGES
      * @return {Promise<Conversation, ErrorManager>}
@@ -373,13 +373,13 @@ class ImsService extends GenericService{
      *    This method works for sending messages to a one-to-one conversation or to a bubble conversation <br>
      * @param {Conversation} conversation The conversation recipient
      * @param {string} message The message to send
-     * @param {string} [lang=en] The content language used
-     * @param {Object} [content] Allow to send alternative text base content
-     * @param {string} [content.type=text/markdown] The content message type
-     * @param {string} [content.message] The content message body
-     * @param {string} [subject] The message subject
-     * @param {UrgencyType} urgency The urgence of the message. String value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
-     * @param {DataStoreType} p_messagesDataStore  used to override the general of SDK's parameter "messagesDataStore". default value `undefined` to use the general value.</br>
+     * @param {string} lang=en The content language used
+     * @param {Object} content Allow to send alternative text base content
+     * @param {string} content.type=text/markdown The content message type
+     * @param {string} content.message The content message body
+     * @param {string} subject The message subject
+     * @param {UrgencyType} urgency=null The urgence of the message. String value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
+     * @param {DataStoreType} p_messagesDataStore=undefined  used to override the general of SDK's parameter "messagesDataStore". default value `undefined` to use the general value.</br>
      * DataStoreType.NoStore Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.</br>
      * DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).</br>
      * DataStoreType.StoreTwinSide The messages are fully stored.</br>
@@ -478,13 +478,13 @@ class ImsService extends GenericService{
      *  Send a one-2-one message to a contact <br>
      * @param {string} message The message to send
      * @param {Contact} contact The contact (should have at least a jid_im property)
-     * @param {string} [lang=en] The content language used
-     * @param {Object} [content] Allow to send alternative text base content
-     * @param {string} [content.type=text/markdown] The content message type
-     * @param {string} [content.message] The content message body
-     * @param {string} [subject] The message subject
-     * @param {UrgencyType} urgency The urgence of the message. String value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
-     * @param {DataStoreType} p_messagesDataStore  used to override the general of SDK's parameter "messagesDataStore". default value `undefined` to use the general value.</br>
+     * @param {string} lang=en The content language used
+     * @param {Object} content Allow to send alternative text base content
+     * @param {string} content.type=text/markdown The content message type
+     * @param {string} content.message The content message body
+     * @param {string} subject The message subject
+     * @param {UrgencyType} urgency=null The urgence of the message. String value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
+     * @param {DataStoreType} p_messagesDataStore=undefined  used to override the general of SDK's parameter "messagesDataStore". default value `undefined` to use the general value.</br>
      * DataStoreType.NoStore Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.</br>
      * DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).</br>
      * DataStoreType.StoreTwinSide The messages are fully stored.</br>
@@ -549,13 +549,13 @@ class ImsService extends GenericService{
      *  Send a one-2-one message to a contact identified by his Jid <br>
      * @param {string} message The message to send
      * @param {string} jid The contact Jid
-     * @param {string} [lang=en] The content language used
-     * @param {Object} [content] Allow to send alternative text base content
-     * @param {string} [content.type=text/markdown] The content message type
-     * @param {string} [content.message] The content message body
-     * @param {string} [subject] The message subject
-     * @param {UrgencyType} urgency The urgence of the message. String value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
-     * @param {DataStoreType} p_messagesDataStore  used to override the general of SDK's parameter "messagesDataStore". default value `undefined` to use the general value.</br>
+     * @param {string} lang=en The content language used
+     * @param {Object} content Allow to send alternative text base content
+     * @param {string} content.type=text/markdown The content message type
+     * @param {string} content.message The content message body
+     * @param {string} subject The message subject
+     * @param {UrgencyType} urgency=null The urgence of the message. String value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
+     * @param {DataStoreType} p_messagesDataStore=undefined  used to override the general of SDK's parameter "messagesDataStore". default value `undefined` to use the general value.</br>
      * DataStoreType.NoStore Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.</br>
      * DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).</br>
      * DataStoreType.StoreTwinSide The messages are fully stored.</br>
@@ -653,14 +653,14 @@ class ImsService extends GenericService{
      *  Send a reply to a one-2-one message to a contact identified by his Jid <br>
      * @param {string} message The message to send
      * @param {string} jid The contact Jid
-     * @param {string} [lang=en] The content language used
-     * @param {Object} [content] Allow to send alternative text base content
-     * @param {string} [content.type=text/markdown] The content message type
-     * @param {string} [content.message] The content message body
-     * @param {string} [subject] The message subject
-     * @param {Object} [answeredMsg] The message answered
-     * @param {UrgencyType} urgency The urgence of the message. String value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
-     * @param {DataStoreType} p_messagesDataStore  used to override the general of SDK's parameter "messagesDataStore". default value `undefined` to use the general value.</br>
+     * @param {string} lang=en The content language used
+     * @param {Object} content Allow to send alternative text base content
+     * @param {string} content.type=text/markdown The content message type
+     * @param {string} content.message The content message body
+     * @param {string} subject The message subject
+     * @param {Object} answeredMsg The message answered
+     * @param {UrgencyType} urgency=null The urgence of the message. String value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
+     * @param {DataStoreType} p_messagesDataStore=undefined  used to override the general of SDK's parameter "messagesDataStore". default value `undefined` to use the general value.</br>
      * DataStoreType.NoStore Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.</br>
      * DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).</br>
      * DataStoreType.StoreTwinSide The messages are fully stored.</br>
@@ -741,10 +741,10 @@ class ImsService extends GenericService{
      * @description
      *  Send an Acknowledged reply to an urgent message (one to one, or bubble) <br>
      * @param {Message} message The message to acknoledge 
-     * @param {string} lang the lang used to acknowledged the message.
-     * @param {string} ackLabel the label used to acknowledged the message.
-     * @param {Array<string>} attention array containing a list of JID of contact to mention or a string containing a sigle JID of the contact.
-     * @param {DataStoreType} p_messagesDataStore  used to override the general of SDK's parameter "messagesDataStore". default value `undefined` to use the general value.</br>
+     * @param {string} lang="EN" the lang used to acknowledged the message.
+     * @param {string} ackLabel="Acknowledged" the label used to acknowledged the message.
+     * @param {Array<string>} attention=null array containing a list of JID of contact to mention or a string containing a sigle JID of the contact.
+     * @param {DataStoreType} p_messagesDataStore=undefined used to override the general of SDK's parameter "messagesDataStore". default value `undefined` to use the general value.</br>
      * DataStoreType.NoStore Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.</br>
      * DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).</br>
      * DataStoreType.StoreTwinSide The messages are fully stored.</br>
@@ -755,7 +755,7 @@ class ImsService extends GenericService{
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} - the message 
      */
-    async sendMessageToJidAcknowledged(message : Message, lang : string = "EN", ackLabel : string = "Acknowledged", attention : Array<string>, p_messagesDataStore: DataStoreType) {
+    async sendMessageToJidAcknowledged(message : Message, lang : string = "EN", ackLabel : string = "Acknowledged", attention : Array<string>=null, p_messagesDataStore: DataStoreType=undefined) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendMessageToJidAcknowledged) is lang defined : ", isDefined(lang), " is message defined : ", isDefined(message));
         if ( message && message.urgency === UrgencyType.HIGH ) {
@@ -781,9 +781,9 @@ class ImsService extends GenericService{
      * @description
      *  Send an Ignored reply to an urgent message (one to one, or bubble) <br>
      * @param {Message} message The message to Ignored
-     * @param {string} lang the lang used to ignore the message.
-     * @param {string} ignLabel the label used to ignore the message.
-     * @param {DataStoreType} p_messagesDataStore  used to override the general of SDK's parameter "messagesDataStore". default value `undefined` to use the general value.</br>
+     * @param {string} lang="EN" the lang used to ignore the message.
+     * @param {string} ignLabel="Ignored" the label used to ignore the message.
+     * @param {DataStoreType} p_messagesDataStore=undefined used to override the general of SDK's parameter "messagesDataStore". default value `undefined` to use the general value.</br>
      * DataStoreType.NoStore Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.</br>
      * DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).</br>
      * DataStoreType.StoreTwinSide The messages are fully stored.</br>
@@ -794,7 +794,7 @@ class ImsService extends GenericService{
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} - the message 
      */
-    async sendMessageToJidIgnored(message : Message, lang : string = "EN", ignLabel : string = "Ignored", p_messagesDataStore: DataStoreType) {
+    async sendMessageToJidIgnored(message : Message, lang : string = "EN", ignLabel : string = "Ignored", p_messagesDataStore: DataStoreType = undefined) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendMessageToJidIgnored) is lang defined : ", isDefined(lang), " is message defined : ", isDefined(message));
         if ( message && message.urgency === UrgencyType.HIGH ) {
@@ -821,14 +821,14 @@ class ImsService extends GenericService{
      *  Send a message to a bubble <br>
      * @param {string} message The message to send
      * @param {Bubble} bubble The bubble (should at least have a jid property)
-     * @param {string} [lang=en] The content language used
-     * @param {Object} [content] Allow to send alternative text base content
-     * @param {string} [content.type=text/markdown] The content message type
-     * @param {string} [content.message] The content message body
-     * @param {string} [subject] The message subject
-     * @param {Array<string> | string} mentions array containing a list of JID of contact to mention or a string containing a single JID of the contact.
-     * @param {UrgencyType} urgency The urgence of the message. String value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
-     * @param {DataStoreType} p_messagesDataStore  used to override the general of SDK's parameter "messagesDataStore". default value `undefined` to use the general value.</br>
+     * @param {string} lang=en The content language used
+     * @param {Object} content Allow to send alternative text base content
+     * @param {string} content.type=text/markdown The content message type
+     * @param {string} content.message The content message body
+     * @param {string} subject The message subject
+     * @param {Array<string>} mentions=null array containing a list of JID of contact to mention or a string containing a single JID of the contact.
+     * @param {UrgencyType} urgency=null The urgence of the message. String value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
+     * @param {DataStoreType} p_messagesDataStore=urgency  used to override the general of SDK's parameter "messagesDataStore". default value `undefined` to use the general value.</br>
      * DataStoreType.NoStore Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.</br>
      * DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).</br>
      * DataStoreType.StoreTwinSide The messages are fully stored.</br>
@@ -839,7 +839,7 @@ class ImsService extends GenericService{
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
      */
-    async sendMessageToBubble(message : string, bubble : Bubble, lang: string, content: any, subject : string, mentions : Array<string> | string = null, urgency: UrgencyType = null, p_messagesDataStore: DataStoreType) {
+    async sendMessageToBubble(message : string, bubble : Bubble, lang: string, content: any, subject : string, mentions : Array<string> | string = null, urgency: UrgencyType = null, p_messagesDataStore: DataStoreType = undefined) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendMessageToBubble) is bubble defined : ", isDefined(bubble), " is message defined : ", isDefined(message));
         if (!bubble || !bubble.jid) {
@@ -862,14 +862,14 @@ class ImsService extends GenericService{
      *  Send a message to a bubble identified by its JID <br>
      * @param {string} message The message to send
      * @param {string} jid The bubble JID
-     * @param {string} [lang=en] The content language used
-     * @param {Object} [content] Allow to send alternative text base content
-     * @param {string} [content.type=text/markdown] The content message type
-     * @param {string} [content.message] The content message body
-     * @param {string} [subject] The message subject
-     * @param {Array<string> | string} mentions array containing a list of JID of contact to mention or a string containing a sigle JID of the contact.
-     * @param {UrgencyType} urgency The urgence of the message. String value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
-     * @param {DataStoreType} p_messagesDataStore  used to override the general of SDK's parameter "messagesDataStore". default value `undefined` to use the general value.</br>
+     * @param {string} lang=en The content language used
+     * @param {Object} content Allow to send alternative text base content
+     * @param {string} content.type=text/markdown The content message type
+     * @param {string} content.message The content message body
+     * @param {string} subject The message subject
+     * @param {Array<string>} mentions=null array containing a list of JID of contact to mention or a string containing a sigle JID of the contact.
+     * @param {UrgencyType} urgency=null The urgence of the message. String value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
+     * @param {DataStoreType} p_messagesDataStore=undefined used to override the general of SDK's parameter "messagesDataStore". default value `undefined` to use the general value.</br>
      * DataStoreType.NoStore Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.</br>
      * DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).</br>
      * DataStoreType.StoreTwinSide The messages are fully stored.</br>
@@ -947,15 +947,15 @@ class ImsService extends GenericService{
      *  Send a message to a bubble identified by its JID <br>
      * @param {string} message The message to send
      * @param {string} jid The bubble JID
-     * @param {string} [lang=en] The content language used
-     * @param {Object} [content] Allow to send alternative text base content
-     * @param {string} [content.type=text/markdown] The content message type
-     * @param {string} [content.message] The content message body
-     * @param {string} [subject] The message subject
-     * @param {Object} [answeredMsg] The message answered
-     * @param {Array<string>|string} mentions array containing a list of JID of contact to mention or a string containing a sigle JID of the contact.
-     * @param {UrgencyType} urgency The urgence of the message. String value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
-     * @param {DataStoreType} p_messagesDataStore  used to override the general of SDK's parameter "messagesDataStore". default value `undefined` to use the general value.</br>
+     * @param {string} lang=en The content language used
+     * @param {Object} content Allow to send alternative text base content
+     * @param {string} content.type=text/markdown The content message type
+     * @param {string} content.message The content message body
+     * @param {string} subject The message subject
+     * @param {Object} answeredMsg The message answered
+     * @param {Array<string>} mentions=null array containing a list of JID of contact to mention or a string containing a sigle JID of the contact.
+     * @param {UrgencyType} urgency=null The urgence of the message. String value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
+     * @param {DataStoreType} p_messagesDataStore=undefined used to override the general of SDK's parameter "messagesDataStore". default value `undefined` to use the general value.</br>
      * DataStoreType.NoStore Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.</br>
      * DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).</br>
      * DataStoreType.StoreTwinSide The messages are fully stored.</br>
@@ -1418,8 +1418,8 @@ class ImsService extends GenericService{
      * @description
      *    Switch the "is typing" state in a bubble/room<br> <br>
      * @param {Bubble} bubble The destination bubble
-     * @param {boolean} status The status, true for setting "is Typing", false to remove it.
-     * @param {DataStoreType} p_messagesDataStore  used to override the general of SDK's parameter "messagesDataStore". default value `undefined` to use the general value.</br>
+     * @param {boolean} status=true The status, true for setting "is Typing", false to remove it.
+     * @param {DataStoreType} p_messagesDataStore=undefined used to override the general of SDK's parameter "messagesDataStore". default value `undefined` to use the general value.</br>
      * DataStoreType.NoStore Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.</br>
      * DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).</br>
      * DataStoreType.StoreTwinSide The messages are fully stored.</br>
@@ -1429,7 +1429,7 @@ class ImsService extends GenericService{
      * (e.g. an encrypted message that carries the payload outside the body element). Such a message can be marked with a <store/> hint.
      * @return {Object} Return a promise with no parameter when succeed.
      */
-    async sendIsTypingStateInBubble(bubble, status, p_messagesDataStore: DataStoreType) {
+    async sendIsTypingStateInBubble(bubble : Bubble, status:boolean = true, p_messagesDataStore: DataStoreType = undefined) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendIsTypingStateInBubble) is bubble defined : ", isDefined(bubble), " is status defined : ", isDefined(status));
         return new Promise(async (resolve,reject) => {
@@ -1473,8 +1473,8 @@ class ImsService extends GenericService{
      * @description
      *    Switch the "is typing" state in a conversation<br>
      * @param {Conversation} conversation The conversation recipient
-     * @param {boolean} status The status, true for setting "is Typing", false to remove it
-     * @param {DataStoreType} p_messagesDataStore  used to override the general of SDK's parameter "messagesDataStore". default value `undefined` to use the general value.</br>
+     * @param {boolean} status=true The status, true for setting "is Typing", false to remove it
+     * @param {DataStoreType} p_messagesDataStore=undefined used to override the general of SDK's parameter "messagesDataStore". default value `undefined` to use the general value.</br>
      * DataStoreType.NoStore Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.</br>
      * DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).</br>
      * DataStoreType.StoreTwinSide The messages are fully stored.</br>
@@ -1484,7 +1484,7 @@ class ImsService extends GenericService{
      * (e.g. an encrypted message that carries the payload outside the body element). Such a message can be marked with a <store/> hint.
      * @return Return a promise with no parameter when succeed
      */
-    async sendIsTypingStateInConversation(conversation : Conversation, status: boolean, p_messagesDataStore: DataStoreType = undefined) {
+    async sendIsTypingStateInConversation(conversation : Conversation, status: boolean=true, p_messagesDataStore: DataStoreType = undefined) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendIsTypingStateInConversation) is conversation defined : ", isDefined(conversation), " is status defined : ", isDefined(status));
         return new Promise(async (resolve, reject) => {
@@ -1535,7 +1535,7 @@ class ImsService extends GenericService{
      * Note: If a peer send the same kind of message, then the SDK receive the `rainbow_onrainbowcpaasreceived` event. It is Fired when a `rainbow-cpaas` event is receveid for a private data exchange.
      * @param jid - The Contact Jid to which the message is sent
      * @param xmlElements - List of XML elements to create
-     * @param {DataStoreType} p_messagesDataStore  used to override the general of SDK's parameter "messagesDataStore". default value `undefined` to use the general value.</br>
+     * @param {DataStoreType} p_messagesDataStore=undefined used to override the general of SDK's parameter "messagesDataStore". default value `undefined` to use the general value.</br>
      * DataStoreType.NoStore Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.</br>
      * DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).</br>
      * DataStoreType.StoreTwinSide The messages are fully stored.</br>
@@ -1606,7 +1606,7 @@ class ImsService extends GenericService{
      *
      * @param {any} jid - The Bubble Jid to which the message is sent
      * @param {Element} xmlElements - List of XML elements to create
-     * @param {DataStoreType} p_messagesDataStore  used to override the general of SDK's parameter "messagesDataStore". default value `undefined` to use the general value.</br>
+     * @param {DataStoreType} p_messagesDataStore=undefined used to override the general of SDK's parameter "messagesDataStore". default value `undefined` to use the general value.</br>
      * DataStoreType.NoStore Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.</br>
      * DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).</br>
      * DataStoreType.StoreTwinSide The messages are fully stored.</br>
