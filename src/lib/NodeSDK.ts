@@ -18,7 +18,7 @@ import {TelephonyService} from "./services/TelephonyService";
 import {SDKSTATUSENUM} from "./common/StateManager";
 import {SettingsService} from "./services/SettingsService";
 import {RESTService} from "./connection/RESTService";
-import {AdminService} from "./services/AdminService";
+import {AdminService, CLOUDPBXCLIOPTIONPOLICY} from "./services/AdminService";
 import {FileStorageService} from "./services/FileStorageService";
 import {FileServerService} from "./services/FileServerService";
 import {Events} from "./common/Events";
@@ -1260,6 +1260,17 @@ class NodeSDK {
      */
     static get UrgencyType() {
         return UrgencyType;
+    }
+
+    /**
+     * @public
+     * @property {Object} CLOUDPBXCLIOPTIONPOLICY
+     * @description
+     *    Get access to the CLOUDPBXCLIOPTIONPOLICY type
+     * @return {CLOUDPBXCLIOPTIONPOLICY}
+     */
+    static get CLOUDPBXCLIOPTIONPOLICY() {
+        return CLOUDPBXCLIOPTIONPOLICY;
     }
 
     get Utils() {

@@ -261,15 +261,15 @@ class AdminService extends GenericService {
       * @description
       *      This API can be used to retrieve the list of bot services. </BR>
       * @async
-      * @param {string} format Allows to retrieve more or less bot services details in response. </br>
+      * @param {string} format="small" Allows to retrieve more or less bot services details in response. </br>
       * - small: id, name, jid, capabilities
       * - medium: id, name, jid, isRainbowSupportBot, capabilities
       * - full: id, name, jid, isRainbowSupportBot, capabilities, createdByUserId, avatarId, lastAvatarUpdateDate
       * Default value : small. Possibles values : small, medium, full
-      * @param {number} limit Allow to specify the number of bot services to retrieve. Default value : 100
-      * @param {number} offset Allow to specify the position of first bot to retrieve (first bot if not specified). Warning: if offset > total, no results are returned.
-      * @param {string} sortField Sort bots list based on the given field. Default value : name
-      * @param {number} sortOrder Specify order when sorting bots list. Default value : 1. Possibles values -1, 1
+      * @param {number} limit=100 Allow to specify the number of bot services to retrieve. Default value : 100
+      * @param {number} offset=0 Allow to specify the position of first bot to retrieve (first bot if not specified). Warning: if offset > total, no results are returned.
+      * @param {string} sortField="name" Sort bots list based on the given field. Default value : name
+      * @param {number} sortOrder=1 Specify order when sorting bots list. Default value : 1. Possibles values -1, 1
       * @category Bots
       * @return {Promise<Object, ErrorManager>} - result
       *
@@ -339,8 +339,8 @@ class AdminService extends GenericService {
      * @param {Boolean} enabledForAllCompanyUsers Enable or disable the use of these Rainbow multifactor authentication settings for all members of the company. Default value : false
      * @param {string} mfaName Name of Rainbow multifactor authentication configuration
      * @param {string} mfaType type of Rainbow multifactor authentication. Possibles values : none, totp
-     * @param {string} mfaPolicy Policy of Rainbow multifactor authentication. Default value : never. Possibles values : never, untrusted_only, always
-     * @param {Number} rememberDaysApplication Number of days when application and browsers are trusted
+     * @param {string} mfaPolicy="never" Policy of Rainbow multifactor authentication. Default value : never. Possibles values : never, untrusted_only, always
+     * @param {number} rememberDaysApplication Number of days when application and browsers are trusted
      * @param {Boolean} mfaCanBeDisabled let the user disable the multifactor authentication
      * @category Company Rainbow Multifactor Authentication Server
      * @return {Promise<any>} - result
@@ -476,7 +476,7 @@ class AdminService extends GenericService {
      *
      * @async
      * @param {string} companyId Company unique identifier
-     * @param {string} format Allows to retrieve more or less policy details in response.
+     * @param {string} format="medium" Allows to retrieve more or less policy details in response.
      * \- `small`: mfaType mfaId mfaName
      * \- `medium`: mfaType mfaId mfaName enableForAllCompanyUsers
      * \- `full`: all policy fields
@@ -591,7 +591,7 @@ class AdminService extends GenericService {
      * @async
      * @param {string} companyId Company unique identifier. Default value is the current logued in user's company. </br>
      * @param {string} description Join company link description.
-     * @param {boolean} isEnabled Boolean allowing to enable or disable the join company link. </BR>
+     * @param {boolean} isEnabled=true Boolean allowing to enable or disable the join company link. </BR>
      * * if the link is enabled, users can register using it, </BR>
      * * if the link is disabled, users can't register using it. </BR>
      * Default value : `true`
@@ -786,7 +786,7 @@ class AdminService extends GenericService {
      *      Join company links allow company administrators to generate an id that can be used by users to create their account in this company. </BR>
      * @async
      * @param {string} companyId Company unique identifier. Default value is the current logued in user's company.</br>
-     * @param {string} format Allows to retrieve more or less join company links details in response.
+     * @param {string} format="small" Allows to retrieve more or less join company links details in response.
      * </br> * `small`: id, companyId, isEnabled
      * </br> * `medium`: id, companyId, isEnabled, expirationDate, maxNumberUsers
      * </br> * `full`: all join company links fields
@@ -797,10 +797,10 @@ class AdminService extends GenericService {
      * @param {string} toExpirationDate List join company links expiring before the given date.
      * @param {string} fromNbUsersRegistered List join company links that have been used by at least the given number (nbUsersRegistered greater than or equal to the requested toNbUsersRegistered number).
      * @param {string} toNbUsersRegistered List join company links that have been used by at less than the given number (nbUsersRegistered lower than or equal to the requested toNbUsersRegistered number).
-     * @param {number} limit Allow to specify the number of items to retrieve. Default value : 100.
-     * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Default value : 0.
+     * @param {number} limit=100 Allow to specify the number of items to retrieve. Default value : 100.
+     * @param {number} offset=0 Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Default value : 0.
      * @param {string} sortField Sort items list based on the given field.
-     * @param {number} sortOrder Specify order when sorting items list. Default value : 1. Possibles values : -1, 1 .
+     * @param {number} sortOrder=1 Specify order when sorting items list. Default value : 1. Possibles values : -1, 1 .
      * @category Company join companies links
      * @return {Promise<Object, ErrorManager>} - result
      *
@@ -871,7 +871,7 @@ class AdminService extends GenericService {
      * @param {string} companyId Company unique identifier. Default value is the current logued in user's company.</br>
      * @param {string} joinCompanyLinkId Join company link unique identifier.
      * @param {string} description Join company link description.
-     * @param {boolean} isEnabled Boolean allowing to enable or disable the join company link. </BR>
+     * @param {boolean} isEnabled=true Boolean allowing to enable or disable the join company link. </BR>
      * * if the link is enabled, users can register using it, </BR>
      * * if the link is disabled, users can't register using it. </BR>
      * Default value : `true` </BR>
@@ -1062,7 +1062,7 @@ class AdminService extends GenericService {
      * @fulfil {Object} - result
      * @category async
      * @param {string} name Company name
-     * @param {string} visibility Company visibility (define if users being in this company can be searched by users being in other company). </br>
+     * @param {string} visibility="public" Company visibility (define if users being in this company can be searched by users being in other company). </br>
      * Under the same organisation, a company can choose the visibility=organisation. That means users belonging to this company are visible for users of foreign companies having the same visibility inside the same organisation. </br>
      * The visibility=organisation is same as visibility=private outside the organisation. That is to say users can't be searched. </br>
      * Default value : public. Possibles values public, private, organisation
@@ -1130,15 +1130,15 @@ class AdminService extends GenericService {
      *
      * @fulfil {Object} - the result
      * @category async
-     * @param {string} format Allows to retrieve more or less company details in response. </BR>
+     * @param {string} format="small" Allows to retrieve more or less company details in response. </BR>
      * * small: id, name </BR>
      * * medium: id, name, status, adminEmail, companyContactId, country, website, slogan, description, size, economicActivityClassification, lastAvatarUpdateDate, lastBannerUpdateDate, avatarShape </BR>
      * * full: id, name, status, adminEmail, companyContactId, country, website, slogan, description, size, economicActivityClassification, lastAvatarUpdateDate, lastBannerUpdateDate, avatarShape </BR>
      * Default value : small. Possibles values : small, medium, full
-     * @param {string} sortField Sort items list based on the given field. Default value : name
-     * @param {number} limit Allow to specify the number of items to retrieve. Default value : 100.
-     * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Default value : 0
-     * @param {number} sortOrder Specify order when sorting items list. Default value : 1. Possibles values -1, 1
+     * @param {string} sortField="name" Sort items list based on the given field. Default value : name
+     * @param {number} limit=100 Allow to specify the number of items to retrieve. Default value : 100.
+     * @param {number} offset=0 Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Default value : 0
+     * @param {number} sortOrder=1 Specify order when sorting items list. Default value : 1. Possibles values -1, 1
      * @param {string} name Allows to filter companies list on the given keyword(s) on field name. </BR>
      * The filtering is case insensitive and on partial name match: all companies containing the provided name value will be returned (whatever the position of the match).
      * Ex: if filtering is done on comp, companies with the following names are match the filter 'My company', 'Company', 'A comp 1', 'Comp of comps', ...
@@ -1207,19 +1207,19 @@ class AdminService extends GenericService {
      *
      * @fulfil {Object} - the result
      * @category async
-     * @param {string} format Allows to retrieve more or less company details in response. </BR>
+     * @param {string} format="small" Allows to retrieve more or less company details in response. </BR>
      * * small: id, name </BR>
      * * medium: id, name, status, adminEmail, companyContactId, country, website, slogan, description, size, economicActivityClassification, lastAvatarUpdateDate, lastBannerUpdateDate, avatarShape </BR>
      * * full: id, name, status, adminEmail, companyContactId, country, website, slogan, description, size, economicActivityClassification, lastAvatarUpdateDate, lastBannerUpdateDate, avatarShape </BR>
      * Default value : small. Possibles values : small, medium, full
-     * @param {string} sortField Sort items list based on the given field. Default value : name
-     * @param {number} limit Allow to specify the number of items to retrieve. Default value : 100.
-     * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Default value : 0
-     * @param {number} sortOrder Specify order when sorting items list. Default value : 1. Possibles values -1, 1
+     * @param {string} sortField="name" Sort items list based on the given field. Default value : name
+     * @param {number} limit=100 Allow to specify the number of items to retrieve. Default value : 100.
+     * @param {number} offset=0 Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Default value : 0
+     * @param {number} sortOrder=1 Specify order when sorting items list. Default value : 1. Possibles values -1, 1
      * @param {string} name Allows to filter companies list on the given keyword(s) on field name. </BR>
      * The filtering is case insensitive and on partial name match: all companies containing the provided name value will be returned (whatever the position of the match).
      * Ex: if filtering is done on comp, companies with the following names are match the filter 'My company', 'Company', 'A comp 1', 'Comp of comps', ...
-     * @param {string} status Allows to filter companies list on the provided status(es). Possibles values initializing, active, alerting, hold, terminated
+     * @param {string} status="active" Allows to filter companies list on the provided status(es). Possibles values initializing, active, alerting, hold, terminated
      */
     getCompanieByName (name ? : string, status : string = "active", sortField : string = "name", format : string = "small", limit  : number = 100, offset  : number = 0, sortOrder : number = 1){
         return this.getAllCompaniesVisibleByUser ( format , sortField , limit, offset, sortOrder, name, status) ;
@@ -1258,13 +1258,13 @@ class AdminService extends GenericService {
      * @fulfil {Object} - the result
      * @category async
      * @param {string} companyId Company for which list of administrators is requested.
-     * @param {string} format Allows to retrieve more or less user details in response. </BR>
+     * @param {string} format="small" Allows to retrieve more or less user details in response. </BR>
      * - small: id, firstName, lastName, displayName, companyId, companyName, isTerminated </BR>
      * - medium: id, firstName, lastName, displayName, jid_im, jid_tel, companyId, companyName, lastUpdateDate, lastAvatarUpdateDate, isTerminated, guestMode </BR>
      * - full: id, firstName, lastName, displayName, nickName, title, jobTitle, department, emails, phoneNumbers, country, state, language, timezone, jid_im, jid_tel, companyId, companyName, lastUpdateDate, lastAvatarUpdateDate, isTerminated, guestMode, lastOfflineMailReceivedDate </BR>
      * Default value : small. Possibles values : small, medium, full
-     * @param {number} limit Allow to specify the number of items to retrieve. Default value : 100.
-     * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Default value : 0
+     * @param {number} limit=100 Allow to specify the number of items to retrieve. Default value : 100.
+     * @param {number} offset=0 Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Default value : 0
      */
     getCompanyAdministrators (companyId? : string, format : string = "small", limit : number = 100, offset : number = 0) {
         let that = this;
@@ -1402,17 +1402,17 @@ class AdminService extends GenericService {
      * @param {string} password The associated password
      * @param {string} firstname The user firstname
      * @param {string} lastname  The user lastname
-     * @param {string} [companyId="user company"] The Id of the company where to create the user or the connected user company if null
-     * @param {string} [language="en-US"] The language of the user. Default is `en-US`. Can be fr-FR, de-DE...
-     * @param {boolean} [isCompanyAdmin=false] True to create the user with the right to manage the company (`companyAdmin`). False by default.
-     * @param {Array<string>} [roles] The roles the created user. Default value : ["user"].
+     * @param {string} companyId=`user company id` The Id of the company where to create the user or the connected user company if null
+     * @param {string} language="en-US" The language of the user. Default is `en-US`. Can be fr-FR, de-DE...
+     * @param {boolean} isCompanyAdmin=false True to create the user with the right to manage the company (`companyAdmin`). False by default.
+     * @param {Array<string>} roles=["user"] The roles the created user. Default value : ["user"].
      * @async
      * @category Companies and users management
      * @return {Promise<Contact, ErrorManager>}
      * @fulfil {Contact} - Created contact in company or an error object depending on the result
      * @category async
      */
-    createUserInCompany(email: string, password : string, firstname : string, lastname : string, companyId : string, language : string, isCompanyAdmin: boolean = false, roles: Array<string> = ["user"])  : Promise<Contact> {
+    createUserInCompany(email: string, password : string, firstname : string, lastname : string, companyId : string, language : string="en-US", isCompanyAdmin: boolean = false, roles: Array<string> = ["user"])  : Promise<Contact> {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(createUserInCompany) email : ", that._logger.stripStringForLogs(email), ", lastname : ", that._logger.stripStringForLogs(lastname));
 
@@ -1512,7 +1512,7 @@ class AdminService extends GenericService {
      * ⚠️ Warning: the minimal password length will soon be increased to 12, planned to be effective mid-june 2023 (8 characters are still accepted until this date) at least 1 capital letter, 1 number, 1 special character. </BR>
      * If password is not set, the user will have to use the reset-password feature to define his password so that he can login to Rainbow (except if the user is configured to use a Single Sign On method (SAML or OIDC)). </BR>
      * @param {string} companyId User company unique identifier (like 569ce8c8f9336c471b98eda1). If not provided, users are attached to a "Default" company. companyName field is automatically filled on server side based on companyId.
-     * @param {boolean} isInitialized Is user initialized If isInitialized is set to true and sendInvitationEmail query parameter is set to true, the user receives an email "Your Rainbow account has been activated". Default value : `false`
+     * @param {boolean} isInitialized=false Is user initialized If isInitialized is set to true and sendInvitationEmail query parameter is set to true, the user receives an email "Your Rainbow account has been activated". Default value : `false`
      * @param {string} loginEmail User email address (used for login). Must be unique (409 error is returned if a user already exists with the same email address).
      * @param {string} firstName User first name
      * @param {string} lastName User last name
@@ -1553,13 +1553,13 @@ class AdminService extends GenericService {
      * @param {string} state When country is 'USA' or 'CAN', a state can be defined. Else it is not managed (null). </BR>
      * The list of allowed states can be obtained using the API getListOfCountries() for the associated countries. </BR>
      * Possibles values : `null`, `"AA"`, `"AE"`, `"AP"`, `"AK"`, `"AL"`, `"AR"`, `"AZ"`, `"CA"`, `"CO"`, `"CT"`, `"DC"`, `"DE"`, `"FL"`, `"GA"`, `"GU"`, `"HI"`, `"IA"`, `"ID"`, `"IL"`, `"IN"`, `"KS"`, `"KY"`, `"LA"`, `"MA"`, `"MD"`, `"ME"`, `"MI"`, `"MN"`, `"MO"`, `"MS"`, `"MT"`, `"NC"`, `"ND"`, `"NE"`, `"NH"`, `"NJ"`, `"NM"`, `"NV"`, `"NY"`, `"OH"`, `"OK"`, `"OR"`, `"PA"`, `"PR"`, `"RI"`, `"SC"`, `"SD"`, `"TN"`, `"TX"`, `"UT"`, `"VA"`, `"VI"`, `"VT"`, `"WA"`, `"WI"`, `"WV"`, `"WY"`, `"AB"`, `"BC"`, `"MB"`, `"NB"`, `"NL"`, `"NS"`, `"NT"`, `"NU"`, `"ON"`, `"PE"`, `"QC"`, `"SK"`, `"YT"` </BR>
-     * @param {string} language User language Language format is composed of locale using format `ISO 639-1`, with optionally the regional variation using `ISO 3166‑1 alpha-2` (separated by hyphen). </BR>
+     * @param {string} language="en-US" User language Language format is composed of locale using format `ISO 639-1`, with optionally the regional variation using `ISO 3166‑1 alpha-2` (separated by hyphen). </BR>
      * Locale part is in lowercase, regional part is in uppercase. Examples: en, en-US, fr, fr-FR, fr-CA, es-ES, es-MX, ... </BR>
      * More information about the format can be found on this [link](https://en.wikipedia.org/wiki/Language_localisation#Language_tags_and_codes). </BR>
      * Possibles values : `"/^([a-z]{2})(?:(?:(-)[A-Z]{2}))?$/"` </BR>
      * @param {string} timezone User timezone name Allowed values: one of the timezone names defined in [IANA tz database](https://www.iana.org/time-zones) Timezone name are composed as follow: `Area/Location` (ex: Europe/Paris, America/New_York,...)
-     * @param {string} accountType User subscription type Default value : `free`. Possibles values : `free`, `basic`, `advanced`
-     * @param {Array<string>} roles List of user roles The general rule is that a user must have the roles that the wants to assign to someone else. </BR>
+     * @param {string} accountType="free" User subscription type Default value : `free`. Possibles values : `free`, `basic`, `advanced`
+     * @param roles
      * Examples: </BR>
      * * an `admin` can add or remove the role `admin` to another user of the company(ies) he manages, </BR>
      * * an `bp_admin` can add or remove the role `bp_admin` to another user of the company(ies) he manages, </BR>
@@ -1580,7 +1580,7 @@ class AdminService extends GenericService {
      * Default value : `["user"]` </BR>
      * Possibles values : `guest`, `user`, `admin`, `bp_admin`, `bp_finance`, `company_support`, `all_company_channels_admin`, `public_channels_admin`, `closed_channels_admin`, `all_organization_channels_admin`, `organization_public_channels_admin`, `organization_closed_channels_admin`, `app_admin`, `app_support`, `app_superadmin`, `directory_admin`, `supervisor`, `support`, `superadmin`, `webinar_host`, `attendant` </BR>
      * @param {string} adminType Mandatory if roles array contains `admin` role: specifies at which entity level the administrator has admin rights in the hierarchy ORGANIZATIONS/COMPANIES/SITES/SYSTEMS Possibles values : `organization_admin`, `company_admin`, `site_admin`
-     * @param {boolean} isActive Is user active. Default value : `true`.
+     * @param {boolean} isActive=true Is user active. Default value : `true`.
      * @param {string} visibility User visibility. Define if the user can be searched by users being in other company and if the user can search users being in other companies. </BR>
      * Visibility can be: </BR>
      * * `same_than_company`: The same visibility than the user's company's is applied to the user. When this user visibility is used, if the visibility of the company is changed the user's visibility will use this company new visibility. </BR>
@@ -1591,7 +1591,7 @@ class AdminService extends GenericService {
      * * `hotspot`: User can be searched by hotspot attached company's users (users from any company if the user belong to the default company) / can't search any users (even in their company) | user can't invite external users / can be invited by hotspot attached company's users (users from any company if the user belong to the default company) </BR>
      * * `none`: Default value reserved for guest. User **can't** be searched by **any users** (even within the same company) / can search external users. User can invite external users / can be invited by external users External users mean 'public user not being in user's company nor user's organisation nor a company visible by user's company. </BR>
      * Possibles values : `same_than_company`, `public`, `private`, `closed`, `isolated`, `hotspot`, `none` </BR>
-     * @param {number} timeToLive Duration in second to wait before automatically starting a user deletion from the creation date. </BR>
+     * @param {number} timeToLive=-1 Duration in second to wait before automatically starting a user deletion from the creation date. </BR>
      * Once the timeToLive has been reached, the user won't be usable to use APIs anymore (error 401523). His account may then be deleted from the database at any moment. </BR>
      * Value -1 means timeToLive is disable (i.e. user account will not expire). </BR>
      * If created user has role `guest` and no timeToLive is provided, a default value of 172800 seconds is set (48 hours). </BR>
@@ -1601,6 +1601,7 @@ class AdminService extends GenericService {
      * @param {string} userInfo1 Free field that admin can use to link their users to their IS/IT tools / to perform analytics (this field is output in the CDR file)
      * @param {string} selectedTheme Set the selected theme for the user.
      * @param {string} userInfo2 2nd Free field that admin can use to link their users to their IS/IT tools / to perform analytics (this field is output in the CDR file)
+     * @param {boolean} isAdmin=false is the user created is an admin. Default value = `false`.
      * @async
      * @category Companies and users management
      * @return {Promise<Object, ErrorManager>} The result :
@@ -1779,15 +1780,15 @@ class AdminService extends GenericService {
      *      Create a new guest user in the same company as the requester admin </BR>
      * @param {string} firstname The user firstname
      * @param {string} lastname  The user lastname
-     * @param {string} [language="en-US"] The language of the user. Default is `en-US`. Can be fr-FR, de-DE...
-     * @param {Number} [timeToLive] Allow to provide a duration in second to wait before starting a user deletion from the creation date
+     * @param {string} language="en-US" The language of the user. Default is `en-US`. Can be fr-FR, de-DE...
+     * @param {number} timeToLive Allow to provide a duration in second to wait before starting a user deletion from the creation date
      * @async
      * @category Companies and users management
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Object} - Created guest user in company or an error object depending on the result
      * @category async
      */
-    createGuestUser(firstname, lastname, language, timeToLive) : Promise<any> {
+    createGuestUser(firstname:string, lastname:string, language:string="en-US", timeToLive:number) : Promise<any> {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(createGuestUser) lastname : ", that._logger.stripStringForLogs(lastname), ", firstname : ", that._logger.stripStringForLogs(firstname));
 
@@ -1840,7 +1841,7 @@ class AdminService extends GenericService {
      * @description
      *      Create a new anonymous guest user in the same company as the requester admin   </BR>
      *      Anonymous guest user is user without name and firstname   </BR>
-     * @param {Number} [timeToLive] Allow to provide a duration in second to wait before starting a user deletion from the creation date
+     * @param {number} timeToLive Allow to provide a duration in second to wait before starting a user deletion from the creation date
      * @async
      * @category Companies and users management
      * @return {Promise<Object, ErrorManager>}
@@ -1884,15 +1885,15 @@ class AdminService extends GenericService {
      *      Invite a new user to join a company in Rainbow </BR>
      * @param {string} email The email address of the contact to invite
      * @param {string} companyId     The id of the company where the user will be invited in
-     * @param {string} [language="en-US"]  The language of the message to send. Default is `en-US`
-     * @param {string} [message=""] A custom message to send
+     * @param {string} language="en-US"  The language of the message to send. Default is `en-US`
+     * @param {string} message="" A custom message to send
      * @async
      * @category Companies and users management
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Object} - Created invitation or an error object depending on the result
      * @category async
      */
-    inviteUserInCompany(email, companyId, language, message) {
+    inviteUserInCompany(email:string, companyId:string, language:string="en-US", message:string="") {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(inviteUserInCompany) companyId : ", that._logger.stripStringForLogs(companyId), ", email : ", that._logger.stripStringForLogs(email));
 
@@ -1946,7 +1947,7 @@ class AdminService extends GenericService {
      * @fulfil {Object} - Updated user or an error object depending on the result
      * @category async
      */
-    changePasswordForUser(password, userId) {
+    changePasswordForUser(password:string, userId:string) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(changePasswordForUser) userId : ", that._logger.stripStringForLogs(userId));
 
@@ -1996,7 +1997,7 @@ class AdminService extends GenericService {
      * @fulfil {Object} - Updated user or an error object depending on the result
      * @category async
      */
-    updateInformationForUser(objData, userId) {
+    updateInformationForUser(objData: any, userId : string) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateInformationForUser) userId : ", that._logger.stripStringForLogs(userId));
 
@@ -2051,7 +2052,7 @@ class AdminService extends GenericService {
      * @fulfil {Object} - Deleted user or an error object depending on the result
      * @category async
      */
-    deleteUser(userId) {
+    deleteUser(userId:string) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteUser) userId : ", that._logger.stripStringForLogs(userId));
 
@@ -2366,7 +2367,7 @@ class AdminService extends GenericService {
      * @public
      * @nodered true
      * @method getAllCompanies
-     * @param {string} format Allows to retrieve more or less company details in response. </BR>
+     * @param {string} format="small" Allows to retrieve more or less company details in response. </BR>
      * - small: _id, name </BR>
      * - medium: id, name, status, adminEmail, companyContactId, country, website, slogan, description, size, economicActivityClassification, lastAvatarUpdateDate, lastBannerUpdateDate, avatarShape, visibility </BR>
      * - full for superadmin, support, business_admin, bp_admin and bp_finance: All fields </BR>
@@ -2374,7 +2375,7 @@ class AdminService extends GenericService {
      *  </BR>
      * Default value : small </BR>
      * Possible values : small, medium, full </BR>
-     * @param {string} sortField Sort items list based on the given field. Default value : name
+     * @param {string} sortField="name" Sort items list based on the given field. Default value : name
      * @param {string} bpId Allows to filter companies list on bpId field. </BR>
      * This filter allow to get all the End Customer companies associated to a given Business Partner company. </BR>
      * </BR>
@@ -2411,11 +2412,11 @@ class AdminService extends GenericService {
      *    groupName can be retrieved from API GET /api/rainbow/subscription/v1.0/companies/:companyId/offers </BR>
      *    The search is done on the whole groupName(s), case sensitive (no partial search). </BR>
      *    Several groupName can be provided, seperated by a space.
-     * @param {number} limit Allow to specify the number of items to retrieve. </BR>
+     * @param {number} limit=100 Allow to specify the number of items to retrieve. </BR>
      *     Default value : 100
-     * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). </BR>
+     * @param {number} offset=0 Allow to specify the position of first item to retrieve (first item if not specified). </BR>
      *     Warning: if offset > total, no results are returned.
-     * @param {number} sortOrder Specify order when sorting items list. </BR>
+     * @param {number} sortOrder=1 Specify order when sorting items list. </BR>
      *     Default value : 1 </BR>
      *     Possible values : -1, 1
      * @param {string} name Allows to filter companies list on the given keyword(s) on field name. </BR>
@@ -2487,7 +2488,7 @@ class AdminService extends GenericService {
      * get a company
      * @private
      */
-    getCompanyById(companyId) {
+    getCompanyById(companyId:string) {
         let that = this;
 
         return new Promise((resolve, reject) => {
@@ -2514,7 +2515,7 @@ class AdminService extends GenericService {
      * Remove a company
      * @private
      */
-    removeCompany(company) {
+    removeCompany(company:any) {
         let that = this;
 
         that._logger.log(that.INTERNAL, LOG_ID + "(removeCompany) parameters : company : ", company);
@@ -2653,7 +2654,7 @@ class AdminService extends GenericService {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getCompanyAppFeatureCustomisation) ");
 
-        return new Promise(function (resolve, reject) {
+        return new Promise((resolve, reject) => {
             try {
 
                 that._rest.getCompanyAppFeatureCustomisation(companyId).then((result : any) => {
@@ -2977,7 +2978,7 @@ class AdminService extends GenericService {
      * ```
      *
      */
-    getDefaultCompanyData(format : string, selectedThemeObj : boolean) : Promise <any> {
+    getDefaultCompanyData(format : string="full", selectedThemeObj : boolean) : Promise <any> {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getDefaultCompanyData) ");
 
@@ -3073,12 +3074,12 @@ class AdminService extends GenericService {
      *  </br> * true returns selectedTheme as an object (e.g. { "light": "60104754c8fada2ad4be3e48", "dark": "5ea304e4359c0e6815fc8b57" }),
      *  </br> * false return selectedTheme as a string.
      * @param {string} name Company name
-     * @param {string} country Company country (ISO 3166-1 alpha3 format)
+     * @param {string} country="FRA" Company country (ISO 3166-1 alpha3 format)
      * @param {string} street Company street
      * @param {string} city Company city
      * @param {string} state When country is 'USA' or 'CAN', a state must be defined. Else it is not managed.
      * @param {string} postalCode Company postal code
-     * @param {string} offerType Company offer type.
+     * @param {string} offerType="freemium" Company offer type.
      * </br> Companies with offerType=`freemium` are not able to subscribe to paid offers, they must be `premium` to do so.
      * </br> Only `superadmin` can set offerType from `premium` to `freemium`.
      * </br> Possibles values : `freemium`, `premium`
@@ -3089,7 +3090,7 @@ class AdminService extends GenericService {
      * @param {string} status Company status.
      * </br> If company status is `initializing`, only `superadmin` can change the status value.
      * </br> Possibles values : `initializing`, `active`, `alerting`, `hold`, `terminated`
-     * @param {string} visibility Company visibility (define if users being in this company can be searched by users being in other companies and if the user can search users being in other companies).
+     * @param {string} visibility="private" Company visibility (define if users being in this company can be searched by users being in other companies and if the user can search users being in other companies).
      * </br> * `public`: User can be searched by external users / can search external users. User can invite external users / can be invited by external users
      * </br> * `private`: User **can't** be searched by external users (even within his organisation) / can search external users. User can invite external users / can be invited by external users
      * </br> * `organization`: User **can't** be searched by external users / can search external users. User can invite external users / can be invited by external users
@@ -3144,7 +3145,7 @@ class AdminService extends GenericService {
      * @param {string[]} userSelfRegisterAllowedDomains Allow users with email domain matching one of the values of this array to join the company by self-register process (if userSelfRegisterEnabled is true)
      * @param {string} slogan A free string corresponding to the slogan of the company
      * @param {string} description A free string that describes the company (2000 char length)
-     * @param {string} size An overview of the number of employees. Default value : `self-employed`. Possibles values : `"self-employed"`, `"1-10 employees"`, `"11-50 employees"`, `"51-200 employees"`, `"201-500 employees"`, `"501-1000 employees"`, `"1001-5000 employees"`, `"5001-10,000 employees"`, `"10,001+ employees"`
+     * @param {string} size="self-employed" An overview of the number of employees. Default value : `self-employed`. Possibles values : `"self-employed"`, `"1-10 employees"`, `"11-50 employees"`, `"51-200 employees"`, `"201-500 employees"`, `"501-1000 employees"`, `"1001-5000 employees"`, `"5001-10,000 employees"`, `"10,001+ employees"`
      * @param {string} economicActivityClassification
      * </br> * `A`: AGRICULTURE, FORESTRY AND FISHING
      * </br> * `B`: MINING AND QUARRYING
@@ -4208,13 +4209,13 @@ class AdminService extends GenericService {
      *      Get all users for a given admin </BR>
      * @async
      * @category Companies and users management
-     * @param {string} format Allows to retrieve more or less user details in response.
+     * @param {string} format="small" Allows to retrieve more or less user details in response.
      *   small: id, loginEmail, firstName, lastName, displayName, companyId, companyName, isTerminated
      *   medium: id, loginEmail, firstName, lastName, displayName, jid_im, jid_tel, companyId, companyName, lastUpdateDate, lastAvatarUpdateDate, isTerminated, guestMode
      *   full: all user fields
-     * @param {number} offset Allow to specify the position of first user to retrieve (first user if not specified). Warning: if offset > total, no results are returned.
-     * @param {number} limit Allow to specify the number of users to retrieve (default=100).
-     * @param {string} sortField Sort user list based on the given field (default="loginEmail").
+     * @param {number} offset=0 Allow to specify the position of first user to retrieve (first user if not specified). Warning: if offset > total, no results are returned.
+     * @param {number} limit=100 Allow to specify the number of users to retrieve (default=100).
+     * @param {string} sortField="loginEmail" Sort user list based on the given field (default="loginEmail").
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Array} - Array of Json object containing users or an error object depending on the result
      * @category async
@@ -4263,11 +4264,11 @@ class AdminService extends GenericService {
      * @param {number} phoneNumber Allows to filter users list on the given number(s) on field phoneNumbers.internalNumber (number starts with requested string).
      * @param {string} searchEmail Allows to filter users list on the loginEmail field using the word provided in this option.
      * @param {string} companyId Allows to filter users list on the companyIds provided in this option.
-     * @param {string} roles Allows to filter users list on the role(s) provided in this option. Default value is "user".
+     * @param {string} roles="user" Allows to filter users list on the role(s) provided in this option. Default value is "user".
      * @param {string} excludeRoles Allows to exclude users having the role(s) provided in this option.
      * @param {string} tags Allows to filter users list on the tag(s) provided in this option.
      * @param {string} departments Allows to filter users list on the department(s) provided in this option.
-     * @param {string} isTerminated Allows to filter users list on the status 'isTerminated'. Default value is "false"
+     * @param {string} isTerminated="false" Allows to filter users list on the status 'isTerminated'. Default value is "false"
      * @param {string} isActivated Allows to filter users list for users which have logged in at least once ("true") or never ("false").
      * @param {string} fileSharingCustomisation Allows to filter users list on fileSharing feature restriction (enabled, disabled, same_than_company)
      * @param {string} userTitleNameCustomisation Allows to filter users list on user's profile update restriction (enabled, disabled, same_than_company)
@@ -4294,15 +4295,15 @@ class AdminService extends GenericService {
      * @param {string} readReceiptsCustomisation Allows to filter users by the ability to authorize a sender to check if a chat message is read.
      * @param {string} useSpeakingTimeStatistics Allows to filter users by the ability to see speaking time statistics about a WebRTC meeting.
      * @param {string} selectedAppCustomisationTemplate Allows to filter users by the last application customisation template applied.
-     * @param {string} format Allows to retrieve more or less user details in response. </br>
+     * @param {string} format="small" Allows to retrieve more or less user details in response. </br>
      * small: id, loginEmail, firstName, lastName, displayName, companyId, companyName, isTerminated
      * medium: id, loginEmail, firstName, lastName, displayName, jid_im, jid_tel, companyId, companyName, lastUpdateDate, lastAvatarUpdateDate, isTerminated, guestMode </br>
      * full: all user fields </br>
      * Default value : small
      * Possible values : small, medium, full
-     * @param {string} limit Allow to specify the number of users to retrieve. Default value 100.
+     * @param {string} limit=100 Allow to specify the number of users to retrieve. Default value 100.
      * @param {string} offset Allow to specify the position of first user to retrieve (first user if not specified). Warning: if offset > total, no results are returned.
-     * @param {string} sortField Sort user list based on the given field. Default value : displayName
+     * @param {string} sortField="displayName" Sort user list based on the given field. Default value : displayName
      * @param {string} sortOrder Specify order when sorting user list. Default value : 1. Possible values : -1, 1
      * @param {string} displayName Allows to filter users list on the given keyword(s) on field displayName.
      * @param {boolean} useEmails used with displayName, allows to filter users list on the given keyword(s) on field displayName for loginEmails too.
@@ -4351,13 +4352,13 @@ class AdminService extends GenericService {
      *      Get all users for a given admin in a company </BR>
      * @async
      * @category Companies and users management
-     * @param {string} format Allows to retrieve more or less user details in response.
+     * @param {string} format="small" Allows to retrieve more or less user details in response.
      *   small: id, loginEmail, firstName, lastName, displayName, companyId, companyName, isTerminated
      *   medium: id, loginEmail, firstName, lastName, displayName, jid_im, jid_tel, companyId, companyName, lastUpdateDate, lastAvatarUpdateDate, isTerminated, guestMode
      *   full: all user fields
-     * @param {number} offset Allow to specify the position of first user to retrieve (first user if not specified). Warning: if offset > total, no results are returned.
-     * @param {number} limit Allow to specify the number of users to retrieve (default=100).
-     * @param {string} sortField Sort user list based on the given field (default="loginEmail").
+     * @param {number} offset=0 Allow to specify the position of first user to retrieve (first user if not specified). Warning: if offset > total, no results are returned.
+     * @param {number} limit=100 Allow to specify the number of users to retrieve (default=100).
+     * @param {string} sortField="loginEmail" Sort user list based on the given field (default="loginEmail").
      * @param {string} companyId the id company the users are in. If not provided, then the companyId of the connected user is used.
      });
      * @return {Promise<Object, ErrorManager>}
@@ -4398,13 +4399,13 @@ class AdminService extends GenericService {
      *      Get all users for a given admin in a company by a search of string in email</BR>
      * @async
      * @category Companies and users management
-     * @param {string} format Allows to retrieve more or less user details in response.
+     * @param {string} format="small" Allows to retrieve more or less user details in response.
      *   small: id, loginEmail, firstName, lastName, displayName, companyId, companyName, isTerminated
      *   medium: id, loginEmail, firstName, lastName, displayName, jid_im, jid_tel, companyId, companyName, lastUpdateDate, lastAvatarUpdateDate, isTerminated, guestMode
      *   full: all user fields
-     * @param {number} offset Allow to specify the position of first user to retrieve (first user if not specified). Warning: if offset > total, no results are returned.
-     * @param {number} limit Allow to specify the number of users to retrieve (default=100).
-     * @param {string} sortField Sort user list based on the given field (default="loginEmail").
+     * @param {number} offset=0 Allow to specify the position of first user to retrieve (first user if not specified). Warning: if offset > total, no results are returned.
+     * @param {number} limit=100 Allow to specify the number of users to retrieve (default=100).
+     * @param {string} sortField="loginEmail" Sort user list based on the given field (default="loginEmail").
      * @param {string} companyId the id company the users are in.
      * @param {string} searchEmail the string to to filter users list on the loginEmail field using the word provided in this option..
      * @return {Promise<Object, ErrorManager>}
@@ -4450,7 +4451,7 @@ class AdminService extends GenericService {
      * @fulfil {Object} - Json object containing informations or an error object depending on the result
      * @category async
      */
-    getContactInfos(userId) {
+    getContactInfos(userId:string) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getContactInfos) userId : ", that._logger.stripStringForLogs(userId));
 
@@ -4625,7 +4626,7 @@ class AdminService extends GenericService {
      * - `isolated`: User **can't** be searched by external users / **can't** search external users. User **can't** invite external users / **can't** be invited by external users </BR>
      * - `none`:  Default value reserved for guest. User **can't** be searched by **any users** (even within the same company) / can search external users. User can invite external users / can be invited by external users </BR>
      * </BR>External users mean 'public user not being in user's company nor user's organisation nor a company visible by user's company. </BR>
-     * {Number} [infos.timeToLive] Duration in second to wait before automatically starting a user deletion from the creation date. </BR>
+     * {number} [infos.timeToLive] Duration in second to wait before automatically starting a user deletion from the creation date. </BR>
      * Once the timeToLive has been reached, the user won't be usable to use APIs anymore (error 401523). His account may then be deleted from the database at any moment. </BR>
      * Value -1 means timeToLive is disable (i.e. user account will not expire). </BR>
      * If created user has role <code>guest</code> and no timeToLive is provided, a default value of 172800 seconds is set (48 hours). </BR>
@@ -4648,7 +4649,7 @@ class AdminService extends GenericService {
      * @fulfil {Object} - Json object containing informations or an error object depending on the result
      * @category Companies and users management
      */
-    updateContactInfos(userId, infos) {
+    updateContactInfos(userId:string, infos:any) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateContactInfos) userId : ", that._logger.stripStringForLogs(userId), ", infos : ", that._logger.stripStringForLogs(infos));
 
@@ -4918,16 +4919,16 @@ class AdminService extends GenericService {
      * | acceptationDate | Date-Time | Date when the join company invitation has been accepted by the user (if applicable) |
      * | declinationDate | Date-Time | Date when the join company invitation has been declined by the user (if applicable) |
      *
-     * @param {string} sortField Sort items list based on the given field. Default value : `lastNotificationDate`
+     * @param {string} sortField="lastNotificationDate" Sort items list based on the given field. Default value : `lastNotificationDate`
      * @param {string} status List all join company invitations having the provided status(es). Possibles values : `=pending`, `accepted`, `auto-accepted`, `declined`, `canceled`, `failed`
-     * @param {string} format Allows to retrieve more or less invitation details in response.
+     * @param {string} format="small" Allows to retrieve more or less invitation details in response.
      * - `small`: id, companyId, invitedUserId, invitedUserLoginEmail, invitingAdminId, status
      * - `medium`: id, companyId, companyName, invitedUserId, invitedUserLoginEmail, invitingAdminId, invitingAdminLoginEmail, status, lastNotificationDate, invitingDate, acceptationDate, declinationDate
      * - `full`: all join company invitation fields
      * Default value : `small`. Possibles values : `small`, `medium`, `full`
-     * @param {number} limit Allow to specify the number of items to retrieve. Default value : `100`
-     * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Default value : `0`
-     * @param {number} sortOrder Specify order when sorting items list. Default value : `1`. Possibles values : `-1`, `1`
+     * @param {number} limit=100 Allow to specify the number of items to retrieve. Default value : `100`
+     * @param {number} offset=0 Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Default value : `0`
+     * @param {number} sortOrder=1 Specify order when sorting items list. Default value : `1`. Possibles values : `-1`, `1`
      */
     getAllJoinCompanyInvitations (sortField : string = "lastNotificationDate", status : string, format : string = "small", limit : number = 100, offset : number = 0, sortOrder : number = 1) {
         let that = this;
@@ -5099,12 +5100,12 @@ class AdminService extends GenericService {
      * | requestedCompanyInvitationId | string | If the request was sent using a JoinCompanyInvite id, this field is set with this Id |
      * | companyAdminLoginEmail | string |     |
      *
-     * @param {string} sortField Sort items list based on the given field<br><br>Default value : `lastNotificationDate`
+     * @param {string} sortField="lastNotificationDate" Sort items list based on the given field<br><br>Default value : `lastNotificationDate`
      * @param {string} status List all join company requests having the provided status(es). Possibles values : `=pending`, `accepted`, `declined`
-     * @param {string} format Allows to retrieve more or less requests details in response.<br> * `small`: id, requestingUserId, requestedCompanyId, status<br> * `medium`: id, requestingUserId, requestingUserLoginEmail, requestedCompanyId, status, requestingDate<br> * `full`: all request fields<br>Default value : `small`<br>Possibles values : `small`, `medium`, `full`
-     * @param {number} limit Allow to specify the number of items to retrieve.<br>Default value : `100`
-     * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned.<br>Default value : `0`
-     * @param {number} sortOrder Specify order when sorting items list.<br>Default value : `1`. Possibles values : `-1`, `1`
+     * @param {string} format="small" Allows to retrieve more or less requests details in response.<br> * `small`: id, requestingUserId, requestedCompanyId, status<br> * `medium`: id, requestingUserId, requestingUserLoginEmail, requestedCompanyId, status, requestingDate<br> * `full`: all request fields<br>Default value : `small`<br>Possibles values : `small`, `medium`, `full`
+     * @param {number} limit=100 Allow to specify the number of items to retrieve.<br>Default value : `100`
+     * @param {number} offset=0 Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned.<br>Default value : `0`
+     * @param {number} sortOrder=1 Specify order when sorting items list.<br>Default value : `1`. Possibles values : `-1`, `1`
      */
     getAllJoinCompanyRequests (sortField : string = "lastNotificationDate", status : string, format : string = "small", limit : number = 100, offset : number = 0, sortOrder : number = 1) {
         let that = this;
@@ -5234,7 +5235,7 @@ class AdminService extends GenericService {
      * @param {string} requestedCompanyId Id of the company the user wants to join.  <br>  <br>One of `requestedCompanyId`, `requestedCompanyAdminId` or `requestedCompanyLinkId` is mandatory.
      * @param {string} requestedCompanyAdminId Id of the company_admin of the company the user wants to join.  <br>  <br>One of `requestedCompanyId`, `requestedCompanyAdminId` or `requestedCompanyLinkId` is mandatory.
      * @param {string} requestedCompanyLinkId  Id of the join company invite associated to the company the user wants to join.  <br>  <br>One of `requestedCompanyId`, `requestedCompanyAdminId` or `requestedCompanyLinkId` is mandatory.
-     * @param {string} lang Language of the email notification to use if language of company admin is not defined. <br>Language format is composed of locale using format `ISO 639-1`, with optionally the regional variation using `ISO 3166‑1 alpha-2` (separated by hyphen).  <br>Locale part is in lowercase, regional part is in uppercase. Examples: en, en-US, fr, fr-FR, fr-CA, es-ES, es-MX, ...  <br>More information about the format can be found on this [link](https://en.wikipedia.org/wiki/Language_localisation#Language_tags_and_codes).<br>Default value : `en`
+     * @param {string} lang="en" Language of the email notification to use if language of company admin is not defined. <br>Language format is composed of locale using format `ISO 639-1`, with optionally the regional variation using `ISO 3166‑1 alpha-2` (separated by hyphen).  <br>Locale part is in lowercase, regional part is in uppercase. Examples: en, en-US, fr, fr-FR, fr-CA, es-ES, es-MX, ...  <br>More information about the format can be found on this [link](https://en.wikipedia.org/wiki/Language_localisation#Language_tags_and_codes).<br>Default value : `en`
      */
     requestToJoinCompany (requestedCompanyId? : string, requestedCompanyAdminId? : string, requestedCompanyLinkId? : string, lang : string = "en" ) {
         let that = this;
@@ -5272,7 +5273,7 @@ class AdminService extends GenericService {
      * @instance
      * @async
      * @category Companies Customization Emails
-     * @param {string} format Allows to retrieve only the list of templateName in the response.
+     * @param {string} format="small" Allows to retrieve only the list of templateName in the response.
      * </br>    small : Allows to retrieve only the list of templateName in the response.
      * </br>    full : A documentation for each allowed templates following the pattern
      * </br> Default value : full. Possibles values : small, full
@@ -5712,7 +5713,7 @@ class AdminService extends GenericService {
      * @category Companies Customization Emails
      * @param {string} companyId Company unique identifier
      * @param {string} templateName Allows to get only one template by its name.
-     * @param {string} format Allows to retrieve more or less feature details in response.
+     * @param {string} format="small" Allows to retrieve more or less feature details in response.
      * - small: templateName isActive
      * - medium: templateName companyId isActive
      * - full: all template fields (except id)
@@ -6606,17 +6607,17 @@ class AdminService extends GenericService {
      * @fulfil {Object} - Json object containing the result of the method
      * @category async
      * @param {string} companyId Select a company other than the one the user belongs to (must be an admin of the company)
-     * @param {string} format Allows to retrieve more or less templates details in response.</BR>
+     * @param {string} format="small" Allows to retrieve more or less templates details in response.</BR>
      * - small: id, name, visibility</BR>
      * - medium: id, name, visibility, visibleBy, type, createdBy, creationDate, ownedByCompany</BR>
      * - full: all fields</BR>
      * </BR>
      * Default value : small</BR>
      * Possible values : small, medium, full
-     * @param {number} limit Allow to specify the number of templates to retrieve. Default value : 100
-     * @param {number} offset Allow to specify the position of first templates to retrieve (first template if not specified). Warning: if offset > total, no results are returned.
-     * @param {string} sortField Sort templates list based on the given field. Default value : name
-     * @param {number} sortOrder Specify order when sorting templates list. Default value : 1. Possible values : -1, 1
+     * @param {number} limit=100 Allow to specify the number of templates to retrieve. Default value : 100
+     * @param {number} offset=0 Allow to specify the position of first templates to retrieve (first template if not specified). Warning: if offset > total, no results are returned.
+     * @param {string} sortField=1 Sort templates list based on the given field. Default value : name
+     * @param {number} sortOrder="name" Specify order when sorting templates list. Default value : 1. Possible values : -1, 1
      */
     getAllAvailableCustomisationTemplates (companyId : string = undefined, format : string = "small", limit : number = 100, offset : number = 0, sortField : string = "name", sortOrder : number = 1): Promise<any> {
         let that = this;
@@ -6698,7 +6699,7 @@ class AdminService extends GenericService {
      * @param {string} templateId id of the template to update.
      * @param {string} name Template name.
      * @param {string} visibleBy When visibility is private, list of companyIds that can access the template (other than the 'ownedByCompany' one).
-     * @param {string} instantMessagesCustomisation Activate/Deactivate the capability for a user to use instant messages.</BR>
+     * @param {string} instantMessagesCustomisation="enabled" Activate/Deactivate the capability for a user to use instant messages.</BR>
      * Define if one or all users of a company has the right to use IM, then to start a chat (P2P ou group chat) or receive chat messages and chat notifications.</BR>
      * </BR>
      * instantMessagesCustomisation can be:</BR>
@@ -6707,7 +6708,7 @@ class AdminService extends GenericService {
      * - disabled: No user of the company can use instant messages.</BR>
      * </BR>
      * Default value : enabled
-     * @param {string} useGifCustomisation Activate/Deactivate the ability for a user to Use GIFs in conversations.</BR>
+     * @param {string} useGifCustomisation="enabled" Activate/Deactivate the ability for a user to Use GIFs in conversations.</BR>
      * Define if one or all users of a company has the is allowed to send animated GIFs in conversations</BR>
      * </BR>
      * useGifCustomisation can be:</BR>
@@ -6716,7 +6717,7 @@ class AdminService extends GenericService {
      * - disabled: The user can't send animated GIFs in conversations.</BR>
      * </BR>
      * Default value : enabled
-     * @param {string} fileSharingCustomisation Activate/Deactivate file sharing capability per company</BR>
+     * @param {string} fileSharingCustomisation="enabled" Activate/Deactivate file sharing capability per company</BR>
      * Define if one or all users of a company can use the file sharing service then, allowed to download and share file.</BR>
      * </BR>
      * fileSharingCustomisation can be:</BR>
@@ -6725,7 +6726,7 @@ class AdminService extends GenericService {
      * - disabled: Each user of the company can't use the file sharing service, except when his own capability is set to 'enabled'.</BR>
      * </BR>
      * Default value : enabled</BR>
-     * @param {string} fileStorageCustomisation Activate/Deactivate the capability for a user to access to Rainbow file storage.</BR>
+     * @param {string} fileStorageCustomisation="enabled" Activate/Deactivate the capability for a user to access to Rainbow file storage.</BR>
      * Define if one or all users of a company has the right to upload/download/copy or share documents.</BR>
      * </BR>
      * fileStorageCustomisation can be:</BR>
@@ -6734,7 +6735,7 @@ class AdminService extends GenericService {
      * - disabled: No user of the company can manage and share files.</BR>
      * </BR>
      * Default value : enabled
-     * @param {string} phoneMeetingCustomisation Activate/Deactivate the capability for a user to use phone meetings (PSTN conference).</BR>
+     * @param {string} phoneMeetingCustomisation="enabled" Activate/Deactivate the capability for a user to use phone meetings (PSTN conference).</BR>
      * Define if one or all users of a company has the right to join phone meetings.</BR>
      * </BR>
      * phoneMeetingCustomisation can be:</BR>
@@ -6743,7 +6744,7 @@ class AdminService extends GenericService {
      * - disabled: No user of the company can join phone meetings.</BR>
      *</BR>
      *  Default value : enabled
-     * @param {string} useDialOutCustomisation Activate/Deactivate the capability for a user to use dial out in phone meetings.</BR>
+     * @param {string} useDialOutCustomisation="enabled" Activate/Deactivate the capability for a user to use dial out in phone meetings.</BR>
      * Define if one or all users of a company is allowed to be called by the Rainbow conference bridge.</BR>
      * </BR>
      * useDialOutCustomisation can be:</BR>
@@ -6752,7 +6753,7 @@ class AdminService extends GenericService {
      * - disabled: The user can't be called by the Rainbow conference bridge.</BR>
      *</BR>
      *  Default value : enabled
-     * @param {string} useChannelCustomisation Activate/Deactivate the capability for a user to use a channel.</BR>
+     * @param {string} useChannelCustomisation="enabled" Activate/Deactivate the capability for a user to use a channel.</BR>
      * Define if one or all users of a company has the right to create channels or be a member of channels.</BR>
      * </BR>
      * useChannelCustomisation can be:</BR>
@@ -6761,7 +6762,7 @@ class AdminService extends GenericService {
      * - disabled: No user of the company can use some channel.</BR>
      * </BR>
      * Default value : enabled
-     * @param {string} useRoomCustomisation Activate/Deactivate the capability for a user to use bubbles.</BR>
+     * @param {string} useRoomCustomisation="enabled" Activate/Deactivate the capability for a user to use bubbles.</BR>
      * Define if one or all users of a company can create bubbles or participate in bubbles (chat and web conference).</BR>
      * </BR>
      * useRoomCustomisation can be:</BR>
@@ -6770,7 +6771,7 @@ class AdminService extends GenericService {
      * - disabled: No user of the company can use bubbles.</BR>
      *</BR>
      *  Default value : enabled
-     * @param {string} useScreenSharingCustomisation Activate/Deactivate the capability for a user to share a screen.</BR>
+     * @param {string} useScreenSharingCustomisation="enabled" Activate/Deactivate the capability for a user to share a screen.</BR>
      * Define if a user has the right to share his screen.</BR>
      * </BR>
      * useScreenSharingCustomisation can be:</BR>
@@ -6778,7 +6779,7 @@ class AdminService extends GenericService {
      * - enabled: Each user of the company can share his screen.</BR>
      * - disabled: No user of the company can share his screen.</BR>
      * </BR>
-     * @param {string} useWebRTCAudioCustomisation Activate/Deactivate the capability for a user to switch to a Web RTC audio conversation.</BR>
+     * @param {string} useWebRTCAudioCustomisation="enabled" Activate/Deactivate the capability for a user to switch to a Web RTC audio conversation.</BR>
      * Define if one or all users of a company has the right to be joined via audio (WebRTC) and to use Rainbow audio (WebRTC) (start a P2P audio call, start a web conference call).</BR>
      * </BR>
      * useWebRTCVideoCustomisation can be:</BR>
@@ -6787,7 +6788,7 @@ class AdminService extends GenericService {
      * - disabled: No user of the company can switch to a Web RTC audio conversation.</BR>
      *</BR>
      * Default value : enabled
-     * @param {string} useWebRTCVideoCustomisation Activate/Deactivate the capability for a user to switch to a Web RTC video conversation.</BR>
+     * @param {string} useWebRTCVideoCustomisation="enabled" Activate/Deactivate the capability for a user to switch to a Web RTC video conversation.</BR>
      * Define if one or all users of a company has the right to be joined via video and to use video (start a P2P video call, add video in a P2P call, add video in a web conference call).</BR>
      * </BR>
      * useWebRTCVideoCustomisation can be:</BR>
@@ -6796,7 +6797,7 @@ class AdminService extends GenericService {
      * - disabled: No user of the company can switch to a Web RTC video conversation.</BR>
      * </BR>
      * Default value : enabled
-     * @param {string} recordingConversationCustomisation Activate/Deactivate the capability for a user to record a conversation.</BR>
+     * @param {string} recordingConversationCustomisation="enabled" Activate/Deactivate the capability for a user to record a conversation.</BR>
      * Define if one or all users of a company has the right to record a conversation (for P2P and multi-party calls).</BR>
      * </BR>
      * recordingConversationCustomisation can be:</BR>
@@ -6805,7 +6806,7 @@ class AdminService extends GenericService {
      * - disabled: The user can't record a peer to peer or a multi-party call.</BR>
      * </BR>
      * Default value : enabled
-     * @param {string} overridePresenceCustomisation Activate/Deactivate the capability for a user to change manually his presence.</BR>
+     * @param {string} overridePresenceCustomisation="enabled" Activate/Deactivate the capability for a user to change manually his presence.</BR>
      * Define if one or all users of a company has the right to change his presence manually or only use automatic states.</BR>
      * </BR>
      * overridePresenceCustomisation can be:</BR>
@@ -6814,7 +6815,7 @@ class AdminService extends GenericService {
      * - disabled: No user of the company can change his presence.</BR>
      * </BR>
      * Default value : enabled
-     * @param {string} userProfileCustomisation Activate/Deactivate the capability for a user to modify his profile.</BR>
+     * @param {string} userProfileCustomisation="enabled" Activate/Deactivate the capability for a user to modify his profile.</BR>
      * Define if one or all users of a company has the right to modify the globality of his profile and not only (title, firstName, lastName).</BR>
      * </BR>
      * userProfileCustomisation can be:</BR>
@@ -6823,7 +6824,7 @@ class AdminService extends GenericService {
      * - disabled: No user of the company can modify his profile.</BR>
      *</BR>
      * Default value : enabled
-     * @param {string} userTitleNameCustomisation Activate/Deactivate the capability for a user to modify his profile (title, firstName, lastName) per company</BR>
+     * @param {string} userTitleNameCustomisation="enabled" Activate/Deactivate the capability for a user to modify his profile (title, firstName, lastName) per company</BR>
      * Define if one or all users of a company is allowed to change some profile data.</BR>
      * </BR>
      * userTitleNameCustomisation can be:</BR>
@@ -6832,7 +6833,7 @@ class AdminService extends GenericService {
      * - disabled: Each user of the company can't change some profile data, except when his own capability is set to 'enabled'.</BR>
      *</BR>
      * Default value : enabled
-     * @param {string} changeTelephonyCustomisation Activate/Deactivate the ability for a user to modify telephony settings.</BR>
+     * @param {string} changeTelephonyCustomisation="enabled" Activate/Deactivate the ability for a user to modify telephony settings.</BR>
      * Define if one or all users of a company has the right to modify telephony settings like forward activation ....</BR>
      * </BR>
      * changeTelephonyCustomisation can be:</BR>
@@ -6841,7 +6842,7 @@ class AdminService extends GenericService {
      * - disabled: The user can't modify telephony settings.</BR>
      * </BR>
      * Default value : enabled
-     * @param {string} changeSettingsCustomisation Activate/Deactivate the ability for a user to change all client general settings.</BR>
+     * @param {string} changeSettingsCustomisation="enabled" Activate/Deactivate the ability for a user to change all client general settings.</BR>
      * Define if one or all users of a company has the right to change his client general settings.</BR>
      * </BR>
      * changeSettingsCustomisation can be:</BR>
@@ -6850,7 +6851,7 @@ class AdminService extends GenericService {
      * - disabled: The user can't change any client general setting.</BR>
      * </BR>
      * Default value : enabled</BR>
-     * @param {string} fileCopyCustomisation Activate/Deactivate the capability for a user to copy files</BR>
+     * @param {string} fileCopyCustomisation="enabled" Activate/Deactivate the capability for a user to copy files</BR>
      * Define if one or all users of a company is allowed to copy any file he receives in his personal cloud space.</BR>
      * </BR>
      * fileCopyCustomisation can be:</BR>
@@ -6859,7 +6860,7 @@ class AdminService extends GenericService {
      * - disabled: The user can't make a copy of a file to his personal cloud space.</BR>
      * </BR>
      * default value : enabled
-     * @param {string} fileTransferCustomisation Activate/Deactivate the ability for a user to transfer files.</BR>
+     * @param {string} fileTransferCustomisation="enabled" Activate/Deactivate the ability for a user to transfer files.</BR>
      * Define if one or all users of a company has the right to copy a file from a conversation then share it inside another conversation.</BR>
      * </BR>
      * fileTransferCustomisation can be:</BR>
@@ -6868,7 +6869,7 @@ class AdminService extends GenericService {
      * - disabled: The user can't transfer a file doesn't belong to him.</BR>
      * </BR>
      * Default value : enabled</BR>
-     * @param {string} forbidFileOwnerChangeCustomisation Activate/Deactivate the ability for a user to loose the ownership on one file.</BR>
+     * @param {string} forbidFileOwnerChangeCustomisation="enabled" Activate/Deactivate the ability for a user to loose the ownership on one file.</BR>
      * Define if one or all users can drop the ownership of a file to another Rainbow user of the same company</BR>
      * </BR>
      * forbidFileOwnerChangeCustomisation can be:</BR>
@@ -6877,7 +6878,7 @@ class AdminService extends GenericService {
      * - disabled: The user can give the ownership of his file.</BR>
      * </BR>
      * Default value : enabled
-     * @param {string} readReceiptsCustomisation Activate/Deactivate the ability for a user to allow a sender to check if a chat message is read.</BR>
+     * @param {string} readReceiptsCustomisation="enabled" Activate/Deactivate the ability for a user to allow a sender to check if a chat message is read.</BR>
      * Defines whether a peer user in a conversation allows the sender of a chat message to see if this IM is acknowledged by the peer.</BR>
      * </BR>
      * readReceiptsCustomisation can be:</BR>
@@ -6886,7 +6887,7 @@ class AdminService extends GenericService {
      * - disabled: The user doesn't allow the sender to check if an IM is read.</BR>
      * </BR>
      * Default value : enabled
-     * @param {string} useSpeakingTimeStatistics Activate/Deactivate the ability for a user to see speaking time statistics.</BR>
+     * @param {string} useSpeakingTimeStatistics="enabled" Activate/Deactivate the ability for a user to see speaking time statistics.</BR>
      * Defines whether a user has the right to see for a given meeting the speaking time for each attendee of this meeting.</BR>
      * </BR>
      * useSpeakingTimeStatistics can be:</BR>
@@ -7027,19 +7028,19 @@ class AdminService extends GenericService {
      * @async
      * @category Offers and Subscriptions.
      * @param {string} companyId Id of the company to be retrieve the offers.
-     * @param {string} [format="small"] - Allows retrieving different levels of offer details. Options: 'small', 'medium', 'full'.
-     * @param {string} [name] - Filters the offer list by name.
-     * @param {boolean} [canBeSold] - Filters offer list by 'canBeSold' field.
-     * @param {boolean} [autoSubscribe] - Filters offer list by 'autoSubscribe' field.
-     * @param {boolean} [isExclusive] - Filters offer list by 'isExclusive' field.
-     * @param {boolean} [isPrepaid] - Filters offer list by 'isPrepaid' field.
-     * @param {boolean} [profileId] - Filters offer list by 'profileId' field.
-     * @param {boolean} [offerReference] - Filters offer list by 'offerReference' field.
-     * @param {boolean} [sapReference] - Filters offer list by 'sapReference' field.
-     * @param {number} [limit=100] - Specifies the number of offers to retrieve.
-     * @param {number} [offset=0] - Specifies the starting position of offers to retrieve.
-     * @param {string} [sortField="name"] - Field to sort the offers by. Options: '_id', 'name'.
-     * @param {number} [sortOrder=1] - Order for sorting. Options: 1 (ascending), -1 (descending).
+     * @param {string} format="small" - Allows retrieving different levels of offer details. Options: 'small', 'medium', 'full'.
+     * @param {string} name - Filters the offer list by name.
+     * @param {boolean} canBeSold - Filters offer list by 'canBeSold' field.
+     * @param {boolean} autoSubscribe - Filters offer list by 'autoSubscribe' field.
+     * @param {boolean} isExclusive - Filters offer list by 'isExclusive' field.
+     * @param {boolean} isPrepaid - Filters offer list by 'isPrepaid' field.
+     * @param {boolean} profileId - Filters offer list by 'profileId' field.
+     * @param {boolean} offerReference - Filters offer list by 'offerReference' field.
+     * @param {boolean} sapReference - Filters offer list by 'sapReference' field.
+     * @param {number} limit=100 - Specifies the number of offers to retrieve.
+     * @param {number} offset=0 - Specifies the starting position of offers to retrieve.
+     * @param {string} sortField="name" - Field to sort the offers by. Options: '_id', 'name'.
+     * @param {number} sortOrder=1 - Order for sorting. Options: 1 (ascending), -1 (descending).
      * @description
      *      Method to retrieve all the offers of one company on server. </BR>
      * @return {Promise<Array<any>>}
@@ -7075,7 +7076,7 @@ class AdminService extends GenericService {
      * @async
      * @category Offers and Subscriptions.
      * @param {string} companyId Id of the company to be retrieve the subscriptions.
-     * @param {string} format Allows to retrieve more or less subscription details in response. (default value: "small") </BR>
+     * @param {string} format="small" Allows to retrieve more or less subscription details in response. (default value: "small") </BR>
      * - small: id offerId profileId isDefault</BR>
      * - medium: id offerId profileId isDefault maxNumberUsers status</BR>
      * - full: all offer fields, including computed user assignment fields (numberAssignedUsers, nbAssignedBPUsers, nbLicencesAssignedToECs, ...)</BR>
@@ -7149,7 +7150,7 @@ class AdminService extends GenericService {
      * @async
      * @category Offers and Subscriptions.
      * @param {string} offerId Id of the offer to filter subscriptions.
-     * @param {string} companyId Id of the company to get the subscription of the offer.
+     * @param {string} companyId="user s company id" Id of the company to get the subscription of the offer.
      * @param {number} maxNumberUsers
      * @param {boolean} autoRenew
      * @description
@@ -7192,7 +7193,7 @@ class AdminService extends GenericService {
      * @instance
      * @async
      * @category Offers and Subscriptions.
-     * @param {string} companyId Id of the company to get the subscription of the offer.
+     * @param {string} companyId="user s company id" Id of the company to get the subscription of the offer.
      * @description
      *      Method to subscribe one company to offer demo. </BR>
      *      Private offer on .Net platform. </BR>
@@ -7232,7 +7233,7 @@ class AdminService extends GenericService {
      * @instance
      * @async
      * @category Offers and Subscriptions.
-     * @param {string} companyId Id of the company to get the subscription of the offer.
+     * @param {string} companyId="user s company id" Id of the company to get the subscription of the offer.
      * @description
      *      Method to unsubscribe one company to offer demo. </BR>
      *      Private offer on .Net platform. </BR>
@@ -7273,7 +7274,7 @@ class AdminService extends GenericService {
      * @instance
      * @async
      * @category Offers and Subscriptions.
-     * @param {string} companyId Id of the company to the subscription of the offer.
+     * @param {string} companyId="user s company id" Id of the company to the subscription of the offer.
      * @description
      *      Method to subscribe one company to offer Alert. </BR>
      *      Private offer on .Net platform. </BR>
@@ -7310,7 +7311,7 @@ class AdminService extends GenericService {
      * @instance
      * @async
      * @category Offers and Subscriptions.
-     * @param {string} companyId Id of the company to the unsubscription of the offer.
+     * @param {string} companyId="user s company id" Id of the company to the unsubscription of the offer.
      * @description
      *      Method to unsubscribe one company to offer Alert. </BR>
      *      Private offer on .Net platform. </BR>
@@ -7346,7 +7347,7 @@ class AdminService extends GenericService {
      * @instance
      * @async
      * @category Offers and Subscriptions.
-     * @param {string} companyId Id of the company the subscription of the offer.
+     * @param {string} companyId="user s company id" Id of the company the subscription of the offer.
      * @description
      *      Method to subscribe one company to offer Voice Enterprise. </BR>
      *      Private offer on .Net platform. </BR>
@@ -7383,7 +7384,7 @@ class AdminService extends GenericService {
      * @instance
      * @async
      * @category Offers and Subscriptions.
-     * @param {string} companyId Id of the company to the unsubscription of the offer.
+     * @param {string} companyId="user s company id" Id of the company to the unsubscription of the offer.
      * @description
      *      Method to unsubscribe one company to offer Voice Enterprise. </BR>
      *      Private offer on .Net platform. </BR>
@@ -7420,7 +7421,7 @@ class AdminService extends GenericService {
      * @async
      * @category Offers and Subscriptions.
      * @param {string} offerId Id of the offer to filter subscriptions.
-     * @param {string} companyId Id of the company to get the subscription of the offer.
+     * @param {string} companyId="user s company id" Id of the company to get the subscription of the offer.
      * @description
      *      Method to unsubscribe one company to one offer . </BR>
      * @return {Promise<any>}
@@ -7468,7 +7469,7 @@ class AdminService extends GenericService {
      * @async
      * @category Offers and Subscriptions.
      * @param {string} subscriptionId Id of the subscriptions to unsubscribe.
-     * @param {string} companyId Id of the company of the subscription.
+     * @param {string} companyId="user s company id" Id of the company of the subscription.
      * @description
      *      Method to unsubscribe one company to one subscription. </BR>
      * @return {Promise<any>}
@@ -7804,9 +7805,9 @@ class AdminService extends GenericService {
      * @instance
      * @async
      * @category AD/LDAP - AD/LDAP Massprovisioning
-     * @param {string} companyId ompanyId of the users in the CSV file, default to admin's companyId
+     * @param {string} companyId companyId of the users in the CSV file, default to admin's companyId
      * @param {string} delimiter the CSV delimiter character (will be determined by analyzing the CSV file if not provided)
-     * @param {string} comment the CSV comment start character, use double quotes in field values to escape this character
+     * @param {string} comment="%" the CSV comment start character, use double quotes in field values to escape this character
      * @param {any} data body of the POST.
      * @description
      *     This API checks a CSV UTF-8 content for mass-provisioning. Caution: To use the comment character ('%' by default) in a field value, surround this value with double quotes. </BR>
@@ -7901,7 +7902,7 @@ class AdminService extends GenericService {
      * @async
      * @category AD/LDAP - AD/LDAP Massprovisioning
      * @param {string} reqId the import request id
-     * @param {string} format Allows to retrieve more or less report details.
+     * @param {string} format="full" Allows to retrieve more or less report details.
      * - small: reporting without operation details
      * - full: reporting with operation details
      * Default value : full
@@ -7965,7 +7966,7 @@ class AdminService extends GenericService {
      * @instance
      * @async
      * @category AD/LDAP - AD/LDAP Massprovisioning
-     * @param {string} companyId the company id. Default value is the current company.
+     * @param {string} companyId="user s company id" the company id. Default value is the current company.
      * @description
      *     This API provides a short status of the last import (completed or pending) of a company directory. </BR>
      *          </BR>
@@ -8070,7 +8071,7 @@ class AdminService extends GenericService {
      * @async
      * @category AD/LDAP - AD/LDAP Massprovisioning
      * @param {string} tenant Office365 tenant
-     * @param {string} format Allows to retrieve more or less phone numbers details in response.
+     * @param {string} format="json" Allows to retrieve more or less phone numbers details in response.
      * - json: answer follows the pattern { "data" : { ... JSON ... }}
      * - csv: answer follows the pattern { "data" : [ ... CSV ... ]}
      * - all: answer follows the pattern { "data" : { jsonContent: {...........}, csvContent: [ , , ; , , ] }}
@@ -8115,11 +8116,11 @@ class AdminService extends GenericService {
      * @async
      * @category AD/LDAP - AD/LDAP Massprovisioning
      * @param {string} companyId ompanyId of the users in the CSV file, default to admin's companyId
-     * @param {string} label a text description of this import. Default value : none
-     * @param {string} noemails disable email sending. Default value : true
-     * @param {string} nostrict create of an existing user and delete of an unexisting user are not errors. Default value : false
+     * @param {string} label="none" a text description of this import. Default value : none
+     * @param {string} noemails=true disable email sending. Default value : true
+     * @param {string} nostrict=false create of an existing user and delete of an unexisting user are not errors. Default value : false
      * @param {string} delimiter the CSV delimiter character (will be determined by analyzing the CSV file if not provided)
-     * @param {string} comment the CSV comment start character, use double quotes in field values to escape this character
+     * @param {string} comment="%" the CSV comment start character, use double quotes in field values to escape this character
      * @param {any} data The body of the POST.
      * @description
      *     This API allows to manage Rainbow users or devices through a CSV UTF-8 encoded file. </br>
@@ -8205,7 +8206,7 @@ class AdminService extends GenericService {
      * @async
      * @category AD/LDAP - AD/LDAP Massprovisioning
      * @param {string} tenant Office365 tenant
-     * @param {string} format Allows to retrieve more or less phone numbers details in response.
+     * @param {string} format="json" Allows to retrieve more or less phone numbers details in response.
      * - json: answer follows the pattern { "data" : { ... JSON ... }}
      * - csv: answer follows the pattern { "data" : [ ... CSV ... ]}
      * - all: answer follows the pattern { "data" : { jsonContent: {...........}, csvContent: [ , , ; , , ] }}
@@ -8249,7 +8250,7 @@ class AdminService extends GenericService {
      * @category AD/LDAP - AD/LDAP Massprovisioning
      * @param {string} companyId companyId of the users in the CSV file, default to admin's companyId
      * @param {string} delimiter the CSV delimiter character (will be determined by analyzing the CSV file if not provided)
-     * @param {string} comment the CSV comment start character, use double quotes in field values to escape this character. Default value : %
+     * @param {string} comment="%" the CSV comment start character, use double quotes in field values to escape this character. Default value : %
      * @param {any} data The body of the POST.
      * @description
      *    This API checks a CSV UTF-8 content for mass-provisioning for rainbowvoice mode. Caution: To use the comment character ('%' by default) in a field value, surround this value with double quotes. </br>
@@ -8341,10 +8342,10 @@ class AdminService extends GenericService {
      * @param {string} csvTxt the csv of the user and device to synchronize.
      * @param {string} companyId ompanyId of the users in the CSV file, default to admin's companyId
      * @param {string} label a text description of this import
-     * @param {boolean} noemails disable email sending
-     * @param {boolean} nostrict create of an existing user and delete of an unexisting user are not errors
+     * @param {boolean} noemails=true disable email sending
+     * @param {boolean} nostrict=false create of an existing user and delete of an unexisting user are not errors
      * @param {string} delimiter the CSV delimiter character (will be determined by analyzing the CSV file if not provided)
-     * @param {string} comment the CSV comment start character, use double quotes in field values to escape this character
+     * @param {string} comment="%" the CSV comment start character, use double quotes in field values to escape this character
      * @param {string} commandId Command identifier. When runing the manual synchro, the commandId must be added as query parameter.
      * @param {string} ldapConfigId Allows to specify the ldap domain on which the command should be run (in case of multi domain).
      * @description
@@ -8438,7 +8439,7 @@ class AdminService extends GenericService {
      * @async
      * @category AD/LDAP - AD/LDAP Massprovisioning
      * @param {string}  companyId ompanyId of the users in the CSV file, default to admin's companyId.
-     * @param {string} mode Select template to return.
+     * @param {string} mode="useranddevice" Select template to return.
      * - user: provider the user management template
      * - device: provider the device management template
      * - useranddevice: provider the user and device management template (both user and device)
@@ -8500,7 +8501,7 @@ class AdminService extends GenericService {
      * @param {string} CSVTxt CSV File content to be checked.
      * @param {string} companyId ompanyId of the users in the CSV file, default to admin's companyId.
      * @param {string} delimiter the CSV delimiter character (will be determined by analyzing the CSV file if not provided).
-     * @param {string} comment the CSV comment start character, use double quotes in field values to escape this character.
+     * @param {string} comment= "%" the CSV comment start character, use double quotes in field values to escape this character.
      * @param {string} commandId if the check csv request comes from connector on behalf of admin command, it will generates a report.
      * @description
      *      This API checks a CSV UTF-8 content for mass-provisioning for useranddevice mode.</BR>
@@ -8605,10 +8606,10 @@ class AdminService extends GenericService {
      * @category AD/LDAP - AD/LDAP Massprovisioning
      * @param {string} companyId ompanyId of the users in the CSV file, default to admin's companyId
      * @param {string} label a text description of this import. default undefined.
-     * @param {boolean} noemails disable email sending. default true.
-     * @param {boolean} nostrict create of an existing user and delete of an unexisting user are not errors. default false.
+     * @param {boolean} noemails=true disable email sending. default true.
+     * @param {boolean} nostrict=false create of an existing user and delete of an unexisting user are not errors. default false.
      * @param {string} delimiter the CSV delimiter character (will be determined by analyzing the CSV file if not provided).
-     * @param {string} comment the CSV comment start character, use double quotes in field values to escape this character. default "%"
+     * @param {string} comment="%" the CSV comment start character, use double quotes in field values to escape this character. default "%"
      * @param {string} csvData the csv of the user and device to synchronize.
      * @description
      *      This API allows to perform provisioning for Rainbow Voice (Rainbow Users and Subscribers management + DDIs and Sip devices attachment) through a CSV UTF-8 encoded file. </BR>
@@ -8736,8 +8737,8 @@ class AdminService extends GenericService {
      * @async
      * @category AD/LDAP - AD/LDAP Massprovisioning
      * @param {string} companyId ompanyId of the users in the CSV file, default to admin's companyId.
-     * @param {string} format the CSV delimiter character (will be determined by analyzing the CSV file if not provided).
-     * @param {boolean} ldap_id the CSV comment start character, use double quotes in field values to escape this character.
+     * @param {string} format="csv" the CSV delimiter character (will be determined by analyzing the CSV file if not provided).
+     * @param {boolean} ldap_id=true the CSV comment start character, use double quotes in field values to escape this character.
      * @param {boolean} ldapConfigId Allows to filter users containing a ldap_id and the ldapConfigId of the ldap domain.
      * @description
      *      This API generates a file describing all users (csv or json format). </BR>
@@ -8804,7 +8805,7 @@ class AdminService extends GenericService {
      *      </BR>
      *      return an {Object}  of synchronization data. </BR>
      * @return {Promise<any>}
-     * @param {string} delimiter CSV delimiter character (will be determined by analyzing the CSV file if not provided)
+     * @param {string} delimiter="%" CSV delimiter character (will be determined by analyzing the CSV file if not provided)
      * @param {string} comment CSV comment start character. Default value : %
      * @param {string} commandId commandId if the check csv request comes from connector on behalf of admin command, ity will generates a report
      * @param {string} commandId label A text description of this import
@@ -8877,10 +8878,10 @@ class AdminService extends GenericService {
      *      </BR>
      *      return an {Object}  of synchronization data. </BR>
      * @return {Promise<any>}
-     * @param {string} delimiter CSV delimiter character (will be determined by analyzing the CSV file if not provided)
+     * @param {string} delimiter="%" CSV delimiter character (will be determined by analyzing the CSV file if not provided)
      * @param {string} comment CSV comment start character. Default value : %
      * @param {string} commandId commandId if the check csv request comes from connector on behalf of admin command, ity will generates a report
-     * @param {string} label A text description of this import. Default value : none
+     * @param {string} label="none" A text description of this import. Default value : none
      * @param {string} csvData string with the body of the CSV data.
      * @param {string} ldapConfigId Allows to specify the ldap domain on which the command should be run (in case of multi domain).
      */
@@ -9029,8 +9030,8 @@ class AdminService extends GenericService {
      *      return an {Object}  of result data. </BR>
      * @return {Promise<any>}
      * @param {string} companyId companyId from which to retrieve entries, default to admin's companyId
-     * @param {string} format Allows to retrieve more or less phone numbers details in response. Default value : json. Possible values : csv, json, all
-     * @param {boolean} ldap_id Allows to filter entries containing a ldap_id. </br>
+     * @param {string} format="json" Allows to retrieve more or less phone numbers details in response. Default value : json. Possible values : csv, json, all
+     * @param {boolean} ldap_id=true Allows to filter entries containing a ldap_id. </br>
      * - json: answer follows the pattern { "data" : { ... JSON ... }} </br>
      * - csv: answer follows the pattern { "data" : [ ... CSV ... ]} </br>
      * - all: answer follows the pattern { "data" : { jsonContent: {...........}, csvContent: [ , , ; , , ] }} </br>
@@ -9149,16 +9150,16 @@ class AdminService extends GenericService {
      * @async
      * @category AD/LDAP - LDAP APIs to use
      * @param {string} companyId the id of the company that allows to filter connectors list on the companyIds provided in this option.
-     * @param {string} format Allows to retrieve more or less user details in response.
+     * @param {string} format="small" Allows to retrieve more or less user details in response.
      * small: id, loginEmail, firstName, lastName, displayName, companyId, companyName, isTerminated
      * medium: id, loginEmail, firstName, lastName, displayName, jid_im, jid_tel, companyId, companyName, lastUpdateDate, lastAvatarUpdateDate, isTerminated, guestMode
      * full: all user fields
      * default : small
      * Values : small, medium, full
-     * @param {number} limit Allow to specify the number of users to retrieve. Default value : 100
+     * @param {number} limit=100 Allow to specify the number of users to retrieve. Default value : 100
      * @param {number} offset Allow to specify the position of first user to retrieve (first user if not specified). Warning: if offset > total, no results are returned.
-     * @param {string} sortField Sort user list based on the given field. Default : displayName
-     * @param {number} sortOrder Specify order when sorting user list. Default : 1. Values : -1, 1
+     * @param {string} sortField="displayName" Sort user list based on the given field. Default : displayName
+     * @param {number} sortOrder=1 Specify order when sorting user list. Default : 1. Values : -1, 1
      * @description
      *     This API allows administrators to retrieve all the ldap connectors. </BR>
      *     Users with superadmin, support role can retrieve the connectors from any company. </BR>
@@ -9445,7 +9446,7 @@ class AdminService extends GenericService {
      * @param {string} companyId the id of the company.
      * @param {string} name name of this configuration.
      * @param {Object} settings config settings.
-     * @param {string} type specify for which type of synchronisation this config is . Allowed types are: "ldap_config" for user synchronisation, "ldap_config_directories" for contcats synchronisation. Default value : ldap_config
+     * @param {string} type="ldap_config" specify for which type of synchronisation this config is . Allowed types are: "ldap_config" for user synchronisation, "ldap_config_directories" for contcats synchronisation. Default value : ldap_config
      * @param {Object} settings.massproFromLdap list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal.
      * @param {string} settings.massproFromLdap.headerName headerName as specified in the csv templates for the massprovisioning portal, value is the corresponding field name in ldap (only when a ldap field exists for this headerName, should never be empty).
      * @param {Object} settings.company specific settings for the company. Each key represent a setting.
@@ -9562,8 +9563,8 @@ class AdminService extends GenericService {
      * @instance
      * @async
      * @category AD/LDAP - LDAP APIs to use
-     * @param {string} companyId Allows to filter connectors list on the companyId provided in this option. In the case of admin (except superadmin and support roles), provided companyId should correspond to a company visible by logged in user's company (if some of the provided companyId are not visible by logged in user's company, connectors from these companies will not be returned). if not provided, default is admin's company.
-     * @param {string} p_type Allows to filter connectors config list on the type provided in this option. Allowed types are: "ldap_config", "ldap_config_directories". Default value: "ldap_config"
+     * @param {string} companyId="user s company id" Allows to filter connectors list on the companyId provided in this option. In the case of admin (except superadmin and support roles), provided companyId should correspond to a company visible by logged in user's company (if some of the provided companyId are not visible by logged in user's company, connectors from these companies will not be returned). if not provided, default is admin's company.
+     * @param {string} p_type="ldap_config" Allows to filter connectors config list on the type provided in this option. Allowed types are: "ldap_config", "ldap_config_directories". Default value: "ldap_config"
      * @description
      *      This API allows to retrieve the configuration for the connector. </BR>
      *      A template is available : use retrieveLdapConnectorConfigTemplate API. </BR>
@@ -9620,7 +9621,7 @@ class AdminService extends GenericService {
      * @since 1.86.0
      * @instance
      * @async
-     * @param {string} type Allows to filter connectors config list on the type provided in this option. Allowed types are: "ldap_template", "ldap_template_directories". Default value : ldap_template
+     * @param {string} type="ldap_template" Allows to filter connectors config list on the type provided in this option. Allowed types are: "ldap_template", "ldap_template_directories". Default value : ldap_template
      * @category AD/LDAP - LDAP APIs to use
      * @description
      *      This API allows to retrieve the configuration template for the connector. </BR>
@@ -9711,6 +9712,7 @@ class AdminService extends GenericService {
      * @async
      * @category AD/LDAP - LDAP APIs to use
      * @param {string} companyId Allows to filter connectors config list on the companyId provided in this option. In the case of admin (except superadmin and support roles), provided companyId should correspond to a company visible by logged in user's company (if some of the provided companyId are not visible by logged in user's company, connectors from these companies will not be returned). if not provided, default is admin's company.
+     * @param {boolean} supportMultiDomain=false
      * @description
      *      This API allows to retrieve the configurations list for the connector. </BR>
      *      A template is available : use retrieveLdapConnectorConfigTemplate API. </BR>
@@ -9854,7 +9856,7 @@ class AdminService extends GenericService {
      * @async
      * @category AD/LDAP - LDAP APIs to use
      * @param {string} ldapConfigId ldap connector unique identifier
-     * @param {boolean}   [strict=false]      Allows to specify if all the previous fields must be erased or just update/push new fields.
+     * @param {boolean}   strict=false      Allows to specify if all the previous fields must be erased or just update/push new fields.
      * @param {string}    name name of this configuration
      * @param {Object}    settings      config settings
      * @param {Object}    settings.massproFromLdap      list of fields to map between ldap fields and massprovisioning's import csv file headers. You can have as many keys as the csv's headerNames of massprovisioning portal.
@@ -9862,7 +9864,7 @@ class AdminService extends GenericService {
      * @param {Object}    settings.company      specific settings for the company. Each key represent a setting.
      * @param {string}    settings.company.login      login for the ldap server.
      * @param {string}    settings.company.password      password for the ldap server.
-     * @param {Number}     settings.company.synchronizationTimeInterval      time interval between synchronization in hours.
+     * @param {number}     settings.company.synchronizationTimeInterval      time interval between synchronization in hours.
      * @param {string}    settings.company.url      url of the ldap server.
      * @param {string}    settings.company.baseDN      base DN for the ldap server.
      * @param {boolean}     settings.company.activeFlag      defines if the synchronization is active, or not.
@@ -9951,7 +9953,7 @@ class AdminService extends GenericService {
      * @category AD/LDAP - LDAP APIs to use
      * @param {any} binaryImgFile File to be sent
      * @param {string} contentType to specify the content type of data. image/jpeg or image/png. Possibles values : image/jpeg, image/png
-     * @param {string} ldapId user unique identifier in ldap
+     * @param {string} ldapId=null user unique identifier in ldap
      * @description
      *      This API can be used to upload avatar image for logged in user.</BR>
      *      Rules:</BR>
@@ -10288,10 +10290,10 @@ class AdminService extends GenericService {
      * @description
      *      This API allows administrator to retrieve a list of CloudPBXs. </BR>
      * @return {Promise<any>}
-     * @param {number} limit Allow to specify the number of CloudPBXs to retrieve. Default value : 100
-     * @param {number} offset llow to specify the position of first cloudPBX to retrieve (first site if not specified) Warning: if offset > total, no results are returned
-     * @param {string} sortField Sort CloudPBXs list based on the given field. Default value : companyId
-     * @param {number} sortOrder Specify order when sorting CloudPBXs list. Default value : 1. Possible values : -1, 1
+     * @param {number} limit=100 Allow to specify the number of CloudPBXs to retrieve. Default value : 100
+     * @param {number} offset=0 llow to specify the position of first cloudPBX to retrieve (first site if not specified) Warning: if offset > total, no results are returned
+     * @param {string} sortField="companyId" Sort CloudPBXs list based on the given field. Default value : companyId
+     * @param {number} sortOrder=1 Specify order when sorting CloudPBXs list. Default value : 1. Possible values : -1, 1
      * @param {string} companyId Allows to filter CloudPBXs list on the siteIds linked to companyIds provided in this option
      * @param {string} bpId Allows to filter CloudPBXs list on the bpIds provided in this option
      */
@@ -10853,10 +10855,10 @@ class AdminService extends GenericService {
      * @since 2.1.0
      * @instance
      * @param {string} systemId CloudPBX unique identifier.
-     * @param {number} limit Allow to specify the number of SIP Devices to retrieve.
+     * @param {number} limit=100 Allow to specify the number of SIP Devices to retrieve.
      * @param {number} offset Allow to specify the position of first SIP Device to retrieve (first one if not specified). Warning: if offset > total, no results are returned.
      * @param {string} sortField Sort SIP Devices list based on the given field.
-     * @param {number} sortOrder Specify order when sorting SIP Devices list. Valid values are -1, 1.
+     * @param {number} sortOrder=1 Specify order when sorting SIP Devices list. Valid values are -1, 1.
      * @param {boolean} assigned Allows to filter devices according their assignment to a subscriber
      *      false, allows to obtain all devices not yet assigned to a subscriber.
      *      true, allows to obtain all devices already assigned to a subscriber.
@@ -11385,10 +11387,10 @@ class AdminService extends GenericService {
      * @since 2.1.0
      * @instance
      * @param {string} systemId CloudPBX unique identifier.
-     * @param {number} limit Allow to specify the number of SIP Devices to retrieve.
+     * @param {number} limit=100 Allow to specify the number of SIP Devices to retrieve.
      * @param {number} offset Allow to specify the position of first SIP Device to retrieve (first one if not specified). Warning: if offset > total, no results are returned.
      * @param {string} sortField Sort SIP Devices list based on the given field.
-     * @param {number} sortOrder Specify order when sorting SIP Devices list. Valid values are -1, 1.
+     * @param {number} sortOrder=1 Specify order when sorting SIP Devices list. Valid values are -1, 1.
      * @param {string} phoneNumberId Allows to filter devices according their phoneNumberId (i.e. subscriber id)
      * @async
      * @category Rainbow Voice Communication Platform Provisioning - Cloudpbx Subscribers
@@ -11623,11 +11625,11 @@ class AdminService extends GenericService {
      * @since 2.1.0
      * @instance
      * @param {string} systemId CloudPBX unique identifier.
-     * @param {number} limit Allow to specify the number of DDI numbers to retrieve. Default : 100.
+     * @param {number} limit=100 Allow to specify the number of DDI numbers to retrieve. Default : 100.
      * @param {number} offset Allow to specify the position of first DDI number to retrieve (first site if not specified)
      * Warning: if offset > total, no results are returned
-     * @param {string} sortField Sort DDI numbers list based on the given field. Default : "number"
-     * @param {number} sortOrder Specify order when sorting DDI numbers list. Default : 1. Valid values : -1, 1.
+     * @param {string} sortField="number" Sort DDI numbers list based on the given field. Default : "number"
+     * @param {number} sortOrder=1 Specify order when sorting DDI numbers list. Default : 1. Valid values : -1, 1.
      * @param {boolean} isAssignedToUser Allows to filter DDI numbers list if they are assigned to a user or not
      * @param {boolean} isAssignedToGroup Allows to filter DDI numbers list if they are assigned to a group or not (e.g. hunting group)
      * @param {boolean} isAssignedToIVR Allows to filter DDI numbers list if they are assigned to a IVR or not
@@ -12165,15 +12167,15 @@ class AdminService extends GenericService {
      * @instance
      * @async
      * @category sites
-     * @param {string} format Allows to retrieve more or less site details in response. </BR>
+     * @param {string} format="small" Allows to retrieve more or less site details in response. </BR>
      * - small: _id, name </BR>
      * - medium: _id, name, status, companyId </BR>
      * - full: all site fields </BR>
      * default : small </BR>
      * Valid values : small, medium, full </BR>
-     * @param {number} limit Allow to specify the number of companies to retrieve. (default=100).
-     * @param {number} offset Allow to specify the position of first site to retrieve (first site if not specified). Warning: if offset > total, no results are returned.
-     * @param {string} sortField Sort site list based on the given field. (default="name").
+     * @param {number} limit=100 Allow to specify the number of companies to retrieve. (default=100).
+     * @param {number} offset=0 Allow to specify the position of first site to retrieve (first site if not specified). Warning: if offset > total, no results are returned.
+     * @param {string} sortField="name" Sort site list based on the given field. (default="name").
      * @param {number} sortOrder Specify order when sorting site list. Default values : 1. Valid values : -1, 1.
      * @param {string} name Allows to filter sites list on field name. </BR>
      * The filtering is case insensitive and on partial name match: all sites containing the provided name value will be returned (whatever the position of the match). </BR>
@@ -12454,7 +12456,7 @@ class AdminService extends GenericService {
      * @category Systems - systems
      * @async
      * @param {string} systemId System unique identifier
-     * @param {string} format Allows to retrieve more or less details in response. </BR>
+     * @param {string} format="small" Allows to retrieve more or less details in response. </BR>
      * - small: timestamp, connection </BR>
      * - medium: timestamp, conf, csta, http </BR>
      * - full: timestamp, xmpp, conf, csta, http </BR>
@@ -12700,16 +12702,16 @@ class AdminService extends GenericService {
      * @category Systems - systems
      * @async
      * @param {boolean} connectionHistory Allows to return connection history
-     * @param {string} format Allows to retrieve more or less system details in response. </BR>
+     * @param {string} format="small" Allows to retrieve more or less system details in response. </BR>
      * - small: id pbxId version </BR>
      * - medium: id name pbxId serialNumber version status </BR>
      * - full: all system fields </BR>
      * </BR>
      * Default value : small. Possibles values : small, medium, full
-     * @param {number} limit Allow to specify the number of systems to retrieve. Default value : 100
-     * @param {number} offset Allow to specify the position of first system to retrieve (first site if not specified). Warning: if offset > total, no results are returned.
-     * @param {string} sortField Sort system list based on the given field. Default value : pbxId
-     * @param {number} sortOrder Specify order when sorting pbx list. Default value : 1. Possibles values : -1, 1
+     * @param {number} limit=100 Allow to specify the number of systems to retrieve. Default value : 100
+     * @param {number} offset=0 Allow to specify the position of first system to retrieve (first site if not specified). Warning: if offset > total, no results are returned.
+     * @param {string} sortField="pbxId" Sort system list based on the given field. Default value : pbxId
+     * @param {number} sortOrder=1 Specify order when sorting pbx list. Default value : 1. Possibles values : -1, 1
      * @param {string} name Allows to filter systems list on field name. </BR>
      * The filtering is case insensitive and on partial name match: all systems containing the provided name value will be returned (whatever the position of the match). </BR>
      * Ex: if filtering is done on oxe1, systems with the following names are match the filter 'OXE1', 'Oxe1', 'My oxe1', 'oxe12', 'My OXE12', ... </BR>
@@ -12857,7 +12859,7 @@ class AdminService extends GenericService {
      * @param {string} type CCA type. Possibles values : oxo, oxe, third_party, undefined
      * @param {string} country System country (ISO 3166-1 alpha3 format)
      * @param {string} version CCA software version
-     * @param {number} serverPingTimeout CCA config data. Default value : 120
+     * @param {number} serverPingTimeout=120 CCA config data. Default value : 120
      * @param {string} pbxMainBundlePrefix CCA config data
      * @param {boolean} usePbxMainBundlePrefix Whether or not pbxMainBundlePrefix is used by PCG
      * @param {Array<Object>} pbxNumberingTranslator List of several regular expressions used to validate internal or external phone numbers. Up to 100 regular expressions are allowed. (64 max char by regexp). To reset the list, use []
@@ -12939,7 +12941,7 @@ class AdminService extends GenericService {
      *
      */
     updateSystem ( systemId : string, name ? : string, siteId ? : string, pbxLdapId ? : string, type ? : string, country ? : string, version ? : string,
-    serverPingTimeout : number = 100, pbxMainBundlePrefix ? : string, usePbxMainBundlePrefix ? : boolean, pbxNumberingTranslator ? : Array<any>, pbxNationalPrefix ? : string, pbxInternationalPrefix ? : string, searchResultOrder ? : Array<string>,
+    serverPingTimeout : number = 120, pbxMainBundlePrefix ? : string, usePbxMainBundlePrefix ? : boolean, pbxNumberingTranslator ? : Array<any>, pbxNationalPrefix ? : string, pbxInternationalPrefix ? : string, searchResultOrder ? : Array<string>,
     isShared ? : boolean, bpId ? : string ): Promise<any> {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateSystem) systemId : ", that._logger.stripStringForLogs(systemId), ", name : ", that._logger.stripStringForLogs(name));
@@ -13235,16 +13237,16 @@ class AdminService extends GenericService {
      * @param {string} name Allow to filter phoneNumbers list on phoneNumbers having firstName or lastName starting with the provided value.
      * @param {string} deviceName Allow to filter phoneNumbers list on phoneNumbers having deviceName field equal to provided value.
      * @param {boolean} isAssignedToUser Allow to filter phoneNumbers list on phoneNumbers being assigned or not to a Rainbow user, according to provided value. true: return all phoneNumbers having userId !== null. false: return all phoneNumbers having userId === null. Possible values : true, false
-     * @param {string} format Allows to retrieve more or less phone numbers details in response. </br>
+     * @param {string} format="small" Allows to retrieve more or less phone numbers details in response. </br>
      *   - small: id shortNumber internalNumber numberE164 </br>
      *   - medium: id shortNumber internalNumber voiceMailNumber number numberE164 isFromSystem pbxId systemId </br>
      *   - full: all phone numbers fields </br>
      *   </br>
      *   Default value : small. Possible values : small, medium, full </br>
-     * @param {number} limit Allow to specify the number of phone numbers to retrieve. Default value : 100
+     * @param {number} limit=100 Allow to specify the number of phone numbers to retrieve. Default value : 100
      * @param {number} offset Allow to specify the position of first phone number to retrieve (first phone number if not specified). Warning: if offset > total, no results are returned.
-     * @param {string} sortField Sort phone numbers list based on the given field. Default value : shortNumber
-     * @param {number} sortOrder Specify order when sorting phone numbers list. Default value : 1 . Possible values : -1, 1 .
+     * @param {string} sortField="shortNumber" Sort phone numbers list based on the given field. Default value : shortNumber
+     * @param {number} sortOrder=1 Specify order when sorting phone numbers list. Default value : 1 . Possible values : -1, 1 .
      * @description
      *  This API allows to list all phoneNumbers associated to a given system (pbx).</BR>
      *
@@ -13595,7 +13597,7 @@ class AdminService extends GenericService {
      * @async
      * @category Rainbow Company Directory portal - directory
      * @param {string} entryId Id of the entry.
-     * @param {string} format Allows to retrieve more or less entry details in response. </BR>
+     * @param {string} format="small" Allows to retrieve more or less entry details in response. </BR>
      * - small: id, firstName, lastName  </BR>
      * - medium: id, companyId, firstName, lastName, workPhoneNumbers  </BR>
      * - full: all fields. </BR>
@@ -13650,14 +13652,14 @@ class AdminService extends GenericService {
      * - accents insensitive (ex: 'herve mothe' find 'Hervé Mothé')
      * - on only firstname or lastname (ex: 'john' find 'John Doe')
      * - order firstname / lastname does not matter (eg: 'doe john' find 'John Doe')
-     * @param {string} search Allows to filter the list of directory entries by the words provided in this option. </BR>
+     * @param {string} search="user" Allows to filter the list of directory entries by the words provided in this option. </BR>
      * - The query parameter type allows to specify on which type of directory entries the search is performed ('user' (default), 'company', or all entries) - Multi criterion search is only available to users having feature SEARCH_BY_TAGS in their profiles - keywords exact match (ex: 'John Doe' find 'John Doe')
      * - keywords partial match (ex: 'Jo Do' find 'John Doe')
      * - case insensitive (ex: 'john doe' find 'John Doe')
      * - accents insensitive (ex: 'herve mothe' find 'Hervé Mothé')
      * - multi criterion: fields firstName, lastName, jobTitle,companyName, department and tags.
      * - order firstname / lastname does not matter (eg: 'doe john' find 'John Doe')
-     * @param {string} type Allows to specify on which type of directory entries the multi-criterion search is performed ('user' (default), 'company', or all entries)</BR>
+     * @param {string} type="user" Allows to specify on which type of directory entries the multi-criterion search is performed ('user' (default), 'company', or all entries)</BR>
      * This parameter is only used if the query parameter search is also specified, otherwise it is ignored. Default value : user. Possible values : user, company
      * @param {string} companyName Allows to filter the list of directory entries of company type on the name provided in this option. </BR>
      * - keywords exact match (ex: 'John Doe' find 'John Doe')
@@ -13672,17 +13674,17 @@ class AdminService extends GenericService {
      * @param {string} tags Allows to filter the list of directory entries on the tag(s) provided in this option. </BR>
      *     Only usable by users with admin rights, so that he can list the directory entries to which a given tag is assigned (useful for tag administration). </BR>
      *     Using this parameter, the tags are matched with strict equality (i.e. it is case sensitive and the whole tag must be provided).
-     * @param {string} format Allows to retrieve more or less entry details in response. </BR>
+     * @param {string} format="small" Allows to retrieve more or less entry details in response. </BR>
      * - small: id, firstName, lastName  </BR>
      * - medium: id, companyId, firstName, lastName, workPhoneNumbers  </BR>
      * - full: all fields. </BR>
      * default : small </BR>
      * Valid values : small, medium, full </BR>
-     * @param {number} limit Allow to specify the number of phone book entries to retrieve. Default value : 100
-     * @param {number} offset Allow to specify the position of first phone book entry to retrieve (first one if not specified) Warning: if offset > total, no results are returned.
-     * @param {string} sortField Sort directory list based on the given field. Default value : lastName
-     * @param {number} sortOrder Specify order when sorting phone book list. Default value : 1. Possible values : -1, 1
-     * @param {string} view Precises ios the user would like to consult either his personal directory, his company directory or the both. Default value : all. Possible values : personal, company, all
+     * @param {number} limit=100 Allow to specify the number of phone book entries to retrieve. Default value : 100
+     * @param {number} offset=0 Allow to specify the position of first phone book entry to retrieve (first one if not specified) Warning: if offset > total, no results are returned.
+     * @param {string} sortField="lastName" Sort directory list based on the given field. Default value : lastName
+     * @param {number} sortOrder=1 Specify order when sorting phone book list. Default value : 1. Possible values : -1, 1
+     * @param {string} view="all" Precises ios the user would like to consult either his personal directory, his company directory or the both. Default value : all. Possible values : personal, company, all
      * @description
      *   This API allows users to get an entry of the directory of a company they administrate.</BR>
      *   superadmin and support can get a directory entry of all companies.</BR>
@@ -13724,8 +13726,8 @@ class AdminService extends GenericService {
     getListDirectoryEntriesData (companyId : string,
                                  organisationIds : string,
                                  name : string,
-                                 search : string,
-                                 type : string,
+                                 search : string="user",
+                                 type : string="user",
                                  companyName : string,
                                  phoneNumbers : string,
                                  fromUpdateDate : Date,
@@ -14427,10 +14429,10 @@ class AdminService extends GenericService {
      * @category Clients Versions
      * @param {string} name Allows to filter clients versions list on field name.
      * @param {string} typeClient Allows to filter clients versions list on field type.
-     * @param {number} limit Allow to specify the number of clients versions to retrieve. Default value : 100.
-     * @param {number} offset Allow to specify the position of first client version to retrieve (first client version if not specified). Warning: if offset > total, no results are returned.
-     * @param {string} sortField Sort clients versions list based on the given field. Default value : "name"
-     * @param {number} sortOrder Specify order when sorting clients versions list. Default value : 1. Authorized values : -1, 1.
+     * @param {number} limit=100 Allow to specify the number of clients versions to retrieve. Default value : 100.
+     * @param {number} offset=0 Allow to specify the position of first client version to retrieve (first client version if not specified). Warning: if offset > total, no results are returned.
+     * @param {string} sortField="name" Sort clients versions list based on the given field. Default value : "name"
+     * @param {number} sortOrder=1 Specify order when sorting clients versions list. Default value : 1. Authorized values : -1, 1.
      * @description
      *      This API can be used to get the minimal required versions defined for the client applications.</BR>
      *      Users with superadmin role can retrieve the minimal required version for all client applications.</BR>
@@ -14910,9 +14912,9 @@ class AdminService extends GenericService {
      * @since 2.36.0
      * @instance
      * @async
-     * @param {Array<string>} scope The scope of the API_KEY. Allowed values: all
-     * @param {string} description The description of the API_KEY
-     * @param {boolean} isActive Indicate if the API_KEY is active
+     * @param {Array<string>} scope=["all"] The scope of the API_KEY. Allowed values: all
+     * @param {string} description="" The description of the API_KEY
+     * @param {boolean} isActive=true Indicate if the API_KEY is active
      * @param {string} expirationDate The expiration date of the API_KEY. If expirationDate is null or not set, the API_KEY never expire
      * @category Apikeys Rainbow Authentication
      * @description
@@ -14973,11 +14975,11 @@ class AdminService extends GenericService {
      * @param {boolean} isActive Allows to filter API_KEYs list on the isActive value provided in this option.
      * @param {string} fromCreationDate Allows to filter API_KEYs list on the fromCreationDate value provided in this option.
      * @param {string} toCreationDate Allows to filter API_KEYs list on the toCreationDate value provided in this option.
-     * @param {string} limit Allow to specify the number of API_KEYs to retrieve. Default value: 100
-     * @param {string} offset Allow to specify the position of first API_KEY to retrieve (first API_KEY if not specified). Warning: if offset > total, no results are returned.
-     * @param {string} sortField Sort API_KEYs list based on the given field. Default value: creationDate
-     * @param {string} sortOrder Specify order when sorting API_KEYs list. Default value: -1. Allowed values: -1, 1
-     * @param {string} format Allows to retrieve more or less details in response.</br>
+     * @param {string} limit=100 Allow to specify the number of API_KEYs to retrieve. Default value: 100
+     * @param {string} offset=0 Allow to specify the position of first API_KEY to retrieve (first API_KEY if not specified). Warning: if offset > total, no results are returned.
+     * @param {string} sortField="creationDate" Sort API_KEYs list based on the given field. Default value: creationDate
+     * @param {string} sortOrder=-1 Specify order when sorting API_KEYs list. Default value: -1. Allowed values: -1, 1
+     * @param {string} format="small" Allows to retrieve more or less details in response.</br>
      * - small: id, description </br>
      * - medium: id, description scope isActive expirationDate</br>
      * - full: all of fields, except apiKey value</br>
@@ -15425,10 +15427,10 @@ class AdminService extends GenericService {
      * @instance
      * @async
      * @category Customer Care - Logs
-     * @param {number} limit Allow to specify the number of issues to retrieve. Default value : 100
-     * @param {number} offset Allow to specify the position of first issue to retrieve (first issue if not specified). Warning: if offset > total, no results are returned. Default value : 0
-     * @param {string} sortField Sort issues list based on the given field. Default value : creationDate. Possibles values : creationDate.
-     * @param {number} sortOrder Specify sort order when sorting issues list. Default value : -1. Possibles values : -1, 1.
+     * @param {number} limit=100 Allow to specify the number of issues to retrieve. Default value : 100
+     * @param {number} offset=0 Allow to specify the position of first issue to retrieve (first issue if not specified). Warning: if offset > total, no results are returned. Default value : 0
+     * @param {string} sortField="creationDate" Sort issues list based on the given field. Default value : creationDate. Possibles values : creationDate.
+     * @param {number} sortOrder=-1 Specify sort order when sorting issues list. Default value : -1. Possibles values : -1, 1.
      * @param {string} companyId Allows to filter issues list on the companyId(s) provided in this option. companyId parameter is optional: if companyId is not provided, all the issues created by users belonging to companies that the administrator manage are returned. If provided, the logged in user must have administration rights on the requested companyId(s).
      * @param {string} bpId Allows to filter issues list on all the companyId(s) being linked to the BP company provided in this option. </br>
      * For the case of BP companies with bpType= VAD, the query parameter customerCategory allows to specify the kind of companies for which the issues are requested (see more details in the doc of customerCategory parameter). </br>
@@ -15465,7 +15467,7 @@ class AdminService extends GenericService {
      * The filter companyId can be used additionally, for example to request the issues submitted by users belonging to the BP company as well. </br>
      * The user must have superadmin, support or bp_admin role to use this filter (not taken into account otherwise). </br>
      * If provided, the logged in user must have administration rights on the requested BP company. </br>
-     * @param {string} customerCategory Allows to specify the kind of companies associated to the requested bpId filter for which the list of issues is requested. </br>
+     * @param {string} customerCategory="all" Allows to specify the kind of companies associated to the requested bpId filter for which the list of issues is requested. </br>
      * This query parameter is especially designed for the case of BP with bpType=VAD (to provide the flexibility on the list of issues returned depending on the client's needs). If the BP set in bpId don't have bpType=VAD, some values of customerCategory won't return any results (irs_only, ecs_of_irs_only and irs_with_ecs_of_irs_only should not be used if bpId correspond to a DR or an IR). </br>
      * This query parameter is only taken into account if the bpId query parameter is also provided (not taken into account otherwise). </br>
      * The logs will be returned depending on the bpType of the BP company selected by the parameter bpId and on the requested customerCategory: </br>
@@ -15519,7 +15521,7 @@ class AdminService extends GenericService {
      * @param {string} toCreationDate List issues which have been created before the given date (uses creationDate field).
      * @param {string} fromOccurrenceDate List issues which occurred after the given date (uses occurrenceDate field).
      * @param {string} toOccurrenceDate List issues which occurred before the given date (uses occurrenceDate field).
-     * @param {string} format Allows to retrieve more or less logs context details in response. </br>
+     * @param {string} format="small" Allows to retrieve more or less logs context details in response. </br>
      * * small: id userId companyId device description </br>
      * * medium: id userId companyId device version description creationDate </br>
      * * full: All fields </br>
@@ -15611,7 +15613,7 @@ class AdminService extends GenericService {
      * @instance
      * @async
      * @param {string} userId User or Rainbow room unique identifier. Default value is the connected user.
-     * @param {string} format Allows to retrieve more or less logs context details in response. </br>
+     * @param {string} format="small" Allows to retrieve more or less logs context details in response. </br>
      * * small: id userId companyId device description </br>
      * * medium: id userId companyId device version description creationDate </br>
      * * full: All fields </br>
@@ -16213,7 +16215,7 @@ class AdminService extends GenericService {
      * * browser optionnel Object When relevant, details regarding the browser on which the issue occurred
      * * name optionnel string When relevant, name of the browser on which the issue occurred
      * * version optionnel string When relevant, name of the browser on which the issue occurred
-     * @param {string} typeOfLog is Initial scenario<br><br>* `feedback`: The customer submits an issue<br>* `ask`: A bot or an admin has contacted a customer to complete an issue
+     * @param {string} typeOfLog="feedback" is Initial scenario<br><br>* `feedback`: The customer submits an issue<br>* `ask`: A bot or an admin has contacted a customer to complete an issue
      * @description
      *     This API allows to store files in rainbow, and then to complete the logs context with it and provided informations. </BR>
      *
@@ -16308,6 +16310,9 @@ class AdminService extends GenericService {
      * @category Customer Care - Users Logs Append
      * @param {string} userId User or Rainbow room unique identifier. Default value is the connected user.
      * @param {string} logId Logs context unique identifier
+     * @param {Array<string>} attachments
+     * @param {string} conversationId
+     * @param {string} fileName
      * @description
      *     This api can be called either as administrator (BP, Organisation, Company), support, superadmin or Emily bot to append additional elements ( pictures, screenshot, ... or conversation content). </BR>
      *     </BR>
@@ -17053,12 +17058,12 @@ class AdminService extends GenericService {
      * @async
      * @category Companies Cloudpbx Groups (Rainbow Voice)
      * @param {string} companyId Company unique identifier (like 569ce8c8f9336c471b98eda1).
-     * @param {string} [sortField=name] - Sort items list based on the given field.
-     * @param {string} [name] - Filter groups whose name contains the given filter.
-     * @param {string} [shortNumber] - Filter groups whose short phone number contains the given filter.
-     * @param {string} [externalNumber] - Filter groups whose external number contains the given filter.
-     * @param {string} [memberId] - Filter groups containing the given member.
-     * @param {string} [type] - Filter groups according to its type.
+     * @param {string} sortField=name - Sort items list based on the given field.
+     * @param {string} name - Filter groups whose name contains the given filter.
+     * @param {string} shortNumber - Filter groups whose short phone number contains the given filter.
+     * @param {string} externalNumber - Filter groups whose external number contains the given filter.
+     * @param {string} memberId - Filter groups containing the given member.
+     * @param {string} type - Filter groups according to its type.
      *                                   Can be one of the following values: call_queue, hunting_group, manager_assistant,
      *                                   or a comma-separated list of these values.
      * @param {number} limit Allow to specify the number of items to retrieve. Default value : 100.
@@ -17183,10 +17188,10 @@ class AdminService extends GenericService {
      * @param {string} companyId Company unique identifier (like 569ce8c8f9336c471b98eda1).
      * @param {number} limit Allow to specify the number of items to retrieve. Default value : 100.
      * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Default value : 0 .
-     * @param {string} [sortField] - Sort items list based on the given field. Default value : displayName. Possibles values : displayName, lastName, firstName
+     * @param {string} sortField - Sort items list based on the given field. Default value : displayName. Possibles values : displayName, lastName, firstName
      * @param {number} sortOrder Specify order when sorting items list. Default value : 1. Possibles values : -1, 1  .
-     * @param {string} [displayName] - Filter groups whose display name contains the given filter.
-     * @param {string} [internalNumber] - Filter members whose internal phone number contain the given filter.
+     * @param {string} displayName - Filter groups whose display name contains the given filter.
+     * @param {string} internalNumber - Filter members whose internal phone number contain the given filter.
      * @description
      *      This API allows to get all the group members of a Cloud PBX for a given company.
      *
@@ -17274,16 +17279,16 @@ class AdminService extends GenericService {
      * @category Companies Cloudpbx Groups (Rainbow Voice)
      * @param {string} companyId Company unique identifier (like 569ce8c8f9336c471b98eda1).
      * @param {string} groupId Unique identifier of the Cloud PBX group to update.
-     * @param {string} [name] - Hunting group name - displayed on the caller phone set.
-     * @param {HuntingGroupPolicy} [policy="parallel"] - Hunting group policy - parallel only for hg_attendant subType, serial only for manager_assistant subType.
-     * @param {Number} [timeout=10] - Timeout after which the next member of the hunting group will be selected (ringing) - applicable to group with serial or circular policy.
-     * @param {string} [externalNumberId] - Identifier of the public phone number assigned to the hunting group.
-     * @param {Boolean} [isEmptyAllowed=true] - Indicates if the last active member can leave the hunting group or not.
-     * @param {Boolean} [isDDIUpdateByManagerAllowed=true] - Indicates if changing the DDI of this hunting group by a manager is allowed or not.
+     * @param {string} name - Hunting group name - displayed on the caller phone set.
+     * @param {HuntingGroupPolicy} policy="parallel" - Hunting group policy - parallel only for hg_attendant subType, serial only for manager_assistant subType.
+     * @param {number} timeout=10 - Timeout after which the next member of the hunting group will be selected (ringing) - applicable to group with serial or circular policy.
+     * @param {string} externalNumberId - Identifier of the public phone number assigned to the hunting group.
+     * @param {Boolean} isEmptyAllowed=true - Indicates if the last active member can leave the hunting group or not.
+     * @param {Boolean} isDDIUpdateByManagerAllowed=true - Indicates if changing the DDI of this hunting group by a manager is allowed or not.
      * @param {Object[]} members - List of group members. In case of serial hunting group policy, the order is the ringing order, for hg_attendant hunting group only Voice Attendant users.
      * @param {string} members.memberId - Member (user) unique identifier.
-     * @param {HuntingGroupMemberRole[]} [members.roles=['agent']] - Member roles inside the group.
-     * @param {(HuntingGroupMemberStatus)} [members.status="active"] - Member status inside the group.
+     * @param {HuntingGroupMemberRole[]} members.roles=['agent'] - Member roles inside the group.
+     * @param {(HuntingGroupMemberStatus)} members.status="active" - Member status inside the group.
      * @description
      *      This API allows to modify settings of a PBX group.
      * </br> Modification can be done on the following settings of a group:
