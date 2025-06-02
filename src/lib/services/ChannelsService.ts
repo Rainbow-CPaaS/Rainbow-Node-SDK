@@ -199,7 +199,7 @@ class ChannelsService extends GenericService {
      * @async
      * @category Channels MANAGEMENT
      * @param {string} name  The name of the channel to create (max-length=255)
-     * @param {string} [channelTopic]  The description of the channel to create (max-length=255)
+     * @param {string} channelTopic  The description of the channel to create (max-length=255)
      * @return {Promise<Channel>} New Channel
      * @description
      *  Create a new public channel with a visibility limited to my company <br>
@@ -218,13 +218,13 @@ class ChannelsService extends GenericService {
      * @async
      * @category Channels MANAGEMENT
      * @param {string} name  The name of the channel to create (max-length=255)
-     * @param {string} [channelTopic]  The description of the channel to create (max-length=255)
-     * @param {string} [category=""] The category of the channel
+     * @param {string} channelTopic  The description of the channel to create (max-length=255)
+     * @param {string} category="" The category of the channel
      * @return {Promise<Channel>} New Channel
      * @description
      *  Create a new public channel with a visibility limited to my company <br>
      */
-    createPublicChannel(name: string, channelTopic: string, category : string) : Promise<Channel>{
+    createPublicChannel(name: string, channelTopic: string, category : string="") : Promise<Channel>{
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(createPublicChannel) is name defined : ", isDefined(name), " is channelTopic defined : ", isDefined(channelTopic));
 
@@ -257,14 +257,14 @@ class ChannelsService extends GenericService {
      * @async
      * @category Channels MANAGEMENT
      * @param {string} name  The name of the channel to create (max-length=255)
-     * @param {string} [description]  The description of the channel to create (max-length=255)
-     * @param {string} [category=""] The category of the channel
+     * @param {string} description  The description of the channel to create (max-length=255)
+     * @param {string} category="" The category of the channel
      * @return {Promise<Channel>} New Channel
      * @description
      * (old createPrivateChannel)
      *  Create a new closed channel <br>
      */
-    createClosedChannel(name: string, description : string, category : string) : Promise<Channel> {
+    createClosedChannel(name: string, description : string, category : string = "") : Promise<Channel> {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(createClosedChannel) is name defined : ", isDefined(name), " is description defined : ", isDefined(description));
 
@@ -299,7 +299,7 @@ class ChannelsService extends GenericService {
      * @param {Channel} channel  The channel to delete
      * @return {Promise<Channel>} Promise object represents The channel deleted
      * @description
-     *  Delete a owned channel <br>
+     *  Delete an owned channel <br>
      */
     deleteChannel(channel: Channel) : Promise<Channel> {
         let that = this;
@@ -438,13 +438,13 @@ class ChannelsService extends GenericService {
      * @async
      * @category Channels MANAGEMENT
      * @param {string} id The id of the channel)
-     * @param {boolean} [force=false] True to force a request to the server
+     * @param {boolean} force=false True to force a request to the server
      * @return {Promise<Channel>} The channel found
      * @description
      * (old getChannelById)
      * Find a channel by its id (locally if exists or by sending a request to Rainbow) <br>
      */
-    async fetchChannel(id : string, force? : boolean) : Promise<Channel>{
+    async fetchChannel(id : string, force : boolean = false) : Promise<Channel>{
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(fetchChannel) is id defined : ", isDefined(id));
 
@@ -550,14 +550,14 @@ class ChannelsService extends GenericService {
      * @since 1.38
      * @instance
      * @category Channels MANAGEMENT
-     * @param {boolean} force Boolean to force the get of channels's informations from server. 
+     * @param {boolean} force=false Boolean to force the get of channels's informations from server.
      * @description
      * (old getChannels)
      *    Get the channels you own, are subscribed to, are publisher<br>
      *    Return a promise. <br>
      * @return {Promise<Channel[]>} Return Promise with a list of channels or an empty array if no channel has been found
      */
-    fetchMyChannels(force? : boolean) : Promise<[Channel]>{
+    fetchMyChannels(force : boolean = false) : Promise<[Channel]>{
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(fetchMyChannels) is force defined : ", isDefined(force));
 
@@ -687,7 +687,7 @@ class ChannelsService extends GenericService {
      * @param {string} description  The description of the channel to update (max-length=255)
      * @return {Promise<Channel>} Updated channel
      * @description
-     *  TODO
+     *   Update the description of a channel. <br>
      */
     updateChannelTopic (channel : Channel, description : string) : Promise <Channel> {
         let that = this;
@@ -706,7 +706,8 @@ class ChannelsService extends GenericService {
      * @param {string} description  The description of the channel to update (max-length=255)
      * @return {Promise<Channel>} Updated channel
      * @description
-     *  TODO
+     *  Update the description of a channel. <br>
+     *
      */
     updateChannelDescription(channel: Channel, description : string) : Promise <Channel> {
         let that = this;
@@ -817,15 +818,15 @@ class ChannelsService extends GenericService {
      *      Please put null to not update a property.<br>
      *    Return a promise. <br>
      * @param {string} id The id of the channel
-     * @param {string} [channelTopic=""] The topic of the channel
-     * @param {string} [visibility=public] public/company/closed group visibility for search
-     * @param {Number} [max_items=30] max # of items to persist in the channel
-     * @param {Number} [max_payload_size=60000] max # of items to persist in the channel
-     * @param {string} [channelName=""] The name of the channel
-     * @param {string} [category=""] The category of the channel
+     * @param {string} channelTopic="" The topic of the channel
+     * @param {string} visibility=public public/company/closed group visibility for search
+     * @param {Number} max_items=30 max # of items to persist in the channel
+     * @param {Number} max_payload_size=60000 max # of items to persist in the channel
+     * @param {string} channelName="" The name of the channel
+     * @param {string} category="" The category of the channel
      * @return {Promise<Channel>} Return the channel created or an error
      */
-    updateChannel( id : string, channelTopic : string, visibility : string, max_items : Number, max_payload_size : Number, channelName : string, category : string) {
+    updateChannel( id : string, channelTopic : string="", visibility : string="public", max_items : Number=30, max_payload_size : Number = 60000, channelName : string = "", category : string = "") {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateChannel) is id defined : ", isDefined(id));
 
@@ -1191,16 +1192,16 @@ class ChannelsService extends GenericService {
      * @category Channels MESSAGES/ITEMS
      * @param {Channel} channel The channel where to publish the message
      * @param {string} message Message content
-     * @param {string} [title = "", limit=256] Message title
-     * @param {string} [url = ""] An URL
-     * @param {any} [imagesIds = null] An Array of ids of the files stored in Rainbow
-     * @param {string} [type="basic"] An optional message content type (could be basic, markdown, html or data)
-     * @param {Object} customDatas A JSON object with custom datas merged to the payload send to server. 
+     * @param {string} title="" Message title, limit=256.
+     * @param {string} url="" An URL
+     * @param {any} imagesIds=null An Array of ids of the files stored in Rainbow
+     * @param {string} type="basic" An optional message content type (could be basic, markdown, html or data)
+     * @param {Object} customDatas={} A JSON object with custom datas merged to the payload send to server.
      * @return {Promise<ErrorManager.getErrorManager().OK>} OK if successfull
      * @description
      *  Publish to a channel <br>
      */
-    publishMessageToChannel(channel : Channel, message : string, title : string, url : string, imagesIds : any, type : string, customDatas : any = {}) : Promise<{}> {
+    publishMessageToChannel(channel : Channel, message : string, title : string = "", url : string="", imagesIds : any=null, type : string="basic", customDatas : any = {}) : Promise<{}> {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(publishMessageToChannel) is channel defined : ", isDefined(channel));
         return that.createItem(channel, message, title, url, imagesIds, type, customDatas);
@@ -1214,16 +1215,16 @@ class ChannelsService extends GenericService {
      * @category Channels MESSAGES/ITEMS
      * @param {Channel} channel The channel where to publish the message
      * @param {string} message Message content
-     * @param {string} [title = "", limit=256] Message title
-     * @param {string} [url = ""] An URL
+     * @param {string} title="" Message title, limit=256.
+     * @param {string} url="" An URL
      * @param {any} imagesIds An Array of ids of the files stored in Rainbow
-     * @param {string} [type="basic"] An optional message content type (could be basic, markdown, html or data)
-     * @param {Object} customDatas A JSON object with custom datas merged to the payload send to server.
+     * @param {string} type="basic" An optional message content type (could be basic, markdown, html or data)
+     * @param {Object} customDatas={} A JSON object with custom datas merged to the payload send to server.
      * @return {Promise<ErrorManager.getErrorManager().OK>} OK if successfull
      * @description
      *  Publish to a channel <br>
      */
-    createItem(channel : Channel, message : string, title : string, url : string, imagesIds : any, type : string, customDatas : any = {}) : Promise <{}> {
+    createItem(channel : Channel, message : string, title : string="", url : string="", imagesIds : any, type : string="basic", customDatas : any = {}) : Promise <{}> {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(createItem) is channel defined : ", isDefined(channel));
         if (!channel || !channel.id) {
@@ -1405,7 +1406,7 @@ class ChannelsService extends GenericService {
      * @param {Appreciation} appreciation Appreciation value - must be one of the value specified in Appreciation object.
      * @return {Promise<any>}
      * @description
-     *  To like an Channel Item with the specified appreciation <br>
+     *  To like a Channel Item with the specified appreciation <br>
      */
     public likeItem( channel : Channel, itemId : string, appreciation : Appreciation): Promise<any> {
         let that = this;
@@ -1662,11 +1663,11 @@ class ChannelsService extends GenericService {
      * @async
      * @category Channels USERS
      * @param {Channel} channel The channel
-     * @param {Object} [options] A filter parameter
-     * @param {Number} [options.page = 0] Display a specific page of results
-     * @param {Number} [options.limit=100] Number of results per page (max 1000)
-     * @param {Boolean} [options.onlyPublishers=false] Filter to publishers only
-     * @param {Boolean} [options.onlyOwners=false] Filter to owners only
+     * @param {Object} options A filter parameter
+     * @param {Number} options.page=0 Display a specific page of results
+     * @param {Number} options.limit=100 Number of results per page (max 1000)
+     * @param {Boolean} options.onlyPublishers=false Filter to publishers only
+     * @param {Boolean} options.onlyOwners=false Filter to owners only
      * @return {Promise<Array<any>>} An array of users who belong to this channel
      * @description
      * (old getUsersFromChannel)
@@ -2098,7 +2099,7 @@ class ChannelsService extends GenericService {
      * @param {Array<Contact>} members array of users to add
      * @return {Promise<Channel>} The updated channel
      * @description
-     *  Add a list of members to the channel  by loginEmail<br>
+     *  Add a list of members to the channel by loginEmail<br>
      */
     public async addMembersToChannel(channel : Channel, members : Array<Contact>) : Promise<Channel> {
         let that = this;

@@ -355,7 +355,7 @@ function CallLogsBean() : ICallLogsBean {
      * @param {string} id The call log id to remove
      * @return Nothing
      */
-    deleteOneCallLog(id) {
+    deleteOneCallLog(id:string) {
         let that = this;
 
        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteOneCallLog) id : ", id);
@@ -374,7 +374,7 @@ function CallLogsBean() : ICallLogsBean {
      * @param {string} jid The call log id to remove
      * @return Nothing
      */
-    deleteCallLogsForContact(jid) {
+    deleteCallLogsForContact(jid: string) {
         let that = this;
 
        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteCallLogsForContact) jid : ", jid);
@@ -411,7 +411,7 @@ function CallLogsBean() : ICallLogsBean {
      * @param {string} id The call log id
      * @return Nothing
      */
-    markCallLogAsRead(id) {
+    markCallLogAsRead(id : string) {
         let that = this;
 
        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(markCallLogAsRead) id : ", id);
@@ -459,12 +459,12 @@ function CallLogsBean() : ICallLogsBean {
 
     //region EVENT HANDLERS
 
-    async onCallLogUpdated(calllogs) {
+    async onCallLogUpdated(calllogs:any) {
         this.calllogs = calllogs;
         this._initialized = true;
     }
 
-    async onCallLogAckReceived(calllogs) {
+    async onCallLogAckReceived(calllogs:any) {
         this.calllogs = calllogs;
         this._initialized = true;
     }
