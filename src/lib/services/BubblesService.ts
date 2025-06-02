@@ -9,7 +9,7 @@ import {EventEmitter} from "events";
 import {createPromiseQueue} from "../common/promiseQueue";
 import {
     addParamToUrl,
-    getBinaryData,
+    getBinaryData, isDefined,
     isStarted,
     logEntryExit,
     resizeImage,
@@ -244,7 +244,7 @@ class Bubbles extends GenericService {
      * @description
      *      Method called when receiving an invitation to join a bubble <br>
      */
-    _onInvitationReceived(invitation) {
+    _onInvitationReceived(invitation : any) {
         let that = this;
         that._logger.log(that.INFO, LOG_ID + "(_onInvitationReceived) received. ");
         that._logger.log(that.INTERNAL, LOG_ID + "(_onInvitationReceived) invitation : ", invitation);
@@ -286,7 +286,7 @@ class Bubbles extends GenericService {
      * @description
      *      Method called when receiving an invitation to join a bubble for a contact<br>
      */
-    _onContactInvitationReceived(invitation) {
+    _onContactInvitationReceived(invitation : any) {
         let that = this;
         that._logger.log(that.INFO, LOG_ID + "(_onContactInvitationReceived) received. ");
         that._logger.log(that.INTERNAL, LOG_ID + "(_onContactInvitationReceived) invitation : ", invitation);
@@ -325,7 +325,7 @@ class Bubbles extends GenericService {
      * @description
      *      Method called when affilitation to a bubble changed <br>
      */
-    async _onAffiliationChanged(affiliation) {
+    async _onAffiliationChanged(affiliation : any) {
         let that = this;
         that._logger.log(that.INTERNAL, LOG_ID + "(_onAffiliationChanged) affiliation : ", affiliation);
 
@@ -362,7 +362,7 @@ class Bubbles extends GenericService {
      * @description
      *      Method called when the user affilitation to a bubble changed <br>
      */
-    async _onOwnAffiliationChanged(affiliation) {
+    async _onOwnAffiliationChanged(affiliation : any) {
         let that = this;
 
         that._logger.log(that.DEBUG, LOG_ID + "(_onOwnAffiliationChanged) parameters : affiliation : ", affiliation);
@@ -457,7 +457,7 @@ class Bubbles extends GenericService {
      * @description
      *      Method called when custom data have changed for a bubble <br>
      */
-    _onCustomDataChanged(data) {
+    _onCustomDataChanged(data : any) {
         let that = this;
 
         this._rest.getBubble(data.bubbleId).then(async (bubbleUpdated: any) => {
@@ -491,7 +491,7 @@ class Bubbles extends GenericService {
      * @description
      *      Method called when the topic has changed for a bubble <br>
      */
-    _onTopicChanged(data) {
+    _onTopicChanged(data : any) {
         let that = this;
 
         this._rest.getBubble(data.bubbleId).then(async (bubbleUpdated: any) => {
@@ -523,7 +523,7 @@ class Bubbles extends GenericService {
      * @description
      *     Method called when the owner of a bubble changed. <br>
      */
-    async _onPrivilegeBubbleChanged(bubbleInfo) {
+    async _onPrivilegeBubbleChanged(bubbleInfo : any) {
         /*
         let that = this;
         let ownerContact = await that.getContactById(bubbleInfo.creator, false);
@@ -550,7 +550,7 @@ class Bubbles extends GenericService {
      * @description
      *      Method called when the name has changed for a bubble <br>
      */
-    _onNameChanged(data) {
+    _onNameChanged(data : any) {
         let that = this;
 
         this._rest.getBubble(data.bubbleId).then(async (bubbleUpdated: any) => {
@@ -575,7 +575,7 @@ class Bubbles extends GenericService {
         });
     }
 
-    _onBubblePollConfiguration(data) {
+    _onBubblePollConfiguration(data : any) {
         let that = this;
         /*
         let pollObj = {
@@ -599,7 +599,7 @@ class Bubbles extends GenericService {
         });
     }
 
-    _onBubblePollEvent(data) {
+    _onBubblePollEvent(data : any) {
         let that = this;
         /*
         let pollObj = {
@@ -634,7 +634,7 @@ class Bubbles extends GenericService {
      * @description
      *      Method called when the presence has been sent to a bubble <br>
      */
-    _onBubblePresenceSent(data) {
+    _onBubblePresenceSent(data : any) {
         let that = this;
 
         //this._rest.getBubble(data.bubbleId).then(async (bubbleUpdated: any) => {
@@ -657,7 +657,7 @@ class Bubbles extends GenericService {
      * @description
      *      Method called when the name has changed for a bubble <br>
      */
-    async _onbubblepresencechanged(bubbleInfo) {
+    async _onbubblepresencechanged(bubbleInfo : any) {
         let that = this;
 
         that._logger.log(that.DEBUG, LOG_ID + "(_onbubblepresencechanged) bubble presence received for : ", bubbleInfo.jid);
@@ -717,7 +717,7 @@ class Bubbles extends GenericService {
      * @description
      *      Method called when receiving an create/update/delete event of the bubbles container <br>
      */
-    async _onBubblesContainerReceived(infos) {
+    async _onBubblesContainerReceived(infos : any) {
         let that = this;
         that._logger.log(that.INTERNAL, LOG_ID + "(_onBubblesContainerReceived) infos : ", infos);
 
@@ -859,7 +859,7 @@ class Bubbles extends GenericService {
      * @param bubble
      * @return {Promise<void>}
      */
-    async _onBubbleConferenceStoppedReceived(bubble) {
+    async _onBubbleConferenceStoppedReceived(bubble : any) {
         let that = this;
         that._logger.log(that.INTERNAL, LOG_ID + "(_onBubbleConferenceStoppedReceived) bubble : ", bubble?.id);
         if (bubble) {
@@ -1190,9 +1190,10 @@ class Bubbles extends GenericService {
          * @async
          * @category Manage Bubbles - Bubbles MANAGEMENT 
          * @return {Promise<Object>} return an object describing the consumption of bubbles : {
-            maxValue : number // The quota associated to this offer [room]
-            currentValue : number // The user's current consumption [room].
-         }
+         *   maxValue : number // The quota associated to this offer [room]
+         *   currentValue : number // The user's current consumption [room].
+         * }
+         *
          * @description
          *      return an object describing the consumption of bubbles. <br>
          */
@@ -1232,9 +1233,9 @@ class Bubbles extends GenericService {
          * @instance
          * @category Manage Bubbles - Bubbles MANAGEMENT
          * @param {string} id the id of the bubble
-         * @param {boolean} [force=false] True to force a request to the server
+         * @param {boolean} force=false Boolean to force a request to the server
          * @param {string} context 
-         * @param {string} format Allows to retrieve more or less room details in response. </br>
+         * @param {string} format="full" Allows to retrieve more or less room details in response. </br>
          * small: id, name, jid, isActive</br>
          * medium: id, name, jid, topic, creator, conference, guestEmails, disableNotifications, isActive, autoAcceptInvitation</br>
          * full: all room fields</br>
@@ -1244,16 +1245,16 @@ class Bubbles extends GenericService {
          * Logged in user, room creator and room moderators are always listed first to ensure they are not part of the truncated users.</br>
          * The full list of users registered in the room shall be got using API GET /api/rainbow/enduser/v1.0/rooms/:roomId/users, which is paginated and allows to sort the users list.</br>
          * If full format is used, and whatever the status of the logged in user (active or unsubscribed), then he is added in first position of the users list.</br>
-         * Default value : small Possible values : small, medium, full</br>
-         * @param {boolean} unsubscribed When true and always associated with full format, beside owner and invited/accepted users keep also unsubscribed users. Not taken in account if the logged in user is not a room moderator. Default value : false
-         * @param {number} nbUsersToKeep Allows to truncate the returned list of active users member of the bubble in order to avoid having too much data in the response (performance optimization). If value is set to -1, all active bubble members are returned. Only usable if requested format is full (otherwise users field is not returned) Default value : 100
+         * Default value : full Possible values : small, medium, full</br>
+         * @param {boolean} unsubscribed=true When true and always associated with full format, beside owner and invited/accepted users keep also unsubscribed users. Not taken in account if the logged in user is not a room moderator. Default value : false
+         * @param {number} nbUsersToKeep=100 Allows to truncate the returned list of active users member of the bubble in order to avoid having too much data in the response (performance optimization). If value is set to -1, all active bubble members are returned. Only usable if requested format is full (otherwise users field is not returned) Default value : 100
          * @async
          * @return {Promise<Bubble>}  return a promise with {Bubble} The bubble found or null
          * @description
          *  Get a bubble by its ID in memory and if it is not found in server. <br>
          *  Get a bubble data visible by the user requesting it (a private room the user is part of or a public room)
          */
-        getBubbleById(id, force?: boolean, context : string = undefined, format : string = "full", unsubscribed : boolean = true, nbUsersToKeep : number = 100): Promise<Bubble> {
+        getBubbleById(id, force: boolean = false, context : string = undefined, format : string = "full", unsubscribed : boolean = true, nbUsersToKeep : number = 100): Promise<Bubble> {
             let that = this;
             that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getBubbleById) id : ", id, ", force : ", force);
 
@@ -1316,8 +1317,8 @@ class Bubbles extends GenericService {
          * @instance
          * @category Manage Bubbles - Bubbles MANAGEMENT
          * @param {string} jid the JID of the bubble
-         * @param {boolean} [force=false] True to force a request to the server
-         * @param {string} format Allows to retrieve more or less room details in response. </br>
+         * @param {boolean} force=false True to force a request to the server
+         * @param {string} format="full" Allows to retrieve more or less room details in response. </br>
          * small: id, name, jid, isActive</br>
          * medium: id, name, jid, topic, creator, conference, guestEmails, disableNotifications, isActive, autoAcceptInvitation</br>
          * full: all room fields</br>
@@ -1327,16 +1328,16 @@ class Bubbles extends GenericService {
          * Logged in user, room creator and room moderators are always listed first to ensure they are not part of the truncated users.</br>
          * The full list of users registered in the room shall be got using API GET /api/rainbow/enduser/v1.0/rooms/:roomId/users, which is paginated and allows to sort the users list.</br>
          * If full format is used, and whatever the status of the logged in user (active or unsubscribed), then he is added in first position of the users list.</br>
-         * Default value : small Possible values : small, medium, full</br>
-         * @param {boolean} unsubscribed When true and always associated with full format, beside owner and invited/accepted users keep also unsubscribed users. Not taken in account if the logged in user is not a room moderator. Default value : false
-         * @param {number} nbUsersToKeep Allows to truncate the returned list of active users member of the bubble in order to avoid having too much data in the response (performance optimization). If value is set to -1, all active bubble members are returned. Only usable if requested format is full (otherwise users field is not returned) Default value : 100
+         * Default value : full Possible values : small, medium, full</br>
+         * @param {boolean} unsubscribed=true When true and always associated with full format, beside owner and invited/accepted users keep also unsubscribed users. Not taken in account if the logged in user is not a room moderator. Default value : false
+         * @param {number} nbUsersToKeep=100 Allows to truncate the returned list of active users member of the bubble in order to avoid having too much data in the response (performance optimization). If value is set to -1, all active bubble members are returned. Only usable if requested format is full (otherwise users field is not returned) Default value : 100
          * @async
          * @return {Promise<Bubble>}  return a promise with {Bubble} The bubble found or null
          * @description
          *  Get a bubble by its JID in memory and if it is not found in server. <br>
          *  Get a rooms data visible by the user requesting it (a private room the user is part of or a public room)
          */
-        async getBubbleByJid(jid, force?: boolean, format : string = "full", unsubscribed : boolean = true, nbUsersToKeep : number = 100): Promise<Bubble> {
+        async getBubbleByJid(jid, force: boolean = false, format : string = "full", unsubscribed : boolean = true, nbUsersToKeep : number = 100): Promise<Bubble> {
             let that = this;
             that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getBubbleByJid) jid : ", jid, ", force : ", force);
 
@@ -1405,11 +1406,11 @@ class Bubbles extends GenericService {
          * isActive=false : inactive rooms only </br>
          * isActive=true : active rooms only </br>
          * @param {boolean} webinar When true, beside room used for a conversation, rooms used for a webinar are shown in the list.
-         * @param {boolean} unsubscribed When false, exclude rooms where the member status is 'unsubscribed'. Default value : true
-         * @param {number} limit Allow to specify the number of items to retrieve. Default value : 100
-         * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Default value : 0.
+         * @param {boolean} unsubscribed=true When false, exclude rooms where the member status is 'unsubscribed'. Default value : true
+         * @param {number} limit=100 Allow to specify the number of items to retrieve. Default value : 100
+         * @param {number} offset=0 Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Default value : 0.
          * @param {string} sortField Sort items list based on the given field.
-         * @param {number} sortOrder Specify order when sorting items list. Default value : 1. Possible values : -1, 1.
+         * @param {number} sortOrder=1 Specify order when sorting items list. Default value : 1. Possible values : -1, 1.
          * @return {Promise<Object>}  return a promise with The result found or null.
          * 
          * 
@@ -1452,7 +1453,7 @@ class Bubbles extends GenericService {
      *  Get all rooms visible by the user requesting it (the private rooms the user is part of and the public rooms)</br>
      *  Admin shall be able to disallow the use of bubbles, either for the whole company, or per user. User that does not have the right to use bubbles (useRoomCustomisation is disabled) will not be able to create bubbles or participate in bubbles (chat and web conference). </br>
      *
-     * @param {string} format Allows to retrieve more or less room details in response. </br>
+     * @param {string} format="small" Allows to retrieve more or less room details in response. </br>
      * small: id, name, jid, isActive </br>
      * medium: id, name, jid, topic, creator, conference, guestEmails, disableNotifications, isActive </br>
      * full: </br>
@@ -1483,15 +1484,15 @@ class Bubbles extends GenericService {
      * isActive=true : all active rooms </br>
      * @param {string} name Allow to search room which name includes a word beginning by ...
      * @param {string} sortField Sort items list based on the given field.
-     * @param {number} sortOrder Specify order when sorting items list. by default sortOrder is -1 when sort=lastActivityDate is used. Default value : 1. Possible values : -1, 1.
-     * @param {boolean} unsubscribed When true, beside owner and invited/accepted users keep also unsubscribed users. Default value : false.
+     * @param {number} sortOrder=1 Specify order when sorting items list. by default sortOrder is -1 when sort=lastActivityDate is used. Default value : 1. Possible values : -1, 1.
+     * @param {boolean} unsubscribed=false When true, beside owner and invited/accepted users keep also unsubscribed users. Default value : false.
      * @param {number} webinar When true, beside room used for a conversation, rooms used for a webinar are shown in the list. webinar query parameter used with userId query parameter helps filter when retrieving the list of user's rooms.
-     * @param {number} limit Allow to specify the number of items to retrieve. Default value : 100.
-     * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Default value : 0.
-     * @param {number} nbUsersToKeep Allows to truncate the returned list of active users member of the bubble in order to avoid having too much data in the response (performance optimization). If value is set to -1, all active bubble members are returned. Only usable if requested format is full (otherwise users field is not returned). Default value : 100.
+     * @param {number} limit=100 Allow to specify the number of items to retrieve. Default value : 100.
+     * @param {number} offset=0 Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Default value : 0.
+     * @param {number} nbUsersToKeep=100 Allows to truncate the returned list of active users member of the bubble in order to avoid having too much data in the response (performance optimization). If value is set to -1, all active bubble members are returned. Only usable if requested format is full (otherwise users field is not returned). Default value : 100.
      * @param {string} creator user unique identifier from which to retrieve the list of rooms created by thie user (like 56f42c1914e2a8a91b99e595) creator and userId parameters are exclusives. If both are set, creator is used (as the rooms created by the user are a subset of all the rooms in which the user is).
      * @param {string} context Allow to define a context of use for this API (webinar is the only awaited value)
-     * @param {string} needIsAlertNotificationEnabled Allow to specify if the field isAlertNotificationEnabled has to be returned for each room result. If this field is not needed, setting needIsAlertNotificationEnabled to false allows to improve performance and reduce server load. Default value : true.
+     * @param {string} needIsAlertNotificationEnabled="true" Allow to specify if the field isAlertNotificationEnabled has to be returned for each room result. If this field is not needed, setting needIsAlertNotificationEnabled to false allows to improve performance and reduce server load. Default value : true.
      * @return {Promise<Object>}  return a promise with The result found or null.
      * 
      * 
@@ -1584,7 +1585,7 @@ class Bubbles extends GenericService {
      *  User that does not have the right to use bubbles (useRoomCustomisation is disabled) will not be able to create bubbles or participate in bubbles (chat and web conference). </br>
      *
      * @param {Array<string>} bubblesIds list of room's unique identifier (like 56f42c1914e2a8a91b99e595) for which requesting data. if a room identifier doesn't correspond to a room visible by userId or logged in user it is ignored.
-     * @param {string} format Allows to retrieve more or less room details in response. </br>
+     * @param {string} format="small" Allows to retrieve more or less room details in response. </br>
      * small: id, name, jid, isActive </br>
      * medium: id, name, jid, topic, creator, conference, guestEmails, disableNotifications, isActive </br>
      * full: </br>
@@ -1609,16 +1610,16 @@ class Bubbles extends GenericService {
      * hasConf=false : all rooms never used for a meeting </br>
      * hasConf=true : all rooms used for a meeting </br>
      * @param {string} sortField Sort items list based on the given field.
-     * @param {number} sortOrder Specify order when sorting items list. by default sortOrder is -1 when sort=lastActivityDate is used. Default value : 1. Possible values : -1, 1.
-     * @param {boolean} unsubscribed When true, beside owner and invited/accepted users keep also unsubscribed users. Default value : false.
+     * @param {number} sortOrder=1 Specify order when sorting items list. by default sortOrder is -1 when sort=lastActivityDate is used. Default value : 1. Possible values : -1, 1.
+     * @param {boolean} unsubscribed="small" When true, beside owner and invited/accepted users keep also unsubscribed users. Default value : false.
      * @param {number} webinar When true, beside room used for a conversation, rooms used for a webinar are shown in the list. webinar query parameter used with userId query parameter helps filter when retrieving the list of user's rooms.
-     * @param {number} limit Allow to specify the number of items to retrieve. Default value : 100.
-     * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Default value : 0.
-     * @param {number} nbUsersToKeep Allows to truncate the returned list of active users member of the bubble in order to avoid having too much data in the response (performance optimization). If value is set to -1, all active bubble members are returned. Only usable if requested format is full (otherwise users field is not returned). Default value : 100.
+     * @param {number} limit=100 Allow to specify the number of items to retrieve. Default value : 100.
+     * @param {number} offset=0 Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Default value : 0.
+     * @param {number} nbUsersToKeep=100 Allows to truncate the returned list of active users member of the bubble in order to avoid having too much data in the response (performance optimization). If value is set to -1, all active bubble members are returned. Only usable if requested format is full (otherwise users field is not returned). Default value : 100.
 
      creator and userId parameters are exclusives. If both are set, creator is used (as the rooms created by the user are a subset of all the rooms in which the user is).
      * @param {string} context Allow to define a context of use for this API (webinar is the only awaited value)
-     * @param {string} needIsAlertNotificationEnabled Allow to specify if the field isAlertNotificationEnabled has to be returned for each room result. If this field is not needed, setting needIsAlertNotificationEnabled to false allows to improve performance and reduce server load. Default value : true.
+     * @param {string} needIsAlertNotificationEnabled="true" Allow to specify if the field isAlertNotificationEnabled has to be returned for each room result. If this field is not needed, setting needIsAlertNotificationEnabled to false allows to improve performance and reduce server load. Default value : true.
      * @return {Promise<Object>}  return a promise with The result found or null.
      * 
      * 
@@ -1773,14 +1774,14 @@ class Bubbles extends GenericService {
          *  Create a new bubble <br>
          * @param {string} name  The name of the bubble to create
          * @param {string} description  The description of the bubble to create
-         * @param {string } history (optional) Determines the amount of history available to new users. Default is "all". Allowed values: "none", "all", "number".
-         * @param {number} p_number (optional) Number of messages to retrieve when history="number". Default is 0.
-         * @param {string} visibility (optional) Group visibility for search, either "private" or "public". Default is "private".
-         * @param {boolean} disableNotifications (optional) If true, no notifications will be sent. Default is false.
-         * @param {string} autoRegister (optional) Determines behavior for public links. Default is "unlock". Allowed values: "unlock", "lock".
-         * @param {boolean} autoAcceptInvitation (optional) If true, participants are automatically added to the room. Default is false.
-         * @param {boolean} muteUponEntry (optional) Automatically mutes participants when they join the conference. Default is false.
-         * @param {boolean} playEntryTone (optional) Plays a sound when a participant enters the conference. Default is true.
+         * @param {string } history="all" (optional) Determines the amount of history available to new users. Default is "all". Allowed values: "none", "all", "number".
+         * @param {number} p_number=0 (optional) Number of messages to retrieve when history="number". Default is 0.
+         * @param {string} visibility="private" (optional) Group visibility for search, either "private" or "public". Default is "private".
+         * @param {boolean} disableNotifications=false (optional) If true, no notifications will be sent. Default is false.
+         * @param {string} autoRegister='unlock' (optional) Determines behavior for public links. Default is "unlock". Allowed values: "unlock", "lock".
+         * @param {boolean} autoAcceptInvitation=false (optional) If true, participants are automatically added to the room. Default is false.
+         * @param {boolean} muteUponEntry=false (optional) Automatically mutes participants when they join the conference. Default is false.
+         * @param {boolean} playEntryTone=true (optional) Plays a sound when a participant enters the conference. Default is true.
          * @async
          * @return {Promise<Bubble, ErrorManager>}
          * @fulfil {Bubble} - Bubble object, else an ErrorManager object
@@ -1880,7 +1881,7 @@ class Bubbles extends GenericService {
          * @async
          * @category Manage Bubbles - Bubbles MANAGEMENT
          * @description
-         *     Check if the Bubble is un Archive state (everybody unsubscribed)
+         *     Check if the Bubble is an Archive state (everybody unsubscribed)
          * @param {object} bubble Bubble to be archived
          * @returns {Promise<boolean>} True if the Bubble is in archive state
          */
@@ -2051,13 +2052,13 @@ class Bubbles extends GenericService {
          * @category Manage Bubbles - Bubbles MANAGEMENT
          * @param {Bubble} bubble  The bubble to delete
          * @description
-         *  Delete a owned bubble. When the owner deletes a bubble, the bubble and its content is no more accessible by all participants. <br>
+         *  Delete an owned bubble. When the owner deletes a bubble, the bubble and its content is no more accessible by all participants. <br>
          * @async
          * @return {Promise<Bubble, ErrorManager>}
          * @fulfil {Bubble} - The bubble removed, else an ErrorManager object
     
          */
-        deleteBubble(bubble) {
+        deleteBubble(bubble : Bubble) {
             let that = this;
             that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteBubble) bubble.id : ", bubble?.id, ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
 
@@ -2127,13 +2128,13 @@ class Bubbles extends GenericService {
          * @category Manage Bubbles - Bubbles MANAGEMENT
          * @param {Bubble} bubble  The bubble to close + delete
          * @description
-         *  Delete a owned bubble. When the owner deletes a bubble, the bubble and its content is no more accessible by all participants. <br>
+         *  Delete an owned bubble. When the owner deletes a bubble, the bubble and its content is no more accessible by all participants. <br>
          * @async
          * @return {Promise<Bubble, ErrorManager>}
          * @fulfil {Bubble} - The bubble removed, else an ErrorManager object
     
          */
-        closeAndDeleteBubble(bubble) {
+        closeAndDeleteBubble(bubble : Bubble) {
             let that = this;
             that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(closeAndDeleteBubble) bubble.id : ", bubble?.id, ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
 
@@ -2183,13 +2184,13 @@ class Bubbles extends GenericService {
          * @category Manage Bubbles - Bubbles MANAGEMENT
          * @param {Bubble} bubble The Bubble to close
          * @description
-         *  Close a owned bubble. When the owner closes a bubble, the bubble is archived and only accessible in read only mode for all participants. <br>
+         *  Close an owned bubble. When the owner closes a bubble, the bubble is archived and only accessible in read only mode for all participants. <br>
          * @async
          * @return {Promise<Bubble, ErrorManager>}
          * @fulfil {Bubble} - The bubble closed, else an ErrorManager object
     
          */
-        closeBubble(bubble) {
+        closeBubble(bubble : Bubble) {
             let that = this;
             that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(closeBubble) bubble.id : ", bubble?.id, ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
 
@@ -2200,7 +2201,10 @@ class Bubbles extends GenericService {
                     let participantID = participantsIDList.shift();
     
                     if (participantID) {
-                        return that.removeContactFromBubble({id: participantID}, bubble).then(() => {
+                        let participant = (new Contact());
+                        participant.id = participantID;
+
+                        return that.removeContactFromBubble(participant, bubble).then(() => {
                             that._logger.log(that.DEBUG, LOG_ID + "(closeBubble) Participant " + participantID + " unsubscribed");
                             return unsubscribeParticipants(participantsIDList).then(() => {
                                 resolve(undefined);
@@ -2248,12 +2252,12 @@ class Bubbles extends GenericService {
     
                     unsubscribeParticipants(queue).then(() => {
                         that._logger.log(that.INFO, LOG_ID + "(closeBubble) all users have been unsubscribed from bubble. Bubble is closed");
-    
-                        that.removeContactFromBubble({id: that._rest.userId}, bubble).then(() => {
+                        /* let participant = (new Contact());
+                        participant.id = that._rest.userId;
+                        // */
+
+                        that.removeContactFromBubble(that._rest.account, bubble).then(() => {
                             that._rest.getBubble(bubble.id).then(async (bubbleUpdated: any) => {
-    
-                                //
-    
                                 // Update the existing local bubble stored
                                 let bubbleReturned = await that.addOrUpdateBubbleToCache(bubbleUpdated);
     
@@ -2295,7 +2299,7 @@ class Bubbles extends GenericService {
          * @fulfil {Bubble} - The operation result
     
          */
-        archiveBubble(bubble) {
+        archiveBubble(bubble : Bubble) {
             let that = this;
             that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(archiveBubble) bubble.id : ", bubble?.id, ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
 
@@ -2343,7 +2347,7 @@ class Bubbles extends GenericService {
          * @fulfil {Bubble} - The operation result
     
          */
-        leaveBubble(bubble) {
+        leaveBubble(bubble : Bubble) {
             let that = this;
             that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(leaveBubble) bubble.id : ", bubble?.id, ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
 
@@ -2586,7 +2590,7 @@ class Bubbles extends GenericService {
          * @method addOrUpdateBubbleToCache
          * @private
          * @category Manage Bubbles - Bubbles MANAGEMENT
-         * @param bubble
+         * @param {any} bubble
          * @return {Promise<Bubble>}
          * @private
          */
@@ -2697,7 +2701,7 @@ class Bubbles extends GenericService {
          * @fulfil {Bubble} - The bubble updated with the modifications
     
          */
-        promoteContactInBubble(contact, bubble, isModerator) {
+        promoteContactInBubble(contact : Contact, bubble : Bubble, isModerator : boolean) {
             let that = this;
             that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(promoteContactInBubble) contact.id : ", that._logger.stripStringForLogs(contact?.id), ", contact.name : ", that._logger.stripStringForLogs(contact?.name?.value), ", bubble.id : ", that._logger.stripStringForLogs(bubble?.id), ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
 
@@ -2783,7 +2787,7 @@ class Bubbles extends GenericService {
          * @param {Bubble} bubble   The destination bubble
          * @return {Promise<Bubble, ErrorManager>} The bubble object or an error object depending on the result
          */
-        promoteContactToModerator(contact, bubble) {
+        promoteContactToModerator(contact : Contact, bubble : Bubble) {
             let that = this;
             that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(promoteContactToModerator) contact.id : ", that._logger.stripStringForLogs(contact?.id), ", contact.name : ", that._logger.stripStringForLogs(contact?.name?.value), ", bubble.id : ", that._logger.stripStringForLogs(bubble?.id), ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
             if (!contact) {
@@ -2812,7 +2816,7 @@ class Bubbles extends GenericService {
          * @param {Bubble} bubble   The destination bubble
          * @return {Promise<Bubble, ErrorManager>} The bubble object or an error object depending on the result
          */
-        demoteContactFromModerator(contact, bubble) {
+        demoteContactFromModerator(contact : Contact, bubble : Bubble) {
             let that = this;
             that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(demoteContactFromModerator) contact.id : ", that._logger.stripStringForLogs(contact?.id), ", contact.name : ", that._logger.stripStringForLogs(contact?.name?.value), ", bubble.id : ", that._logger.stripStringForLogs(bubble?.id), ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
             if (!contact) {
@@ -2899,7 +2903,7 @@ class Bubbles extends GenericService {
          * @fulfil {Bubble} - The bubble updated or an error object depending on the result
     
          */
-        declineInvitationToJoinBubble(bubble) {
+        declineInvitationToJoinBubble(bubble : Bubble) {
             let that = this;
             that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(declineInvitationToJoinBubble) bubble.id : ", that._logger.stripStringForLogs(bubble?.id), ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
 
@@ -2949,7 +2953,7 @@ class Bubbles extends GenericService {
          * @param {Bubble} bubble           The bubble
          * @param {boolean} isModerator     True to add a contact as a moderator of the bubble
          * @param {boolean} withInvitation  If true, the contact will receive an invitation and will have to accept it before entering the bubble. False to force the contact directly in the bubble without sending an invitation.
-         * @param {string} reason        The reason of the invitation (optional)
+         * @param {string} reason=null        The reason of the invitation (optional)
          * @description
          *  Invite a contact in a bubble <br>
          * @async
@@ -2957,7 +2961,7 @@ class Bubbles extends GenericService {
          * @fulfil {Bubble} - The bubble updated with the new invitation
     
          */
-        inviteContactToBubble(contact, bubble, isModerator, withInvitation, reason = null) {
+        inviteContactToBubble(contact : Contact, bubble: Bubble, isModerator : boolean, withInvitation : boolean, reason : string = null) {
             let that = this;
             that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(inviteContactToBubble) contact.id : ", that._logger.stripStringForLogs(contact?.id), ", contact.name : ", that._logger.stripStringForLogs(contact?.name?.value), ", bubble.id : ", that._logger.stripStringForLogs(bubble?.id), ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
 
@@ -3042,7 +3046,7 @@ class Bubbles extends GenericService {
          * @method inviteContactsByEmailsToBubble
          * @instance
          * @category Manage Bubbles - Bubbles INVITATIONS
-         * @param {Contact} contactsEmails         The contacts email tab to invite
+         * @param {Array<string>} contactsEmails         The contacts email tab to invite
          * @param {Bubble} bubble           The bubble
          * @description
          *  Invite a list of contacts by emails in a bubble <br>
@@ -3050,9 +3054,9 @@ class Bubbles extends GenericService {
          * @return {Promise<Bubble, ErrorManager>}
          * @fulfil {Bubble} - The bubble updated with the new invitation
          */
-        inviteContactsByEmailsToBubble(contactsEmails, bubble) {
+        inviteContactsByEmailsToBubble(contactsEmails : Array<string>, bubble : Bubble) {
             let that = this;
-            that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(inviteContactsByEmailsToBubble) contactsEmails : ", that._logger.stripStringForLogs(contactsEmails), ", bubble.id : ", that._logger.stripStringForLogs(bubble?.id), ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name?.value));
+            that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(inviteContactsByEmailsToBubble) isDefined(contactsEmails) : ", isDefined(contactsEmails), ", bubble.id : ", that._logger.stripStringForLogs(bubble?.id), ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name?.value));
 
             return new Promise(function (resolve, reject) {
                 that._logger.log(that.INTERNAL, LOG_ID + "(inviteContactsByEmailToBubble) arguments : ", ...arguments);
@@ -3206,7 +3210,7 @@ class Bubbles extends GenericService {
          * @fulfil {Bubble} - The bubble updated with the custom data set or an error object depending on the result
     
          */
-        setBubbleCustomData(bubble, customData) {
+        setBubbleCustomData(bubble : Bubble, customData : any) {
             let that = this;
             that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(setBubbleCustomData) bubble.id : ", that._logger.stripStringForLogs(bubble?.id), ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
 
@@ -3290,7 +3294,7 @@ class Bubbles extends GenericService {
          * @fulfil {Bubble} - The Bubble full data or an error object depending on the result
     
          */
-        setBubbleVisibilityStatus(bubble, status) {
+        setBubbleVisibilityStatus(bubble : Bubble, status : string) {
             let that = this;
             that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(setBubbleVisibilityStatus) bubble.id : ", that._logger.stripStringForLogs(bubble?.id), ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
 
@@ -3330,7 +3334,7 @@ class Bubbles extends GenericService {
          * @fulfil {Bubble} - The Bubble full data or an error object depending on the result
     
          */
-        setBubbleTopic(bubble, topic) {
+        setBubbleTopic(bubble : Bubble, topic : string) {
             let that = this;
             that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(setBubbleTopic) bubble.id : ", that._logger.stripStringForLogs(bubble?.id), ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
 
@@ -3369,7 +3373,7 @@ class Bubbles extends GenericService {
          * @fulfil {Bubble} - The Bubble full data or an error object depending on the result
     
          */
-        setBubbleName(bubble, name) {
+        setBubbleName(bubble : Bubble, name : string) {
             let that = this;
             that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(setBubbleName) bubble.id : ", that._logger.stripStringForLogs(bubble?.id), ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
 
@@ -3399,7 +3403,7 @@ class Bubbles extends GenericService {
          * @private
          * @category Manage Bubbles - Bubbles FIELDS
          * @instance
-         * @param {number} length
+         * @param {number} length=10
          * @return {string}
          */
         randomString(length: number = 10) {
@@ -3423,14 +3427,14 @@ class Bubbles extends GenericService {
          * @category Manage Bubbles - Bubbles FIELDS
          * @description
          *    Update the bubble avatar (from given URL) <br>
-         *    The image will be automaticalle resized <br>
+         *    The image will be automatically resized <br>
          *    /!\ if URL isn't valid or given image isn't loadable, it'll fail <br>
          *    Return a promise. <br>
          * @param {string} urlAvatar  The avatarUrl
          * @param {Bubble} bubble  The bubble to update
          * @return {Bubble} A bubble object of null if not found
          */
-        updateAvatarForBubble(urlAvatar, bubble) {
+        updateAvatarForBubble(urlAvatar : string, bubble : Bubble) {
             let that = this;
             that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateAvatarForBubble) bubble.id : ", that._logger.stripStringForLogs(bubble?.id), ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
             return this.setAvatarBubble(bubble, urlAvatar);
@@ -3444,7 +3448,7 @@ class Bubbles extends GenericService {
          * @param bubble
          * @param roomAvatarPath
          */
-        setAvatarBubble(bubble, roomAvatarPath) {
+        setAvatarBubble(bubble: Bubble, roomAvatarPath) {
             let that = this;
             that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(setAvatarBubble) bubble.id : ", that._logger.stripStringForLogs(bubble?.id), ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
 
@@ -3499,7 +3503,7 @@ class Bubbles extends GenericService {
          * @param {Bubble} bubble  The bubble to update
          * @return {Bubble} A bubble object of null if not found
          */
-        deleteAvatarFromBubble(bubble) {
+        deleteAvatarFromBubble(bubble : Bubble) {
             let that = this;
             that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteAvatarFromBubble) bubble.id : ", that._logger.stripStringForLogs(bubble?.id), ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
             if (!bubble) {
@@ -3564,7 +3568,7 @@ class Bubbles extends GenericService {
          * @param {Bubble} bubble   The bubble to update
          * @return {Promise<Bubble>} The updated Bubble
          */
-        async updateCustomDataForBubble(customData, bubble) {
+        async updateCustomDataForBubble(customData: any, bubble : Bubble) {
             let that = this;
             that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateCustomDataForBubble) bubble.id : ", that._logger.stripStringForLogs(bubble?.id), ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
             that._logger.log(that.INTERNAL, LOG_ID + "(updateCustomDataForBubble) customData : ", customData);
@@ -3613,7 +3617,7 @@ class Bubbles extends GenericService {
          * @param {Bubble} bubble   The bubble to update
          * @return {Promise<Bubble>} The updated Bubble
          */
-        deleteCustomDataForBubble(bubble) {
+        deleteCustomDataForBubble(bubble : Bubble) {
             let that = this;
             that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteCustomDataForBubble) bubble.id : ", that._logger.stripStringForLogs(bubble?.id), ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
             return this.updateCustomDataForBubble("", bubble);
@@ -3630,10 +3634,10 @@ class Bubbles extends GenericService {
          *    Update the description of the bubble  <br>
          *    Return a promise. <br>
          * @param {Bubble} bubble   The bubble to update
-         * @param {string} strDescription   The description of the bubble (is is the topic on server side, and result event)
+         * @param {string} strDescription   The description of the bubble (it is the topic on server side, and result event)
          * @return {Bubble} A bubble object of null if not found
          */
-        async updateDescriptionForBubble(bubble, strDescription) {
+        async updateDescriptionForBubble(bubble : Bubble, strDescription : string) {
             let that = this;
             that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateDescriptionForBubble) bubble.id : ", that._logger.stripStringForLogs(bubble?.id), ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
             return this.setBubbleTopic(bubble, strDescription);
@@ -3676,7 +3680,7 @@ class Bubbles extends GenericService {
          * @fulfil {Bubble} - The bubble updated with the modifications
     
          */
-        changeBubbleOwner(bubble, contact) {
+        changeBubbleOwner(bubble : Bubble, contact : Contact) {
             let that = this;
             that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(changeBubbleOwner) bubble.id : ", that._logger.stripStringForLogs(bubble?.id), ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
     
@@ -3720,7 +3724,7 @@ class Bubbles extends GenericService {
          * @fulfil {Bubble} - The bubble object or an error object depending on the result
     
          */
-        removeContactFromBubble(contact, bubble) {
+        removeContactFromBubble(contact : Contact, bubble : Bubble) {
             let that = this;
             that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(removeContactFromBubble) bubble.id : ", that._logger.stripStringForLogs(bubble?.id), ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name), ", contact.id : ", that._logger.stripStringForLogs(contact?.id), ", contact.name : ", that._logger.stripStringForLogs(contact?.name?.value));
     
@@ -3832,7 +3836,7 @@ class Bubbles extends GenericService {
          * @description
          *  Get A Blob object with data about the avatar picture of the bubble. <br>
          */
-        getAvatarFromBubble(bubble) {
+        getAvatarFromBubble(bubble : Bubble) {
             /*
             Nom : 5da72aa7e6ca5a023da44eff
             Dimensions : 512 × 512
@@ -3888,7 +3892,7 @@ class Bubbles extends GenericService {
          * @description
          *  Refresh members and organizers of the bubble. <br>
          */
-        refreshMemberAndOrganizerLists(bubble) {
+        refreshMemberAndOrganizerLists(bubble : Bubble) {
             let that = this;
             that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(refreshMemberAndOrganizerLists) bubble.id : ", that._logger.stripStringForLogs(bubble?.id), ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
 
@@ -3922,7 +3926,7 @@ class Bubbles extends GenericService {
          * @instance
          * @category Manage Bubbles - Bubbles FIELDS
          * @param {Bubble} bubble           The bubble
-         * @param {Object} options          The criterias to select the users to retrieve <br>
+         * @param {Object} options={}          The criterias to select the users to retrieve <br>
          * format : Allows to retrieve more or less user details in response, besides specifics data about room users like (privilege, status and additionDate) <br>
          * - small: userId loginEmail displayName jid_im <br>
          * - medium: userId loginEmail displayName jid_im status additionDate privilege firstName lastName companyId companyName <br>
@@ -3937,7 +3941,7 @@ class Bubbles extends GenericService {
          * @async
          * @return {Promise<Array, ErrorManager>}
          */
-        getUsersFromBubble(bubble, options: Object = {}) {
+        getUsersFromBubble(bubble : Bubble, options: Object = {}) {
             let that = this;
             that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getUsersFromBubble) bubble.id : ", that._logger.stripStringForLogs(bubble?.id), ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
 
@@ -3988,7 +3992,7 @@ class Bubbles extends GenericService {
          * @async
          * @return {Promise<Bubble, ErrorManager>}
          */
-        getStatusForConnectedUserInBubble(bubble) {
+        getStatusForConnectedUserInBubble(bubble : Bubble) {
             let that = this;
             that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getStatusForConnectedUserInBubble) bubble.id : ", that._logger.stripStringForLogs(bubble?.id), ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
 
@@ -4016,7 +4020,7 @@ class Bubbles extends GenericService {
          * @async
          * @category Manage Bubbles - Bubbles TAGS
          * @param {Array<string>} tags List of tags to filter the retrieved bubbles. 64 tags max.
-         * @param {string} format Allows to retrieve more or less room details in response. <br>
+         * @param {string} format="small" Allows to retrieve more or less room details in response. <br>
          * small: id, name, jid, isActive <br>
          * medium: id, name, jid, topic, creator, conference, guestEmails, disableNotifications, isActive, autoAcceptInvitation <br>
          * full: all room fields <br>
@@ -4027,7 +4031,7 @@ class Bubbles extends GenericService {
          * If full format is used, and whatever the status of the logged in user (active or unsubscribed), then he is added in first position of the users list. <br>
          * Default value : small <br>
          * Authorized value : small, medium, full <br>
-         * @param {number} nbUsersToKeep Allows to truncate the returned list of active users member of the bubble in order to avoid having too much data in the response (performance optimization). <br>
+         * @param {number} nbUsersToKeep=100 Allows to truncate the returned list of active users member of the bubble in order to avoid having too much data in the response (performance optimization). <br>
          * If value is set to -1, all active bubble members are returned. <br>
          * Only usable if requested format is full (otherwise users field is not returned) <br>
          * Default value : 100 <br>
@@ -4176,7 +4180,7 @@ class Bubbles extends GenericService {
      * @instance
      * @async
      * @category Manage Bubbles - Bubbles CONTAINERS (Bubble Folder)
-     * @param {string} name name The name of a rooms container created by the logged in user. <br>
+     * @param {string} name=null name The name of a rooms container created by the logged in user. <br>
      * Two way to search containers are available:<br>
      * a word search ('all containers that contain a word beginning with...'). So name=cont or name=container leads to find "My first Container", "my second container" ..<br>
      * an exact match case insensitive for a list of container name. name=Container1&name=container2 eads to find 'Container1' and 'Container2' name (must be an exact match but we are case sensitive)<br>
@@ -4184,7 +4188,7 @@ class Bubbles extends GenericService {
      *      retrieve the containers of bubbles from server. <br>
      *      A filter can be provided for the search by a name. <br>
      * @return {Promise<any>} the result of the operation.
-
+     *
      */
     getAllBubblesContainers(name: string = null) {
         let that = this;
@@ -4214,7 +4218,7 @@ class Bubbles extends GenericService {
      * @method getABubblesContainersById
      * @instance
      * @category Manage Bubbles - Bubbles CONTAINERS (Bubble Folder)
-     * @param {string} id The id of the container of bubbles to retreive from server.
+     * @param {string} id=null The id of the container of bubbles to retreive from server.
      * @async
      * @description
      *       retrieve a containers of bubbles from server by it's id. <br>
@@ -4300,7 +4304,7 @@ class Bubbles extends GenericService {
      * @param {string} description The description of the container.
      * @async
      * @description
-     *       Change one rooms container name or description from server by it's id. <br>
+     *       Change one bubble container name or description from server by it's id. <br>
      * @return {Promise<any>} the result of the operation.
 
      */
@@ -4347,7 +4351,8 @@ class Bubbles extends GenericService {
      * @param {Array<string>} bubbleIds List of the bubbles Id to attach to the container.
      * @async
      * @description
-     *       Create one rooms container with name or description. <br>
+     *       Create one bubble container with name or description. <br>
+     *       
      * @return {Promise<any>} the result of the operation.
 
      */
@@ -4500,12 +4505,12 @@ class Bubbles extends GenericService {
          * @since 1.72
          * @instance
          * @category Manage Bubbles - Bubbles PUBLIC URL
-         * @param {Object} openInvite contains informations about a bubbles invitation
+         * @param {Object} openInvite contains information about a bubbles invitation
          * @description
          *     get infos for the PublicUrl <br>
          * @return {Promise<any>}
     */
-    async getInfoForPublicUrlFromOpenInvite(openInvite) {
+    async getInfoForPublicUrlFromOpenInvite(openInvite: any) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getInfoForPublicUrlFromOpenInvite) .");
 
@@ -4555,7 +4560,7 @@ class Bubbles extends GenericService {
          * @since 1.72
          * @instance
          * @category Manage Bubbles - Bubbles PUBLIC URL
-         * @param  {Contact} contact user used to get all his Public Url. If not setted the connected user is used.
+         * @param  {Contact} contact="new Contact()" user used to get all his Public Url. If not setted the connected user is used.
          * @description
          *     get all the PublicUrl belongs to a user <br>
          * @return {Promise<any>}
@@ -4585,7 +4590,7 @@ class Bubbles extends GenericService {
          *     get all the PublicUrl of a bubble belongs to the connected user <br>
          * @return {Promise<any>}
     */
-    async getAllPublicUrlOfABubble(bubble): Promise<any> {
+    async getAllPublicUrlOfABubble(bubble : Bubble): Promise<any> {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getAllPublicUrlOfABubble) .");
 
@@ -4614,7 +4619,7 @@ class Bubbles extends GenericService {
          * @param {Contact} contact user used to get all his Public Url. If not setted the connected user is used.
          * @param {Bubble} bubble bubble from where get the public link.
          * @description
-         *     get all the PublicUrl of a bubble belong's to a user <br>
+         *     get all the PublicUrl of a bubble belongs to a user <br>
          * @return {Promise<any>}
     */
     async getAllPublicUrlOfABubbleOfAUser(contact: Contact, bubble: Bubble): Promise<any> {
@@ -4729,7 +4734,7 @@ class Bubbles extends GenericService {
          *    autoRegister = 'unlock_ack' (value not authorized yet): If this user is not yet registered inside this room, he can't access to the room waiting for the room's owner acknowledgment.
          *    Return a promise. <br>
          * @param {Bubble} bubble The bubble on which the public url must be deleted.
-         * @param {string} autoRegister value of the share of public URL to set.
+         * @param {string} autoRegister="unlock" value of the share of public URL to set.
          * @return {Promise<Bubble>} An object of the result
     */
     setBubbleAutoRegister(bubble: Bubble, autoRegister: string = "unlock"): Promise<Bubble> {
@@ -4809,15 +4814,21 @@ class Bubbles extends GenericService {
          *    and automatically joins the room to which the public link is bound. <br>
          * <br>
          *    Note: The guest account can be destroy only with a user having one of the following rights : superadmin,bp_admin,bp_finance,admin. <br>
-         * @param {string} publicUrl
-         * @param {string} loginEmail
-         * @param {string} password
-         * @param {string} firstName
-         * @param {string} lastName
-         * @param {string} nickName
-         * @param {string} title
-         * @param {string} jobTitle
-         * @param {string} department
+         * @param {string} publicUrl the public url to get the openinviteId.
+         * @param {string} loginEmail User email address (used for login). Must be unique (409 error is returned if a user already exists with the same email address).
+         * @param {string} password User password. </BR>
+         * Rules: </BR>
+         * * more than 8 characters, </BR>
+         *     * ⚠️ Warning: the minimal password length will soon be increased to 12, planned to be effective mid-june 2023 (8 characters are still accepted until this date) </BR>
+         * * at least 1 capital letter, </BR>
+         * * 1 number, </BR>
+         * * 1 special character. </BR>
+         * @param {string} firstName User first name
+         * @param {string} lastName User last name
+         * @param {string} nickName User nickName
+         * @param {string} title User title (honorifics title, like Mr, Mrs, Sir, Lord, Lady, Dr, Prof,...)
+         * @param {string} jobTitle User job title
+         * @param {string} department User department
          * @return {Promise<any>} An object of the result
     */
     registerGuestForAPublicURL(publicUrl: string, loginEmail: string, password: string, firstName: string, lastName: string, nickName: string, title: string, jobTitle: string, department: string) {
@@ -4911,7 +4922,7 @@ class Bubbles extends GenericService {
      * @instance
      * @category Manage Bubbles - Bubbles Open Invites
      * @description
-     *    Rainbow user may have a public links that will help their coworkers to join rooms. So that he just has to create a room and create a public link so called 'public URL'. <br>
+     *    Rainbow user may have a public link that will help their coworkers to join rooms. So that he just has to create a room and create a public link so called 'public URL'. <br>
      *    Each user can create on demand a public URL to one of his rooms(users public link). <br>
      *    The public URL format is designed by the Rainbow application programmer and must contain at least an 'openInviteId'. This openInviteId is an UUID-V4 value. <br>
      * @param {string} openInviteId uuid representing a part of the user's public URL to invite somebody to join a bubble. Example of public URL: https://web.openrainbow.com/#/invite?invitationId=0fc06e0ce4a849fcbe214ae5e1107417&scenario='public-url'
@@ -4958,9 +4969,9 @@ class Bubbles extends GenericService {
      * @async
      * @category Manage Bubbles - Bubbles Polls
      * @description
-     *    This API allow to create a Poll for a bubble. <br>
+     *    This API allow creating a Poll for a bubble. <br>
      * @param {string} bubbleId bubble identifier.
-     * @param {string} title Poll title.
+     * @param {string} title="" Poll title.
      * @param {Object} questions
      * [{<br>
      *      text : string //Question text (up to 20 questions).<br>
@@ -4969,8 +4980,8 @@ class Bubbles extends GenericService {
      *           text : string // Answer text (up to 20 answers).<br>
      *           }]<br>
      * }] The questions to ask.<br>
-     * @param {boolean} anonymous Is poll anonymous? Default value : false
-     * @param {number} duration Poll duration (from 0 to 60 minutes, 0 means no duration). Default value : 0
+     * @param {boolean} anonymous=false Is poll anonymous? Default value : false
+     * @param {number} duration=0 Poll duration (from 0 to 60 minutes, 0 means no duration). Default value : 0
      * @return {Promise<any>} An object of the result
      * {
      *  pollId : string // Created poll identifier.
@@ -5017,11 +5028,11 @@ class Bubbles extends GenericService {
      * @async
      * @category Manage Bubbles - Bubbles Polls
      * @description
-     *    This API allow to delete a Poll for a bubble. <br>
+     *    This API allows deleting a Poll for a bubble. <br>
      * @param {string} pollId poll identifier.
      * @return {Promise<any>} An object of the result
      */
-    deleteBubblePoll(pollId) {
+    deleteBubblePoll(pollId: string) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteBubblePoll) .");
 
@@ -5052,9 +5063,9 @@ class Bubbles extends GenericService {
      * @async
      * @category Manage Bubbles - Bubbles Polls
      * @description
-     *    This API allow to get data of a Poll for a bubble. <br>
+     *    This API allows getting data of a Poll for a bubble. <br>
      * @param {string} pollId poll identifier.
-     * @param {string} format If format equals small, non-anonymous polls are sent in anonymous format. Default value : small. Possible values : small, full
+     * @param {string} format="small" If format equals small, non-anonymous polls are sent in anonymous format. Default value : small. Possible values : small, full
      * @return {Promise<any>} An object of the result
      */
     getBubblePoll(pollId : string, format : string = "small") {
@@ -5090,10 +5101,12 @@ class Bubbles extends GenericService {
      * @description
      *    Get polls for a room. They are ordered by creation date (from newest to oldest). Only moderator can get unpublished polls. <br>
      * @param {string} bubbleId Bubble identifier.
-     * @param {string} format If format equals small, non-anonymous polls are sent in anonymous format. Default value : small. Possible values : small, full
+     * @param {string} format="small" If format equals small, non-anonymous polls are sent in anonymous format. Default value : small. Possible values : small, full
+     * @param {number} limit=100 Allow to specify the number of data to retrieve.
+     * @param {number} offset Allow to specify the position of first data to retrieve
      * @return {Promise<any>} An object of the result
-     * 
-     * 
+     *
+     *
      * | Champ | Type | Description |
      * | --- | --- | --- |
      * | data | Object\[\] |     |
@@ -5153,7 +5166,7 @@ class Bubbles extends GenericService {
      * @async
      * @category Manage Bubbles - Bubbles Polls
      * @description
-     *    This API allow to publish a Poll for a bubble. <br>
+     *    This API allows publishing a Poll for a bubble. <br>
      * @param {string} pollId poll bubble identifier.
      * @return {Promise<any>} An object of the result
      *
@@ -5189,7 +5202,7 @@ class Bubbles extends GenericService {
      * @async
      * @category Manage Bubbles - Bubbles Polls
      * @description
-     *    This API allow to terminate a Poll for a bubble. <br>
+     *    This API allows terminating a Poll for a bubble. <br>
      * @param {string} pollId poll bubble identifier.
      * @return {Promise<any>} An object of the result
      *
@@ -5225,7 +5238,7 @@ class Bubbles extends GenericService {
      * @async
      * @category Manage Bubbles - Bubbles Polls
      * @description
-     *    This API allow to unpublish a Poll for a bubble. <br>
+     *    This API allows unpublishing a Poll for a bubble. <br>
      * @param {string} pollId poll bubble identifier.
      * @return {Promise<any>} An object of the result
      *
@@ -5261,10 +5274,10 @@ class Bubbles extends GenericService {
      * @async
      * @category Manage Bubbles - Bubbles Polls
      * @description
-     *    This API allow to update poll. When updating a question or an answer, all questions and answers must be present in body. <br>
+     *    This API allows updating poll. When updating a question or an answer, all questions and answers must be present in body. <br>
      * @param {string} pollId poll identifier.
      * @param {string} bubbleId bubble identifier.
-     * @param {string} title Poll title.
+     * @param {string} title="" Poll title.
      * @param {Object} questions
      * [{<br>
      *      text : string //Question text (up to 20 questions).<br>
@@ -5273,8 +5286,8 @@ class Bubbles extends GenericService {
      *           text : string // Answer text (up to 20 answers).<br>
      *           }]<br>
      * }] The questions to ask.<br>
-     * @param {boolean} anonymous Is poll anonymous? Default value : false
-     * @param {number} duration Poll duration (from 0 to 60 minutes, 0 means no duration). Default value : 0
+     * @param {boolean} anonymous=false Is poll anonymous? Default value : false
+     * @param {number} duration=0 Poll duration (from 0 to 60 minutes, 0 means no duration). Default value : 0
      * @return {Promise<any>} An object of the result
      * 
      */
@@ -5324,7 +5337,7 @@ class Bubbles extends GenericService {
      * @async
      * @category Manage Bubbles - Bubbles Polls
      * @description
-     *    This API allow to vote for a Poll for a bubble. <br>
+     *    This API allows voting for a Poll for a bubble. <br>
      * @param {string} pollId poll bubble identifier.
      * @param {Array<Object>} votes Array< <br>
      *  question : number // Question number (starts at 0). <br>
@@ -5378,7 +5391,7 @@ class Bubbles extends GenericService {
      * @description
      *   Delete all messages in a Bubble for everybody or hide it definitively for a specific contact. <br>
      * @param {Bubble} bubble bubble where im messages must be deleted.
-     * @param {string} forContactJid jid of the contact we want to delete the access to messages in the bubble. If not setted, then all bubble's messages are deleted for every contacts.
+     * @param {string} forContactJid=undefined jid of the contact we want to delete the access to messages in the bubble. If not setted, then all bubble's messages are deleted for every contacts.
      * @return Promise<any> Result of the API.
      */
     async deleteAllMessagesInBubble( bubble: Bubble, forContactJid: string = undefined) {
@@ -5462,8 +5475,8 @@ class Bubbles extends GenericService {
      * @since 2.2.0
      * @category Conference V2
      * @param {string} roomId The id of the room.
-     * @param {string} limit Allows to specify the number of participants to retrieve.
-     * @param {string} offset Allows to specify the position of first participant to retrieve.
+     * @param {string} limit=100 Allows to specify the number of participants to retrieve.
+     * @param {string} offset=0 Allows to specify the position of first participant to retrieve.
      * @async
      * @description
      *       The snapshot command returns global information about conference and the set of participants engaged in the conference. <br>
@@ -5677,7 +5690,7 @@ class Bubbles extends GenericService {
      * @param {string} roomId The id of the room.
      * @async
      * @description
-     *       Disconnect PSTN participant from conference. The request is sent by a conference's moderator. <br>
+     *       Disconnect PSTN participant from a conference. The request is sent by a conference's moderator. <br>
      *       Conference: Moderator can drop any PSTN participant. <br>
      *       Webinar: Organizer or speaker can drop any PSTN participant. <br>
      *       Practice room: Not applicable <br>
@@ -5722,7 +5735,7 @@ class Bubbles extends GenericService {
      * @param {string} userId User identifier.
      * @async
      * @description
-     *       Disconnect participant from conference. The request can be sent by participant himself or by a conference's moderator. <br>
+     *       Disconnect participant from a conference. The request can be sent by participant himself or by a conference's moderator. <br>
      *       Conference: Moderator can drop any participant except conference owner. <br>
      *       Webinar: Organizer or speaker can drop any participant. <br>
      *       Practice room: Organizer or speaker can drop any participant. When last participant is dropped, practice room stops. <br>
@@ -5769,11 +5782,11 @@ class Bubbles extends GenericService {
      * @since 2.2.0
      * @category Conference V2
      * @param {string} roomId The id of the room.
-     * @param {string} limit Allows to specify the number of participants to retrieve.
-     * @param {string} offset Allows to specify the position of first participant to retrieve.
+     * @param {string} limit=100 Allows to specify the number of participants to retrieve.
+     * @param {string} offset=0 Allows to specify the position of first participant to retrieve.
      * @async
      * @description
-     *       The snapshot command returns global information about conference and the set of participants engaged in the conference. <br>
+     *       The snapshot command returns global information about a conference and the set of participants engaged in the conference. <br>
      *       If conference isn't started, 'active' will be 'false' and the participants list empty. <br>
      *       If conference is started and the requester is in it, the response will contain global information about conference and the requested set of participants. <br>
      *       If the conference is started and the requester, not conference owner, isn't in the conference, the response will contain global information about conference and an empty participants list. <br>
@@ -5817,11 +5830,11 @@ class Bubbles extends GenericService {
      * @param {string} bubbleId The id of the room.
      * @param {string} participantPhoneNumber Join through dial.
      * @param {string} country Country where the called number is from. If not provided, the user's country is taken.
-     * @param {string} deskphone User joins conference through his deskphone. Default value : false
-     * @param {Array<string>} dc TURN server prefix information associated to client location (DC = Data Center). Default Value : ["rdeu"]
-     * @param {string} mute Join as muted/unmuted.
-     * @param {string} microphone Has client a microphone?
-     * @param {Array<string>} media Requested media. Default value : ["video"] to let the bot join without audio. Possible value : "audio", "video" .
+     * @param {string} deskphone=false User joins conference through his deskphone. Default value : false
+     * @param {Array<string>} dc=["rdeu"] TURN server prefix information associated to client location (DC = Data Center). Default Value : ["rdeu"]
+     * @param {string} mute=false Join as muted/unmuted.
+     * @param {string} microphone=false Has client a microphone?
+     * @param {Array<string>} media=["video"] Requested media. Default value : ["video"] to let the bot join without audio. Possible value : "audio", "video" .
      * @param {string} resourceId Jabber resource identifier for webinar attendee. Default value : the internal xmpp resource used to connect server.
      * @async
      * @description
@@ -5970,7 +5983,7 @@ class Bubbles extends GenericService {
      * @description
      *       Start the recording of a conference. <br>
      * @return {Promise<any>} the result of the operation.
-
+     *
      */
     startRecording(roomId: string) {
         let that = this;
@@ -6010,7 +6023,7 @@ class Bubbles extends GenericService {
      * @description
      *       Stop the recording of a conference. <br>
      * @return {Promise<any>} the result of the operation.
-
+     *
      */
     stopRecording(roomId: string) {
         let that = this;
@@ -6051,7 +6064,7 @@ class Bubbles extends GenericService {
      *       User indicates that he rejects the conference (only available for WebRTC conferences). <br>
      *       A XMPP message will be sent to all his clients in order for them to remove the incoming call popup. <br>
      * @return {Promise<any>} the result of the operation.
-
+     *
      */
     rejectAVideoConference(roomId: string) {
         let that = this;
@@ -6087,12 +6100,12 @@ class Bubbles extends GenericService {
      * @since 2.2.0
      * @category Conference V2
      * @param {string} bubbleId The id of the room.
-     * @param {Object} services Requested service types. example : { "services": [ "video-compositor" ] }
+     * @param {Object} services Requested service types. example: { "services": [ "video-compositor" ] }
      * @async
      * @description
      *       The start command initiates a conference in a room. <br>
      * @return {Promise<any>} the result of the operation.
-
+     *
      */
     startConferenceOrWebinarInARoom(bubbleId: string, services  : { "services": [] } = undefined) {
         let that = this;
@@ -6131,12 +6144,12 @@ class Bubbles extends GenericService {
      * @async
      * @description
      *       The stop command terminates an active conference identified in a room. All currently connected participants are disconnected. <br>
-     *       Conference: Only conference owner can stop it. <br>
+     *       Conference: Only a conference owner can stop it. <br>
      *       Webinar: Any organizer can stop it. <br>
      *       Practice room: Any organizer or speaker can stop it. <br>
      *       Waiting room: Can't be stopped through API. <br>
      * @return {Promise<any>} the result of the operation.
-
+     *
      */
     stopConferenceOrWebinar(roomId: string) {
         let that = this;
@@ -6173,20 +6186,20 @@ class Bubbles extends GenericService {
      * @category Conference V2
      * @param {string} roomId The id of the room.
      * @param {string} userId User identifier.
-     * @param {string} media [or audioVideo] Concerned media. Default value in case of webinar is audio+video, else video. <br>
+     * @param {string} media="video" [or audioVideo] Concerned media. The default value in the case of webinar is audio+video, else video. <br>
      * default value : video <br>
      * Authorized values : audio, video, audioVideo, sharing <br>
-     * @param {number} subStreamLevel Sub stream level (O=low, 2=high) to activate at startup. To be used only if simulcast is available at publisher side. <br>
+     * @param {number} subStreamLevel=0 Sub stream level (O=low, 2=high) to activate at startup. To be used only if simulcast is available on the publisher side. <br>
      * Authorized values : 0, 1, 2 <br>
-     * @param {boolean} dynamicFeed Declare a feed as dynamic. You will subscribe first to the feed associated to publisher, then switch to active talker's feed if present. <br>
+     * @param {boolean} dynamicFeed=false Declare a feed as dynamic. You will subscribe first to the feed associated to publisher, then switch to active talker's feed if present. <br>
      *     Default value : false <br>
      * @async
      * @description
      *       Gives the possibility to a user participating in a WebRTC conference to subscribe and receive a video stream published by an other user. <br>
      * @return {Promise<any>} the result of the operation.
-
+     *
      */
-    subscribeForParticipantVideoStream(roomId: string, userId: string, media: string = "video", subStreamLevel: number = 0, dynamicFeed: boolean = false) {
+    subscribeForParticipantVideoStream(roomId: string, userId: string, media : string = "video", subStreamLevel: number = 0, dynamicFeed: boolean = false) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(subscribeForParticipantVideoStream) .");
 
@@ -6226,15 +6239,15 @@ class Bubbles extends GenericService {
      * @category Conference V2
      * @param {string} roomId The id of the room.
      * @param {string} phoneNumber Participant phone number.
-     * @param {string} option Mute/unmute the participant. <br>
+     * @param {string} option="unmute" Mute/unmute the participant. <br>
      *     Authorized values : mute, unmute
      * @async
      * @description
      *       The update PSTN participant command can update different options of a participant. Only one option can be updated at a time. <br>
      * @return {Promise<any>} the result of the operation.
-
+     *
      */
-    updatePSTNParticipantParameters(roomId: string, phoneNumber: string, option: string = " unmute") {
+    updatePSTNParticipantParameters(roomId: string, phoneNumber: string, option: string = "unmute") {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updatePSTNParticipantParameters) .");
 
@@ -6273,10 +6286,10 @@ class Bubbles extends GenericService {
      * @since 2.2.0
      * @category Conference V2
      * @param {string} roomId The id of the room.
-     * @param {string} option Following options are available: <br>
+     * @param {string} option="unmute" Following options are available: <br>
      * Mute Mutes all participants, except requester. <br>
      * Unmute Unmutes all participants. <br>
-     * Lock Disables any future participant from joining conference. <br>
+     * Lock Disables any future participant from joining a conference. <br>
      * Unlock Unlocks the conference. <br>
      * Webinar Changes practice room into webinar. <br>
      *     Authorized values :  mute, unmute, lock, unlock, webinar <br>
@@ -6284,7 +6297,7 @@ class Bubbles extends GenericService {
      * @description
      *       The update conference command can update different options of a conference. Only one option can be updated at a time. <br>
      * @return {Promise<any>} the result of the operation.
-
+     *
      */
     updateConferenceParameters(roomId: string, option: string = "unmute") {
         let that = this;
@@ -6343,7 +6356,7 @@ class Bubbles extends GenericService {
      * @description
      *       The update participant command can update different options of a participant. Only one option can be updated at a time. <br>
      * @return {Promise<any>} the result of the operation.
-
+     *
      */
     updateParticipantParameters(roomId: string, userId: string, option: string, media: string, bitRate: number, subStreamLevel: number, publisherId: string) {
         let that = this;
@@ -6389,7 +6402,7 @@ class Bubbles extends GenericService {
      * @description
      *       Webinar: allow a participant who raised his hand to talk. <br>
      * @return {Promise<any>} the result of the operation.
-
+     *
      */
     allowTalkWebinar(roomId: string, userId: string) {
         let that = this;
@@ -6435,7 +6448,7 @@ class Bubbles extends GenericService {
      * @description
      *       Webinar: disable a participant who raised his hand to talk. <br>
      * @return {Promise<any>} the result of the operation.
-
+     *
      */
     disableTalkWebinar(roomId: string, userId: string) {
         let that = this;
@@ -6480,7 +6493,7 @@ class Bubbles extends GenericService {
      * @description
      *       Webinar: participant lowers hand. <br>
      * @return {Promise<any>} the result of the operation.
-
+     *
      */
     lowerHandWebinar(roomId: string) {
         let that = this;
@@ -6520,7 +6533,7 @@ class Bubbles extends GenericService {
      * @description
      *       Webinar: participant raises hand. <br>
      * @return {Promise<any>} the result of the operation.
-
+     *
      */
     raiseHandWebinar(roomId: string) {
         let that = this;
@@ -6564,7 +6577,7 @@ class Bubbles extends GenericService {
      * @description
      *       Webinar: stage description (up to 10 actors). <br>
      * @return {Promise<any>} the result of the operation.
-
+     *
      */
     stageDescriptionWebinar(roomId: string, userId: string, type: string, properties: Array<string>) {
         let that = this;
@@ -6661,7 +6674,7 @@ class Bubbles extends GenericService {
      * @param {string} bubbleId The id of the room.
      * @async
      * @description
-     *       This API allows to enable dial in for a room. <br>
+     *       This API allows enabling dial in for a room. <br>
      * @return {Promise<any>} the result of the operation.
      *
      *
@@ -6701,7 +6714,7 @@ class Bubbles extends GenericService {
      * @param {string} bubbleId The id of the room.
      * @async
      * @description
-     *       This API allows to reset dial in code for a room. <br>
+     *       This API allows resetting dial in code for a room. <br>
      * @return {Promise<any>} the result of the operation.
      *
      *
@@ -6741,7 +6754,7 @@ class Bubbles extends GenericService {
      * @param {string} shortList Allows to display phoneNumbers of the user's country in a separate list (default true).
      * @async
      * @description
-     *       This API allows to retrieve the list of phone numbers to join conference by Dial In. <br>
+     *       This API allows retrieving the list of phone numbers to join conference by Dial In. <br>
      * @return {Promise<any>} the result of the operation.
      *
      *

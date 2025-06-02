@@ -544,8 +544,8 @@ class AlertsService extends GenericService{
      * @param {string} deviceName Allows to filter device list on the name provided in this option. (optional) The filtering is case insensitive and on partial name match: all devices containing the provided name value will be returned(whatever the position of the match). Ex: if filtering is done on My, devices with the following names are match the filter 'My device', 'My phone', 'This is my device', ...
      * @param {string} type Allows to filter device list on the type provided in this option. (optional, exact match, case sensitive).
      * @param {string} tag Allows to filter device list on the tag provided in this option. (optional, exact match, case sensitive).
-     * @param {number} offset Allow to specify the position of first device to retrieve (default value is 0 for the first device). Warning: if offset > total, no results are returned.
-     * @param {number} limit Allow to specify the number of devices to retrieve.
+     * @param {number} offset=0 Allow to specify the position of first device to retrieve (default value is 0 for the first device). Warning: if offset > total, no results are returned.
+     * @param {number} limit=100 Allow to specify the number of devices to retrieve.
      * @description
      *    Get list of devices   <br>
      * @return {Promise<AlertDevicesData>} the result of the operation.
@@ -1037,8 +1037,8 @@ class AlertsService extends GenericService{
      * @async
      * @category TEMPLATE
      * @param {string} companyId Id of the company (optional).
-     * @param {number} offset Offset to use to retrieve templates - if offset > total, no result is returned.
-     * @param {number} limit Limit of templates to retrieve (100 by default).
+     * @param {number} offset=0 Offset to use to retrieve templates - if offset > total, no result is returned.
+     * @param {number} limit=100 Limit of templates to retrieve (100 by default).
      * @description
      *    Get templates <br>
      * @return {Promise<AlertTemplatesData>} the result of the operation.
@@ -1304,8 +1304,8 @@ class AlertsService extends GenericService{
      * @instance
      * @async
      * @category FILTERS
-     * @param {number} offset Offset to use to retrieve filters - if offset > total, no result is returned.
-     * @param {number} limit Limit of filters to retrieve (100 by default).
+     * @param {number} offset=0 Offset to use to retrieve filters - if offset > total, no result is returned.
+     * @param {number} limit=100 Limit of filters to retrieve (100 by default).
      * @description
      *    Get filters : have required role(s) superadmin, admin <br>
      * @return {Promise<AlertFiltersData>} the result of the operation.
@@ -1618,8 +1618,8 @@ class AlertsService extends GenericService{
      * @instance
      * @async
      * @category CREATE / UPDATE / DELETE / GET / FEEDBACK ALERTS
-     * @param {number} offset Offset to use to retrieve Alerts - if offset > total, no result is returned.
-     * @param {number} limit Limit of Alerts to retrieve (100 by default).
+     * @param {number} offset=0 Offset to use to retrieve Alerts - if offset > total, no result is returned.
+     * @param {number} limit=100 Limit of Alerts to retrieve (100 by default).
      * @description
      *    Get alerts : required role(s) superadmin,support,admin <br>
      * @return {Promise<AlertsData>} the result of the operation.

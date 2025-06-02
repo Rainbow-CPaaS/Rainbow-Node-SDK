@@ -3962,7 +3962,7 @@ Request Method: PUT
         });
     }
 
-    inviteContactsByEmailsToBubble(contactsEmails, bubbleId) {
+    inviteContactsByEmailsToBubble(contactsEmails: Array<string>, bubbleId : string) {
         // API https://api.openrainbow.org/enduser/#api-rooms_invitation-sendUsersJoinRoomInvitation
         // POST /api/rainbow/enduser/v1.0/rooms/:roomId/invitations
         let that = this;

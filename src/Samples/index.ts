@@ -4496,7 +4496,7 @@ let expressEngine = undefined;
                     _logger.log("debug", "MAIN - [testCreateBubbles    ] :: getContactByLoginEmail result : ", contact);
                     let utc = new Date().toJSON().replace(/-/g, "_");
                     let withHistory = false;
-                    rainbowSDK.bubbles.createBubble("TestBubbleBot" + utc, "TestBubbleBot" + utc, withHistory).then((bubble) => {
+                    rainbowSDK.bubbles.createBubble("TestBubbleBot" + utc, "TestBubbleBot" + utc, withHistory).then((bubble : any) => {
                         _logger.log("debug", "MAIN - [testCreateBubbles    ] :: createBubble result : ", bubble);
 
                         rainbowSDK.events.on("rainbow_onbubbleaffiliationchanged", async (bubbleAffiliated) => {
@@ -4546,7 +4546,7 @@ let expressEngine = undefined;
                     for (let i = 0; i < 1; i++) {
                         let utc = new Date().toJSON().replace(/-/g, "/");
                         let withInvitation = false;
-                        rainbowSDK.bubbles.createBubble(physician.appointmentRoom + utc + contact + "_" + i, physician.appointmentRoom + utc + "_" + i, withInvitation).then((bubble) => {
+                        rainbowSDK.bubbles.createBubble(physician.appointmentRoom + utc + contact + "_" + i, physician.appointmentRoom + utc + "_" + i, withInvitation).then((bubble : any) => {
                             _logger.log("debug", "MAIN - [testCreateBubbles    ] :: createBubble request ok", bubble);
 
                             rainbowSDK.events.on("rainbow_onbubbleaffiliationchanged", async (bubbleAffiliated) => {
@@ -4969,7 +4969,7 @@ let expressEngine = undefined;
 
         testCreateBubble_closeAndDeleteBubble() {
             let utc = new Date().toJSON().replace(/-/g, "/");
-            rainbowSDK.bubbles.createBubble("testCreateBubble_closeAndDeleteBubble" + utc, "testCreateBubble_closeAndDeleteBubble" + utc, true).then((bubble) => {
+            rainbowSDK.bubbles.createBubble("testCreateBubble_closeAndDeleteBubble" + utc, "testCreateBubble_closeAndDeleteBubble" + utc, true).then((bubble:any) => {
                 _logger.log("debug", "MAIN - [testCreateBubble_closeAndDeleteBubble    ] :: createBubble request ok, bubble : ", bubble);
                 rainbowSDK.bubbles.closeAndDeleteBubble(bubble).then((result) => {
                     _logger.log("debug", "MAIN - [testCreateBubble_closeAndDeleteBubble    ] :: closeAndDeleteBubble request ok, result : ", result);
