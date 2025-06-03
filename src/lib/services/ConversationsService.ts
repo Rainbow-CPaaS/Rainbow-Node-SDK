@@ -432,13 +432,13 @@ class ConversationsService extends GenericService {
      * @description
      *    Mark all unread messages in the conversation as read. <br>
      * @param {string} conversationDbId ID of the conversation (dbId field)
-     * @param {boolean} maskRead if true Im won't be shown as read on peer conversation side. Default value : : false
+     * @param {boolean} maskRead=false if true Im won't be shown as read on peer conversation side. Default value : false
      * @async
      * @return {Promise<Conversation[]>}
      * @fulfil {Conversation[]} - Array of Conversation object
      * @category async
      */
-    ackAllMessages(conversationDbId, maskRead : boolean = false) {
+    ackAllMessages(conversationDbId : string, maskRead : boolean = false) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getAll) is conversationDbId defined : ", isDefined(conversationDbId));
         return this._rest.ackAllMessages(conversationDbId, maskRead );
@@ -462,8 +462,8 @@ class ConversationsService extends GenericService {
      * @description
      *    Retrieve the remote history of a specific conversation. <br>
      * @param {Conversation} conversation Conversation to retrieve
-     * @param {number} size Maximum number of element to retrieve
-     * @param {boolean} useBulk Does the history should be retrieved with a bulk (group) of messages
+     * @param {number} size=30 Maximum number of element to retrieve
+     * @param {boolean} useBulk=false Does the history should be retrieved with a bulk (group) of messages
      * @async
      * @return {Promise<Conversation[]>}
      * @fulfil {Conversation[]} - Array of Conversation object
@@ -568,8 +568,8 @@ class ConversationsService extends GenericService {
      * @description
      *    Retrieve the remote history of a specific conversation. <br>
      * @param {Conversation} conversation Conversation to retrieve
-     * @param {string} pageSize number of message in each page to retrieve messages.
-     * @param {boolean} useBulk Does the history should be retrieved with a bulk (group) of messages
+     * @param {string} pageSize=30 number of message in each page to retrieve messages.
+     * @param {boolean} useBulk=false Does the history should be retrieved with a bulk (group) of messages
      * @async
      * @return {Promise<Conversation[]>}
      * @fulfil {Conversation[]} - Array of Conversation object
@@ -623,8 +623,8 @@ class ConversationsService extends GenericService {
      *    Retrieve the remote history of a specific conversation asynchronously. The result only said that the request has succesfully started (or not).
      *    </br>The result of the loading process is sent with the event `rainbow_onloadConversationHistoryCompleted`<br>
      * @param {Conversation} conversation Conversation to retrieve
-     * @param {string} pageSize number of message in each page to retrieve messages.
-     * @param {boolean} useBulk Does the history should be retrieved with a bulk (group) of messages
+     * @param {string} pageSize=30 number of message in each page to retrieve messages.
+     * @param {boolean} useBulk=false Does the history should be retrieved with a bulk (group) of messages
      * @async
      * @return {Promise<{code:number,label:string}>}
      * @category async
@@ -659,13 +659,13 @@ class ConversationsService extends GenericService {
      *
      *    ⚠️ Warning: It is useable in S2S connection mode.
      *
-     * @param {Conversation} conversationDbId dbId of the Conversation to retrieve messages.
+     * @param {string} conversationDbId dbId of the Conversation to retrieve messages.
      * @async
      * @return {Promise<any>}
      * @fulfil {Promise<any>} - Array of Conversation object
      * @category async
      */
-    async getAllS2SMessagesByConversationId(conversationDbId):Promise<any> {
+    async getAllS2SMessagesByConversationId(conversationDbId: string):Promise<any> {
         let that = this;
         let messages = [];
         //let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
@@ -752,9 +752,8 @@ class ConversationsService extends GenericService {
      * @category MESSAGES
      * @description
      *    Retrieve the remote history of a specific conversation. <br>
-     * @param {Conversation} conversation Conversation to retrieve
-     * @param {string} pageSize number of message in each page to retrieve messages.
-     * @param {boolean} useBulk Does the history should be retrieved with a bulk (group) of messages
+     * @param {string} pageSize=30 number of message in each page to retrieve messages.
+     * @param {boolean} useBulk=true Does the history should be retrieved with a bulk (group) of messages
      * @async
      * @return {Promise<Conversation[]>}
      * @fulfil {Conversation[]} - Array of Conversation object
@@ -855,8 +854,8 @@ class ConversationsService extends GenericService {
      *          This API can only be used by user himself (i.e. userId of logged-in user). </br>
      * @param {string} userId User unique identifier
      * @param {string} substring Text to search
-     * @param {number} limit Max number of matching messages count (expect up to 2x limit counts since the limit applies both to P2P and Room messages). Default value : : 100
-     * @param {boolean} webinar Include webinars (excluded by default). Default value : : false
+     * @param {number} limit=100 Max number of matching messages count (expect up to 2x limit counts since the limit applies both to P2P and Room messages). Default value : 100
+     * @param {boolean} webinar=true Include webinars (excluded by default). Default value : false
      */
     async getTheNumberOfHitsOfASubstringInAllUsersconversations (userId: string, substring : string, limit : number = 100, webinar : boolean = true) {
         let that = this;
@@ -898,7 +897,7 @@ class ConversationsService extends GenericService {
      * @description
      *    To retrieve messages exchanged by contacts in a conversation. The result is the messages without event type. <br>
      * @param {string} conversationId : Id of the conversation
-     * @param {boolean} useBulk Does the history should be retrieved with a bulk (group) of messages
+     * @param {boolean} useBulk=false Does the history should be retrieved with a bulk (group) of messages
      * @async
      * @return {Promise<any>}
      */
@@ -1136,8 +1135,16 @@ class ConversationsService extends GenericService {
      * @param {Conversation} conversation
      * @param {string} message
      * @param {any} fileDescriptor
+     * @param {DataStoreType} p_messagesDataStore=undefined used to override the general of SDK's parameter "messagesDataStore". default value `undefined` to use the general value.</br>
+     * DataStoreType.NoStore Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.</br>
+     * DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).</br>
+     * DataStoreType.StoreTwinSide The messages are fully stored.</br>
+     * DataStoreType.UsestoreMessagesField to follow the storeMessages SDK's parameter behaviour.</br>
+     * DataStoreType.Store Offline storage and Message Archive Management (XEP-0313) [4] can define their own rules on what messages to store and usually only store messages that contain a body element.
+     * However a sender may want to indicate that a message is worth storing even though it might not match those rules
+     * (e.g. an encrypted message that carries the payload outside the body element). Such a message can be marked with a <store/> hint.
      */
-     sendExistingFSMessage(conversation : Conversation, message : string, fileDescriptor : any, p_messagesDataStore: DataStoreType) {
+     sendExistingFSMessage(conversation : Conversation, message : string, fileDescriptor : any, p_messagesDataStore: DataStoreType = undefined) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendExistingFSMessage) conversation.id : ", conversation?.id);
        //conversation.sendAckReadMessages();
@@ -1212,15 +1219,18 @@ class ConversationsService extends GenericService {
      * @param {Conversation} conversation
      * @param {string} data The message string corrected
      * @param {string} origMsgId The id of the original corrected message.
-     * @param {Object} [content] Allow to send alternative text base content
-     * @param {String} [content.type=text/markdown] The content message type
-     * @param {String} [content.message] The content message body
-     * @param {string} urgency The urgence of the message. Value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
-     * @param {DataStoreType} p_messagesDataStore  used to override the general of SDK's parameter "messagesDataStore". default value `undefined` to use the general value.</br>
+     * @param {Object} content Allows to send alternative text base content
+     * @param {String} content.type The content message type `text/markdown`
+     * @param {String} content.message The content message body
+     * @param {string} urgency=std The urgence of the message. Value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
+     * @param {DataStoreType} p_messagesDataStore=undefined used to override the general of SDK's parameter "messagesDataStore". default value `undefined` to use the general value.</br>
      * DataStoreType.NoStore Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.</br>
      * DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).</br>
      * DataStoreType.StoreTwinSide The messages are fully stored.</br>
      * DataStoreType.UsestoreMessagesField to follow the storeMessages SDK's parameter behaviour.</br>
+     * DataStoreType.Store Offline storage and Message Archive Management (XEP-0313) [4] can define their own rules on what messages to store and usually only store messages that contain a body element.
+     * However a sender may want to indicate that a message is worth storing even though it might not match those rules
+     * (e.g. an encrypted message that carries the payload outside the body element). Such a message can be marked with a <store/> hint.
      * @returns {Promise<string>} message the message new correction message sent. Throw an error if the send fails.
      */
     async sendCorrectedChatMessage(conversation : Conversation, data : string, origMsgId : string, content : { message : string, type : string } = null, urgency: string = "std", p_messagesDataStore: DataStoreType = undefined) {
@@ -1344,11 +1354,14 @@ class ConversationsService extends GenericService {
      *    Delete a message by sending an empty string in a correctedMessage <br>
      * @param {Conversation} conversation The conversation object
      * @param {string} messageId The id of the message to be deleted
-     * @param {DataStoreType} p_messagesDataStore  used to override the general of SDK's parameter "messagesDataStore". default value `undefined` to use the general value.</br>
+     * @param {DataStoreType} p_messagesDataStore=undefined used to override the general of SDK's parameter "messagesDataStore". default value `undefined` to use the general value.</br>
      * DataStoreType.NoStore Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.</br>
      * DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).</br>
      * DataStoreType.StoreTwinSide The messages are fully stored.</br>
      * DataStoreType.UsestoreMessagesField to follow the storeMessages SDK's parameter behaviour.</br>
+     * DataStoreType.Store Offline storage and Message Archive Management (XEP-0313) [4] can define their own rules on what messages to store and usually only store messages that contain a body element.
+     * However a sender may want to indicate that a message is worth storing even though it might not match those rules
+     * (e.g. an encrypted message that carries the payload outside the body element). Such a message can be marked with a <store/> hint.</br>
      * @return {Message} - message object with updated replaceMsgs property
      */
     async deleteMessage (conversation : Conversation, messageId : string, p_messagesDataStore: DataStoreType = undefined) : Promise<any> {
@@ -1558,10 +1571,18 @@ class ConversationsService extends GenericService {
      * @description
      *    Switch the "is typing" state in a conversation<br>
      * @param {Conversation} conversation The conversation recipient
-     * @param {boolean} status The status, true for setting "is Typing", false to remove it
+     * @param {boolean} status=false The status, true for setting "is Typing", false to remove it. Default Value : false.
+     * @param {DataStoreType} p_messagesDataStore=undefined used to override the general of SDK's parameter "messagesDataStore". default value `undefined` to use the general value.</br>
+     * DataStoreType.NoStore Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.</br>
+     * DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).</br>
+     * DataStoreType.StoreTwinSide The messages are fully stored.</br>
+     * DataStoreType.UsestoreMessagesField to follow the storeMessages SDK's parameter behaviour.</br>
+     * DataStoreType.Store Offline storage and Message Archive Management (XEP-0313) [4] can define their own rules on what messages to store and usually only store messages that contain a body element.
+     * However a sender may want to indicate that a message is worth storing even though it might not match those rules
+     * (e.g. an encrypted message that carries the payload outside the body element). Such a message can be marked with a <store/> hint.</br>
      * @return a promise with no success parameter
      */
-    sendIsTypingState(conversation : Conversation, status : boolean, p_messagesDataStore: DataStoreType) {
+    sendIsTypingState(conversation : Conversation, status : boolean= false, p_messagesDataStore: DataStoreType) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendIsTypingState) conversation.id : ", conversation?.id, " status : ", status);
 
@@ -1714,7 +1735,7 @@ class ConversationsService extends GenericService {
      * @param {string} substring Text to search
      * @param {string} peer Peer JID
      * @param {boolean} isRoom Is the peer a room ?
-     * @param {number} limit Max number of matching messages references. Default value : : 20
+     * @param {number} limit=20 Max number of matching messages references. Default value : 20
      */    
     showAllMatchingMessagesForAPeer (userId : string, substring : string, peer : string, isRoom : boolean = undefined, limit : number = 20) {
         let that = this;
@@ -1764,7 +1785,7 @@ class ConversationsService extends GenericService {
      * @category CONVERSATIONS
      * @instance
      * @description
-     *    Allow to get the list of existing conversations (p2p and bubbles) <br>
+     *    Allows to get the list of existing conversations (p2p and bubbles) <br>
      * @return {Conversation[]} An array of Conversation object
      */
     getAllConversations() {
@@ -1941,7 +1962,7 @@ class ConversationsService extends GenericService {
      * @category CONVERSATIONS
      * @instance
      * @description
-     *    Allow to delete a conversation on server (p2p and bubbles) <br>
+     *    Allows to delete a conversation on server (p2p and bubbles) <br>
      * @param {string} conversationId of the conversation (id field)
      * @return {Promise}
      */
@@ -1978,13 +1999,13 @@ class ConversationsService extends GenericService {
      * @category CONVERSATIONS
      * @instance
      * @description
-     *    Allow to mute notification in a conversations (p2p and bubbles) <br>
+     *    Allows to mute notification in a conversations (p2p and bubbles) <br>
      *    When a conversation is muted/unmuted, all user's resources will receive the notification <br>
      * @param {string} conversationId ID of the conversation (dbId field)
      * @param {Boolean} mute mutation state
      * @return {Promise}
      */
-    updateServerConversation(conversationId, mute) {
+    updateServerConversation(conversationId : string, mute : boolean) {
 
         // Ignore conversation without dbId
         if (!conversationId) { return Promise.resolve(undefined); }
@@ -1999,18 +2020,18 @@ class ConversationsService extends GenericService {
      * @category CONVERSATIONS
      * @instance
      * @description
-     *    Allow to get the specified conversation as mail attachment to the login email of the current user (p2p and bubbles) <br>
+     *    Allows to get the specified conversation as mail attachment to the login email of the current user (p2p and bubbles) <br>
      *    can be used to backup a conversation between a rainbow user and another one, or between a user and a room, <br>
      *    The backup of the conversation is restricted to a number of days before now. By default the limit is 30 days. <br>
      * @param {string} conversationDbId ID of the conversation (dbId field)
      * @param {Array<string>} emails Allows to send the backup to users from an emails list.</BR> When one email matchs with a Rainbow user loginEmail, the mail sent is localized using this user's language.
-     * @param {string} lang Language of the email notification if user language value is not available (for no Rainbow users). Default value : : en
+     * @param {string} lang="en" Language of the email notification if user language value is not available (for no Rainbow users). Default value : en
      * @async
      * @return {Promise<Conversation[]>}
      * @fulfil {Conversation[]} - Array of Conversation object
      * @category async
      */
-    sendConversationByEmail(conversationDbId, emails : Array<string> = undefined, lang : string = "en"  ) {
+    sendConversationByEmail(conversationDbId : string, emails : Array<string> = undefined, lang : string = "en"  ) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendConversationByEmail) conversationDbId : ", conversationDbId);
         return this._rest.sendConversationByEmail(conversationDbId, emails, lang);
@@ -2022,7 +2043,7 @@ class ConversationsService extends GenericService {
      * @category CONVERSATIONS
      * @instance
      */
-    async getOrCreateOneToOneConversation(conversationId, conversationDbId?, lastModification?, lastMessageText?, missedIMCounter?, muted?, creationDate?) : Promise<Conversation>{
+    async getOrCreateOneToOneConversation(conversationId : string, conversationDbId? : string, lastModification? : string, lastMessageText? :string, missedIMCounter? : number, muted?: boolean, creationDate?:string) : Promise<Conversation>{
         let that = this;
         return new Promise((resolve, reject) => {
 
@@ -2195,7 +2216,7 @@ class ConversationsService extends GenericService {
      * @fulfil {Conversation} - Conversation object or null if not found
      * @category async
      */
-    getBubbleConversation(bubbleJid : string, conversationDbId? : string, lastModification? : Date, lastMessageText? : string, missedIMCounter? : number, noError? : boolean, muted? : boolean, creationDate? : Date, lastMessageSender? : string) : Promise<any> {
+    getBubbleConversation(bubbleJid : string, conversationDbId? : string, lastModification? : string, lastMessageText? : string, missedIMCounter? : number, noError? : boolean, muted? : boolean, creationDate? : string, lastMessageSender? : string) : Promise<any> {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getBubbleConversation) bubbleJid : ", bubbleJid, ", conversationDbId : ", conversationDbId);
         // that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getBubbleConversation) bubbleJid : ", bubbleJid);
@@ -2388,7 +2409,7 @@ class ConversationsService extends GenericService {
      * @instance
      * @async
      * @description
-     *    Allow to clean openned conversations. It keep openned the maxConversations last modified conversations. If maxConversations is not defined then keep the last 15 conversations. <br>
+     *    Allows to clean openned conversations. It keep openned the maxConversations last modified conversations. If maxConversations is not defined then keep the last 15 conversations. <br>
      * @return {Promise<any>} the result of the deletion.
      * @category async
      */
@@ -2413,7 +2434,7 @@ class ConversationsService extends GenericService {
      * @category CONVERSATIONS
      * @instance
      * @description
-     *    Allow to get the list of existing conversations from server (p2p and bubbles) <br>
+     *    Allows to get the list of existing conversations from server (p2p and bubbles) <br>
      * @return {Conversation[]} An array of Conversation object
      */
     getServerConversations() {
@@ -2490,9 +2511,9 @@ class ConversationsService extends GenericService {
      * @category CONVERSATIONS
      * @instance
      * @description
-     *    Allow to create a conversations on server (p2p and bubbles) <br>
+     *    Allows to create a conversations on server (p2p and bubbles) <br>
      * @param {Conversation} conversation of the conversation (dbId field)
-     * @param {boolean} mute : true if conversation is muted, false otherwise. Default value : false.
+     * @param {boolean} mute=false The true value when conversation is muted, false otherwise. Default value : false.
      * @return {Conversation} Created conversation object
      */
     createServerConversation(conversation : Conversation, mute : boolean = false ) {
