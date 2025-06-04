@@ -2216,7 +2216,7 @@ class ConversationsService extends GenericService {
      * @fulfil {Conversation} - Conversation object or null if not found
      * @category async
      */
-    getBubbleConversation(bubbleJid : string, conversationDbId? : string, lastModification? : string, lastMessageText? : string, missedIMCounter? : number, noError? : boolean, muted? : boolean, creationDate? : string, lastMessageSender? : string) : Promise<any> {
+    getBubbleConversation(bubbleJid : string, conversationDbId? : string, lastModification? : Date, lastMessageText? : string, missedIMCounter? : number, noError? : boolean, muted? : boolean, creationDate? : Date, lastMessageSender? : string) : Promise<any> {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getBubbleConversation) bubbleJid : ", bubbleJid, ", conversationDbId : ", conversationDbId);
         // that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getBubbleConversation) bubbleJid : ", bubbleJid);

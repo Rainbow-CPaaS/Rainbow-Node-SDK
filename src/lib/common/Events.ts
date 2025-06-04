@@ -119,6 +119,7 @@ class Emitter extends EventEmitterClass{
  * @fires Events#rainbow_onbubbleconferencedelegatereceived
  * @fires Events#rainbow_onbubbleconferenceupdated
  * @fires Events#rainbow_onbubblecustomdatachanged
+ * @fires Events#rainbow_onbubblecontactchanged
  * @fires Events#rainbow_onbubbletopicchanged
  * @fires Events#rainbow_onbubbleprivilegechanged
  * @fires Events#rainbow_onbubbleavatarchanged
@@ -247,6 +248,7 @@ class Events {
         "rainbow_onbubbleconferencedelegatereceived",
         "rainbow_onbubbleconferenceupdated",
         "rainbow_onbubblecustomdatachanged",
+        "rainbow_onbubblecontactchanged",
         "rainbow_onbubbletopicchanged",
         "rainbow_onbubbleprivilegechanged",
         "rainbow_onbubbleavatarchanged",
@@ -890,6 +892,25 @@ class Events {
              *      Fired when the custom data of a bubble has changed
              */
             that.publishEvent("bubblecustomdatachanged", bubble);
+        });
+
+        this._evReceiver.on("evt_internal_bubblecontactchanged", function(bubble) {
+            /**
+             * @event Events#rainbow_onbubblecontactchanged
+             * @public
+             * @param {
+             *           "action": string, // "updated"
+             *           "bubble": Bubble,
+             *           "peer" : {
+             *                  "userjid": string,
+             *                  "contact": contact,
+             *                  "vcard": { displayname: string, lastname: string, firstname: string, companyNameOfGuest: string, lastavatarupdatedate: string }
+             *               }
+             *           }  The contact updated in the bubble.
+             * @description
+             *      Fired when the contact data of a bubble has changed
+             */
+            that.publishEvent("bubblecontactchanged", bubble);
         });
 
         this._evReceiver.on("evt_internal_bubbletopicchanged", function(bubble) {

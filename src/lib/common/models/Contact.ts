@@ -1,5 +1,5 @@
 "use strict";
-import {addDaysToDate, isDefined} from "../Utils";
+import {addDaysToDate, isDefined, toBoolean, updatePropertyToObj} from "../Utils";
 
 export {};
 
@@ -220,6 +220,7 @@ class Contact {
     public canUseTestConfigCustomisation : boolean;
     public useTeamsMode : boolean;
     public selectedProgKeysGroupId : string;
+    public companyNameOfGuest : string;
 
     constructor() {
 
@@ -1468,6 +1469,13 @@ class Contact {
         this.useTeamsMode = false;
         this.selectedProgKeysGroupId = "";
 
+        /**
+         * @public
+         * @property {string} companyNameOfGuest Company Name of Guest (if provided). Available only if "guestMode" is true. </BR>
+         * @readonly
+         */
+        this.companyNameOfGuest = "";
+
     }
 
     updateLastContactCacheUpdate() {
@@ -1489,9 +1497,11 @@ class Contact {
      */
 
     set displayName(value) {
-        this._displayName = value;
+        //this._displayName = value;
+        updatePropertyToObj(this, "_displayName", value);
         this.name.value = value;
-        this.displayNameMD5 = MD5(value);
+        //this.displayNameMD5 = MD5(value);
+        updatePropertyToObj(this, "displayNameMD5", MD5(value));
     }
 
     get displayName () {
@@ -1504,7 +1514,8 @@ class Contact {
             case NameUpdatePrio.OUTLOOK_UPDATE_PRIO:
             case NameUpdatePrio.SERVER_UPDATE_PRIO:
             case NameUpdatePrio.MAX_UPDATE_PRIO:
-                this.nameUpdatePrio = prio ;
+                //this.nameUpdatePrio = prio ;
+                updatePropertyToObj(this, "nameUpdatePrio", prio);
                 break;
             default://no change
         }
@@ -1522,6 +1533,7 @@ class Contact {
     }
 
     computeCompleteDisplayName (firstName, lastName) {
+        let that = this;
         let displayName = "";
         let initials = "";
         if (lastName.length !== 1 && firstName.length !== 2) {
@@ -1543,8 +1555,10 @@ class Contact {
 
             initials = firstName.charAt(0) + firstName.charAt(1);
         }
-        this.displayName = displayName;
-        this.initials = initials;
+        //this.displayName = displayName;
+        updatePropertyToObj(that, "displayName", displayName);
+        //this.initials = initials;
+        updatePropertyToObj(that, "initials", initials);
 
         // Compute contact color
         let upperCaseDisplayName = this.displayName.toUpperCase();
@@ -1554,11 +1568,14 @@ class Contact {
             sum += upperCaseDisplayName.charCodeAt(i);
         }
 
-        this.colorIndex = (sum % 12);
-        this.color = textAvatarColor[this.colorIndex];
+        //this.colorIndex = (sum % 12);
+        updatePropertyToObj(that, "colorIndex", (sum % 12));
+        //this.color = textAvatarColor[this.colorIndex];
+        updatePropertyToObj(that, "color", textAvatarColor[this.colorIndex]);
     }
 
     computeDisplayName () {
+        let that = this;
         let firstName = this.firstName ? (this.firstName.charAt(0).toUpperCase() + this.firstName.slice(1)) : null;
         let lastName = this.lastName ? (this.lastName.charAt(0).toUpperCase() + this.lastName.slice(1)) : null;
         let nickName = this.nickname ? (this.nickname.charAt(0).toUpperCase() + this.nickname.slice(1)) : null;
@@ -1566,69 +1583,120 @@ class Contact {
             this.computeCompleteDisplayName(firstName, lastName);
         }
         else if (lastName && !firstName) {
-            this.displayName = lastName;
-            this.initials = lastName.charAt(0);
+            //this.displayName = lastName;
+            updatePropertyToObj(that, "displayName", lastName);
+            //this.initials = lastName.charAt(0);
+            updatePropertyToObj(that, "initials", lastName.charAt(0));
         }
         else if (nickName) {
-            this.displayName = nickName;
-            this.initials = nickName.charAt(0);
+            //this.displayName = nickName;
+            updatePropertyToObj(that, "displayName", nickName);
+            //this.initials = nickName.charAt(0);
+            updatePropertyToObj(that, "initials", nickName.charAt(0));
         }
         else {
-            this.displayName = "Anonymous";
-            this.initials = "A";
+            //this.displayName = "Anonymous";
+            updatePropertyToObj(that, "displayName", "Anonymous");
+            //this.initials = "A";
+            updatePropertyToObj(that, "initials", "A");
         }
     }
 
     updateName (firstName, lastName) {
         let that = this;
         // Identification fields
-        that.firstName = firstName;
-        that.lastName = lastName;
+        //that.firstName = firstName;
+        updatePropertyToObj(that, "firstName", firstName);
+        //that.lastName = lastName;
+        updatePropertyToObj(that, "lastName", lastName);
         // Compute display name
         that.computeDisplayName();
     }
+
+    /**
+     * @description
+     *      This method gets an array with only one element at position 0. This is to get the property by ref and set a value to it.
+     * @param {Array<any>} propertyTab
+     * @param value
+     */
+    /* updateProperty(propertyTab : Array<any>, value : any) {
+        if (isDefined(value)) {
+            propertyTab[0] = value
+        }
+    } // */
 
     updateFromUserData (userData) {
         let that = this;
 
         // Identification fields
-        that.id = userData.id;
-        that.loginEmail = userData.loginEmail;
-        that.firstName = userData.firstName;
-        that.lastName = userData.lastName;
-        that.nickname = userData.nickName ? userData.nickName : "";
-        that.title = userData.title ? userData.title : "";
-        that.jobTitle = userData.jobTitle ? userData.jobTitle : "";
-        that.organisationId = userData.organisationId;
-        that.companyId = userData.companyId;
-        that.companyName = userData.companyName;
-        that.siteId = userData.siteId;
-        that.country = userData.country ? userData.country : "FRA";
-        that.timezone = userData.timezone;
-        that.roles = userData.roles;
-        that.adminType = userData.adminType;
+        //that.id = userData.id;
+        updatePropertyToObj(that, "id", userData.id);
+        //that.loginEmail = userData.loginEmail;
+        updatePropertyToObj(that, "loginEmail", userData.loginEmail);
+        //that.firstName = userData.firstName;
+        updatePropertyToObj(that, "firstName", userData.firstName);
+        //that.lastName = userData.lastName;
+        updatePropertyToObj(that, "lastName", userData.lastName);
+        //that.nickname = userData.nickName ? userData.nickName : "";
+        updatePropertyToObj(that, "nickName", userData.nickName);
+        //that.title = userData.title ? userData.title : "";
+        updatePropertyToObj(that, "title", userData.title);
+        //that.jobTitle = userData.jobTitle ? userData.jobTitle : "";
+        updatePropertyToObj(that, "jobTitle", userData.jobTitle);
+        //that.organisationId = userData.organisationId;
+        updatePropertyToObj(that, "organisationId", userData.organisationId);
+        //that.companyId = userData.companyId;
+        updatePropertyToObj(that, "companyId", userData.companyId);
+        //that.companyName = userData.companyName;
+        updatePropertyToObj(that, "companyName", userData.companyName);
+        //that.siteId = userData.siteId;
+        updatePropertyToObj(that, "siteId", userData.siteId);
+        //that.country = userData.country ? userData.country : "FRA";
+        updatePropertyToObj(that, "country", userData.country ? userData.country : "FRA");
+        //that.timezone = userData.timezone;
+        updatePropertyToObj(that, "timezone", userData.timezone);
+        //that.roles = userData.roles;
+        updatePropertyToObj(that, "roles", userData.roles);
+        //that.adminType = userData.adminType;
+        updatePropertyToObj(that, "adminType", userData.adminType);
         //that.isBot = false;
-        that.isTerminated = userData.isTerminated;
-        that.isInDefaultCompany = userData.isInDefaultCompany;
-        that.lastAvatarUpdateDate = userData.lastAvatarUpdateDate;
-        that.initialized = userData.isInitialized;
-        that.avatar = userData.avatar;
-        that.guestMode = userData.guestMode ? userData.guestMode : false;
-        that.openInviteId = userData.openInviteId ? userData.openInviteId : that.openInviteId;
-        that.userInfo1 = that.userInfo1 ? that.userInfo1 : userData.userInfo1;
-        that.userInfo2 = that.userInfo2 ? that.userInfo2 : userData.userInfo2;
+        //that.isTerminated = userData.isTerminated;
+        updatePropertyToObj(that, "isTerminated", userData.isTerminated);
+        //that.isInDefaultCompany = userData.isInDefaultCompany;
+        updatePropertyToObj(that, "isInDefaultCompany", userData.isInDefaultCompany);
+        //that.lastAvatarUpdateDate = userData.lastAvatarUpdateDate;
+        updatePropertyToObj(that, "lastAvatarUpdateDate", userData.lastAvatarUpdateDate);
+        //that.initialized = userData.isInitialized;
+        updatePropertyToObj(that, "isInitialized", toBoolean(userData.isInitialized));
+        //that.avatar = userData.avatar;
+        updatePropertyToObj(that, "avatar", userData.avatar);
+        //that.guestMode = userData.guestMode ? userData.guestMode : false;
+        updatePropertyToObj(that, "guestMode", toBoolean(userData.guestMode));
+        //that.openInviteId = userData.openInviteId ? userData.openInviteId : that.openInviteId;
+        updatePropertyToObj(that, "openInviteId", userData.openInviteId);
+        //that.userInfo1 = that.userInfo1 ? that.userInfo1 : userData.userInfo1;
+        updatePropertyToObj(that, "userInfo1", userData.userInfo1);
+        //that.userInfo2 = that.userInfo2 ? that.userInfo2 : userData.userInfo2;
+        updatePropertyToObj(that, "userInfo2", userData.userInfo2);
 
-        that.customData = userData.customData ? userData.customData : [];
-        that.selectedTheme = userData.selectedTheme;
+        //that.customData = userData.customData ? userData.customData : [];
+        updatePropertyToObj(that, "customData", userData.customData ? userData.customData : []);
+        //that.selectedTheme = userData.selectedTheme;
+        updatePropertyToObj(that, "selectedTheme", userData.selectedTheme);
 
 
         // Handle jids
         if (userData.jid_im) {
-            that._id = userData.jid_im;
-            that.jid = userData.jid_im;
-            that.jidtel = userData.jid_tel;
-            that.jid_im = userData.jid_im;
-            that.jid_tel = userData.jid_tel;
+            //that._id = userData.jid_im;
+            updatePropertyToObj(that, "_id", userData.jid_im);
+            //that.jid = userData.jid_im;
+            updatePropertyToObj(that, "jid", userData.jid_im);
+            //that.jidtel = userData.jid_tel;
+            updatePropertyToObj(that, "jidtel", userData.jid_tel);
+            //that.jid_im = userData.jid_im;
+            updatePropertyToObj(that, "jid_im", userData.jid_im);
+            //that.jid_tel = userData.jid_tel;
+            updatePropertyToObj(that, "jid_tel", userData.jid_tel);
         }
 
         // Company field
@@ -1637,31 +1705,51 @@ class Contact {
         }
 
         // Telephony fields
-        that.phonePro = that.phoneProCan = "";
-        that.phonePbx = userData.phonePbx + "";
-        that.phoneInternalNumber = "";//#29475
-        that.pbxId = "";
-        that.mobilePro = that.mobileProCan = "";
-        that.phonePerso = that.phonePersoCan = "";
+        //that.phonePro = that.phoneProCan = "";
+        updatePropertyToObj(that, "phonePro", "");
+        updatePropertyToObj(that, "that.phoneProCan", "");
+        //that.phonePbx = userData.phonePbx + "";
+        updatePropertyToObj(that, "phonePbx", userData.phonePbx + "");
+        //that.phoneInternalNumber = "";//#29475
+        updatePropertyToObj(that, "phoneInternalNumber", "");
+        //that.pbxId = "";
+        updatePropertyToObj(that, "pbxId", "");
+        //that.mobilePro = that.mobileProCan = "";
+        updatePropertyToObj(that, "mobilePro", "");
+        updatePropertyToObj(that, "mobileProCan", "");
+        //that.phonePerso = that.phonePersoCan = "";
+        updatePropertyToObj(that, "phonePerso", "");
+        updatePropertyToObj(that, "phonePersoCan", "");
         that.mobilePerso = that.mobilePersoCan = "";
+        updatePropertyToObj(that, "mobilePerso", "");
+        updatePropertyToObj(that, "mobilePersoCan", "");
         that.voicemailNumber = "";
+        updatePropertyToObj(that, "voicemailNumber", "");
         that.hasPhoneNumber = false;
+        updatePropertyToObj(that, "hasPhoneNumber", false);
 
-        that.roster = that.roster ? that.roster : false;
-        that.presence = that.presence ? that.presence : "offline";
-        that.status = that.status ? that.status : "";
+        //that.roster = that.roster ? that.roster : false;
+        updatePropertyToObj(that, "roster", toBoolean(userData.roster));
+        //that.presence = that.presence ? that.presence : "offline";
+        updatePropertyToObj(that, "presence", userData.presence);
+        //that.status = that.status ? that.status : "";
+        updatePropertyToObj(that, "status", userData.status);
 
         // Update emails
         if (userData.emails) {
-            that.emails = userData.emails;
-            that.emailPerso = "";
+            //that.emails = userData.emails;
+            updatePropertyToObj(that, "emails", userData.emails);
+            //that.emailPerso = "";
+            updatePropertyToObj(that, "emailPerso", "");
             userData.emails.forEach(function (email) {
                 switch (email.type) {
                     case "work":
                         that.emailPro = email.email;
+                        updatePropertyToObj(that, "emailPro", email.email);
                         break;
                     case "home":
                         that.emailPerso = email.email;
+                        updatePropertyToObj(that, "emailPerso", email.email);
                         break;
                     default:
                         break;
@@ -1671,39 +1759,53 @@ class Contact {
 
         // Update phone numbers
         if (userData.phoneNumbers) {
-            that.phoneNumbers = userData.phoneNumbers;
+            //that.phoneNumbers = userData.phoneNumbers;
+            updatePropertyToObj(that, "phoneNumbers", userData.phoneNumbers);
             that.phoneNumbers.forEach(function (phoneNumber) {
                 let number = phoneNumber.number;
                 let numberCan = phoneNumber.numberE164;
                 let deviceType = phoneNumber.deviceType;
-                that.hasPhoneNumber = true;
+                //that.hasPhoneNumber = true;
+                updatePropertyToObj(that, "hasPhoneNumber", true);
                 switch (phoneNumber.type) {
                     case "work":
                         if (deviceType === "landline") {
-                            that.phonePro = number;
-                            that.phoneProCan = numberCan;
+                            //that.phonePro = number;
+                            updatePropertyToObj(that, "phonePro", number);
+                            //that.phoneProCan = numberCan;
+                            updatePropertyToObj(that, "phoneProCan", numberCan);
                             if (phoneNumber.isFromSystem) {
-                                that.phonePbx = phoneNumber.shortNumber;
+                                //that.phonePbx = phoneNumber.shortNumber;
+                                updatePropertyToObj(that, "phonePbx", phoneNumber.shortNumber);
                                 if (phoneNumber.internalNumber) { //#29475++
-                                    that.phoneInternalNumber = phoneNumber.internalNumber;
+                                    //that.phoneInternalNumber = phoneNumber.internalNumber;
+                                    updatePropertyToObj(that, "phoneInternalNumber", phoneNumber.internalNumber);
                                 } //#29475--
-                                that.pbxId = phoneNumber.pbxId;
-                                that.voicemailNumber = phoneNumber.voiceMailNumber;
+                                //that.pbxId = phoneNumber.pbxId;
+                                updatePropertyToObj(that, "pbxId", phoneNumber.pbxId);
+                                //that.voicemailNumber = phoneNumber.voiceMailNumber;
+                                updatePropertyToObj(that, "voicemailNumber", phoneNumber.voiceMailNumber);
                             }
                         }
                         if (deviceType === "mobile") {
-                            that.mobilePro = number;
-                            that.mobileProCan = numberCan;
+                            //that.mobilePro = number;
+                            updatePropertyToObj(that, "mobilePro", number);
+                            //that.mobileProCan = numberCan;
+                            updatePropertyToObj(that, "mobileProCan", numberCan);
                         }
                         break;
                     case "home":
                         if (deviceType === "landline") {
-                            that.phonePerso = number;
-                            that.phonePersoCan = numberCan;
+                            //that.phonePerso = number;
+                            updatePropertyToObj(that, "phonePerso", number);
+                            //that.phonePersoCan = numberCan;
+                            updatePropertyToObj(that, "phonePersoCan", numberCan);
                         }
                         if (deviceType === "mobile") {
-                            that.mobilePerso = number;
-                            that.mobilePersoCan = numberCan;
+                            //that.mobilePerso = number;
+                            updatePropertyToObj(that, "mobilePerso", number);
+                            //that.mobilePersoCan = numberCan;
+                            updatePropertyToObj(that, "mobilePersoCan", numberCan);
                         }
                         break;
                     default:
@@ -1712,273 +1814,378 @@ class Contact {
             });
         } else {
             that.phoneNumbers = [];
+            updatePropertyToObj(that, "phoneNumbers", []);
             that.phonePro = "";
+            updatePropertyToObj(that, "phonePro", "");
             that.phoneProCan = "";
+            updatePropertyToObj(that, "phoneProCan", "");
             that.phonePbx = "";
+            updatePropertyToObj(that, "phonePbx", "");
             that.phoneInternalNumber = "";
+            updatePropertyToObj(that, "phoneInternalNumber", "");
             that.pbxId = "";
+            updatePropertyToObj(that, "pbxId", "");
             that.voicemailNumber = "";
+            updatePropertyToObj(that, "voicemailNumber", "");
             that.mobilePro = "";
+            updatePropertyToObj(that, "mobilePro", "");
             that.mobileProCan = "";
+            updatePropertyToObj(that, "mobileProCan", "");
             that.phonePerso = "";
+            updatePropertyToObj(that, "phonePerso", "");
             that.phonePersoCan = "";
+            updatePropertyToObj(that, "phonePersoCan", "");
         }
 
-        if (userData.tags) {
-            that.tags = userData.tags
-        }
+        //if (userData.tags) {
+            //that.tags = userData.tags
+            updatePropertyToObj(that, "tags", userData.tags);
+        //}
 
-        if (userData.isActive) {
-            that.isActive = userData.isActive;
-        }
-        if (userData.accountType) {
-            that.accountType = userData.accountType;
-        }
-        if (userData.systemId) {
-            that.systemId = userData.systemId;
-        }
-        if (userData.isInitialized) {
-            that.isInitialized = userData.isInitialized;
-        }
-        if (userData.initializationDate) {
-            that.initializationDate = userData.initializationDate;
-        }
-        if (userData.createdBySelfRegister) {
-            that.createdBySelfRegister = userData.createdBySelfRegister;
-        }
-        if (userData.createdByAppId) {
-            that.createdByAppId = userData.createdByAppId;
-        }
-        if (userData.createdByAdmin) {
-            that.createdByAdmin = userData.createdByAdmin;
-        }
-        if (userData.firstLoginDate) {
-            that.firstLoginDate = userData.firstLoginDate;
-        }
-        if (userData.lastLoginDate) {
-            that.lastLoginDate = userData.lastLoginDate;
-        }
-        if (userData.loggedSince) {
-            that.loggedSince = userData.loggedSince;
-        }
-        if (userData.failedLoginAttempts) {
-            that.failedLoginAttempts = userData.failedLoginAttempts;
-        }
-        if (userData.lastLoginFailureDate) {
-            that.lastLoginFailureDate = userData.lastLoginFailureDate;
-        }
-        if (userData.lastExpiredTokenRenewedDate) {
-            that.lastExpiredTokenRenewedDate = userData.lastExpiredTokenRenewedDate;
-        }
-        if (userData.lastPasswordUpdateDate) {
-            that.lastPasswordUpdateDate = userData.lastPasswordUpdateDate;
-        }
-        if (userData.timeToLive) {
-            that.timeToLive = userData.timeToLive;
-        }
-        if (userData.timeToLiveDate) {
-            that.timeToLiveDate = userData.timeToLiveDate;
-        }
-        if (userData.terminatedDate) {
-            that.terminatedDate = userData.terminatedDate;
-        }
-        if (userData.fileSharingCustomisation) {
-            that.fileSharingCustomisation = userData.fileSharingCustomisation;
-        }
-        if (userData.userTitleNameCustomisation) {
-            that.userTitleNameCustomisation = userData.userTitleNameCustomisation;
-        }
-        if (userData.softphoneOnlyCustomisation) {
-            that.softphoneOnlyCustomisation = userData.softphoneOnlyCustomisation;
-        }
-        if (userData.useRoomCustomisation) {
-            that.useRoomCustomisation = userData.useRoomCustomisation;
-        }
-        if (userData.phoneMeetingCustomisation) {
-            that.phoneMeetingCustomisation = userData.phoneMeetingCustomisation;
-        }
-        if (userData.useChannelCustomisation) {
-            that.useChannelCustomisation = userData.useChannelCustomisation;
-        }
-        if (userData.useScreenSharingCustomisation) {
-            that.useScreenSharingCustomisation = userData.useScreenSharingCustomisation;
-        }
-        if (userData.useWebRTCAudioCustomisation) {
-            that.useWebRTCAudioCustomisation = userData.useWebRTCAudioCustomisation;
-        }
-        if (userData.useWebRTCVideoCustomisation) {
-            that.useWebRTCVideoCustomisation = userData.useWebRTCVideoCustomisation;
-        }
-        if (userData.instantMessagesCustomisation) {
-            that.instantMessagesCustomisation = userData.instantMessagesCustomisation;
-        }
-        if (userData.userProfileCustomisation) {
-            that.userProfileCustomisation = userData.userProfileCustomisation;
-        }
-        if (userData.fileStorageCustomisation) {
-            that.fileStorageCustomisation = userData.fileStorageCustomisation;
-        }
-        if (userData.overridePresenceCustomisation) {
-            that.overridePresenceCustomisation = userData.overridePresenceCustomisation;
-        }
-        if (userData.changeTelephonyCustomisation) {
-            that.changeTelephonyCustomisation = userData.changeTelephonyCustomisation;
-        }
-        if (userData.changeSettingsCustomisation) {
-            that.changeSettingsCustomisation = userData.changeSettingsCustomisation;
-        }
-        if (userData.recordingConversationCustomisation) {
-            that.recordingConversationCustomisation = userData.recordingConversationCustomisation;
-        }
-        if (userData.useGifCustomisation) {
-            that.useGifCustomisation = userData.useGifCustomisation;
-        }
-        if (userData.useDialOutCustomisation) {
-            that.useDialOutCustomisation = userData.useDialOutCustomisation;
-        }
-        if (userData.fileCopyCustomisation) {
-            that.fileCopyCustomisation = userData.fileCopyCustomisation;
-        }
-        if (userData.fileTransferCustomisation) {
-            that.fileTransferCustomisation = userData.fileTransferCustomisation;
-        }
-        if (userData.forbidFileOwnerChangeCustomisation) {
-            that.forbidFileOwnerChangeCustomisation = userData.forbidFileOwnerChangeCustomisation;
-        }
-        if (userData.readReceiptsCustomisation) {
-            that.readReceiptsCustomisation = userData.readReceiptsCustomisation;
-        }
-        if (userData.useSpeakingTimeStatistics) {
-            that.useSpeakingTimeStatistics = userData.useSpeakingTimeStatistics;
-        }
-        if (userData.selectedAppCustomisationTemplate) {
-            that.selectedAppCustomisationTemplate  = userData.selectedAppCustomisationTemplate;
-        }
-        if (userData.alertNotificationReception) {
-            that.alertNotificationReception = userData.alertNotificationReception;
-        }
-        if (userData.selectedDeviceFirmware) {
-            that.selectedDeviceFirmware = userData.selectedDeviceFirmware;
-        }
-        if (userData.visibility) {
-            that.visibility = userData.visibility;
-        }
-        if (userData.jid_password) {
-            that.jid_password = userData.jid_password;
-        }
-        if (userData.creationDate) {
-            that.creationDate = userData.creationDate;
-        }
-        if (userData.profiles) {
-            that.profiles = userData.profiles;
-        }
-        if (userData.activationDate) {
-            that.activationDate = userData.activationDate;
-        }
-        if (userData.lastOfflineMailReceivedDate) {
-            that.lastOfflineMailReceivedDate = userData.lastOfflineMailReceivedDate;
-        }
-        if (userData.state) {
-            that.state = userData.state;
-        }
-        if (userData.authenticationType) {
-            that.authenticationType = userData.authenticationType;
-        }
-        if (userData.department) {
-            that.department = userData.department;
-        }
-        if (userData.isADSearchAvailable) {
-            that.isADSearchAvailable = userData.isADSearchAvailable;
-        }
-        if (userData.isTv) {
-            this.isTv = userData.isTv;
-        }        
-        if (userData.calendars) {
-            this.calendars = userData.calendars;
-        }
-        if (userData.openInvites) {
-            this.openInvites = userData.openInvites;
-        }
-        if (userData.isAlertNotificationEnabled) {
-            this.isAlertNotificationEnabled = userData.isAlertNotificationEnabled;
-        }
-        if (userData.outOfOffice) {
-            this.outOfOffice = userData.outOfOffice;
-        }
-        if (userData.lastSeenDate) {
-            this.lastSeenDate = userData.lastSeenDate;
-        }
+        //if (userData.isActive) {
+          //  that.isActive = userData.isActive;
+            updatePropertyToObj(that, "isActive", toBoolean(userData.isActive));
+        //}
+        //if (userData.accountType) {
+        //    that.accountType = userData.accountType;
+            updatePropertyToObj(that, "accountType", userData.accountType);
+        //}
+        //if (userData.systemId) {
+        //    that.systemId = userData.systemId;
+            updatePropertyToObj(that, "systemId", userData.systemId);
+        //}
+        //if (userData.isInitialized) {
+        //    that.isInitialized = userData.isInitialized;
+            updatePropertyToObj(that, "isInitialized", toBoolean(userData.isInitialized));
+        //}
+        //if (userData.initializationDate) {
+        //    that.initializationDate = userData.initializationDate;
+            updatePropertyToObj(that, "initializationDate", userData.initializationDate);
+        //}
+        //if (userData.createdBySelfRegister) {
+        //    that.createdBySelfRegister = userData.createdBySelfRegister;
+            updatePropertyToObj(that, "createdBySelfRegister", userData.createdBySelfRegister);
+        //}
+        //if (userData.createdByAppId) {
+        //    that.createdByAppId = userData.createdByAppId;
+            updatePropertyToObj(that, "createdByAppId", userData.createdByAppId);
+        //}
+        //if (userData.createdByAdmin) {
+        //    that.createdByAdmin = userData.createdByAdmin;
+            updatePropertyToObj(that, "createdByAdmin", userData.createdByAdmin);
+        //}
+        //if (userData.firstLoginDate) {
+        //    that.firstLoginDate = userData.firstLoginDate;
+            updatePropertyToObj(that, "firstLoginDate", userData.firstLoginDate);
+        //}
+        //if (userData.lastLoginDate) {
+        //    that.lastLoginDate = userData.lastLoginDate;
+            updatePropertyToObj(that, "lastLoginDate", userData.lastLoginDate);
+        //}
+        //if (userData.loggedSince) {
+        //    that.loggedSince = userData.loggedSince;
+            updatePropertyToObj(that, "loggedSince", userData.loggedSince);
+        //}
+        //if (userData.failedLoginAttempts) {
+        //    that.failedLoginAttempts = userData.failedLoginAttempts;
+            updatePropertyToObj(that, "failedLoginAttempts", userData.failedLoginAttempts);
+        //}
+        //if (userData.lastLoginFailureDate) {
+        //    that.lastLoginFailureDate = userData.lastLoginFailureDate;
+            updatePropertyToObj(that, "lastLoginFailureDate", userData.lastLoginFailureDate);
+        //}
+        //if (userData.lastExpiredTokenRenewedDate) {
+        //    that.lastExpiredTokenRenewedDate = userData.lastExpiredTokenRenewedDate;
+            updatePropertyToObj(that, "lastExpiredTokenRenewedDate", userData.lastExpiredTokenRenewedDate);
+        //}
+        //if (userData.lastPasswordUpdateDate) {
+        //    that.lastPasswordUpdateDate = userData.lastPasswordUpdateDate;
+            updatePropertyToObj(that, "lastPasswordUpdateDate", userData.lastPasswordUpdateDate);
+        //}
+        //if (userData.timeToLive) {
+        //    that.timeToLive = userData.timeToLive;
+            updatePropertyToObj(that, "timeToLive", userData.timeToLive);
+        //}
+        //if (userData.timeToLiveDate) {
+        //    that.timeToLiveDate = userData.timeToLiveDate;
+            updatePropertyToObj(that, "timeToLiveDate", userData.timeToLiveDate);
+        //}
+        //if (userData.terminatedDate) {
+        //    that.terminatedDate = userData.terminatedDate;
+            updatePropertyToObj(that, "terminatedDate", userData.terminatedDate);
+        //}
+        //if (userData.fileSharingCustomisation) {
+        //    that.fileSharingCustomisation = userData.fileSharingCustomisation;
+            updatePropertyToObj(that, "fileSharingCustomisation", userData.fileSharingCustomisation);
+        //}
+        //if (userData.userTitleNameCustomisation) {
+        //    that.userTitleNameCustomisation = userData.userTitleNameCustomisation;
+            updatePropertyToObj(that, "userTitleNameCustomisation", userData.userTitleNameCustomisation);
+        //}
+        //if (userData.softphoneOnlyCustomisation) {
+        //    that.softphoneOnlyCustomisation = userData.softphoneOnlyCustomisation;
+            updatePropertyToObj(that, "softphoneOnlyCustomisation", userData.softphoneOnlyCustomisation);
+        //}
+        // if (userData.useRoomCustomisation) {
+        //     that.useRoomCustomisation = userData.useRoomCustomisation;
+             updatePropertyToObj(that, "useRoomCustomisation", userData.useRoomCustomisation);
+        // }
+        // if (userData.phoneMeetingCustomisation) {
+        //     that.phoneMeetingCustomisation = userData.phoneMeetingCustomisation;
+             updatePropertyToObj(that, "phoneMeetingCustomisation", userData.phoneMeetingCustomisation);
+        // }
+        // if (userData.useChannelCustomisation) {
+        //     that.useChannelCustomisation = userData.useChannelCustomisation;
+             updatePropertyToObj(that, "useChannelCustomisation", userData.useChannelCustomisation);
+        // }
+        // if (userData.useScreenSharingCustomisation) {
+        //     that.useScreenSharingCustomisation = userData.useScreenSharingCustomisation;
+             updatePropertyToObj(that, "useScreenSharingCustomisation", userData.useScreenSharingCustomisation);
+        // }
+        // if (userData.useWebRTCAudioCustomisation) {
+        //     that.useWebRTCAudioCustomisation = userData.useWebRTCAudioCustomisation;
+             updatePropertyToObj(that, "useWebRTCAudioCustomisation", userData.useWebRTCAudioCustomisation);
+        // }
+        // if (userData.useWebRTCVideoCustomisation) {
+        //     that.useWebRTCVideoCustomisation = userData.useWebRTCVideoCustomisation;
+             updatePropertyToObj(that, "useWebRTCVideoCustomisation", userData.useWebRTCVideoCustomisation);
+        // }
+        // if (userData.instantMessagesCustomisation) {
+        //     that.instantMessagesCustomisation = userData.instantMessagesCustomisation;
+             updatePropertyToObj(that, "instantMessagesCustomisation", userData.instantMessagesCustomisation);
+        // }
+        // if (userData.userProfileCustomisation) {
+        //     that.userProfileCustomisation = userData.userProfileCustomisation;
+             updatePropertyToObj(that, "userProfileCustomisation", userData.userProfileCustomisation);
+        // }
+        // if (userData.fileStorageCustomisation) {
+        //     that.fileStorageCustomisation = userData.fileStorageCustomisation;
+             updatePropertyToObj(that, "fileStorageCustomisation", userData.fileStorageCustomisation);
+        // }
+        // if (userData.overridePresenceCustomisation) {
+        //     that.overridePresenceCustomisation = userData.overridePresenceCustomisation;
+             updatePropertyToObj(that, "overridePresenceCustomisation", userData.overridePresenceCustomisation);
+        // }
+        // if (userData.changeTelephonyCustomisation) {
+        //     that.changeTelephonyCustomisation = userData.changeTelephonyCustomisation;
+             updatePropertyToObj(that, "changeTelephonyCustomisation", userData.changeTelephonyCustomisation);
+        // }
+        // if (userData.changeSettingsCustomisation) {
+        //     that.changeSettingsCustomisation = userData.changeSettingsCustomisation;
+             updatePropertyToObj(that, "changeSettingsCustomisation", userData.changeSettingsCustomisation);
+        // }
+        // if (userData.recordingConversationCustomisation) {
+        //     that.recordingConversationCustomisation = userData.recordingConversationCustomisation;
+             updatePropertyToObj(that, "recordingConversationCustomisation", userData.recordingConversationCustomisation);
+        // }
+        // if (userData.useGifCustomisation) {
+        //     that.useGifCustomisation = userData.useGifCustomisation;
+             updatePropertyToObj(that, "useGifCustomisation", userData.useGifCustomisation);
+        // }
+        // if (userData.useDialOutCustomisation) {
+        //     that.useDialOutCustomisation = userData.useDialOutCustomisation;
+             updatePropertyToObj(that, "useDialOutCustomisation", userData.useDialOutCustomisation);
+        // }
+        // if (userData.fileCopyCustomisation) {
+        //     that.fileCopyCustomisation = userData.fileCopyCustomisation;
+             updatePropertyToObj(that, "fileCopyCustomisation", userData.fileCopyCustomisation);
+        // }
+        // if (userData.fileTransferCustomisation) {
+        //     that.fileTransferCustomisation = userData.fileTransferCustomisation;
+             updatePropertyToObj(that, "fileTransferCustomisation", userData.fileTransferCustomisation);
+        // }
+        // if (userData.forbidFileOwnerChangeCustomisation) {
+        //     that.forbidFileOwnerChangeCustomisation = userData.forbidFileOwnerChangeCustomisation;
+             updatePropertyToObj(that, "forbidFileOwnerChangeCustomisation", userData.forbidFileOwnerChangeCustomisation);
+        // }
+        // if (userData.readReceiptsCustomisation) {
+        //     that.readReceiptsCustomisation = userData.readReceiptsCustomisation;
+             updatePropertyToObj(that, "readReceiptsCustomisation", userData.readReceiptsCustomisation);
+        // }
+        // if (userData.useSpeakingTimeStatistics) {
+        //     that.useSpeakingTimeStatistics = userData.useSpeakingTimeStatistics;
+             updatePropertyToObj(that, "useSpeakingTimeStatistics", userData.useSpeakingTimeStatistics);
+        // }
+        // if (userData.selectedAppCustomisationTemplate) {
+        //     that.selectedAppCustomisationTemplate  = userData.selectedAppCustomisationTemplate;
+             updatePropertyToObj(that, "selectedAppCustomisationTemplate", userData.selectedAppCustomisationTemplate);
+        // }
+        // if (userData.alertNotificationReception) {
+        //     that.alertNotificationReception = userData.alertNotificationReception;
+             updatePropertyToObj(that, "alertNotificationReception", userData.alertNotificationReception);
+        // }
+        // if (userData.selectedDeviceFirmware) {
+        //     that.selectedDeviceFirmware = userData.selectedDeviceFirmware;
+             updatePropertyToObj(that, "selectedDeviceFirmware", userData.selectedDeviceFirmware);
+        // }
+        // if (userData.visibility) {
+        //     that.visibility = userData.visibility;
+             updatePropertyToObj(that, "visibility", userData.visibility);
+        // }
+        // if (userData.jid_password) {
+        //     that.jid_password = userData.jid_password;
+             updatePropertyToObj(that, "jid_password", userData.jid_password);
+        // }
+        // if (userData.creationDate) {
+        //     that.creationDate = userData.creationDate;
+             updatePropertyToObj(that, "creationDate", userData.creationDate);
+        // }
+        // if (userData.profiles) {
+        //     that.profiles = userData.profiles;
+             updatePropertyToObj(that, "profiles", userData.profiles);
+        // }
+        // if (userData.activationDate) {
+        //     that.activationDate = userData.activationDate;
+             updatePropertyToObj(that, "activationDate", userData.activationDate);
+        // }
+        // if (userData.lastOfflineMailReceivedDate) {
+        //     that.lastOfflineMailReceivedDate = userData.lastOfflineMailReceivedDate;
+             updatePropertyToObj(that, "lastOfflineMailReceivedDate", userData.lastOfflineMailReceivedDate);
+        // }
+        // if (userData.state) {
+        //     that.state = userData.state;
+             updatePropertyToObj(that, "state", userData.state);
+        // }
+        // if (userData.authenticationType) {
+        //     that.authenticationType = userData.authenticationType;
+             updatePropertyToObj(that, "authenticationType", userData.authenticationType);
+        // }
+        // if (userData.department) {
+        //     that.department = userData.department;
+             updatePropertyToObj(that, "department", userData.department);
+        // }
+        // if (userData.isADSearchAvailable) {
+        //     that.isADSearchAvailable = userData.isADSearchAvailable;
+             updatePropertyToObj(that, "isADSearchAvailable", userData.isADSearchAvailable);
+        // }
+        // if (userData.isTv) {
+        //     this.isTv = userData.isTv;
+             updatePropertyToObj(that, "isTv", userData.isTv);
+        // }
+        // if (userData.calendars) {
+        //     this.calendars = userData.calendars;
+             updatePropertyToObj(that, "calendars", userData.calendars);
+        // }
+        // if (userData.openInvites) {
+        //    this.openInvites = userData.openInvites;
+            updatePropertyToObj(that, "openInvites", userData.openInvites);
+        //}
+        //if (userData.isAlertNotificationEnabled) {
+        //    this.isAlertNotificationEnabled = userData.isAlertNotificationEnabled;
+            updatePropertyToObj(that, "isAlertNotificationEnabled", userData.isAlertNotificationEnabled);
+        //}
+        //if (userData.outOfOffice) {
+        //    this.outOfOffice = userData.outOfOffice;
+            updatePropertyToObj(that, "outOfOffice", userData.outOfOffice);
+        //}
+        //if (userData.lastSeenDate) {
+        //    this.lastSeenDate = userData.lastSeenDate;
+            updatePropertyToObj(that, "lastSeenDate", userData.lastSeenDate);
+        //}
         if (userData.eLearningCustomisation === "enabled" || userData.eLearningCustomisation === "disabled") {
-            this.eLearningCustomisation = userData.eLearningCustomisation==="enabled";
+            //this.eLearningCustomisation = userData.eLearningCustomisation==="enabled";
+            updatePropertyToObj(that, "eLearningCustomisation", userData.eLearningCustomisation==="enabled");
         }
         if (userData.eLearningGamificationCustomisation === "enabled" || userData.eLearningGamificationCustomisation === "disabled") {
-            this.eLearningGamificationCustomisation = userData.eLearningGamificationCustomisation==="enabled";
+            //this.eLearningGamificationCustomisation = userData.eLearningGamificationCustomisation==="enabled";
+            updatePropertyToObj(that, "eLearningGamificationCustomisation", userData.eLearningGamificationCustomisation==="enabled");
         }
         if (userData.useRoomAsRBVoiceUser === "enabled" || userData.meetingRecordingCustomisation === "disabled") {
-            this.useRoomAsRBVoiceUser = userData.useRoomAsRBVoiceUser==="enabled";
+            //this.useRoomAsRBVoiceUser = userData.useRoomAsRBVoiceUser==="enabled";
+            updatePropertyToObj(that, "useRoomAsRBVoiceUser", userData.useRoomAsRBVoiceUser==="enabled");
         }
         if (userData.useWebRTCAudioAsRBVoiceUser === "enabled" || userData.meetingRecordingCustomisation === "disabled") {
-            this.useWebRTCAudioAsRBVoiceUser = userData.useWebRTCAudioAsRBVoiceUser==="enabled";
+            //this.useWebRTCAudioAsRBVoiceUser = userData.useWebRTCAudioAsRBVoiceUser==="enabled";
+            updatePropertyToObj(that, "useWebRTCAudioAsRBVoiceUser", userData.useWebRTCAudioAsRBVoiceUser==="enabled");
         }
         if (userData.msTeamsPresence) {
-            this.msTeamsPresence = userData.msTeamsPresence;
+            //this.msTeamsPresence = userData.msTeamsPresence;
+            updatePropertyToObj(that, "msTeamsPresence", userData.msTeamsPresence);
         }
         if (userData.useWebRTCOnlyIfMobileLoggedCustomisation === "enabled" || userData.useWebRTCOnlyIfMobileLoggedCustomisation === "disabled") {
-            this.useWebRTCOnlyIfMobileLoggedCustomisation = userData.useWebRTCOnlyIfMobileLoggedCustomisation==="enabled";
+            //this.useWebRTCOnlyIfMobileLoggedCustomisation = userData.useWebRTCOnlyIfMobileLoggedCustomisation==="enabled";
+            updatePropertyToObj(that, "useWebRTCOnlyIfMobileLoggedCustomisation", userData.useWebRTCOnlyIfMobileLoggedCustomisation==="enabled");
         }
         if (userData.meetingRecordingCustomisation === "enabled" || userData.meetingRecordingCustomisation === "disabled") {
-            this.meetingRecordingCustomisation = userData.meetingRecordingCustomisation==="enabled";
+        //    this.meetingRecordingCustomisation = userData.meetingRecordingCustomisation==="enabled";
+            updatePropertyToObj(that, "meetingRecordingCustomisation", userData.meetingRecordingCustomisation==="enabled");
         }
         if (userData.useOtherPhoneMode === "enabled" || userData.useOtherPhoneMode === "disabled") {
-            this.useOtherPhoneMode = userData.useOtherPhoneMode==="enabled";
+        //    this.useOtherPhoneMode = userData.useOtherPhoneMode==="enabled";
+            updatePropertyToObj(that, "useOtherPhoneMode", userData.useOtherPhoneMode==="enabled");
         }
         if (userData.useComputerMode === "enabled" || userData.useComputerMode === "disabled") {
-            this.useComputerMode = userData.useComputerMode==="enabled";
+        //    this.useComputerMode = userData.useComputerMode==="enabled";
+            updatePropertyToObj(that, "useComputerMode", userData.useComputerMode==="enabled");
         }
         if (userData.useSoftPhoneMode === "enabled" || userData.useSoftPhoneMode === "disabled") {
-            this.useSoftPhoneMode = userData.useSoftPhoneMode==="enabled";
+        //    this.useSoftPhoneMode = userData.useSoftPhoneMode==="enabled";
+            updatePropertyToObj(that, "useSoftPhoneMode", userData.useSoftPhoneMode==="enabled");
         }
         if (userData.canAccessWhatsNew === "enabled" || userData.canAccessWhatsNew === "disabled") {
-            this.canAccessWhatsNew = userData.canAccessWhatsNew==="enabled";
+        //    this.canAccessWhatsNew = userData.canAccessWhatsNew==="enabled";
+            updatePropertyToObj(that, "canAccessWhatsNew", userData.canAccessWhatsNew==="enabled");
         }
         if (userData.canAccessFaqCustomisation === "enabled" || userData.canAccessFaqCustomisation === "disabled") {
-            this.canAccessFaqCustomisation = userData.canAccessFaqCustomisation==="enabled";
+        //    this.canAccessFaqCustomisation = userData.canAccessFaqCustomisation==="enabled";
+            updatePropertyToObj(that, "canAccessFaqCustomisation", userData.canAccessFaqCustomisation==="enabled");
         }
         if (userData.canAccessHelpCenterCustomisation === "enabled" || userData.canAccessHelpCenterCustomisation === "disabled") {
-            this.canAccessHelpCenterCustomisation = userData.canAccessHelpCenterCustomisation==="enabled";
+        //    this.canAccessHelpCenterCustomisation = userData.canAccessHelpCenterCustomisation==="enabled";
+            updatePropertyToObj(that, "canAccessHelpCenterCustomisation", userData.canAccessHelpCenterCustomisation==="enabled");
         }
         if (userData.canAccessStoreCustomisation === "enabled" || userData.canAccessStoreCustomisation === "disabled") {
-            this.canAccessStoreCustomisation = userData.canAccessStoreCustomisation==="enabled";
+        //    this.canAccessStoreCustomisation = userData.canAccessStoreCustomisation==="enabled";
+            updatePropertyToObj(that, "canAccessStoreCustomisation", userData.canAccessStoreCustomisation==="enabled");
         }
         if (userData.canDownloadAppCustomisation === "enabled" || userData.canDownloadAppCustomisation === "disabled") {
-            this.canDownloadAppCustomisation = userData.canDownloadAppCustomisation==="enabled";
+          //  this.canDownloadAppCustomisation = userData.canDownloadAppCustomisation==="enabled";
+            updatePropertyToObj(that, "canDownloadAppCustomisation", userData.canDownloadAppCustomisation==="enabled");
         }
-        this.canCallParticipantPbxNumberCustomisation = userData.canCallParticipantPbxNumberCustomisation;
+        //this.canCallParticipantPbxNumberCustomisation = userData.canCallParticipantPbxNumberCustomisation;
+        updatePropertyToObj(that, "canCallParticipantPbxNumberCustomisation", toBoolean(userData.canCallParticipantPbxNumberCustomisation));
         if (userData.useExternalStorage === "enabled" || userData.useExternalStorage === "disabled") {
             this.useExternalStorage = userData.useExternalStorage==="enabled";
+            updatePropertyToObj(that, "useExternalStorage", userData.useExternalStorage==="enabled");
         }
         if (userData.useRainbowStorage === "enabled" || userData.useRainbowStorage === "disabled") {
             this.useRainbowStorage = userData.useRainbowStorage==="enabled";
+            updatePropertyToObj(that, "useRainbowStorage", userData.useRainbowStorage==="enabled");
         }
         this.mainStorage = userData.mainStorage;
+        updatePropertyToObj(that, "mainStorage", userData.mainStorage);
 
         if (isDefined(userData.nextRosterAutoCleanup) ) {
             this.nextRosterAutoCleanup = userData.nextRosterAutoCleanup;
+            updatePropertyToObj(that, "nextRosterAutoCleanup", userData.nextRosterAutoCleanup);
         }
-        if (userData.mfaRainbowAuth ) {
+        if (isDefined(userData.mfaRainbowAuth) ) {
             this.mfaRainbowAuth = userData.mfaRainbowAuth;
+            updatePropertyToObj(that, "mfaRainbowAuth", userData.mfaRainbowAuth);
         }
 
-        if (userData.searchTagsOnly ) {
+        if (isDefined(userData.searchTagsOnly) ) {
             this.searchTagsOnly = userData.searchTagsOnly;
+            updatePropertyToObj(that, "searchTagsOnly", userData.searchTagsOnly);
         }
 
-        this.canSetInvisiblePresenceCustomisation = userData.canSetInvisiblePresenceCustomisation;
-        this.canUseSendReportCustomisation = userData.canUseSendReportCustomisation;
-        this.canUseTaskCustomisation = userData.canUseTaskCustomisation;
-        this.canUseTestConfigCustomisation = userData.canUseTestConfigCustomisation;
-        this.useTeamsMode = userData.useTeamsMode;
-        this.selectedProgKeysGroupId = userData.selectedProgKeysGroupId;
+        if (isDefined(userData.companyNameOfGuest) ) {
+            this.companyNameOfGuest = userData.companyNameOfGuest;
+            updatePropertyToObj(that, "companyNameOfGuest", userData.companyNameOfGuest);
+        }
+
+        //this.canSetInvisiblePresenceCustomisation = userData.canSetInvisiblePresenceCustomisation;
+        updatePropertyToObj(that, "canSetInvisiblePresenceCustomisation", toBoolean(userData.canSetInvisiblePresenceCustomisation));
+        //this.canUseSendReportCustomisation = userData.canUseSendReportCustomisation;
+        updatePropertyToObj(that, "canUseSendReportCustomisation", toBoolean(userData.canUseSendReportCustomisation));
+        //this.canUseTaskCustomisation = userData.canUseTaskCustomisation;
+        updatePropertyToObj(that, "canUseTaskCustomisation", toBoolean(userData.canUseTaskCustomisation));
+        //this.canUseTestConfigCustomisation = userData.canUseTestConfigCustomisation;
+        updatePropertyToObj(that, "canUseTestConfigCustomisation", toBoolean(userData.canUseTestConfigCustomisation));
+        //this.useTeamsMode = userData.useTeamsMode;
+        updatePropertyToObj(that, "useTeamsMode", toBoolean(userData.useTeamsMode));
+        //this.selectedProgKeysGroupId = userData.selectedProgKeysGroupId;
+        updatePropertyToObj(that, "selectedProgKeysGroupId", userData.selectedProgKeysGroupId);
 
         // Compute display name
         that.computeDisplayName();

@@ -58,7 +58,7 @@ const API_ID = "API_CALL - ";
 class Bubbles extends GenericService {
     private _bubbles: Bubble[];
     private avatarDomain: string;
-    private _contacts: ContactsService;
+    private _contactsService : ContactsService;
     private _conversations: ConversationsService;
     private _profileService: ProfilesService;
     private _presence: PresenceService;
@@ -109,6 +109,7 @@ class Bubbles extends GenericService {
         this._eventEmitter.on("evt_internal_invitationreceived", this._onInvitationReceived.bind(this));
         this._eventEmitter.on("evt_internal_contactinvitationreceived", this._onContactInvitationReceived.bind(this));
         this._eventEmitter.on("evt_internal_affiliationchanged", this._onAffiliationChanged.bind(this));
+        this._eventEmitter.on("evt_internal_contactchanged", this._onBubbleContactChanged.bind(this));
         this._eventEmitter.on("evt_internal_ownaffiliationchanged", this._onOwnAffiliationChanged.bind(this));
         this._eventEmitter.on("evt_internal_customdatachanged", this._onCustomDataChanged.bind(this));
         this._eventEmitter.on("evt_internal_topicchanged", this._onTopicChanged.bind(this));
@@ -137,7 +138,7 @@ class Bubbles extends GenericService {
                 that._xmpp = that._core._xmpp;
                 that._rest = that._core._rest;
                 that._bubbles = [];
-                that._contacts = that._core.contacts;
+                that._contactsService  = that._core.contacts;
                 that._conversations = that._core.conversations;
                 that._profileService = that._core.profiles;
                 that._presence = that._core.presence;
@@ -295,7 +296,7 @@ class Bubbles extends GenericService {
             this._rest.getBubbleByJid(invitation.bubbleJid).then(async (bubbleUpdated: any) => {
                 that._logger.log(that.DEBUG, LOG_ID + "(_onContactInvitationReceived) invitation received from bubble.");
                 that._logger.log(that.INTERNAL, LOG_ID + "(_onContactInvitationReceived) invitation received from bubble : ", bubbleUpdated?.id);
-                let contact = await that._contacts.getContactByJid(invitation.contact_jid);
+                let contact = await that._contactsService .getContactByJid(invitation.contact_jid);
                 //that._logger.log(that.INFO, LOG_ID + "(onChatMessageReceived) id : ", id, ", conference invitation received for somebody else contact : ", contact?contact.id:"", ",\n  content (=body) : ", content, ", subject : ", subject);
                 let bubble = await that.addOrUpdateBubbleToCache(bubbleUpdated);
 
@@ -350,6 +351,38 @@ class Bubbles extends GenericService {
             that._eventEmitter.emit("evt_internal_bubbleaffiliationchanged", bubble);
         }).catch((err) => {
             that._logger.log(that.WARN, LOG_ID + "(_onAffiliationChanged) get bubble failed for affiliation : ", affiliation, ", : ", err);
+            //that._logger.log(that.INTERNALERROR, LOG_ID + "(_onAffiliationChanged) get bubble failed for affiliation : ", affiliation, ", : ", err);
+        });
+    }
+
+    /**
+     * @private
+     * @method _onBubbleContactChanged
+     * @instance
+     * @param {Object} affiliation contains information about bubble and user's jid
+     * @description
+     *      Method called when affilitation to a bubble changed <br>
+     */
+    async _onBubbleContactChanged(eventInfo : any) {
+        let that = this;
+        that._logger.log(that.INTERNAL, LOG_ID + "(_onBubbleContactChanged) eventInfo : ", eventInfo);
+
+        await this._rest.getBubble(eventInfo.bubbleId).then(async (bubbleUpdated: any) => {
+            that._logger.log(that.DEBUG, LOG_ID + "(_onBubbleContactChanged) user affiliation changed for bubble.");
+            that._logger.log(that.INTERNAL, LOG_ID + "(_onBubbleContactChanged) user affiliation changed for bubble : ", bubbleUpdated?.id, ", eventInfo : ", eventInfo);
+
+            let bubbleProm = that.addOrUpdateBubbleToCache(bubbleUpdated);
+            let bubble = await bubbleProm;
+
+            let eventData = {
+                "action": eventInfo.action, // "updated"
+                "bubble": bubble,
+                "peer" : eventInfo.peer
+            };
+
+            that._eventEmitter.emit("evt_internal_bubblecontactchanged", eventData);
+        }).catch((err) => {
+            that._logger.log(that.WARN, LOG_ID + "(_onBubbleContactChanged) get bubble failed for eventInfo : ", eventInfo, ", : ", err);
             //that._logger.log(that.INTERNALERROR, LOG_ID + "(_onAffiliationChanged) get bubble failed for affiliation : ", affiliation, ", : ", err);
         });
     }
@@ -2598,7 +2631,7 @@ class Bubbles extends GenericService {
             let that = this;
             that._logger.log(that.INTERNAL, LOG_ID + "(addOrUpdateBubbleToCache) - parameter bubble : ", bubble);
     
-            let bubbleObj: Bubble = await Bubble.BubbleFactory(that.avatarDomain, that._contacts)(bubble);
+            let bubbleObj: Bubble = await Bubble.BubbleFactory(that.avatarDomain, that._contactsService )(bubble);
             let bubbleFoundindex = this._bubbles.findIndex((channelIter) => {
                 return channelIter.id===bubble.id;
             });
@@ -2639,7 +2672,7 @@ class Bubbles extends GenericService {
             if (bubbleFoundindex!= -1) {
                 that._logger.log(that.INTERNAL, LOG_ID + "(addOrUpdateBubbleToCache) update in cache with bubble : ", bubble?.id, ", at bubbleFoundindex : ", bubbleFoundindex);
                 //that._logger.log(that.INTERNAL, LOG_ID + "(addOrUpdateBubbleToCache) update in cache with bubble : ", bubble, ", at bubbleFoundindex : ", bubbleFoundindex);
-                await this._bubbles[bubbleFoundindex].updateBubble(bubble, that._contacts);
+                await this._bubbles[bubbleFoundindex].updateBubble(bubble, that._contactsService );
                 //this._bubbles.splice(bubbleFoundindex,1,bubbleObj);
                 this.refreshMemberAndOrganizerLists(this._bubbles[bubbleFoundindex]);
                 //that._logger.log(that.INTERNAL, LOG_ID + "(addOrUpdateBubbleToCache) in update this._bubbles : ", this._bubbles);
@@ -4523,7 +4556,7 @@ class Bubbles extends GenericService {
             publicUrlObject.bubbleType = openInvite.roomType;
         }
         if (openInvite.userId) {
-            publicUrlObject.contact = await that._contacts.getContactById(openInvite.userId);
+            publicUrlObject.contact = await that._contactsService .getContactById(openInvite.userId);
         }
         return publicUrlObject;
     }
@@ -4752,7 +4785,7 @@ class Bubbles extends GenericService {
             that._rest.setBubbleAutoRegister(bubble.id, autoRegister).then(async (bubbleData) => {
                 that._logger.log(that.INFO, LOG_ID + "(setBubbleAutoRegister) autoRegister set ");
                 that._logger.log(that.INTERNAL, LOG_ID + "(setBubbleAutoRegister) autoRegister set : ", bubbleData);
-                let bubbleObj: Bubble = await Bubble.BubbleFactory(that.avatarDomain, that._contacts)(bubbleData);
+                let bubbleObj: Bubble = await Bubble.BubbleFactory(that.avatarDomain, that._contactsService )(bubbleData);
                 resolve(bubbleObj);
             }).catch((err) => {
                 that._logger.log(that.ERROR, LOG_ID + "(setBubbleAutoRegister) error");
@@ -5586,7 +5619,7 @@ class Bubbles extends GenericService {
                                     // Jid_im
                                     if (jParticipant.hasOwnProperty("jid_im")) {
                                         participant.jid_im = jParticipant["jid_im"];
-                                        participant.contact = await that._contacts.getContactByJid(participant.jid_im).catch((err) => {
+                                        participant.contact = await that._contactsService .getContactByJid(participant.jid_im).catch((err) => {
                                             that._logger.log(that.ERROR, LOG_ID + "(askConferenceSnapshot) - not found the contact for participant : ", err);
                                             return null;
                                         });

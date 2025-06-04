@@ -2390,15 +2390,15 @@ class ConversationEventHandler extends GenericHandler {
         }
     };
 
-    onRoomManagementMessageReceived (node, nodeJson) {
+    async onRoomManagementMessageReceived(node, nodeJson) {
         let that = this;
         try {
-            that._logger.log(that.INTERNAL, LOG_ID + "(onRoomManagementMessageReceived) _entering_ : ", "\n", node.root ? prettydata.xml(node.root().toString()) : node, nodeJson);
-            if (node.attrs.xmlns === "jabber:iq:configuration") {
+            that._logger.log(that.INTERNAL, LOG_ID + "(onRoomManagementMessageReceived) _entering_ : ", "\n", node.root ? prettydata.xml(node.root().toString()):node, nodeJson);
+            if (node.attrs.xmlns==="jabber:iq:configuration") {
 
                 // Affiliation changed (my own or for a member)
                 if (node.attrs.status) {
-                    if (node.attrs.userjid === xu.getBareJIDFromFullJID(that.fullJid)) {
+                    if (node.attrs.userjid===xu.getBareJIDFromFullJID(that.fullJid)) {
                         that._logger.log(that.DEBUG, LOG_ID + "(onRoomManagementMessageReceived) bubble management received for own.");
                         that.eventEmitter.emit("evt_internal_ownaffiliationchanged", {
                             "bubbleId": node.attrs.roomid,
@@ -2412,7 +2412,7 @@ class ConversationEventHandler extends GenericHandler {
                         let userdata = undefined;
                         if (payloads) {
                             for (let i = 0; i < payloads.length; i++) {
-                                if (payloads[i]['$attrs'].datatype === "urn:rainbow:json:userdata") {
+                                if (payloads[i]['$attrs'].datatype==="urn:rainbow:json:userdata") {
                                     userdata = payloads[i].json?._;
                                     that._logger.log(that.DEBUG, LOG_ID + "(onRoomManagementMessageReceived) userdata : ", userdata);
                                 }
@@ -2427,6 +2427,22 @@ class ConversationEventHandler extends GenericHandler {
                             "userdata": userdata
                         });
                     }
+                }
+                // vcard changed
+                else if (node.attrs.vcard) {
+                    that._logger.log(that.DEBUG, LOG_ID + "(onRoomManagementMessageReceived) bubble vcard updated changed");
+                    let contact = await that._contactsService.getContactByJid(node.attrs.userjid, false);
+                    that.eventEmitter.emit("evt_internal_contactchanged", {
+                        "action": node.attrs.vcard, // "updated"
+                        "bubbleId": node.attrs.roomid,
+                        "bubbleJid": node.attrs.roomjid,
+                        "peer" : {
+                            "userjid": node.attrs.userjid,
+                            "contact": contact,
+                            "vcard": nodeJson?.vcard /*  vcard: { displayname: 'ddd eeeee', lastname: 'eeeee', firstname: 'ddd', companyNameOfGuest: undefined, lastavatarupdatedate: undefined } // */
+                        }
+                    });
+
                 }
                 // Custom data changed
                 else if (node.attrs.customData) {
@@ -2468,8 +2484,11 @@ class ConversationEventHandler extends GenericHandler {
                 let avatarElem = node.find("avatar");
                 let avatarType = null;
                 if (avatarElem.length > 0) {
-                    if (avatarElem.attr("action") === "delete") { avatarType = "delete"; }
-                    else { avatarType = "update"; }
+                    if (avatarElem.attr("action")==="delete") {
+                        avatarType = "delete";
+                    } else {
+                        avatarType = "update";
+                    }
                 }
                 if (lastAvatarUpdateDate || avatarType) {
                     that._logger.log(that.DEBUG, LOG_ID + "(onRoomManagementMessageReceived) bubble avatar changed");

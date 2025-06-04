@@ -420,6 +420,15 @@ function addPropertyToObj(objetToUpdate : Object, methodName : string, methodVal
     }
 }
 
+function updatePropertyToObj(objetToUpdate : Object, methodName : string, methodValue : any, addEmptyProperty: boolean = false) {
+    if (!addEmptyProperty && isNotDefined(methodValue)) {
+        return;
+    }
+    if (objetToUpdate && methodName && (typeof objetToUpdate === "object" || typeof objetToUpdate === "function") ) {
+        objetToUpdate[methodName] = methodValue;
+    }
+}
+
 
 function updateObjectPropertiesFromAnOtherObject (dstObjectArray: number | any[], srcObject: { [x: string]: any; }) {
     if (!Array.isArray(dstObjectArray)) {
@@ -1300,6 +1309,7 @@ export let objToExport = {
     promiseState,
     doWithinInterval,
     addPropertyToObj,
+    updatePropertyToObj,
     generateRamdomEmail,
     randomString,
     getJsonFromXML,
@@ -1369,6 +1379,7 @@ export {
     promiseState,
     doWithinInterval,
     addPropertyToObj,
+    updatePropertyToObj,
     generateRamdomEmail,
     randomString,
     getJsonFromXML,
@@ -1437,6 +1448,7 @@ export default {
     promiseState,
     doWithinInterval,
     addPropertyToObj,
+    updatePropertyToObj,
     generateRamdomEmail,
     randomString,
     getJsonFromXML,

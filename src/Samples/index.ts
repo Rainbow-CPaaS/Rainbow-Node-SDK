@@ -31,7 +31,7 @@ import {
     pause,
     readArrayFromFile,
     setTimeoutPromised,
-    until,
+    until, updatePropertyToObj,
     writeArrayToFile
 } from "../lib/common/Utils";
 import {XMPPUTils} from "../lib/common/XMPPUtils";
@@ -1012,6 +1012,9 @@ let expressEngine = undefined;
     });
     rainbowSDK.events.on("rainbow_onbubbleownaffiliationchanged", (data) => {
         _logger.log("debug", "MAIN - (rainbow_onbubbleownaffiliationchanged) - rainbow event received.", data);
+    });
+    rainbowSDK.events.on("rainbow_onbubblecontactchanged", (data) => {
+        _logger.log("debug", "MAIN - (rainbow_onbubblecontactchanged) - rainbow event received.", data);
     });
     rainbowSDK.events.on("rainbow_onchannelcreated", (data) => {
         _logger.log("debug", "MAIN - (rainbow_onchannelcreated) - rainbow event received.", data);
@@ -2350,6 +2353,36 @@ let expressEngine = undefined;
 
         //endregion Contacts API - Enduser portal
 
+        //region Contact Test
+        updateProperty(propertyTab : Array<any>, value : any) {
+            if (isDefined(value)) {
+                propertyTab[0] = value
+            }
+        }
+        
+        testupdateProperty() {
+            let that = this;
+            let contact : any= new Contact();
+            contact.firstName = "firstNameOrig";
+            _logger.log("debug", "MAIN - [testupdateProperty    ] :: contact.firstName before updateProperty : ", contact.firstName);
+            updatePropertyToObj(contact, "firstName","firstName_newValue");
+            _logger.log("debug", "MAIN - [testupdateProperty    ] :: contact.firstName after updateProperty with new value : ", contact.firstName);
+            updatePropertyToObj(contact, "firstName", undefined, false);
+            _logger.log("debug", "MAIN - [testupdateProperty    ] :: contact.firstName after updateProperty with undefined value and addEmptyProperty to false : ", contact.firstName);
+            updatePropertyToObj(contact, "firstName", undefined, true);
+            _logger.log("debug", "MAIN - [testupdateProperty    ] :: contact.firstName after updateProperty with undefined value and addEmptyProperty to true : ", contact.firstName);
+
+            updatePropertyToObj(contact, "firstName_01","firstName_01__newValue");
+            _logger.log("debug", "MAIN - [testupdateProperty    ] :: contact.firstName_01 after updateProperty with new value : ", contact.firstName_01);
+            updatePropertyToObj(contact, "firstName_02", undefined, false);
+            _logger.log("debug", "MAIN - [testupdateProperty    ] :: contact.firstName_02 after updateProperty with undefined value and addEmptyProperty to false : ", contact.firstName_02);
+            updatePropertyToObj(contact, "firstName_03", undefined, true);
+            _logger.log("debug", "MAIN - [testupdateProperty    ] :: contact.firstName_03 after updateProperty with undefined value and addEmptyProperty to true : ", contact.firstName_03);
+
+        }
+        
+        //endregion Contact Test
+        
         //endregion Contacts
 
         //region Messages

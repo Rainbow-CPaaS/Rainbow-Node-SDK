@@ -165,7 +165,9 @@ class GuestParams {
     max key length: 64 characters,
     max value length: 512 characters. It is up to the client to manage the user's customData (new customData provided overwrite the existing one).
     // */
-    } //     User's custom data.
+    }; //     User's custom data.
+
+    public companyNameOfGuest: string; // A string represention the name ofg the company of the Guest (only an info property, the guests are created in the "Rainbow" company).
 
     constructor(
         _loginEmail: string = null,
@@ -192,7 +194,8 @@ class GuestParams {
         _language: string= null,
         _timezone: string= null,
         _visibility: string= null,
-        _customData: any= null
+        _customData: any= null,
+        _companyNameOfGuest:string = null
     ) {
     let that = this;
         that.loginEmail = _loginEmail;
@@ -217,6 +220,7 @@ class GuestParams {
         that.timezone = _timezone;
         that.visibility = _visibility;
         that.customData = _customData;
+        that.companyNameOfGuest = _companyNameOfGuest;
     }
 
     getUrlParam () {
@@ -287,6 +291,9 @@ class GuestParams {
         }
         if (that.customData) {
             param.customData = that.customData;
+        }
+        if (that.companyNameOfGuest) {
+            param.companyNameOfGuest = that.companyNameOfGuest;
         }
 
         return param
