@@ -11,14 +11,18 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   None
 
 #### Fixed
--   Fix JSdoc about parameter  p_messagesDataStore in APIs of ImsService 
+-   Fix JSdoc about parameter p_messagesDataStore in APIs. 
+-   Fix JSdoc about parameter's types in APIs. 
 
 #### Added
 -   Add `Utils::genererCode`
 -   Add payload about user (guest) when `rainbow_onbubbleaffiliationchanged` is raised.
 -   Add `datastoretypeOfMsg` property in Message.
 -   Add `Store` value in `DataStoreType` enum. Offline storage and Message Archive Management (XEP-0313) [4] can define their own rules on what messages to store and usually only store messages that contain a body element. However a sender may want to indicate that a message is worth storing even though it might not match those rules (e.g. an encrypted message that carries the payload outside the body element). Such a message can be marked with a <store/> hint.
- 
+-   Add event `rainbow_onbubblecontactchanged` Fired when the contact data of a bubble has changed.
+-   Add `Contact::companyNameOfGuest property` Company Name of Guest (if provided). Available only if "guestMode" is true.
+-   Add `updatePropertyToObj` function in Utils.
+
 #### Changed
 -   Update @deprecated of methods.
 -   Update `XmppClient::send` `nbMessagesSentThisHour` to be increased when the message has a body.
@@ -26,6 +30,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Update `ImsService::sendMessageToJidAnswer` to forbid the sending of answer to a message with a datastoretypeOfMsg equals to DataStoreType.NoStore or DataStoreType.NoPermanentStore.
 -   Update `ImsService::sendMessageToBubbleJidAnswer` to forbid the sending of answer to a message with a datastoretypeOfMsg equals to DataStoreType.NoStore or DataStoreType.NoPermanentStore.
 -   Replace type `string` to `UrgencyType` in the parameter `urgency` of the send message APIs.   
+-   Update to the update process of Contact properties with the `updatePropertyToObj` to set properties.
 
 ### [2.37.0-lts.0] - 2024-03-13
 #### Removed
