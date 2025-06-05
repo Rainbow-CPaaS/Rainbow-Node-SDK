@@ -370,10 +370,10 @@ class RBVoiceService extends GenericService {
      * @async
      * @category Rainbow Voice Cloud PBX group
      * @param {string} groupId Unique identifier of the Cloud PBX group to update
-     * @param {number} limit Allow to specify the number of voice messages to retrieve. Default value : 100
-     * @param {number} offset Allow to specify the position of first voice messages to retrieve. Default value : 0
-     * @param {string} sortField Sort voice messages list based on the given field. Default value : date
-     * @param {number} sortOrder Specify order when sorting voice messages. Default is descending. Default value : -1. Possible values : -1, 1
+     * @param {number} limit=100 Allow to specify the number of voice messages to retrieve. Default value : 100
+     * @param {number} offset=0 Allow to specify the position of first voice messages to retrieve. Default value : 0
+     * @param {string} sortField="name" Sort voice messages list based on the given field. Default value : date
+     * @param {number} sortOrder=-1 Specify order when sorting voice messages. Default is descending. Default value : -1. Possible values : -1, 1
      * @param {string} fromDate List voice messages created after the given date.
      * @param {string} toDate List voice messages created before the given date.
      * @param {string} callerName List voice messages with caller party name containing the given value.
@@ -402,7 +402,7 @@ class RBVoiceService extends GenericService {
      *  | jid optionnel | String | Caller Jid if it can be resolved. |
      *
      */
-    getVoiceMessagesAssociatedToGroup(groupId: string, limit: number = 100, offset: number = 0, sortField: string = "name", sortOrder: number, fromDate: string, toDate: string, callerName: string, callerNumber: string) {
+    getVoiceMessagesAssociatedToGroup(groupId: string, limit: number = 100, offset: number = 0, sortField: string = "name", sortOrder: number=-1, fromDate: string, toDate: string, callerName: string, callerNumber: string) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getVoiceMessagesAssociatedToGroup) is groupId defined : ", isDefined(groupId));
 
@@ -770,7 +770,7 @@ class RBVoiceService extends GenericService {
      * @instance
      * @param {string} groupId Unique identifier of the Cloud PBX group to update
      * @param {string} messageId Message Identifier
-     * @param {string} read Mark the message as read or unread
+     * @param {boolean} read Mark the message as read or unread
      * @description
      *  Update the given voice message - mark it as read or unread When a message is 'unread', it is considered as a new message. On the opposite, a 'read' message is considered as an old message. <br>
      * @return {Promise<any>} the result.
@@ -922,8 +922,8 @@ class RBVoiceService extends GenericService {
      * @param {string} groupId Unique identifier of the Cloud PBX group to update
      * @param {string} memberId Unique identifier of the group member
      * @param {number} position Position of the user inside a serial group, from 1 to last. Meaningless in case of parallel hunting group
-     * @param {Array<string>} roles Member roles inside the group. Default value : agent. Possible values : agent, manager, assistant
-     * @param {string} status Member status inside the group. Default value : active. Possible values : active, idle
+     * @param {Array<string>} roles Member roles inside the group. Default value : ["agent"]. Possible values : agent, manager, assistant
+     * @param {string} status="active" Member status inside the group. Default value : active. Possible values : active, idle
      * @description
      *  This part of the API allows a manager to update a member inside a group. <br>
      *  Update consists in changing the status of the member, or its roles, or its position inside the group. <br>
@@ -941,11 +941,11 @@ class RBVoiceService extends GenericService {
      * | members | Object\[\] | List of group members. |
      * | memberId | String | Member (user) unique identifier |
      * | displayName | String | Member display name |
-     * | roles optionnel | String\[\] | Member role inside the group<br>Default value : `[agent`<br>Possible values : `manager`, `agent`, `assistant` |
+     * | roles optionnel | String\[\] | Member role inside the group<br>Default value : `[agent]`<br>Possible values : `manager`, `agent`, `assistant` |
      * | status optionnel | String | Member status inside the group<br>Default value : `active`<br>Possible values : `active`, `idle` |
      *
      */
-    updateGroupMember(groupId: string, memberId: string, position: number, roles: Array<string>, status: string) {
+    updateGroupMember(groupId: string, memberId: string, position: number, roles: Array<string>=["agent"], status: string = "active") {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateGroupMember) is groupId defined : ", isDefined(groupId));
 
@@ -975,7 +975,7 @@ class RBVoiceService extends GenericService {
      * @async
      * @category Rainbow Voice Deskphones
      * @instance
-     * @param {string} activate Set to "true" to activate or "false' to deactivate user DND.
+     * @param {boolean} activate Set to "true" to activate or "false' to deactivate user DND.
      * @description
      *  This API allows logged in user to activate or deactivate his DND state. <br>
      * @return {Promise<any>} the result.
@@ -1111,7 +1111,7 @@ class RBVoiceService extends GenericService {
      * @async
      * @category Rainbow Voice Deskphones
      * @param {string} displayName Search users, groups, contacts on the given name.
-     * @param {number} limit Allow to specify the number of users, groups or contacts to retrieve (Max: 50). Default value : 20
+     * @param {number} limit=20 Allow to specify the number of users, groups or contacts to retrieve (Max: 50). Default value : 20
      * @instance
      * @description
      * This API allows to retrieve phone numbers associated to Rainbow users, groups, Office365 contacts and external directories contacts. <br>
@@ -1145,7 +1145,7 @@ class RBVoiceService extends GenericService {
      * | deviceType optionnel | String | Device type<br>Possible values : `landline`, `mobile`, `fax`, `other` |
      *
      */
-    searchUsersGroupsContactsByName(displayName: string, limit: number) {
+    searchUsersGroupsContactsByName(displayName: string, limit: number=20) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(searchUsersGroupsContactsByName) is displayName defined : ", isDefined(displayName));
 
@@ -1177,7 +1177,7 @@ class RBVoiceService extends GenericService {
      * @instance
      * @param {string} routineId A user routine unique identifier.
      * @description
-     *  This api activate a user's personal routine. <br>
+     *  This api activates a user's personal routine. <br>
      *  A supervisor can request to activate the personal routine of a user by providing its identifier as a parameter. <br>
      *  The requesting user must be supervisor of the given supervised user.
      * @return {Promise<any>} the result.
@@ -1440,7 +1440,7 @@ class RBVoiceService extends GenericService {
      * | huntingGroups | Boolean |     |
      *
      */
-    getAllPersonalRoutines(userId) {
+    getAllPersonalRoutines(userId : string) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getAllPersonalRoutines) is userId defined : ", isDefined(userId));
 
@@ -2320,10 +2320,10 @@ class RBVoiceService extends GenericService {
      * @async
      * @category Rainbow Voice Voice
      * @instance
-     * @param {number} limit Allow to specify the number of voice messages to retrieve. Default value : 100.
-     * @param {number} offset Allow to specify the position of first voice messages to retrieve. Default value : 0.
-     * @param {string} sortField Sort voice messages list based on the given field. Default value : date.
-     * @param {number} sortOrder Specify order when sorting voice messages. Default is descending. Default value : -1. Possible values : -1, 1 .
+     * @param {number} limit=100 Allow to specify the number of voice messages to retrieve. Default value : 100.
+     * @param {number} offset=0 Allow to specify the position of first voice messages to retrieve. Default value : 0.
+     * @param {string} sortField="date" Sort voice messages list based on the given field. Default value : date.
+     * @param {number} sortOrder=-1 Specify order when sorting voice messages. Default is descending. Default value : -1. Possible values : -1, 1 .
      * @param {string} fromDate List voice messages created after the given date.
      * @param {string} toDate List voice messages created before the given date.
      * @param {string} callerName List voice messages with caller party name containing the given value.

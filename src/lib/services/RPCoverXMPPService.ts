@@ -343,7 +343,7 @@ class RPCoverXMPPService extends GenericService {
      * @description
      *    This API allows to send a request to call a rpc method to a bare jid. The result is the result of the method called on RPC server.<br>
      * @param {string} rpcoverxmppserver_jid the jid of the rpc server used to retrieve the request. default value is the jid of the account running the SDK.</BR> **Note :** only a full JID (with resource) is possible to used.
-     * @param {string} methodName method name of the rpc shared method on server used to retrieve the request. </BR> default value is `system.listMethods` for listing the available methods on RPC server. </BR> use `system.methodHelp` with the name of a method as parameter to get informations about it. </BR> Use `system.methodSignature`   with the name of a method as parameter to get it's signature.
+     * @param {string} methodName="system.listMethods" method name of the rpc shared method on server used to retrieve the request. </BR> default value is `system.listMethods` for listing the available methods on RPC server. </BR> use `system.methodHelp` with the name of a method as parameter to get informations about it. </BR> Use `system.methodSignature`   with the name of a method as parameter to get it's signature.
      * @param {Array<any>} params Array with the parameters for the RPC request. This Array will be splitted in each parameters to the method shared on RPC Server when it is ran.
      * @return {Promise<any>} An object of the result
      */

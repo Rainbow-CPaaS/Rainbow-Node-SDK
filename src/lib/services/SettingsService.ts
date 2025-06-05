@@ -170,7 +170,7 @@ class Settings extends GenericService {
      *  This API can only be used by user himself </br>
      * @return {Promise<Settings, ErrorManager>} A promise containing the result
      */
-    updateUserSettings(settings) {
+    updateUserSettings(settings : any) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateUserSettings) is settings defined : ", isDefined(settings));
         return new Promise( (resolve, reject) => {

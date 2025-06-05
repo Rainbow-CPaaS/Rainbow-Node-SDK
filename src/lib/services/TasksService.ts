@@ -280,6 +280,7 @@ class TasksService extends GenericService {
      * @since 2.28.0
      * @instance
      * @param {string} taskId The id of the task to search.
+     * @param {boolean} forceServerSearch=boolean force to search on server.
      * @description
      *      Get a task by Id. <br>
      * @async
@@ -287,7 +288,7 @@ class TasksService extends GenericService {
      * @return {Promise<Task, ErrorManager>} The result
      * @category async
      */
-    getTaskById(taskId: string, force: boolean = false): Promise<any> {
+    getTaskById(taskId: string, forceServerSearch: boolean = false): Promise<any> {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getTaskById) is taskId defined : ", isDefined(taskId));
 
@@ -299,7 +300,7 @@ class TasksService extends GenericService {
             }
 
             let taskFound = undefined;
-            if (!force) {
+            if (!forceServerSearch) {
                 taskFound = that._tasks.find((task) => { return task.id === taskId});
             }
 
@@ -337,7 +338,7 @@ class TasksService extends GenericService {
      * @since 2.28.0
      * @instance
      * @param {string} categoryId allows to retrieve only todos in that category by Id.
-     * @param {boolean} [force=false] True to force a request to the server
+     * @param {boolean} forceServerSearch=false True to force a request to the server
      * @description
      *      This API can be used to retrieve the list of user's todos. This API can only be used by user himself.  <br>
      * @async
@@ -346,13 +347,13 @@ class TasksService extends GenericService {
      * @fulfil {any} - This API can be used to retrieve the list of user's todos. This API can only be used by user himself.
      * @category async
      */
-    getTasksByCategoryId(categoryId: string = undefined, force: boolean = false): Promise<any> {
+    getTasksByCategoryId(categoryId: string = undefined, forceServerSearch: boolean = false): Promise<any> {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getTasksByCategoryId) is categoryId defined : ", isDefined(categoryId));
 
         return new Promise(function (resolve, reject) {
 
-            if (force || !isDefined(that._tasks) || that._tasks.length===0) {
+            if (forceServerSearch || !isDefined(that._tasks) || that._tasks.length===0) {
                 that._rest.getTasksByCategoryId(categoryId).then((result: any) => {
                     that._logger.log(that.DEBUG, LOG_ID + "(getTasksByCategoryId) successfull result : ", result);
 
@@ -412,7 +413,7 @@ class TasksService extends GenericService {
      * @since 2.28.0
      * @instance
      * @param {string} categoryId allows to retrieve only todos in that category by Id.
-     * @param {boolean} [force=false] True to force a request to the server
+     * @param {boolean} forceServerSearch=false True to force a request to the server
      * @description
      *      This API can be used to retrieve the list of user's todos. This API can only be used by user himself.  <br>
      * @async
@@ -421,13 +422,13 @@ class TasksService extends GenericService {
      * @fulfil {any} - This API can be used to retrieve the list of user's todos. This API can only be used by user himself.
      * @category async
      */
-    async getTasks(categoryId: string = undefined, force: boolean = false): Promise<any> {
+    async getTasks(categoryId: string = undefined, forceServerSearch: boolean = false): Promise<any> {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getTasks) is categoryId defined : ", isDefined(categoryId));
 
         return new Promise(function (resolve, reject) {
 
-            if (force || !isDefined(that._tasks) || that._tasks.length===0) {
+            if (forceServerSearch || !isDefined(that._tasks) || that._tasks.length===0) {
                 that._rest.getTasks(categoryId).then((result: any) => {
                     that._logger.log(that.DEBUG, LOG_ID + "(getTasks) successfull result : ", result);
 
@@ -485,7 +486,7 @@ class TasksService extends GenericService {
      * @nodered true
      * @method getAllCategories
      * @since 2.28.0
-     * @param {boolean} [force=false] True to force a request to the server
+     * @param {boolean} forceServerSearch=false True to force a request to the server
      * @instance
      * @description
      *      This API can be used to retrieve the list of categories for tasks. This API can only be used by user himself.  <br>
@@ -495,14 +496,14 @@ class TasksService extends GenericService {
      * @fulfil {any} - This API can be used to retrieve the list of categories for tasks. This API can only be used by user himself.
      * @category async
      */
-    async getAllCategories(force: boolean = false): Promise<any> {
+    async getAllCategories(forceServerSearch: boolean = false): Promise<any> {
         let that = this;
         let categories = [];
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getAllCategories).");
 
         return new Promise(function (resolve, reject) {
 
-            that.getTasks(null, force).then((tasks) => {
+            that.getTasks(null, forceServerSearch).then((tasks) => {
                 for (let i = 0; i < tasks.length; i++) {
                     that._logger.log("debug", "(getAllCategories)  tasks[", i, "] : ", tasks[i]);
                     if (!categories.some(e => {
@@ -623,7 +624,7 @@ class TasksService extends GenericService {
      * @method updateTask
      * @since 2.28.0
      * @instance
-     * @param  {string} category The category to create.
+     * @param  {string} taskId The id of a task to update.
      * @param {TaskInput} task The properties to be updated.
      * @description
      *      update a task. <br>

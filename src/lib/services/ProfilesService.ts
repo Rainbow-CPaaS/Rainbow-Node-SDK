@@ -373,7 +373,7 @@ class ProfilesService extends GenericService {
      * @method getThirdPartyApps
      * @async
      * @category Profiles PROFILES
-     * @param {boolean} force Parameter force in order to refresh the list 
+     * @param {boolean} force=false Parameter force in order to refresh the list
      * @description
      *  Get The list of the Third Party Application that have access to this Rainbow Account. 
      * @return {Promise<any>}
@@ -527,7 +527,7 @@ class ProfilesService extends GenericService {
      * This API can be used to know if a feature is enabled.<br>
      * @return {any}
      */
-    isFeatureEnabled (featureUniqueRef) {
+    isFeatureEnabled (featureUniqueRef : string) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(isFeatureEnabled) is featureUniqueRef defined : ", isDefined(featureUniqueRef));
         if (that._started && that.features.hasOwnProperty(featureUniqueRef) && that.features[featureUniqueRef].hasOwnProperty("featureType") && that.features[featureUniqueRef].featureType === "boolean" && that.features[featureUniqueRef].hasOwnProperty("isEnabled")) {
@@ -548,7 +548,7 @@ class ProfilesService extends GenericService {
      * This API can be used to get Max limit of feature.<br>
      * @return {any}
      */
-    getFeatureLimitMax (featureUniqueRef) {
+    getFeatureLimitMax (featureUniqueRef : string) {
         let that = this ;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getFeatureLimitMax) is featureUniqueRef defined : ", isDefined(featureUniqueRef));
         if (that._started && that.features.hasOwnProperty(featureUniqueRef) && that.features[featureUniqueRef].hasOwnProperty("featureType") && that.features[featureUniqueRef].featureType === "number" && that.features[featureUniqueRef].hasOwnProperty("limitMax")) {
@@ -569,7 +569,7 @@ class ProfilesService extends GenericService {
      * This API can be used to get Min limit of feature.<br>
      * @return {any}
      */
-    getFeatureLimitMin (featureUniqueRef) {
+    getFeatureLimitMin (featureUniqueRef : string) {
         let that = this ;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getFeatureLimitMin) is featureUniqueRef defined : ", isDefined(featureUniqueRef));
         if (that._started && that.features.hasOwnProperty(featureUniqueRef) && that.features[featureUniqueRef].hasOwnProperty("featureType") && that.features[featureUniqueRef].featureType === "number" && that.features[featureUniqueRef].hasOwnProperty("limitMin")) {

@@ -385,7 +385,7 @@ class S2SService extends GenericService{
      * @method loginS2S
      * @instance
      * @category S2S Management
-     * @param {String} callback_url The web site which is the callback where the S2S events are sent by Rainbow server
+     * @param {string} callback_url The web site which is the callback where the S2S events are sent by Rainbow server
      * @description
      *      Login to S2S event server the already connected user to REST API server. <br>
      * @async
@@ -393,7 +393,7 @@ class S2SService extends GenericService{
      * @fulfil {Object} - List of connexions or an error object depending on the result
      
      */
-    async loginS2S (callback_url) {
+    async loginS2S (callback_url : string) {
         let that = this;
         let data = {connection: { /*resource: "s2s_machin",*/  callback_url }};
         that._logger.log(that.DEBUG, LOG_ID + "(loginS2S) will login  S2S.");
@@ -414,15 +414,15 @@ class S2SService extends GenericService{
      * @method infoS2S
      * @instance
      * @category S2S Management
-     * @param {String} s2sConnectionId The id of the S2S conneexion to retrieve informations about.
+     * @param {string} s2sConnectionId The id of the S2S conneexion to retrieve information about.
      * @description
-     *      Get informations about a S2S connexions. <br>
+     *      Get information about a S2S connexions. <br>
      * @async
      * @return {Promise<Object, ErrorManager>}
      * @fulfil {Object} - List of connexions or an error object depending on the result
      
      */
-    async infoS2S (s2sConnectionId) {
+    async infoS2S (s2sConnectionId : string) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(infoS2S) is s2sConnectionId defined : ", isDefined(s2sConnectionId));
         return that._rest.infoS2S(s2sConnectionId)
@@ -469,7 +469,7 @@ class S2SService extends GenericService{
      * @fulfil {Object} - List of connexions or an error object depending on the result
      
      */
-    sendS2SPresence( obj ) {
+    sendS2SPresence( obj : any) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendS2SPresence) is s2sConnectionId defined : ", isDefined(obj));
         that._logger.log(that.INTERNAL, LOG_ID + "(sendS2SPresence) set S2S presence : ", obj);
@@ -634,7 +634,7 @@ body: 'Welcome to the MCQ Test'
      * @private
      * @method joinRoom
      * @param {string} bubbleId The id of the bubble to open the conversation.
-     * @param {string} role Enum: "member" "moderator" of your role in this room
+     * @param {ROOMROLE} role Enum: "member" "moderator" of your role in this room
      * @category S2S Methods
      * @instance
      * @description
@@ -644,7 +644,7 @@ body: 'Welcome to the MCQ Test'
      * @fulfil {Object} - List of connexions or an error object depending on the result
      
      */
-    joinRoom(bubbleId, role : ROOMROLE) {
+    joinRoom(bubbleId : string, role : ROOMROLE) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(joinRoom) is bubbleId defined : ", isDefined(bubbleId));
         that._logger.log(that.INTERNAL, LOG_ID + "(joinRoom) will send presence to joinRoom S2S, bubbleId : ", bubbleId);

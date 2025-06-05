@@ -153,14 +153,14 @@ class FileServer extends GenericService{
     /**
      *
      * @private
-     * @param {string} url [required] server url for request
-     * @param {number} minRange [requied] minimum value of range
-     * @param {number} maxRange [required] maximum value of range
-     * @param {number} index [required] index of the part. Used to re-assemble the data
      * @description
      *    Method retrieve data from server using range request mecanism (RFC7233)
      * @returns {Object} structure containing the response data from server and the index
      *
+     * @param {string} url (required) server url for request
+     * @param {number} minRange (required) minimum value of range
+     * @param {number} maxRange (required) maximum value of range
+     * @param {number} index (required) index of the part. Used to re-assemble the data     *
      */
     getPartialDataFromServer(url: string, minRange: number, maxRange: number, index: number) {
         return this._rest.getPartialDataFromServer(url, minRange, maxRange, index);
@@ -171,18 +171,19 @@ class FileServer extends GenericService{
     }
 
     /**
+     * @method getBufferFromUrlWithOptimization
      * @description
      * Method creates buffer from a file retrieved from server using optimization (range request) whenever necessary
      *
-     * @param {string} url [required] server url for request
-     * @param {string} mime [required] Mime type of the blob to be created
-     * @param {number} fileSize [optional] size of file to be retrieved. Default: 0
-     * @param {string} fileName [optional] name of file to be downloaded
+     * @param {string} url (required) server url for request
+     * @param {string} mime (required) Mime type of the blob to be created
+     * @param {number} fileSize=0 (optional) size of file to be retrieved. Default: 0
+     * @param {string} fileName (optional) name of file to be downloaded
      * @param {string} uploadedDate
      * @returns {Buffer} Buffer created from data received from server
      *
      */
-    getBufferFromUrlWithOptimization(url: string, mime: string, fileSize: number, fileName: string, uploadedDate: string) {
+    getBufferFromUrlWithOptimization(url: string, mime: string, fileSize: number=0, fileName: string, uploadedDate: string) {
         let that = this;
         if (fileSize === void 0) {
             fileSize = 0;
@@ -241,19 +242,20 @@ class FileServer extends GenericService{
     }
 
     /**
+     * @method getFileFromUrlWithOptimization
      * @description
      * Method creates buffer from a file retrieved from server using optimization (range request) whenever necessary
      *
-     * @param destFile
-     * @param {string} url [required] server url for request
-     * @param {string} mime [required] Mime type of the blob to be created
-     * @param {number} fileSize [optional] size of file to be retrieved. Default: 0
-     * @param {string} fileName [optional] name of file to be downloaded
-     * @param {string} uploadedDate [optional] date of the upload
+     * @param {string} destFile
+     * @param {string} url (required) server url for request
+     * @param {string} mime (required) Mime type of the blob to be created
+     * @param {number} fileSize=0 (optional) size of file to be retrieved. Default: 0
+     * @param {string} fileName (optional) name of file to be downloaded
+     * @param {string} uploadedDate (optional) date of the upload
      * @returns {Buffer} Buffer created from data received from server
      *
      */
-    getFileFromUrlWithOptimization(destFile: string, url : string, mime: string, fileSize : number, fileName : string, uploadedDate: string) {
+    getFileFromUrlWithOptimization(destFile: string, url : string, mime: string, fileSize : number=0, fileName : string, uploadedDate: string) {
         let that = this;
         if (fileSize === void 0) {
             fileSize = 0;
@@ -378,10 +380,9 @@ class FileServer extends GenericService{
      * Method sends data file to server
      *
      * @private
-     * @param {string} fileId [required] file descriptor ID of file to be sent
-     * @param {string} fileId [required] file to be sent
-     * @param {string} filePath [required] file path to file to be sent
-     * @param {string} mime [required] mime type of file
+     * @param {string} fileId (required) file descriptor ID of file to be sent
+     * @param {string} filePath (required) file path to file to be sent
+     * @param {string} mime (required) mime type of file
      * @returns {Promise<FileDescriptor>} file descriptor data received as response from server or http error response
      *
      */
@@ -446,9 +447,9 @@ class FileServer extends GenericService{
      * Method sends data to server using range request mecanism (RFC7233)
      *
      * @private
-     * @param {string} fileId [required] file descriptor ID of file to be sent
-     * @param {Buffer} file [required] file to be sent
-     * @param {number} index [required] index of the part. Used to indicate the part number to the server
+     * @param {string} fileId (required) file descriptor ID of file to be sent
+     * @param {Buffer} file (required) file to be sent
+     * @param {number} index (required) index of the part. Used to indicate the part number to the server
      * @returns {Promise<{}>} file descriptor data received as response from server or http error response
      *
      */
@@ -478,12 +479,13 @@ class FileServer extends GenericService{
      */
 
     /**
+     * @method uploadAFileByChunk
      * Method sends data to server using range request mecanism (RFC7233)
      *
      * @private
-     * @param {FileDescriptor} fileDescriptor [required] file descriptor Object of file to be sent
-     * @param {string} filePath [required] filePath of the file to be sent
-//     * @param {uploadAFileByChunk~progressCallback} progressCallback [required] initial size of whole file to be sent before partition
+     * @param {FileDescriptor} fileDescriptor (required) file descriptor Object of file to be sent
+     * @param {string} filePath (required) filePath of the file to be sent
+//     * @param {uploadAFileByChunk~progressCallback} progressCallback (required) initial size of whole file to be sent before partition
      * @returns {Promise<{FileDescriptor}>} file descriptor data received as response from server or http error response
      *
      */
@@ -606,13 +608,14 @@ class FileServer extends GenericService{
     }
 
     /**
+     * @method getBlobFromUrlWithOptimization
      * @description
      * Method creates blob from a file retrieved from server using optimization (range request) whenever necessary
      *
-     * @param {string} url [required] server url for request
-     * @param {string} mime [required] Mime type of the blob to be created
-     * @param {number} fileSize [optional] size of file to be retrieved. Default: 0
-     * @param {string} fileName [optional] name of file to be downloaded
+     * @param {string} url (required) server url for request
+     * @param {string} mime (required) Mime type of the blob to be created
+     * @param {number} fileSize=0 (optional) size of file to be retrieved. Default: 0
+     * @param {string} fileName (optional) name of file to be downloaded
      * @param {string} uploadedDate
      * @returns {Promise<{
      *                          buffer : Array<any>,
@@ -621,7 +624,7 @@ class FileServer extends GenericService{
      *                           fileName: string
      *                       }>} Object created from data received from server.
      */
-    async getBlobFromUrlWithOptimization(url : string, mime : string, fileSize : number, fileName : string, uploadedDate:string ) {
+    async getBlobFromUrlWithOptimization(url : string, mime : string, fileSize : number=0, fileName : string, uploadedDate:string ) {
         let that = this;
         if (fileSize==null) {
             fileSize = 0;
@@ -721,18 +724,19 @@ class FileServer extends GenericService{
     };
 
     /**
+     * @method getBlobFromUrlWithOptimizationObserver
      * @description
      * Method creates blob from a file retrieved from server using optimization (range request) whenever necessary
      *
-     * @param {string} url [required] server url for request
-     * @param {string} mime [required] Mime type of the blob to be created
-     * @param {number} fileSize [optional] size of file to be retrieved. Default: 0
-     * @param {string} fileName [optional] name of file to be downloaded
+     * @param {string} url (required) server url for request
+     * @param {string} mime (required) Mime type of the blob to be created
+     * @param {number} fileSize=0 (optional) size of file to be retrieved. Default: 0
+     * @param {string} fileName (optional) name of file to be downloaded
      * @param {string} uploadedDate
      * @returns {Promise<Observable<any>} Observer returning a Blob created from data received from server
      *
      */
-    async getBlobFromUrlWithOptimizationObserver(url: string, mime: string, fileSize: number, fileName: string, uploadedDate: string ) : Promise<Observable<any>> {
+    async getBlobFromUrlWithOptimizationObserver(url: string, mime: string, fileSize: number=0, fileName: string, uploadedDate: string ) : Promise<Observable<any>> {
         let that = this;
         if (fileSize==null) {
             fileSize = 0;
@@ -857,10 +861,10 @@ class FileServer extends GenericService{
      * Method creates blob from a file retrieved from server
      *
      * @private
-     * @param {string} url [required] server url for request
-     * @param {string} mime [required] Mime type of the blob to be created
-     * @param {number} fileSize [required] size of file to be retrieved
-     * @param {string} fileName [required] name of file to be downloaded
+     * @param {string} url (required) server url for request
+     * @param {string} mime (required) Mime type of the blob to be created
+     * @param {number} fileSize (required) size of file to be retrieved
+     * @param {string} fileName (required) name of file to be downloaded
      * @returns {Promise<{
      *                          buffer : Array<any>,
      *                           type: string, // mime type

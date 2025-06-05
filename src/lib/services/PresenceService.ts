@@ -186,7 +186,7 @@ class PresenceService extends GenericService{
      * @fulfil {ErrorManager} - ErrorManager object depending on the result (ErrorManager.getErrorManager().OK in case of success)
      
      */
-    async setPresenceTo(presence) {
+    async setPresenceTo(presence : string) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(setPresenceTo) is presence defined : ", isDefined(presence));
         let presenceRainbow = new PresenceRainbow(presence);
@@ -395,7 +395,7 @@ class PresenceService extends GenericService{
      * @category Presence CONNECTED USER
      * @description
      *    Allow to activate the exchange of presence of the connected user between rainbow and MS Teams on UI side.<br>
-     * @param {boolean} connectTeams The boolean to activate or not the feature.
+     * @param {boolean} connectTeams=false The boolean to activate or not the feature.
      * @return {Promise<any>}
      */
     async setApplyMsTeamsPresenceSettings(connectTeams : boolean= false) {
@@ -419,10 +419,10 @@ class PresenceService extends GenericService{
      * @instance
      * @async
      * @category Presence Bubbles
-     * @param {Bubble} bubble The Bubble
-     * @param {number} intervalDelay The interval between sending presence to a Bubble while it failed. default value is 75000 ms.
+     * @param {boolean} webinar=false should option webinar be setted.
+     * @param {boolean} acknowledge=true should option acknowledge should be setted.
      * @description
-     *      Method called when receiving an invitation to join a bubble <br>
+     *      Method called to sen presence to all bubbles <br>
      */
     async sendInitialAllBubblePresence(webinar : boolean = false, acknowledge : boolean = true): Promise<any> {
         let that = this;
@@ -444,7 +444,7 @@ class PresenceService extends GenericService{
      * @async
      * @category Presence Bubbles
      * @param {Bubble} bubble The Bubble
-     * @param {number} intervalDelay The interval between sending presence to a Bubble while it failed. default value is 75000 ms.
+     * @param {number} intervalDelay=7500 The interval between sending presence to a Bubble while it failed. default value is 75000 ms.
      * @description
      *      Method called when receiving an invitation to join a bubble <br>
      */
@@ -477,7 +477,7 @@ class PresenceService extends GenericService{
      * @async
      * @category Presence Bubbles
      * @param {string} id The Bubble id.
-     * @param {number} attempt To log a number of attempt of sending presence to the Bubble. default value is 0.
+     * @param {number} attempt=0 To log a number of attempt of sending presence to the Bubble. default value is 0.
      * @description
      *      Method called when receiving an invitation to join a bubble <br>
      */
@@ -494,7 +494,7 @@ class PresenceService extends GenericService{
      * @async
      * @category Presence Bubbles
      * @param {Bubble} bubble The Bubble
-     * @param {number} attempt To log a number of attempt of sending presence to the Bubble. default value is 0.
+     * @param {number} attempt=0 To log a number of attempt of sending presence to the Bubble. default value is 0.
      * @description
      *      Method called when receiving an invitation to join a bubble <br>
     */
@@ -537,7 +537,7 @@ class PresenceService extends GenericService{
      * @async
      * @category Presence Bubbles
      * @param {Bubble} bubble The Bubble
-     * @param {number} intervalDelay The interval between sending presence to a Bubble while it failed. default value is 75000 ms.
+     * @param {number} intervalDelay=7500 The interval between sending presence to a Bubble while it failed. default value is 75000 ms.
      * @description
      *      Method called when receiving an invitation to join a bubble <br>
      */

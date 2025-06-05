@@ -153,7 +153,7 @@ const API_ID = "API_CALL - ";
      * @fulfil {Group} - Created group object or an error object depending on the result
      * @category async
      */
-     async createGroup(name, comment, isFavorite) {
+     async createGroup(name : string, comment : string, isFavorite : boolean) {
          let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(createGroup) is name defined : ", isDefined(name));
 
@@ -195,7 +195,7 @@ const API_ID = "API_CALL - ";
       * @fulfil {Group} - Deleted group object or an error object depending on the result
       * @category async
       */
-     async deleteGroup(group) {
+     async deleteGroup(group:any) {
          let that = this;
          that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteGroup) is name defined : ", isDefined(group));
 
@@ -286,7 +286,7 @@ const API_ID = "API_CALL - ";
      * @fulfil {Group} - Updated group object or an error object depending on the result
      * @category async
      */
-     async updateGroupName(group, name) {
+     async updateGroupName(group : any, name : string) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateGroupName) is name defined : ", isDefined(group));
 
@@ -340,7 +340,7 @@ const API_ID = "API_CALL - ";
      * @fulfil {Group} - Updated group object or an error object depending on the result
      * @category async
      */
-     async updateGroupComment(group, comment) {
+     async updateGroupComment(group : any, comment : string) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateGroupComment) is name defined : ", isDefined(group));
 
@@ -433,7 +433,7 @@ const API_ID = "API_CALL - ";
      * @fulfil {Group} - Updated group or an error object depending on the result
      * @category async
      */
-     async setGroupAsFavorite( group) {
+     async setGroupAsFavorite(group : any) {
          let that = this;
          that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(setGroupAsFavorite) is name defined : ", isDefined(group));
 
@@ -472,7 +472,7 @@ const API_ID = "API_CALL - ";
      * @fulfil {Group} - Updated group or an error object depending on the result
      * @category async
      */
-    async unsetGroupAsFavorite(group) {
+    async unsetGroupAsFavorite(group : any) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(unsetGroupAsFavorite) is name defined : ", isDefined(group));
 
@@ -600,7 +600,7 @@ const API_ID = "API_CALL - ";
      * @instance
      * @async
      * @param {String} name Name of the group to found
-     * @param {boolean} forceServerSearch force the update from server.
+     * @param {boolean} forceServerSearch=false force the update from server.
      * @return {Promise<any>} The group found if exist or undefined
      * @description
      *  Return a group by its id <br>
@@ -687,7 +687,7 @@ const API_ID = "API_CALL - ";
      * @fulfil {Group} - Updated group with the new contact added or an error object depending on the result
      * @category async
      */
-    async addUserInGroup(contact, group) {
+    async addUserInGroup(contact : Contact, group : any) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(addUserInGroup) is contact defined : ", isDefined(contact));
 
@@ -742,7 +742,7 @@ const API_ID = "API_CALL - ";
      * @fulfil {Group} - Updated group without the removed contact or an error object depending on the result
      * @category async
      */
-    async removeUserFromGroup(contact, group) {
+    async removeUserFromGroup(contact : Contact, group : any) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(removeUserFromGroup) is contact defined : ", isDefined(contact));
 
@@ -792,7 +792,7 @@ const API_ID = "API_CALL - ";
      * @description
      *          Method called when a group is created <br>
      */
-    async _onGroupCreated(data) {
+    async _onGroupCreated(data : any) {
         let that = this;
 
         await this._rest.getGroup(data.groupId).then((groupCreated : any )=> {
@@ -820,7 +820,7 @@ const API_ID = "API_CALL - ";
      * @description
      *          Method called when a group is deleted <br>
      */
-    async _onGroupDeleted(data) {
+    async _onGroupDeleted(data : any) {
         let that = this;
 
         let foundIndex = that._groups.findIndex(el => {
@@ -844,7 +844,7 @@ const API_ID = "API_CALL - ";
      * @description
      *          Method called when a group is updated (name, comment, isFavorite) <br>
      */
-    async _onGroupUpdated(data) {
+    async _onGroupUpdated(data : any) {
         let that = this;
 
         await this._rest.getGroup(data.groupId).then((groupUpdated : any) => {
@@ -872,7 +872,7 @@ const API_ID = "API_CALL - ";
      * @description
      *          Method called when a user is added to a group <br>
      */
-    async _onUserAddedInGroup(data) {
+    async _onUserAddedInGroup(data : any) {
         let that = this;
 
         await this._rest.getGroup(data.groupId).then((groupUpdated : any ) => {
@@ -903,7 +903,7 @@ const API_ID = "API_CALL - ";
      * @description
      *          Method called when a user is removed from a group <br>
      */
-    async _onUserRemovedFromGroup(data) {
+    async _onUserRemovedFromGroup(data : any) {
         let that = this;
 
         await this._rest.getGroup(data.groupId).then((groupUpdated : any) => {

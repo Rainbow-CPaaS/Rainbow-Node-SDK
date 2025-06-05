@@ -603,7 +603,7 @@ class FavoritesService extends GenericService{
      * | type | string | Type of the favorite peer:<br><br>* `user` for User to User favorite type,<br>* `room` for User to Room favorite type.<br>* `bot` for User to Bot service favorite type.<br>* `directory` for User to Directory service favorite type.<br>* `office365` for User to Office365 service favorite type.<br><br>Possibles values : `"user"`, `"room"`, `"bot"`, `"directory"`, `"office365"` |
      *
      * @param {string} favoriteId Favorite unique identifier
-     * @param {number} position new position in list. If position exceed favorites list size the favorite is moved to the end of the list
+     * @param {number} position=1 new position in list. If position exceed favorites list size the favorite is moved to the end of the list
      */
     moveFavoriteToPosition (favoriteId : string, position : number = 1) {
         let that = this;

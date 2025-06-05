@@ -296,13 +296,13 @@ class WebinarsService extends GenericService {
      * @param {Date} webinarEndDate Webinar end date UTC format.
      * @param {Array<Date>} reminderDates Up to 10 webinar reminder dates UTC format.
      * @param {string} timeZone Webinar time zone. If none, user time zone will be used.
-     * @param {boolean} register Is participant registration required for webinar? Default value : true.
-     * @param {string} approvalRegistrationMethod Participants approval method. If 'manual` is selected, webinar creator can choose to manually approve or reject participants. default value : automatic. Possible values : manual, automatic.
-     * @param {boolean} passwordNeeded If true, a password is needed when joining the webinar. This password is included in the registration confirmation email. Default value : true.
-     * @param {boolean} isOrganizer If true, webinar creator is also an organizer. Default value : false.
+     * @param {boolean} register=true Is participant registration required for webinar? Default value : true.
+     * @param {string} approvalRegistrationMethod="automatic" Participants approval method. If 'manual` is selected, webinar creator can choose to manually approve or reject participants. default value : automatic. Possible values : manual, automatic.
+     * @param {boolean} passwordNeeded=true If true, a password is needed when joining the webinar. This password is included in the registration confirmation email. Default value : true.
+     * @param {boolean} isOrganizer=false If true, webinar creator is also an organizer. Default value : false.
      * @param {Array<string>} waitingRoomMultimediaURL Up to 5 URL of media to broadcast in the waiting room.
      * @param {string} stageBackground Free field used for customization (for example a file descriptor unique identifier).
-     * @param {string} chatOption Define how participants can chat with organizers. Default value : participant. Possible values : participant, visitor, private.
+     * @param {string} chatOption="participant" Define how participants can chat with organizers. Default value : participant. Possible values : participant, visitor, private.
      * @async
      * @return {Promise<any, ErrorManager>}
     
@@ -537,15 +537,15 @@ class WebinarsService extends GenericService {
      * @instance
      * @async
      * @category Webinars
-     * @param {boolean} force Boolean to force the get of webinars's informations from server.
+     * @param {boolean} forceServerSearch Boolean to force the get of webinars's informations from server.
      * @description
      *    Get the webinars you own.<br>
      *    Return a promise. <br>
      * @return {Promise<Webinar[]>} Return Promise 
      */
-    async fetchMyWebinars(force? : boolean) : Promise<Webinar[]>{
+    async fetchMyWebinars(forceServerSearch? : boolean) : Promise<Webinar[]>{
        let that = this;
-        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(fetchMyWebinars) is force defined : ", isDefined(force));
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(fetchMyWebinars) is forceServerSearch defined : ", isDefined(forceServerSearch));
 
        return new Promise((resolve) => {
             that.getWebinarsData(undefined).then((webinarsResult : any) => {

@@ -375,7 +375,7 @@ class ImsService extends GenericService{
      * @param {string} message The message to send
      * @param {string} lang=en The content language used
      * @param {Object} content Allow to send alternative text base content
-     * @param {string} content.type=text/markdown The content message type
+     * @param {string} content.type The content message type (text/markdown)
      * @param {string} content.message The content message body
      * @param {string} subject The message subject
      * @param {UrgencyType} urgency=null The urgence of the message. String value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
@@ -480,7 +480,7 @@ class ImsService extends GenericService{
      * @param {Contact} contact The contact (should have at least a jid_im property)
      * @param {string} lang=en The content language used
      * @param {Object} content Allow to send alternative text base content
-     * @param {string} content.type=text/markdown The content message type
+     * @param {string} content.type The content message type (text/markdown)
      * @param {string} content.message The content message body
      * @param {string} subject The message subject
      * @param {UrgencyType} urgency=null The urgence of the message. String value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
@@ -551,7 +551,7 @@ class ImsService extends GenericService{
      * @param {string} jid The contact Jid
      * @param {string} lang=en The content language used
      * @param {Object} content Allow to send alternative text base content
-     * @param {string} content.type=text/markdown The content message type
+     * @param {string} content.type The content message type (text/markdown)
      * @param {string} content.message The content message body
      * @param {string} subject The message subject
      * @param {UrgencyType} urgency=null The urgence of the message. String value can be :   'high' Urgent message, 'middle' important message, 'low' information message, "std' or null standard message
@@ -655,7 +655,7 @@ class ImsService extends GenericService{
      * @param {string} jid The contact Jid
      * @param {string} lang=en The content language used
      * @param {Object} content Allow to send alternative text base content
-     * @param {string} content.type=text/markdown The content message type
+     * @param {string} content.type The content message type (text/markdown)
      * @param {string} content.message The content message body
      * @param {string} subject The message subject
      * @param {Object} answeredMsg The message answered
@@ -823,7 +823,7 @@ class ImsService extends GenericService{
      * @param {Bubble} bubble The bubble (should at least have a jid property)
      * @param {string} lang=en The content language used
      * @param {Object} content Allow to send alternative text base content
-     * @param {string} content.type=text/markdown The content message type
+     * @param {string} content.type The content message type (text/markdown)
      * @param {string} content.message The content message body
      * @param {string} subject The message subject
      * @param {Array<string>} mentions=null array containing a list of JID of contact to mention or a string containing a single JID of the contact.
@@ -864,7 +864,7 @@ class ImsService extends GenericService{
      * @param {string} jid The bubble JID
      * @param {string} lang=en The content language used
      * @param {Object} content Allow to send alternative text base content
-     * @param {string} content.type=text/markdown The content message type
+     * @param {string} content.type The content message type (text/markdown)
      * @param {string} content.message The content message body
      * @param {string} subject The message subject
      * @param {Array<string>} mentions=null array containing a list of JID of contact to mention or a string containing a sigle JID of the contact.
@@ -949,7 +949,7 @@ class ImsService extends GenericService{
      * @param {string} jid The bubble JID
      * @param {string} lang=en The content language used
      * @param {Object} content Allow to send alternative text base content
-     * @param {string} content.type=text/markdown The content message type
+     * @param {string} content.type The content message type (text/markdown)
      * @param {string} content.message The content message body
      * @param {string} subject The message subject
      * @param {Object} answeredMsg The message answered

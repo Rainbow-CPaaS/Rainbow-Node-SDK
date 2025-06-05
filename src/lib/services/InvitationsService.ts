@@ -542,12 +542,12 @@ class InvitationsService extends GenericService {
          * @method searchInvitationsReceivedFromServer
          * @instance
          * @category Invitations RECEIVED
-         * @param {string} sortField Sort items list based on the given field. Default value : lastNotificationDate.
-         * @param {string} status List all invitations having the provided status(es). Possible values : pending, accepted, auto-accepted, declined, canceled, failed. Default value : pending.
-         * @param {string} format Allows to retrieve more or less invitation details in response. Default value : `small`. Possible values : `small`, `medium`, `full`
-         * @param {number} limit Allow to specify the number of items to retrieve. Default value : 500
-         * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Default value : 0.
-         * @param {number} sortOrder Specify order when sorting items list. Default value : 1. Possible values : -1, 1.
+         * @param {string} sortField="lastNotificationDate" Sort items list based on the given field. Default value : lastNotificationDate.
+         * @param {string} status="pending" List all invitations having the provided status(es). Possible values : pending, accepted, auto-accepted, declined, canceled, failed. Default value : pending.
+         * @param {string} format="small" Allows to retrieve more or less invitation details in response. Default value : `small`. Possible values : `small`, `medium`, `full`
+         * @param {number} limit=500 Allow to specify the number of items to retrieve. Default value : 500
+         * @param {number} offset=0 Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Default value : 0.
+         * @param {number} sortOrder=1 Specify order when sorting items list. Default value : 1. Possible values : -1, 1.
          * @description
          *    retrieve the invites received from others Rainbow users from server.<br>
          * @return {any} The list of invite received
@@ -572,7 +572,7 @@ class InvitationsService extends GenericService {
          * | type | String | Invitation type:<br><br>* `visibility` (invited user exists in Rainbow),<br>* `registration` (invited user did not exist in Rainbow when invitation was sent) |
          * 
          */
-        searchInvitationsReceivedFromServer(sortField : string = "lastNotificationDate", status : string = "pending", format : string="small", limit : number = 500, offset : number, sortOrder : number) {
+        searchInvitationsReceivedFromServer(sortField : string = "lastNotificationDate", status : string = "pending", format : string="small", limit : number = 500, offset : number=0, sortOrder : number=1) {
                 let that = this;
                 that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(searchInvitationsReceivedFromServer) is sortField defined : ", isDefined(sortField), " is status defined : ", isDefined(status));
                 return new Promise(function (resolve, reject) {
@@ -631,11 +631,11 @@ class InvitationsService extends GenericService {
          * @instance
          * @category Invitations RECEIVED
          * @description
-         *    Get an invite by its id from server. <br>
+         *    Get an invitation by its id from server. <br>
          * @param {String} invitationId the id of the invite to retrieve
          * @return {Invitation} The invite if found
          */
-        getServerInvitation(invitationId) {
+        getServerInvitation(invitationId : string) {
                 let that = this;
                 that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getServerInvitation) is invitationId defined : ", isDefined(invitationId));
                 return new Promise(function (resolve, reject) {
@@ -663,11 +663,11 @@ class InvitationsService extends GenericService {
          * @instance
          * @category Invitations RECEIVED
          * @description
-         *    Get an invite by its id <br>
+         *    Get an invitation by its id <br>
          * @param {String} invitationId the id of the invite to retrieve
          * @return {Invitation} The invite if found
          */
-        getInvitation(invitationId) {
+        getInvitation(invitationId : string) {
                 let that = this;
                 that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getInvitation) is invitationId defined : ", isDefined(invitationId));
                 that._logger.log(that.INFO, LOG_ID + "(getInvitation) that.receivedInvitations : ", that.receivedInvitations);
@@ -705,13 +705,13 @@ class InvitationsService extends GenericService {
          * @category Invitations RECEIVED
          * @async
          * @description
-         *    Accept a an invitation from an other Rainbow user to mutually join the network <br>
+         *    Accepts an invitation from an other Rainbow user to mutually join the network <br>
          *    Once accepted, the user will be part of your network. <br>
          *    Return a promise <br>
          * @param {Contact} contact The invitation to accept
          * @return {Promise<Object>} A promise that contains SDK.OK if success or an object that describes the error
          */
-        async joinContactInvitation(contact) {
+        async joinContactInvitation(contact : Contact) {
                 let that = this;
                 that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(joinContactInvitation) is contact defined : ", isDefined(contact));
                 return new Promise(function (resolve, reject) {
@@ -742,7 +742,7 @@ class InvitationsService extends GenericService {
          * @category Invitations RECEIVED
          * @async
          * @description
-         *    Accept a an invitation from an other Rainbow user to mutually join the network <br>
+         *    Accepts an invitation from an other Rainbow user to mutually join the network <br>
          *    Once accepted, the user will be part of your network. <br>
          *    Return a promise <br>
          * @param {Invitation} invitation The invitation to accept
@@ -764,7 +764,7 @@ class InvitationsService extends GenericService {
          * | type | String | Invitation type:<br><br>* `visibility` (invited user exists in Rainbow),<br>* `registration` (invited user did not exist in Rainbow when invitation was sent) |
          * 
          */
-        async acceptInvitation(invitation) {
+        async acceptInvitation(invitation: Invitation) {
                 let that = this;
                 that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(acceptInvitation) is invitation defined : ", isDefined(invitation));
                 if (!invitation) {
@@ -830,7 +830,7 @@ class InvitationsService extends GenericService {
          * | type | String | Invitation type:<br><br>* `visibility` (invited user exists in Rainbow),<br>* `registration` (invited user did not exist in Rainbow when invitation was sent) |
          * 
          */
-        async declineInvitation(invitation) {
+        async declineInvitation(invitation : Invitation) {
                 let that = this;
                 that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(declineInvitation) is invitation defined : ", isDefined(invitation));
                 if (!invitation) {
@@ -912,12 +912,12 @@ class InvitationsService extends GenericService {
          * @method searchInvitationsSentFromServer
          * @instance
          * @category Invitations SENT
-         * @param {string} sortField Sort items list based on the given field. Default value : lastNotificationDate
-         * @param {string} status List all invitations having the provided status(es). Possible values : pending, accepted, auto-accepted, declined, canceled, failed. Default value : pending.
-         * @param {string} format Allows to retrieve more or less invitation details in response. Default value : `small`. Possible values : `small`, `medium`, `full`
-         * @param {number} limit Allow to specify the number of items to retrieve. Default value : 500
-         * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned.
-         * @param {number} sortOrder Specify order when sorting items list. Default value : 1. Possible values : -1, 1.
+         * @param {string} sortField="lastNotificationDate" Sort items list based on the given field. Default value : lastNotificationDate
+         * @param {string} status="pending" List all invitations having the provided status(es). Possible values : pending, accepted, auto-accepted, declined, canceled, failed. Default value : pending.
+         * @param {string} format="small" Allows to retrieve more or less invitation details in response. Default value : `small`. Possible values : `small`, `medium`, `full`
+         * @param {number} limit=500 Allow to specify the number of items to retrieve. Default value : 500
+         * @param {number} offset=0 Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned.
+         * @param {number} sortOrder=1 Specify order when sorting items list. Default value : 1. Possible values : -1, 1.
          * @description
          *    retrieve the invites sent to others Rainbow users from server.<br>
          * @return {any} The list of invite sent
@@ -1121,7 +1121,7 @@ class InvitationsService extends GenericService {
          *    Cancel an invitation sent <br>
          * @return {Object} The SDK Ok object or an error
          */
-        async cancelOneSendInvitation(invitation) {
+        async cancelOneSendInvitation(invitation : Invitation) {
                 let that = this;
                 that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(cancelOneSendInvitation) is invitation defined : ", isDefined(invitation));
                 return new Promise(function (resolve, reject) {
@@ -1205,7 +1205,7 @@ class InvitationsService extends GenericService {
          * @description
          *    Send invitations for a list of emails as UCaaS <br>
          *    LIMITED TO 100 invitations <br>
-         * @param {Array} listOfMails The list of emails
+         * @param {Array<string>} listOfMails The list of emails
          * @param {string} lang Force language of the email notification if not available. </BR>
          * Language format is composed of locale using format ISO 639-1, with optionally the regional variation using ISO 3166‑1 alpha-2 (separated by hyphen).</BR>
          * Locale part is in lowercase, regional part is in uppercase. Examples: en, en-US, fr, fr-FR, fr-CA, es-ES, es-MX, ...</BR>
@@ -1244,7 +1244,7 @@ class InvitationsService extends GenericService {
          * | failed | Number | Number of emails for which the synchronous validation has failed |
          *
          */
-        async sendInvitationsByBulk(listOfMails, lang? : string, customMessage? : string) {
+        async sendInvitationsByBulk(listOfMails: Array<string>, lang? : string, customMessage? : string) {
                 let that = this;
                 that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendInvitationsByBulk) is listOfMails defined : ", isDefined(listOfMails));
 
@@ -1267,7 +1267,7 @@ class InvitationsService extends GenericService {
                 });
         };
         
-        async sendInvitationsParBulk(listOfMails, lang? : string, customMessage? : string) {
+        async sendInvitationsParBulk(listOfMails : Array<string>, lang? : string, customMessage? : string) {
                 return this.sendInvitationsByBulk(listOfMails, lang, customMessage );
         }
 
@@ -1322,7 +1322,7 @@ class InvitationsService extends GenericService {
          * | type | String | Invitation type:<br><br>* `visibility` (invited user exists in Rainbow),<br>* `registration` (invited user did not exist in Rainbow when invitation was sent) |
          *
          */
-        async deleteAUserInvitation(invitation) {
+        async deleteAUserInvitation(invitation : Invitation) {
                 let that = this;
                 that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteAUserInvitation) is invitation defined : ", isDefined(invitation));
                 return new Promise(function (resolve, reject) {
@@ -1343,7 +1343,7 @@ class InvitationsService extends GenericService {
         /**
          * @private
          */
-        updateContactInvitationStatus(contactDBId, status, invitation) {
+        updateContactInvitationStatus(contactDBId : string, status : string, invitation : any) {
                 let that = this;
                 return new Promise(function (resolve) {
                         that._contacts.getContactById(contactDBId).then(function (contact) {
@@ -1379,7 +1379,7 @@ class InvitationsService extends GenericService {
         /**
          * @private
          */
-        sortInvitationArray(invitA, invitB) {
+        sortInvitationArray(invitA : any, invitB : any) {
                 let invitBlastNotificationDate : any = new Date(invitB.lastNotificationDate);
                 let invitAlastNotificationDate : any = new Date(invitA.lastNotificationDate);
                 return  invitBlastNotificationDate - invitAlastNotificationDate ;

@@ -1449,11 +1449,11 @@ class FileStorage extends GenericService{
      * @param {boolean} isUploaded Allows to filter file descriptors by isUploaded criterion.
      * @param {string} viewerId Among all files shared by the user, allow to specify a viewer.
      * @param {string} path For visual voice mail feature only (step1), allows to get file descriptors of each file under the given path.
-     * @param {number} limit Allow to specify the number of items to retrieve. Default value : 1000 Possibles values : 0-1000
-     * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Default value : 0
+     * @param {number} limit=1000 Allow to specify the number of items to retrieve. Default value : 1000 Possibles values : 0-1000
+     * @param {number} offset=0 Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Default value : 0
      * @param {string} sortField Sort items list based on the given field.
-     * @param {string} sortOrder Specify order when sorting items list. Default value : 1 Possibles values : -1, 1
-     * @param {string} format Allows to retrieve more or less file descriptors details in response.
+     * @param {string} sortOrder=1 Specify order when sorting items list. Default value : 1 Possibles values : -1, 1
+     * @param {string} format="full" Allows to retrieve more or less file descriptors details in response.
      * small: _id, fileName, extension, isClean
      * medium: _id, fileName, extension, typeMIME, size, isUploaded,isClean, avReport, thumbnail, thumbnail500, original_w, original_h
      * full: all descriptors fields except storageURL

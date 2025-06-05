@@ -149,7 +149,7 @@ class HTTPoverXMPP extends GenericService {
      * @description
      *    This API allows to send a GET http request to an XMPP server supporting Xep0332. <br>
      * @param {string} urlToGet The url to request
-     * @param {Object} headers The Http Headers used to web request.
+     * @param {Object} headers={} The Http Headers used to web request.
      * @param {string} httpoverxmppserver_jid the jid of the http over xmpp server used to retrieve the HTTP web request. default value is the jid of the account running the SDK.
      * @return {Promise<any>} An object of the result
      */
@@ -194,7 +194,7 @@ class HTTPoverXMPP extends GenericService {
      * @category Rainbow HTTPoverXMPP
      * @description
      *    This API allows to send a discover presence to a bare jid to find the resources availables. <br>
-     * @param {Object} headers The Http Headers used to web request.
+     * @param {Object} headers={} The Http Headers used to web request.
      * @param {string} httpoverxmppserver_jid the jid of the http over xmpp server used to retrieve the HTTP web request. default value is the jid of the account running the SDK.
      * @return {Promise<any>} An object of the result
      */
@@ -235,7 +235,7 @@ class HTTPoverXMPP extends GenericService {
      * @description
      *    This API allows to send a TRACE http request to an XMPP server supporting Xep0332. TRACE is only used for debugging <br>
      * @param {string} urlToTrace The url to request
-     * @param {Object} headers The Http Headers used to web request.
+     * @param {Object} headers={} The Http Headers used to web request.
      * @param {string} httpoverxmppserver_jid the jid of the http over xmpp server used to retrieve the HTTP web request. default value is the jid of the account running the SDK.
      * @return {Promise<any>} An object of the result
      */
@@ -282,7 +282,7 @@ class HTTPoverXMPP extends GenericService {
      * @description
      *    This API allows to send a HEAD http request to an XMPP server supporting Xep0332. <br>
      * @param {string} urlToHead The url to request
-     * @param {Object} headers The Http Headers used to web request.
+     * @param {Object} headers={} The Http Headers used to web request.
      * @param {string} httpoverxmppserver_jid the jid of the http over xmpp server used to retrieve the HTTP web request. default value is the jid of the account running the SDK.
      * @return {Promise<any>} An object of the result
      */
@@ -328,7 +328,7 @@ class HTTPoverXMPP extends GenericService {
      * @description
      *    This API allows to send a POST http request to an XMPP server supporting Xep0332. <br>
      * @param {string} urlToPost The url to request
-     * @param {Object} headers The Http Headers used to web request.
+     * @param {Object} headers={} The Http Headers used to web request.
      * @param {string} data The body data of the http request.
      * @param {string} httpoverxmppserver_jid the jid of the http over xmpp server used to retrieve the HTTP web request. default value is the jid of the account running the SDK.
      * @return {Promise<any>} An object of the result
@@ -375,7 +375,7 @@ class HTTPoverXMPP extends GenericService {
      * @description
      *    This API allows to send a PUT http request to an XMPP server supporting Xep0332. <br>
      * @param {string} urlToPost The url to request
-     * @param {Object} headers The Http Headers used to web request.
+     * @param {Object} headers={} The Http Headers used to web request.
      * @param {string} data The body data of the http request.
      * @param {string} httpoverxmppserver_jid the jid of the http over xmpp server used to retrieve the HTTP web request. default value is the jid of the account running the SDK.
      * @return {Promise<any>} An object of the result
@@ -422,7 +422,7 @@ class HTTPoverXMPP extends GenericService {
      * @description
      *    This API allows to send a DELETE http request to an XMPP server supporting Xep0332. <br>
      * @param {string} urlToPost The url to request
-     * @param {Object} headers The Http Headers used to web request.
+     * @param {Object} headers={} The Http Headers used to web request.
      * @param {string} data The body data of the http request.
      * @param {string} httpoverxmppserver_jid the jid of the http over xmpp server used to retrieve the HTTP web request. default value is the jid of the account running the SDK.
      * @return {Promise<any>} An object of the result
