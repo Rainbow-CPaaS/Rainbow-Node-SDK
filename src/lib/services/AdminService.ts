@@ -13652,7 +13652,7 @@ class AdminService extends GenericService {
      * - accents insensitive (ex: 'herve mothe' find 'Hervé Mothé')
      * - on only firstname or lastname (ex: 'john' find 'John Doe')
      * - order firstname / lastname does not matter (eg: 'doe john' find 'John Doe')
-     * @param {string} search="user" Allows to filter the list of directory entries by the words provided in this option. </BR>
+     * @param {string} search Allows to filter the list of directory entries by the words provided in this option. </BR>
      * - The query parameter type allows to specify on which type of directory entries the search is performed ('user' (default), 'company', or all entries) - Multi criterion search is only available to users having feature SEARCH_BY_TAGS in their profiles - keywords exact match (ex: 'John Doe' find 'John Doe')
      * - keywords partial match (ex: 'Jo Do' find 'John Doe')
      * - case insensitive (ex: 'john doe' find 'John Doe')
@@ -13726,7 +13726,7 @@ class AdminService extends GenericService {
     getListDirectoryEntriesData (companyId : string,
                                  organisationIds : string,
                                  name : string,
-                                 search : string="user",
+                                 search : string=undefined,
                                  type : string="user",
                                  companyName : string,
                                  phoneNumbers : string,

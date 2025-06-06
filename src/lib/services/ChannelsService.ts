@@ -818,15 +818,15 @@ class ChannelsService extends GenericService {
      *      Please put null to not update a property.<br>
      *    Return a promise. <br>
      * @param {string} id The id of the channel
-     * @param {string} channelTopic="" The topic of the channel
+     * @param {string} channelTopic The topic of the channel
      * @param {string} visibility=public public/company/closed group visibility for search
      * @param {Number} max_items=30 max # of items to persist in the channel
      * @param {Number} max_payload_size=60000 max # of items to persist in the channel
-     * @param {string} channelName="" The name of the channel
-     * @param {string} category="" The category of the channel
+     * @param {string} channelName The name of the channel
+     * @param {string} category The category of the channel
      * @return {Promise<Channel>} Return the channel created or an error
      */
-    updateChannel( id : string, channelTopic : string="", visibility : string="public", max_items : Number=30, max_payload_size : Number = 60000, channelName : string = "", category : string = "") {
+    updateChannel( id : string, channelTopic : string=undefined, visibility : string="public", max_items : Number=30, max_payload_size : Number = 60000, channelName : string = undefined, category : string = undefined) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateChannel) is id defined : ", isDefined(id));
 
@@ -1192,8 +1192,8 @@ class ChannelsService extends GenericService {
      * @category Channels MESSAGES/ITEMS
      * @param {Channel} channel The channel where to publish the message
      * @param {string} message Message content
-     * @param {string} title="" Message title, limit=256.
-     * @param {string} url="" An URL
+     * @param {string} title Message title, limit=256.
+     * @param {string} url An URL
      * @param {any} imagesIds=null An Array of ids of the files stored in Rainbow
      * @param {string} type="basic" An optional message content type (could be basic, markdown, html or data)
      * @param {Object} customDatas={} A JSON object with custom datas merged to the payload send to server.
@@ -1201,7 +1201,7 @@ class ChannelsService extends GenericService {
      * @description
      *  Publish to a channel <br>
      */
-    publishMessageToChannel(channel : Channel, message : string, title : string = "", url : string="", imagesIds : any=null, type : string="basic", customDatas : any = {}) : Promise<{}> {
+    publishMessageToChannel(channel : Channel, message : string, title : string = undefined, url : string=undefined, imagesIds : any=null, type : string="basic", customDatas : any = {}) : Promise<{}> {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(publishMessageToChannel) is channel defined : ", isDefined(channel));
         return that.createItem(channel, message, title, url, imagesIds, type, customDatas);
