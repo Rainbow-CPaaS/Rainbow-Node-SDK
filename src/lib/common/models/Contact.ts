@@ -1729,11 +1729,11 @@ class Contact {
         updatePropertyToObj(that, "hasPhoneNumber", false, true);
 
         //that.roster = that.roster ? that.roster : false;
-        updatePropertyToObj(that, "roster", toBoolean(userData.roster));
+        updatePropertyToObj(that, "roster", that.roster ? that.roster : false, true);
         //that.presence = that.presence ? that.presence : "offline";
-        updatePropertyToObj(that, "presence", userData.presence, true);
+        updatePropertyToObj(that, "presence", that.presence ? that.presence : "offline", true);
         //that.status = that.status ? that.status : "";
-        updatePropertyToObj(that, "status", userData.status, true);
+        updatePropertyToObj(that, "status", that.status ? that.status : undefined, true);
 
         // Update emails
         if (userData.emails) {
