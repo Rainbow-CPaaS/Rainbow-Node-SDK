@@ -1,5 +1,13 @@
 "use strict";
 
+import {
+    PresenceDetails,
+    PresenceLevel,
+    PresencePhone,
+    PresenceShow,
+    PresenceStatus
+} from "./common/models/PresenceRainbow.js";
+
 require("fix-esm").register();
 
 import {TasksService} from "./services/TasksService.js";
@@ -36,7 +44,7 @@ import {Logger} from "./common/Logger";
 import {inspect} from "util";
 import {HTTPoverXMPP} from "./services/HTTPoverXMPPService";
 import {RPCoverXMPPService} from "./services/RPCoverXMPPService.js";
-import {LogLevelAreas} from "./common/LevelLogs.js";
+import {LEVELS, LEVELSCOLORS, LEVELSNAMES, LogLevelAreas} from "./common/LevelLogs.js";
 
 let LOG_ID = "NodeSDK/IDX";
 
@@ -1239,7 +1247,7 @@ class NodeSDK {
     get rpcoverxmpp() : RPCoverXMPPService {
         return this._core._rpcoverxmpp;
     }
-    
+    //region Access to enum types
     /**
      * @public
      * @property {Object} DataStoreType
@@ -1272,6 +1280,96 @@ class NodeSDK {
     static get CLOUDPBXCLIOPTIONPOLICY() {
         return CLOUDPBXCLIOPTIONPOLICY;
     }
+
+    /**
+     * @public
+     * @property {Object} PresenceLevel
+     * @description
+     *    Get access to the PresenceLevel type
+     * @return {PresenceLevel}
+     */
+    static get PresenceLevel() {
+        return PresenceLevel;
+    }
+
+    /**
+     * @public
+     * @property {Object} PresenceShow
+     * @description
+     *    Get access to the PresenceShow type
+     * @return {PresenceShow}
+     */
+    static get PresenceShow() {
+        return PresenceShow;
+    }
+
+    /**
+     * @public
+     * @property {Object} PresenceStatus
+     * @description
+     *    Get access to the PresenceStatus type
+     * @return {PresenceStatus}
+     */
+    static get PresenceStatus() {
+        return PresenceStatus;
+    }
+
+    /**
+     * @public
+     * @property {Object} PresenceDetails
+     * @description
+     *    Get access to the PresenceDetails type
+     * @return {PresenceDetails}
+     */
+    static get PresenceDetails() {
+        return PresenceDetails;
+    }
+
+    /**
+     * @public
+     * @property {Object} PresencePhone
+     * @description
+     *    Get access to the PresencePhone type
+     * @return {PresencePhone}
+     */
+    static get PresencePhone() {
+        return PresencePhone;
+    }
+
+    /**
+     * @public
+     * @property {Object} LEVELSNAMES
+     * @description
+     *    Get access to the LEVELSNAMES type
+     * @return {LEVELSNAMES}
+     */
+    static get LEVELSNAMES() {
+        return LEVELSNAMES;
+    }
+
+    /**
+     * @public
+     * @property {Object} LEVELS
+     * @description
+     *    Get access to the LEVELS type
+     * @return {LEVELS}
+     */
+    static get LEVELS() {
+        return LEVELS;
+    }
+
+    /**
+     * @public
+     * @property {Object} LEVELSCOLORS
+     * @description
+     *    Get access to the PresencePhone type
+     * @return {LEVELSCOLORS}
+     */
+    static get LEVELSCOLORS() {
+        return LEVELSCOLORS;
+    }
+
+    //endregion Access to enum types
 
     get Utils() {
         return this._core.Utils;

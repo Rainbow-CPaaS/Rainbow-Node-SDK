@@ -31,7 +31,8 @@ import {
     pause,
     readArrayFromFile,
     setTimeoutPromised,
-    until, updatePropertyToObj,
+    until,
+    updatePropertyToObj,
     writeArrayToFile
 } from "../lib/common/Utils";
 import {XMPPUTils} from "../lib/common/XMPPUtils";
@@ -87,6 +88,7 @@ import {LevelLogs, LEVELSNAMES} from "../lib/common/LevelLogs.js";
 import {TaskInput} from "../lib/services/TasksService.js";
 import * as v8 from "v8";
 import {tmpdir} from "node:os";
+import {PresenceLevel} from "../lib/common/models/PresenceRainbow.js";
 import fs = require("fs");
 
 const xml = require("@xmpp/xml");
@@ -11050,14 +11052,14 @@ let expressEngine = undefined;
 
 
         async testsetPresenceTo() {
-            let presenceStr = "away"; // 'dnd', 'away', 'invisible' ('xa' on server side) or 'online'
+            let presenceStr : PresenceLevel = PresenceLevel.Away; //"away"; // 'dnd', 'away', 'invisible' ('xa' on server side) or 'online'
             let setAway = true;
             setInterval(async () => {
                 if (setAway) {
-                    presenceStr = "away";
+                    presenceStr = PresenceLevel.Away; // "away";
                     setAway = false;
                 } else {
-                    presenceStr = "online";
+                    presenceStr = PresenceLevel.Online; //"online";
                     setAway = true;
                 }
                 let res = await rainbowSDK.presence.setPresenceTo(presenceStr);

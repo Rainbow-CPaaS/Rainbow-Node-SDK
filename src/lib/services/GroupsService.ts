@@ -8,6 +8,7 @@ import {RESTService} from "../connection/RESTService";
 import {ErrorManager} from "../common/ErrorManager";
 import {isDefined, isStarted, logEntryExit} from "../common/Utils";
 import {Logger} from "../common/Logger";
+import {Contact} from "../common/models/Contact";
 import {EventEmitter} from "events";
 import {S2SService} from "./S2SService";
 import {Core} from "../Core";

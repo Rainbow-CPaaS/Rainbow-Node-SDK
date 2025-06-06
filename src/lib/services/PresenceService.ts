@@ -186,7 +186,7 @@ class PresenceService extends GenericService{
      * @fulfil {ErrorManager} - ErrorManager object depending on the result (ErrorManager.getErrorManager().OK in case of success)
      
      */
-    async setPresenceTo(presence : string) {
+    async setPresenceTo(presence : PresenceLevel) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(setPresenceTo) is presence defined : ", isDefined(presence));
         let presenceRainbow = new PresenceRainbow(presence);
