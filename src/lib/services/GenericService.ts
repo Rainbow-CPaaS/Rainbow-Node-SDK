@@ -64,7 +64,7 @@ class GenericService extends LevelLogs{
             that._logId = logId;
         }
 
-        // that._logger.log("debug", that._logId + "(GenericService::constructor) " );
+        // that._logger.log(that.DEBUG, that._logId + "(GenericService::constructor) " );
         that.setConstructed();
     }
 
@@ -74,7 +74,7 @@ class GenericService extends LevelLogs{
 
     cleanMemoryCache() {
         let that = this;
-        // that._logger.log("debug", that._logId + "(GenericService::cleanMemoryCache) Not defined for this module." );
+        // that._logger.log(that.DEBUG, that._logId + "(GenericService::cleanMemoryCache) Not defined for this module." );
     }
 
     get startedDuration () {
@@ -88,14 +88,23 @@ class GenericService extends LevelLogs{
     setConstructed () {
         let that = this;
         that.startingInfos.constructorDate = new Date();
+        that._logger.log(that.INFO, that._logId + `=== CONSTRUCTED at (${that.startingInfos.constructorDate} ===`);
         that._logger.log("info", that._logId + `=== CONSTRUCTED at (${that.startingInfos.constructorDate} ===`);
+        /*
+        that._logger.log(that.DEBUG, that._logId + `=== CONSTRUCTED at (${that.startingInfos.constructorDate} ===`);
+        that._logger.log("debug", that._logId + `=== CONSTRUCTED at (${that.startingInfos.constructorDate} ===`);
+        that._logger.log(that.ERROR, that._logId + `=== CONSTRUCTED at (${that.startingInfos.constructorDate} ===`);
+        that._logger.log("error", that._logId + `=== CONSTRUCTED at (${that.startingInfos.constructorDate} ===`);
+        that._logger.log(that.WARN, that._logId + `=== CONSTRUCTED at (${that.startingInfos.constructorDate} ===`);
+        that._logger.log("warn", that._logId + `=== CONSTRUCTED at (${that.startingInfos.constructorDate} ===`);
+        // */
     }
 
     setStarted () {
         let that = this;
         that.startingInfos.startedDate = new Date();
         let timeSinceStart = msToTime(that.startedDuration);
-        that._logger.log("info", that._logId + `=== STARTED (${that.startedDuration} ms => ${timeSinceStart} ) ===`);
+        that._logger.log(that.INFO, that._logId + `=== STARTED (${that.startedDuration} ms => ${timeSinceStart} ) ===`);
         that._started = true;
     }
 
@@ -103,7 +112,7 @@ class GenericService extends LevelLogs{
         let that = this;
         that.startingInfos.initilizedDate = new Date();
         let timeSinceStart = msToTime(that.initializedDuration);
-        that._logger.log("info", that._logId + `=== INITIALIZED (${that.initializedDuration} ms => ${timeSinceStart} ) ===`);
+        that._logger.log(that.INFO, that._logId + `=== INITIALIZED (${that.initializedDuration} ms => ${timeSinceStart} ) ===`);
         that._initialized = true;
         that._eventEmitter.emit("evt_internal_serviceinitialized", {"name": that.getAccessorName(), "infos":{"msSinceStart": that.initializedDuration, "timeSinceStart": timeSinceStart}});
     }
@@ -112,7 +121,7 @@ class GenericService extends LevelLogs{
         let that = this;
         that._started = false;
         that._initialized = false;
-        that._logger.log("info", that._logId + `=== STOPPED () ===`);
+        that._logger.log(that.INFO, that._logId + `=== STOPPED () ===`);
     }
 
     callRestMethod (methodName : string = "methodNameUnknown", lesarguments) : Promise<any> {
