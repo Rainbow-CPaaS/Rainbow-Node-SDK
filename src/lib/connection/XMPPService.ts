@@ -300,27 +300,56 @@ class XMPPService extends GenericService {
                 that.conversationHistoryHandler = that._core.conversations.conversationHistoryHandler;
                 that.calllogEventHandler = that._core.calllog.calllogEventHandler;
 
-                that.IQEventHandlerToken = [
-                    PubSub.subscribe(that.hash + "." + that.IQEventHandler.IQ_GET, that.IQEventHandler.onIqGetSetReceived.bind(that.IQEventHandler)),
-                    PubSub.subscribe(that.hash + "." + that.IQEventHandler.IQ_SET, that.IQEventHandler.onIqGetSetReceived.bind(that.IQEventHandler)),
-                    PubSub.subscribe(that.hash + "." + that.IQEventHandler.IQ_RESULT, that.IQEventHandler.onIqResultReceived.bind(that.IQEventHandler))
-                ];
+                that.IQEventHandlerToken = [];
+
+                if (that.IQEventHandler) {
+                    that.IQEventHandlerToken.push(PubSub.subscribe(that.hash + "." + that.IQEventHandler.IQ_GET, that.IQEventHandler.onIqGetSetReceived.bind(that.IQEventHandler)));
+                    that.IQEventHandlerToken.push(PubSub.subscribe(that.hash + "." + that.IQEventHandler.IQ_SET, that.IQEventHandler.onIqGetSetReceived.bind(that.IQEventHandler)));
+                    that.IQEventHandlerToken.push(PubSub.subscribe(that.hash + "." + that.IQEventHandler.IQ_RESULT, that.IQEventHandler.onIqResultReceived.bind(that.IQEventHandler)));
+                } else {
+                    that._logger.log(that.ERROR, LOG_ID + "(signin) IQEventHandler is not defined. Can not subscribe to events.");
+                }
+
+                if (that.httpoverxmppEventHandler) {
+                    that.IQEventHandlerToken.push(PubSub.subscribe(that.hash + "." + that.httpoverxmppEventHandler.IQ_GET, that.httpoverxmppEventHandler.onIqGetSetReceived.bind(that.httpoverxmppEventHandler)));
+                    that.IQEventHandlerToken.push(PubSub.subscribe(that.hash + "." + that.httpoverxmppEventHandler.IQ_SET, that.httpoverxmppEventHandler.onIqGetSetReceived.bind(that.httpoverxmppEventHandler)));
+                    that.IQEventHandlerToken.push(PubSub.subscribe(that.hash + "." + that.httpoverxmppEventHandler.IQ_RESULT, that.httpoverxmppEventHandler.onIqResultReceived.bind(that.httpoverxmppEventHandler)));
+                } else {
+                    that._logger.log(that.ERROR, LOG_ID + "(signin) httpoverxmppEventHandler is not defined. Can not subscribe to events.");
+                }
+
+                if (that.rpcoverxmppEventHandler) {
+                    that.IQEventHandlerToken.push(PubSub.subscribe(that.hash + "." + that.rpcoverxmppEventHandler.IQ_GET, that.rpcoverxmppEventHandler.onIqGetSetReceived.bind(that.rpcoverxmppEventHandler)));
+                    that.IQEventHandlerToken.push(PubSub.subscribe(that.hash + "." + that.rpcoverxmppEventHandler.IQ_SET, that.rpcoverxmppEventHandler.onIqGetSetReceived.bind(that.rpcoverxmppEventHandler)));
+                    that.IQEventHandlerToken.push(PubSub.subscribe(that.hash + "." + that.rpcoverxmppEventHandler.IQ_RESULT, that.rpcoverxmppEventHandler.onIqResultReceived.bind(that.rpcoverxmppEventHandler)));
+                } else {
+                    that._logger.log(that.ERROR, LOG_ID + "(signin) rpcoverxmppEventHandler is not defined. Can not subscribe to events.");
+                }
+
+                if (that.conversationHistoryHandler) {
+                    that.IQEventHandlerToken.push(PubSub.subscribe(that.hash + "." + that.conversationHistoryHandler.IQ_RESULT, that.conversationHistoryHandler.onIqResultReceived.bind(that.conversationHistoryHandler)));
+                } else {
+                    that._logger.log(that.ERROR, LOG_ID + "(signin) conversationHistoryHandler is not defined. Can not subscribe to events.");
+                }
+
+                if (that.calllogEventHandler) {
+                    that.IQEventHandlerToken.push(PubSub.subscribe(that.hash + "." + that.calllogEventHandler.IQ_RESULT, that.calllogEventHandler.onIqResultReceived.bind(that.calllogEventHandler)));
+                } else {
+                    that._logger.log(that.ERROR, LOG_ID + "(signin) calllogEventHandler is not defined. Can not subscribe to events.");
+                }
 
                 await that.handleXMPPConnection(headers);
-                that.IQEventHandlerToken.push(PubSub.subscribe(that.hash + "." + that.IQEventHandler.IQ_RESULT, that.xmppClient.onIqResultReceived.bind(that.xmppClient)));
-                that.IQEventHandlerToken.push(PubSub.subscribe(that.hash + "." + that.IQEventHandler.IQ_ERROR, that.xmppClient.onIqErrorReceived.bind(that.xmppClient)));
 
-                that.IQEventHandlerToken.push(PubSub.subscribe(that.hash + "." + that.httpoverxmppEventHandler.IQ_GET, that.httpoverxmppEventHandler.onIqGetSetReceived.bind(that.httpoverxmppEventHandler)));
-                that.IQEventHandlerToken.push(PubSub.subscribe(that.hash + "." + that.httpoverxmppEventHandler.IQ_SET, that.httpoverxmppEventHandler.onIqGetSetReceived.bind(that.httpoverxmppEventHandler)));
-                that.IQEventHandlerToken.push(PubSub.subscribe(that.hash + "." + that.httpoverxmppEventHandler.IQ_RESULT, that.httpoverxmppEventHandler.onIqResultReceived.bind(that.httpoverxmppEventHandler)));
-                
-
-                that.IQEventHandlerToken.push(PubSub.subscribe(that.hash + "." + that.rpcoverxmppEventHandler.IQ_GET, that.rpcoverxmppEventHandler.onIqGetSetReceived.bind(that.rpcoverxmppEventHandler)));
-                that.IQEventHandlerToken.push(PubSub.subscribe(that.hash + "." + that.rpcoverxmppEventHandler.IQ_SET, that.rpcoverxmppEventHandler.onIqGetSetReceived.bind(that.rpcoverxmppEventHandler)));
-                that.IQEventHandlerToken.push(PubSub.subscribe(that.hash + "." + that.rpcoverxmppEventHandler.IQ_RESULT, that.rpcoverxmppEventHandler.onIqResultReceived.bind(that.rpcoverxmppEventHandler)));
-
-                that.IQEventHandlerToken.push(PubSub.subscribe(that.hash + "." + that.conversationHistoryHandler.IQ_RESULT, that.conversationHistoryHandler.onIqResultReceived.bind(that.conversationHistoryHandler)));
-                that.IQEventHandlerToken.push(PubSub.subscribe(that.hash + "." + that.calllogEventHandler.IQ_RESULT, that.calllogEventHandler.onIqResultReceived.bind(that.calllogEventHandler)));
+                if (that.xmppClient) {
+                    if (that.IQEventHandler) {
+                        that.IQEventHandlerToken.push(PubSub.subscribe(that.hash + "." + that.IQEventHandler.IQ_RESULT, that.xmppClient.onIqResultReceived.bind(that.xmppClient)));
+                        that.IQEventHandlerToken.push(PubSub.subscribe(that.hash + "." + that.IQEventHandler.IQ_ERROR, that.xmppClient.onIqErrorReceived.bind(that.xmppClient)));
+                    } else {
+                        that._logger.log(that.ERROR, LOG_ID + "(signin) IQEventHandler is not defined. Can not subscribe to events.");
+                    }
+                } else {
+                    that._logger.log(that.ERROR, LOG_ID + "(signin) xmppClient is not defined. Can not subscribe to events.");
+                }
 
                 that.startOrResetIdleTimer();
                 //resolve(undefined);
