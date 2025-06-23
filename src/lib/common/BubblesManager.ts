@@ -244,7 +244,7 @@ class BubblesManager extends LevelLogs {
     async treatAllBubblesToJoin(bulkSendPresence : boolean = true) {
         let that = this;
 
-        return new Promise(async (resolve, reject) => {
+        return new Promise(async (resolve, reject : any) => {
             that._logger.log(that.DEBUG, LOG_ID + "(treatAllBubblesToJoin) start with nbBubbleAdded : ", that.nbBubbleAdded, ", that.poolBubbleToJoin.length : ", that.poolBubbleToJoin.length, ", that.poolBubbleJoinInProgress.length : ", that.poolBubbleJoinInProgress.length);
 
             if (bulkSendPresence) {
@@ -277,6 +277,7 @@ class BubblesManager extends LevelLogs {
                         return (that.poolBubbleJoinInProgress.length==0 && that.poolBubbleToJoin.length==0);
                     }, "Wait for the Bubbles from that.poolBubbleToJoin to be joined.", 120000).catch((err) => {
                         that._logger.log(that.INTERNAL, LOG_ID + "(treatAllBubblesToJoin) FAILED wait for the bubbles to be joined, it left that.poolBubbleJoinInProgress.length : ", that.poolBubbleJoinInProgress.length, ", it left that.poolBubbleToJoin.length : ", that.poolBubbleToJoin.length, ", error : ", err);
+                        reject({"code":-1,"message":"FAILED wait for the bubbles to be joined"}).catch(err => { throw err });
                     });
                     that._logger.log(that.DEBUG, LOG_ID + "(treatAllBubblesToJoin) End of treatment of bubbles to join, that.poolBubbleToJoin.length : ", that.poolBubbleToJoin.length, ", that.poolBubbleJoinInProgress.length : ", that.poolBubbleJoinInProgress.length, ", that.poolBubbleAlreadyJoined.length : ", that.poolBubbleAlreadyJoined.length);
                 } else if (that._useS2S) {

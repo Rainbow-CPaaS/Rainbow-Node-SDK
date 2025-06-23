@@ -220,6 +220,7 @@ class Bubbles extends GenericService {
                 }).catch((err)=>{
                     that._logger.log(that.WARN, LOG_ID + "(init) error at startup : ", err);
                     that.setInitialized();
+                    throw (err);
                 });
             } else {
                 that._logger.log(that.WARN, LOG_ID + "(init) autoInitialGetBubbles setted to false, so do not retrieve the bubbles at startup. ");
