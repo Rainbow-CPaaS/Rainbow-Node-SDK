@@ -618,10 +618,17 @@ class XMPPService extends GenericService {
                 }
                 break;
             case "presence":
-                that._logger.log(that.DEBUG, LOG_ID + "(handleXMPPConnection) presence received : ", prettyStanza);
+                that._logger.log(that.DEBUG, LOG_ID + "(handleXMPPConnection) presence received : ", jsonStanza);
+                let domain = that.xmppUtils.getDomainFromFullJID(that.fullJid);
+                let to = "muc." + domain + "/" + that.fullJid;
+
+                if ("error"===jsonStanza.presence.$attrs.type && to===jsonStanza.presence.$attrs.from) {
+                    that.eventEmitter.emit("evt_internal_onallbubbleserror", new Error("An error occured while sending presence to all bubbles."));
+                    //throw (new Error("An error occured while sending presence to all bubbles."));
+                }
                 break;
             case "close":
-                that._logger.log(that.WARN, LOG_ID + "(handleXMPPConnection) close received : ", prettyStanza);
+                that._logger.log(that.WARN, LOG_ID + "(handleXMPPConnection) close received : ", jsonStanza);
                 break;
             default:
                 that._logger.log(that.WARN, LOG_ID + "(handleXMPPConnection) not managed - 'stanza' : ", stanza.getName());
@@ -1998,6 +2005,7 @@ class XMPPService extends GenericService {
         let that = this;
         let id = that.xmppUtils.getUniqueMessageId();
         let domain = that.xmppUtils.getDomainFromFullJID(that.fullJid);
+        //let domain = "sandbox.openrainbow.com";
 
         if (that.useXMPP) {
             let xNode =xml("x", {"xmlns": NameSpacesLabels.MucNameSpace});

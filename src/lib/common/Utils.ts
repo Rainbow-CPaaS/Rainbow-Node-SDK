@@ -313,16 +313,20 @@ function until(conditionFunction : Function, labelOfWaitingCondition : string, w
 
     let end = new Date(now.getTime() + waitMsTimeBeforeReject);
     const poll = (resolve, reject) => {
-        if (conditionFunction()) {
-            resolve(undefined);
-        } else  {
-            if (new Date() > end ) {
-                labelOfWaitingCondition  = labelOfWaitingCondition ? labelOfWaitingCondition : "";
-                reject(new Error('ErrorManager the condition \'' + labelOfWaitingCondition + '\' failed'));
-                //throw new ErrorManager('ErrorManager the condition ' + labelOfWaitingCondition ? labelOfWaitingCondition : "" + ' failed');
-                return;
+        try {
+            if (conditionFunction()) {
+                resolve(undefined);
+            } else {
+                if (new Date() > end) {
+                    labelOfWaitingCondition = labelOfWaitingCondition ? labelOfWaitingCondition:"";
+                    reject(new Error('ErrorManager the condition \'' + labelOfWaitingCondition + '\' failed'));
+                    //throw new ErrorManager('ErrorManager the condition ' + labelOfWaitingCondition ? labelOfWaitingCondition : "" + ' failed');
+                    return;
+                }
+                setTimeout(_ => poll(resolve, reject), 400);
             }
-            setTimeout(_ => poll(resolve, reject), 400);
+        } catch (err) {
+            reject(err);
         }
     };
 

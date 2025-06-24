@@ -8,7 +8,7 @@ import {RESTService} from "../connection/RESTService";
 import {PresenceService} from "../services/PresenceService";
 import {S2SService} from "../services/S2SService";
 import {Core} from "../Core";
-import {getRandomInt, logEntryExit, pause, stackTrace, until} from "./Utils";
+import {getRandomInt, logEntryExit, pause, stackTrace, toBoolean, until} from "./Utils";
 import { List } from "ts-generic-collections-linq";
 import {Dictionary, IDictionary} from "ts-generic-collections-linq";
 import {KeyValuePair} from "ts-generic-collections-linq/lib/dictionary";
@@ -55,11 +55,12 @@ class BubblesManager extends LevelLogs {
 //    private poolBubbleJoinInProgress: List<string>; // room Jid;
 //    private poolBubbleAlreadyJoined: List<string>;  // room Jid;
     private lockEngine: any;
-    private lockKey = "LOCK_BUBBLE_MANAGER";
+    private lockKey : string = "LOCK_BUBBLE_MANAGER";
     private nbBubbleAdded : number = 0;
     private delay: number = 15000;
-    private MAXBUBBLEJOJNINPROGRESS = 3;
-    private maxBubbleJoinInProgress = 3;
+    private MAXBUBBLEJOJNINPROGRESS : number = 3;
+    private maxBubbleJoinInProgress : number = 3;
+    private allbubbleserror : boolean = false;
 
     static getClassName() {
         return 'BubblesManager';
@@ -92,6 +93,7 @@ class BubblesManager extends LevelLogs {
         //this._eventEmitter.on("evt_internal_bubbleaffiliationchanged", this._onBubbleaffiliationchanged.bind(this));
         this._eventEmitter.on("evt_internal_ownaffiliationchanged", this._onOwnAffiliationChanged.bind(this));
         this._eventEmitter.on("evt_internal_onbubblepresencechanged", this._onbubblepresencechanged.bind(this));
+        this._eventEmitter.on("evt_internal_onallbubbleserror", this._onallbubbleserror.bind(this));
 
         // that._logger.log(that.DEBUG, LOG_ID + "(constructor) BubblesManager created successfull");
         that._logger.log(that.INFO, LOG_ID + `=== CONSTRUCTED at (${new Date()} ===`);
@@ -249,6 +251,7 @@ class BubblesManager extends LevelLogs {
 
             if (bulkSendPresence) {
                 if (that._useXMPP) {
+                    that.allbubbleserror = false;
                     //for (let iterBubbleToJoin = 0; that.poolBubbleJoinInProgress.length < (that.maxBubbleJoinInProgress + 1) && iterBubbleToJoin < that.maxBubbleJoinInProgress; iterBubbleToJoin++) {
                     let iterBubbleToJoin = 0;
                     let bubble = await that.getBubbleToJoin();
@@ -274,10 +277,13 @@ class BubblesManager extends LevelLogs {
                         that.delay = that.fibonacciStrategy.next();
                     });
                     await until(() => {
-                        return (that.poolBubbleJoinInProgress.length==0 && that.poolBubbleToJoin.length==0);
+                        if (toBoolean(that.allbubbleserror) === true) {
+                            throw new Error ("FAILED wait for the bubbles to be joined");
+                        }
+                        return (that.poolBubbleJoinInProgress.length===0 && that.poolBubbleToJoin.length===0 || toBoolean(that.allbubbleserror) === true);
                     }, "Wait for the Bubbles from that.poolBubbleToJoin to be joined.", 120000).catch((err) => {
                         that._logger.log(that.INTERNAL, LOG_ID + "(treatAllBubblesToJoin) FAILED wait for the bubbles to be joined, it left that.poolBubbleJoinInProgress.length : ", that.poolBubbleJoinInProgress.length, ", it left that.poolBubbleToJoin.length : ", that.poolBubbleToJoin.length, ", error : ", err);
-                        reject({"code":-1,"message":"FAILED wait for the bubbles to be joined"}).catch(err => { throw err });
+                        reject({"code":-1,"message":"FAILED wait for the bubbles to be joined"});// .catch(err => { throw err });
                     });
                     that._logger.log(that.DEBUG, LOG_ID + "(treatAllBubblesToJoin) End of treatment of bubbles to join, that.poolBubbleToJoin.length : ", that.poolBubbleToJoin.length, ", that.poolBubbleJoinInProgress.length : ", that.poolBubbleJoinInProgress.length, ", that.poolBubbleAlreadyJoined.length : ", that.poolBubbleAlreadyJoined.length);
                 } else if (that._useS2S) {
@@ -421,6 +427,11 @@ class BubblesManager extends LevelLogs {
             await that.removeBubbleToJoinInProgress(bubble);
             await that.addBubbleAlreadyJoined(bubble);
         }
+    }
+
+    async _onallbubbleserror(error:Error) {
+        let that = this;
+        that.allbubbleserror = true;
     }
 
     async addBubbleToJoinInProgress(bubble): Promise<any> {

@@ -764,7 +764,7 @@ let expressEngine = undefined;
                 "start_up": true,
             },
             "telephony": {
-                "start_up": true,
+                "start_up": false,
             },
             "channels": {
                 "start_up": true,
@@ -786,7 +786,14 @@ let expressEngine = undefined;
             },
             "alerts": {
                 "start_up": true,
-            }, //need services :
+            },
+            "httpoverxmpp":  {
+                "start_up":true,
+            }, 
+            "rpcoverxmpp":  {
+                "start_up":true,
+            }, 
+            // need services :
             "webrtc": {
                 "start_up": true,
                 "optional": true
@@ -1668,6 +1675,16 @@ let expressEngine = undefined;
             let usershouldbeUnkown = "vincent06@vbe.test.openrainbow.net";
             rainbowSDK.contacts.getContactByLoginEmail(usershouldbeUnkown).then(contact => {
                 _logger.log("debug", "MAIN - [getContactByLoginEmail    ] ::  contact : ", contact);
+            }).catch((err) => {
+                _logger.log("error", "MAIN - [getContactByLoginEmail    ] :: catch reject contact : ", err);
+            });
+        }
+
+        async testgetContactByLoginEmailAndSubscribePresence(emailUser: string = "vincent05@vbe.test.openrainbow.net") {
+            rainbowSDK.contacts.getContactByLoginEmail(emailUser).then(async contact => {
+                _logger.log("debug", "MAIN - [getContactByLoginEmail    ] ::  contact : ", contact);
+                let result = await rainbowSDK.presence.subscribePresence(contact.jid);
+                _logger.log("debug", "MAIN - [getContactByLoginEmail    ] :: subscribePresence result : ", result);
             }).catch((err) => {
                 _logger.log("error", "MAIN - [getContactByLoginEmail    ] :: catch reject contact : ", err);
             });
@@ -5730,6 +5747,25 @@ let expressEngine = undefined;
             _logger.log("debug", "MAIN - testgetBubblesDataByListOfBubblesIds - bubblesIds : ", bubblesIds);
             let result2 = await rainbowSDK.bubbles.getBubblesDataByListOfBubblesIds(bubblesIds);
             _logger.log("debug", "MAIN - testgetBubblesDataByListOfBubblesIds - result2 : ", result2);
+        }
+
+        async testraiseerror_sendInitialAllBubblePresence_mock() {
+            let fullJid = rainbowSDK._core._xmpp.fullJid;
+            let domain = xmppUtils.getDomainFromFullJID(fullJid);
+            let muc = "muc." + domain + "/" + fullJid;
+
+            let stanzamocked = "<presence xmlns='jabber:client' xml:lang='en' to='"+fullJid+"' from='" + muc + "' type='error'>" +
+                "<x xmlns='http://jabber.org/protocol/muc'>" +
+                "<history maxchars='0'/>" +
+                "<options acknowledge='true' webinar='false'/>" +
+                "</x>" +
+                "<c xmlns='http://jabber.org/protocol/caps' hash='sha-1' node='Sharp.Xmpp' ver='B9YW1spbtv1gFC8b//qRA6C6ij0='/>" +
+                "<error code='403' type='auth'>" +
+                "<forbidden xmlns='urn:ietf:params:xml:ns:xmpp-stanzas'/>" +
+                "<text xml:lang='en' xmlns='urn:ietf:params:xml:ns:xmpp-stanzas'>Access denied by service policy</text>" +
+                "</error>" +
+                "</presence>";
+            await rainbowSDK._core._xmpp.mockStanza(stanzamocked);
         }
 
         //endregion Bubbles
