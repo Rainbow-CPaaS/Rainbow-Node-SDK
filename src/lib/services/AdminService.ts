@@ -692,8 +692,7 @@ class AdminService extends GenericService {
 
                 if (!joinCompanyLinkId) {
                     that._logger.log(that.ERROR, LOG_ID + "(deleteAJoinCompanyLink) bad or empty 'joinCompanyLinkId' parameter");
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
-                    return;
+                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 that._rest.deleteAJoinCompanyLink(companyId, joinCompanyLinkId).then((company) => {
@@ -755,8 +754,7 @@ class AdminService extends GenericService {
 
                 if (!joinCompanyLinkId) {
                     that._logger.log(that.ERROR, LOG_ID + "(getAJoinCompanyLink) bad or empty 'joinCompanyLinkId' parameter");
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
-                    return;
+                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 that._rest.getAJoinCompanyLink(companyId, joinCompanyLinkId).then((company) => {
@@ -1085,8 +1083,7 @@ class AdminService extends GenericService {
             try {
                 if (!name) {
                     that._logger.log(that.ERROR, LOG_ID + "(createCompanyFromDefault) bad or empty 'name' parameter");
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
-                    return;
+                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 that._rest.createCompanyFromDefault(name, visibility, country, state, slogan, description, size, economicActivityClassification , website, avatarShape, giphyEnabled).then((company) => {
@@ -1319,8 +1316,7 @@ class AdminService extends GenericService {
             try {
                 if (!strName) {
                     that._logger.log(that.ERROR, LOG_ID + "(createCompany) bad or empty 'strName' parameter");
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
-                    return;
+                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 that._rest.createCompany(strName, country, state, offerType).then((company) => {
@@ -1365,13 +1361,11 @@ class AdminService extends GenericService {
             try {
                 if (!company) {
                     that._logger.log(that.ERROR, LOG_ID + "(setVisibilityForCompany) bad or empty 'company' parameter");
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
-                    return;
+                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
                 if (!visibleByCompany) {
                     that._logger.log(that.ERROR, LOG_ID + "(setVisibilityForCompany) bad or empty 'visibleByCompany' parameter");
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
-                    return;
+                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 that._rest.setVisibilityForCompany(company.id, visibleByCompany.id).then((user) => {
@@ -1425,26 +1419,22 @@ class AdminService extends GenericService {
 
                 if (!email) {
                     that._logger.log(that.ERROR, LOG_ID + "(createUserInCompany) bad or empty 'email' parameter");
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
-                    return;
+                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 if (!password) {
                     that._logger.log(that.ERROR, LOG_ID + "(createUserInCompany) bad or empty 'password' parameter");
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
-                    return;
+                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 if (!firstname) {
                     that._logger.log(that.ERROR, LOG_ID + "(createUserInCompany) bad or empty 'firstname' parameter");
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
-                    return;
+                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 if (!lastname) {
                     that._logger.log(that.ERROR, LOG_ID + "(createUserInCompany) bad or empty 'lastname' parameter");
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
-                    return;
+                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 //that._rest.createUser(email, password, firstname, lastname, companyId, language, isAdmin, roles).then((user : any) => {
@@ -1799,20 +1789,17 @@ class AdminService extends GenericService {
 
                 if (!firstname) {
                     that._logger.log(that.ERROR, LOG_ID + "(createGuestUser) bad or empty 'firstname' parameter");
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
-                    return;
+                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 if (!lastname) {
                     that._logger.log(that.ERROR, LOG_ID + "(createGuestUser) bad or empty 'lastname' parameter");
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
-                    return;
+                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 if (timeToLive && isNaN(timeToLive)) {
                     that._logger.log(that.ERROR, LOG_ID + "(createGuestUser) bad or empty 'timeToLive' parameter");
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
-                    return;
+                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 that._rest.createGuestUser(firstname, lastname, language, timeToLive).then((user : any) => {
@@ -1857,8 +1844,7 @@ class AdminService extends GenericService {
 
                 if (timeToLive && isNaN(timeToLive)) {
                     that._logger.log(that.ERROR, LOG_ID + "(createAnonymousGuestUser) bad or empty 'timeToLive' parameter");
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
-                    return;
+                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 that._rest.createGuestUser(null, null, null, timeToLive).then((user : any) => {
@@ -1906,14 +1892,12 @@ class AdminService extends GenericService {
 
                 if (!email) {
                     that._logger.log(that.ERROR, LOG_ID + "(inviteUserInCompany) bad or empty 'email' parameter");
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
-                    return;
+                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 if (!companyId) {
                     that._logger.log(that.ERROR, LOG_ID + "(inviteUserInCompany) bad or empty 'companyId' parameter");
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
-                    return;
+                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 that._rest.inviteUser(email, companyId, language, message).then((user) => {
@@ -1956,14 +1940,12 @@ class AdminService extends GenericService {
 
                 if (!password) {
                     that._logger.log(that.ERROR, LOG_ID + "(changePasswordToUser) bad or empty 'password' parameter");
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
-                    return;
+                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 if (!userId) {
                     that._logger.log(that.ERROR, LOG_ID + "(changePasswordToUser) bad or empty 'userId' parameter");
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
-                    return;
+                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 that._rest.changePassword(password, userId).then((user) => {
@@ -2006,20 +1988,17 @@ class AdminService extends GenericService {
 
                 if (!objData) {
                     that._logger.log(that.ERROR, LOG_ID + "(updateInformationForUser) bad or empty 'objData' parameter");
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
-                    return;
+                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 if ("loginEmail" in objData) {
                     that._logger.log(that.ERROR, LOG_ID + "(updateInformationForUser) can't change the loginEmail with that API");
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
-                    return;
+                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 if ("password" in objData) {
                     that._logger.log(that.ERROR, LOG_ID + "(updateInformationForUser) can't change the password with that API");
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
-                    return;
+                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 that._rest.updateInformation(objData, userId).then((user) => {
@@ -2061,8 +2040,7 @@ class AdminService extends GenericService {
 
                 if (!userId) {
                     that._logger.log(that.ERROR, LOG_ID + "(deleteUser) bad or empty 'userId' parameter");
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
-                    return;
+                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
                 }
 
                 that._rest.deleteUser(userId).then((user) => {
@@ -2493,6 +2471,11 @@ class AdminService extends GenericService {
 
         return new Promise((resolve, reject) => {
             try {
+                if (!companyId) {
+                    that._logger.log(that.WARN, LOG_ID + "(getCompanyById) bad or empty 'companyId' parameter.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getCompanyById) bad or empty 'companyId' parameter : ", companyId);
+                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
 
                 that._rest.getCompany(companyId).then((company : any) => {
                     that._logger.log(that.DEBUG, LOG_ID + "(getCompanyById) Successfully get a company");
@@ -2502,7 +2485,6 @@ class AdminService extends GenericService {
                     that._logger.log(that.ERROR, LOG_ID + "(getCompanyById) ErrorManager when get a company");
                     return reject(err);
                 });
-
 
             } catch (err) {
                 that._logger.log(that.INTERNALERROR, LOG_ID + "(getCompanyById) error : ", err);
@@ -2522,6 +2504,17 @@ class AdminService extends GenericService {
 
         return new Promise(function (resolve, reject) {
             try {
+                if (!company) {
+                    that._logger.log(that.WARN, LOG_ID + "(removeCompany) bad or empty 'company' parameter.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(removeCompany) bad or empty 'company' parameter : ", company);
+                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                if (!company.id) {
+                    that._logger.log(that.WARN, LOG_ID + "(removeCompany) bad or empty 'company.id' parameter.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(removeCompany) bad or empty 'company.id' parameter : ", company.id);
+                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
 
                 that._rest.deleteCompany(company.id).then((companies : any) => {
                     that._logger.log(that.DEBUG, LOG_ID + "(removeCompany) Successfully remove company");
@@ -2656,6 +2649,11 @@ class AdminService extends GenericService {
 
         return new Promise((resolve, reject) => {
             try {
+                if (!companyId) {
+                    that._logger.log(that.WARN, LOG_ID + "(getCompanyAppFeatureCustomisation) bad or empty 'companyId' parameter.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getCompanyAppFeatureCustomisation) bad or empty 'companyId' parameter : ", companyId);
+                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
 
                 that._rest.getCompanyAppFeatureCustomisation(companyId).then((result : any) => {
                     that._logger.log(that.DEBUG, LOG_ID + "(getCompanyAppFeatureCustomisation) Successfully done.");
@@ -2699,6 +2697,11 @@ class AdminService extends GenericService {
 
         return new Promise(function (resolve, reject) {
             try {
+                if (!companyId) {
+                    that._logger.log(that.WARN, LOG_ID + "(getCompanyServiceDescriptionFile) bad or empty 'companyId' parameter.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getCompanyServiceDescriptionFile) bad or empty 'companyId' parameter : ", companyId);
+                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
 
                 that._rest.getCompanyServiceDescriptionFile(companyId).then((result : any) => {
                     that._logger.log(that.DEBUG, LOG_ID + "(getCompanyServiceDescriptionFile) Successfully done.");
@@ -3043,6 +3046,12 @@ class AdminService extends GenericService {
 
         return new Promise(function (resolve, reject) {
             try {
+                if (!companyId) {
+                    that._logger.log(that.WARN, LOG_ID + "(setCompanyAppFeatureCustomisation) bad or empty 'companyId' parameter.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(setCompanyAppFeatureCustomisation) bad or empty 'companyId' parameter : ", companyId);
+                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
                 that._rest.setCompanyAppFeatureCustomisation(companyId, appFeaturesCustomisation).then((result : any) => {
                     that._logger.log(that.DEBUG, LOG_ID + "(setCompanyAppFeatureCustomisation) Successfully done.");
                     that._logger.log(that.INTERNAL, LOG_ID + "(setCompanyAppFeatureCustomisation) result : ", result);
@@ -3596,6 +3605,11 @@ class AdminService extends GenericService {
                   kamEmailList?: string[], businessSpecific?: string, adminServiceNotificationsLevel?: string): Promise<any> {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateCompany) companyId : ", companyId, ", name : ", name);
+        if (!companyId) {
+            that._logger.log(that.WARN, LOG_ID + "(updateCompany) bad or empty 'companyId' parameter.");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(updateCompany) bad or empty 'companyId' parameter : ", companyId);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
         return that.callRestMethod("updateCompany", arguments);
     /*    return new Promise(function (resolve, reject) {
             try {
@@ -4167,7 +4181,13 @@ class AdminService extends GenericService {
                   timezone: string, sendPrepaidSubscriptionsNotification: boolean, ddiReadOnly: boolean, allowPhoneNumbersVisibility: boolean, csEmailList: string[], seEmailList: string[], csmEmailList: string[],
                   kamEmailList: string[], businessSpecific?: string, adminServiceNotificationsLevel: string}): Promise<any> {
         let that = this;
-        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateCompany) companyId : ", companyId, ", selectedThemeObj : ", selectedThemeObj, ", companyInfoToUpdate : ", companyInfoToUpdate);
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateCompanyByObj) companyId : ", companyId, ", selectedThemeObj : ", selectedThemeObj, ", companyInfoToUpdate : ", companyInfoToUpdate);
+        if (!companyId) {
+            that._logger.log(that.WARN, LOG_ID + "(updateCompanyByObj) bad or empty 'companyId' parameter.");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(updateCompanyByObj) bad or empty 'companyId' parameter : ", companyId);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+
         return that.callRestMethod("updateCompanyByObj", arguments);
     /*    return new Promise(function (resolve, reject) {
             try {
@@ -4371,6 +4391,11 @@ class AdminService extends GenericService {
 
         return new Promise(function (resolve, reject) {
             try {
+                if (!companyId) {
+                    that._logger.log(that.WARN, LOG_ID + "(getAllUsersByCompanyId) bad or empty 'companyId' parameter.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getAllUsersByCompanyId) bad or empty 'companyId' parameter : ", companyId);
+                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
 
                 that._rest.getAllUsers(format, offset, limit, sortField, companyId).then((users : any) => {
                     that._logger.log(that.DEBUG, LOG_ID + "(getAllUsersByCompanyId) Successfully get all companies");
@@ -4381,8 +4406,6 @@ class AdminService extends GenericService {
                     that._logger.log(that.INTERNALERROR, LOG_ID + "(getAllUsersByCompanyId) ErrorManager when get All companies : ", err);
                     return reject(err);
                 });
-
-
             } catch (err) {
                 that._logger.log(that.INTERNALERROR, LOG_ID + "(getAllUsersByCompanyId) error : ", err);
                 return reject(err);
@@ -4418,6 +4441,17 @@ class AdminService extends GenericService {
 
         return new Promise(function (resolve, reject) {
             try {
+                if (!companyId) {
+                    that._logger.log(that.WARN, LOG_ID + "(getAllUsersBySearchEmailByCompanyId) bad or empty 'companyId' parameter.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getAllUsersBySearchEmailByCompanyId) bad or empty 'companyId' parameter : ", companyId);
+                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+
+                if (!searchEmail) {
+                    that._logger.log(that.WARN, LOG_ID + "(getAllUsersBySearchEmailByCompanyId) bad or empty 'searchEmail' parameter.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getAllUsersBySearchEmailByCompanyId) bad or empty 'searchEmail' parameter : ", searchEmail);
+                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
 
                 that._rest.getAllUsers(format, offset, limit, sortField, companyId, searchEmail).then((users : any) => {
                     that._logger.log(that.DEBUG, LOG_ID + "(getAllUsersBySearchEmailByCompanyId) Successfully get all companies");
@@ -4428,8 +4462,6 @@ class AdminService extends GenericService {
                     that._logger.log(that.INTERNALERROR, LOG_ID + "(getAllUsersBySearchEmailByCompanyId) ErrorManager when get All companies : ", err);
                     return reject(err);
                 });
-
-
             } catch (err) {
                 that._logger.log(that.INTERNALERROR, LOG_ID + "(getAllUsersBySearchEmailByCompanyId) error : ", err);
                 return reject(err);
@@ -4457,6 +4489,11 @@ class AdminService extends GenericService {
 
         return new Promise(function (resolve, reject) {
             try {
+                if (!userId) {
+                    that._logger.log(that.WARN, LOG_ID + "(getContactInfos) bad or empty 'userId' parameter.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getContactInfos) bad or empty 'userId' parameter : ", userId);
+                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
 
                 that._rest.getContactInfos(userId).then((result : any) => {
                     that._logger.log(that.DEBUG, LOG_ID + "(getContactInfos) Successfully get Contact Infos");
@@ -4467,8 +4504,6 @@ class AdminService extends GenericService {
                     that._logger.log(that.INTERNALERROR, LOG_ID + "(getContactInfos) ErrorManager when get contact infos : ", err);
                     return reject(err);
                 });
-
-
             } catch (err) {
                 that._logger.log(that.ERROR, LOG_ID + "(getContactInfos) error : ", err);
                 return reject(err);
@@ -4665,6 +4700,12 @@ class AdminService extends GenericService {
                 let data = {};
 
                 let infosProperties = Object.keys(infos);
+
+                if (!userId) {
+                    that._logger.log(that.WARN, LOG_ID + "(updateContactInfos) bad or empty 'userId' parameter.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(updateContactInfos) bad or empty 'userId' parameter : ", userId);
+                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
 
                 propertiesToSave.forEach((propname) => {
                    if (infosProperties.find((iter) => {
@@ -4989,6 +5030,11 @@ class AdminService extends GenericService {
 
         return new Promise(function (resolve, reject) {
             try {
+                if (!joinCompanyRequestId) {
+                    that._logger.log(that.WARN, LOG_ID + "(cancelJoinCompanyRequest) bad or empty 'joinCompanyRequestId' parameter.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(cancelJoinCompanyRequest) bad or empty 'joinCompanyRequestId' parameter : ", joinCompanyRequestId);
+                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
 
                 that._rest.cancelJoinCompanyRequest(joinCompanyRequestId).then((result : any) => {
                     that._logger.log(that.DEBUG, LOG_ID + "(cancelJoinCompanyRequest) Successfully.");
@@ -5047,6 +5093,11 @@ class AdminService extends GenericService {
 
         return new Promise(function (resolve, reject) {
             try {
+                if (!joinCompanyRequestId) {
+                    that._logger.log(that.WARN, LOG_ID + "(getJoinCompanyRequest) bad or empty 'joinCompanyRequestId' parameter.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getJoinCompanyRequest) bad or empty 'joinCompanyRequestId' parameter : ", joinCompanyRequestId);
+                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
 
                 that._rest.getJoinCompanyRequest(joinCompanyRequestId).then((result : any) => {
                     that._logger.log(that.DEBUG, LOG_ID + "(getJoinCompanyRequest) Successfully get Contact Infos");
@@ -5173,6 +5224,11 @@ class AdminService extends GenericService {
 
         return new Promise(function (resolve, reject) {
             try {
+                if (!joinCompanyRequestId) {
+                    that._logger.log(that.WARN, LOG_ID + "(resendJoinCompanyRequest) bad or empty 'joinCompanyRequestId' parameter.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(resendJoinCompanyRequest) bad or empty 'joinCompanyRequestId' parameter : ", joinCompanyRequestId);
+                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
 
                 that._rest.resendJoinCompanyRequest(joinCompanyRequestId).then((result : any) => {
                     that._logger.log(that.DEBUG, LOG_ID + "(resendJoinCompanyRequest) Successfully get Contact Infos");
