@@ -2594,8 +2594,67 @@ class RESTService extends GenericRESTService {
 
     //region Applications
 
-    async blockApplication () {}
-    async createApplication () {}
+    async blockApplication (applicationId, reason) {
+        // API https://api.openrainbow.org/application/#api-applications-applications_applications_blockApp
+        // PUT /api/rainbow/applications/v1.0/applications/:applicationId/block
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url = "/api/rainbow/applications/v1.0/applications/" + applicationId + "/block";
+
+            // Create body with reason parameter
+            let body = {
+                reason: reason || "Application blocked by administrator"
+            };
+
+            that.http.put(url, that.getRequestHeader(), body, undefined).then(function (json) {
+                that._logger.log(that.DEBUG, LOG_ID + "(blockApplication) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(blockApplication) REST result : ", json);
+                resolve(json?.data);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(blockApplication) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(blockApplication) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    async createApplication(name, platform, ownerId, isPublished, appKeyOnly, appKeyAndSecret, appKeyAndSecretAndJwt, appKeyAndJwtSecret, appKeyAndJwtAndSecret, appKeyAndJwtAndSecretAndRedirectUri) {
+        // API https://api.openrainbow.org/application/#api-applications-applications_applications_postApps
+        // POST /api/rainbow/applications/v1.0/applications
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let application = {
+                name: name,
+                platform: platform,
+                ownerId: ownerId,
+                isPublished: isPublished,
+                appKeyOnly: appKeyOnly,
+                appKeyAndSecret: appKeyAndSecret,
+                appKeyAndSecretAndJwt: appKeyAndSecretAndJwt,
+                appKeyAndJwtSecret: appKeyAndJwtSecret,
+                appKeyAndJwtAndSecret: appKeyAndJwtAndSecret,
+                appKeyAndJwtAndSecretAndRedirectUri: appKeyAndJwtAndSecretAndRedirectUri
+            };
+
+            // Remove undefined properties
+            Object.keys(application).forEach(key => {
+                if (application[key] === undefined) {
+                    delete application[key];
+                }
+            });
+
+            that.http.post("/api/rainbow/applications/v1.0/applications", that.getRequestHeader(), application, undefined).then(function (json) {
+                that._logger.log(that.DEBUG, LOG_ID + "(createApplication) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(createApplication) REST result : ", json);
+                resolve(json?.data);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(createApplication) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(createApplication) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
     async declineApplicationDeployment () {}
     async deleteApplication () {}
     async deployApplication () {}
