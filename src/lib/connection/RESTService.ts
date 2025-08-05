@@ -2655,7 +2655,32 @@ class RESTService extends GenericRESTService {
         });
     }
 
-    async declineApplicationDeployment () {}
+    async declineApplicationDeployment (applicationId: string, reason: string) {
+        // API https://api.openrainbow.org/application/#api-applications-applications_applications_declineAppDeployment
+        // PUT /api/rainbow/applications/v1.0/applications/:applicationId/decline-deployment
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url = "/api/rainbow/applications/v1.0/applications/" + applicationId + "/decline-deployment";
+            
+            // Create body with reason parameter
+            let body = {
+                reason: reason
+            };
+            
+            that._logger.log(that.DEBUG, LOG_ID + "(declineApplicationDeployment) will call PUT request.");
+            
+            that.http.put(url, that.getRequestHeader(), body, undefined).then(function (json) {
+                that._logger.log(that.DEBUG, LOG_ID + "(declineApplicationDeployment) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(declineApplicationDeployment) REST result : ", json);
+                resolve(json?.data);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(declineApplicationDeployment) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(declineApplicationDeployment) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
     async deleteApplication () {}
     async deployApplication () {}
     async getAllApplicationsCreatedByUser () {}

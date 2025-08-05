@@ -17873,6 +17873,117 @@ class AdminService extends GenericService {
         return that.callRestMethod("createApplication", arguments);
     }
 
+    /**
+     * @public
+     * @nodered true
+     * @method declineApplicationDeployment
+     * @since 2.30.0
+     * @instance
+     * @description
+     * This API allows to decline an application deployment.
+     *
+     * </br> Users with `superadmin` role can decline an application deployment.
+     * </br> Users with `admin` role can decline an application deployment.
+     * </br> Users with `app_admin` role can decline an application deployment.
+     * </br> Users with `app_superadmin` role can decline an application deployment.
+     *
+     * @async
+     * @param {string} applicationId Application unique identifier
+     * @param {string} reason Reason why the application deployment is declined
+     * @category Applications
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | id | string | Application unique identifier |
+     * | name | string | Application name |
+     * | platform | string | Application platform |
+     * | ownerId | string | Application owner unique identifier |
+     * | ownerEmail | string | Application owner email |
+     * | creationDate | string | Application creation date |
+     * | isPublished | boolean | Is application published |
+     * | appKeyOnly | boolean | Application uses only an application key for authentication |
+     * | appKeyAndSecret | boolean | Application uses an application key and a secret for authentication |
+     * | appKeyAndSecretAndJwt | boolean | Application uses an application key, a secret and a JWT for authentication |
+     * | appKeyAndJwtSecret | boolean | Application uses an application key and a JWT secret for authentication |
+     * | appKeyAndJwtAndSecret | boolean | Application uses an application key, a JWT and a secret for authentication |
+     * | appKeyAndJwtAndSecretAndRedirectUri | boolean | Application uses an application key, a JWT, a secret and a redirect URI for authentication |
+     * | appSecret | string | Application secret |
+     * | appKey | string | Application key |
+     * | jwtSecret | string | JWT secret |
+     * | redirectUris | array | Array of redirect URIs |
+     * | status | string | Application status |
+     * | type | string | Application type |
+     * | origin | string | Application origin |
+     * | blocked | boolean | Is application blocked |
+     * | blockedDate | string | Application blocked date |
+     * | blockedReason | string | Application blocked reason |
+     * | blockedBy | string | Application blocked by |
+     * | blockedByEmail | string | Application blocked by email |
+     * | lastLoginDate | string | Application last login date |
+     * | lastLoginIp | string | Application last login IP |
+     * | rateLimitPerSecond | number | Application rate limit per second |
+     * | rateLimitPerDay | number | Application rate limit per day |
+     * | rateLimitPerMonth | number | Application rate limit per month |
+     * | requestsCount | number | Application requests count |
+     * | requestsCountToday | number | Application requests count today |
+     * | requestsCountThisMonth | number | Application requests count this month |
+     * | requestsCountHistory | array | Application requests count history |
+     *
+     * </br>example of result :
+     * ```json
+     * {
+     *     "id": "5c9be7d7da30af091cf57b43",
+     *     "name": "My Application",
+     *     "platform": "web",
+     *     "ownerId": "5c9be7d7da30af091cf57b42",
+     *     "ownerEmail": "john.doe@example.com",
+     *     "creationDate": "2019-03-27T15:00:00.000Z",
+     *     "isPublished": true,
+     *     "appKeyOnly": true,
+     *     "appKeyAndSecret": false,
+     *     "appKeyAndSecretAndJwt": false,
+     *     "appKeyAndJwtSecret": false,
+     *     "appKeyAndJwtAndSecret": false,
+     *     "appKeyAndJwtAndSecretAndRedirectUri": false,
+     *     "appSecret": "UzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
+     *     "appKey": "UzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
+     *     "jwtSecret": "UzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
+     *     "redirectUris": [
+     *         "https://example.com/callback"
+     *     ],
+     *     "status": "active",
+     *     "type": "web",
+     *     "origin": "user",
+     *     "blocked": false,
+     *     "blockedDate": null,
+     *     "blockedReason": null,
+     *     "blockedBy": null,
+     *     "blockedByEmail": null,
+     *     "lastLoginDate": "2019-03-27T15:00:00.000Z",
+     *     "lastLoginIp": "192.168.1.1",
+     *     "rateLimitPerSecond": 10,
+     *     "rateLimitPerDay": 1000,
+     *     "rateLimitPerMonth": 30000,
+     *     "requestsCount": 100,
+     *     "requestsCountToday": 10,
+     *     "requestsCountThisMonth": 100,
+     *     "requestsCountHistory": [
+     *         {
+     *             "date": "2019-03-27T15:00:00.000Z",
+     *             "count": 10
+     *         }
+     *     ]
+     * }
+     * ```
+     *
+     */
+    async declineApplicationDeployment(applicationId: string, reason: string): Promise<any> {
+        let that = this;
+        return that.callRestMethod("declineApplicationDeployment", arguments);
+    }
+
     //endregion Applications
 
     }
