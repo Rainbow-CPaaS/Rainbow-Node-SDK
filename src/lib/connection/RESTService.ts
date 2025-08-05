@@ -2681,9 +2681,67 @@ class RESTService extends GenericRESTService {
         });
     }
 
-    async deleteApplication () {}
-    async deployApplication () {}
-    async getAllApplicationsCreatedByUser () {}
+    async deleteApplication (applicationId: string) {
+        // API https://api.openrainbow.org/application/#api-applications-applications_applications_deleteApp
+        // DELETE /api/rainbow/applications/v1.0/applications/:applicationId
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url = "/api/rainbow/applications/v1.0/applications/" + applicationId;
+            
+            that._logger.log(that.DEBUG, LOG_ID + "(deleteApplication) will call DELETE request.");
+            
+            that.http.delete(url, that.getRequestHeader(), undefined).then(function (json) {
+                that._logger.log(that.DEBUG, LOG_ID + "(deleteApplication) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(deleteApplication) REST result : ", json);
+                resolve(json?.data);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(deleteApplication) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteApplication) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    async deployApplication (applicationId: string) {
+        // API https://api.openrainbow.org/application/#api-applications-applications_applications_deployApp
+        // PUT /api/rainbow/applications/v1.0/applications/:applicationId/deploy
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url = "/api/rainbow/applications/v1.0/applications/" + applicationId + "/deploy";
+            
+            that._logger.log(that.DEBUG, LOG_ID + "(deployApplication) will call PUT request.");
+            
+            that.http.put(url, that.getRequestHeader(), {}, undefined).then(function (json) {
+                that._logger.log(that.DEBUG, LOG_ID + "(deployApplication) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(deployApplication) REST result : ", json);
+                resolve(json?.data);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(deployApplication) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(deployApplication) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    async getAllApplicationsCreatedByUser (userId: string = undefined) {
+        // API https://api.openrainbow.org/application/#api-applications-applications_applications_getAppsByUserId
+        // GET /api/rainbow/applications/v1.0/users/:userId/applications
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let targetUserId = userId || that.userId;
+            let url = "/api/rainbow/applications/v1.0/users/" + targetUserId + "/applications";
+            
+            that._logger.log(that.DEBUG, LOG_ID + "(getAllApplicationsCreatedByUser) will call GET request.");
+            
+            that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
+                that._logger.log(that.DEBUG, LOG_ID + "(getAllApplicationsCreatedByUser) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getAllApplicationsCreatedByUser) REST result : ", json);
+                resolve(json?.data);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(getAllApplicationsCreatedByUser) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getAllApplicationsCreatedByUser) error : ", err);
+                return reject(err);
+            });
+        });
+    }
     async getApplicationDataById (appId : string) {
         // API https://api.openrainbow.org/application/#api-applications-applications_applications_getAppById
         // GET /api/rainbow/applications/v1.0/applications/:appId
@@ -2705,15 +2763,208 @@ class RESTService extends GenericRESTService {
             });
         });
     }
-    async renewExpiredApplication () {}
-    async requestDeploymentOfApplication () {}
-    async restartApplication () {}
-    async stopApplication () {}
-    async unblockApplication () {}
-    async updateApplication () {}
+    async getEmbedFrameForApplication (applicationId: string) {
+        // API https://api.openrainbow.org/application/#api-applications-applications_applications_getEmbedFrame
+        // GET /api/rainbow/applications/v1.0/applications/:applicationId/embed-frame
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url = "/api/rainbow/applications/v1.0/applications/" + applicationId + "/embed-frame";
+            
+            that._logger.log(that.DEBUG, LOG_ID + "(getEmbedFrameForApplication) will call GET request.");
+            
+            that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
+                that._logger.log(that.DEBUG, LOG_ID + "(getEmbedFrameForApplication) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getEmbedFrameForApplication) REST result : ", json);
+                resolve(json?.data);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(getEmbedFrameForApplication) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getEmbedFrameForApplication) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    async getEmbeddingFrameForApplication (applicationId: string) {
+        // API https://api.openrainbow.org/application/#api-applications-applications_applications_getEmbeddingFrame
+        // GET /api/rainbow/applications/v1.0/applications/:applicationId/embedding-frame
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url = "/api/rainbow/applications/v1.0/applications/" + applicationId + "/embedding-frame";
+            
+            that._logger.log(that.DEBUG, LOG_ID + "(getEmbeddingFrameForApplication) will call GET request.");
+            
+            that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
+                that._logger.log(that.DEBUG, LOG_ID + "(getEmbeddingFrameForApplication) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getEmbeddingFrameForApplication) REST result : ", json);
+                resolve(json?.data);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(getEmbeddingFrameForApplication) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getEmbeddingFrameForApplication) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    async renewExpiredApplication (applicationId: string) {
+        // API https://api.openrainbow.org/application/#api-applications-applications_applications_renewExpiredApp
+        // PUT /api/rainbow/applications/v1.0/applications/:applicationId/renew
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url = "/api/rainbow/applications/v1.0/applications/" + applicationId + "/renew";
+            
+            that._logger.log(that.DEBUG, LOG_ID + "(renewExpiredApplication) will call PUT request.");
+            
+            that.http.put(url, that.getRequestHeader(), {}, undefined).then(function (json) {
+                that._logger.log(that.DEBUG, LOG_ID + "(renewExpiredApplication) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(renewExpiredApplication) REST result : ", json);
+                resolve(json?.data);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(renewExpiredApplication) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(renewExpiredApplication) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    async requestDeploymentOfApplication (applicationId: string) {
+        // API https://api.openrainbow.org/application/#api-applications-applications_applications_requestAppDeployment
+        // PUT /api/rainbow/applications/v1.0/applications/:applicationId/request-deployment
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url = "/api/rainbow/applications/v1.0/applications/" + applicationId + "/request-deployment";
+            
+            that._logger.log(that.DEBUG, LOG_ID + "(requestDeploymentOfApplication) will call PUT request.");
+            
+            that.http.put(url, that.getRequestHeader(), {}, undefined).then(function (json) {
+                that._logger.log(that.DEBUG, LOG_ID + "(requestDeploymentOfApplication) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(requestDeploymentOfApplication) REST result : ", json);
+                resolve(json?.data);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(requestDeploymentOfApplication) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(requestDeploymentOfApplication) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    async restartApplication (applicationId: string) {
+        // API https://api.openrainbow.org/application/#api-applications-applications_applications_restartApp
+        // PUT /api/rainbow/applications/v1.0/applications/:applicationId/restart
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url = "/api/rainbow/applications/v1.0/applications/" + applicationId + "/restart";
+            
+            that._logger.log(that.DEBUG, LOG_ID + "(restartApplication) will call PUT request.");
+            
+            that.http.put(url, that.getRequestHeader(), {}, undefined).then(function (json) {
+                that._logger.log(that.DEBUG, LOG_ID + "(restartApplication) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(restartApplication) REST result : ", json);
+                resolve(json?.data);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(restartApplication) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(restartApplication) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    async stopApplication (applicationId: string) {
+        // API https://api.openrainbow.org/application/#api-applications-applications_applications_stopApp
+        // PUT /api/rainbow/applications/v1.0/applications/:applicationId/stop
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url = "/api/rainbow/applications/v1.0/applications/" + applicationId + "/stop";
+            
+            that._logger.log(that.DEBUG, LOG_ID + "(stopApplication) will call PUT request.");
+            
+            that.http.put(url, that.getRequestHeader(), {}, undefined).then(function (json) {
+                that._logger.log(that.DEBUG, LOG_ID + "(stopApplication) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(stopApplication) REST result : ", json);
+                resolve(json?.data);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(stopApplication) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(stopApplication) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    async unblockApplication (applicationId: string) {
+        // API https://api.openrainbow.org/application/#api-applications-applications_applications_unblockApp
+        // PUT /api/rainbow/applications/v1.0/applications/:applicationId/unblock
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url = "/api/rainbow/applications/v1.0/applications/" + applicationId + "/unblock";
+            
+            that._logger.log(that.DEBUG, LOG_ID + "(unblockApplication) will call PUT request.");
+            
+            that.http.put(url, that.getRequestHeader(), {}, undefined).then(function (json) {
+                that._logger.log(that.DEBUG, LOG_ID + "(unblockApplication) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(unblockApplication) REST result : ", json);
+                resolve(json?.data);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(unblockApplication) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(unblockApplication) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    async updateApplication (applicationId: string, applicationData: object) {
+        // API https://api.openrainbow.org/application/#api-applications-applications_applications_updateApp
+        // PUT /api/rainbow/applications/v1.0/applications/:applicationId
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url = "/api/rainbow/applications/v1.0/applications/" + applicationId;
+            
+            that._logger.log(that.DEBUG, LOG_ID + "(updateApplication) will call PUT request.");
+            
+            that.http.put(url, that.getRequestHeader(), applicationData, undefined).then(function (json) {
+                that._logger.log(that.DEBUG, LOG_ID + "(updateApplication) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(updateApplication) REST result : ", json);
+                resolve(json?.data);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(updateApplication) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateApplication) error : ", err);
+                return reject(err);
+            });
+        });
+    }
 
-    async getCountersForApplication () {}
-    async updateCounterForApplication () {}
+    async getCountersForApplication (applicationId: string) {
+        // API https://api.openrainbow.org/application/#api-applications-applications_applications_getAppCounters
+        // GET /api/rainbow/applications/v1.0/applications/:applicationId/counters
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url = "/api/rainbow/applications/v1.0/applications/" + applicationId + "/counters";
+            
+            that._logger.log(that.DEBUG, LOG_ID + "(getCountersForApplication) will call GET request.");
+            
+            that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
+                that._logger.log(that.DEBUG, LOG_ID + "(getCountersForApplication) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getCountersForApplication) REST result : ", json);
+                resolve(json?.data);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(getCountersForApplication) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getCountersForApplication) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+    
+    async updateCounterForApplication (applicationId: string, counterData: object) {
+        // API https://api.openrainbow.org/application/#api-applications-applications_applications_updateAppCounter
+        // PUT /api/rainbow/applications/v1.0/applications/:applicationId/counters
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url = "/api/rainbow/applications/v1.0/applications/" + applicationId + "/counters";
+            
+            that._logger.log(that.DEBUG, LOG_ID + "(updateCounterForApplication) will call PUT request.");
+            
+            that.http.put(url, that.getRequestHeader(), counterData, undefined).then(function (json) {
+                that._logger.log(that.DEBUG, LOG_ID + "(updateCounterForApplication) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(updateCounterForApplication) REST result : ", json);
+                resolve(json?.data);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(updateCounterForApplication) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateCounterForApplication) error : ", err);
+                return reject(err);
+            });
+        });
+    }
 
     //endregion Applications
 

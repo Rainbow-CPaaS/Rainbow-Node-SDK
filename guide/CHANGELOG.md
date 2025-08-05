@@ -22,7 +22,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add event `rainbow_onbubblecontactchanged` Fired when the contact data of a bubble has changed.
 -   Add `Contact::companyNameOfGuest property` Company Name of Guest (if provided). Available only if "guestMode" is true.
 -   Add `updatePropertyToObj` function in Utils.
--   Add `AdminService::blockApplication`, `AdminService::createApplication` , `AdminService::declineApplicationDeployment` to manage applications.
+-   Add `AdminService::blockApplication`, `AdminService::createApplication`, `AdminService::declineApplicationDeployment`, `AdminService::deleteApplication`, `AdminService::deployApplication`, `AdminService::getAllApplicationsCreatedByUser`, `AdminService::getEmbedFrameForApplication`, `AdminService::getEmbeddingFrameForApplication`, `AdminService::renewExpiredApplication`, `AdminService::requestDeploymentOfApplication`, `AdminService::restartApplication`, `AdminService::stopApplication`, `AdminService::unblockApplication`, `AdminService::updateApplication`, `AdminService::getCountersForApplication`, `AdminService::updateCounterForApplication` to manage applications in Rainbow.
 
 #### Changed
 -   Update @deprecated of methods.

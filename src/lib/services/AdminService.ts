@@ -17984,6 +17984,473 @@ class AdminService extends GenericService {
         return that.callRestMethod("declineApplicationDeployment", arguments);
     }
 
+    /**
+     * @public
+     * @nodered true
+     * @method deleteApplication
+     * @since 2.30.0
+     * @instance
+     * @description
+     * This API allows to delete an application.
+     *
+     * </br> Users with `superadmin` role can delete an application.
+     * </br> Users with `admin` role can delete an application.
+     * </br> Users with `app_admin` role can delete an application.
+     * </br> Users with `app_superadmin` role can delete an application.
+     *
+     * @async
+     * @param {string} applicationId Application unique identifier
+     * @category Applications
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | status | string | Deletion status |
+     *
+     * </br>example of result :
+     * ```json
+     * {
+     *     "status": "Application successfully deleted"
+     * }
+     * ```
+     *
+     */
+    async deleteApplication(applicationId: string): Promise<any> {
+        let that = this;
+        return that.callRestMethod("deleteApplication", arguments);
+    }
+
+    /**
+     * @public
+     * @nodered true
+     * @method deployApplication
+     * @since 2.30.0
+     * @instance
+     * @description
+     * This API allows to deploy an application.
+     *
+     * </br> Users with `superadmin` role can deploy an application.
+     * </br> Users with `admin` role can deploy an application.
+     * </br> Users with `app_admin` role can deploy an application.
+     * </br> Users with `app_superadmin` role can deploy an application.
+     *
+     * @async
+     * @param {string} applicationId Application unique identifier
+     * @category Applications
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | id | string | Application unique identifier |
+     * | name | string | Application name |
+     * | platform | string | Application platform |
+     * | ownerId | string | Application owner unique identifier |
+     * | ownerEmail | string | Application owner email |
+     * | creationDate | string | Application creation date |
+     * | isPublished | boolean | Is application published |
+     * | appKeyOnly | boolean | Application uses only an application key for authentication |
+     * | appKeyAndSecret | boolean | Application uses an application key and a secret for authentication |
+     * | appKeyAndSecretAndJwt | boolean | Application uses an application key, a secret and a JWT for authentication |
+     * | appKeyAndJwtSecret | boolean | Application uses an application key and a JWT secret for authentication |
+     * | appKeyAndJwtAndSecret | boolean | Application uses an application key, a JWT and a secret for authentication |
+     * | appKeyAndJwtAndSecretAndRedirectUri | boolean | Application uses an application key, a JWT, a secret and a redirect URI for authentication |
+     * | appSecret | string | Application secret |
+     * | appKey | string | Application key |
+     * | jwtSecret | string | JWT secret |
+     * | redirectUris | array | Array of redirect URIs |
+     * | status | string | Application status |
+     * | type | string | Application type |
+     * | origin | string | Application origin |
+     * | blocked | boolean | Is application blocked |
+     * | blockedDate | string | Application blocked date |
+     * | blockedReason | string | Application blocked reason |
+     * | blockedBy | string | Application blocked by |
+     * | blockedByEmail | string | Application blocked by email |
+     * | lastLoginDate | string | Application last login date |
+     * | lastLoginIp | string | Application last login IP |
+     * | rateLimitPerSecond | number | Application rate limit per second |
+     * | rateLimitPerDay | number | Application rate limit per day |
+     * | rateLimitPerMonth | number | Application rate limit per month |
+     * | requestsCount | number | Application requests count |
+     * | requestsCountToday | number | Application requests count today |
+     * | requestsCountThisMonth | number | Application requests count this month |
+     * | requestsCountHistory | array | Application requests count history |
+     *
+     * </br>example of result :
+     * ```json
+     * {
+     *     "id": "5c9be7d7da30af091cf57b43",
+     *     "name": "My Application",
+     *     "platform": "web",
+     *     "ownerId": "5c9be7d7da30af091cf57b42",
+     *     "ownerEmail": "john.doe@example.com",
+     *     "creationDate": "2019-03-27T15:00:00.000Z",
+     *     "isPublished": true,
+     *     "appKeyOnly": true,
+     *     "appKeyAndSecret": false,
+     *     "appKeyAndSecretAndJwt": false,
+     *     "appKeyAndJwtSecret": false,
+     *     "appKeyAndJwtAndSecret": false,
+     *     "appKeyAndJwtAndSecretAndRedirectUri": false,
+     *     "appSecret": "UzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
+     *     "appKey": "UzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
+     *     "jwtSecret": "UzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
+     *     "redirectUris": [
+     *         "https://example.com/callback"
+     *     ],
+     *     "status": "active",
+     *     "type": "web",
+     *     "origin": "user",
+     *     "blocked": false,
+     *     "blockedDate": null,
+     *     "blockedReason": null,
+     *     "blockedBy": null,
+     *     "blockedByEmail": null,
+     *     "lastLoginDate": "2019-03-27T15:00:00.000Z",
+     *     "lastLoginIp": "192.168.1.1",
+     *     "rateLimitPerSecond": 10,
+     *     "rateLimitPerDay": 1000,
+     *     "rateLimitPerMonth": 30000,
+     *     "requestsCount": 100,
+     *     "requestsCountToday": 10,
+     *     "requestsCountThisMonth": 100,
+     *     "requestsCountHistory": [
+     *         {
+     *             "date": "2019-03-27T15:00:00.000Z",
+     *             "count": 10
+     *         }
+     *     ]
+     * }
+     * ```
+     *
+     */
+    async deployApplication(applicationId: string): Promise<any> {
+        let that = this;
+        return that.callRestMethod("deployApplication", arguments);
+    }
+
+    /**
+     * @public
+     * @nodered true
+     * @method getAllApplicationsCreatedByUser
+     * @since 2.30.0
+     * @instance
+     * @description
+     * This API allows to get all applications created by a user.
+     *
+     * </br> Users with `superadmin` role can get all applications created by any user.
+     * </br> Users with `admin` role can get all applications created by any user.
+     * </br> Users with `app_admin` role can get all applications created by any user.
+     * </br> Users with `app_superadmin` role can get all applications created by any user.
+     * </br> Other users can only get their own applications.
+     *
+     * @async
+     * @param {string} userId User unique identifier (if not provided, the current user's ID will be used)
+     * @category Applications
+     * @return {Promise<any>} - result
+     *
+     *
+     * | Champ | Type | Description |
+     * | --- | --- | --- |
+     * | data | array | Array of applications |
+     * | limit | number | Limit of applications returned |
+     * | offset | number | Offset of applications returned |
+     * | total | number | Total number of applications |
+     *
+     * </br>example of result :
+     * ```json
+     * {
+     *     "data": [
+     *         {
+     *             "id": "5c9be7d7da30af091cf57b43",
+     *             "name": "My Application",
+     *             "platform": "web",
+     *             "ownerId": "5c9be7d7da30af091cf57b42",
+     *             "ownerEmail": "john.doe@example.com",
+     *             "creationDate": "2019-03-27T15:00:00.000Z",
+     *             "isPublished": true,
+     *             "appKeyOnly": true,
+     *             "appKeyAndSecret": false,
+     *             "appKeyAndSecretAndJwt": false,
+     *             "appKeyAndJwtSecret": false,
+     *             "appKeyAndJwtAndSecret": false,
+     *             "appKeyAndJwtAndSecretAndRedirectUri": false,
+     *             "appSecret": "UzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
+     *             "appKey": "UzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
+     *             "jwtSecret": "UzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
+     *             "redirectUris": [
+     *                 "https://example.com/callback"
+     *             ],
+     *             "status": "active",
+     *             "type": "web",
+     *             "origin": "user",
+     *             "blocked": false,
+     *             "blockedDate": null,
+     *             "blockedReason": null,
+     *             "blockedBy": null,
+     *             "blockedByEmail": null,
+     *             "lastLoginDate": "2019-03-27T15:00:00.000Z",
+     *             "lastLoginIp": "192.168.1.1",
+     *             "rateLimitPerSecond": 10,
+     *             "rateLimitPerDay": 1000,
+     *             "rateLimitPerMonth": 30000,
+     *             "requestsCount": 100,
+     *             "requestsCountToday": 10,
+     *             "requestsCountThisMonth": 100,
+     *             "requestsCountHistory": [
+     *                 {
+     *                     "date": "2019-03-27T15:00:00.000Z",
+     *                     "count": 10
+     *                 }
+     *             ]
+     *         }
+     *     ],
+     *     "limit": 100,
+     *     "offset": 0,
+     *     "total": 1
+     * }
+     * ```
+     *
+     */
+    async getAllApplicationsCreatedByUser(userId: string = undefined): Promise<any> {
+        let that = this;
+        return that.callRestMethod("getAllApplicationsCreatedByUser", arguments);
+    }
+
+    /**
+     * @public
+     * @nodered true
+     * @method getEmbedFrameForApplication
+     * @since 2.30.0
+     * @instance
+     * @description
+     * This API allows to get the embed frame for an application.
+     *
+     * @async
+     * @param {string} applicationId Application unique identifier
+     * @category Applications
+     * @return {Promise<any>} - result
+     */
+    async getEmbedFrameForApplication(applicationId: string): Promise<any> {
+        let that = this;
+        return that.callRestMethod("getEmbedFrameForApplication", arguments);
+    }
+
+    /**
+     * @public
+     * @nodered true
+     * @method getEmbeddingFrameForApplication
+     * @since 2.30.0
+     * @instance
+     * @description
+     * This API allows to get the embedding frame for an application.
+     *
+     * @async
+     * @param {string} applicationId Application unique identifier
+     * @category Applications
+     * @return {Promise<any>} - result
+     */
+    async getEmbeddingFrameForApplication(applicationId: string): Promise<any> {
+        let that = this;
+        return that.callRestMethod("getEmbeddingFrameForApplication", arguments);
+    }
+
+    /**
+     * @public
+     * @nodered true
+     * @method renewExpiredApplication
+     * @since 2.30.0
+     * @instance
+     * @description
+     * This API allows to renew an expired application.
+     *
+     * </br> Users with `superadmin` role can renew an expired application.
+     * </br> Users with `admin` role can renew an expired application.
+     * </br> Users with `app_admin` role can renew an expired application.
+     * </br> Users with `app_superadmin` role can renew an expired application.
+     *
+     * @async
+     * @param {string} applicationId Application unique identifier
+     * @category Applications
+     * @return {Promise<any>} - result
+     */
+    async renewExpiredApplication(applicationId: string): Promise<any> {
+        let that = this;
+        return that.callRestMethod("renewExpiredApplication", arguments);
+    }
+
+    /**
+     * @public
+     * @nodered true
+     * @method requestDeploymentOfApplication
+     * @since 2.30.0
+     * @instance
+     * @description
+     * This API allows to request deployment of an application.
+     *
+     * </br> Users with `superadmin` role can request deployment of an application.
+     * </br> Users with `admin` role can request deployment of an application.
+     * </br> Users with `app_admin` role can request deployment of an application.
+     * </br> Users with `app_superadmin` role can request deployment of an application.
+     *
+     * @async
+     * @param {string} applicationId Application unique identifier
+     * @category Applications
+     * @return {Promise<any>} - result
+     */
+    async requestDeploymentOfApplication(applicationId: string): Promise<any> {
+        let that = this;
+        return that.callRestMethod("requestDeploymentOfApplication", arguments);
+    }
+
+    /**
+     * @public
+     * @nodered true
+     * @method restartApplication
+     * @since 2.30.0
+     * @instance
+     * @description
+     * This API allows to restart an application.
+     *
+     * </br> Users with `superadmin` role can restart an application.
+     * </br> Users with `admin` role can restart an application.
+     * </br> Users with `app_admin` role can restart an application.
+     * </br> Users with `app_superadmin` role can restart an application.
+     *
+     * @async
+     * @param {string} applicationId Application unique identifier
+     * @category Applications
+     * @return {Promise<any>} - result
+     */
+    async restartApplication(applicationId: string): Promise<any> {
+        let that = this;
+        return that.callRestMethod("restartApplication", arguments);
+    }
+
+    /**
+     * @public
+     * @nodered true
+     * @method stopApplication
+     * @since 2.30.0
+     * @instance
+     * @description
+     * This API allows to stop an application.
+     *
+     * </br> Users with `superadmin` role can stop an application.
+     * </br> Users with `admin` role can stop an application.
+     * </br> Users with `app_admin` role can stop an application.
+     * </br> Users with `app_superadmin` role can stop an application.
+     *
+     * @async
+     * @param {string} applicationId Application unique identifier
+     * @category Applications
+     * @return {Promise<any>} - result
+     */
+    async stopApplication(applicationId: string): Promise<any> {
+        let that = this;
+        return that.callRestMethod("stopApplication", arguments);
+    }
+
+    /**
+     * @public
+     * @nodered true
+     * @method unblockApplication
+     * @since 2.30.0
+     * @instance
+     * @description
+     * This API allows to unblock an application.
+     *
+     * </br> Users with `superadmin` role can unblock an application.
+     * </br> Users with `admin` role can unblock an application.
+     * </br> Users with `app_admin` role can unblock an application.
+     * </br> Users with `app_superadmin` role can unblock an application.
+     *
+     * @async
+     * @param {string} applicationId Application unique identifier
+     * @category Applications
+     * @return {Promise<any>} - result
+     */
+    async unblockApplication(applicationId: string): Promise<any> {
+        let that = this;
+        return that.callRestMethod("unblockApplication", arguments);
+    }
+
+    /**
+     * @public
+     * @nodered true
+     * @method updateApplication
+     * @since 2.30.0
+     * @instance
+     * @description
+     * This API allows to update an application.
+     *
+     * </br> Users with `superadmin` role can update an application.
+     * </br> Users with `admin` role can update an application.
+     * </br> Users with `app_admin` role can update an application.
+     * </br> Users with `app_superadmin` role can update an application.
+     *
+     * @async
+     * @param {string} applicationId Application unique identifier
+     * @param {object} applicationData Application data to update
+     * @category Applications
+     * @return {Promise<any>} - result
+     */
+    async updateApplication(applicationId: string, applicationData: object): Promise<any> {
+        let that = this;
+        return that.callRestMethod("updateApplication", arguments);
+    }
+
+    /**
+     * @public
+     * @nodered true
+     * @method getCountersForApplication
+     * @since 2.30.0
+     * @instance
+     * @description
+     * This API allows to get counters for an application.
+     *
+     * </br> Users with `superadmin` role can get counters for an application.
+     * </br> Users with `admin` role can get counters for an application.
+     * </br> Users with `app_admin` role can get counters for an application.
+     * </br> Users with `app_superadmin` role can get counters for an application.
+     *
+     * @async
+     * @param {string} applicationId Application unique identifier
+     * @category Applications
+     * @return {Promise<any>} - result
+     */
+    async getCountersForApplication(applicationId: string): Promise<any> {
+        let that = this;
+        return that.callRestMethod("getCountersForApplication", arguments);
+    }
+
+    /**
+     * @public
+     * @nodered true
+     * @method updateCounterForApplication
+     * @since 2.30.0
+     * @instance
+     * @description
+     * This API allows to update counters for an application.
+     *
+     * </br> Users with `superadmin` role can update counters for an application.
+     * </br> Users with `admin` role can update counters for an application.
+     * </br> Users with `app_admin` role can update counters for an application.
+     * </br> Users with `app_superadmin` role can update counters for an application.
+     *
+     * @async
+     * @param {string} applicationId Application unique identifier
+     * @param {object} counterData Counter data to update
+     * @category Applications
+     * @return {Promise<any>} - result
+     */
+    async updateCounterForApplication(applicationId: string, counterData: object): Promise<any> {
+        let that = this;
+        return that.callRestMethod("updateCounterForApplication", arguments);
+    }
+
     //endregion Applications
 
     }
