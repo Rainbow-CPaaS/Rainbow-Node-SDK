@@ -376,7 +376,7 @@ let expressEngine = undefined;
         },
         "rest": {
             "useRestAtStartup": true,
-            "useGotLibForHttp": false,
+            "useGotLibForHttp": true,
              "gotOptions": {
                  agentOptions: {
                      /**
@@ -439,6 +439,15 @@ let expressEngine = undefined;
             host: undefined,
             port: 8080,
             protocol: undefined,
+                user: undefined,
+                password: undefined,
+                secureProtocol: undefined //"SSLv3_method"
+            }, // */
+
+        /*proxy: {
+            host: "127.0.0.1",
+            port: 8888,
+           // protocol: "http",
             user: undefined,
             password: undefined,
             secureProtocol: undefined //"SSLv3_method"
@@ -446,8 +455,8 @@ let expressEngine = undefined;
         // Proxy configuration
 
 
-        /*
-        proxy: {
+
+     /*   proxy: {
             host: "10.67.253.14",
             port: 8081,
             protocol: "http",

@@ -74,7 +74,8 @@ class Options {
 
         if (!this._options.proxy) {
             this._logger.log("debug", LOG_ID + "(constructor) 'proxy' property is not defined. Use default: no proxy. Check the documentation to enable it");
-            this._options.proxy = {host: "", protocol: "http", port: 80, user : undefined, password : undefined, secureProtocol: undefined};
+            this._options.proxy = {};
+           // this._options.proxy = {host: "", protocol: "http", port: 80, user : undefined, password : undefined, secureProtocol: undefined};
         }
 
         if (!this._options.credentials) {
@@ -490,36 +491,42 @@ class Options {
 
         if (!("host" in this._options.proxy)) {
             this._logger.log("warn", LOG_ID + "(constructor) 'host' property is not defined. No proxy will be used");
+            delete proxyOptions["host"];
         }
         else {
             proxyOptions.host = this._options.proxy.host;
         }
         if (!("port" in this._options.proxy)) {
             this._logger.log("debug", LOG_ID + "(constructor) 'port' property is not defined. Use default 80");
+            delete proxyOptions["port"];
         }
         else {
             proxyOptions.port = this._options.proxy.port;
         }
         if (!("protocol" in this._options.proxy)) {
             this._logger.log("debug", LOG_ID + "(constructor) 'protocol' property not defined. Use default 'http'");
+            delete proxyOptions["protocol"];
         }
         else {
             proxyOptions.protocol = this._options.proxy.protocol;
         }
         if (!("user" in this._options.proxy)) {
             this._logger.log("debug", LOG_ID + "(constructor) 'user' property not defined. No authentication. ");
+            delete proxyOptions["user"];
         }
         else {
             proxyOptions.user = this._options.proxy.user;
         }
         if (!("password" in this._options.proxy)) {
             this._logger.log("debug", LOG_ID + "(constructor) 'password' property not defined. No authentication.");
+            delete proxyOptions["password"];
         }
         else {
             proxyOptions.password = this._options.proxy.password;
         }
         if (!("secureProtocol" in this._options.proxy)) {
             this._logger.log("debug", LOG_ID + "(constructor) 'secureProtocol' property not defined. No SSL3.");
+            delete proxyOptions["secureProtocol"];
         }
         else {
             proxyOptions.secureProtocol = this._options.proxy.secureProtocol;
