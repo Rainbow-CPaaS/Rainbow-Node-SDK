@@ -435,7 +435,7 @@ let expressEngine = undefined;
         // */
 
         // Proxy configuration
-        proxy: {
+        /*proxy: {
             host: undefined,
             port: 8080,
             protocol: undefined,
