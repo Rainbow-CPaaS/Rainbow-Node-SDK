@@ -6,13 +6,14 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-### [2.38.0] - 2024-05-XX
+### [2.38.0] - 2024-08-XX
 #### Removed
 -   None
 
 #### Fixed
 -   Fix JSdoc about parameter p_messagesDataStore in APIs. 
 -   Fix JSdoc about parameter's types in APIs. 
+-   Fix proxy config.
 
 #### Added
 -   Add `Utils::genererCode`
@@ -23,6 +24,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add `Contact::companyNameOfGuest property` Company Name of Guest (if provided). Available only if "guestMode" is true.
 -   Add `updatePropertyToObj` function in Utils.
 -   Add `AdminService::blockApplication`, `AdminService::createApplication`, `AdminService::declineApplicationDeployment`, `AdminService::deleteApplication`, `AdminService::deployApplication`, `AdminService::getAllApplicationsCreatedByUser`, `AdminService::getEmbedFrameForApplication`, `AdminService::getEmbeddingFrameForApplication`, `AdminService::renewExpiredApplication`, `AdminService::requestDeploymentOfApplication`, `AdminService::restartApplication`, `AdminService::stopApplication`, `AdminService::unblockApplication`, `AdminService::updateApplication`, `AdminService::getCountersForApplication`, `AdminService::updateCounterForApplication` to manage applications in Rainbow.
+-   Add treatment of HTTP System Errors in `HttpService` for all Http VERB.
 
 #### Changed
 -   Update @deprecated of methods.
