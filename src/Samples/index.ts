@@ -411,7 +411,7 @@ let expressEngine = undefined;
                  },
                  gotRequestOptions: {
                      timeout: { // This object describes the maximum allowed time for particular events.
-                         lookup: 15252, // lookup: 100, Starts when a socket is assigned.  Ends when the hostname has been resolved.
+                         lookup: 5252, // lookup: 100, Starts when a socket is assigned.  Ends when the hostname has been resolved.
                          connect: 10252, // connect: 50, Starts when lookup completes.  Ends when the socket is fully connected.
                          secureConnect: 10252, // secureConnect: 50, Starts when connect completes. Ends when the handshake process completes.
                          socket: 120002, // socket: 1000, Starts when the socket is connected. Resets when new data is transferred.
