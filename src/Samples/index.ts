@@ -60,7 +60,7 @@ import * as ACData from "adaptivecards-templating";
 import * as path from "path";
 import mime from 'mime';
 
-import * as nock from 'nock'
+// import * as nock from 'nock'
 
 import * as ini from 'ini';
 //const ini = require('ini')
@@ -411,7 +411,7 @@ let expressEngine = undefined;
                  },
                  gotRequestOptions: {
                      timeout: { // This object describes the maximum allowed time for particular events.
-                         lookup: 5252, // lookup: 100, Starts when a socket is assigned.  Ends when the hostname has been resolved.
+                         lookup: 15252, // lookup: 100, Starts when a socket is assigned.  Ends when the hostname has been resolved.
                          connect: 10252, // connect: 50, Starts when lookup completes.  Ends when the socket is fully connected.
                          secureConnect: 10252, // secureConnect: 50, Starts when connect completes. Ends when the handshake process completes.
                          socket: 120002, // socket: 1000, Starts when the socket is connected. Resets when new data is transferred.
@@ -444,10 +444,10 @@ let expressEngine = undefined;
                 secureProtocol: undefined //"SSLv3_method"
             }, // */
 
-        /*proxy: {
+        proxy: {
             host: "127.0.0.1",
             port: 8888,
-           // protocol: "http",
+            protocol: "http",
             user: undefined,
             password: undefined,
             secureProtocol: undefined //"SSLv3_method"
@@ -727,7 +727,7 @@ let expressEngine = undefined;
         "httpoverxmppserver": true,
         "intervalBetweenCleanMemoryCache": 1000 * 60 * 60 * 6, // Every 6 hours.
         "requestsRate": {
-            "useRequestRateLimiter": true,
+            "useRequestRateLimiter": false,
             "maxReqByIntervalForRequestRate": 1250, // nb requests during the interval.
             "intervalForRequestRate": 60, // nb of seconds used for the calcul of the rate limit.
             "timeoutRequestForRequestRate": 600 // nb seconds Request stay in queue before being rejected if queue is full.
@@ -11752,18 +11752,18 @@ to='user1@pdevdv3os18f.corp.intuit.net/BANL07R9AME9X' type='get' id='e2e1'>
         }
 
         async testGotRequest() {
+        /*    import * as nock from 'nock'
             let url = "/api/rainbow/enduser/v1.0/settings/apis";
             // Mock API response
             //nock("https://some.api").get(url).reply(200, { "data": {"stuff": "happened" }});
             //notok nock("https://some.api").get(url).reply(500, { "code": 500, "error":"error", "data": {"stuff": "happened", "errorDetails":500, "errorDetailsCode": "error details code." }});
             //notok nock("https://some.api").get(url).replyWithError({code: 'ETIMEDOUT', "errorDetails":500, "errorDetailsCode": "error details code."});
             //nock("https://some.api").get(url).replyWithError({code: 'ETIMEDOUT'});
-            //notok nock("https://some.api").get(/.*/).delayConnection(500).replyWithError({code: 'ETIMEDOUT'});
-            /*
-            nock("https://some.api").get(url).delayConnection(500).replyWithError({code: 'ETIMEDOUT', "errorMessage":"ETIMEDOUT"});
-            nock("https://some.api").get(url).delayConnection(500).replyWithError({code: 'ETIMEDOUT', "errorMessage":"ETIMEDOUT"});
-            nock("https://some.api").get(url).delayConnection(500).replyWithError({code: 'ETIMEDOUT', "errorMessage":"ETIMEDOUT"});
-            // */
+            //notok nock("https://some.api").get(/.* /).delayConnection(500).replyWithError({code: 'ETIMEDOUT'});
+
+            //nock("https://some.api").get(url).delayConnection(500).replyWithError({code: 'ETIMEDOUT', "errorMessage":"ETIMEDOUT"});
+            //nock("https://some.api").get(url).delayConnection(500).replyWithError({code: 'ETIMEDOUT', "errorMessage":"ETIMEDOUT"});
+            //nock("https://some.api").get(url).delayConnection(500).replyWithError({code: 'ETIMEDOUT', "errorMessage":"ETIMEDOUT"});
 
             //nock("https://some.api").get(url).delayConnection(500).reply(429,{code: 429, "errorMessage":'Too Many Requests (HAP429).\n'});
             nock("https://some.api").get(url).delayConnection(500).reply(429,{code: 429, "errorMessage":'Too Many Requests (HAP429).\n'});
@@ -11771,7 +11771,6 @@ to='user1@pdevdv3os18f.corp.intuit.net/BANL07R9AME9X' type='get' id='e2e1'>
 
             //nock("https://some.api").get(url).delayConnection(500).reply(501,{code: 501, "errorMessage":'Internal Error Server 501.\n'});
             nock("https://some.api").get(url).reply(200, { "data": {"stuff": "happened" }});
-            // */
             //notok nock("https://some.api").get(url).delayConnection(500).reply(200, {"code": 'ETIMEDOUT'});
             _logger.log("info", "MAIN - (testGotRequest) - nock.activeMocks() : ", nock.activeMocks());
 
@@ -11780,9 +11779,8 @@ to='user1@pdevdv3os18f.corp.intuit.net/BANL07R9AME9X' type='get' id='e2e1'>
             await rainbowSDK._core._http.start() ;
             let urlParamsTab: string[] = [];
             urlParamsTab.push(url);
-            /*
-            addParamToUrl(urlParamsTab, "callerNumber", callerNumber );
-             // */
+
+            //addParamToUrl(urlParamsTab, "callerNumber", callerNumber );
             url = urlParamsTab[0];
 
             _logger.log("info", "MAIN - (testGotRequest) (getApisSettings) REST url : ", url);
@@ -11801,6 +11799,7 @@ to='user1@pdevdv3os18f.corp.intuit.net/BANL07R9AME9X' type='get' id='e2e1'>
             _logger.log("info", "MAIN - (testGotRequest) - res : ", _logger.stripStringForLogs(res));
             nock.cleanAll();
             nock.restore();
+            // */
         }
 
         async testGetRequestOnServer() {
