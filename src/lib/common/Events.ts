@@ -896,17 +896,18 @@ class Events {
 
         this._evReceiver.on("evt_internal_bubblecontactchanged", function(bubble) {
             /**
+             * // "updated"
              * @event Events#rainbow_onbubblecontactchanged
              * @public
-             * @param {
-             *           "action": string, // "updated"
+             * @param {{
+             *           "action": string,
              *           "bubble": Bubble,
              *           "peer" : {
              *                  "userjid": string,
              *                  "contact": contact,
-             *                  "vcard": { displayname: string, lastname: string, firstname: string, companyNameOfGuest: string, lastavatarupdatedate: string }
+             *                  "vcard": { "displayname": string, "lastname": string, "firstname": string, "companyNameOfGuest": string, "lastavatarupdatedate": string }
              *               }
-             *           }  The contact updated in the bubble.
+             *           }} bubble The contact updated in the bubble.
              * @description
              *      Fired when the contact data of a bubble has changed
              */
