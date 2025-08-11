@@ -443,13 +443,14 @@ let expressEngine = undefined;
                 password: undefined,
                 secureProtocol: undefined //"SSLv3_method"
             }, // */
+
 /*
         proxy: {
             host: "127.0.0.1",
             port: 8888,
             protocol: "http",
-            user: undefined,
-            password: undefined,
+            user: "vincent",
+            password: "pwd1234",
             secureProtocol: undefined //"SSLv3_method"
         }, // */
         // Proxy configuration
