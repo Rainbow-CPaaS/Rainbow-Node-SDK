@@ -443,7 +443,7 @@ let expressEngine = undefined;
                 password: undefined,
                 secureProtocol: undefined //"SSLv3_method"
             }, // */
-
+/*
         proxy: {
             host: "127.0.0.1",
             port: 8888,
@@ -9834,6 +9834,14 @@ let expressEngine = undefined;
             let stanzaStr = "<presence from='3ae059e2a91c40d9bdd7df0eedc911ca@openrainbow.com'> <x xmlns='vcard-temp:x:update'>    <avatar/> </x>    <actor xmlns='jabber:iq:configuration'/x>   </presence>";
             let stanza = prettydata.xmlmin(stanzaStr);
             _logger.log("debug", "MAIN - testmockUploadLdapAvatarPresence stanza : ", stanza);
+            await rainbowSDK._core._xmpp.mockStanza(stanza);
+        }
+
+        async testmockimportCSVdataForSynchronizeDirectoryResult() {
+
+            let stanzaStr = "<message id=\"8413b42e-563c-4437-9a53-06f638b5ab69_0\" type=\"management\"     from=\"pcloud_enduser_1@openrainbow.com/172440802160413612281463752830017532\"     to=\"5abb735b2d3c4e50adde276c50ec489c@@openrainbow.com\"     xmlns=\"jabber:client\">     <command_ended  commandId=\"xyz\" xmlns=\"jabber:iq:configuration\"/> </message>";
+            let stanza = prettydata.xmlmin(stanzaStr);
+            _logger.log("debug", "MAIN - testmockimportCSVdataForSynchronizeDirectoryResult stanza : ", stanza);
             await rainbowSDK._core._xmpp.mockStanza(stanza);
         }
 

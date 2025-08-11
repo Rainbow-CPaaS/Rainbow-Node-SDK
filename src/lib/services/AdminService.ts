@@ -6,7 +6,7 @@ export {};
 
 import {ErrorManager} from "../common/ErrorManager";
 import {GuestParams, RESTService} from "../connection/RESTService";
-import {addParamToUrl, addPropertyToObj, Deferred, isDefined, isStarted, logEntryExit} from "../common/Utils";
+import {addParamToUrl, addPropertyToObj, Deferred, isDefined, isStarted, logEntryExit, pause} from "../common/Utils";
 import {EventEmitter} from "events";
 import {Logger} from "../common/Logger";
 import {S2SService} from "./S2SService";
@@ -16300,7 +16300,7 @@ class AdminService extends GenericService {
                     proms.push(that._fileStorage.uploadFileToStorage(filePath,undefined, undefined, undefined, false, true));
                 }
 
-                Promise.allSettled(proms).then((resultsOfUpload: Array<any>) => {
+                Promise.allSettled(proms).then(async (resultsOfUpload: Array<any>) => {
                     let success = true;
                     for (let i = 0; i < resultsOfUpload.length; i++) {
                         let resultOfUpload = resultsOfUpload[i];
@@ -16321,9 +16321,11 @@ class AdminService extends GenericService {
 
                     if (success) {
                         let ressourceId = undefined;
+                        await pause(3000);
+
                         that.initiateLogsContext(undefined, occurrenceDate, occurrenceDateTimezone, typeOfLog,
-                        //that.completeLogsContext(undefined, logId, occurrenceDate, occurrenceDateTimezone,
-                                description, ressourceId, externalRef, device, attachments, version, deviceDetails).then((result) => {
+                            //that.completeLogsContext(undefined, logId, occurrenceDate, occurrenceDateTimezone,
+                            description, ressourceId, externalRef, device, attachments, version, deviceDetails).then((result) => {
                             return resolve(result);
                         }).catch((err) => {
                             return reject(ErrorManager.getErrorManager().CUSTOMERROR(-2, "Error in initiateLogsContext", "Error in initiateLogsContext", err));
