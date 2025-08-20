@@ -182,6 +182,8 @@ class Emitter extends EventEmitterClass{
  * @fires Events#rainbow_onconnectorconfig
  * @fires Events#rainbow_onconnectorcommandended
  * @fires Events#rainbow_onconnectorimportstatus
+ * @fires Events#rainbow_onEWSgetevents
+ * @fires Events#rainbow_onEWSgetautoreply
  * @fires Events#rainbow_onrbvoicerawevent
  * @fires Events#rainbow_onjoincompanyinvitereceived
  * @fires Events#rainbow_onjoincompanyrequestreceived
@@ -311,6 +313,8 @@ class Events {
         "rainbow_onconnectorconfig",
         "rainbow_onconnectorcommandended",
         "rainbow_onconnectorimportstatus",
+        "rainbow_onEWSgetevents",
+        "rainbow_onEWSgetautoreply",
         "rainbow_onrbvoicerawevent",
         "rainbow_onjoincompanyinvitereceived",
         "rainbow_onjoincompanyrequestreceived",
@@ -1572,6 +1576,36 @@ class Events {
              *      This event is fired in case an import is requested.
              */
             that.publishEvent("connectorimportstatus", data);
+        });
+
+        this._evReceiver.on("evt_internal_EWSgetevents", function (data) {
+            /**
+             * @event Events#rainbow_onEWSgetevents
+             * @public
+             * @param { Object } data informations about EWS get events
+             * @description
+             *      This event is fired in case an EWS get events request is received.
+             *
+             * @remarks
+             * </BR>
+             * See presenceService.sendResultCalendarEvents {@link #/documentation/doc/sdk/node/lts/api/presence#module_PresenceService+sendResultCalendarEvents} for reply to event.
+             */
+            that.publishEvent("EWSgetevents", data);
+        });
+
+        this._evReceiver.on("evt_internal_EWSgetautoreply", function (data) {
+            /**
+             * @event Events#rainbow_onEWSgetautoreply
+             * @public
+             * @param { Object } data informations about EWS get Autoreply
+             * @description
+             *      This event is fired in case an EWS get events Autoreply request is received.
+             *
+             * @remarks
+             * </BR>
+             * See presenceService.sendAutoReplyEvents {@link #/documentation/doc/sdk/node/lts/api/presence#module_PresenceService+sendAutoReplyEvents} for reply to event.
+             */
+            that.publishEvent("EWSgetautoreply", data);
         });
 
         this._evReceiver.on("evt_internal_onrbvoiceevent", function (data) {

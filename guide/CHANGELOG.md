@@ -6,6 +6,24 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+### [2.39.0] - 2024-08-20
+#### Removed
+-   None
+
+#### Fixed
+-   Fix sendCustomerCareReport with a pause between the save of file and sending it to logs.. 
+-   Fix doc of AdminService::retrieveRainbowUserList.
+
+#### Added
+-   Add `rainbow_onEWSgetevents` This event is fired in case an EWS get events request is received.
+-   Add `rainbow_onEWSgetautoreply` This event is fired in case an EWS get events Autoreply request is received
+-   Add `PresenceService::notifyCalendarProvider` API Allows to subscribe users to EWS using a webhook in Rainbow.
+-   Add `PresenceService::sendResultCalendarEvents` API Allows a sending result of a get events iq request from Rainbow.
+-   Add `PresenceService::sendAutoReplyEvents` API Allows a sending result of a get auto reply events iq request from Rainbow.
+
+#### Changed
+-   None.
+
 ### [2.38.0] - 2024-08-08
 #### Removed
 -   None

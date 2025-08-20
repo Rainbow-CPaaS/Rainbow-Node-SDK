@@ -26,6 +26,8 @@ import {Core} from "../Core.js";
 import {ConversationHistoryHandler} from "./XMPPServiceHandler/conversationHistoryHandler.js";
 import {CallLogEventHandler} from "./XMPPServiceHandler/calllogEventHandler.js";
 import {ErrorManager} from "../common/ErrorManager.js";
+import {CalendarEvent, CalendarManager} from "../common/CalendarManager.js";
+import {AutoReplyManager} from "../common/AutoReplyManager.js";
 
 const packageVersion = require("../../package");
 const url = require('url');
@@ -3760,6 +3762,115 @@ WHERE  { ?x dc:title ?title .
     
     //endregion RPCoverXMPP
 
+    //region Calendar EWS
+
+    async sendResultCalendarEvents(calendarManager:CalendarManager) {
+        /*
+         */
+        let that = this;
+        that._logger.log(that.INFO, LOG_ID + "(sendResultCalendarEvents) : " + calendarManager.id);
+        // Get the user contact
+        //let userContact = contactService.userContact;
+
+        // Création de la stanza <iq>
+        let iq = xml("iq", {
+            from: that.jid_im,
+            to: that.jid_im,
+            type: "set",
+            id: that.xmppUtils.getUniqueMessageId()
+        });
+
+        // Création du bloc <events>
+        let eventsEl = xml("events", {
+            xmlns: "urn:xmpp:calendar:0",
+            email: calendarManager.email
+        });
+
+        // Ajout des <event>
+        calendarManager.events.forEach((evt: CalendarEvent) => {
+            let eventEl = xml("event", { id: evt.id },
+                xml("subject", {}, evt.subject?evt.subject
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&apos;"):null),
+                xml("type", {}, evt.type),
+                xml("showAs", {}, evt.showAs),
+                xml("startDate", evt.startDate.timezone ? { timezone: evt.startDate.timezone } : {}, evt.startDate.value),
+                xml("endDate", evt.endDate.timezone ? { timezone: evt.endDate.timezone } : {}, evt.endDate.value)
+            );
+
+            eventsEl.append(eventEl);
+        });
+
+        // Attache <events> dans l’IQ
+        iq.append(eventsEl);
+
+        return await that.xmppClient.sendIq(iq);
+    }
+
+    async sendAutoReplyEvents(autoReplyManager : AutoReplyManager) {
+        let that =this;
+
+        const iq = xml("iq", {
+            from: that.jid_im,
+            to: autoReplyManager.to,
+            type: "set",
+            id: that.xmppUtils.getUniqueMessageId()
+        });
+
+        const autoReplyEl = xml("autoreply", {
+            xmlns: "urn:xmpp:calendar:0",
+            state: autoReplyManager.state,
+            email: autoReplyManager.email
+        });
+
+        if (autoReplyManager.startDate) {
+            autoReplyEl.append(
+                xml(
+                    "startDate",
+                    autoReplyManager.startDate.timezone ? { timezone: autoReplyManager.startDate.timezone } : {},
+                    autoReplyManager.startDate.value
+                )
+            );
+        }
+
+        if (autoReplyManager.endDate) {
+            autoReplyEl.append(
+                xml(
+                    "endDate",
+                    autoReplyManager.endDate.timezone ? { timezone: autoReplyManager.endDate.timezone } : {},
+                    autoReplyManager.endDate.value
+                )
+            );
+        }
+
+        autoReplyEl.append(xml("internalReplyMessage", {}, autoReplyManager.internalReplyMessage?autoReplyManager.internalReplyMessage.replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&apos;"):null));
+
+        if (autoReplyManager.externalReplyMessage) {
+            autoReplyEl.append(
+                xml(
+                    "externalReplyMessage",
+                    { audience: autoReplyManager.externalReplyMessage.audience },
+                    autoReplyManager.externalReplyMessage.value?autoReplyManager?.externalReplyMessage.value.replace(/&/g, "&amp;")
+                        .replace(/</g, "&lt;")
+                        .replace(/>/g, "&gt;")
+                        .replace(/"/g, "&quot;")
+                        .replace(/'/g, "&apos;"):null
+                )
+            );
+        }
+
+        iq.append(autoReplyEl);
+        return await that.xmppClient.sendIq(iq);
+    }
+
+    //endregion Calendar EWS
 }
 
 export { XMPPService, NameSpacesLabels };

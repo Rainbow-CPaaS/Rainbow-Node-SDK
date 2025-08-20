@@ -74,6 +74,12 @@ class IQEventHandler extends GenericHandler {
                     case "fin":
                         // The treatment is in ConversationHistoryHandler
                         break;
+                    case "events":
+                        // treatement in presenceEventHandler
+                        break;
+                    case "autoreply":
+                        // treatement in presenceEventHandler
+                        break;
                     default:
                         that._logger.log(that.INTERNAL, LOG_ID + "(onIqGetSetReceived) _entering_ : ", msg, prettyStanza);
                         that._logger.log(that.WARN, LOG_ID + "(onIqGetSetReceived) child not managed for iq - 'stanza'", node.getName());

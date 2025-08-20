@@ -45,6 +45,8 @@ import {inspect} from "util";
 import {HTTPoverXMPP} from "./services/HTTPoverXMPPService";
 import {RPCoverXMPPService} from "./services/RPCoverXMPPService.js";
 import {LEVELS, LEVELSCOLORS, LEVELSNAMES, LogLevelAreas} from "./common/LevelLogs.js";
+import {CalendarManager} from "./common/CalendarManager.js";
+import {AutoReplyManager} from "./common/AutoReplyManager.js";
 
 let LOG_ID = "NodeSDK/IDX";
 
@@ -1404,7 +1406,7 @@ class NodeSDK {
 
     /**
      * @public
-     * @method Appreciation
+     * @property {Object} Appreciation
      * @static
      * @description
      *    Get connections Appreciation type. <br>
@@ -1414,6 +1416,30 @@ class NodeSDK {
         return Appreciation;
     }
     
+    /**
+     * @public
+     * @property {Object} CalendarManager
+     * @static
+     * @description
+     *    Get connections CalendarManager type. <br>
+     * @return {CalendarManager}
+     */
+    static get CalendarManager() {
+        return CalendarManager;
+    }
+
+    /**
+     * @public
+     * @property {Object} AutoReplyManager
+     * @static
+     * @description
+     *    Get connections AutoReplyManager type. <br>
+     * @return {AutoReplyManager}
+     */
+    static get AutoReplyManager() {
+        return AutoReplyManager;
+    }
+
 }
 
 module.exports = NodeSDK;

@@ -1,7 +1,7 @@
 "use strict";
 import {XMPPService, NameSpacesLabels} from "../XMPPService";
 import {XMPPUTils} from "../../common/XMPPUtils";
-import {logEntryExit} from "../../common/Utils";
+import {getJsonFromXML, logEntryExit} from "../../common/Utils";
 import {PresenceLevel, PresenceRainbow, PresenceShow, PresenceStatus} from "../../common/models/PresenceRainbow";
 import {Contact} from "../../common/models/Contact";
 import {ContactsService} from "../../services/ContactsService";
@@ -18,6 +18,10 @@ const LOG_ID = "XMPP/HNDL/PRES - ";
 @logEntryExit(LOG_ID)
 class PresenceEventHandler extends GenericHandler {
         public PRESENCE: any;
+    public IQ_GET: any;
+    public IQ_SET: any;
+    public IQ_RESULT: any;
+    public IQ_ERROR: any;
         // public onPresenceReceived: any;
         private _contacts : ContactsService;
         private _xmpp : XMPPService;
@@ -34,6 +38,10 @@ class PresenceEventHandler extends GenericHandler {
         this._xmpp = xmppService;
 
         this.PRESENCE = "jabber:client.presence";
+        this.IQ_GET = "jabber:client.iq.get";
+        this.IQ_SET = "jabber:client.iq.set";
+        this.IQ_RESULT = "jabber:client.iq.result";
+        this.IQ_ERROR = "jabber:client.iq.error";
 
         this._contacts = contacts;
 
@@ -327,6 +335,119 @@ class PresenceEventHandler extends GenericHandler {
             that._logger.log(that.ERROR, LOG_ID + "(onPresenceReceived) CATCH ErrorManager !!! : ", err);
         }
     };
+
+    onIqGetSetReceived (msg, stanzaTab) {
+        let that = this;
+        let stanza = stanzaTab[0];
+        let prettyStanza = stanzaTab[1];
+        let jsonStanza = stanzaTab[2];
+
+        try {
+            that._logger.log(that.INTERNAL, LOG_ID + "(onIqGetSetReceived) _entering_ : ", msg, prettyStanza);
+            let jsonStanzaIq = jsonStanza?.iq;
+            Object.entries(jsonStanzaIq).forEach(async ([key, value] : any) => // : [key, value]
+            {
+                //if (jsonStanza.hasOwnProperty(key)) {
+                if (key==="events" && jsonStanzaIq["events"]?.$attrs?.xmlns==="urn:xmpp:calendar:0") {
+                    that._logger.log(that.DEBUG, LOG_ID + "(onIqGetSetReceived) found a property 'events' in jsonStanza. ");
+                    await that._onIqEventsReceived(msg, stanzaTab);
+                    return;
+                }
+                //}
+                if (key==="autoreply" && jsonStanzaIq["autoreply"]?.$attrs?.xmlns==="urn:xmpp:calendar:0") {
+                    that._logger.log(that.DEBUG, LOG_ID + "(onIqGetSetReceived) found a property 'autoreply' in jsonStanza. ");
+                    await that._onIqAutoreplyReceived(msg, stanzaTab);
+                    return;
+                }
+            });
+
+            // that._logger.log(that.INTERNAL, LOG_ID + "(onIqGetSetReceived) _entering_ : ", msg, prettyStanza);
+            // let children = stanza.children;
+            // children.forEach((node) => {
+            //     switch (node.getName()) {
+            //         case "events":
+            //             //that._logger.log(that.INTERNAL, LOG_ID + "(onIqGetSetReceived) query : ", msg, stanza);
+            //             that._onIqEventsReceived(stanza, node);
+            //             break;
+            //         case "req":
+            //             //that._logger.log(that.INTERNAL, LOG_ID + "(onIqGetSetReceived) query : ", msg, stanza);
+            //             //that._onIqGetSetReqReceived(stanza, node);
+            //             break;
+            //         case "query":
+            //             // treatement in iqEventHandler
+            //             break;
+            //         case "ping":
+            //             // treatement in iqEventHandler
+            //             break;
+            //         /*case "default":
+            //             that._logger.log(that.INTERNAL, LOG_ID + "(onIqGetSetReceived) default : ", msg, stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
+            //             that._logger.log(that.WARN, LOG_ID + "(onIqGetSetReceived) not managed - 'stanza'", node.getName());
+            //             break; // */
+            //         default:
+            //             that._logger.log(that.INTERNAL, LOG_ID + "(onIqGetSetReceived) _entering_ : ", msg, prettyStanza);
+            //             that._logger.log(that.WARN, LOG_ID + "(onIqGetSetReceived) child not managed for iq - 'stanza' name : ", node.getName());
+            //             that._logger.log(that.INTERNAL, LOG_ID + "(onIqGetSetReceived) child not managed for iq - 'stanza' name : ", node.getName(), ",stanza : ",  "\n", prettyStanza, " node : ", node);
+            //
+            //     }
+            // });
+        } catch (err) {
+            // that._logger.log(that.ERROR, LOG_ID + "(onIqGetSetReceived) CATCH ErrorManager !!! ");
+            that._logger.log(that.ERROR, LOG_ID + "(onIqGetSetReceived) CATCH ErrorManager !!! : ", err);
+        }
+    };
+
+    async _onIqEventsReceived(msg, stanzaTab) {
+        let that = this;
+        let stanza: any = stanzaTab[0];
+        let prettyStanza: any = stanzaTab[1];
+        let jsonStanza: any = stanzaTab[2];
+
+        try {
+            that._logger.log(that.INTERNAL, LOG_ID + "(_onIqEventsReceived) _entering_ jsonStanza : ", jsonStanza);
+            //that._logger.log(that.DEBUG, LOG_ID + "(_onIqEventsReceived) found a property 'events' in jsonStanza. ");
+            let jsonStanzaIq = jsonStanza?.iq;
+            let id = jsonStanzaIq.$attrs.id;
+            let from = jsonStanzaIq.$attrs.from;
+            let jsonStanzaIqEvents = jsonStanzaIq["events"];
+            let events= {
+                "id": id,
+                "from" : from,
+                "email": jsonStanzaIqEvents?.$attrs?.email,
+                "startDate":jsonStanzaIqEvents?.startDate,
+                "endDate":jsonStanzaIqEvents?.endDate
+            };
+
+            that.eventEmitter.emit("evt_internal_EWSgeteventsreceived", events);
+        } catch (error) {
+            return true;
+        }
+    }
+
+    async _onIqAutoreplyReceived(msg, stanzaTab) {
+        let that = this;
+        let stanza: any = stanzaTab[0];
+        let prettyStanza: any = stanzaTab[1];
+        let jsonStanza: any = stanzaTab[2];
+
+        try {
+            that._logger.log(that.INTERNAL, LOG_ID + "(_onIqAutoreplyReceived) _entering_ jsonStanza : ", jsonStanza);
+            //that._logger.log(that.DEBUG, LOG_ID + "(_onIqEventsReceived) found a property 'events' in jsonStanza. ");
+            let jsonStanzaIq = jsonStanza?.iq;
+            let id = jsonStanzaIq.$attrs.id;
+            let from = jsonStanzaIq.$attrs.from;
+            let jsonStanzaIqAutoreply = jsonStanzaIq["autoreply"];
+            let events= {
+                "id": id,
+                "from" : from,
+                "email": jsonStanzaIqAutoreply?.$attrs?.email,
+            };
+
+            that.eventEmitter.emit("evt_internal_EWSgetautoreplyreceived", events);
+        } catch (error) {
+            return true;
+        }
+    }
+
 
 }
 

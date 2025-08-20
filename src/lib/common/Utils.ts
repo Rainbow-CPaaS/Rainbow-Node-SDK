@@ -415,10 +415,21 @@ function addParamToUrl(urlParams : Array<string>, paramName : string, paramValue
     }
 }
 
-function addPropertyToObj(objetToUpdate : Object, methodName : string, methodValue : any, addEmptyProperty: boolean = false) {
+function addPropertyIfNotAlreadyExistToObj(objetToUpdate : Object, methodName : string, methodValue : any, addEmptyProperty: boolean = false) {
     if (!addEmptyProperty && isNotDefined(methodValue)) {
         return;
     } 
+    if (objetToUpdate && methodName && (typeof objetToUpdate === "object" || typeof objetToUpdate === "function") ) {
+        if (!objetToUpdate.hasOwnProperty(methodName)) {
+            objetToUpdate[methodName] = methodValue;
+        }
+    }
+}
+
+function addPropertyToObj(objetToUpdate : Object, methodName : string, methodValue : any, addEmptyProperty: boolean = false) {
+    if (!addEmptyProperty && isNotDefined(methodValue)) {
+        return;
+    }
     if (objetToUpdate && methodName && (typeof objetToUpdate === "object" || typeof objetToUpdate === "function") ) {
         objetToUpdate[methodName] = methodValue;
     }
@@ -1312,6 +1323,7 @@ export let objToExport = {
     isPromise,
     promiseState,
     doWithinInterval,
+    addPropertyIfNotAlreadyExistToObj,
     addPropertyToObj,
     updatePropertyToObj,
     generateRamdomEmail,
@@ -1382,6 +1394,7 @@ export {
     isPromise,
     promiseState,
     doWithinInterval,
+    addPropertyIfNotAlreadyExistToObj,
     addPropertyToObj,
     updatePropertyToObj,
     generateRamdomEmail,
@@ -1451,6 +1464,7 @@ export default {
     isPromise,
     promiseState,
     doWithinInterval,
+    addPropertyIfNotAlreadyExistToObj,
     addPropertyToObj,
     updatePropertyToObj,
     generateRamdomEmail,

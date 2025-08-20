@@ -345,6 +345,8 @@ let expressEngine = undefined;
     logLevelAreas.profiles.api = true;
     logLevelAreas.profiles.level = LEVELSNAMES.INTERNAL;
 
+    logLevelAreas.presenceevent.level = LEVELSNAMES.INTERNAL;
+
 // */
 // Define your configuration
     let options: any = {
@@ -1052,6 +1054,59 @@ let expressEngine = undefined;
     });
     rainbowSDK.events.on("rainbow_onchanneldeleted", (data) => {
         _logger.log("debug", "MAIN - (rainbow_onchanneldeleted) - rainbow event received.", data);
+    });
+    rainbowSDK.events.on("rainbow_onEWSgetevents", (data) => {
+        _logger.log("debug", "MAIN - (rainbow_onEWSgetevents) - rainbow event received.", data);
+        let calendarManager = new RainbowSDK.CalendarManager(data.id, data.from, data.email);
+        calendarManager.addEvent(
+            {
+                "id": "evt-001",
+                "subject": "Réunion projet",
+                "type": "singleInstance",
+                "showAs": "busy",
+                startDate: {
+                    "value": "2025-08-14T09:00:00Z",
+                    "timezone": "Europe/Paris"
+                },
+                "endDate": {
+                    "value": "2025-08-14T10:30:00Z",
+                    timezone: "Europe/Paris"
+                }
+            });
+        calendarManager.addEvent(
+            {
+                "id": "evt-002",
+                "subject": "Pause café",
+                "type": "occurrence",
+                "showAs": "free",
+                "startDate": {
+                    "value": "2025-08-14T10:30:00Z"
+                },
+                "endDate": {
+                    "value": "2025-08-14T10:45:00Z"
+                }
+            });
+
+        rainbowSDK.presence.sendResultCalendarEvents(calendarManager);
+    });
+    rainbowSDK.events.on("rainbow_onEWSgetautoreply", (data) => {
+        _logger.log("debug", "MAIN - (rainbow_onEWSgetautoreply) - rainbow event received.", data);
+
+        let autoReplyManager = new RainbowSDK.AutoReplyManager({
+            id: data.id,
+            to: data.from,
+            state: "scheduled",
+            email: data.email,
+            startDate: { value: "2025-08-20T09:00:00Z", timezone: "Europe/Paris" },
+            endDate: { value: "2025-08-25T18:00:00Z", timezone: "Europe/Paris" },
+            internalReplyMessage: "Je suis absent du bureau, merci de contacter mon collègue.",
+            externalReplyMessage: {
+                value: "Je suis actuellement en congés.",
+                audience: "known"
+            }
+        });
+
+        rainbowSDK.presence.sendAutoReplyEvents(autoReplyManager);
     });
     rainbowSDK.events.on("rainbow_onuseraddedingroup", (group, contact) => {
         _logger.log("debug", "MAIN - (rainbow_onuseraddedingroup) - rainbow event received. group", group);
@@ -9990,6 +10045,86 @@ let expressEngine = undefined;
                 _logger.log("debug", "EngineVincent00 - uploadLdapAvatar - result : ", result);
             });
         }
+
+        //region RQRAINB-12269 [AD/LDAP] Synchronize CPE Exchange Calendar
+        
+        async testnotifyCalendarProvider() {
+
+            let ids : Array<string> = ["id1","id2","id3"];
+            await rainbowSDK.presence.notifyCalendarProvider(ids);
+        }
+
+        async testiq_get_events() {
+            /*
+            <?xml version="1.0" encoding="UTF-8"?>
+<xs:schema
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  targetNamespace="urn:xmpp:calendar:0"
+  xmlns="urn:xmpp:calendar:0"
+  elementFormDefault="qualified"
+  attributeFormDefault="unqualified">
+
+  <xs:element name="events">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="startDate" type="xs:dateTime"/>
+        <xs:element name="endDate" type="xs:dateTime"/>
+      </xs:sequence>
+      <xs:attribute name="email" type="xs:string" use="required"/>
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>
+example :
+<iq from="alice@example.com" to="bob@example.com" type="set" id="cal1">
+  <events xmlns="urn:xmpp:calendar:0" email="alice@example.com">
+    <startDate>2025-08-13T10:00:00Z</startDate>
+    <endDate>2025-08-13T11:30:00Z</endDate>
+  </events>
+</iq>
+
+             */
+            let stanzaStr = "<iq id=\"8413b42e-563c-4437-9a53-06f638b50000_0\" type=\"set\"     from=\"pcloud_enduser_1@openrainbow.com/172440802160413612281463752830017532\"     to=\""+rainbowSDK._core._xmpp.jid + "\"     xmlns=\"jabber:client\">   <events xmlns=\"urn:xmpp:calendar:0\" email=\"alice@example.com\">\n" +
+                "    <startDate>2025-08-13T10:00:00Z</startDate>\n" +
+                "    <endDate>2025-08-13T11:30:00Z</endDate>\n" +
+                "  </events> </iq>";
+            let stanza = prettydata.xmlmin(stanzaStr);
+            _logger.log("debug", "MAIN - testiq_get_events stanza : ", stanza);
+            await rainbowSDK._core._xmpp.mockStanza(stanza);
+
+        }
+        
+        async testiq_get_autoreply() {
+/*
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  targetNamespace="urn:xmpp:calendar:0"
+  xmlns="urn:xmpp:calendar:0"
+  elementFormDefault="qualified"
+  attributeFormDefault="unqualified">
+
+  <xs:element name="autoreply">
+    <xs:complexType>
+      <xs:attribute name="email" type="xs:string" use="required"/>
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>
+example :
+<iq from="bob@example.com" to="alice@example.com" type="set" id="ar1">
+  <autoreply xmlns="urn:xmpp:calendar:0" email="bob@example.com"/>
+</iq>
+
+ */
+            let stanzaStr = "<iq id=\"8413b42e-563c-4437-9a53-06f638b50000_0\" type=\"set\"     from=\"pcloud_enduser_1@openrainbow.com/172440802160413612281463752830017532\"     to=\""+rainbowSDK._core._xmpp.jid + "\"     xmlns=\"jabber:client\">    <autoreply xmlns=\"urn:xmpp:calendar:0\" email=\"bob@example.com\"/>\n" +
+                "  </iq>";
+            let stanza = prettydata.xmlmin(stanzaStr);
+            _logger.log("debug", "MAIN - testiq_get_events stanza : ", stanza);
+            await rainbowSDK._core._xmpp.mockStanza(stanza);
+        }
+
+        //endregion RQRAINB-12269 [AD/LDAP] Synchronize CPE Exchange Calendar
 
         //endregion ldap
 

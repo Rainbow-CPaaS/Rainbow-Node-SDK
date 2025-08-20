@@ -8793,8 +8793,13 @@ class AdminService extends GenericService {
      * @async
      * @category AD/LDAP - AD/LDAP Massprovisioning
      * @param {string} companyId ompanyId of the users in the CSV file, default to admin's companyId.
-     * @param {string} format="csv" the CSV delimiter character (will be determined by analyzing the CSV file if not provided).
-     * @param {boolean} ldap_id=true the CSV comment start character, use double quotes in field values to escape this character.
+     * @param {string} format="csv" Allows to retrieve more or less phone numbers details in response.</BR>
+      * - json: answer follows the pattern { "data" : { ... JSON ... }}
+      * - csv: answer follows the pattern { "data" : [ ... CSV ... ]}
+      * - all: answer follows the pattern { "data" : { jsonContent: {...........}, csvContent: [ , , ; , , ] }}
+      *
+      * Default value : json. Possible values : csv, json, all .
+     * @param {boolean} ldap_id=true Allows to filter users containing a ldap_id. Default value : true.
      * @param {boolean} ldapConfigId Allows to filter users containing a ldap_id and the ldapConfigId of the ldap domain.
      * @description
      *      This API generates a file describing all users (csv or json format). </BR>

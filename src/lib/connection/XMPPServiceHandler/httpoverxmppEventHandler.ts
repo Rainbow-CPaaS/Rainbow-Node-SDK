@@ -71,10 +71,16 @@ class HttpoverxmppEventHandler extends GenericHandler {
                     case "ping":
                         // treatement in iqEventHandler
                         break;
+                    case "events":
+                        // treatement in presenceEventHandler
+                        break;
+                    case "autoreply":
+                        // treatement in presenceEventHandler
+                        break;
                     /*case "default":
-                        that._logger.log(that.INTERNAL, LOG_ID + "(onIqGetSetReceived) default : ", msg, stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
-                        that._logger.log(that.WARN, LOG_ID + "(onIqGetSetReceived) not managed - 'stanza'", node.getName());
-                        break; // */
+                                     that._logger.log(that.INTERNAL, LOG_ID + "(onIqGetSetReceived) default : ", msg, stanza.root ? prettydata.xml(stanza.root().toString()) : stanza);
+                                     that._logger.log(that.WARN, LOG_ID + "(onIqGetSetReceived) not managed - 'stanza'", node.getName());
+                                     break; // */
                     default:
                         that._logger.log(that.INTERNAL, LOG_ID + "(onIqGetSetReceived) _entering_ : ", msg, prettyStanza);
                         that._logger.log(that.WARN, LOG_ID + "(onIqGetSetReceived) child not managed for iq - 'stanza' name : ", node.getName());

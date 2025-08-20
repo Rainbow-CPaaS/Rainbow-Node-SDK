@@ -3,7 +3,7 @@ import {Logger} from "../common/Logger";
 import {ErrorManager} from "../common/ErrorManager";
 import * as PubSub from "pubsub-js";
 import {PresenceEventHandler} from "../connection/XMPPServiceHandler/presenceEventHandler";
-import {isDefined, isStarted, logEntryExit, until} from "../common/Utils";
+import {getJsonFromXML, isDefined, isStarted, logEntryExit, until} from "../common/Utils";
 import {SettingsService} from "./SettingsService";
 import {EventEmitter} from "events";
 import {ROOMROLE} from "./S2SService";
@@ -13,6 +13,10 @@ import {PresenceLevel, PresenceRainbow, PresenceStatus} from "../common/models/P
 import {GenericService} from "./GenericService";
 import {interval} from "rxjs";
 import {Bubble, getBubbleLogInfos} from "../common/models/Bubble";
+import {ConversationEventHandler} from "../connection/XMPPServiceHandler/conversationEventHandler.js";
+import {ConversationHistoryHandler} from "../connection/XMPPServiceHandler/conversationHistoryHandler.js";
+import {CalendarManager} from "../common/CalendarManager.js";
+import {AutoReplyManager} from "../common/AutoReplyManager.js";
 
 export {};
 
@@ -80,8 +84,9 @@ class PresenceService extends GenericService{
 
         that._eventEmitter.on("evt_internal_usersettingschanged", that._onUserSettingsChanged.bind(that));
         that._eventEmitter.on("evt_internal_mypresencechanged", that._onMyPresenceChanged.bind(that));
+        that._eventEmitter.on("evt_internal_EWSgeteventsreceived", that._onEWSgeteventsReceived.bind(that));
+        that._eventEmitter.on("evt_internal_EWSgetautoreplyreceived", that._onEWSgetautoreplyReceived.bind(that));
     }
-
     start(_options ) { // , _xmpp : XMPPService, _s2s: S2SService, _rest : RESTService, _settings : SettingsService
         let that = this;
         that.initStartDate();
@@ -97,8 +102,7 @@ class PresenceService extends GenericService{
                 that._bubbles = that._core.bubbles;
 
 
-                that._presenceEventHandler = new PresenceEventHandler(that._xmpp, that._core._contacts);
-                that._presenceHandlerToken = PubSub.subscribe( that._xmpp.hash + "." + that._presenceEventHandler.PRESENCE, that._presenceEventHandler.onPresenceReceived.bind(that._presenceEventHandler));
+                that.attachHandlers();
 
 /*
                 that._eventEmitter.removeListener("evt_internal_usersettingschanged", that._onUserSettingsChanged.bind(that));
@@ -141,6 +145,17 @@ class PresenceService extends GenericService{
     async init (useRestAtStartup : boolean) {
         let that = this;
         that.setInitialized();
+    }
+
+    attachHandlers() {
+        let that = this;
+        that._presenceEventHandler = new PresenceEventHandler(that._xmpp, that._core._contacts);
+        that._presenceHandlerToken = [
+            PubSub.subscribe( that._xmpp.hash + "." + that._presenceEventHandler.PRESENCE, that._presenceEventHandler.onPresenceReceived.bind(that._presenceEventHandler) ),
+            PubSub.subscribe( that._xmpp.hash + "." + that._presenceEventHandler.IQ_SET, that._presenceEventHandler.onIqGetSetReceived.bind(that._presenceEventHandler) ),
+            PubSub.subscribe( that._xmpp.hash + "." + that._presenceEventHandler.IQ_GET, that._presenceEventHandler.onIqGetSetReceived.bind(that._presenceEventHandler) )
+        ];
+
     }
 
     //region Presence CONNECTED USER
@@ -633,7 +648,19 @@ class PresenceService extends GenericService{
 
         //}
     }
-    
+
+    _onEWSgeteventsReceived (data) {
+        let that = this;
+        that._logger.log(that.INTERNAL, "(_onEWSgeteventsReceived) - data : ", data);
+        that._eventEmitter.emit("evt_internal_EWSgetevents", data);
+    }
+
+    _onEWSgetautoreplyReceived (data) {
+        let that = this;
+        that._logger.log(that.INTERNAL, "(_onEWSgetautoreplyReceived) - data : ", data);
+        that._eventEmitter.emit("evt_internal_EWSgetautoreply", data);
+    }
+
     //endregion Events
 
     //region Presence CALENDAR
@@ -1242,6 +1269,165 @@ class PresenceService extends GenericService{
         }
     }
     // endregion Presence Contact
+
+    //region Presence Synchronize CPE Exchange Calendar [AD/LDAP]
+    // RQRAINB-12269
+    /**
+     * @public
+     * @method notifyCalendarProvider
+     * @instance
+     * @category Presence Contact
+     * @async
+     * @description
+     * Allows to subscribe users to EWS using a webhook in Rainbow. </BR>
+     * EWS cnx opens an event session for each subscribed user.</BR>
+     * EWS cnx notify to Rainbow each new appointment changes.</BR>
+     *
+     * For each event, a IQ GetEvent request will be sent to retrieve a potential event that will occur in current time frame window.
+     * @param {Array<string>} ids The ids specified in field value of body request are the Rainbow user id for which a new calendar event has been created.
+     * @param {Object} headers Allow to define specifics headers to the request.
+     * @return {Promise< any, ErrorManager>}
+     * @fulfil {ErrorManager} - ErrorManager object depending on the result.
+     */
+    notifyCalendarProvider(ids: Array<string>, headers : any = {}) {
+        let that = this ;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(notifyCalendarProvider) is ids defined : ", isDefined(ids));
+        return that._rest.notifyCalendarProvider(ids, headers);
+    }
+
+    /**
+     * @public
+     * @method sendResultCalendarEvents
+     * @instance
+     * @category Presence Contact
+     * @async
+     * @description
+     * Allows to send result of a get events iq request from Rainbow. </BR>
+     *
+     * Note: To be used when a "rainbow_onEWSgetevents" event is received to send events response.
+     *
+     * @example
+     *
+     *   rainbowSDK.events.on("rainbow_onEWSgetevents", (data) => {
+     *         _logger.log("debug", "MAIN - (rainbow_onEWSgetevents) - rainbow event received.", data);
+     *         let calendarManager = new RainbowSDK.CalendarManager(data.id, data.from, data.email);
+     *         calendarManager.addEvent(
+     *             {
+     *                 "id": "evt-001",
+     *                 "subject": "Réunion projet",
+     *                 "type": "singleInstance",
+     *                 "showAs": "busy",
+     *                 startDate: {
+     *                     "value": "2025-08-14T09:00:00Z",
+     *                     "timezone": "Europe/Paris"
+     *                 },
+     *                 "endDate": {
+     *                     "value": "2025-08-14T10:30:00Z",
+     *                     timezone: "Europe/Paris"
+     *                 }
+     *             });
+     *         calendarManager.addEvent(
+     *             {
+     *                 "id": "evt-002",
+     *                 "subject": "Pause café",
+     *                 "type": "occurrence",
+     *                 "showAs": "free",
+     *                 "startDate": {
+     *                     "value": "2025-08-14T10:30:00Z"
+     *                 },
+     *                 "endDate": {
+     *                     "value": "2025-08-14T10:45:00Z"
+     *                 }
+     *             });
+     *
+     *         rainbowSDK.presence.sendResultCalendarEvents(calendarManager);
+     *     });
+     *
+     * @param {CalendarManager} calendarManager Allow to define specifics headers to the request.
+     * @return {Promise< any, ErrorManager>}
+     * @fulfil {ErrorManager} - ErrorManager object depending on the result.
+     */
+    sendResultCalendarEvents(calendarManager : CalendarManager) {
+        let that = this ;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendResultCalendarEvents) is calendarManager defined : ", isDefined(calendarManager));
+        return new Promise(async (resolve, reject) => {
+            if (!calendarManager) {
+                that._logger.log(that.ERROR, LOG_ID + "(sendResultCalendarEvents) Parameter 'calendarManager' is missing or null");
+                throw ErrorManager.getErrorManager().BAD_REQUEST();
+            }
+
+            try {
+                let result = that._xmpp.sendResultCalendarEvents(calendarManager);
+                that._logger.log(that.DEBUG, "(sendResultCalendarEvents) - sent.");
+                that._logger.log(that.INTERNAL, "(sendResultCalendarEvents) - result : ", result);
+                resolve(result);
+            } catch (err) {
+                that._logger.log(that.ERROR, LOG_ID + "(sendResultCalendarEvents) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(sendResultCalendarEvents) Error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @method sendAutoReplyEvents
+     * @instance
+     * @category Presence Contact
+     * @async
+     * @description
+     * Allows to send result of a get auto reply events iq request from Rainbow. </BR>
+     *
+     * Note: To be used when a "rainbow_onEWSgetevents" event is received to send events response.
+     *
+     * @example
+     *
+     *     rainbowSDK.events.on("rainbow_onEWSgetautoreply", (data) => {
+     *         _logger.log("debug", "MAIN - (rainbow_onEWSgetautoreply) - rainbow event received.", data);
+     *
+     *         let autoReplyManager = new RainbowSDK.AutoReplyManager({
+     *             id: data.id,
+     *             to: data.from,
+     *             state: "scheduled",
+     *             email: data.email,
+     *             startDate: { value: "2025-08-20T09:00:00Z", timezone: "Europe/Paris" },
+     *             endDate: { value: "2025-08-25T18:00:00Z", timezone: "Europe/Paris" },
+     *             internalReplyMessage: "Je suis absent du bureau, merci de contacter mon collègue.",
+     *             externalReplyMessage: {
+     *                 value: "Je suis actuellement en congés.",
+     *                 audience: "known"
+     *             }
+     *         });
+     *
+     *         rainbowSDK.presence.sendAutoReplyEvents(autoReplyManager);
+     *     });
+     * @param {AutoReplyManager} autoReplyManager Allow to define specifics headers to the request.
+     * @return {Promise< any, ErrorManager>}
+     * @fulfil {ErrorManager} - ErrorManager object depending on the result.
+     */
+    sendAutoReplyEvents(autoReplyManager : AutoReplyManager) {
+        let that = this ;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendAutoReplyEvents) is autoReplyManager defined : ", isDefined(autoReplyManager));
+        return new Promise(async (resolve, reject) => {
+            if (!autoReplyManager) {
+                that._logger.log(that.ERROR, LOG_ID + "(sendAutoReplyEvents) Parameter 'autoReplyManager' is missing or null");
+                throw ErrorManager.getErrorManager().BAD_REQUEST();
+            }
+
+            try {
+                let result = that._xmpp.sendAutoReplyEvents(autoReplyManager);
+                that._logger.log(that.DEBUG, "(sendAutoReplyEvents) - sent.");
+                that._logger.log(that.INTERNAL, "(sendAutoReplyEvents) - result : ", result);
+                resolve(result);
+            } catch (err) {
+                that._logger.log(that.ERROR, LOG_ID + "(sendAutoReplyEvents) Error.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(sendAutoReplyEvents) Error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    //endregion Presence Synchronize CPE Exchange Calendar [AD/LDAP]
 }
 
 module.exports.PresenceService = PresenceService;

@@ -7,7 +7,7 @@ import * as CryptoJS from "crypto-js";
 import * as backoff from "backoff";
 
 import {
-    addParamToUrl,
+    addParamToUrl, addPropertyIfNotAlreadyExistToObj,
     addPropertyToObj,
     getRandomInt, isDefined,
     logEntryExit,
@@ -17110,6 +17110,7 @@ addPropertyToObj(param, "peerId", body.peerId, false);
         let that = this;
         return new Promise(function (resolve, reject) {
             let url: string = "/api/rainbow/enduser/v1.0/settings/apis";
+
             let urlParamsTab: string[] = [];
             urlParamsTab.push(url);
             /*
@@ -17140,6 +17141,59 @@ addPropertyToObj(param, "peerId", body.peerId, false);
 
     //endregion Rainbow APIs Settings
 
+        //region Presence Synchronize CPE Exchange Calendar [AD/LDAP]
+    // RQRAINB-12269
+
+    notifyCalendarProvider(ids: Array<string>, headers : any = {}) {
+        let that = this ;
+        //that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(notifyCalendarProvider) is ids defined : ", isDefined(ids));
+        // API
+        // URL POST /api/rainbow/calendarprovider/v1.0/notify?companyId=companyId
+
+        return new Promise(function (resolve, reject) {
+            let userId = that.userId ;
+            let _http = that._options?.httpOptions;
+            let serverURL = _http?.protocol + "://" + _http?.host + ":" + _http?.port;
+            let url: string = serverURL + "/api/rainbow/calendarprovider/v1.0/notify";
+            let companyId = that.account?.companyId;
+            let urlParamsTab: Array<string> = [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "companyId", companyId );
+             // */
+            url = urlParamsTab[0];
+            //let data: any = {};
+            //addPropertyToObj(data, "category", category, false);
+            /*
+            let headers = {
+                'Content-Type': 'application/json',
+            }; // */
+            let defaultHeaders=that.getDefaultHeader();
+            Object.entries(defaultHeaders).forEach(([key, value]) => {
+                addPropertyIfNotAlreadyExistToObj(headers,key, value, true);
+            });
+            addPropertyIfNotAlreadyExistToObj(headers,"Content-Type", 'application/json', true);
+            addPropertyIfNotAlreadyExistToObj(headers,"X-Rainbow-EWS-connector", 'dummy', true);
+            // addPropertyIfNotAlreadyExistToObj(headers,"x-rainbow-zone", 'EU', true);
+            //let body = decodeURIComponent(JSON.stringify({
+            let body = JSON.stringify(ids);
+
+            that.http.postUrlRaw(url, headers, body).then((res) => {
+                //let bodyJson = JSON.parse(res?.body);
+                let json = res?.body;
+                that._logger.log(that.DEBUG, LOG_ID + "(notifyCalendarProvider) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(notifyCalendarProvider) REST result : ", json);
+                resolve(json);
+            }).catch((err) => {
+                that._logger.log(that.ERROR, LOG_ID, "(notifyCalendarProvider) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(notifyCalendarProvider) error : ", err);
+                return reject(err);
+            });
+            //that._logger.log("debug", "MAIN - notifyCalendarProvider - ");
+        });
+
+    }
+
+    //endregion Presence Synchronize CPE Exchange Calendar [AD/LDAP]
 }
 
 export {RESTService, MEDIATYPE, GuestParams};
