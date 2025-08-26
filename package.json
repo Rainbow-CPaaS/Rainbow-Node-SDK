@@ -48,7 +48,7 @@
     "@mermaid-js/mermaid-cli": "^11.9.0",
     "@tsconfig/node14": "^14.1.5",
     "@types/dompurify": "^3.2.0",
-    "@types/inquirer": "^9.0.9",
+    "@types/inquirer": "^9.0.7",
     "@types/mime": "^4.0.0",
     "@types/node": "^24.3.0",
     "@xmpp/debug": "^0.13.5",
@@ -90,8 +90,8 @@
     "yamljs": "^0.3.0"
   },
   "dependencies": {
-    "@inquirer/figures": "^1.0.13",
-    "@inquirer/prompts": "^7.8.4",
+    "@inquirer/figures": "^1.0.11",
+    "@inquirer/prompts": "^7.4.0",
     "@supercharge/fs": "^3.4.2",
     "@types/backoff": "^2.5.5",
     "@xmpp/client": "^0.13.6",
@@ -121,7 +121,7 @@
     "https-proxy-agent": "7.0.6",
     "humanize-number": "0.0.2",
     "ini": "^5.0.0",
-    "inquirer": "^12.9.4",
+    "inquirer": "^9.2.12",
     "inquirer-autocomplete-prompt": "^3.0.1",
     "jimp": "^1.6.0",
     "jsdoc-x": "^4.1.0",
