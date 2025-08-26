@@ -6,7 +6,20 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-### [2.39.0] - 2024-08-20
+### [2.39.1] - 2025-XX-XX
+#### Removed
+-   None
+
+#### Fixed
+-   None.
+
+#### Added
+-   Add ping/pong mechanism at websocket layer.
+ 
+#### Changed
+-   None.
+
+### [2.39.0] - 2025-08-20
 #### Removed
 -   None
 
@@ -24,7 +37,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 #### Changed
 -   None.
 
-### [2.38.0] - 2024-08-08
+### [2.38.0] - 2025-08-08
 #### Removed
 -   None
 
@@ -53,7 +66,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Replace type `string` to `UrgencyType` in the parameter `urgency` of the send message APIs.   
 -   Update to the update process of Contact properties with the `updatePropertyToObj` to set properties.
 
-### [2.37.0-lts.0] - 2024-03-13
+### [2.37.0-lts.0] - 2025-03-13
 #### Removed
 -   None
 
@@ -66,7 +79,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 #### Changed
 -   Same as version STS 2.36.1
 
-## [2.36.1] - 2024-05-13
+## [2.36.1] - 2025-05-13
 #### Removed
 -   None
 
@@ -79,7 +92,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 #### Changed
 -   None
 
-### [2.36.0] - 2024-05-12
+### [2.36.0] - 2025-05-12
 #### Removed
 -   None
 
@@ -107,7 +120,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Cleanning of SDK's Options with boolean and undefined parameters.
 -   Optimization of `argumentsToString` in Logger
 
-### [2.35.0-lts.0] - 2024-03-13
+### [2.35.0-lts.0] - 2025-03-13
 #### Removed
 -   None
 
@@ -120,7 +133,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 #### Changed
 -   None
 
-### [2.34.2] - 2024-03-13
+### [2.34.2] - 2025-03-13
 #### Removed
 -   None
 

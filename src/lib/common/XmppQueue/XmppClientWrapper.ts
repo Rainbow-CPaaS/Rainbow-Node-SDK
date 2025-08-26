@@ -69,7 +69,8 @@ function client(options = {}) {
 
   //iqCallee.get('urn:xmpp:ping', 'ping', ctx => { return {} });
   let self = this;
-  Object.assign(entity, {
+
+    Object.assign(entity, {
     entity,
     reconnect,
     tcp,

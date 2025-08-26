@@ -818,6 +818,7 @@ class XMPPService extends GenericService {
                     // Condition treatments for XEP Errors : https://xmpp.org/rfcs/rfc6120.html#streams-error
                     switch (err.condition) {
                             // Conditions which need a reconnection
+                        case "rainbow-websocket-down":
                         case "remote-connection-failed":
                         case "reset":
                         case "connection-timeout":

@@ -36,21 +36,20 @@ const parse = require('ltx').parse;
 
 let LOG_ID='XMPPCLIENT - ';
 
-
-class XmppClient  {
-	public options: any;
+class XmppClient {
+    public options: any;
     public eventEmitter: any;
-	public restartConnectEnabled: any;
-	public client: any;
-	public iqGetEventWaiting: any;
-	// public onIqErrorReceived: any;
-	// public onIqResultReceived: any;
-	public logger: any;
-	public xmppQueue: any;
-	public timeBetweenXmppRequests: any;
+    public restartConnectEnabled: any;
+    public client: any;
+    public iqGetEventWaiting: any;
+    // public onIqErrorReceived: any;
+    // public onIqResultReceived: any;
+    public logger: any;
+    public xmppQueue: any;
+    public timeBetweenXmppRequests: any;
     public maxPendingAsyncLockXmppQueue: any;
     public username: any;
-	public password: any;
+    public password: any;
     socketClosed: boolean = false;
     storeMessages: any;
     enablesendurgentpushmessages: any;
@@ -63,7 +62,8 @@ class XmppClient  {
     //private iqSetEventRoster: any;
     //private iqSetEventHttp: any;
     public socket = undefined;
-    public pendingRequests : Array<{id : string, prom : Deferred}> = [];
+    public pendingRequests: Array<{ id: string, prom: Deferred }> = [];
+    public interval = undefined;
 
     constructor(...args) {
         //super(...args);
@@ -75,7 +75,7 @@ class XmppClient  {
         this.client = client(...args);
         //debug(this.client, true);
         this.socket = client.socket;
-        
+
         this.nbMessagesSentThisHour = 0;
         this.timeBetweenReset = 1000 * 60 * 60; // */
 
@@ -84,6 +84,12 @@ class XmppClient  {
             that.logger.log("error", LOG_ID + "(unhandledRejection) !!! CATCH Error e : ", e, ", stack : ", stackTrace());
             //console.log("(unhandledRejection) !!! CATCH Error e : ", e, ", stack : ", stackTrace()); 
         });
+    }
+
+    fn_pong() {
+        let that = this;
+        that.logger.log("debug", LOG_ID + "(on) pong - pong response received!");
+        //console.log("Réponse pong reçue !");
     }
 
     async init(_logger, _eventemitter, _timeBetweenXmppRequests, _storeMessages, _rateLimitPerHour, _messagesDataStore, _copyMessage, _enablesendurgentpushmessages, _maxPendingAsyncLockXmppQueue) {
@@ -96,7 +102,7 @@ class XmppClient  {
         that.eventEmitter = _eventemitter;
         that.timeBetweenXmppRequests = _timeBetweenXmppRequests ? _timeBetweenXmppRequests:20;
         that.maxPendingAsyncLockXmppQueue = _maxPendingAsyncLockXmppQueue ? _maxPendingAsyncLockXmppQueue:20;
-        that.xmppQueue = XmppQueue.getXmppQueue(_logger, that.timeBetweenXmppRequests, that.maxPendingAsyncLockXmppQueue );
+        that.xmppQueue = XmppQueue.getXmppQueue(_logger, that.timeBetweenXmppRequests, that.maxPendingAsyncLockXmppQueue);
         that.storeMessages = _storeMessages;
         that.rateLimitPerHour = _rateLimitPerHour;
         that.messagesDataStore = _messagesDataStore;
@@ -107,15 +113,51 @@ class XmppClient  {
         that.on('open', () => {
             that.logger.log("debug", LOG_ID + "(event) open");
             that.socketClosed = false;
+
+
+            let ws = that.client?.socket?.socket?that.client?.socket?.socket:{};
+            // Le Server send ping every 10 seconds.
+            if (that.interval) {
+                clearInterval(that.interval);
+                ws.removeAllListeners("pong");
+            }
+            that.interval = setInterval(() => {
+                //that.logger.log("debug", LOG_ID + "(sendWebsocketPing) ping - Will send ping!");
+                ws.ping();
+            }, 10000);
+
+            ws.on("pong", that.fn_pong.bind(that));
+
+            ws.on("close", () => {
+                that.logger.log("warn", LOG_ID + "(close) close - received!");
+                if (that.interval) {
+                    clearInterval(that.interval);
+                    ws.removeAllListeners("pong");
+                }
+            });
+
+            ws.on("error", (err) => {
+                if (that.interval) {
+                    clearInterval(that.interval);
+                    ws.removeAllListeners("pong");
+                }
+                that.logger.log("error", LOG_ID + "(event) WebSocket error : ", err);
+                //console.error("Erreur WebSocket :", err);
+                that.emit("error", {"condition": "rainbow-websocket-down", error: err});
+                ws.close(); // force la reconnexion via @xmpp/reconnect
+            });
+            // */
+
         });
         /*this.client.websocket.on('message', () => {
             that.socketClosed = true;
         }); // */
+
         that.on('error', () => {
             that.logger.log("debug", LOG_ID + "(event) error");
             that.socketClosed = true;
         });
-        that.on('close', () => { //client.websocket.
+        that.on('close', () => {
             that.logger.log("debug", LOG_ID + "(event) close");
             that.socketClosed = true;
         });
@@ -123,7 +165,7 @@ class XmppClient  {
         setInterval(that.resetnbMessagesSentThisHour.bind(this), that.timeBetweenReset);
     }
 
-    onIqErrorReceived (msg, stanzaTab) {
+    onIqErrorReceived(msg, stanzaTab) {
         let that = this;
         let stanza = stanzaTab[0];
         let prettyStanza = stanzaTab[1];
@@ -131,10 +173,10 @@ class XmppClient  {
 
         //let children = stanza.children;
         let iqId = stanza.attrs.id;
-        let errorMsg = stanza.getChild("error")?stanza.getChild("error").getChild("text").getText() ||  "" : "";
+        let errorMsg = stanza.getChild("error") ? stanza.getChild("error").getChild("text").getText() || "":"";
         that.logger.log("warn", LOG_ID + "(XmmpClient) onIqErrorReceived received iq result - 'stanza id '", iqId, ", msg : ", msg, ", errorMsg : ", errorMsg, ", that.iqGetEventWaiting[iqId] : ", that.iqGetEventWaiting[iqId]);
         // reject and delete the waiting iq.
-        if (typeof that.iqGetEventWaiting[iqId] === "function") {
+        if (typeof that.iqGetEventWaiting[iqId]==="function") {
             that.logger.log("debug", LOG_ID + "(XmmpClient) onIqErrorReceived call iqGetEventWaiting function id : ", iqId);
             that.iqGetEventWaiting[iqId](stanza);
         } else {
@@ -142,21 +184,21 @@ class XmppClient  {
             delete that.iqGetEventWaiting[iqId];
         }
     };
-    
-    iqGetEventPing (ctx) {
+
+    iqGetEventPing(ctx) {
         let that = this;
         //that.logger.log("debug", LOG_ID + "(XmmpClient) iqGetEventPing ctx : ", ctx);
         that.logger.log("debug", LOG_ID + "(XmmpClient) iqGetEventPing ping iq request received from server.");
         return {};
     }
 
-    iqSetEventRoster (ctx ) {
+    iqSetEventRoster(ctx) {
         let that = this;
         that.logger.log("internal", LOG_ID + "(XmmpClient) iqSetEventRoster set iq receiv - :", ctx);
         return {};
     };
-    
-    async  iqSetEventHttp (ctx) {
+
+    async iqSetEventHttp(ctx) {
         let that = this;
         let result = true;
         //that.logger.log("internal", LOG_ID + "(XmmpClient) iqSetEventHttp set iq receiv - :", ctx);
@@ -174,11 +216,11 @@ class XmppClient  {
         } catch (e) {
             that.logger.log("error", LOG_ID + "(XmmpClient) iqSetEventHttp CATCH Error !!! error : ", e);
         }
-        
+
         return result;
     };
 
-    async  iqSetEventRpc (ctx) {
+    async iqSetEventRpc(ctx) {
         let that = this;
         let result = true;
         //that.logger.log("internal", LOG_ID + "(XmmpClient) iqSetEventRpc set iq receiv - :", ctx);
@@ -196,11 +238,11 @@ class XmppClient  {
         } catch (e) {
             that.logger.log("error", LOG_ID + "(XmmpClient) iqSetEventRpc CATCH Error !!! error : ", e);
         }
-        
+
         return result;
     };
 
-    onIqResultReceived (msg, stanzaTab) {
+    onIqResultReceived(msg, stanzaTab) {
         let that = this;
         let stanza = stanzaTab[0];
         let prettyStanza = stanzaTab[1];
@@ -211,7 +253,7 @@ class XmppClient  {
         that.logger.log("debug", LOG_ID + "(XmmpClient) onIqResultReceived received iq result - 'stanza id '", iqId);
         if (that.iqGetEventWaiting[iqId]) {
             // The result iq correspond to a stored promise from our request, so resolve it to allow sendIq to get back a result.
-            if (typeof that.iqGetEventWaiting[iqId] === "function") {
+            if (typeof that.iqGetEventWaiting[iqId]==="function") {
                 that.iqGetEventWaiting[iqId](stanza);
             } else {
                 delete that.iqGetEventWaiting[iqId];
@@ -241,24 +283,24 @@ class XmppClient  {
                     } */
     };
 
-    async resolvPendingRequest (id, stanza) {
+    async resolvPendingRequest(id, stanza) {
         let that = this;
         let found = false;
-        for (const pendingRequest of that.pendingRequests) {            
-            if (pendingRequest && pendingRequest.id === id) {
+        for (const pendingRequest of that.pendingRequests) {
+            if (pendingRequest && pendingRequest.id===id) {
                 pendingRequest.prom.resolve(stanza);
                 found = true;
-            }            
-        }        
+            }
+        }
         return found;
     }
-    
-    resetnbMessagesSentThisHour(){
+
+    resetnbMessagesSentThisHour() {
         let that = this;
         that.logger.log("debug", LOG_ID + "(resetnbMessagesSentThisHour) _entering_");
         that.logger.log("debug", LOG_ID + "(resetnbMessagesSentThisHour) before reset, that.nbMessagesSentThisHour : ", that.nbMessagesSentThisHour);
         that.nbMessagesSentThisHour = 0;
-        that.lastTimeReset = new Date ();
+        that.lastTimeReset = new Date();
         that.logger.log("debug", LOG_ID + "(resetnbMessagesSentThisHour) _exiting_");
     }
 
@@ -315,8 +357,8 @@ class XmppClient  {
 
             let storeStanzaValue = getStoreStanzaValue(that.storeMessages, that.messagesDataStore, p_messagesDataStore);
 
-            if (storeStanzaValue != DataStoreType.StoreTwinSide && stanza && typeof stanza==="object" && stanza.name=="message") {
-            //if ((that.storeMessages==false || p_messagesDataStore) && p_messagesDataStore != DataStoreType.StoreTwinSide && stanza && typeof stanza==="object" && stanza.name=="message") {
+            if (storeStanzaValue!=DataStoreType.StoreTwinSide && stanza && typeof stanza==="object" && stanza.name=="message") {
+                //if ((that.storeMessages==false || p_messagesDataStore) && p_messagesDataStore != DataStoreType.StoreTwinSide && stanza && typeof stanza==="object" && stanza.name=="message") {
                 // if (that.storeMessages == false && stanza && typeof stanza === "object" && stanza.name == "message") {
                 // that.logger.log("debug", LOG_ID + "(send) will add <no-store /> to stanza.");
                 // that.logger.log("internal", LOG_ID + "(send) will add <no-store /> to stanza : ", stanza);
@@ -328,8 +370,8 @@ class XmppClient  {
                   }));
                   // */
 
-                let nostoreTag="no-store";
-                if (storeStanzaValue && storeStanzaValue != DataStoreType.UsestoreMessagesField) {
+                let nostoreTag = "no-store";
+                if (storeStanzaValue && storeStanzaValue!=DataStoreType.UsestoreMessagesField) {
                     nostoreTag = storeStanzaValue;
                 }
                 if (stanzaJson.message.body) {
@@ -385,7 +427,7 @@ class XmppClient  {
                 //that.logger.log("debug", LOG_ID + "(send) restart the xmpp client");
                 return reject2(err);
             }); // */
-        });        
+        });
     }
 
     // send_orig(...args) {
@@ -560,37 +602,37 @@ class XmppClient  {
     //     });
     // }
 
-    sendIq(...args){
+    sendIq(...args) {
         let that = this;
         that.logger.log("debug", LOG_ID + "(sendIq) _entering_");
         return new Promise((resolve, reject) => {
             if (args.length > 0) {
-                let idId = (args[0] && args[0].attrs ) ? args[0].attrs.id : undefined;
+                let idId = (args[0] && args[0].attrs) ? args[0].attrs.id:undefined;
 
                 let prom = this.xmppQueue.add(async (resolve2, reject2, id) => {
                     // return ; // To do failed the lock acquire.
-                        if (that.socketClosed) {
-                            that.logger.log("error", LOG_ID + "(send) - id : ", id, " - Error the socket is close, so do not send data on it.");
-                            //return Promise.reject("Error the socket is close, so do not send data on it.")
-                            return reject2({
-                                timestamp: (new Date()).toLocaleTimeString(),
-                                reason: "Error the socket is close, so do not send data on it. - id : " + id + " -"
-                            });
-                        }
-                        try {
-                            await that.client.send(...args).then(() => {
-                                that.nbMessagesSentThisHour++;
-                                resolve2({"code": 1, "label": "OK"});
-                            });
-                        } catch (err) {
-                            that.logger.log("debug", LOG_ID + "(sendIq) - id : ", id, " - _catch error_ at idId : ", idId, ", super.send : ", err);
-                            //that.logger.log("debug", LOG_ID + "(send) restart the xmpp client");
-                            return reject2(err);
-                        }
-                        /* return this.client.send(...args).catch((err) => {
-                         that.logger.log("debug", LOG_ID + "(sendIq) _catch error_ at idId : " , idId, ", super.send : ", err);
-                        }) // */
-                }); 
+                    if (that.socketClosed) {
+                        that.logger.log("error", LOG_ID + "(send) - id : ", id, " - Error the socket is close, so do not send data on it.");
+                        //return Promise.reject("Error the socket is close, so do not send data on it.")
+                        return reject2({
+                            timestamp: (new Date()).toLocaleTimeString(),
+                            reason: "Error the socket is close, so do not send data on it. - id : " + id + " -"
+                        });
+                    }
+                    try {
+                        await that.client.send(...args).then(() => {
+                            that.nbMessagesSentThisHour++;
+                            resolve2({"code": 1, "label": "OK"});
+                        });
+                    } catch (err) {
+                        that.logger.log("debug", LOG_ID + "(sendIq) - id : ", id, " - _catch error_ at idId : ", idId, ", super.send : ", err);
+                        //that.logger.log("debug", LOG_ID + "(send) restart the xmpp client");
+                        return reject2(err);
+                    }
+                    /* return this.client.send(...args).catch((err) => {
+                     that.logger.log("debug", LOG_ID + "(sendIq) _catch error_ at idId : " , idId, ", super.send : ", err);
+                    }) // */
+                });
                 /*.then((res) => {
                     that.logger.log("debug", LOG_ID + "(sendIq) sent idId : ", idId, "");
                 }); // */
@@ -599,12 +641,16 @@ class XmppClient  {
                 function cb(result) {
                     // Wait a few time between requests to avoid burst with lot of it.
                     setTimeout(() => {
-                        that.logger.log("debug", LOG_ID + "(send) - idId : " , idId, ", setTimeout resolve");
-                        that.logger.log("internal", LOG_ID + "(send) - idId : " , idId, ", setTimeout resolve : ", result);
-                        resolve(prom.then(() => { return result;}).catch(() => { reject( result);})) ;
+                        that.logger.log("debug", LOG_ID + "(send) - idId : ", idId, ", setTimeout resolve");
+                        that.logger.log("internal", LOG_ID + "(send) - idId : ", idId, ", setTimeout resolve : ", result);
+                        resolve(prom.then(() => {
+                            return result;
+                        }).catch(() => {
+                            reject(result);
+                        }));
                     }, that.timeBetweenXmppRequests);
                 }
-                
+
                 // Store the promise to be resolved
                 this.iqGetEventWaiting[idId] = cb;
 
@@ -622,7 +668,7 @@ class XmppClient  {
         });
     }
 
-    sendIq_orig(...args){
+    sendIq_orig(...args) {
         let that = this;
         that.logger.log("debug", LOG_ID + "(sendIq) _entering_");
         return new Promise((resolve, reject) => {
@@ -638,7 +684,11 @@ class XmppClient  {
                     // Wait a few time between requests to avoid burst with lot of it.
                     setTimeout(() => {
                         //that.logger.log("debug", LOG_ID + "(send) setTimeout resolve");
-                        resolve(prom.then(() => { return result;}).catch(() => { reject( result);})) ;
+                        resolve(prom.then(() => {
+                            return result;
+                        }).catch(() => {
+                            reject(result);
+                        }));
                     }, that.timeBetweenXmppRequests);
                 }
 
@@ -669,16 +719,16 @@ class XmppClient  {
     emit(evtname, stanza) {
         let that = this;
         //let stanzaElmt : Element = parse(stanza);
-        let stanzaElmt : any = parse(stanza);
+        let stanzaElmt: any = parse(stanza);
 //        stanzaElmt.find("to") = that.fullJid;
         this.client.entity.emit(evtname, stanzaElmt);
     }
-    
+
     on(evt, cb) {
-        this.client.entity.on(evt,  cb);
+        this.client.entity.on(evt, cb);
     }
 
-    get sasl(){
+    get sasl() {
         return this.client.sasl;
     }
 
@@ -687,7 +737,7 @@ class XmppClient  {
         //this.client.mechanisms = ["PLAIN"];
     }
 
-    get reconnect(){
+    get reconnect() {
         return this.client.reconnect;
     }
 
@@ -724,7 +774,6 @@ class XmppClient  {
         this.restartConnectEnabled = false;
         return this.client.stop(...args);
     }
-
 
 }
 

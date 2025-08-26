@@ -768,7 +768,7 @@ function genererCode(): string {
     return code;
 }
 
-console.log(genererCode());
+// console.log(genererCode());
 // Exemple : "20250516144638429"
 
 function throwError() {
