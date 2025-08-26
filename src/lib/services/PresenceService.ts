@@ -826,6 +826,7 @@ class PresenceService extends GenericService{
      * @async
      * @return {Promise<{ 
      *    enabled : string,
+     *    status : string,
      *    start : string,
      *    end : string,
      *    message_text : string,
