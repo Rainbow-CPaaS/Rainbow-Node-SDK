@@ -3,7 +3,6 @@ import {Deferred, doWithinInterval, functionSignature, pause, setTimeoutPromised
 import {Dictionary, IDictionary, KeyValuePair, List} from "ts-generic-collections-linq";
 import {XMPPUTils} from "./XMPPUtils";
 import {type} from "os";
-import {isFunction} from "util";
 import {Logger} from "./Logger.js";
 import {TimeOutManager} from "./TimeOutManager.js";
 import {Bubble} from "./models/Bubble.js";

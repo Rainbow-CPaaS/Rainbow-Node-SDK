@@ -37,7 +37,7 @@ import {ContactsService} from "../../services/ContactsService";
 import {stringify} from "querystring";
 import {GenericHandler} from "./GenericHandler";
 import {Conversation} from "../../common/models/Conversation.js";
-import {isObject} from "node:util";
+//import {isObject} from "node:util";
 
 const LOG_ID = "XMPP/HNDL/HIST/CONV - ";
 

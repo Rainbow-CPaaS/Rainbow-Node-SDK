@@ -3,7 +3,6 @@ import {Deferred, doWithinInterval, pause, setTimeoutPromised} from "./Utils";
 import {Dictionary, KeyValuePair, List} from "ts-generic-collections-linq";
 import {XMPPUTils} from "./XMPPUtils";
 import {type} from "os";
-import {isFunction} from "util";
 import {clearTimeout} from "node:timers";
 
 export {};
