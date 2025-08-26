@@ -14,7 +14,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   None.
 
 #### Added
--   Add ping/pong mechanism at websocket layer.
+-   Add ping/pong mechanism at websocket layer. And a `rainbow-websocket-down` error from low layer treated in XMPService to detect the broken XMPP link.
  
 #### Changed
 -   None.
