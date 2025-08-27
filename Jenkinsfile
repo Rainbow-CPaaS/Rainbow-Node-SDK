@@ -419,7 +419,7 @@ pipeline {
                                         
                                     ##sudo npm install npm -g
                                     #sudo npm install n -g
-                                    sudo npm install npm
+                                    #sudo npm install npm
                                     #sudo n stable
 
                                     ##npm install -g https://tls-test.npmjs.com/tls-test-1.0.0.tgz
@@ -498,7 +498,7 @@ pipeline {
                     #sudo n stable
                     sudo n 20.5.1
 
-                    sudo npm install --global npm@6
+                    sudo npm install --global npm@9
                         
                     cd ${WORKSPACE}
                     
