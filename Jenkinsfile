@@ -503,7 +503,7 @@ pipeline {
                     cd ${WORKSPACE}
                     
                     echo ---------- STEP install the library :
-                    npm install
+                    npm install --legacy-peer-deps
                     
                     ls 
                     ls ./src/**/*
