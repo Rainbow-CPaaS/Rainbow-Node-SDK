@@ -741,7 +741,8 @@ pipeline {
                                     sh """
                                     sudo npm install npm -g
                                     #cd "Documentation"
-                                    npm install developers_searchindex --registry https://nexus.openrainbow.io/repository/npm-dev
+                                    npm install developers_searchindex --registry https://nexus.openrainbow.io/repository/npm-dev --legacy-peer-deps
+                                    #npm install developers_searchindex --registry https://nexus.openrainbow.io/repository/npm-dev --legacy-peer-deps
                                     npm list developers_searchindex
                                     """
 
