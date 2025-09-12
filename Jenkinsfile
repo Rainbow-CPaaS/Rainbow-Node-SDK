@@ -496,10 +496,12 @@ pipeline {
                     #sudo npm install npm -g
                     sudo npm install n -g
                     #sudo n stable
-                    sudo n 20.5.1
+                    #sudo n 20.5.1
+                    sudo n 20.17.0
 
-                    sudo npm install --global npm@9
-                        
+                    #sudo npm install --global npm@9
+                    sudo npm install --global npm@11.5.2
+
                     cd ${WORKSPACE}
                     
                     echo ---------- STEP install the library :
