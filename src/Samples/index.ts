@@ -61,7 +61,6 @@ import * as path from "path";
 import mime from 'mime';
 
 // import * as nock from 'nock'
-
 import * as ini from 'ini';
 //const ini = require('ini')
 //const MockServer = require("mock-socket").Server;
@@ -2876,6 +2875,19 @@ let expressEngine = undefined;
             }
         }
 
+        async testsendMessageToVincent02ByJid() {
+            //let that = this;
+            //let contactIdToSearch = "5bbdc3812cf496c07dd89128"; // vincent01 vberder
+            //let contactIdToSearch = "5bbb3ef9b0bb933e2a35454b"; // vincent00 official
+            let contactEmailToSearch = "vincent02@vbe.test.openrainbow.net";
+            // Retrieve a contact by its id
+            let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+            let now = new Date().getTime();
+            // Send message
+            let msgSent = await rainbowSDK.im.sendMessageToJid("hello from node : " + now, contact.jid, "FR", null, "Le sujet de node : " + now, UrgencyType.STANDARD, DataStoreType.NoStore);
+            _logger.log("debug", "MAIN - testsendMessageToVincent02 - wait for message to be in conversation : ", msgSent);
+        }
+
         testsendMessageToConversation() {
             let that = this;
             // let conversation = null;
@@ -3778,6 +3790,44 @@ let expressEngine = undefined;
             _logger.log("debug", "MAIN - testDecodeXml2js decoded : ", decoded);
             // */
             //console.log(JSON.stringify(decoded, null, 2));
+        }
+
+        async testrainbow_onmessageserverreceiptreceived() {
+            /*
+<message xmlns='jabber:client' to='3429da5997db4eebbfadee7c642c2853@openrainbow.com/web_win_2.161.2_H9F7ZZIA' from='openrainbow.com' type='chat' id='11168115634748277303'><timestamp value='2025-09-05T14:11:16.868933Z' xmlns='urn:xmpp:receipts'/><received entity='server' event='received' id='web_3e998484-dc0d-46d6-adc0-dba7ec64191b4' xmlns='urn:xmpp:receipts'/></message>
+             */
+            let stanzaStr = "<message xmlns='jabber:client' to=\"" + rainbowSDK._core._xmpp.jid + "\" from='openrainbow.net' type='chat' id='11168115634748277303'><timestamp value='2025-09-05T14:11:16.868933Z' xmlns='urn:xmpp:receipts'/><received entity='server' event='received' id='web_3e998484-dc0d-46d6-adc0-dba7ec64191b4' xmlns='urn:xmpp:receipts'/></message>";
+            let stanza = prettydata.xmlmin(stanzaStr);
+            _logger.log("debug", "MAIN - testrainbow_onmessageserverreceiptreceived stanza : ", stanza);
+            await rainbowSDK._core._xmpp.mockStanza(stanza);
+        }
+
+        async testrainbow_onmessagereceiptreadreceived() {
+            /*
+ <message to="6ac069e5eb4741e2af64a8beac59406f@openrainbow.net" from="adcf613d42984a79a7bebccc80c2b65e@openrainbow.net" type="chat"
+  xmlns="jabber:client">
+  <received
+    xmlns="urn:xmpp:receipts" event="read" entity="client" id="web_58b9aa10-8916-43cd-aae4-9ac370cdbab92"/>
+  </message>
+             */
+            let stanzaStr = "<message xmlns='jabber:client' to=\"" + rainbowSDK._core._xmpp.jid + "\" from='openrainbow.net' type='chat' id='11168115634748277303'><timestamp value='2025-09-05T14:11:16.868933Z' xmlns='urn:xmpp:receipts'/><received entity='client' event='read' id='web_3e998484-dc0d-46d6-adc0-dba7ec64191b4' xmlns='urn:xmpp:receipts'/></message>";
+            let stanza = prettydata.xmlmin(stanzaStr);
+            _logger.log("debug", "MAIN - testrainbow_onmessagereceiptreadreceived stanza : ", stanza);
+            await rainbowSDK._core._xmpp.mockStanza(stanza);
+        }
+
+        async testrainbow_onmessagereceiptunreadreceived() {
+            /*
+ <message to="6ac069e5eb4741e2af64a8beac59406f@openrainbow.net" from="adcf613d42984a79a7bebccc80c2b65e@openrainbow.net" type="chat"
+  xmlns="jabber:client">
+  <received
+    xmlns="urn:xmpp:receipts" event="unread" entity="client" id="web_58b9aa10-8916-43cd-aae4-9ac370cdbab92"/>
+  </message>
+             */
+            let stanzaStr = "<message xmlns='jabber:client' to=\"" + rainbowSDK._core._xmpp.jid + "\" from='openrainbow.net' type='chat' id='11168115634748277303'><timestamp value='2025-09-05T14:11:16.868933Z' xmlns='urn:xmpp:receipts'/><received entity='client' event='unread' id='web_3e998484-dc0d-46d6-adc0-dba7ec64191b4' xmlns='urn:xmpp:receipts'/></message>";
+            let stanza = prettydata.xmlmin(stanzaStr);
+            _logger.log("debug", "MAIN - testrainbow_onmessagereceiptunreadreceived stanza : ", stanza);
+            await rainbowSDK._core._xmpp.mockStanza(stanza);
         }
 
         //endregion Messages
@@ -11433,6 +11483,71 @@ example :
         //endregion PBXS
 
         //region RPC
+
+        async testiq_query_rpc_methodCall() {
+            /*
+           <iq from="eeae0a1dab324fd9b0a99aef22ccd902@openrainbow.net" id="512c98e1-b911-49af-b4ff-13259180b609:sendIQ" to="a9551b2d41b74033b174ee883e2a2819@openrainbow.net/web_win_2.161.0_ouLLdg5P" type="set" xmlns="jabber:client">
+	<query xmlns="jabber:iq:rpc">
+		<methodCall>
+			<methodName>botRpcMethod</methodName>
+			<params>
+				<param>
+					<value>
+						<struct>
+							<member>
+								<name>callerPhoneNumber</name>
+								<value>81000000</value>
+							</member>
+							<member>
+								<name>localUserEmail</name>
+								<value>caroliaw@jmr.test.openrainbow.net<;/value>
+							</member>
+						</struct>
+					</value>
+				</param>
+			</params>
+		</methodCall>
+	</query>
+</iq>
+             */
+
+            let resultOfAdd = await rainbowSDK.rpcoverxmpp.addRPCMethod("botRpcMethod", (arg1) => {
+                _logger.log("debug", "MAIN - botRpcMethod, arg1 : ", arg1);
+                let result = {
+                    arg1
+                };
+                return result;
+            }, "botRpcMethod description", "botRpcMethod help");
+            _logger.log("debug", "MAIN - testiq_query_rpc_methodCall, resultOfAdd : ", resultOfAdd);
+
+            let stanzaStr = "<iq from=\"eeae0a1dab324fd9b0a99aef22ccd902@openrainbow.net\" id=\"512c98e1-b911-49af-b4ff-13259180b609:sendIQ\" to=\"" + rainbowSDK._core._xmpp.jid + "\" type=\"set\" xmlns=\"jabber:client\">" +
+                "<query xmlns=\"jabber:iq:rpc\">" +
+                "<methodCall>" +
+                "<methodName>botRpcMethod</methodName>" +
+                "<params>" +
+                "<param>" +
+                "<value>" +
+                "<struct>" +
+                "<member>" +
+                "<name>callerPhoneNumber</name>" +
+                "<value><string>81000000</string></value>" +
+                "</member>" +
+                "<member>" +
+                "<name>localUserEmail</name>" +
+                "<value><string>caroliaw@jmr.test.openrainbow.net</string></value>" +
+                "</member>" +
+                "</struct>" +
+                "</value>" +
+                "</param>" +
+                "</params>" +
+                "</methodCall>" +
+                "</query>" +
+                "</iq>";
+            let stanza = prettydata.xmlmin(stanzaStr);
+            _logger.log("debug", "MAIN - testiq_get_events stanza : ", stanza);
+            await rainbowSDK._core._xmpp.mockStanza(stanza);
+
+        }
 
         testFunctionName() {
             let fn1 = function (arg1) {
