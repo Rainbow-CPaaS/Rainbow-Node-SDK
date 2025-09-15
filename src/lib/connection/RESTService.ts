@@ -17175,7 +17175,7 @@ addPropertyToObj(param, "peerId", body.peerId, false);
             addPropertyIfNotAlreadyExistToObj(headers,"X-Rainbow-EWS-connector", 'dummy', true);
             // addPropertyIfNotAlreadyExistToObj(headers,"x-rainbow-zone", 'EU', true);
             //let body = decodeURIComponent(JSON.stringify({
-            let body = JSON.stringify(ids);
+            let body = JSON.stringify({"value":ids});
 
             that.http.postUrlRaw(url, headers, body).then((res) => {
                 //let bodyJson = JSON.parse(res?.body);
