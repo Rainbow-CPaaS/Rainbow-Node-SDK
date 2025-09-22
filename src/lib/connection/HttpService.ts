@@ -422,6 +422,7 @@ safeJsonParse(str) {
 
             try {
                 headers["user-agent"] = USER_AGENT;
+                headers["Host"] = urlParse(url).host;
                 let urlEncoded = url;
 
                 let httpConfig = {URL: urlEncoded, method: "GET", headers: headers};
@@ -686,6 +687,7 @@ safeJsonParse(str) {
                 //let urlEncoded = encodeURI(that.serverURL + url); // Can not be used because the data in url are allready encodeURIComponent
                 let urlEncoded = url;
                 headers["user-agent"] = USER_AGENT;
+                headers["Host"] = urlParse(urlEncoded).host;
 
                 let httpConfig = {URL: urlEncoded, method: "HEAD", headers: headers};
                 that.addAdditionalHeaders(httpConfig);
@@ -925,6 +927,7 @@ safeJsonParse(str) {
                 //let urlEncoded = encodeURI(that.serverURL + url); // Can not be used because the data in url are allready encodeURIComponent
                 let urlEncoded = url;
                 headers["user-agent"] = USER_AGENT;
+                headers["Host"] = urlParse(urlEncoded).host;
 
                 let httpConfig = {URL: urlEncoded, method: "POST", headers: headers};
                 that.addAdditionalHeaders(httpConfig);
@@ -1121,6 +1124,7 @@ safeJsonParse(str) {
                 that._logger.log(that.HTTP, LOG_ID + "(_putUrlRaw) url : ", (urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-correlation-id : ", xRainbowRequestNodeId);
 
                 headers["user-agent"] = USER_AGENT;
+                headers["Host"] = urlParse(urlEncoded).host;
                 that._logger.log(that.INTERNAL, LOG_ID + "(_putUrlRaw) url : ", urlEncoded, ", headers : ", headers, ", data : ", data);
 
                 let body = data;
@@ -1298,6 +1302,7 @@ safeJsonParse(str) {
                 that._logger.log(that.HTTP, LOG_ID + "(_deleteUrlRaw) url : ", (urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-correlation-id : ", xRainbowRequestNodeId);
 
                 headers["user-agent"] = USER_AGENT;
+                headers["Host"] = urlParse(urlEncoded).host;
                 that._logger.log(that.INTERNAL, LOG_ID + "(_deleteUrlRaw) url : ", urlEncoded, ", headers : ", headers, ", body : ", body);
 
                 if (that._options.restOptions.useGotLibForHttp) {
@@ -1551,6 +1556,7 @@ safeJsonParse(str) {
 
             try {
                 headers["user-agent"] = USER_AGENT;
+                headers["Host"] = urlParse(url).host;
                 let urlEncoded = url;
 
                 let httpConfig = {URL: urlEncoded, method: "GET", headers: headers};
@@ -1968,6 +1974,7 @@ safeJsonParse(str) {
         return new Promise(async function (resolve, reject) {
             try {
                 headers["user-agent"] = USER_AGENT;
+                headers["Host"] = urlParse(that.serverURL + url).host;
 
                 //let urlEncoded = encodeURI(that.serverURL + url); // Can not be used because the data in url are allready encodeURIComponent
                 let urlEncoded = that.serverURL + url;
@@ -2444,6 +2451,7 @@ safeJsonParse(str) {
             that.addAdditionalHeaders(httpConfig);
 
             headers["user-agent"] = USER_AGENT;
+            headers["Host"] = urlParse(urlEncoded).host;
             let body = data;
             if (contentType) {
                 //request.type(type);
@@ -2807,6 +2815,7 @@ safeJsonParse(str) {
             that.addAdditionalHeaders(httpConfig);
 
             headers["user-agent"] = USER_AGENT;
+            headers["Host"] = urlParse(urlEncoded).host;
 
             let xRainbowRequestNodeId = headers["x-rainbow-correlation-id"];
             that._logger.log(that.HTTP, LOG_ID + "(head) url : ", (urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-correlation-id : ", xRainbowRequestNodeId);
@@ -3155,6 +3164,7 @@ safeJsonParse(str) {
             that._logger.log(that.HTTP, LOG_ID + "(patch) url : ", (urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-correlation-id : ", xRainbowRequestNodeId);
 
             headers["user-agent"] = USER_AGENT;
+            headers["Host"] = urlParse(urlEncoded).host;
             that._logger.log(that.INTERNAL, LOG_ID + "(patch) url : ", urlEncoded, ", headers : ", headers, ", data : ", data);
 
             let body = data;
@@ -3522,6 +3532,7 @@ safeJsonParse(str) {
             that.addAdditionalHeaders(httpConfig);
 
             headers["user-agent"] = USER_AGENT;
+            headers["Host"] = urlParse(urlEncoded).host;
             that._logger.log(that.INTERNAL, LOG_ID + "(put) url : ", urlEncoded, ", headers : ", headers, ", data : ", data);
 
             let body = data;
@@ -3892,6 +3903,7 @@ safeJsonParse(str) {
             that._logger.log(that.HTTP, LOG_ID + "(_putBuffer) url : ", (urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-correlation-id : ", xRainbowRequestNodeId);
 
             headers["user-agent"] = USER_AGENT;
+            headers["Host"] = urlParse(urlEncoded).host;
 
             that._logger.log(that.INTERNAL, LOG_ID + "(_putBuffer) url : ", urlEncoded);
             if (that._options.restOptions.useGotLibForHttp) {
@@ -4033,6 +4045,7 @@ safeJsonParse(str) {
             that._logger.log(that.INTERNAL, LOG_ID + "(putStream) url : ", urlEncoded, " stream path : ", stream?.path);
 
             headers["user-agent"] = USER_AGENT;
+            headers["Host"] = urlParse(urlEncoded).host;
 
             that._logger.log(that.INTERNAL, LOG_ID + "(putStream) url : ", urlEncoded, ", headers : ", headers);
 
@@ -4410,6 +4423,7 @@ safeJsonParse(str) {
 
             let body = data;
             headers["user-agent"] = USER_AGENT;
+            headers["Host"] = urlParse(urlEncoded).host;
 
             that._logger.log(that.INTERNAL, LOG_ID + "(delete) url : ", urlEncoded, ", headers : ", headers, ", body : ", body);
 
