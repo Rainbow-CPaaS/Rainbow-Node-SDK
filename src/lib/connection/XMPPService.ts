@@ -3776,9 +3776,10 @@ WHERE  { ?x dc:title ?title .
         // Création de la stanza <iq>
         let iq = xml("iq", {
             from: that.jid_im,
-            to: that.jid_im,
+            to: calendarManager.to,
             type: "set",
-            id: that.xmppUtils.getUniqueMessageId()
+            //id: that.xmppUtils.getUniqueMessageId()
+            id: calendarManager.id
         });
 
         // Création du bloc <events>
@@ -3818,7 +3819,8 @@ WHERE  { ?x dc:title ?title .
             from: that.jid_im,
             to: autoReplyManager.to,
             type: "set",
-            id: that.xmppUtils.getUniqueMessageId()
+            //id: that.xmppUtils.getUniqueMessageId()
+            id: autoReplyManager.id
         });
 
         const autoReplyEl = xml("autoreply", {

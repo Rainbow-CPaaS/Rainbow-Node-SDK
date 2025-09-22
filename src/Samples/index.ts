@@ -445,6 +445,14 @@ let expressEngine = undefined;
                 secureProtocol: undefined //"SSLv3_method"
             }, // */
 
+  /*      proxy: {
+            host: "10.10.13.17",
+            port: 8888,
+            protocol: "http",
+            user: "proxyuser",
+            password: "XXXXX",
+            secureProtocol: undefined //"SSLv3_method"
+        }, // */
 /*
         proxy: {
             host: "127.0.0.1",
@@ -10144,6 +10152,51 @@ example :
 
         }
         
+        async testiq_get_events2() {
+            /*
+            <?xml version="1.0" encoding="UTF-8"?>
+<xs:schema
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  targetNamespace="urn:xmpp:calendar:0"
+  xmlns="urn:xmpp:calendar:0"
+  elementFormDefault="qualified"
+  attributeFormDefault="unqualified">
+
+  <xs:element name="events">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="startDate" type="xs:dateTime"/>
+        <xs:element name="endDate" type="xs:dateTime"/>
+      </xs:sequence>
+      <xs:attribute name="email" type="xs:string" use="required"/>
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>
+example :
+<iq
+  xmlns="jabber:client" xml:lang="en" to="ldap_a455ae70a1c949f2a37fa7930486da29@openrainbow.net/node_cpe_connector" from="pcloud_calendar_6@openrainbow.net/2143643757354589857174689411" type="get" id="e93615af-c3ac-499d-a8bf-035437c8ac7e_25">
+  <events
+    xmlns="urn:xmpp:calendar:0" email="userexchange5@mylab.local">
+    <startDateTime>202...30Z</startDateTime>
+    <endDateTime>202...30Z</endDateTime>
+  </events>
+</iq>
+             */
+            let stanzaStr = "<iq \n" +
+                "  xmlns=\"jabber:client\" xml:lang=\"en\" to=\""+rainbowSDK._core._xmpp.jid + "\" from=\"pcloud_calendar_6@openrainbow.net/2143643757354589857174689411\" type=\"get\" id=\"e93615af-c3ac-499d-a8bf-035437c8ac7e_25\">\n" +
+                "  <events \n" +
+                "    xmlns=\"urn:xmpp:calendar:0\" email=\"userexchange5@mylab.local\">\n" +
+                "    <startDateTime>202...30Z</startDateTime>\n" +
+                "    <endDateTime>202...30Z</endDateTime>\n" +
+                "  </events>\n" +
+                "</iq>" ;
+            let stanza = prettydata.xmlmin(stanzaStr);
+            _logger.log("debug", "MAIN - testiq_get_events stanza : ", stanza);
+            await rainbowSDK._core._xmpp.mockStanza(stanza);
+
+        }
+
         async testiq_get_autoreply() {
 /*
 <?xml version="1.0" encoding="UTF-8"?>
