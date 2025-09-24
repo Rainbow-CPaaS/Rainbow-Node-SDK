@@ -11,11 +11,13 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   None
 
 #### Fixed
+-   Fix `notifyCalendarProvider` API
+-   Fix `sendResultCalendarEvents` and `sendAutoReplyEvents` missing the previous IQ id.
 -   Fix `rainbow_onEWSgetevents` event to wait for the `PresenceService::sendResultCalendarEvents` before sending the IQ result.
 -   Fix `rainbow_onEWSgetautoreply` event to wait for the `PresenceService::sendAutoReplyEvents` before sending the IQ result.
 
 #### Added
--   None.
+-   Add Host in headers in `HttpService`.
  
 #### Changed
 -   None.
