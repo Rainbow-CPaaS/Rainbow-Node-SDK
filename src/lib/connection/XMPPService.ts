@@ -3774,13 +3774,13 @@ WHERE  { ?x dc:title ?title .
         //let userContact = contactService.userContact;
 
         // Création de la stanza <iq>
-        let iq = xml("iq", {
+        /* let iq = xml("iq", {
             from: that.jid_im,
             to: calendarManager.to,
             type: "result",
             //id: that.xmppUtils.getUniqueMessageId()
             id: calendarManager.id
-        });
+        }); // */
 
         // Création du bloc <events>
         let eventsEl = xml("events", {
@@ -3807,9 +3807,9 @@ WHERE  { ?x dc:title ?title .
         });
 
         // Attache <events> dans l’IQ
-        iq.append(eventsEl);
+        //iq.append(eventsEl);
 
-        return await that.xmppClient.resolvPendingRequest(calendarManager.id, iq);
+        return await that.xmppClient.resolvPendingRequest(calendarManager.id, eventsEl);
 
         //return await that.xmppClient.sendIq(iq);
     }
@@ -3817,13 +3817,13 @@ WHERE  { ?x dc:title ?title .
     async sendAutoReplyEvents(autoReplyManager : AutoReplyManager) {
         let that =this;
 
-        const iq = xml("iq", {
+        /*const iq = xml("iq", {
             from: that.jid_im,
             to: autoReplyManager.to,
             type: "result",
             //id: that.xmppUtils.getUniqueMessageId()
             id: autoReplyManager.id
-        });
+        }); // */
 
         const autoReplyEl = xml("autoreply", {
             xmlns: "urn:xmpp:calendar:0",
@@ -3871,8 +3871,8 @@ WHERE  { ?x dc:title ?title .
             );
         }
 
-        iq.append(autoReplyEl);
-        return await that.xmppClient.resolvPendingRequest(autoReplyManager.id, iq);
+        //iq.append(autoReplyEl);
+        return await that.xmppClient.resolvPendingRequest(autoReplyManager.id, autoReplyEl);
         //return await that.xmppClient.sendIq(iq);
     }
 
