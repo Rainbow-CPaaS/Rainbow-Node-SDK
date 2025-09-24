@@ -91,6 +91,7 @@ import {PresenceLevel} from "../lib/common/models/PresenceRainbow.js";
 import fs = require("fs");
 
 const xml = require("@xmpp/xml");
+const parse = require("@xmpp/xml/lib/parse");
 const xmppUtils = XMPPUTils.getXMPPUtils();
 
 const prettydata = require("../lib/connection/pretty-data").pd;
@@ -444,13 +445,23 @@ let expressEngine = undefined;
                 password: undefined,
                 secureProtocol: undefined //"SSLv3_method"
             }, // */
-
-  /*      proxy: {
+/*
+// Proxy Cyril.
+       proxy: {
             host: "10.10.13.17",
             port: 8888,
             protocol: "http",
             user: "proxyuser",
             password: "XXXXX",
+            secureProtocol: undefined //"SSLv3_method"
+        }, // */
+// Proxy 2 Cyril.
+   /*    proxy: {
+            host: "10.10.13.17",
+            port: 3128,
+            protocol: "http",
+            user: "cyril",
+            password: "test",
             secureProtocol: undefined //"SSLv3_method"
         }, // */
 /*
@@ -10197,6 +10208,52 @@ example :
 
         }
 
+        async testiq_get_eventsReal() {
+            /*
+            <?xml version="1.0" encoding="UTF-8"?>
+<xs:schema
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  targetNamespace="urn:xmpp:calendar:0"
+  xmlns="urn:xmpp:calendar:0"
+  elementFormDefault="qualified"
+  attributeFormDefault="unqualified">
+
+  <xs:element name="events">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="startDate" type="xs:dateTime"/>
+        <xs:element name="endDate" type="xs:dateTime"/>
+      </xs:sequence>
+      <xs:attribute name="email" type="xs:string" use="required"/>
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>
+example :
+<iq
+  xmlns="jabber:client" xml:lang="en" to="ldap_a455ae70a1c949f2a37fa7930486da29@openrainbow.net/node_cpe_connector" from="pcloud_calendar_5@openrainbow.net/11863604852945782964148127076" type="get" id="5f3e3e2e-002b-42a5-8191-1c37dfed4ff9_14">
+  <events
+    xmlns="urn:xmpp:calendar:0" email="userexchange5@mylab.local">
+    <startDate>202...35Z</startDate>
+    <endDate>202...35Z</endDate>
+  </events>
+</iq>             */
+            let stanzaStr = "<iq \n" +
+                "  xmlns=\"jabber:client\" xml:lang=\"en\" to=\""+rainbowSDK._core._xmpp.fullJid + "\" from=\""+rainbowSDK._core._xmpp.fullJid + "\" type=\"get\" id=\"5f3e3e2e-002b-42a5-8191-1c37dfed4ff9_14\">\n" +
+                "  <events \n" +
+                "    xmlns=\"urn:xmpp:calendar:0\" email=\"userexchange5@mylab.local\">\n" +
+                "    <startDate>202...35Z</startDate>\n" +
+                "    <endDate>202...35Z</endDate>\n" +
+                "  </events>\n" +
+                "</iq>";
+            // Transform the XML string into an XMPP element using @xmpp/xml so it works generically for any XML string
+            let stanza = parse(stanzaStr);
+            _logger.log("debug", "MAIN - testiq_get_events stanza (parsed): ", stanza.toString());
+            await rainbowSDK._core._xmpp.xmppClient.sendIq(stanza);
+
+        }
+
+
         async testiq_get_autoreply() {
 /*
 <?xml version="1.0" encoding="UTF-8"?>
@@ -10215,7 +10272,7 @@ example :
 
 </xs:schema>
 example :
-<iq from="bob@example.com" to="alice@example.com" type="set" id="ar1">
+<iq from="bob@example.com" to="alice@example.com" type="get" id="ar1">
   <autoreply xmlns="urn:xmpp:calendar:0" email="bob@example.com"/>
 </iq>
 
@@ -10225,6 +10282,40 @@ example :
             let stanza = prettydata.xmlmin(stanzaStr);
             _logger.log("debug", "MAIN - testiq_get_events stanza : ", stanza);
             await rainbowSDK._core._xmpp.mockStanza(stanza);
+        }
+
+        async testiq_get_autoreplyReal() {
+/*
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  targetNamespace="urn:xmpp:calendar:0"
+  xmlns="urn:xmpp:calendar:0"
+  elementFormDefault="qualified"
+  attributeFormDefault="unqualified">
+
+  <xs:element name="autoreply">
+    <xs:complexType>
+      <xs:attribute name="email" type="xs:string" use="required"/>
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>
+example :
+<iq from="bob@example.com" to="alice@example.com" type="get" id="ar1">
+  <autoreply xmlns="urn:xmpp:calendar:0" email="bob@example.com"/>
+</iq>
+
+ */
+            let stanzaStr = "<iq  xmlns=\"jabber:client\" xml:lang=\"en\"  id=\"8413b42e-563c-4437-9a53-06f638b50000_0\" type=\"get\"     from=\""+rainbowSDK._core._xmpp.fullJid + "\"     to=\""+rainbowSDK._core._xmpp.fullJid + "\" >    <autoreply xmlns=\"urn:xmpp:calendar:0\" email=\"bob@example.com\"/>\n" +
+                "  </iq>";
+            //let stanza = prettydata.xmlmin(stanzaStr);
+            //_logger.log("debug", "MAIN - testiq_get_events stanza : ", stanza);
+            // Transform the XML string into an XMPP element using @xmpp/xml so it works generically for any XML string
+            let stanza = parse(stanzaStr);
+            _logger.log("debug", "MAIN - testiq_get_events stanza (parsed): ", stanza.toString());
+
+            await rainbowSDK._core._xmpp.xmppClient.sendIq(stanza);
         }
 
         //endregion RQRAINB-12269 [AD/LDAP] Synchronize CPE Exchange Calendar
@@ -11537,6 +11628,35 @@ example :
 
         //region RPC
 
+        async testiq_query_rpc_methodlist() {
+            /*
+          <iq type="set" from="98091bcde14d4eadac763d9cc0851719@openrainbow.net/node_ciBHlrJd" to="98091bcde14d4eadac763d9cc0851719@openrainbow.net/node_ciBHlrJd" id="node_a900450a-5609-4a56-9541-29d9c54a52487"
+  xmlns="jabber:client">
+  <query
+    xmlns="jabber:iq:rpc">
+    <methodCall>
+      <methodName>system.listMethods</methodName>
+      <params/>
+    </methodCall>
+  </query>
+</iq>
+             */
+
+            let stanzaStr = "<iq type=\"set\" from=\"" + rainbowSDK._core._xmpp.fullJid + "\" to=\"" + rainbowSDK._core._xmpp.fullJid + "\" id=\"node_a900450a-5609-4a56-9541-29d9c54a52487\"\n" +
+                "  xmlns=\"jabber:client\">\n" +
+                "  <query\n" +
+                "    xmlns=\"jabber:iq:rpc\">\n" +
+                "    <methodCall>\n" +
+                "      <methodName>system.listMethods</methodName>\n" +
+                "      <params/>\n" +
+                "    </methodCall>\n" +
+                "  </query>\n" +
+                "</iq>";
+            let stanza = prettydata.xmlmin(stanzaStr);
+            _logger.log("debug", "MAIN - testiq_query_rpc_methodlist stanza : ", stanza);
+            await rainbowSDK._core._xmpp.mockStanza(stanza);
+
+        }
         async testiq_query_rpc_methodCall() {
             /*
            <iq from="eeae0a1dab324fd9b0a99aef22ccd902@openrainbow.net" id="512c98e1-b911-49af-b4ff-13259180b609:sendIQ" to="a9551b2d41b74033b174ee883e2a2819@openrainbow.net/web_win_2.161.0_ouLLdg5P" type="set" xmlns="jabber:client">
@@ -11597,7 +11717,7 @@ example :
                 "</query>" +
                 "</iq>";
             let stanza = prettydata.xmlmin(stanzaStr);
-            _logger.log("debug", "MAIN - testiq_get_events stanza : ", stanza);
+            _logger.log("debug", "MAIN - testiq_query_rpc_methodCall stanza : ", stanza);
             await rainbowSDK._core._xmpp.mockStanza(stanza);
 
         }

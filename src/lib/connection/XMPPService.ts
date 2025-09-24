@@ -3777,7 +3777,7 @@ WHERE  { ?x dc:title ?title .
         let iq = xml("iq", {
             from: that.jid_im,
             to: calendarManager.to,
-            type: "set",
+            type: "result",
             //id: that.xmppUtils.getUniqueMessageId()
             id: calendarManager.id
         });
@@ -3809,7 +3809,9 @@ WHERE  { ?x dc:title ?title .
         // Attache <events> dans l’IQ
         iq.append(eventsEl);
 
-        return await that.xmppClient.sendIq(iq);
+        return await that.xmppClient.resolvPendingRequest(calendarManager.id, iq);
+
+        //return await that.xmppClient.sendIq(iq);
     }
 
     async sendAutoReplyEvents(autoReplyManager : AutoReplyManager) {
@@ -3818,7 +3820,7 @@ WHERE  { ?x dc:title ?title .
         const iq = xml("iq", {
             from: that.jid_im,
             to: autoReplyManager.to,
-            type: "set",
+            type: "result",
             //id: that.xmppUtils.getUniqueMessageId()
             id: autoReplyManager.id
         });
@@ -3870,7 +3872,8 @@ WHERE  { ?x dc:title ?title .
         }
 
         iq.append(autoReplyEl);
-        return await that.xmppClient.sendIq(iq);
+        return await that.xmppClient.resolvPendingRequest(autoReplyManager.id, iq);
+        //return await that.xmppClient.sendIq(iq);
     }
 
     //endregion Calendar EWS

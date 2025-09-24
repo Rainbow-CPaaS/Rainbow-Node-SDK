@@ -350,8 +350,7 @@ class PresenceEventHandler extends GenericHandler {
                 //if (jsonStanza.hasOwnProperty(key)) {
                 if (key==="events" && jsonStanzaIq["events"]?.$attrs?.xmlns==="urn:xmpp:calendar:0") {
                     that._logger.log(that.DEBUG, LOG_ID + "(onIqGetSetReceived) found a property 'events' in jsonStanza. ");
-                    await that._onIqEventsReceived(msg, stanzaTab);
-                    return;
+                    return await that._onIqEventsReceived(msg, stanzaTab);
                 }
                 //}
                 if (key==="autoreply" && jsonStanzaIq["autoreply"]?.$attrs?.xmlns==="urn:xmpp:calendar:0") {
@@ -447,7 +446,6 @@ class PresenceEventHandler extends GenericHandler {
             return true;
         }
     }
-
 
 }
 

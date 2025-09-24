@@ -98,6 +98,8 @@ class XmppClient {
         that.client.setQuery('jabber:iq:roster', 'query', that.iqSetEventRoster.bind(that));
         that.client.setQuery('urn:xmpp:http', 'req', that.iqSetEventHttp.bind(that));
         that.client.setQuery('jabber:iq:rpc', 'query', that.iqSetEventRpc.bind(that));
+        that.client.getQuery('urn:xmpp:calendar:0', 'events', that.iqGetEventEventsCalendar.bind(that));
+        that.client.getQuery('urn:xmpp:calendar:0', 'autoreply', that.iqGetEventAutoreplyCalendar.bind(that));
         that.logger = _logger;
         that.eventEmitter = _eventemitter;
         that.timeBetweenXmppRequests = _timeBetweenXmppRequests ? _timeBetweenXmppRequests:20;
@@ -237,6 +239,50 @@ class XmppClient {
             that.logger.log("debug", LOG_ID + "(XmmpClient) iqSetEventRpc prom result : ", result);
         } catch (e) {
             that.logger.log("error", LOG_ID + "(XmmpClient) iqSetEventRpc CATCH Error !!! error : ", e);
+        }
+
+        return result;
+    };
+
+    async iqGetEventEventsCalendar(ctx) {
+        let that = this;
+        let result = true;
+        //that.logger.log("internal", LOG_ID + "(XmmpClient) iqGetEventEventsCalendar set iq receiv - :", ctx);
+        // return {};
+        try {
+            let stanza = ctx.stanza;
+            //let xmlstanzaStr = stanza ? stanza.toString():"<xml></xml>";
+            //let reqObj = await getJsonFromXML(xmlstanzaStr);
+            that.logger.log("debug", LOG_ID + "(XmmpClient) iqGetEventEventsCalendar ctx.stanza : ", ctx.stanza);
+            //let eventWaited = { id : reqObj["$attrs"]["id"], prom : new Deferred()};
+            let eventWaited = {id: stanza.attrs.id, prom: new Deferred()};
+            that.pendingRequests.push(eventWaited);
+            result = await eventWaited.prom.promise;
+            that.logger.log("debug", LOG_ID + "(XmmpClient) iqGetEventEventsCalendar prom result : ", result);
+        } catch (e) {
+            that.logger.log("error", LOG_ID + "(XmmpClient) iqGetEventEventsCalendar CATCH Error !!! error : ", e);
+        }
+
+        return result;
+    };
+
+    async iqGetEventAutoreplyCalendar(ctx) {
+        let that = this;
+        let result = true;
+        //that.logger.log("internal", LOG_ID + "(XmmpClient) iqGetEventAutoreplyCalendar set iq receiv - :", ctx);
+        // return {};
+        try {
+            let stanza = ctx.stanza;
+            //let xmlstanzaStr = stanza ? stanza.toString():"<xml></xml>";
+            //let reqObj = await getJsonFromXML(xmlstanzaStr);
+            that.logger.log("debug", LOG_ID + "(XmmpClient) iqGetEventAutoreplyCalendar ctx.stanza : ", ctx.stanza);
+            //let eventWaited = { id : reqObj["$attrs"]["id"], prom : new Deferred()};
+            let eventWaited = {id: stanza.attrs.id, prom: new Deferred()};
+            that.pendingRequests.push(eventWaited);
+            result = await eventWaited.prom.promise;
+            that.logger.log("debug", LOG_ID + "(XmmpClient) iqGetEventAutoreplyCalendar prom result : ", result);
+        } catch (e) {
+            that.logger.log("error", LOG_ID + "(XmmpClient) iqGetEventAutoreplyCalendar CATCH Error !!! error : ", e);
         }
 
         return result;

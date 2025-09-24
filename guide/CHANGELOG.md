@@ -6,6 +6,20 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+### [2.41.0] - 2025-09-24
+#### Removed
+-   None
+
+#### Fixed
+-   Fix `rainbow_onEWSgetevents` event to wait for the `PresenceService::sendResultCalendarEvents` before sending the IQ result.
+-   Fix `rainbow_onEWSgetautoreply` event to wait for the `PresenceService::sendAutoReplyEvents` before sending the IQ result.
+
+#### Added
+-   None.
+ 
+#### Changed
+-   None.
+
 ### [2.40.0-lts.0] - 2025-09-01
 #### Removed
 -   None
