@@ -6,6 +6,19 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+### [2.41.1] - 2025-09-25
+#### Removed
+-   None
+
+#### Fixed
+-   Fix `sendResultCalendarEvents` and `sendAutoReplyEvents` double IQ tag in stanza.
+
+#### Added
+-   Add `username` and `password` for proxy used for WebSocket (`https-proxy-agent`).
+
+#### Changed
+-   None.
+
 ### [2.41.0] - 2025-09-24
 #### Removed
 -   None
