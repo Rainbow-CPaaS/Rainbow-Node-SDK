@@ -115,7 +115,6 @@ pipeline {
                 MJAPIKEY = credentials('2f8c39d0-35d5-4b67-a68a-f60aaa7084ad') // 6f119214480245deed79c5a45c59bae6/****** (MailJet API Key to post emails)
                 NPMJSAUTH = credentials('6ba55a5f-c0fa-41c3-b5dd-0c0f62ee22b5') // npmjs /****** (npmjs auth token to publish vberder)
                 GITLABVBERDER = credentials('b04ca5f5-3666-431d-aaf4-c6c239121510') // gitlab credential of vincent berder.
-                GITLABVBERDERTOKEN = credentials('d126a0de-685c-472b-a8cf-c16911111ea7') // gitlab credential of vincent berder by token.
                 VBERDERRB = credentials('5bf46f68-1d87-4091-9aba-c337198503c8') // (vberder - OFFICIAL).
                 APP = credentials('25181a6c-2586-477d-9b95-0a1cc456c831') // (Rainbow Official Vberder AppId).
     }
@@ -466,7 +465,7 @@ pipeline {
                     #echo "Build's  shell the Rainbow-Node-SDK : ${RAINBOWNODESDKVERSION} with send email : ${SENDEMAIL} and is LTSBETA : ${LTSBETA}"
                     export NODE_TLS_REJECT_UNAUTHORIZED=0
                     echo ---------- Set the GIT config to be able to upload to server :
-                    git config --local credential.helper "!f() { echo username=\\$GITLABVBERDERTOKEN_USERNAME; echo password=\\$GITLABVBERDERTOKEN_TOKEN; }; f"
+                    git config --local credential.helper "!f() { echo username=\\$GITLABVBERDER_USR; echo password=\\$GITLABVBERDER_PSW; }; f"
                     git config --global user.email "vincent.berder@al-enterprise.com"
                     git config --global user.name "vincent.berder@al-enterprise.com"
 
