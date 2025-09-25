@@ -461,7 +461,7 @@ pipeline {
                     //          branch: "*"
                     //         branch: "${env.BRANCH_NAME}"
                     withCredentials([
-                             usernamePassword(credentialsId: 'd126a0de-685c-472b-a8cf-c16911111ea7', usernameVariable: 'GITLABVBERDERTOKEN_USERNAME', passwordVariable: 'GITLABVBERDERTOKEN_TOKEN')
+                             usernamePassword(credentialsId: '3bbf5a3d-b1b4-4b81-8f49-244b73e0db78', usernameVariable: 'GITLABVBERDERTOKEN_USERNAME', passwordVariable: 'GITLABVBERDERTOKEN_TOKEN')
                            ]) {
                                 sh script: """
                                 #echo "Build's  shell the Rainbow-Node-SDK : ${RAINBOWNODESDKVERSION} with send email : ${SENDEMAIL} and is LTSBETA : ${LTSBETA}"
