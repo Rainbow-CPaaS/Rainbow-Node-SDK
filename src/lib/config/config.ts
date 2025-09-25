@@ -91,9 +91,8 @@ let conf =  {
                     /**
                      * When using HTTP KeepAlive, how often to send TCP KeepAlive packets over sockets being kept alive. Default = 1000.
                      * Only relevant if keepAlive is set to true.
-                     * Note that rainbow server keep it opennen 5000 milliseconds.
                      */
-                    "keepAliveMsecs": 4301, // ?: number | undefined;
+                    "keepAliveMsecs": 4302, // ?: number | undefined;
                     /**
                      * Maximum number of sockets to allow per host. Default for Node 0.10 is 5, default for Node 0.12 is Infinity
                      */
@@ -105,7 +104,7 @@ let conf =  {
                     /**
                      * Maximum number of sockets to leave open in a free state. Only relevant if keepAlive is set to true. Default = 256.
                      */
-                    "maxFreeSockets": 1000, // ?: number | undefined;
+                    "maxFreeSockets": 1002, // ?: number | undefined;
                     /**
                      * Socket timeout in milliseconds. This will set the timeout after the socket is connected.
                      */
@@ -115,16 +114,16 @@ let conf =  {
                      */
                     "rejectUnauthorized": true
                 },
-                "gotRequestOptions" : {
+                "gotRequestOptions": {
                     "timeout": { // This object describes the maximum allowed time for particular events.
-                        "lookup": 100, // lookup: 100, Starts when a socket is assigned.  Ends when the hostname has been resolved.
-                        "connect": 100, // connect: 50, Starts when lookup completes.  Ends when the socket is fully connected.
-                        "secureConnect": 100, // secureConnect: 50, Starts when connect completes. Ends when the handshake process completes.
-                        "socket": 10000, // socket: 1000, Starts when the socket is connected. Resets when new data is transferred.
+                        "lookup": 5252, // lookup: 100, Starts when a socket is assigned.  Ends when the hostname has been resolved.
+                        "connect": 10252, // connect: 50, Starts when lookup completes.  Ends when the socket is fully connected.
+                        "secureConnect": 10252, // secureConnect: 50, Starts when connect completes. Ends when the handshake process completes.
+                        "socket": 120002, // socket: 1000, Starts when the socket is connected. Resets when new data is transferred.
                         "send": 120002, // send: 10000, // Starts when the socket is connected. Ends when all data have been written to the socket.
                         "response": 120002 // response: 1000 // Starts when request has been flushed. Ends when the headers are received.
                     }
-                }
+                } // */
             }
         }
     },
@@ -154,7 +153,7 @@ let conf =  {
         "rest":{
             "useRestAtStartup" : true,
             "useGotLibForHttp": true,
-            "gotOptions":  {
+            "gotOptions": {
                 "agentOptions": {
                     /**
                      * Keep sockets around in a pool to be used by other requests in the future. Default = false
@@ -163,13 +162,12 @@ let conf =  {
                     /**
                      * When using HTTP KeepAlive, how often to send TCP KeepAlive packets over sockets being kept alive. Default = 1000.
                      * Only relevant if keepAlive is set to true.
-                     * Note that rainbow server keep it opennen 5000 milliseconds.
                      */
-                    "keepAliveMsecs": 4301, // ?: number | undefined;
+                    "keepAliveMsecs": 4302, // ?: number | undefined;
                     /**
                      * Maximum number of sockets to allow per host. Default for Node 0.10 is 5, default for Node 0.12 is Infinity
                      */
-                    "maxSockets": 25, // ?: number | undefined;
+                    "maxSockets": Infinity, // ?: number | undefined;
                     /**
                      * Maximum number of sockets allowed for all hosts in total. Each request will use a new socket until the maximum is reached. Default: Infinity.
                      */
@@ -177,26 +175,26 @@ let conf =  {
                     /**
                      * Maximum number of sockets to leave open in a free state. Only relevant if keepAlive is set to true. Default = 256.
                      */
-                    "maxFreeSockets": 1000, // ?: number | undefined;
+                    "maxFreeSockets": 1002, // ?: number | undefined;
                     /**
                      * Socket timeout in milliseconds. This will set the timeout after the socket is connected.
                      */
-                    "timeout": 60000, // ?: number | undefined;
+                    "timeout": 120002, // ?: number | undefined;
                     /**
                      * If not false, the server certificate is verified against the list of supplied CAs. Default: true.
                      */
                     "rejectUnauthorized": true
                 },
-                "gotRequestOptions" : {
+                "gotRequestOptions": {
                     "timeout": { // This object describes the maximum allowed time for particular events.
-                        "lookup": 800, // lookup: 100, Starts when a socket is assigned.  Ends when the hostname has been resolved.
-                        "connect": 1250, // connect: 50, Starts when lookup completes.  Ends when the socket is fully connected.
-                        "secureConnect": 1250, // secureConnect: 50, Starts when connect completes. Ends when the handshake process completes.
-                        "socket": 2000, // socket: 1000, Starts when the socket is connected. Resets when new data is transferred.
-                        "send": 90000, // send: 10000, // Starts when the socket is connected. Ends when all data have been written to the socket.
-                        "response": 2000 // response: 1000 // Starts when request has been flushed. Ends when the headers are received.
+                        "lookup": 5252, // lookup: 100, Starts when a socket is assigned.  Ends when the hostname has been resolved.
+                        "connect": 10252, // connect: 50, Starts when lookup completes.  Ends when the socket is fully connected.
+                        "secureConnect": 10252, // secureConnect: 50, Starts when connect completes. Ends when the handshake process completes.
+                        "socket": 120002, // socket: 1000, Starts when the socket is connected. Resets when new data is transferred.
+                        "send": 120002, // send: 10000, // Starts when the socket is connected. Ends when all data have been written to the socket.
+                        "response": 120002 // response: 1000 // Starts when request has been flushed. Ends when the headers are received.
                     }
-                }
+                } // */
             }
         }
     },
@@ -227,7 +225,7 @@ let conf =  {
         "rest":{
             "useRestAtStartup" : true,
             "useGotLibForHttp": true,
-            "gotOptions":  {
+            "gotOptions": {
                 "agentOptions": {
                     /**
                      * Keep sockets around in a pool to be used by other requests in the future. Default = false
@@ -236,13 +234,12 @@ let conf =  {
                     /**
                      * When using HTTP KeepAlive, how often to send TCP KeepAlive packets over sockets being kept alive. Default = 1000.
                      * Only relevant if keepAlive is set to true.
-                     * Note that rainbow server keep it opennen 5000 milliseconds.
                      */
-                    "keepAliveMsecs": 4301, // ?: number | undefined;
+                    "keepAliveMsecs": 4302, // ?: number | undefined;
                     /**
                      * Maximum number of sockets to allow per host. Default for Node 0.10 is 5, default for Node 0.12 is Infinity
                      */
-                    "maxSockets": 25, // ?: number | undefined;
+                    "maxSockets": Infinity, // ?: number | undefined;
                     /**
                      * Maximum number of sockets allowed for all hosts in total. Each request will use a new socket until the maximum is reached. Default: Infinity.
                      */
@@ -250,26 +247,26 @@ let conf =  {
                     /**
                      * Maximum number of sockets to leave open in a free state. Only relevant if keepAlive is set to true. Default = 256.
                      */
-                    "maxFreeSockets": 1001, // ?: number | undefined;
+                    "maxFreeSockets": 1002, // ?: number | undefined;
                     /**
                      * Socket timeout in milliseconds. This will set the timeout after the socket is connected.
                      */
-                    "timeout": 120001, // ?: number | undefined;
+                    "timeout": 120002, // ?: number | undefined;
                     /**
                      * If not false, the server certificate is verified against the list of supplied CAs. Default: true.
                      */
                     "rejectUnauthorized": true
                 },
-                "gotRequestOptions" : {
+                "gotRequestOptions": {
                     "timeout": { // This object describes the maximum allowed time for particular events.
-                        "lookup": 5251, // lookup: 100, Starts when a socket is assigned.  Ends when the hostname has been resolved.
-                        "connect": 5251, // connect: 50, Starts when lookup completes.  Ends when the socket is fully connected.
-                        "secureConnect": 5251, // secureConnect: 50, Starts when connect completes. Ends when the handshake process completes.
-                        "socket": 120001, // socket: 1000, Starts when the socket is connected. Resets when new data is transferred.
-                        "send": 120001, // send: 10000, // Starts when the socket is connected. Ends when all data have been written to the socket.
-                        "response": 120001 // response: 1000 // Starts when request has been flushed. Ends when the headers are received.
+                        "lookup": 5252, // lookup: 100, Starts when a socket is assigned.  Ends when the hostname has been resolved.
+                        "connect": 10252, // connect: 50, Starts when lookup completes.  Ends when the socket is fully connected.
+                        "secureConnect": 10252, // secureConnect: 50, Starts when connect completes. Ends when the handshake process completes.
+                        "socket": 120002, // socket: 1000, Starts when the socket is connected. Resets when new data is transferred.
+                        "send": 120002, // send: 10000, // Starts when the socket is connected. Ends when all data have been written to the socket.
+                        "response": 120002 // response: 1000 // Starts when request has been flushed. Ends when the headers are received.
                     }
-                }
+                } // */
             }
         }
     },
