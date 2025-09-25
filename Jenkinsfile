@@ -115,7 +115,6 @@ pipeline {
                 MJAPIKEY = credentials('2f8c39d0-35d5-4b67-a68a-f60aaa7084ad') // 6f119214480245deed79c5a45c59bae6/****** (MailJet API Key to post emails)
                 NPMJSAUTH = credentials('6ba55a5f-c0fa-41c3-b5dd-0c0f62ee22b5') // npmjs /****** (npmjs auth token to publish vberder)
                 GITLABVBERDER = credentials('b04ca5f5-3666-431d-aaf4-c6c239121510') // gitlab credential of vincent berder.
-                GITLABVBERDERTOKEN = credentials('d126a0de-685c-472b-a8cf-c16911111ea7') // gitlab credential of vincent berder by token.
                 VBERDERRB = credentials('5bf46f68-1d87-4091-9aba-c337198503c8') // (vberder - OFFICIAL).
                 APP = credentials('25181a6c-2586-477d-9b95-0a1cc456c831') // (Rainbow Official Vberder AppId).
     }
@@ -461,161 +460,165 @@ pipeline {
                     //          credentialsId: 'b04ca5f5-3666-431d-aaf4-c6c239121510',
                     //          branch: "*"
                     //         branch: "${env.BRANCH_NAME}"
-                            
-                    sh script: """
-                    #echo "Build's  shell the Rainbow-Node-SDK : ${RAINBOWNODESDKVERSION} with send email : ${SENDEMAIL} and is LTSBETA : ${LTSBETA}"
-                    export NODE_TLS_REJECT_UNAUTHORIZED=0
-                    echo ---------- Set the GIT config to be able to upload to server :
-                    git config --local credential.helper "!f() { echo username=\\$GITLABVBERDER_USR; echo password=\\$GITLABVBERDER_PSW; }; f"
-                    git config --global user.email "vincent.berder@al-enterprise.com"
-                    git config --global user.name "vincent.berder@al-enterprise.com"
+                    withCredentials([
+                             usernamePassword(credentialsId: 'd126a0de-685c-472b-a8cf-c16911111ea7', usernameVariable: 'GITLABVBERDERTOKEN_USERNAME', passwordVariable: 'GITLABVBERDERTOKEN_TOKEN')
+                           ]) {
+                                sh script: """
+                                #echo "Build's  shell the Rainbow-Node-SDK : ${RAINBOWNODESDKVERSION} with send email : ${SENDEMAIL} and is LTSBETA : ${LTSBETA}"
+                                export NODE_TLS_REJECT_UNAUTHORIZED=0
+                                echo ---------- Set the GIT config to be able to upload to server :
+                                #git config --local credential.helper "!f() { echo username=\\$GITLABVBERDER_USR; echo password=\\$GITLABVBERDER_PSW; }; f"
+                                git config --local credential.helper "!f() { echo username=\\$GITLABVBERDERTOKEN_USERNAME; echo password=\\$GITLABVBERDERTOKEN_TOKEN; }; f"
+                                git config --global user.email "vincent.berder@al-enterprise.com"
+                                git config --global user.name "vincent.berder@al-enterprise.com"
 
-                    if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM.LTS}" ]; then
-                        echo ---------- Create a specific branch :
-                        if [ "${PUBLISHTONPMANDSETTAGINGIT}" = "true" ]; then
-                            echo ---------- Create a specific branch :
-# REFACTOR                            git branch "delivered${RAINBOWNODESDKVERSION}"
-# REFACTOR                            git checkout "delivered${RAINBOWNODESDKVERSION}"
-# REFACTOR                            git push  --set-upstream origin "delivered${RAINBOWNODESDKVERSION}"
+                                if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM.LTS}" ]; then
+                                    echo ---------- Create a specific branch :
+                                    if [ "${PUBLISHTONPMANDSETTAGINGIT}" = "true" ]; then
+                                        echo ---------- Create a specific branch :
+            # REFACTOR                            git branch "delivered${RAINBOWNODESDKVERSION}"
+            # REFACTOR                            git checkout "delivered${RAINBOWNODESDKVERSION}"
+            # REFACTOR                            git push  --set-upstream origin "delivered${RAINBOWNODESDKVERSION}"
 
-                        fi
-                    fi
+                                    fi
+                                fi
 
-                    #echo "registry=https://10.10.13.10:4873/
-                    #//10.10.13.10:4873/:_authToken=\"bqyuhm71xMxSA8+6hA3rdg==\"" >> ~/.npmrc
-                        
-                    echo ---------- Set the NPM config and install node stable version :
-                    mkdir ${WORKSPACE}/.npm-packages
-                    npm config set prefix "${WORKSPACE}/.npm-packages"
-                    export PATH=${WORKSPACE}/.npm-packages/bin:${PATH}
+                                #echo "registry=https://10.10.13.10:4873/
+                                #//10.10.13.10:4873/:_authToken=\"bqyuhm71xMxSA8+6hA3rdg==\"" >> ~/.npmrc
 
-                    more ~/.npmrc > ~/.npmrc.sav 
-                    echo "# UPDATE FROM JENKINS JOBS." > ~/.npmrc
-                    echo "registry=https://registry.npmjs.org/
-                    //registry.npmjs.org/:_authToken=${NPMJSAUTH_PSW}" |tee ./.npmrc
-                        
-                    #sudo npm install npm -g
-                    sudo npm install n -g
-                    #sudo n stable
-                    #sudo n 20.5.1
-                    sudo n 20.17.0
+                                echo ---------- Set the NPM config and install node stable version :
+                                mkdir ${WORKSPACE}/.npm-packages
+                                npm config set prefix "${WORKSPACE}/.npm-packages"
+                                export PATH=${WORKSPACE}/.npm-packages/bin:${PATH}
 
-                    #sudo npm install --global npm@9
-                    sudo npm install --global npm@11.5.2
+                                more ~/.npmrc > ~/.npmrc.sav
+                                echo "# UPDATE FROM JENKINS JOBS." > ~/.npmrc
+                                echo "registry=https://registry.npmjs.org/
+                                //registry.npmjs.org/:_authToken=${NPMJSAUTH_PSW}" |tee ./.npmrc
 
-                    cd ${WORKSPACE}
-                    
-                    echo ---------- STEP install the library :
-                    npm install --legacy-peer-deps
-                    
-                    ls 
-                    ls ./src/**/*
-                        
-                    npm version "${RAINBOWNODESDKVERSION}"  --allow-same-version
+                                #sudo npm install npm -g
+                                sudo npm install n -g
+                                #sudo n stable
+                                #sudo n 20.5.1
+                                sudo n 20.17.0
+
+                                #sudo npm install --global npm@9
+                                sudo npm install --global npm@11.5.2
+
+                                cd ${WORKSPACE}
+
+                                echo ---------- STEP install the library :
+                                npm install --legacy-peer-deps
+
+                                ls
+                                ls ./src/**/*
+
+                                npm version "${RAINBOWNODESDKVERSION}"  --allow-same-version
 
 
-                    if [ "${DEBUGINTERNAL}" = "true" ]; then
-                         echo "Build sources with Internal DEBUG activated."
-                        echo ---------- STEP grunt : 
-                        
-                        # test of grunt specifics tasks : 
-                        #grunt ts --verbose
-                        #grunt dtsGenerator --verbose
-                        
-                        #echo Sub Step 1 : To compil the sources
-                        grunt debugDeliveryBuild --verbose
-                        #echo Sub Step 2 : To prepare the sources + doc for package
-                        grunt debugDeliveryDelivery --verbose
-                    else
-                        echo "Build sources with Internal DEBUG removed."
-                        echo ---------- STEP grunt : 
-                        echo Sub Step 1 : To compil the sources
-                        grunt --verbose
-                        echo Sub Step 2 : To prepare the sources + doc for package
-                        #grunt jsdoc2md --verbose
-                        grunt delivery --verbose
-                    fi
-                        
-                        
-                        
-                    #echo ---------- STEP commit : 
-                    if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM.LTS}" ]; then
-# REFACTOR                        if [ "${PUBLISHTONPMANDSETTAGINGIT}" = "true" ]; then
-# REFACTOR                            git reset --hard "origin/delivered${RAINBOWNODESDKVERSION}"
-# REFACTOR                        else
-                            git reset --hard "origin/${env.BRANCH_NAME}"
-# REFACTOR                        fi
-                    fi
-                    if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM.STS}" ]; then
-                        git reset --hard origin/${env.BRANCH_NAME}
-                    fi
-                    npm version "${RAINBOWNODESDKVERSION}"  --allow-same-version
-                                                
-                    echo ---------- STEP whoami :
-                    npm whoami
-                        
-                    #npm view
-                    npm token list
+                                if [ "${DEBUGINTERNAL}" = "true" ]; then
+                                     echo "Build sources with Internal DEBUG activated."
+                                    echo ---------- STEP grunt :
 
-                    echo ---------- Generate the Cyclone DX file :
-                    node ./node_modules/@cyclonedx/cyclonedx-npm/bin/cyclonedx-npm-cli.js --ignore-npm-errors --output-file build/rainbownodesdk.cdx
+                                    # test of grunt specifics tasks :
+                                    #grunt ts --verbose
+                                    #grunt dtsGenerator --verbose
 
-                    cp -R build/JSONDOCS guide/JSONDOCS
+                                    #echo Sub Step 1 : To compil the sources
+                                    grunt debugDeliveryBuild --verbose
+                                    #echo Sub Step 2 : To prepare the sources + doc for package
+                                    grunt debugDeliveryDelivery --verbose
+                                else
+                                    echo "Build sources with Internal DEBUG removed."
+                                    echo ---------- STEP grunt :
+                                    echo Sub Step 1 : To compil the sources
+                                    grunt --verbose
+                                    echo Sub Step 2 : To prepare the sources + doc for package
+                                    #grunt jsdoc2md --verbose
+                                    grunt delivery --verbose
+                                fi
 
-                    echo ---------- STEP publish :
-                    if [ "${PUBLISHTONPMANDSETTAGINGIT}" = "true" ]; then
-                        if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM.LTS}" ]; then
-                             echo "Publish latest on npmjs."
-                             npm publish
-                        fi
-                        if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM.STS}" ]; then
-                            if [ "${PUBLISHONNPMJSWITHSTSTAG}" = "true" ]; then
-                                echo "Publish on npmjs with tag."
-                                npm publish --tag sts
-                            else
-                                echo "Publish on npmjs with node .net tag."
-                                npm publish --tag .net
-                            fi
-                        fi
-                    fi
-                        
-                    echo ---------- PUSH tags AND files :
-                    if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM.STS}" ]; then
-                        ${PUBLISHTONPMANDSETTAGINGIT} && git tag -a ${RAINBOWNODESDKVERSION} -m "${RAINBOWNODESDKVERSION} is a ${RELEASENAMELOWERNAME} version."
-                        ${PUBLISHTONPMANDSETTAGINGIT} && git push  origin HEAD:${env.BRANCH_NAME}
-                        ${PUBLISHTONPMANDSETTAGINGIT} && git push --tags origin HEAD:${env.BRANCH_NAME}
-                    fi
-                    if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM.LTS}" ]; then
-                        ${PUBLISHTONPMANDSETTAGINGIT} && git tag -a ${RAINBOWNODESDKVERSION} -m "${RAINBOWNODESDKVERSION} is a ${RELEASENAMELOWERNAME} version."
-                        ${PUBLISHTONPMANDSETTAGINGIT} && git push  origin HEAD:${env.BRANCH_NAME}
-                        ${PUBLISHTONPMANDSETTAGINGIT} && git push --tags origin HEAD:${env.BRANCH_NAME}
-# REFACTOR                        ${PUBLISHTONPMANDSETTAGINGIT} && git tag -a ${RAINBOWNODESDKVERSION} -m "${RAINBOWNODESDKVERSION} is a ${RELEASENAMELOWERNAME} version."
-# REFACTOR                        ${PUBLISHTONPMANDSETTAGINGIT} && git push  origin "HEAD:delivered${RAINBOWNODESDKVERSION}"
-# REFACTOR                        ${PUBLISHTONPMANDSETTAGINGIT} && git push --tags origin "HEAD:delivered${RAINBOWNODESDKVERSION}"
-                    fi
 
-                    echo ---------- send emails getDebianArtifacts parameters setted :
-                    export MJ_APIKEY_PUBLIC="${MJAPIKEY_USR}" 
-                    export MJ_APIKEY_PRIVATE="${MJAPIKEY_PSW}"
-                    if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM.STS}" ]; then
-                        ${SENDEMAIL} && npm run-script sendmailPreProduction
-                        ${SENDEMAIL} && node mailing/postChangeLogInChannel.js host=official login=${VBERDERRB_USR} password=${VBERDERRB_PSW} appID=${APP_USR} appSecret=${APP_PSW}
 
-                        # To send the mailing only to vincent.berder@al-enterprise.com .
-                        ${SENDEMAILTOVBERDER} && npm run-script sendmailProductionTest
-                        ${SENDEMAILTOVBERDER} && node mailing/postChangeLogInChannel.js host=official login=${VBERDERRB_USR} password=${VBERDERRB_PSW} appID=${APP_USR} appSecret=${APP_PSW}  channelName=RNodeSdkChangeLog
-                    fi
+                                #echo ---------- STEP commit :
+                                if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM.LTS}" ]; then
+            # REFACTOR                        if [ "${PUBLISHTONPMANDSETTAGINGIT}" = "true" ]; then
+            # REFACTOR                            git reset --hard "origin/delivered${RAINBOWNODESDKVERSION}"
+            # REFACTOR                        else
+                                        git reset --hard "origin/${env.BRANCH_NAME}"
+            # REFACTOR                        fi
+                                fi
+                                if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM.STS}" ]; then
+                                    git reset --hard origin/${env.BRANCH_NAME}
+                                fi
+                                npm version "${RAINBOWNODESDKVERSION}"  --allow-same-version
 
-                    if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM.LTS}" ]; then
-                        ${SENDEMAIL} && npm run-script sendmailProduction
-                        ${SENDEMAIL} && node mailing/postChangeLogInChannel.js host=official login=${VBERDERRB_USR} password=${VBERDERRB_PSW} appID=${APP_USR} appSecret=${APP_PSW}
+                                echo ---------- STEP whoami :
+                                npm whoami
 
-                        # To send the mailing only to vincent.berder@al-enterprise.com .
-                        ${SENDEMAILTOVBERDER} && npm run-script sendmailProductionTest
-                    fi
-                        
-                    more ~/.npmrc.sav > ~/.npmrc
-                """
+                                #npm view
+                                npm token list
+
+                                echo ---------- Generate the Cyclone DX file :
+                                node ./node_modules/@cyclonedx/cyclonedx-npm/bin/cyclonedx-npm-cli.js --ignore-npm-errors --output-file build/rainbownodesdk.cdx
+
+                                cp -R build/JSONDOCS guide/JSONDOCS
+
+                                echo ---------- STEP publish :
+                                if [ "${PUBLISHTONPMANDSETTAGINGIT}" = "true" ]; then
+                                    if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM.LTS}" ]; then
+                                         echo "Publish latest on npmjs."
+                                         npm publish
+                                    fi
+                                    if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM.STS}" ]; then
+                                        if [ "${PUBLISHONNPMJSWITHSTSTAG}" = "true" ]; then
+                                            echo "Publish on npmjs with tag."
+                                            npm publish --tag sts
+                                        else
+                                            echo "Publish on npmjs with node .net tag."
+                                            npm publish --tag .net
+                                        fi
+                                    fi
+                                fi
+
+                                echo ---------- PUSH tags AND files :
+                                if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM.STS}" ]; then
+                                    ${PUBLISHTONPMANDSETTAGINGIT} && git tag -a ${RAINBOWNODESDKVERSION} -m "${RAINBOWNODESDKVERSION} is a ${RELEASENAMELOWERNAME} version."
+                                    ${PUBLISHTONPMANDSETTAGINGIT} && git push  origin HEAD:${env.BRANCH_NAME}
+                                    ${PUBLISHTONPMANDSETTAGINGIT} && git push --tags origin HEAD:${env.BRANCH_NAME}
+                                fi
+                                if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM.LTS}" ]; then
+                                    ${PUBLISHTONPMANDSETTAGINGIT} && git tag -a ${RAINBOWNODESDKVERSION} -m "${RAINBOWNODESDKVERSION} is a ${RELEASENAMELOWERNAME} version."
+                                    ${PUBLISHTONPMANDSETTAGINGIT} && git push  origin HEAD:${env.BRANCH_NAME}
+                                    ${PUBLISHTONPMANDSETTAGINGIT} && git push --tags origin HEAD:${env.BRANCH_NAME}
+            # REFACTOR                        ${PUBLISHTONPMANDSETTAGINGIT} && git tag -a ${RAINBOWNODESDKVERSION} -m "${RAINBOWNODESDKVERSION} is a ${RELEASENAMELOWERNAME} version."
+            # REFACTOR                        ${PUBLISHTONPMANDSETTAGINGIT} && git push  origin "HEAD:delivered${RAINBOWNODESDKVERSION}"
+            # REFACTOR                        ${PUBLISHTONPMANDSETTAGINGIT} && git push --tags origin "HEAD:delivered${RAINBOWNODESDKVERSION}"
+                                fi
+
+                                echo ---------- send emails getDebianArtifacts parameters setted :
+                                export MJ_APIKEY_PUBLIC="${MJAPIKEY_USR}"
+                                export MJ_APIKEY_PRIVATE="${MJAPIKEY_PSW}"
+                                if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM.STS}" ]; then
+                                    ${SENDEMAIL} && npm run-script sendmailPreProduction
+                                    ${SENDEMAIL} && node mailing/postChangeLogInChannel.js host=official login=${VBERDERRB_USR} password=${VBERDERRB_PSW} appID=${APP_USR} appSecret=${APP_PSW}
+
+                                    # To send the mailing only to vincent.berder@al-enterprise.com .
+                                    ${SENDEMAILTOVBERDER} && npm run-script sendmailProductionTest
+                                    ${SENDEMAILTOVBERDER} && node mailing/postChangeLogInChannel.js host=official login=${VBERDERRB_USR} password=${VBERDERRB_PSW} appID=${APP_USR} appSecret=${APP_PSW}  channelName=RNodeSdkChangeLog
+                                fi
+
+                                if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM.LTS}" ]; then
+                                    ${SENDEMAIL} && npm run-script sendmailProduction
+                                    ${SENDEMAIL} && node mailing/postChangeLogInChannel.js host=official login=${VBERDERRB_USR} password=${VBERDERRB_PSW} appID=${APP_USR} appSecret=${APP_PSW}
+
+                                    # To send the mailing only to vincent.berder@al-enterprise.com .
+                                    ${SENDEMAILTOVBERDER} && npm run-script sendmailProductionTest
+                                fi
+
+                                more ~/.npmrc.sav > ~/.npmrc
+                      """
+                    }
                 }                
             }
               
