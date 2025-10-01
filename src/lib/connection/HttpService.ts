@@ -28,11 +28,16 @@ const debugHttp = require("debug-http");
 //const HttpAgent = require('agentkeepalive');
 //const HttpsAgent = require('agentkeepalive').HttpsAgent;
 
-let Agent = require('keepalive-proxy-agent');
-//let Agent = require('agentkeepalive');
+let KeepAliveProxyAgent = require('keepalive-proxy-agent');
+//let KeepAliveProxyAgent = require('agentkeepalive');
+const {HttpProxyAgent} = require("http-proxy-agent");
+const {HttpsProxyAgent} = require("https-proxy-agent");
+const http = require('http');
+const https = require('https');
 
 //import got, {Agents, Got} from "got";
 const got = require("got").got;
+//import {OptionsInit} from 'got';
 const _ = require('highland');
 const { pipeline } = require('stream');
 const urlLib = require('url');
@@ -113,7 +118,7 @@ class HTTPService extends LevelLogs{
         // ***** Start lib 'keepalive-proxy-agent' *****
 
         const customLiveOption = _options._getRESTOptions()?.gotOptions;
-        const liveOption: any = {
+        let liveOption: any = {
             /**
              * Keep sockets around in a pool to be used by other requests in the future. Default = false
              */
@@ -150,14 +155,85 @@ class HTTPService extends LevelLogs{
                 //opt.secureProxy = true;
             }
             // Until web proxy on websocket solved, patch existing configuration to offer the proxy options
-            liveOption.proxy = urlLib.parse(that.proxy.proxyURL);
-        }
+            //liveOption.proxy = urlParse(that.proxy.proxyURL);
+            liveOption = Object.assign({}, liveOption, urlParse(that.proxy.proxyURL));
 
-        this.reqAgentHttp = new Agent(liveOption);
-        this.reqAgentHttps = this.reqAgentHttp;
+            if (that.proxy.secureProtocol) {
+                liveOption.secureProxy = true;
+            }
+            // If credentials are provided in the proxy URL (e.g., http://user:pass@host:port),
+            // url.parse places them in opt.auth. Extract them to username/password fields for the agent.
+            if (liveOption && liveOption.auth) {
+                const authStr = "" + liveOption.auth;
+                const sepIndex = authStr.indexOf(":");
+                if (sepIndex > -1) {
+                    liveOption.username = authStr.substring(0, sepIndex);
+                    liveOption.password = authStr.substring(sepIndex + 1);
+                } else {
+                    liveOption.username = authStr;
+                }
+            }
+            const proxyUrl = that.proxy.proxyURL; // ex: "http://user:pass@host:3128" ou "https://host:3129"
+
+            that._logger.log(that.INTERNAL, LOG_ID + "(constructor) build proxy agent. proxyUrl : ", proxyUrl,", liveOption : ", liveOption);
+            this.reqAgentHttp = new HttpProxyAgent(proxyUrl, liveOption);
+            this.reqAgentHttps = new HttpsProxyAgent(proxyUrl, liveOption);
+        } else {
+            that._logger.log(that.INTERNAL, LOG_ID + "(constructor) build direct agent. liveOption : ", liveOption);
+            this.reqAgentHttp = new http.Agent(liveOption);
+            this.reqAgentHttps = new https.Agent(liveOption);
+        }
 
         // ***** End lib 'keepalive-proxy-agent' *****
 
+        // // ***** Start lib 'keepalive-proxy-agent' *****
+        //
+        // const customLiveOption = _options._getRESTOptions()?.gotOptions;
+        // const liveOption: any = {
+        //     /**
+        //      * Keep sockets around in a pool to be used by other requests in the future. Default = false
+        //      */
+        //     keepAlive: customLiveOption?.agentOptions?.keepAlive!==undefined ? customLiveOption.agentOptions.keepAlive:true, // ?: boolean | undefined;
+        //     /**
+        //      * When using HTTP KeepAlive, how often to send TCP KeepAlive packets over sockets being kept alive. Default = 1000.
+        //      * Only relevant if keepAlive is set to true.
+        //      */
+        //     keepAliveMsecs: customLiveOption?.agentOptions?.keepAliveMsecs!==undefined ? customLiveOption.agentOptions.keepAliveMsecs:4301, // ?: number | undefined;
+        //     /**
+        //      * Maximum number of sockets to allow per host. Default for Node 0.10 is 5, default for Node 0.12 is Infinity
+        //      */
+        //     maxSockets: customLiveOption?.agentOptions?.maxSockets!==undefined ? customLiveOption.agentOptions.maxSockets:25, // ?: number | undefined;
+        //     /**
+        //      * Maximum number of sockets allowed for all hosts in total. Each request will use a new socket until the maximum is reached. Default: Infinity.
+        //      */
+        //     maxTotalSockets: customLiveOption?.agentOptions?.maxTotalSockets!==undefined ? customLiveOption.agentOptions.maxTotalSockets:Infinity, // ?: number | undefined;
+        //     /**
+        //      * Maximum number of sockets to leave open in a free state. Only relevant if keepAlive is set to true. Default = 256.
+        //      */
+        //     maxFreeSockets: customLiveOption?.agentOptions?.maxFreeSockets!==undefined ? customLiveOption.agentOptions.maxFreeSockets:1000, // ?: number | undefined;
+        //     /**
+        //      * Socket timeout in milliseconds. This will set the timeout after the socket is connected.
+        //      */
+        //     timeout: customLiveOption?.agentOptions?.timeout!==undefined ? customLiveOption.agentOptions.timeout:60000, // ?: number | undefined;
+        //     /**
+        //      * If not false, the server certificate is verified against the list of supplied CAs. Default: true.
+        //      */
+        //     rejectUnauthorized: customLiveOption?.agentOptions?.rejectUnauthorized!==undefined ? customLiveOption.agentOptions.rejectUnauthorized:true
+        // };
+        //
+        // if (that.proxy.isProxyConfigured) {
+        //     if (that.proxy.secureProtocol) {
+        //         //opt.secureProxy = true;
+        //     }
+        //     // Until web proxy on websocket solved, patch existing configuration to offer the proxy options
+        //     liveOption.proxy = urlParse(that.proxy.proxyURL);
+        // }
+        //
+        // this.reqAgentHttp = new KeepAliveProxyAgent(liveOption);
+        // this.reqAgentHttps = this.reqAgentHttp;
+        //
+        // // ***** End lib 'keepalive-proxy-agent' *****
+        //
 
         /*
         // Start lib 'agentkeepalive'
@@ -177,13 +253,46 @@ class HTTPService extends LevelLogs{
             }
             // Until web proxy on websocket solved, patch existing configuration to offer the proxy options
             // @ts-ignore
-            _AGENT_OPTIONS.proxy = urlLib.parse(that.proxy.proxyURL);
+            _AGENT_OPTIONS.proxy = urlParse(that.proxy.proxyURL);
         }
 
-        this.reqAgentHttp =  new Agent(_AGENT_OPTIONS);
-        this.reqAgentHttps =  new Agent.HttpsAgent(_AGENT_OPTIONS);
+        this.reqAgentHttp =  new KeepAliveProxyAgent(_AGENT_OPTIONS);
+        this.reqAgentHttps =  new KeepAliveProxyAgent.HttpsAgent(_AGENT_OPTIONS);
         // End lib 'agentkeepalive'
         // */
+
+        //const wrapRequest: NonNullable<OptionsInit['request']> = (url, options, callback) => {
+        const wrapRequest: any = (url, options, callback) => {
+            that._logger.log(that.INTERNAL, LOG_ID + "(wrapRequest) url : ", url, ", options : ", options);
+            // Sélectionne la bonne fonction native
+            const isHttps = (options as any).protocol === 'https:' || (options as any).url?.toString().startsWith('https:') || (url as any).protocol === 'https:' || (url as any).href?.toString().startsWith('https:');
+            const nativeRequest = isHttps ? https.request : http.request;
+
+            const req = nativeRequest(url as any, options as any, callback as any);
+
+            // Ici on a accès au ClientRequest → on attache nos écouteurs
+            req.on('socket', (socket: any) => {
+                // Node remplit req.reusedSocket quand le socket provient du pool Keep-Alive
+                const reused = (req as any).reusedSocket === true;
+                try {
+                    that._logger.log(that.INTERNAL, `${LOG_ID}(got) req socket event reused=${reused} local=${socket.localPort} remote=${socket.remoteAddress}:${socket.remotePort}`);
+                } catch {}
+            });
+            req.on('abort', (err) => {
+                that._logger.log(that.INTERNAL, LOG_ID + "(got) agent abort event : ", err);
+            });
+            req.on('close', (info) => {
+                that._logger.log(that.INTERNAL, LOG_ID + "(got) agent close event : ", info);
+            });
+
+            req.on('error', (err: any) => {
+                try {
+                    that._logger.log(that.INTERNAL, `${LOG_ID}(got) req error:`, err);
+                } catch {}
+            });
+
+            return req;
+        };
 
         function debugHandler(request, options?, cb?): any {
             options = typeof options==="string" ? urlParse(options):options;
@@ -261,6 +370,13 @@ class HTTPService extends LevelLogs{
                 send: customLiveOption?.gotRequestOptions?.timeout?.send!==undefined ? customLiveOption.gotRequestOptions.timeout.send: 90000, // send: 10000, // Starts when the socket is connected. Ends when all data have been written to the socket.
                 response: customLiveOption?.gotRequestOptions?.timeout?.response!==undefined ? customLiveOption.gotRequestOptions.timeout.response: 2000 // response: 1000 // Starts when request has been flushed. Ends when the headers are received.
             }
+            ,
+            // Le wrapper qui nous donne l’accès à req et donc à 'socket'
+            request: wrapRequest,
+            agent: {
+                http: this.reqAgentHttp as any,
+                https: this.reqAgentHttps as any,
+            } // */
         });
     }
 
@@ -571,14 +687,14 @@ safeJsonParse(str) {
                             // Until web proxy on websocket solved, patch existing configuration to offer the proxy options
                             //options.agent = new HttpsProxyAgent(opt);
 
-                            //let opt = urlLib.parse(that.proxy.proxyURL);
-                            liveOption.proxy = urlLib.parse(that.proxy.proxyURL);
+                            //let opt = urlParse(that.proxy.proxyURL);
+                            liveOption.proxy = urlParse(that.proxy.proxyURL);
 
-                            req.agent.http =  new Agent(liveOption);
-                            req.agent.https = new Agent(liveOption);
+                            req.agent.http =  new KeepAliveProxyAgent(liveOption);
+                            req.agent.https = new KeepAliveProxyAgent(liveOption);
                         } else {
-                            req.agent.http =  new Agent(liveOption);
-                            req.agent.https = new Agent(liveOption);
+                            req.agent.http =  new KeepAliveProxyAgent(liveOption);
+                            req.agent.https = new KeepAliveProxyAgent(liveOption);
                         } // */
 
                         req.agent.http = that.reqAgentHttp;
@@ -1014,8 +1130,8 @@ safeJsonParse(str) {
                             },
                         };
 
-                        req.agent.http = that.reqAgentHttp;
-                        req.agent.https = that.reqAgentHttps;
+                         req.agent.http = that.reqAgentHttp;
+                         req.agent.https = that.reqAgentHttps;
                         // @ts-ignore
                         // req.agent = false;
 
@@ -1730,14 +1846,14 @@ safeJsonParse(str) {
                             // Until web proxy on websocket solved, patch existing configuration to offer the proxy options
                             //options.agent = new HttpsProxyAgent(opt);
 
-                            //let opt = urlLib.parse(that.proxy.proxyURL);
-                            liveOption.proxy = urlLib.parse(that.proxy.proxyURL);
+                            //let opt = urlParse(that.proxy.proxyURL);
+                            liveOption.proxy = urlParse(that.proxy.proxyURL);
 
-                            req.agent.http =  new Agent(liveOption);
-                            req.agent.https = new Agent(liveOption);
+                            req.agent.http =  new KeepAliveProxyAgent(liveOption);
+                            req.agent.https = new KeepAliveProxyAgent(liveOption);
                         } else {
-                            req.agent.http =  new Agent(liveOption);
-                            req.agent.https = new Agent(liveOption);
+                            req.agent.http =  new KeepAliveProxyAgent(liveOption);
+                            req.agent.https = new KeepAliveProxyAgent(liveOption);
                         } // */
 
                         req.agent.http = that.reqAgentHttp;
@@ -2159,18 +2275,18 @@ safeJsonParse(str) {
                                 // Until web proxy on websocket solved, patch existing configuration to offer the proxy options
                                 //options.agent = new HttpsProxyAgent(opt);
 
-                                //let opt = urlLib.parse(that.proxy.proxyURL);
-                                liveOption.proxy = urlLib.parse(that.proxy.proxyURL);
+                                //let opt = urlParse(that.proxy.proxyURL);
+                                liveOption.proxy = urlParse(that.proxy.proxyURL);
 
-                                req.agent.http =  new Agent(liveOption);
-                                req.agent.https = new Agent(liveOption);
+                                req.agent.http =  new KeepAliveProxyAgent(liveOption);
+                                req.agent.https = new KeepAliveProxyAgent(liveOption);
                             } else {
-                                req.agent.http =  new Agent(liveOption);
-                                req.agent.https = new Agent(liveOption);
+                                req.agent.http =  new KeepAliveProxyAgent(liveOption);
+                                req.agent.https = new KeepAliveProxyAgent(liveOption);
                             } // */
 
-                            req.agent.http = that.reqAgentHttp;
-                            req.agent.https = that.reqAgentHttps;
+                            //req.agent.http = that.reqAgentHttp;
+                            //req.agent.https = that.reqAgentHttps;
                             // @ts-ignore
                             // req.agent = false;
                             return req;

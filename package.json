@@ -118,6 +118,7 @@
     "fs": "^0.0.1-security",
     "got": "^14.4.7",
     "highland": "^2.13.5",
+    "http-proxy-agent": "^7.0.2",
     "https-proxy-agent": "7.0.6",
     "humanize-number": "0.0.2",
     "ini": "^5.0.0",

@@ -646,28 +646,34 @@ class XMPPService extends GenericService {
 
         let options = {agent: null};
         //Object.assign(options, headers); // headers not supoorted by xmpp/client. Needs to put it with query param in url.
-        let opt = url.parse(that.proxy.proxyURL);
         if (that.proxy.isProxyConfigured ) {
-            if (that.proxy.secureProtocol) {
-                opt.secureProxy = true;
-            }
-            // If credentials are provided in the proxy URL (e.g., http://user:pass@host:port),
-            // url.parse places them in opt.auth. Extract them to username/password fields for the agent.
-            if (opt && opt.auth) {
-                const authStr = "" + opt.auth;
-                const sepIndex = authStr.indexOf(":");
-                if (sepIndex > -1) {
-                    opt.username = authStr.substring(0, sepIndex);
-                    opt.password = authStr.substring(sepIndex + 1);
-                } else {
-                    opt.username = authStr;
+            let opt :any = {};
+            try {
+                opt = url.parse(that.proxy.proxyURL);
+
+                if (that.proxy.secureProtocol) {
+                    opt.secureProxy = true;
                 }
+                // If credentials are provided in the proxy URL (e.g., http://user:pass@host:port),
+                // url.parse places them in opt.auth. Extract them to username/password fields for the agent.
+                if (opt && opt.auth) {
+                    const authStr = "" + opt.auth;
+                    const sepIndex = authStr.indexOf(":");
+                    if (sepIndex > -1) {
+                        opt.username = authStr.substring(0, sepIndex);
+                        opt.password = authStr.substring(sepIndex + 1);
+                    } else {
+                        opt.username = authStr;
+                    }
+                }
+                that._logger.log(that.INTERNAL, LOG_ID + "(handleXMPPConnection) proxy opt : ", opt);
+                // Until web proxy on websocket solved, patch existing configuration to offer the proxy options
+                options.agent = new HttpsProxyAgent(opt);
+                //options.agent = new HttpsProxyAgent(that.proxy.proxyURL);
+                ws_options = options;
+            } catch (error) {
+                that._logger.log(that.INTERNAL, LOG_ID + "(handleXMPPConnection) CATCH Error !!! decoding proxy : ", error);
             }
-            that._logger.log(that.INTERNAL, LOG_ID + "(handleXMPPConnection) proxy opt : ", opt);
-            // Until web proxy on websocket solved, patch existing configuration to offer the proxy options
-            options.agent = new HttpsProxyAgent(opt);
-            //options.agent = new HttpsProxyAgent(that.proxy.proxyURL);
-            ws_options = options;
         }
 
         /*
