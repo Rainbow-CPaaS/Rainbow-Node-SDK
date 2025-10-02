@@ -1126,8 +1126,8 @@ class FileStorage extends GenericService{
                                 return (viewer);
                             })
                             .catch((error) => {
-                                that._logger.log(that.ERROR, LOG_ID + "(getCompleteFileDescriptorById) Error.");
-                                that._logger.log(that.INTERNALERROR, LOG_ID + "(getCompleteFileDescriptorById) Error : ", error);
+                                //that._logger.log(that.ERROR, LOG_ID + "(getCompleteFileDescriptorById) Error.");
+                                that._logger.log(that.ERROR, LOG_ID + "(getCompleteFileDescriptorById) Error : ", error);
                                 return reject(error);
                             })
                         );
@@ -2124,8 +2124,8 @@ class FileStorage extends GenericService{
                                     resolve(fd);
                                 })
                                 .catch((error) => {
-                                    that._logger.log(that.ERROR, LOG_ID + "(addFileViewer) error.");
-                                    that._logger.log(that.INTERNALERROR, LOG_ID + "(addFileViewer) error : ", error);
+                                    //that._logger.log(that.ERROR, LOG_ID + "(addFileViewer) error.");
+                                    that._logger.log(that.ERROR, LOG_ID + "(addFileViewer) error : ", error);
                                     return reject(error);
                                 });
                         } else {

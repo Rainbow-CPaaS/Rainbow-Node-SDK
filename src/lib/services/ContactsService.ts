@@ -293,9 +293,10 @@ class ContactsService extends GenericService {
                         }
                         that.setInitialized();
                         //return resolve(undefined);
-                    }).catch(() => {
+                    }).catch((err) => {
                         //return resolve(undefined);
                         //return reject();
+                        that._logger.log(that.ERROR, LOG_ID + "(init)  getContactById failed : ", err);
                     });
                     return resolve();
                 }
@@ -526,7 +527,7 @@ class ContactsService extends GenericService {
             switch (typeInfo) {
                 case "jid":
                 case "JID":
-                    id = (await that.getContactByJid(info))?.id;
+                    id = (await that.getContactByJid(info).catch((err)=>{ that._logger.log(that.ERROR, LOG_ID + "(getContactIdByCriteria)  getContactByJid failed : ", err); return undefined;}))?.id;
                     break;
                 case "email":
                 case "EMAIL":
@@ -815,7 +816,7 @@ class ContactsService extends GenericService {
                                         contact.status = that._presenceService.getUserConnectedPresence().presenceStatus;
                                         contact.presence = that._presenceService.getUserConnectedPresence().presenceLevel;
                                     }
-                                });
+                                }).catch((err)=>{ that._logger.log(that.ERROR, LOG_ID + "(getContactByLoginEmail)  getContactById failed : ", err); return undefined;});
                             } else {
                                 that._logger.log(that.INTERNAL, LOG_ID + "(getContactByLoginEmail) no contact found on server with loginEmail : ", loginEmail);
                             }
@@ -947,7 +948,7 @@ class ContactsService extends GenericService {
                 resultPeer.peer = this.userContact;
                 resultPeer.type = PEERTYPE.USER;
             } else {
-                const contact = await that.getContactById(peerId);
+                const contact = await that.getContactById(peerId).catch((err)=>{ that._logger.log(that.ERROR, LOG_ID + "(getPeerById)  getContactById failed : ", err); return undefined;});
                 if (! contact) {
                     const bubble = await that._core._bubbles.getBubbleById(peerId);
                     if (! bubble) {
@@ -990,7 +991,7 @@ class ContactsService extends GenericService {
                 resultPeer.peer = this.userContact;
                 resultPeer.type = PEERTYPE.USER;
             } else {
-                const contact = await that.getContactByJid(peerJid);
+                const contact = await that.getContactByJid(peerJid).catch((err)=>{ that._logger.log(that.ERROR, LOG_ID + "(getPeerByJid)  getContactByJid failed : ", err); return undefined;});
                 if (! contact) {
                     const bubble = await that._core._bubbles.getBubbleByJid(peerJid);
                     if (! bubble) {
@@ -2563,6 +2564,7 @@ class ContactsService extends GenericService {
                         that.getContactById(_contact.invitedUserId, false).then((invitedUser) => {
                             resolve(invitedUser);
                         }).catch((err) => {
+                            that._logger.log(that.ERROR, LOG_ID + "(addToContactsList)  getContactById failed : ", err);
                             return reject(err);
                         });
                     } else {
@@ -4198,6 +4200,9 @@ class ContactsService extends GenericService {
                             let currentDate = Date.now();
                             that._rosterPresenceQueue3 = that._rosterPresenceQueue3.filter(presenceItem => presenceItem.presence.jid!==contact.jid || (presenceItem.date + 10000) < currentDate);
                             // */
+                        }).catch((err)=>{
+                            that._logger.log(that.ERROR, LOG_ID + "(_onRostersUpdate)  getContactByJid failed : ", err);
+                            return undefined;
                         });
                     }
                 }

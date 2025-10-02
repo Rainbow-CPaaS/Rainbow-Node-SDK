@@ -565,6 +565,7 @@ class ConversationsService extends GenericService {
      * @method loadConversationHistory
      * @instance
      * @category MESSAGES
+     * @async
      * @description
      *    Retrieve the remote history of a specific conversation. <br>
      * @param {Conversation} conversation Conversation to retrieve
@@ -575,7 +576,7 @@ class ConversationsService extends GenericService {
      * @fulfil {Conversation[]} - Array of Conversation object
      * @category async
      */
-    loadConversationHistory(conversation, pageSize : number = 30, useBulk : boolean = false) {
+    async loadConversationHistory(conversation, pageSize : number = 30, useBulk : boolean = false) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(loadConversationHistory) conversation.id : ", conversation?.id);
         that.resetHistoryPageForConversation(conversation);
@@ -2661,7 +2662,7 @@ class ConversationsService extends GenericService {
             userJid = conversation.bubble.ownerContact.jid;
         }
 
-        let contact = this._contactsService.getContactByJid(userJid, true);
+        let contact = this._contactsService.getContactByJid(userJid, true).catch((err)=>{return undefined;});
 
         if (conversation && contact) {
             // If invitation msg and I'm not the owner
@@ -2738,7 +2739,7 @@ class ConversationsService extends GenericService {
             //stop infinite loop in case of error
             that.botServiceReady = false;
             that.waitingBotConversations.forEach(async function(obj, index) {
-                let contact : Contact = await that._contactsService.getContactByJid(obj.jid, false);
+                let contact : Contact = await that._contactsService.getContactByJid(obj.jid, false).catch((err)=>{ that._logger.log(that.ERROR, LOG_ID + "(unlockWaitingBotConversations)  getContactByJid failed : ", err); return undefined;});
                 if (contact) {
                     await that.getOrCreateOneToOneConversation(contact.jid, null, obj.lastModification, obj.lastMessageText, obj.missedIMCounter, obj.muted, obj.creationDate);
                     that.waitingBotConversations.splice(index, 1);

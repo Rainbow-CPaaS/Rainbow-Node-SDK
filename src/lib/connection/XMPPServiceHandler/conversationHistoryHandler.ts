@@ -389,7 +389,8 @@ class ConversationHistoryHandler  extends GenericHandler {
                     that._contactsService.getContactByJid(fromJid, that.forceHistoryGetContactFromServer)
                         .then((from) => {
                             resolve(from);
-                        }).catch(() => {
+                        }).catch((err) => {
+                        that._logger.log(that.ERROR, LOG_ID + "(onHistoryMessageReceived)  getContactByJid failed : ", err);
                         resolve(null);
                     }); // */
                     //resolve(null);
@@ -1211,7 +1212,8 @@ class ConversationHistoryHandler  extends GenericHandler {
                     that._contactsService.getContactByJid(callerJid, that.forceHistoryGetContactFromServer)
                         .then( (from) => {
                             resolve(from);
-                        }).catch( () => {
+                        }).catch( (err) => {
+                        that._logger.log(that.ERROR, LOG_ID + "(onWebrtcHistoryMessageReceived)  getContactByJid failed : ", err);
                         resolve(null);
                     });
                 }).then( (from : any) => {

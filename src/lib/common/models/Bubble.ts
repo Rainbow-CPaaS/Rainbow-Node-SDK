@@ -550,7 +550,7 @@ class Bubble {
                     }
                 });
             if (data.creator) {
-                that.ownerContact = await contactsService.getContactById(data.creator, false);
+                that.ownerContact = await contactsService.getContactById(data.creator, false).catch((err)=>{ console.log(" getContactById failed : ", err); return undefined;});
                 that.owner = (that.ownerContact.jid === contactsService.userContact.jid);
             }
 
@@ -584,8 +584,8 @@ class Bubble {
                     });
 
                 } else {
-                    data.users.forEach((userData: any) => {
-                        const contact = contactsService.getContactById(userData.userId);
+                    data.users.forEach(async (userData: any) => {
+                        const contact = await contactsService.getContactById(userData.userId).catch((err)=>{ console.log(" getContactById failed : ", err); return undefined;});;
                         //if (contact) {
                         if (contactsService.isUserContact(contact)) {
                             that.status = userData.status;
@@ -659,7 +659,7 @@ class Bubble {
                     });
                 if (data.creator) {
                     //await contactsService.getContactById(data.creator, false).then((result : Contact) => {
-                    let result2 : Contact = await contactsService.getContactById(data.creator, false)
+                    let result2 : Contact = await contactsService.getContactById(data.creator, false).catch((err)=>{ console.log(" getContactById failed : ", err); return undefined;});
                     //console.log("(BubbleFactory) getContactById : ", result);
                     bubble.ownerContact = result2;
                     if (bubble.ownerContact) {

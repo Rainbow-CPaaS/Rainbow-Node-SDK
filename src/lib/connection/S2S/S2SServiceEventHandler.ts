@@ -204,7 +204,7 @@ class S2SServiceEventHandler extends LevelLogs{
 
             let from = event.presence.from;
             if (from) {
-                let contact: Contact = await that._contacts.getContactById(from, false);
+                let contact: Contact = await that._contacts.getContactById(from, false).catch((err)=>{ that._logger.log(that.ERROR, LOG_ID + "(ParsePresenceCallback)  getContactById failed : ", err); return undefined;});;
                 if (contact != null) {
                     let show = presence.show ? presence.show : "online";
                     let status = presence.status ? presence.status : "";
@@ -378,7 +378,7 @@ class S2SServiceEventHandler extends LevelLogs{
         if (event && userNetwork) {
             let contactId = userNetwork.user_id;
             if (contactId) {
-                let contact: Contact = await that._contacts.getContactById(contactId, false);
+                let contact: Contact = await that._contacts.getContactById(contactId, false).catch((err)=>{ that._logger.log(that.ERROR, LOG_ID + "(ParseUserCallback)  getContactById failed : ", err); return undefined;});
                 if (contact != null) {
                     that._logger.log(that.INTERNAL, LOG_ID + "(ParseUserCallback) logguedin user's jid : ", that.jid_im, ", jid of the from 'user-network' : ", contact.jid_im);
                 } else {
@@ -427,7 +427,7 @@ class S2SServiceEventHandler extends LevelLogs{
         if (event && userInvite) {
             let contactId = userInvite.user_id;
             if (contactId) {
-                let contact: Contact = await that._contacts.getContactById(contactId, false);
+                let contact: Contact = await that._contacts.getContactById(contactId, false).catch((err)=>{ that._logger.log(that.ERROR, LOG_ID + "(ParseUserCallback)  getContactById failed : ", err); return undefined;});
                 if (contact != null) {
                     that._logger.log(that.INTERNAL, LOG_ID + "(ParseUserCallback) logguedin user's jid : ", that.jid_im, ", jid of the from 'user-invite' : ", contact.jid_im);
                 } else {
@@ -476,7 +476,7 @@ class S2SServiceEventHandler extends LevelLogs{
 
             let peer = chatstate.peer;
             if (peer) {
-                let contact: Contact = await that._contacts.getContactById(peer, false);
+                let contact: Contact = await that._contacts.getContactById(peer, false).catch((err)=>{ that._logger.log(that.ERROR, LOG_ID + "(ParseChatStateCallback)  getContactById failed : ", err); return undefined;});
                 if (contact != null) {
 
                     let conversationId = chatstate.conversation_id;
@@ -597,7 +597,7 @@ class S2SServiceEventHandler extends LevelLogs{
                 let peer = conversationObj.peer;
                 let conversationId = conversationObj.id;
                 if (conversationObj.type !== 'room') {
-                    let contact: Contact = await that._contacts.getContactById(peer, false);
+                    let contact: Contact = await that._contacts.getContactById(peer, false).catch((err)=>{ that._logger.log(that.ERROR, LOG_ID + "(ParseConversationCallback)  getContactById failed : ", err); return undefined;});
                     let conversation: Conversation = await that._conversations.getOrCreateOneToOneConversation(contact.jid_im, conversationId);
 
                     switch (action) {
@@ -702,8 +702,8 @@ class S2SServiceEventHandler extends LevelLogs{
                 let date = content.timestamp;
                 let datetime = messageObj.datetime;
                 let from = messageObj.from;
-                let contact: Contact = await that._contacts.getContactById(from, false);
-                let conversation: Conversation = await that._conversations.getOrCreateOneToOneConversation(contact.jid_im, conversationId);
+                let contact: Contact = await that._contacts.getContactById(from, false).catch((err)=>{ that._logger.log(that.ERROR, LOG_ID + "(ParseMessageCallback)  getContactById failed : ", err); return undefined;});
+                let conversation: Conversation = await that._conversations.getOrCreateOneToOneConversation(contact.jid_im, conversationId).catch((err)=>{return undefined;});
                 let lang = messageObj.lang;
                 let msgId = messageObj.id;
                 let body = messageObj.body;

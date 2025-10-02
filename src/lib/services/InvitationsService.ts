@@ -325,8 +325,7 @@ class InvitationsService extends GenericService {
                                                         that._contacts.getContactById(invitation.invitingUserId, true).then(function (contact) {
                                                                 // TODO : VBR $rootScope.$broadcast("ON_CONTACT_UPDATED_EVENT", contact);
                                                         }).catch((err)=>{
-                                                                that._logger.log(that.INFO, LOG_ID + "(handleReceivedInvitation) getContactById failed.");
-                                                                that._logger.log(that.INTERNAL, LOG_ID + "(handleReceivedInvitation) getContactById failed : ", err);
+                                                                that._logger.log(that.ERROR, LOG_ID + "(handleReceivedInvitation) getContactById failed : ", err);
                                                         });
                                                 }
 
@@ -372,53 +371,52 @@ class InvitationsService extends GenericService {
 
                         // Handle other actions
                         else {
-                                that.getServerInvitation(id).then(function (invitation: any) {
-                    that._logger.log(that.INFO, LOG_ID + "(handleSentInvitation) invitation received from server : ", invitation);
-                                                let contactStatus = null;
+                                that.getServerInvitation(id).then(async function (invitation: any) {
+                                    that._logger.log(that.INFO, LOG_ID + "(handleSentInvitation) invitation received from server : ", invitation);
+                                    let contactStatus = null;
 
-                                                switch (invitation.status) {
-                                                        case "pending":
-                                                                that.sentInvitations[invitation.id] = invitation;
-                                                                contactStatus = "wait";
-                                                                break;
-                                                        case "accepted":
-                                                        case "auto-accepted":
-                                                                that._logger.log(that.DEBUG, LOG_ID + "(handleSentInvitation) user invite accepted");
-                                                                that._eventEmitter.emit("evt_internal_userinviteaccepted",  invitation);
-                                                                // TODO : VBR $rootScope.$broadcast("ON_INVITATION_ACCEPTED", invitation.invitedUserId); // evt_internal_userinviteaccepted
-                                                                if (invitation.invitedUserId) {
-                                                                        that._contacts.getContactById(invitation.invitedUserId, true).then(function (contact: Contact) {
-                                                                                // TODO : VBR $rootScope.$broadcast("ON_CONTACT_UPDATED_EVENT", contact);
-                                                                                contact.roster = true;
-                                                                        }).catch((err)=>{
-                                                                                that._logger.log(that.INFO, LOG_ID + "(handleSentInvitation) getContactById failed.");
-                                                                                that._logger.log(that.INTERNAL, LOG_ID + "(handleSentInvitation) getContactById failed : ", err);
-                                                                        });
-                                                                }
-                                                                break;
-                                                        case "canceled":
-                                                                that._logger.log(that.DEBUG, LOG_ID + "(handleSentInvitation) user invite canceled");
-                                                                that._eventEmitter.emit("evt_internal_userinvitecanceled", invitation);
-                                                                break;
+                                    switch (invitation.status) {
+                                        case "pending":
+                                            that.sentInvitations[invitation.id] = invitation;
+                                            contactStatus = "wait";
+                                            break;
+                                        case "accepted":
+                                        case "auto-accepted":
+                                            that._logger.log(that.DEBUG, LOG_ID + "(handleSentInvitation) user invite accepted");
+                                            that._eventEmitter.emit("evt_internal_userinviteaccepted", invitation);
+                                            // TODO : VBR $rootScope.$broadcast("ON_INVITATION_ACCEPTED", invitation.invitedUserId); // evt_internal_userinviteaccepted
+                                            if (invitation.invitedUserId) {
+                                                await that._contacts.getContactById(invitation.invitedUserId, true).then(function (contact: Contact) {
+                                                    // TODO : VBR $rootScope.$broadcast("ON_CONTACT_UPDATED_EVENT", contact);
+                                                    contact.roster = true;
+                                                }).catch((err) => {
+                                                    that._logger.log(that.ERROR, LOG_ID + "(handleSentInvitation) getContactById failed : ", err);
+                                                });
+                                            }
+                                            break;
+                                        case "canceled":
+                                            that._logger.log(that.DEBUG, LOG_ID + "(handleSentInvitation) user invite canceled");
+                                            that._eventEmitter.emit("evt_internal_userinvitecanceled", invitation);
+                                            break;
 
-                                                        default:
-                                                                delete that.sentInvitations[invitation.id];
-                                                                contactStatus = "unknown";
-                                                                break;
-                                                }
+                                        default:
+                                            delete that.sentInvitations[invitation.id];
+                                            contactStatus = "unknown";
+                                            break;
+                                    }
 
-                                                if (invitation.invitedUserId) {
-                                                        that.updateContactInvitationStatus(invitation.invitedUserId, contactStatus, invitation)
-                                                                .then(function () {
-                                                                        that.updateSentInvitationsArray();
-                                                                        resolve(undefined);
-                                                                });
-                                                } else {
-                                                        that.updateSentInvitationsArray();
-                                                        resolve(undefined);
-                                                }
-                                        }).catch(err=>{
-                                        that._logger.log(that.WARN, LOG_ID + "(handleSentInvitation) getServerInvitation error : ", err);
+                                    if (invitation.invitedUserId) {
+                                        that.updateContactInvitationStatus(invitation.invitedUserId, contactStatus, invitation)
+                                            .then(function () {
+                                                that.updateSentInvitationsArray();
+                                                resolve(undefined);
+                                            });
+                                    } else {
+                                        that.updateSentInvitationsArray();
+                                        resolve(undefined);
+                                    }
+                                }).catch(err=> {
+                                    that._logger.log(that.WARN, LOG_ID + "(handleSentInvitation) getServerInvitation error : ", err);
                                 });
 
                                 if (action === "resend") {
@@ -786,8 +784,7 @@ class InvitationsService extends GenericService {
                                                                                 // TODO : VBR $rootScope.$broadcast("ON_CONTACT_UPDATED_EVENT", contact);
                                                                                 reject(err);
                                                         }).catch((err)=>{
-                                                                that._logger.log(that.INFO, LOG_ID + "(acceptInvitation) getContactById failed.");
-                                                                that._logger.log(that.INTERNAL, LOG_ID + "(acceptInvitation) getContactById failed : ", err);
+                                                                that._logger.log(that.ERROR, LOG_ID + "(acceptInvitation) getContactById failed : ", err);
                                                         });
                                                 } else {
                                                         that._logger.log(that.ERROR, LOG_ID + "(acceptInvitation) error ");
@@ -1370,8 +1367,7 @@ class InvitationsService extends GenericService {
                                 // contact.updateRichStatus();
                                 resolve(undefined);
                         }).catch((err)=>{
-                                that._logger.log(that.INFO, LOG_ID + "(updateContactInvitationStatus) getContactById failed.");
-                                that._logger.log(that.INTERNAL, LOG_ID + "(updateContactInvitationStatus) getContactById failed : ", err);
+                                that._logger.log(that.ERROR, LOG_ID + "(updateContactInvitationStatus) getContactById failed : ", err);
                         });
                 });
         };

@@ -143,8 +143,8 @@ class ConversationEventHandler extends GenericHandler {
                 contactId = participantElem.find('participant-id').text();
             }
             const role = participantElem.find('role').text();
-            const contact: Contact = await this._contactsService.getContactById(contactId).catch(() => {
-                that._logger.log(that.INTERNAL, LOG_ID + "(createSessionParticipantFromParticipantElem) No contact found. ");
+            const contact: Contact = await this._contactsService.getContactById(contactId).catch((err) => {
+                that._logger.log(that.ERROR, LOG_ID + "(createSessionParticipantFromParticipantElem)  getContactByJid failed : ", err);
                 return null;
             });
 
@@ -1170,7 +1170,7 @@ class ConversationEventHandler extends GenericHandler {
                             content,
                             subject
                         };
-                        //let contact = await that._contactsService.getContactByJid(eventJid);
+                        //let contact = await that._contactsService.getContactByJid(eventJid).catch((err)=>{return undefined;});
                         //that._logger.log(that.INFO, LOG_ID + "(onChatMessageReceived) id : ", id, ", conference invitation received for somebody else contact : ", contact?contact.id:"", ",\n  content (=body) : ", content, ", subject : ", subject);
                         that._logger.log(that.DEBUG, LOG_ID + "(onChatMessageReceived) id : ", id, ", conference invitation received for somebody else,\n  content (=body) : ", content, ", subject : ", subject);
                         that.eventEmitter.emit("evt_internal_contactinvitationreceived", invitation);
@@ -1538,9 +1538,9 @@ class ConversationEventHandler extends GenericHandler {
 
                         if (participantElem.hasOwnProperty("jid-im")) {
                             participant.jid_im = participantElem["jid-im"];
-                            participant.contact = await that._contactsService.getContactByJid(participant.jid_im);
+                            participant.contact = await that._contactsService.getContactByJid(participant.jid_im).catch((err)=>{ that._logger.log(that.ERROR, LOG_ID + "(parseParticipantsFromConferenceUpdatedEvent)  getContactByJid failed : ", err); return undefined;});
                         } else if (participantElem.hasOwnProperty("user-id")) {
-                            participant.contact = await that._contactsService.getContactById(participantId);
+                            participant.contact = await that._contactsService.getContactById(participantId).catch((err)=>{ that._logger.log(that.ERROR, LOG_ID + "(parseParticipantsFromConferenceUpdatedEvent)  getContactById failed : ", err); return undefined;});
                         }
 
                         if (participantElem.hasOwnProperty("phone-number"))
@@ -1615,9 +1615,9 @@ class ConversationEventHandler extends GenericHandler {
 
                         if (participantElem.hasOwnProperty("jid-im")) {
                             participant.jid_im = participantElem["jid-im"];
-                            participant.contact = await that._contactsService.getContactByJid(participant.jid_im);
+                            participant.contact = await that._contactsService.getContactByJid(participant.jid_im).catch((err)=>{ that._logger.log(that.ERROR, LOG_ID + "(parseParticipantsFromConferenceUpdatedEvent)  getContactByJid failed : ", err); return undefined;});
                         } else if (participantElem.hasOwnProperty("user-id")) {
-                            participant.contact = await that._contactsService.getContactById(participantId);
+                            participant.contact = await that._contactsService.getContactById(participantId).catch((err)=>{ that._logger.log(that.ERROR, LOG_ID + "(parseParticipantsFromConferenceUpdatedEvent)  getContactById failed : ", err); return undefined;});
                         }
 
                         if (participantElem.hasOwnProperty("phone-number"))
@@ -2019,7 +2019,7 @@ class ConversationEventHandler extends GenericHandler {
 
                                 if (publisherElem.hasOwnProperty("jid-im")) {
                                     publisher.jid_im = publisherElem["jid-im"];
-                                    //publisher.contact = await that._contactsService.getContactByJid(publisher.jid_im);
+                                    //publisher.contact = await that._contactsService.getContactByJid(publisher.jid_im).catch((err)=>{return undefined;});
                                 }
 
                                 // Create an empty MEdia list if null
@@ -2108,7 +2108,7 @@ class ConversationEventHandler extends GenericHandler {
 
                             if (publisherElem.hasOwnProperty("jid-im")) {
                                 publisher.jid_im = publisherElem["jid-im"];
-                                //publisher.contact = await that._contactsService.getContactByJid(publisher.jid_im);
+                                //publisher.contact = await that._contactsService.getContactByJid(publisher.jid_im).catch((err)=>{return undefined;});
                             }
 
                             // Create an empty MEdia list if null
@@ -2431,7 +2431,7 @@ class ConversationEventHandler extends GenericHandler {
                 // vcard changed
                 else if (node.attrs.vcard) {
                     that._logger.log(that.DEBUG, LOG_ID + "(onRoomManagementMessageReceived) bubble vcard updated changed");
-                    let contact = await that._contactsService.getContactByJid(node.attrs.userjid, false);
+                    let contact = await that._contactsService.getContactByJid(node.attrs.userjid, false).catch((err)=>{ that._logger.log(that.ERROR, LOG_ID + "(onRoomManagementMessageReceived)  getContactByJid failed : ", err); return undefined;});
                     that.eventEmitter.emit("evt_internal_contactchanged", {
                         "action": node.attrs.vcard, // "updated"
                         "bubbleId": node.attrs.roomid,

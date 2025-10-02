@@ -345,7 +345,7 @@ class TelephonyEventHandler extends GenericHandler {
         unifiedplan.xmlns = ( unifiedplanElm && unifiedplanElm.attrs ) ? unifiedplanElm.attrs.xmlns : undefined;
         let xmlns = ( node && node.attrs ) ? node.attrs.xmlns : undefined;
 
-        let contact = await that.contactService.getContactByJid(from, true);
+        let contact = await that.contactService.getContactByJid(from, true).catch((err)=>{ that._logger.log(that.ERROR, LOG_ID + "(onProposeMessageReceived)  getContactByJid failed : ", err); return undefined;});
         that.eventEmitter.emit("evt_internal_propose", {contact, resource, xmlns, description, unifiedplan, id });
     };
 
@@ -364,7 +364,7 @@ class TelephonyEventHandler extends GenericHandler {
         let resource = that.xmppUtils.getResourceFromFullJID(from);
         let xmlns = ( node && node.attrs ) ? node.attrs.xmlns : undefined;
 
-        let contact = await that.contactService.getContactByJid(from, true);
+        let contact = await that.contactService.getContactByJid(from, true).catch((err)=>{ that._logger.log(that.ERROR, LOG_ID + "(onRetractMessageReceived)  getContactByJid failed : ", err); return undefined;});
         that.eventEmitter.emit("evt_internal_retract", {contact, resource, xmlns, id });
     };
 
@@ -383,7 +383,7 @@ class TelephonyEventHandler extends GenericHandler {
         let resource = that.xmppUtils.getResourceFromFullJID(from);
         let xmlns = ( node && node.attrs ) ? node.attrs.xmlns : undefined;
 
-        let contact = await that.contactService.getContactByJid(from, true);
+        let contact = await that.contactService.getContactByJid(from, true).catch((err)=>{ that._logger.log(that.ERROR, LOG_ID + "(onAcceptMessageReceived)  getContactByJid failed : ", err); return undefined;});
         that.eventEmitter.emit("evt_internal_accept", {contact, resource, xmlns, id });
     };
 

@@ -625,8 +625,9 @@ class Core extends LevelLogs{
                 }).then(() => {
                     if (that.options.imOptions.autoLoadConversations && that.options._restOptions.useRestAtStartup) {
                         if (that.options.imOptions.autoLoadConversationHistory) {
-                            return that._conversations.getServerConversations().then(() => {
-                                that._conversations.loadEveryConversationsHistory()
+                            return that._conversations.getServerConversations().then(async (result) => {
+                                await that._conversations.loadEveryConversationsHistory();
+                                return result;
                             });
                         } else {
                             return that._conversations.getServerConversations();

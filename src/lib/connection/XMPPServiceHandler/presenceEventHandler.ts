@@ -125,7 +125,7 @@ class PresenceEventHandler extends GenericHandler {
                 if (isContactInformationChanged) {
                     that.eventEmitter.emit("evt_internal_oncontactinformationchanged", xmppUtils.getBareJIDFromFullJID(from));
                 }
-                //let contact: Contact = await that._contacts.getContactByJid(from, false);
+                //let contact: Contact = await that._contacts.getContactByJid(from, false).catch((err)=>{return undefined;});
                 let typeResource =  xmppUtils.isFromPresenceJid(from) ? "presence" : xmppUtils.isFromCalendarJid(from) ? "calendar" : xmppUtils.isFromTelJid(from) ?
                         "phone" :
                         xmppUtils.isFromMobile(from) ?

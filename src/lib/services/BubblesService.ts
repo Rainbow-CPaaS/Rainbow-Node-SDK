@@ -297,7 +297,7 @@ class Bubbles extends GenericService {
             this._rest.getBubbleByJid(invitation.bubbleJid).then(async (bubbleUpdated: any) => {
                 that._logger.log(that.DEBUG, LOG_ID + "(_onContactInvitationReceived) invitation received from bubble.");
                 that._logger.log(that.INTERNAL, LOG_ID + "(_onContactInvitationReceived) invitation received from bubble : ", bubbleUpdated?.id);
-                let contact = await that._contactsService .getContactByJid(invitation.contact_jid);
+                let contact = await that._contactsService .getContactByJid(invitation.contact_jid).catch((err)=>{ that._logger.log(that.ERROR, LOG_ID + "(_onContactInvitationReceived)  getContactByJid failed : ", err); return undefined;});
                 //that._logger.log(that.INFO, LOG_ID + "(onChatMessageReceived) id : ", id, ", conference invitation received for somebody else contact : ", contact?contact.id:"", ",\n  content (=body) : ", content, ", subject : ", subject);
                 let bubble = await that.addOrUpdateBubbleToCache(bubbleUpdated);
 
@@ -2458,8 +2458,8 @@ class Bubbles extends GenericService {
                         for (let i = 0; i < listOfBubbles.length; i++) {
                             //listOfBubbles.forEach(async function (bubble: any) {
                             let bubble = listOfBubbles[i];
-                            let bubbleObj = await that.getBubbleById(bubble.id);
-                            if (!bubbleObj) bubbleObj = await that.getBubbleByJid(bubble.jid);
+                            let bubbleObj = await that.getBubbleById(bubble?.id).catch((err)=>{return undefined;});
+                            if (!bubbleObj) bubbleObj = await that.getBubbleByJid(bubble?.jid).catch((err)=>{return undefined;});
 
                             if (bubbleObj) {
                                 let users = bubble.users ? bubble.users:[];
@@ -4552,12 +4552,12 @@ class Bubbles extends GenericService {
             "publicUrl": that.getPublicURLFromResponseContent(openInvite)
         };
         if (openInvite.roomId) {
-            publicUrlObject.bubble = await that.getBubbleById(openInvite.roomId);
+            publicUrlObject.bubble = await that.getBubbleById(openInvite.roomId).catch((err)=>{ that._logger.log(that.ERROR, LOG_ID + "(getInfoForPublicUrlFromOpenInvite)  getContactById failed : ", err); return undefined;});
         } else {
             publicUrlObject.bubbleType = openInvite.roomType;
         }
         if (openInvite.userId) {
-            publicUrlObject.contact = await that._contactsService .getContactById(openInvite.userId);
+            publicUrlObject.contact = await that._contactsService.getContactById(openInvite.userId).catch((err)=>{ that._logger.log(that.ERROR, LOG_ID + "(getInfoForPublicUrlFromOpenInvite)  getContactById failed : ", err); return undefined;});
         }
         return publicUrlObject;
     }
