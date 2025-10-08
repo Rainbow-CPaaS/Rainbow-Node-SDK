@@ -287,7 +287,7 @@ class HTTPService extends LevelLogs{
 
             req.on('error', (err: any) => {
                 try {
-                    that._logger.log(that.HTTP, `${LOG_ID}(got) req error:`, err);
+                    that._logger.log("error", `${LOG_ID}(got) req error:`, err);
                 } catch {}
             });
 
@@ -306,8 +306,7 @@ class HTTPService extends LevelLogs{
             //setImmediate(console.log, chalk.gray('      → ' + signature));
             that._logger.log(that.HTTP, LOG_ID + " " + chalk.gray("      → " + signature + " : " + JSON.stringify(options.headers, null, "  ")));
 
-            return request(options, cb)
-                    .on("response", function (response) {
+            return request(options, cb).on("response", function (response) {
                         // Workaround for res._dump in Node.JS http client
                         // https://github.com/nodejs/node/blob/20285ad17755187ece16b8a5effeaa87f5407da2/lib/_http_client.js#L421-L427
                         if (!wasHandled && EventEmitter.listenerCount(response?.req, "response")===0) {
@@ -319,7 +318,7 @@ class HTTPService extends LevelLogs{
                         that._logger.log(that.HTTP, LOG_ID + "  " + chalk[colorCodes[s]](status) + " ← " + signature + " " + chalk.gray(time(start)));
                     })
                     .on("error", function (err) {
-                        that._logger.log(that.INTERNALERROR, LOG_ID + "  " + chalk.red("xxx") + " ← " + signature + " " + chalk.red(err.message));
+                        that._logger.log("error", LOG_ID + "  " + chalk.red("xxx") + " ← " + signature + " " + chalk.red(err.message));
                     });
         }
 
@@ -333,6 +332,8 @@ class HTTPService extends LevelLogs{
                         return next(options);
                     }
                 ];
+                // Le wrapper qui nous donne l’accès à req et donc à 'socket'
+                extendObjForGot.request = wrapRequest;
             } catch (error) {
 
             }
@@ -340,7 +341,7 @@ class HTTPService extends LevelLogs{
             // @ts-ignore
             let fnerror = console.error;
             console.error = function (error, url, line) {
-                that._logger.log(that.DEBUG, LOG_ID, chalk.red("DEBUG CONSOLE"), ...arguments);
+                that._logger.log("error", LOG_ID, chalk.red("DEBUG CONSOLE"), ...arguments);
                 //that._logger.log(that.DEBUG, LOG_ID, chalk.red("DEBUG CONSOLE")  , {acc:'error', data:'ERR:'+error+' URL:'+url+' L:'+line});
                 // fnerror(...arguments);
             };
@@ -363,8 +364,6 @@ class HTTPService extends LevelLogs{
                 response: customLiveOption?.gotRequestOptions?.timeout?.response!==undefined ? customLiveOption.gotRequestOptions.timeout.response: 2000 // response: 1000 // Starts when request has been flushed. Ends when the headers are received.
             };
 
-            // Le wrapper qui nous donne l’accès à req et donc à 'socket'
-        extendObjForGot.request = wrapRequest;
         extendObjForGot.agent = {
                 http: this.reqAgentHttp as any,
                 https: this.reqAgentHttps as any,
