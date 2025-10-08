@@ -624,7 +624,7 @@ class ContactsService extends GenericService {
                     }
                 } else {
                     that._logger.log(that.DEBUG, LOG_ID + "(getContactByJid) contact not found locally. Ask the server...");
-                    that._rest.getContactInformationByJID(jid).then((_contactFromServer: any) => {
+                    return that._rest.getContactInformationByJID(jid).then((_contactFromServer: any) => {
                         let contact = null;
                         if (_contactFromServer) {
                             that._logger.log(that.DEBUG, LOG_ID + "(getContactByJid) contact found on the server.");
@@ -650,7 +650,7 @@ class ContactsService extends GenericService {
                         } else {
                             that._logger.log(that.INFO, LOG_ID + "(getContactByJid) no contact found on the server with Jid", jid);
                         }
-                        resolve(contact);
+                        return resolve(contact);
                     }).catch((err) => {
                         return reject(err);
                     });
