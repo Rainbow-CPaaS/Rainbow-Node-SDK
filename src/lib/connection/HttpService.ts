@@ -108,7 +108,7 @@ class HTTPService extends LevelLogs{
         this.httpManager = new HttpManager(_evtEmitter, _logger);
         let that = this;
         this.mergedGot = got;
-
+        let extendObjForGot : any = {};
         if (_options.requestsRate.useRequestRateLimiter!==undefined) {
             that.useRequestRateLimiter = _options.requestsRate.useRequestRateLimiter;
         } else {
@@ -263,7 +263,7 @@ class HTTPService extends LevelLogs{
 
         //const wrapRequest: NonNullable<OptionsInit['request']> = (url, options, callback) => {
         const wrapRequest: any = (url, options, callback) => {
-            that._logger.log(that.INTERNAL, LOG_ID + "(wrapRequest) url : ", url, ", options : ", options);
+            that._logger.log(that.HTTP, LOG_ID + "(wrapRequest) url : ", url, ", options : ", options);
             // Sélectionne la bonne fonction native
             const isHttps = (options as any).protocol === 'https:' || (options as any).url?.toString().startsWith('https:') || (url as any).protocol === 'https:' || (url as any).href?.toString().startsWith('https:');
             const nativeRequest = isHttps ? https.request : http.request;
@@ -275,19 +275,19 @@ class HTTPService extends LevelLogs{
                 // Node remplit req.reusedSocket quand le socket provient du pool Keep-Alive
                 const reused = (req as any).reusedSocket === true;
                 try {
-                    that._logger.log(that.INTERNAL, `${LOG_ID}(got) req socket event reused=${reused} local=${socket.localPort} remote=${socket.remoteAddress}:${socket.remotePort}`);
+                    that._logger.log(that.HTTP, `${LOG_ID}(got) req socket event reused=${reused} local=${socket.localPort} remote=${socket.remoteAddress}:${socket.remotePort}`);
                 } catch {}
             });
             req.on('abort', (err) => {
-                that._logger.log(that.INTERNAL, LOG_ID + "(got) agent abort event : ", err);
+                that._logger.log(that.HTTP, LOG_ID + "(got) agent abort event : ", err);
             });
             req.on('close', (info) => {
-                that._logger.log(that.INTERNAL, LOG_ID + "(got) agent close event : ", info);
+                that._logger.log(that.HTTP, LOG_ID + "(got) agent close event : ", info);
             });
 
             req.on('error', (err: any) => {
                 try {
-                    that._logger.log(that.INTERNAL, `${LOG_ID}(got) req error:`, err);
+                    that._logger.log(that.HTTP, `${LOG_ID}(got) req error:`, err);
                 } catch {}
             });
 
@@ -304,7 +304,7 @@ class HTTPService extends LevelLogs{
             let wasHandled = typeof cb==="function";
 
             //setImmediate(console.log, chalk.gray('      → ' + signature));
-            that._logger.log(that.INTERNAL, LOG_ID + " " + chalk.gray("      → " + signature + " : " + JSON.stringify(options.headers, null, "  ")));
+            that._logger.log(that.HTTP, LOG_ID + " " + chalk.gray("      → " + signature + " : " + JSON.stringify(options.headers, null, "  ")));
 
             return request(options, cb)
                     .on("response", function (response) {
@@ -316,7 +316,7 @@ class HTTPService extends LevelLogs{
 
                         let status = response?.statusCode;
                         let s = status / 100 | 0;
-                        that._logger.log(that.INTERNAL, LOG_ID + "  " + chalk[colorCodes[s]](status) + " ← " + signature + " " + chalk.gray(time(start)));
+                        that._logger.log(that.HTTP, LOG_ID + "  " + chalk[colorCodes[s]](status) + " ← " + signature + " " + chalk.gray(time(start)));
                     })
                     .on("error", function (err) {
                         that._logger.log(that.INTERNALERROR, LOG_ID + "  " + chalk.red("xxx") + " ← " + signature + " " + chalk.red(err.message));
@@ -325,21 +325,14 @@ class HTTPService extends LevelLogs{
 
         if (that._logger.logHttp) {
 
-            const logger = got.extend({
-                handlers: [
+            try {
+                extendObjForGot.handlers = [
                     (options, next) => {
                         //that._logger.log(that.INTERNALERROR, LOG_ID + `Sending ${options.method} to ${options.url}`);
-                        that._logger.log(that.INTERNAL, LOG_ID + chalk.red("DEBUG CONSOLE"), `Sending ${options.method} to ${options.url} \nheaders :`, options.headers, `\nresponseType : ${options.responseType}`, `\nbody : ${options.body}`);
+                        that._logger.log(that.HTTP, LOG_ID + chalk.red("DEBUG CONSOLE"), `Sending ${options.method} to ${options.url} \nheaders :`, options.headers, `\nresponseType : ${options.responseType}`, `\nbody : ${options.body}`);
                         return next(options);
                     }
-                ]
-            });
-
-            try {
-                that.mergedGot = got.extend({
-                            logger
-                        }
-                );
+                ];
             } catch (error) {
 
             }
@@ -361,7 +354,23 @@ class HTTPService extends LevelLogs{
             }
         }
 
-        that.mergedGot = that.mergedGot.extend({
+        extendObjForGot.timeout = { // This object describes the maximum allowed time for particular events.
+                lookup: customLiveOption?.gotRequestOptions?.timeout?.lookup!==undefined ? customLiveOption.gotRequestOptions.timeout.lookup:800, // lookup: 100, Starts when a socket is assigned.  Ends when the hostname has been resolved.
+                connect: customLiveOption?.gotRequestOptions?.timeout?.connect!==undefined ? customLiveOption.gotRequestOptions.timeout.connect: 1250, // connect: 50, Starts when lookup completes.  Ends when the socket is fully connected.
+                secureConnect: customLiveOption?.gotRequestOptions?.timeout?.secureConnect!==undefined ? customLiveOption.gotRequestOptions.timeout.secureConnect: 1250, // secureConnect: 50, Starts when connect completes. Ends when the handshake process completes.
+                socket: customLiveOption?.gotRequestOptions?.timeout?.socket!==undefined ? customLiveOption.gotRequestOptions.timeout.socket: 2000, // socket: 1000, Starts when the socket is connected. Resets when new data is transferred.
+                send: customLiveOption?.gotRequestOptions?.timeout?.send!==undefined ? customLiveOption.gotRequestOptions.timeout.send: 90000, // send: 10000, // Starts when the socket is connected. Ends when all data have been written to the socket.
+                response: customLiveOption?.gotRequestOptions?.timeout?.response!==undefined ? customLiveOption.gotRequestOptions.timeout.response: 2000 // response: 1000 // Starts when request has been flushed. Ends when the headers are received.
+            };
+
+            // Le wrapper qui nous donne l’accès à req et donc à 'socket'
+        extendObjForGot.request = wrapRequest;
+        extendObjForGot.agent = {
+                http: this.reqAgentHttp as any,
+                https: this.reqAgentHttps as any,
+            };
+        that.mergedGot = that.mergedGot.extend(extendObjForGot);
+        /* that.mergedGot = that.mergedGot.extend({
             timeout: { // This object describes the maximum allowed time for particular events.
                 lookup: customLiveOption?.gotRequestOptions?.timeout?.lookup!==undefined ? customLiveOption.gotRequestOptions.timeout.lookup:800, // lookup: 100, Starts when a socket is assigned.  Ends when the hostname has been resolved.
                 connect: customLiveOption?.gotRequestOptions?.timeout?.connect!==undefined ? customLiveOption.gotRequestOptions.timeout.connect: 1250, // connect: 50, Starts when lookup completes.  Ends when the socket is fully connected.
@@ -376,8 +385,8 @@ class HTTPService extends LevelLogs{
             agent: {
                 http: this.reqAgentHttp as any,
                 https: this.reqAgentHttps as any,
-            } // */
-        });
+            }
+        }); // */
     }
 
     /*

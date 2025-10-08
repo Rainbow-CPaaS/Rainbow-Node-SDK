@@ -14,6 +14,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   None.
 
 #### Added
+-   Fix `got` initialisation with a uniq `extendObjForGot` JSON object.
 -   Add wrapRequest to wrap the Request in "got" lib to trace law layer Request events.
 -   Add catch of getContactById and getContactByJid.
 -   Fix return of getContactById and getContactByJid.
