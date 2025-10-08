@@ -316,6 +316,9 @@ let expressEngine = undefined;
     logLevelAreas.conversationhistory.level = LEVELSNAMES.INTERNAL;
     // */
 
+    logLevelAreas.contacts.api = true;
+    logLevelAreas.contacts.level = LEVELSNAMES.ERROR;
+
     //logLevelAreas.bubblesmanager.level = LEVELSNAMES.INTERNAL;
 
     logLevelAreas.fileServer.api = true;
@@ -445,9 +448,9 @@ let expressEngine = undefined;
                 password: undefined,
                 secureProtocol: undefined //"SSLv3_method"
             }, // */
-/*
+
 // Proxy Cyril.
-       proxy: {
+/*       proxy: {
             host: "10.10.13.17",
             port: 8888,
             protocol: "http",
@@ -456,7 +459,7 @@ let expressEngine = undefined;
             secureProtocol: undefined //"SSLv3_method"
         }, // */
 // Proxy 2 Cyril.
-   /*    proxy: {
+/*       proxy: {
             host: "10.10.13.17",
             port: 3128,
             protocol: "http",
@@ -4673,6 +4676,292 @@ let expressEngine = undefined;
                 _logger.log("debug", "MAIN - [testgetContactById_aluno    ] :: getContactById contact : ", contact);
             });
         }
+
+        async testgetContactById_aleantwerp() {
+            // COM with aleantwerp.hubreception@gmail.com
+            /*
+              Le Contact cherché :
+                _id: "68e3beafc60980092418ffd4",
+                displayName: "hubuser01 ALEA",
+                aleantwerp.hubuser01@gmail.com
+            // */
+            /*await rainbowSDK.contacts.getMyInformations().then((contact: any) => {
+                _logger.log("debug", "MAIN - [testgetContactById_aleantwerp    ] :: getMyInformations contact : ", contact);
+            });
+            // */
+            let forceServerSearch = true;
+            await rainbowSDK.contacts.getContactById("68e3beafc60980092418ffd4", forceServerSearch).then((contact: any) => {
+                _logger.log("debug", "MAIN - [testgetContactById_aleantwerp    ] :: first getContactById contact : ", contact);
+            });
+            await rainbowSDK.contacts.getContactById("68e3beafc60980092418ffd4", forceServerSearch).then((contact: any) => {
+                _logger.log("debug", "MAIN - [testgetContactById_aleantwerp    ] :: second getContactById contact : ", contact);
+            });
+             /*
+            await rainbowSDK.admin.getContactInfos("68e3beafc60980092418ffd4").then((contact: any) => {
+                _logger.log("debug", "MAIN - [testgetContactById_aleantwerp    ] :: getContactInfos contact : ", contact);
+            });
+            // */
+
+        }
+
+        async testUpdateFromUserData() {
+            let _contactFromServer = {
+                outOfOffice: {active: false},
+                firstName: 'HubReception',
+                lastName: 'ALEA',
+                displayName: 'HubReception ALEA',
+                tags: [],
+                searchTagsOnly: ['ale-antwerp'],
+                isActive: true,
+                roles: ['user', 'admin'],
+                adminType: 'company_admin',
+                accountType: 'free',
+                organisationId: null,
+                siteId: null,
+                systemId: null,
+                isInitialized: true,
+                initializationDate: '2025-10-01T11:53:25.153Z',
+                lastUpdateDate: '2025-10-06T14:40:14.710Z',
+                lastAvatarUpdateDate: null,
+                createdBySelfRegister: false,
+                createdByAppId: 'a2f8903000f011e886d9b5bbd3260792',
+                firstLoginDate: '2025-10-01T11:53:10.313Z',
+                lastLoginDate: '2025-10-07T13:03:26.737Z',
+                loggedSince: '2025-10-07T13:03:26.737Z',
+                lastSeenDate: '2025-10-07T13:03:26.737Z',
+                failedLoginAttempts: 0,
+                lastLoginFailureDate: null,
+                lastExpiredTokenRenewedDate: null,
+                lastPasswordUpdateDate: null,
+                timeToLive: -1,
+                timeToLiveDate: null,
+                terminatedDate: null,
+                isTerminated: false,
+                guestMode: false,
+                fileSharingCustomisation: 'enabled',
+                userTitleNameCustomisation: 'disabled',
+                softphoneOnlyCustomisation: 'disabled',
+                useRoomCustomisation: 'enabled',
+                phoneMeetingCustomisation: 'enabled',
+                useChannelCustomisation: 'enabled',
+                useScreenSharingCustomisation: 'enabled',
+                useWebRTCAudioCustomisation: 'enabled',
+                useWebRTCOnlyIfMobileLoggedCustomisation: 'disabled',
+                useWebRTCVideoCustomisation: 'enabled',
+                instantMessagesCustomisation: 'enabled',
+                userProfileCustomisation: 'enabled',
+                fileStorageCustomisation: 'enabled',
+                overridePresenceCustomisation: 'enabled',
+                changeTelephonyCustomisation: 'enabled',
+                changeSettingsCustomisation: 'enabled',
+                recordingConversationCustomisation: 'enabled',
+                useGifCustomisation: 'enabled',
+                useDialOutCustomisation: 'enabled',
+                fileCopyCustomisation: 'enabled',
+                fileTransferCustomisation: 'enabled',
+                forbidFileOwnerChangeCustomisation: 'enabled',
+                readReceiptsCustomisation: 'enabled',
+                useSpeakingTimeStatistics: 'enabled',
+                eLearningCustomisation: 'enabled',
+                eLearningGamificationCustomisation: 'enabled',
+                meetingRecordingCustomisation: 'enabled',
+                useOtherPhoneMode: 'enabled',
+                useComputerMode: 'enabled',
+                useSoftPhoneMode: 'enabled',
+                useTeamsMode: 'disabled',
+                userAvatarCustomisation: 'enabled',
+                imPopupDuration: 3,
+                canAccessWhatsNew: 'enabled',
+                canAccessFaqCustomisation: 'enabled',
+                canAccessHelpCenterCustomisation: 'enabled',
+                canAccessStoreCustomisation: 'enabled',
+                canDownloadAppCustomisation: 'enabled',
+                canUseTestConfigCustomisation: 'enabled',
+                canUseTaskCustomisation: 'enabled',
+                canUseTranscriptionCustomisation: 'disabled',
+                canSynchCalendar: 'enabled',
+                canUseSendReportCustomisation: 'enabled',
+                canCallParticipantPbxNumberCustomisation: 'enabled',
+                canSetInvisiblePresenceCustomisation: 'enabled',
+                receivedFileCustomisation: 'enabled',
+                selectedAppCustomisationTemplate: '5f59d89d170a0b348c1b4d58',
+                selectedManifestId: null,
+                useRoomAsRBVoiceUser: 'enabled',
+                useWebRTCAudioAsRBVoiceUser: 'enabled',
+                alertNotificationReception: 'disabled',
+                selectedDeviceFirmware: 'same_as_company',
+                useExternalStorage: 'disabled',
+                useRainbowStorage: 'enabled',
+                mainStorage: 'Rainbow Storage',
+                nextRosterAutoCleanup: 0,
+                selectedProgKeysGroupId: null,
+                loginEmail: 'aleantwerp.hubreception@gmail.com',
+                country: 'BEL',
+                visibility: 'same_than_company',
+                companyId: '5b8e3b3b67edb74a2cf6c00c',
+                createdByAdmin: {
+                    userId: '60b7342a8e196a596ac8833f',
+                    loginEmail: 'aleantwerp.compadmin@gmail.com'
+                },
+                jid_im: '5e88012f39ed4c999080b3cbc992ef81@openrainbow.com',
+                jid_tel: 'tel_5e88012f39ed4c999080b3cbc992ef81@openrainbow.com',
+                jid_password: 'eccf68bab9584e8f9d4c78370b6ec429',
+                emails: [{email: 'aleantwerp.hubreception@gmail.com', type: 'work'}],
+                phoneNumbers: [
+                    {
+                        firstName: '',
+                        lastName: '',
+                        deviceName: 'Cloud PBX DDI number',
+                        names: [],
+                        type: 'work',
+                        deviceType: 'landline',
+                        isVisibleByOthers: true,
+                        isFromSystem: false,
+                        isMonitored: false,
+                        number: '+3215531095',
+                        systemId: '689c59d56951a0152d70fbaf',
+                        isCloudPbxDefault: true,
+                        externalTrunkId: '5dfc95b0f4cb88079f43bd4d',
+                        pbxId: 'PBXb641-60d7-6419-409c-b7c7-e112-9b5d-4585',
+                        country: 'BEL',
+                        numberE164: '+3215531095',
+                        isCloudPbxDDI: true,
+                        isAssignedAsSecondaryCloudPbxDDI: false,
+                        secondaryDdiOrder: 0,
+                        phoneNumberId: '68db9903de8ccb0a4aed1753'
+                    },
+                    {
+                        firstName: '',
+                        lastName: '',
+                        deviceName: 'RVCP Subscriber',
+                        names: [],
+                        type: 'work',
+                        deviceType: 'landline',
+                        isVisibleByOthers: true,
+                        isFromSystem: true,
+                        isMonitored: true,
+                        shortNumber: '799',
+                        voiceMailNumber: 'voicebox',
+                        systemId: '689c59d56951a0152d70fbaf',
+                        pbxId: 'PBXb641-60d7-6419-409c-b7c7-e112-9b5d-4585',
+                        country: 'BEL',
+                        internalNumber: '799',
+                        phoneNumberId: '68dd14f2bf41680a65c45f9b'
+                    }
+                ],
+                profiles: [
+                    {
+                        isDefault: true,
+                        status: 'active',
+                        canBeSold: false,
+                        businessModel: 'nb_users',
+                        businessSpecific: [Array],
+                        isExclusive: false,
+                        isPrepaid: false,
+                        hasConference: false,
+                        isBundle: false,
+                        isVoicePhone: false,
+                        guardianType: 'none',
+                        subscriptionId: '5b8e3b3b67edb74a2cf6c00d',
+                        offerId: '5820dc3af19a2bf6d7601ff7',
+                        offerName: 'Essential',
+                        profileId: '5820dc3af19a2bf6d7601ff6',
+                        profileName: 'Essential',
+                        isDemo: false,
+                        offerDescription: 'Rainbow Essential 1 User 1 Month',
+                        offerTechnicalDescription: 'Essential',
+                        offerReference: 'RB-Essential',
+                        assignationDate: '2025-10-01T11:47:23.144Z'
+                    },
+                    {
+                        isDefault: false,
+                        status: 'active',
+                        canBeSold: false,
+                        businessModel: 'nb_users',
+                        businessSpecific: [Array],
+                        isExclusive: true,
+                        isPrepaid: false,
+                        hasConference: false,
+                        isBundle: false,
+                        isVoicePhone: false,
+                        guardianType: 'none',
+                        subscriptionId: '64be9af1b47e4510575412f8',
+                        offerId: '5e4af6185823231ba069ac51',
+                        offerName: 'Voice Enterprise Custom',
+                        profileId: '5d9a4b98ab5e5a4edf2f03c2',
+                        profileName: 'Voice Enterprise',
+                        isDemo: true,
+                        hasVoice: true,
+                        offerDescription: 'Rainbow Voice Enterprise Custom',
+                        offerTechnicalDescription: 'Voice System Demo',
+                        offerReference: 'RB-Voice-Enterprise-Custom',
+                        groupName: 'Voice Enterprise',
+                        assignationDate: '2025-10-01T11:47:24.215Z'
+                    }
+                ],
+                creationDate: '2025-10-01T11:47:23.137Z',
+                activationDate: '2025-10-01T11:47:23.137Z',
+                companyName: 'ALE-ANTWERP',
+                customData: {
+                    pushToTalkEnabled: false,
+                    pushToTalkKey: 'Shift',
+                    pushToTalkDelay: 0,
+                    enablePushToTalkTone: false,
+                    hasSecondRinger: true,
+                    forwardInternalValue: '',
+                    forwardInternalContactId: '',
+                    forwardExternalValue: '',
+                    emergencyImSound: 'pager1',
+                    storeProducts: {
+                        rainbowSalesforce: false,
+                        rainbowMSDynamics: false,
+                        rainbowServicenow: false,
+                        rainbowZoho: false,
+                        rainbowZendesk: false,
+                        onlyOffice: false,
+                        moodleCanvasCornerstone: false,
+                        rainbowDialIn: false,
+                        rainbowWebinar: false,
+                        digitalTransformationSuccess: false,
+                        coachingHubAdministrator: false,
+                        coachingHubUser: false
+                    },
+                    suggestionDisplayed: true,
+                    guideTourDisplayed: true
+                },
+                guardianData: {},
+                language: 'en',
+                timezone: 'Europe/Paris',
+                state: null,
+                department: '',
+                jobTitle: '',
+                mfaRainbowAuth: {mfaStatus: 'disabled', mfaType: 'none'},
+                nickName: '',
+                rainbowPasswordlessPolicy: {},
+                singleSignOn: {},
+                title: '',
+                id: '68dd14cbdbc9e1f21b740b18',
+                isInDefaultCompany: false,
+                isADSearchAvailable: false,
+                calendars: [],
+                msTeamsPresence: [],
+                isAlertNotificationEnabled: false,
+                isCallFromPbxAuthorized: false,
+                isCallToPbxAuthorized: false,
+                capabilityOxeOverflow: false,
+                capabilityOxeBusy: false,
+                capabilityWRGConvShift: false,
+                isTv: false
+            };
+            let that = this;
+
+            let contact = rainbowSDK.contacts.createBasicContact(_contactFromServer.jid_im, undefined);
+            contact.updateFromUserData(_contactFromServer);
+            // contact.avatar = that.getAvatarByContactId(_contactFromServer.id, _contactFromServer.lastAvatarUpdateDate);
+            _logger.log("MAIN - (testUpdateFromUserData) after updateFromUserData ", contact);
+
+        }
+        // */
 
         testCreateBubble_Uniasselvi() {
             let loginEmail = "vincent02@vbe.test.openrainbow.net";

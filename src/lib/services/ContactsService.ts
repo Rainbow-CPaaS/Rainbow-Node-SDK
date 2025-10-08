@@ -703,7 +703,7 @@ class ContactsService extends GenericService {
                     }
                 } else {
                     that._logger.log(that.DEBUG, LOG_ID + "(getContactById) contact not found locally. Ask the server...");
-                    that._rest.getContactInformationByID(id).then((_contactFromServer: any) => {
+                    return that._rest.getContactInformationByID(id).then((_contactFromServer: any) => {
                         let contact: Contact = null;
                         if (_contactFromServer) {
                             that._logger.log(that.INTERNAL, LOG_ID + "(getContactById) contact found on the server : ", _contactFromServer);
