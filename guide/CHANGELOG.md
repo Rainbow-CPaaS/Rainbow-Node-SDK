@@ -6,6 +6,21 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+### [2.41.2] - 2025-10-08
+#### Removed
+-   None
+
+#### Fixed
+-   None.
+
+#### Added
+-   Add wrapRequest to wrap the Request in "got" lib to trace law layer Request events.
+-   Add catch of getContactById and getContactByJid.
+-   Fix return of getContactById and getContactByJid.
+
+#### Changed
+-   Replace `KeepAliveProxyAgent` with `HttpProxyAgent` when a proxy is used and `http.Agent` when none is used.
+
 ### [2.41.1] - 2025-09-25
 #### Removed
 -   None
