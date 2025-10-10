@@ -173,11 +173,12 @@ class HTTPService extends LevelLogs{
                     liveOption.username = authStr;
                 }
             }
-            const proxyUrl = that.proxy.proxyURL; // ex: "http://user:pass@host:3128" ou "https://host:3129"
+            //const proxyUrl = that.proxy.proxyURL; // ex: "http://user:pass@host:3128" ou "https://host:3129"
 
-            that._logger.log(that.INTERNAL, LOG_ID + "(constructor) build proxy agent. proxyUrl : ", proxyUrl,", liveOption : ", liveOption);
-            this.reqAgentHttp = new HttpProxyAgent(proxyUrl, liveOption);
-            this.reqAgentHttps = new HttpsProxyAgent(proxyUrl, liveOption);
+            //that._logger.log(that.INTERNAL, LOG_ID + "(constructor) build proxy agent. proxyUrl : ", proxyUrl,", liveOption : ", liveOption);
+            that._logger.log(that.INTERNAL, LOG_ID + "(constructor) build proxy agent. liveOption : ", liveOption);
+            this.reqAgentHttp = new HttpProxyAgent( liveOption);
+            this.reqAgentHttps = new HttpsProxyAgent( liveOption);
         } else {
             that._logger.log(that.INTERNAL, LOG_ID + "(constructor) build direct agent. liveOption : ", liveOption);
             this.reqAgentHttp = new http.Agent(liveOption);
@@ -561,7 +562,7 @@ safeJsonParse(str) {
                     const newAliveAgent: any = () => {
                         let req = {
                             prefixUrl: "",
-                            agent: {
+/*                            agent: {
                                 http: undefined,
                                 https: undefined
                                 //http: agent,
@@ -571,6 +572,7 @@ safeJsonParse(str) {
                                 //https: new HttpsAgent(liveOption)
                                 //
                             },
+// */
                             headers,
                             searchParams: params,
                             retry: {
@@ -826,7 +828,7 @@ safeJsonParse(str) {
                     const newAliveAgent: any = () => {
                         let req = {
                             prefixUrl: "",
-                            agent: {
+/*                            agent: {
                                 http: undefined,
                                 https: undefined
                                 //http: agent,
@@ -836,7 +838,7 @@ safeJsonParse(str) {
                                 //https: new HttpsAgent(liveOption)
                                 //
                             },
-                            headers,
+// */                            headers,
                             //body,
                             //searchParams: params,
                             retry: {
@@ -1078,7 +1080,7 @@ safeJsonParse(str) {
                     const newAliveAgent: any = () => {
                         let req = {
                             prefixUrl: "",
-                            agent: {
+/*                            agent: {
                                 http: undefined,
                                 https: undefined
                                 //http: agent,
@@ -1088,6 +1090,7 @@ safeJsonParse(str) {
                                 //https: new HttpsAgent(liveOption)
                                 //
                             },
+// */
                             headers,
                             body,
                             //searchParams: params,
@@ -1258,7 +1261,7 @@ safeJsonParse(str) {
                     const newAliveAgent: any = () => {
                         let req = {
                             prefixUrl: "",
-                            agent: {
+/*                            agent: {
                                 http: undefined,
                                 https: undefined
                                 //http: agent,
@@ -1268,6 +1271,7 @@ safeJsonParse(str) {
                                 //https: new HttpsAgent(liveOption)
                                 //
                             },
+// */
                             headers,
                             body,
                             //searchParams: params,
@@ -1434,7 +1438,7 @@ safeJsonParse(str) {
                     const newAliveAgent: any = () => {
                         let req: any = {
                             prefixUrl: "",
-                            agent: {
+/*                            agent: {
                                 http: undefined,
                                 https: undefined
                                 //http: agent,
@@ -1444,6 +1448,7 @@ safeJsonParse(str) {
                                 //https: new HttpsAgent(liveOption)
                                 //
                             },
+// */
                             headers,
                             // body,
                             //searchParams: params,
@@ -1696,7 +1701,7 @@ safeJsonParse(str) {
                     const newAliveAgent: any = () => {
                         let req = {
                             prefixUrl: "",
-                            agent: {
+/*                            agent: {
                                 http: undefined,
                                 https: undefined
                                 //http: agent,
@@ -1706,6 +1711,7 @@ safeJsonParse(str) {
                                 //https: new HttpsAgent(liveOption)
                                 //
                             },
+// */
                             headers,
                             searchParams: params,
                             retry: {
@@ -2118,18 +2124,17 @@ safeJsonParse(str) {
                         const newAliveAgent: any = () => {
                             let req = {
                                 prefixUrl: "",
-                                agent: {
-                                    http: undefined,
-                                    https: undefined
-                                    //http: that.reqAgentHttp,
-                                    //https: that.reqAgentHttps
-                                    //http: agent,
-                                    //https: agent
+/*                            agent: {
+                                http: undefined,
+                                https: undefined
+                                //http: agent,
+                                //https: agent
 
-                                    //http: new HttpAgent(liveOption),
-                                    //https: new HttpsAgent(liveOption)
-                                    //
-                                },
+                                //http: new HttpAgent(liveOption),
+                                //https: new HttpsAgent(liveOption)
+                                //
+                            },
+// */
                                 headers,
                                 searchParams: params,
                                 retry: {
@@ -2603,16 +2608,17 @@ safeJsonParse(str) {
                 const newAliveAgent: any = () => {
                     let req = {
                         prefixUrl: "",
-                        agent: {
-                            http: undefined,
-                            https: undefined
-                            //http: agent,
-                            //https: agent
+/*                            agent: {
+                                http: undefined,
+                                https: undefined
+                                //http: agent,
+                                //https: agent
 
-                            //http: new HttpAgent(liveOption),
-                            //https: new HttpsAgent(liveOption)
-                            //
-                        },
+                                //http: new HttpAgent(liveOption),
+                                //https: new HttpsAgent(liveOption)
+                                //
+                            },
+// */
                         headers,
                         body,
                         //searchParams: params,
@@ -2952,16 +2958,17 @@ safeJsonParse(str) {
                 const newAliveAgent: any = () => {
                     let req = {
                         prefixUrl: "",
-                        agent: {
-                            http: undefined,
-                            https: undefined
-                            //http: agent,
-                            //https: agent
+/*                            agent: {
+                                http: undefined,
+                                https: undefined
+                                //http: agent,
+                                //https: agent
 
-                            //http: new HttpAgent(liveOption),
-                            //https: new HttpsAgent(liveOption)
-                            //
-                        },
+                                //http: new HttpAgent(liveOption),
+                                //https: new HttpsAgent(liveOption)
+                                //
+                            },
+// */
                         headers,
                         //body,
                         //searchParams: params,
@@ -3312,16 +3319,17 @@ safeJsonParse(str) {
                 const newAliveAgent: any = () => {
                     let req: any = {
                         prefixUrl: "",
-                        agent: {
-                            http: undefined,
-                            https: undefined
-                            //http: agent,
-                            //https: agent
+/*                            agent: {
+                                http: undefined,
+                                https: undefined
+                                //http: agent,
+                                //https: agent
 
-                            //http: new HttpAgent(liveOption),
-                            //https: new HttpsAgent(liveOption)
-                            //
-                        },
+                                //http: new HttpAgent(liveOption),
+                                //https: new HttpsAgent(liveOption)
+                                //
+                            },
+// */
                         headers,
                         // body,
                         //searchParams: params,
@@ -3687,16 +3695,17 @@ safeJsonParse(str) {
                 const newAliveAgent: any = () => {
                     let req = {
                         prefixUrl: "",
-                        agent: {
-                            http: undefined,
-                            https: undefined
-                            //http: agent,
-                            //https: agent
+/*                            agent: {
+                                http: undefined,
+                                https: undefined
+                                //http: agent,
+                                //https: agent
 
-                            //http: new HttpAgent(liveOption),
-                            //https: new HttpsAgent(liveOption)
-                            //
-                        },
+                                //http: new HttpAgent(liveOption),
+                                //https: new HttpsAgent(liveOption)
+                                //
+                            },
+// */
                         headers,
                         body,
                         //searchParams: params,
@@ -4035,16 +4044,17 @@ safeJsonParse(str) {
                 const newAliveAgent: any = () => {
                     let req = {
                         prefixUrl: "",
-                        agent: {
-                            http: undefined,
-                            https: undefined
-                            //http: agent,
-                            //https: agent
+/*                            agent: {
+                                http: undefined,
+                                https: undefined
+                                //http: agent,
+                                //https: agent
 
-                            //http: new HttpAgent(liveOption),
-                            //https: new HttpsAgent(liveOption)
-                            //
-                        },
+                                //http: new HttpAgent(liveOption),
+                                //https: new HttpsAgent(liveOption)
+                                //
+                            },
+// */
                         headers,
                         body: buffer,
                         //searchParams: params,
@@ -4178,16 +4188,17 @@ safeJsonParse(str) {
                 const newAliveAgent: any = () => {
                     let req = {
                         prefixUrl: "",
-                        agent: {
-                            http: undefined,
-                            https: undefined
-                            //http: agent,
-                            //https: agent
+/*                            agent: {
+                                http: undefined,
+                                https: undefined
+                                //http: agent,
+                                //https: agent
 
-                            //http: new HttpAgent(liveOption),
-                            //https: new HttpsAgent(liveOption)
-                            //
-                        },
+                                //http: new HttpAgent(liveOption),
+                                //https: new HttpsAgent(liveOption)
+                                //
+                            },
+// */
                         headers,
                         //body : stream,
                         //searchParams: params,
@@ -4556,16 +4567,17 @@ safeJsonParse(str) {
                 const newAliveAgent: any = () => {
                     let req: any = {
                         prefixUrl: "",
-                        agent: {
-                            http: undefined,
-                            https: undefined
-                            //http: agent,
-                            //https: agent
+/*                            agent: {
+                                http: undefined,
+                                https: undefined
+                                //http: agent,
+                                //https: agent
 
-                            //http: new HttpAgent(liveOption),
-                            //https: new HttpsAgent(liveOption)
-                            //
-                        },
+                                //http: new HttpAgent(liveOption),
+                                //https: new HttpsAgent(liveOption)
+                                //
+                            },
+                        // */
                         headers,
                         // body,
                         //searchParams: params,
