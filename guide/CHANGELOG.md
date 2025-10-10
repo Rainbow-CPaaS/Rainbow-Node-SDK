@@ -17,7 +17,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   None.
  
 #### Changed
--   None.
+-   Update PresenceService::notifyCalendarProvider API with boolean `forceNotify` Allow to to force the refresh of xmpp status as a comparison is done between old and new presence status.
 
 ### [2.41.2] - 2025-10-08
 #### Removed
