@@ -460,17 +460,15 @@ pipeline {
                     //          credentialsId: 'b04ca5f5-3666-431d-aaf4-c6c239121510',
                     //          branch: "*"
                     //         branch: "${env.BRANCH_NAME}"
-                    withCredentials([
-                             usernamePassword(credentialsId: '3bbf5a3d-b1b4-4b81-8f49-244b73e0db78', usernameVariable: 'GITLABVBERDERTOKEN_USERNAME', passwordVariable: 'GITLABVBERDERTOKEN_TOKEN')
-                           ]) {
+
+                    sshagent(['gitlab-ssh-key']) {
                                 sh script: """
                                 #echo "Build's  shell the Rainbow-Node-SDK : ${RAINBOWNODESDKVERSION} with send email : ${SENDEMAIL} and is LTSBETA : ${LTSBETA}"
                                 export NODE_TLS_REJECT_UNAUTHORIZED=0
                                 echo ---------- Set the GIT config to be able to upload to server :
                                 #git config --local credential.helper "!f() { echo username=\\$GITLABVBERDER_USR; echo password=\\$GITLABVBERDER_PSW; }; f"
-                                git config --local credential.helper "!f() { echo username=\\$GITLABVBERDERTOKEN_USERNAME; echo password=\\$GITLABVBERDERTOKEN_TOKEN; }; f"
                                 git config --global user.email "vincent.berder@al-enterprise.com"
-                                git config --global user.name "vincent.berder@al-enterprise.com"
+                                git config --global user.name "Jenkins Jobs"
 
                                 if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM.LTS}" ]; then
                                     echo ---------- Create a specific branch :
