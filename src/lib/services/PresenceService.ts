@@ -1287,13 +1287,14 @@ class PresenceService extends GenericService{
      * For each event, a IQ GetEvent request will be sent to retrieve a potential event that will occur in current time frame window.
      * @param {Array<string>} ids The ids specified in field value of body request are the Rainbow user id for which a new calendar event has been created.
      * @param {Object} headers Allow to define specifics headers to the request.
+     * @param {boolean} forceNotify Allow to to force the refresh of xmpp status as a comparaison is done between old and new presence status.
      * @return {Promise< any, ErrorManager>}
      * @fulfil {ErrorManager} - ErrorManager object depending on the result.
      */
-    notifyCalendarProvider(ids: Array<string>, headers : any = {}) {
+    notifyCalendarProvider(ids: Array<string>, headers : any = {}, forceNotify: boolean = undefined) {
         let that = this ;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(notifyCalendarProvider) is ids defined : ", isDefined(ids));
-        return that._rest.notifyCalendarProvider(ids, headers);
+        return that._rest.notifyCalendarProvider(ids, headers, forceNotify);
     }
 
     /**
@@ -1344,7 +1345,7 @@ class PresenceService extends GenericService{
      *         rainbowSDK.presence.sendResultCalendarEvents(calendarManager);
      *     });
      *
-     * @param {CalendarManager} calendarManager Allow to define specifics headers to the request.
+     * @param {CalendarManager} calendarManager Allow to define the result of a get events iq request from Rainbow.
      * @return {Promise< any, ErrorManager>}
      * @fulfil {ErrorManager} - ErrorManager object depending on the result.
      */
@@ -1402,7 +1403,7 @@ class PresenceService extends GenericService{
      *
      *         rainbowSDK.presence.sendAutoReplyEvents(autoReplyManager);
      *     });
-     * @param {AutoReplyManager} autoReplyManager Allow to define specifics headers to the request.
+     * @param {AutoReplyManager} autoReplyManager Allow to define  get auto reply events iq.
      * @return {Promise< any, ErrorManager>}
      * @fulfil {ErrorManager} - ErrorManager object depending on the result.
      */

@@ -17144,7 +17144,7 @@ addPropertyToObj(param, "peerId", body.peerId, false);
         //region Presence Synchronize CPE Exchange Calendar [AD/LDAP]
     // RQRAINB-12269
 
-    notifyCalendarProvider(ids: Array<string>, headers : any = {}) {
+    notifyCalendarProvider(ids: Array<string>, headers : any = {}, forceNotify: boolean = undefined) {
         let that = this ;
         //that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(notifyCalendarProvider) is ids defined : ", isDefined(ids));
         // API
@@ -17159,6 +17159,7 @@ addPropertyToObj(param, "peerId", body.peerId, false);
             let urlParamsTab: Array<string> = [];
             urlParamsTab.push(url);
             addParamToUrl(urlParamsTab, "companyId", companyId );
+            addParamToUrl(urlParamsTab, "force", forceNotify, false );
              // */
             url = urlParamsTab[0];
             //let data: any = {};
