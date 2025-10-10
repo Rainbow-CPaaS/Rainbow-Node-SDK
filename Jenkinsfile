@@ -102,7 +102,8 @@ pipeline {
         booleanParam(name: 'DEBUGINTERNAL', defaultValue: true, description: 'Should this STS/LTS version be compiled with internal debug ?')
         booleanParam(name: 'LTSBETA', defaultValue: false, description: 'Should this STS version be also an LTS BETA Version ?')
         booleanParam(name: 'PUBLISHONNPMJSWITHSTSTAG', defaultValue: false, description: 'Publish this STS/LTS version to npmjs with the tag \"sts\" else with \".net\" tag ?')
-        booleanParam(name: 'PUBLISHTONPMANDSETTAGINGIT', defaultValue: true, description: 'Publish the sts SDK/LTS built to npmjs and save the tag/branch to GIT.')
+        booleanParam(name: 'PUBLISHTONPM', defaultValue: true, description: 'Publish the sts SDK/LTS built to npmjs.')
+        booleanParam(name: 'PUSHINGIT', defaultValue: true, description: 'Save the tag/branch to GIT.')
         //string(name: 'PERSON', defaultValue: 'Mr Jenkins', description: 'Who should I say hello to?')
         //text(name: 'BIOGRAPHY', defaultValue: '', description: 'Enter some information about the person')
         //booleanParam(name: 'TOGGLE', defaultValue: true, description: 'Toggle this value')
@@ -250,7 +251,8 @@ pipeline {
                     echo "DEBUGINTERNAL : ${params.DEBUGINTERNAL}"
                     echo "LTSBETA : ${params.LTSBETA} "
                     echo "PUBLISHONNPMJSWITHSTSTAG : ${params.PUBLISHONNPMJSWITHSTSTAG} "
-                    echo "PUBLISHTONPMANDSETTAGINGIT : ${params.PUBLISHTONPMANDSETTAGINGIT} "
+                    echo "PUBLISHTONPM : ${params.PUBLISHTONPM} "
+                    echo "PUSHINGIT : ${params.PUSHINGIT} "
 
                     echo "Environment variables to build from branch ${env.BRANCH_NAME} : "
                     echo "RELEASENAMEUPPERNAME : ${env.RELEASENAMEUPPERNAME}"
@@ -472,7 +474,7 @@ pipeline {
 
                                 if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM.LTS}" ]; then
                                     echo ---------- Create a specific branch :
-                                    if [ "${PUBLISHTONPMANDSETTAGINGIT}" = "true" ]; then
+                                    if [ "${PUSHINGIT}" = "true" ]; then
                                         echo ---------- Create a specific branch :
             # REFACTOR                            git branch "delivered${RAINBOWNODESDKVERSION}"
             # REFACTOR                            git checkout "delivered${RAINBOWNODESDKVERSION}"
@@ -540,7 +542,7 @@ pipeline {
 
                                 #echo ---------- STEP commit :
                                 if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM.LTS}" ]; then
-            # REFACTOR                        if [ "${PUBLISHTONPMANDSETTAGINGIT}" = "true" ]; then
+            # REFACTOR                        if [ "${PUSHINGIT}" = "true" ]; then
             # REFACTOR                            git reset --hard "origin/delivered${RAINBOWNODESDKVERSION}"
             # REFACTOR                        else
                                         git reset --hard "origin/${env.BRANCH_NAME}"
@@ -563,7 +565,7 @@ pipeline {
                                 cp -R build/JSONDOCS guide/JSONDOCS
 
                                 echo ---------- STEP publish :
-                                if [ "${PUBLISHTONPMANDSETTAGINGIT}" = "true" ]; then
+                                if [ "${PUBLISHTONPM}" = "true" ]; then
                                     if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM.LTS}" ]; then
                                          echo "Publish latest on npmjs."
                                          npm publish
@@ -581,17 +583,17 @@ pipeline {
 
                                 echo ---------- PUSH tags AND files :
                                 if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM.STS}" ]; then
-                                    ${PUBLISHTONPMANDSETTAGINGIT} && git tag -a ${RAINBOWNODESDKVERSION} -m "${RAINBOWNODESDKVERSION} is a ${RELEASENAMELOWERNAME} version."
-                                    ${PUBLISHTONPMANDSETTAGINGIT} && git push  origin HEAD:${env.BRANCH_NAME}
-                                    ${PUBLISHTONPMANDSETTAGINGIT} && git push --tags origin HEAD:${env.BRANCH_NAME}
+                                    ${PUSHINGIT} && git tag -a ${RAINBOWNODESDKVERSION} -m "${RAINBOWNODESDKVERSION} is a ${RELEASENAMELOWERNAME} version."
+                                    ${PUSHINGIT} && git push  origin HEAD:${env.BRANCH_NAME}
+                                    ${PUSHINGIT} && git push --tags origin HEAD:${env.BRANCH_NAME}
                                 fi
                                 if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM.LTS}" ]; then
-                                    ${PUBLISHTONPMANDSETTAGINGIT} && git tag -a ${RAINBOWNODESDKVERSION} -m "${RAINBOWNODESDKVERSION} is a ${RELEASENAMELOWERNAME} version."
-                                    ${PUBLISHTONPMANDSETTAGINGIT} && git push  origin HEAD:${env.BRANCH_NAME}
-                                    ${PUBLISHTONPMANDSETTAGINGIT} && git push --tags origin HEAD:${env.BRANCH_NAME}
-            # REFACTOR                        ${PUBLISHTONPMANDSETTAGINGIT} && git tag -a ${RAINBOWNODESDKVERSION} -m "${RAINBOWNODESDKVERSION} is a ${RELEASENAMELOWERNAME} version."
-            # REFACTOR                        ${PUBLISHTONPMANDSETTAGINGIT} && git push  origin "HEAD:delivered${RAINBOWNODESDKVERSION}"
-            # REFACTOR                        ${PUBLISHTONPMANDSETTAGINGIT} && git push --tags origin "HEAD:delivered${RAINBOWNODESDKVERSION}"
+                                    ${PUSHINGIT} && git tag -a ${RAINBOWNODESDKVERSION} -m "${RAINBOWNODESDKVERSION} is a ${RELEASENAMELOWERNAME} version."
+                                    ${PUSHINGIT} && git push  origin HEAD:${env.BRANCH_NAME}
+                                    ${PUSHINGIT} && git push --tags origin HEAD:${env.BRANCH_NAME}
+            # REFACTOR                        ${PUSHINGIT} && git tag -a ${RAINBOWNODESDKVERSION} -m "${RAINBOWNODESDKVERSION} is a ${RELEASENAMELOWERNAME} version."
+            # REFACTOR                        ${PUSHINGIT} && git push  origin "HEAD:delivered${RAINBOWNODESDKVERSION}"
+            # REFACTOR                        ${PUSHINGIT} && git push --tags origin "HEAD:delivered${RAINBOWNODESDKVERSION}"
                                 fi
 
                                 echo ---------- send emails getDebianArtifacts parameters setted :
