@@ -690,28 +690,6 @@ safeJsonParse(str) {
                             req["responseType"] = responseType; // 'arraybuffer'
                         } // */
 
-                        /*if (that.proxy.isProxyConfigured ) {
-                            if (that.proxy.secureProtocol) {
-                                //opt.secureProxy = true;
-                            }
-                            // Until web proxy on websocket solved, patch existing configuration to offer the proxy options
-                            //options.agent = new HttpsProxyAgent(opt);
-
-                            //let opt = urlParse(that.proxy.proxyURL);
-                            liveOption.proxy = urlParse(that.proxy.proxyURL);
-
-                            req.agent.http =  new KeepAliveProxyAgent(liveOption);
-                            req.agent.https = new KeepAliveProxyAgent(liveOption);
-                        } else {
-                            req.agent.http =  new KeepAliveProxyAgent(liveOption);
-                            req.agent.https = new KeepAliveProxyAgent(liveOption);
-                        } // */
-
-                        req.agent.http = that.reqAgentHttp;
-                        req.agent.https = that.reqAgentHttps;
-                        // @ts-ignore
-                        // req.agent = false;
-
                         return req;
                     };
 
@@ -951,11 +929,6 @@ safeJsonParse(str) {
                             },
                         };
 
-                        req.agent.http = that.reqAgentHttp;
-                        req.agent.https = that.reqAgentHttps;
-                        // @ts-ignore
-                        // req.agent = false;
-
                         return req;
                     };
 
@@ -1141,11 +1114,6 @@ safeJsonParse(str) {
                             },
                         };
 
-                         req.agent.http = that.reqAgentHttp;
-                         req.agent.https = that.reqAgentHttps;
-                        // @ts-ignore
-                        // req.agent = false;
-
                         return req;
                     };
 
@@ -1321,11 +1289,6 @@ safeJsonParse(str) {
                                 ],
                             },
                         };
-
-                        req.agent.http = that.reqAgentHttp;
-                        req.agent.https = that.reqAgentHttps;
-                        // @ts-ignore
-                        // req.agent = false;
 
                         return req;
                     };
@@ -1579,11 +1542,6 @@ safeJsonParse(str) {
                         if (body) {
                             req.body = body;
                         }
-
-                        req.agent.http = that.reqAgentHttp;
-                        req.agent.https = that.reqAgentHttps;
-                        // @ts-ignore
-                        // req.agent = false;
 
                         return req;
                     };
@@ -1852,28 +1810,6 @@ safeJsonParse(str) {
                         if (responseType != "") {
                             req["responseType"] = responseType; // 'arraybuffer'
                         } // */
-
-                        /*if (that.proxy.isProxyConfigured ) {
-                            if (that.proxy.secureProtocol) {
-                                //opt.secureProxy = true;
-                            }
-                            // Until web proxy on websocket solved, patch existing configuration to offer the proxy options
-                            //options.agent = new HttpsProxyAgent(opt);
-
-                            //let opt = urlParse(that.proxy.proxyURL);
-                            liveOption.proxy = urlParse(that.proxy.proxyURL);
-
-                            req.agent.http =  new KeepAliveProxyAgent(liveOption);
-                            req.agent.https = new KeepAliveProxyAgent(liveOption);
-                        } else {
-                            req.agent.http =  new KeepAliveProxyAgent(liveOption);
-                            req.agent.https = new KeepAliveProxyAgent(liveOption);
-                        } // */
-
-                        req.agent.http = that.reqAgentHttp;
-                        req.agent.https = that.reqAgentHttps;
-                        // @ts-ignore
-                        // req.agent = false;
 
                         return req;
                     };
@@ -2281,27 +2217,6 @@ safeJsonParse(str) {
                                 req["responseType"] = responseType; // 'arraybuffer'
                             }
 
-                            /*if (that.proxy.isProxyConfigured ) {
-                                if (that.proxy.secureProtocol) {
-                                    //opt.secureProxy = true;
-                                }
-                                // Until web proxy on websocket solved, patch existing configuration to offer the proxy options
-                                //options.agent = new HttpsProxyAgent(opt);
-
-                                //let opt = urlParse(that.proxy.proxyURL);
-                                liveOption.proxy = urlParse(that.proxy.proxyURL);
-
-                                req.agent.http =  new KeepAliveProxyAgent(liveOption);
-                                req.agent.https = new KeepAliveProxyAgent(liveOption);
-                            } else {
-                                req.agent.http =  new KeepAliveProxyAgent(liveOption);
-                                req.agent.https = new KeepAliveProxyAgent(liveOption);
-                            } // */
-
-                            //req.agent.http = that.reqAgentHttp;
-                            //req.agent.https = that.reqAgentHttps;
-                            // @ts-ignore
-                            // req.agent = false;
                             return req;
                         };
 
@@ -2775,11 +2690,6 @@ safeJsonParse(str) {
                         },
                     };
 
-                    req.agent.http = that.reqAgentHttp;
-                    req.agent.https = that.reqAgentHttps;
-                    // @ts-ignore
-                    // req.agent = false;
-
                     return req;
                 };
 
@@ -3126,11 +3036,6 @@ safeJsonParse(str) {
                             ]
                         },
                     };
-
-                    req.agent.http = that.reqAgentHttp;
-                    req.agent.https = that.reqAgentHttps;
-                    // @ts-ignore
-                    // req.agent = false;
 
                     return req;
                 };
@@ -3479,11 +3384,6 @@ safeJsonParse(str) {
                     if (body) {
                         req.body = body;
                     }
-
-                    req.agent.http = that.reqAgentHttp;
-                    req.agent.https = that.reqAgentHttps;
-                    // @ts-ignore
-                    // req.agent = false;
 
                     return req;
                 };
@@ -3867,11 +3767,6 @@ safeJsonParse(str) {
                         },
                     };
 
-                    req.agent.http = that.reqAgentHttp;
-                    req.agent.https = that.reqAgentHttps;
-                    // @ts-ignore
-                    // req.agent = false;
-
                     return req;
                 };
 
@@ -4104,11 +3999,6 @@ safeJsonParse(str) {
                             ],
                         },
                     };
-
-                    req.agent.http = that.reqAgentHttp;
-                    req.agent.https = that.reqAgentHttps;
-                    // @ts-ignore
-                    // req.agent = false;
 
                     return req;
                 };
@@ -4361,11 +4251,6 @@ safeJsonParse(str) {
                             ]
                         },
                     };
-
-                    req.agent.http = that.reqAgentHttp;
-                    req.agent.https = that.reqAgentHttps;
-                    // @ts-ignore
-                    // req.agent = false;
 
                     return req;
                 };
@@ -4732,11 +4617,6 @@ safeJsonParse(str) {
                     if (body) {
                         req.body = body;
                     }
-
-                    req.agent.http = that.reqAgentHttp;
-                    req.agent.https = that.reqAgentHttps;
-                    // @ts-ignore
-                    // req.agent = false;
 
                     return req;
                 };
