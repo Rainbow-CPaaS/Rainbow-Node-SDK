@@ -113,7 +113,7 @@ let options = {
         // IM options
     "im": {
             "sendReadReceipt": true, // Allow to automatically send back a 'read' status of the received message. Usefull for Bots.
-            "messageMaxLength": 1024, // Maximum size of messages send by rainbow. Note that this value should not be modified without ALE Agreement.
+            "messageMaxLength": 16384, // Maximum size of messages send by rainbow. Note that this value should not be modified without ALE Agreement.
             "sendMessageToConnectedUser": false, // Forbid the SDK to send a message to the connected user it self. This is to avoid bot loopback.
             "conversationsRetrievedFormat": "small", // Set the size of the conversation's content retrieved from server. Can be `small`, `medium`, `full`
             "storeMessages": true, // Tell the server to store the message for delay distribution and also for history. Please avoid to set it to true for a bot which will not read anymore the messages. It is a better way to store it in your own CPaaS application

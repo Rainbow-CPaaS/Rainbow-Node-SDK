@@ -221,7 +221,7 @@ let options = {
     // IM options
     "im": {
         "sendReadReceipt": true,
-        "messageMaxLength": 1024,
+        "messageMaxLength": 16384,
         "sendMessageToConnectedUser": false,
         "conversationsRetrievedFormat": "small",
         "storeMessages": false,

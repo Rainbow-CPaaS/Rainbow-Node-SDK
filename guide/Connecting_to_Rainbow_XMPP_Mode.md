@@ -71,7 +71,7 @@ let options = {
     // IM options
     "im": {
         "sendReadReceipt": true, // If it is setted to true (default value), the 'read' receipt is sent automatically to the sender when the message is received so that the sender knows that the message as been read.
-        "messageMaxLength": 1024, // the maximum size of IM messages sent. Note that this value must be under 1024.
+        "messageMaxLength": 16384, // the maximum size of IM messages sent. Note that this value must be under 16384.
         "sendMessageToConnectedUser": false, // When it is setted to false it forbid to send message to the connected user. This avoid a bot to auto send messages.
         "conversationsRetrievedFormat": "small", // It allows to set the quantity of datas retrieved when SDK get conversations from server. Value can be "small" of "full"
         "storeMessages": true, // Define a server side behaviour with the messages sent. When true, the messages are stored, else messages are only available on the fly. They can not be retrieved later.
