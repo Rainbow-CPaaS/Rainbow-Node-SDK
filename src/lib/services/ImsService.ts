@@ -406,9 +406,22 @@ class ImsService extends GenericService{
             return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'message' is missing or null"}));
         } // */
 
+        /*
         if (message && message.length > that._imOptions.messageMaxLength) {
             return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'strMessage' should be lower than " + that._imOptions.messageMaxLength + " characters"}));
+        } // */
+
+
+        // Check size of the message
+        let messageSize = message?message.length:0;
+        if (content && content.message && typeof content.message === "string") {
+            messageSize += content.message.length;
         }
+
+        if (messageSize > that._imOptions.messageMaxLength) {
+            that._logger.log(that.WARN, LOG_ID + "(sendMessageToConversation) message not sent. The is too long (" + messageSize + ")");
+            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'message + content string size' should be lower than " + that._imOptions.messageMaxLength + " characters"}));
+        } // */
 
         let msgSent : any = undefined; //Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: " sent message failed."}));
         if (this._useXMPP) {

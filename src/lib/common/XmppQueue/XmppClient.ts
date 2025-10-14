@@ -4,6 +4,8 @@ import {NameSpacesLabels} from "../../connection/XMPPService";
 import {DataStoreType} from "../../config/config";
 import {Deferred, getJsonFromXML, getStoreStanzaValue, stackTrace} from "../Utils";
 //import {Element} from "adaptive-expressions/lib/builtinFunctions";
+import {XMPPUTils} from "../XMPPUtils";
+const xmppUtils = XMPPUTils.getXMPPUtils();
 
 export {};
 
@@ -453,6 +455,15 @@ class XmppClient {
                 return reject2(error);
             }
 
+            /*
+            const check = xmppUtils.willExceedStanzaLimit(typeof stanza === "string" ? stanza : (stanza?.toString ? stanza.toString() : String(stanza)), 1500, 16384);
+            that.logger.log("debug", LOG_ID + "(send)  check byte size : ", check);
+            if (check.exceeds) {
+                // Plan B: héberger le JSON, envoyer un lien, ou simplifier la card
+                throw new Error(`Card trop volumineuse (~${check.estimated} octets).`);
+                return reject( new Error(`Card trop volumineuse (~${check.estimated} octets).`));
+            }
+            // */
             try {
                 await this.client.send(...args).then(() => {
                     if (stanzaJson?.message?.body || stanzaJson?.message?.content) {

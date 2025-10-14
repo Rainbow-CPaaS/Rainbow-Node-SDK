@@ -245,6 +245,68 @@ export class XMPPUTils {
         // console.log("element offanded : ", element.toString());
         return element;
     }
+
+    // Estimate Byte size in UTF-8, compatible navigateur/Node
+    byteLen(s: string) {
+        try {
+            // Navigateur / environnement avec TextEncoder
+            // @ts-ignore
+            if (typeof TextEncoder !== "undefined") {
+                // @ts-ignore
+                return new TextEncoder().encode(s).length;
+            }
+        } catch {}
+        try {
+            // Node.js
+            // @ts-ignore
+            if (typeof Buffer !== "undefined" && Buffer.byteLength) {
+                // @ts-ignore
+                return Buffer.byteLength(s, 'utf8');
+            }
+        } catch {}
+        // */
+        // Fallback très sûr (compte UTF-8) si ni TextEncoder ni Buffer ne sont dispo
+        let bytes = 0;
+        for (let i = 0; i < s.length; i++) {
+            const codePoint = s.codePointAt(i)!;
+            if (codePoint <= 0x7F) bytes += 1;
+            else if (codePoint <= 0x7FF) bytes += 2;
+            else if (codePoint <= 0xFFFF) bytes += 3;
+            else {
+                bytes += 4; i++; // surrogate pair consommé
+            }
+        }
+        return bytes;
+    }
+
+    // Estime la taille de la strophe XMPP. Si on reçoit une strophe XML complète (string commençant par '<'),
+    // on mesure directement sa taille sans ajouter d'overhead arbitraire. Si on reçoit un payload (objet ou string JSON),
+    // on applique un overhead configurable pour l'enveloppe.
+    willExceedStanzaLimit(contentJson: object|string, headOverhead = 1500, limit = 64 * 1024) {
+        let inputStr = "";
+        let mode: 'stanza' | 'payload' = 'payload';
+
+        if (typeof contentJson === "string") {
+            inputStr = contentJson;
+            // Heuristique: s'il s'agit visiblement d'une strophe XML complète, on ne rajoute pas d'overhead
+            const trimmed = inputStr.trimStart();
+            const looksLikeXmlStanza = trimmed.startsWith('<message') || trimmed.startsWith('<iq') || trimmed.startsWith('<presence');
+            if (looksLikeXmlStanza) {
+                const estimated = this.byteLen(inputStr);
+                return { exceeds: estimated > limit, estimated, limit };
+            }
+            // sinon, c'est probablement du JSON minifié déjà prêt
+            mode = 'payload';
+        } else {
+            // objet JSON → string minifiée
+            inputStr = JSON.stringify(contentJson);
+            mode = 'payload';
+        }
+
+        const estimated = headOverhead + this.byteLen(inputStr);
+        return { exceeds: estimated > limit, estimated, limit };
+    }
+
 }
 
 export let xu = XMPPUTils.getXMPPUtils();

@@ -459,7 +459,8 @@ let expressEngine = undefined;
             secureProtocol: undefined //"SSLv3_method"
         }, // */
 // Proxy 2 Cyril.
-/*       proxy: {
+/*
+        proxy: {
             host: "10.10.13.17",
             port: 3128,
             protocol: "http",
@@ -467,8 +468,8 @@ let expressEngine = undefined;
             password: "test",
             secureProtocol: undefined //"SSLv3_method"
         }, // */
-/*
-        proxy: {
+
+/*        proxy: {
             host: "127.0.0.1",
             port: 8888,
             protocol: "http",
@@ -477,8 +478,6 @@ let expressEngine = undefined;
             secureProtocol: undefined //"SSLv3_method"
         }, // */
         // Proxy configuration
-
-
 
      /*   proxy: {
             host: "10.67.253.14",
@@ -498,15 +497,15 @@ let expressEngine = undefined;
             //"level": "error",
             //"level": "info",
             //"level": "internal",
-            //"level": "internal",
-            "level": "debug",
+            "level": "internal",
+            //"level": "debug",
             "customLabel": "RainbowSample",
             "system-dev": {
                 "internals": true,
                 "http": true,
             },
             "filter": "",
-            "areas": logLevelAreas,
+            //"areas": logLevelAreas,
             /*,
             "areas" : {
                 "admin": {
@@ -761,6 +760,7 @@ let expressEngine = undefined;
         "im": {
             "sendReadReceipt": true,
 //            "messageMaxLength": 16384,
+//            "messageMaxLength": 1024,
             "sendMessageToConnectedUser": false,
             "conversationsRetrievedFormat": "full",
             "storeMessages": false,
@@ -1079,7 +1079,7 @@ let expressEngine = undefined;
     rainbowSDK.events.on("rainbow_onEWSgetevents", (data) => {
         _logger.log("debug", "MAIN - (rainbow_onEWSgetevents) - rainbow event received.", data);
         let calendarManager = new RainbowSDK.CalendarManager(data.id, data.from, data.email);
-        calendarManager.addEvent(
+        /*calendarManager.addEvent(
             {
                 "id": "evt-001",
                 "subject": "Réunion projet",
@@ -1107,6 +1107,7 @@ let expressEngine = undefined;
                     "value": "2025-08-14T10:45:00Z"
                 }
             });
+            // */
 
         rainbowSDK.presence.sendResultCalendarEvents(calendarManager);
     });
@@ -3112,6 +3113,10 @@ let expressEngine = undefined;
             return "{\"$schema\":\"http://adaptivecards.io/schemas/adaptive-card.json\",\"type\":\"AdaptiveCard\",\"version\":\"1.5\",\"body\":[{\"type\":\"TextBlock\",\"size\":\"large\",\"weight\":\"bolder\",\"text\":\" Question 1/5\",\"horizontalAlignment\":\"center\",\"wrap\":true,\"style\":\"heading\"},{\"type\":\"TextBlock\",\"size\":\"medium\",\"weight\":\"bolder\",\"text\":\" What was the first emoticon ever used? " + msg + " : " + utc + " : \",\"horizontalAlignment\":\"left\",\"wrap\":true,\"style\":\"heading\"},{\"type\":\"Input.ChoiceSet\",\"id\":\"MCQSelection\",\"label\":\"\",\"value\":\"\",\"size\":\"medium\",\"weight\":\"bolder\",\"style\":\"expanded\",\"isRequired\":true,\"errorMessage\":\"Selection is required\",\"choices\":[{\"title\":\"ðŸ˜€\",\"value\":\"A\"},{\"title\":\"ðŸ™‚\",\"value\":\"B\"},{\"title\":\"ðŸ™\",\"value\":\"C\"},{\"title\":\"ðŸ˜›\",\"value\":\"D\"}]},{\"type\":\"TextBlock\",\"id\":\"Information\",\"size\":\"Medium\",\"weight\":\"Bolder\",\"text\":\"Answered\",\"horizontalAlignment\":\"Center\",\"wrap\":true,\"style\":\"heading\",\"color\":\"Good\",\"isVisible\":false}],\"actions\":[{\"type\":\"Action.Submit\",\"title\":\"Submit\",\"data\":{\"rainbow\":{\"type\":\"messageBack\",\"value\":{},\"text\":\"\"},\"questionId\":\"01\"}}]}";
         }
 
+        formatCard4() {
+            return "{\"$schema\":\"http://adaptivecards.io/schemas/adaptive-card.json\",\"type\":\"AdaptiveCard\",\"version\":\"1.6\",\"body\":[{\"type\":\"TextBlock\",\"text\":\"📋 Liste des employés\",\"weight\":\"Bolder\",\"size\":\"Large\",\"wrap\":true},{\"type\":\"ColumnSet\",\"separator\":true,\"spacing\":\"Medium\",\"columns\":[{\"type\":\"Column\",\"width\":\"auto\",\"items\":[{\"type\":\"TextBlock\",\"text\":\"Matricule\",\"weight\":\"Bolder\"}]},{\"type\":\"Column\",\"width\":\"stretch\",\"items\":[{\"type\":\"TextBlock\",\"text\":\"Nom\",\"weight\":\"Bolder\"}]},{\"type\":\"Column\",\"width\":\"stretch\",\"items\":[{\"type\":\"TextBlock\",\"text\":\"Prénom\",\"weight\":\"Bolder\"}]}]},{\"type\":\"Container\",\"items\":[{\"type\":\"ColumnSet\",\"separator\":true,\"spacing\":\"Small\",\"columns\":[{\"type\":\"Column\",\"width\":\"auto\",\"items\":[{\"type\":\"TextBlock\",\"text\":25665,\"wrap\":true}],\"separator\":true},{\"type\":\"Column\",\"width\":\"stretch\",\"items\":[{\"type\":\"TextBlock\",\"text\":\"Lefebvre\",\"wrap\":true}],\"separator\":true},{\"type\":\"Column\",\"width\":\"stretch\",\"items\":[{\"type\":\"TextBlock\",\"text\":\"Luc\",\"wrap\":true}],\"separator\":true}]}]},{\"type\":\"Container\",\"items\":[{\"type\":\"ColumnSet\",\"separator\":true,\"spacing\":\"Small\",\"columns\":[{\"type\":\"Column\",\"width\":\"auto\",\"items\":[{\"type\":\"TextBlock\",\"text\":25975,\"wrap\":true}],\"separator\":true},{\"type\":\"Column\",\"width\":\"stretch\",\"items\":[{\"type\":\"TextBlock\",\"text\":\"Nault\",\"wrap\":true}],\"separator\":true},{\"type\":\"Column\",\"width\":\"stretch\",\"items\":[{\"type\":\"TextBlock\",\"text\":\"François\",\"wrap\":true}],\"separator\":true}]}]},{\"type\":\"Container\",\"items\":[{\"type\":\"ColumnSet\",\"separator\":true,\"spacing\":\"Small\",\"columns\":[{\"type\":\"Column\",\"width\":\"auto\",\"items\":[{\"type\":\"TextBlock\",\"text\":26783,\"wrap\":true}],\"separator\":true},{\"type\":\"Column\",\"width\":\"stretch\",\"items\":[{\"type\":\"TextBlock\",\"text\":\"Frenette\",\"wrap\":true}],\"separator\":true},{\"type\":\"Column\",\"width\":\"stretch\",\"items\":[{\"type\":\"TextBlock\",\"text\":\"Martin\",\"wrap\":true}],\"separator\":true}]}]},{\"type\":\"Container\",\"items\":[{\"type\":\"ColumnSet\",\"separator\":true,\"spacing\":\"Small\",\"columns\":[{\"type\":\"Column\",\"width\":\"auto\",\"items\":[{\"type\":\"TextBlock\",\"text\":33052,\"wrap\":true}],\"separator\":true},{\"type\":\"Column\",\"width\":\"stretch\",\"items\":[{\"type\":\"TextBlock\",\"text\":\"Boivin\",\"wrap\":true}],\"separator\":true},{\"type\":\"Column\",\"width\":\"stretch\",\"items\":[{\"type\":\"TextBlock\",\"text\":\"Stéphane\",\"wrap\":true}],\"separator\":true}]}]},{\"type\":\"Container\",\"items\":[{\"type\":\"ColumnSet\",\"separator\":true,\"spacing\":\"Small\",\"columns\":[{\"type\":\"Column\",\"width\":\"auto\",\"items\":[{\"type\":\"TextBlock\",\"text\":33395,\"wrap\":true}],\"separator\":true},{\"type\":\"Column\",\"width\":\"stretch\",\"items\":[{\"type\":\"TextBlock\",\"text\":\"Sauvé\",\"wrap\":true}],\"separator\":true},{\"type\":\"Column\",\"width\":\"stretch\",\"items\":[{\"type\":\"TextBlock\",\"text\":\"Éric\",\"wrap\":true}],\"separator\":true}]}]},{\"type\":\"Container\",\"items\":[{\"type\":\"ColumnSet\",\"separator\":true,\"spacing\":\"Small\",\"columns\":[{\"type\":\"Column\",\"width\":\"auto\",\"items\":[{\"type\":\"TextBlock\",\"text\":35452,\"wrap\":true}],\"separator\":true},{\"type\":\"Column\",\"width\":\"stretch\",\"items\":[{\"type\":\"TextBlock\",\"text\":\"Fournier\",\"wrap\":true}],\"separator\":true},{\"type\":\"Column\",\"width\":\"stretch\",\"items\":[{\"type\":\"TextBlock\",\"text\":\"Mathieu\",\"wrap\":true}],\"separator\":true}]}]},{\"type\":\"Container\",\"items\":[{\"type\":\"ColumnSet\",\"separator\":true,\"spacing\":\"Small\",\"columns\":[{\"type\":\"Column\",\"width\":\"auto\",\"items\":[{\"type\":\"TextBlock\",\"text\":36252,\"wrap\":true}],\"separator\":true},{\"type\":\"Column\",\"width\":\"stretch\",\"items\":[{\"type\":\"TextBlock\",\"text\":\"Leblanc\",\"wrap\":true}],\"separator\":true},{\"type\":\"Column\",\"width\":\"stretch\",\"items\":[{\"type\":\"TextBlock\",\"text\":\"Dominic\",\"wrap\":true}],\"separator\":true}]}]},{\"type\":\"Container\",\"items\":[{\"type\":\"ColumnSet\",\"separator\":true,\"spacing\":\"Small\",\"columns\":[{\"type\":\"Column\",\"width\":\"auto\",\"items\":[{\"type\":\"TextBlock\",\"text\":36959,\"wrap\":true}],\"separator\":true},{\"type\":\"Column\",\"width\":\"stretch\",\"items\":[{\"type\":\"TextBlock\",\"text\":\"Sebbah\",\"wrap\":true}],\"separator\":true},{\"type\":\"Column\",\"width\":\"stretch\",\"items\":[{\"type\":\"TextBlock\",\"text\":\"Farid\",\"wrap\":true}],\"separator\":true}]}]},{\"type\":\"Container\",\"items\":[{\"type\":\"ColumnSet\",\"separator\":true,\"spacing\":\"Small\",\"columns\":[{\"type\":\"Column\",\"width\":\"auto\",\"items\":[{\"type\":\"TextBlock\",\"text\":37496,\"wrap\":true}],\"separator\":true},{\"type\":\"Column\",\"width\":\"stretch\",\"items\":[{\"type\":\"TextBlock\",\"text\":\"Crevier\",\"wrap\":true}],\"separator\":true},{\"type\":\"Column\",\"width\":\"stretch\",\"items\":[{\"type\":\"TextBlock\",\"text\":\"Richard\",\"wrap\":true}],\"separator\":true}]}]},{\"type\":\"Container\",\"items\":[{\"type\":\"ColumnSet\",\"separator\":true,\"spacing\":\"Small\",\"columns\":[{\"type\":\"Column\",\"width\":\"auto\",\"items\":[{\"type\":\"TextBlock\",\"text\":38740,\"wrap\":true}],\"separator\":true},{\"type\":\"Column\",\"width\":\"stretch\",\"items\":[{\"type\":\"TextBlock\",\"text\":\"Azadaly\",\"wrap\":true}],\"separator\":true},{\"type\":\"Column\",\"width\":\"stretch\",\"items\":[{\"type\":\"TextBlock\",\"text\":\"Reza\",\"wrap\":true}],\"separator\":true}]}]},{\"type\":\"Container\",\"items\":[{\"type\":\"ColumnSet\",\"separator\":true,\"spacing\":\"Small\",\"columns\":[{\"type\":\"Column\",\"width\":\"auto\",\"items\":[{\"type\":\"TextBlock\",\"text\":39122,\"wrap\":true}],\"separator\":true},{\"type\":\"Column\",\"width\":\"stretch\",\"items\":[{\"type\":\"TextBlock\",\"text\":\"Beauvais\",\"wrap\":true}],\"separator\":true},{\"type\":\"Column\",\"width\":\"stretch\",\"items\":[{\"type\":\"TextBlock\",\"text\":\"Sylvain\",\"wrap\":true}],\"separator\":true}]}]},{\"type\":\"Container\",\"items\":[{\"type\":\"ColumnSet\",\"separator\":true,\"spacing\":\"Small\",\"columns\":[{\"type\":\"Column\",\"width\":\"auto\",\"items\":[{\"type\":\"TextBlock\",\"text\":41909,\"wrap\":true}],\"separator\":true},{\"type\":\"Column\",\"width\":\"stretch\",\"items\":[{\"type\":\"TextBlock\",\"text\":\"Bendjilali\",\"wrap\":true}],\"separator\":true},{\"type\":\"Column\",\"width\":\"stretch\",\"items\":[{\"type\":\"TextBlock\",\"text\":\"Yacine\",\"wrap\":true}],\"separator\":true}]}]},{\"type\":\"Container\",\"items\":[{\"type\":\"ColumnSet\",\"separator\":true,\"spacing\":\"Small\",\"columns\":[{\"type\":\"Column\",\"width\":\"auto\",\"items\":[{\"type\":\"TextBlock\",\"text\":42052,\"wrap\":true}],\"separator\":true},{\"type\":\"Column\",\"width\":\"stretch\",\"items\":[{\"type\":\"TextBlock\",\"text\":\"Trépanier\",\"wrap\":true}],\"separator\":true},{\"type\":\"Column\",\"width\":\"stretch\",\"items\":[{\"type\":\"TextBlock\",\"text\":\"Jonathan\",\"wrap\":true}],\"separator\":true}]}]},{\"type\":\"Container\",\"items\":[{\"type\":\"ColumnSet\",\"separator\":true,\"spacing\":\"Small\",\"columns\":[{\"type\":\"Column\",\"width\":\"auto\",\"items\":[{\"type\":\"TextBlock\",\"text\":43233,\"wrap\":true}],\"separator\":true},{\"type\":\"Column\",\"width\":\"stretch\",\"items\":[{\"type\":\"TextBlock\",\"text\":\"Rasoahaingo\",\"wrap\":true}],\"separator\":true},{\"type\":\"Column\",\"width\":\"stretch\",\"items\":[{\"type\":\"TextBlock\",\"text\":\"Zo\",\"wrap\":true}],\"separator\":true}]}]},{\"type\":\"Container\",\"items\":[{\"type\":\"ColumnSet\",\"separator\":true,\"spacing\":\"Small\",\"columns\":[{\"type\":\"Column\",\"width\":\"auto\",\"items\":[{\"type\":\"TextBlock\",\"text\":44110,\"wrap\":true}],\"separator\":true},{\"type\":\"Column\",\"width\":\"stretch\",\"items\":[{\"type\":\"TextBlock\",\"text\":\"De Celles\",\"wrap\":true}],\"separator\":true},{\"type\":\"Column\",\"width\":\"stretch\",\"items\":[{\"type\":\"TextBlock\",\"text\":\"Stephane\",\"wrap\":true}],\"separator\":true}]}]},{\"type\":\"Container\",\"items\":[{\"type\":\"ColumnSet\",\"separator\":true,\"spacing\":\"Small\",\"columns\":[{\"type\":\"Column\",\"width\":\"auto\",\"items\":[{\"type\":\"TextBlock\",\"text\":44556,\"wrap\":true}],\"separator\":true},{\"type\":\"Column\",\"width\":\"stretch\",\"items\":[{\"type\":\"TextBlock\",\"text\":\"Vaillant\",\"wrap\":true}],\"separator\":true},{\"type\":\"Column\",\"width\":\"stretch\",\"items\":[{\"type\":\"TextBlock\",\"text\":\"Olivier\",\"wrap\":true}],\"separator\":true}]}]},{\"type\":\"Container\",\"items\":[{\"type\":\"ColumnSet\",\"separator\":true,\"spacing\":\"Small\",\"columns\":[{\"type\":\"Column\",\"width\":\"auto\",\"items\":[{\"type\":\"TextBlock\",\"text\":44586,\"wrap\":true}],\"separator\":true},{\"type\":\"Column\",\"width\":\"stretch\",\"items\":[{\"type\":\"TextBlock\",\"text\":\"Champagne\",\"wrap\":true}],\"separator\":true},{\"type\":\"Column\",\"width\":\"stretch\",\"items\":[{\"type\":\"TextBlock\",\"text\":\"Daniel\",\"wrap\":true}],\"separator\":true}]}]},{\"type\":\"Container\",\"items\":[{\"type\":\"ColumnSet\",\"separator\":true,\"spacing\":\"Small\",\"columns\":[{\"type\":\"Column\",\"width\":\"auto\",\"items\":[{\"type\":\"TextBlock\",\"text\":47510,\"wrap\":true}],\"separator\":true},{\"type\":\"Column\",\"width\":\"stretch\",\"items\":[{\"type\":\"TextBlock\",\"text\":\"Parent Legault\",\"wrap\":true}],\"separator\":true},{\"type\":\"Column\",\"width\":\"stretch\",\"items\":[{\"type\":\"TextBlock\",\"text\":\"Kevin\",\"wrap\":true}],\"separator\":true}]}]},{\"type\":\"Container\",\"items\":[{\"type\":\"ColumnSet\",\"separator\":true,\"spacing\":\"Small\",\"columns\":[{\"type\":\"Column\",\"width\":\"auto\",\"items\":[{\"type\":\"TextBlock\",\"text\":47841,\"wrap\":true}],\"separator\":true},{\"type\":\"Column\",\"width\":\"stretch\",\"items\":[{\"type\":\"TextBlock\",\"text\":\"De la hoz\",\"wrap\":true}],\"separator\":true},{\"type\":\"Column\",\"width\":\"stretch\",\"items\":[{\"type\":\"TextBlock\",\"text\":\"Luis Carlos\",\"wrap\":true}],\"separator\":true}]}]},{\"type\":\"Container\",\"items\":[{\"type\":\"ColumnSet\",\"separator\":true,\"spacing\":\"Small\",\"columns\":[{\"type\":\"Column\",\"width\":\"auto\",\"items\":[{\"type\":\"TextBlock\",\"text\":48957,\"wrap\":true}],\"separator\":true},{\"type\":\"Column\",\"width\":\"stretch\",\"items\":[{\"type\":\"TextBlock\",\"text\":\"Markanda Mudali\",\"wrap\":true}],\"separator\":true},{\"type\":\"Column\",\"width\":\"stretch\",\"items\":[{\"type\":\"TextBlock\",\"text\":\"Arulen\",\"wrap\":true}],\"separator\":true}]}]}]}";
+        }
+
         displayCard(message) {
             let formattedMessage = this.formatCard("", "");
             /*rainbowSDK.im.sendMessageToJid(formattedMessage, message.fromJid, "en", {
@@ -3438,6 +3443,86 @@ let expressEngine = undefined;
             // Send message
             let msgSent = await rainbowSDK.im.sendMessageToConversation(conversation, "Adaptive Card Lang Test", "en", content, undefined);
             //_logger.log("debug", "MAIN - testsendCorrectedChatMessage - result sendMessageToConversation : ", msgSent);
+            //_logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
+        }
+
+        async testsendChatMessageWithContentAdaptiveCardBigSize(ndCarAdded : number = 100, formatCardId:number =1) {
+            let that = this;
+            //let contactIdToSearch = "5bbdc3812cf496c07dd89128"; // vincent01 vberder
+            //let contactIdToSearch = "5bbb3ef9b0bb933e2a35454b"; // vincent00 official
+            //let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
+            // Retrieve a contact by its id
+            //let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+            // Retrieve the associated conversation
+            //let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
+            let nbMsgToSend = 1;
+            let msgsSent = [];
+
+            let now = new Date().getTime();
+            let adaptiveCardTxtContent = "original msg : ";
+            //let ndCarAdded = 100;
+            for (let i = 0; i < ndCarAdded; i++) {
+                adaptiveCardTxtContent += "#";
+            }
+            let formattedMessage = "";
+            switch (formatCardId) {
+                case 1:
+                    formattedMessage = that.formatCard2(adaptiveCardTxtContent, now);
+                    break;
+                case 2:
+                     formattedMessage = that.formatCard4();
+                    break;
+                default:
+                    formattedMessage = that.formatCard2(adaptiveCardTxtContent, now);
+                    break;
+
+            }
+            // */
+            /*
+            let formattedMessage :string = that.formatCard4();
+            // */
+            let content = {
+                "type": "form/json",
+                "message": formattedMessage
+            };
+
+          //  const card = { /* votre Adaptive Card minifiée */ };
+            const check = xmppUtils.willExceedStanzaLimit(formattedMessage, 1500, 16384);
+            _logger.log("debug", "MAIN - check byte size : ", check);
+
+            if (check.exceeds) {
+                // Plan B: héberger le JSON, envoyer un lien, ou simplifier la card
+                throw new Error(`Card trop volumineuse (~${check.estimated} octets).`);
+            }
+
+            let contentMessageSize = content?.message?.length;
+            // vincent00 on .net use bubble : testBotDescription_2024/02/07T15:18:39.669Z
+            let bubbles = rainbowSDK.bubbles.getAllActiveBubbles();
+            _logger.log("debug", "MAIN - testupdateAvatarForBubble - getAllActiveBubbles bubble.length : ", bubbles ? bubbles.length:0);
+            let bubble = bubbles.find(element => element.name==="testBotName_2024/02/07T15:18:39.669ZGuestUser");
+            _logger.log("debug", "MAIN - testupdateAvatarForBubble -  bubble \"testBotName_2024/02/07T15:18:39.669ZGuestUser\" : ", bubble);
+            let conversation = await rainbowSDK.conversations.openConversationForBubble(bubble);
+
+            // Send message
+            let msgSent : any = await rainbowSDK.im.sendMessageToConversation(conversation, "Test adptaptive card big size : " + contentMessageSize, "en", content, undefined).catch((err)=>{
+                try {
+                    const errObj: any = err;
+                    const errStr = (() => { try { return typeof errObj === 'string' ? errObj : JSON.stringify(errObj); } catch { return String(errObj); } })();
+                    const text = (errObj && (errObj.message || errObj.reason || errObj.text)) || '';
+                    const combined = (text + ' ' + errStr).toLowerCase();
+                    const looksLikeServer = combined.includes('message size exceeded') || combined.includes('resource-constraint') || combined.includes('<message') && combined.includes('type="error"');
+                    if (looksLikeServer) {
+                        _logger.log("warn", "MAIN - testsendChatMessageWithContentAdaptiveCardBigSize - Server-side XMPP error stanza detected (likely stanza too large). Details:");
+                    } else {
+                        _logger.log("warn", "MAIN - testsendChatMessageWithContentAdaptiveCardBigSize - Local/client error or transport issue (no server error stanza markers found). Details:");
+                    }
+                    _logger.log("warn", "Error summary:", { message: errObj?.message, code: errObj?.code || errObj?.statusCode, type: errObj?.type, text: errObj?.text || errObj?.reason });
+                } catch (e) {
+                    _logger.log("warn", "MAIN - testsendChatMessageWithContentAdaptiveCardBigSize - Error while classifying error:", e);
+                }
+                _logger.log("warn", "MAIN - testsendChatMessageWithContentAdaptiveCardBigSize - CATCH Error (raw): ", err);
+            });
+            _logger.log("debug", "MAIN - testsendChatMessageWithContentAdaptiveCardBigSize - result sendMessageToConversation : ", msgSent?.content?.message?.length);
             //_logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
         }
 
@@ -4690,10 +4775,11 @@ let expressEngine = undefined;
             });
             // */
             let forceServerSearch = true;
+            let forceServerSearch2 = false;
             await rainbowSDK.contacts.getContactById("68e3beafc60980092418ffd4", forceServerSearch).then((contact: any) => {
                 _logger.log("debug", "MAIN - [testgetContactById_aleantwerp    ] :: first getContactById contact : ", contact);
             });
-            await rainbowSDK.contacts.getContactById("68e3beafc60980092418ffd4", forceServerSearch).then((contact: any) => {
+            await rainbowSDK.contacts.getContactById("68e3beafc60980092418ffd4", forceServerSearch2).then((contact: any) => {
                 _logger.log("debug", "MAIN - [testgetContactById_aleantwerp    ] :: second getContactById contact : ", contact);
             });
              /*
