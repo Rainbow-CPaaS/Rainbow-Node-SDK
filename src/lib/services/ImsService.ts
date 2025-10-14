@@ -1730,6 +1730,80 @@ class ImsService extends GenericService{
 
     //endregion Voicemail
 
+    //region Notifications
+    /**
+     * @public
+     * @nodered true
+     * @method sendMessageNotification
+     * @instance
+     * @async
+     * @category Notifications
+     * @description
+     * Sends a notification message using REST API POST /api/rainbow/enduser/v1.0/notifications/message.
+     * Body parameters must follow the server documentation: https://api.openrainbow.org/enduser/#api-notifications_IM-sendMessageNotification
+     *
+     * @param {object} data - Body parameters sent to the endpoint. Summary of fields from the server doc:
+     * - to: string | object - Mandatory. Recipient information. Depending on the use case, this can be:
+     *   - userId: string - Rainbow user identifier
+     *   - loginEmail: string - Rainbow login email
+     *   - jid_im: string - Recipient XMPP JID (IM)
+     *   - bubbleId: string - Bubble identifier (for group messages, if supported by endpoint)
+     * - type: string - Message transport/type. Ex: "im" (Instant Message). Other values per server doc.
+     * - message: string - Message body text.
+     * - subject: string - Optional subject/title.
+     * - urgency: string - Optional urgency level if supported (e.g., "standard", "urgent").
+     * - mentions: Array<object> - Optional list of mention targets (e.g., by userId or jid_im).
+     * - attachments: Array<object> - Optional attachments metadata (e.g., fileId, url, name, size, mimeType) if supported.
+     * - options: object - Optional flags and options provided by server (e.g., disablePush, noStore, translate, lang, replyTo, etc.).
+     *
+     * Notes:
+     * - This is only a convenience summary. Always refer to the official API documentation linked above for the exhaustive, authoritative list of fields, constraints, and examples.
+     * - The SDK forwards the payload as-is to the REST API.
+     *
+     * @return {Promise<any>} - resolves with server response
+     */
+    async sendMessageNotification(data: any): Promise<any> {
+        /* need to fully tret the stanza event (sent tag..):
+        14/10/2025 11:32:49:306 [1760434369306] - debug: vincent00@vbe.test.openrainbow.net - PROD HIDDEN : XMPP/HNDL/RBVOICE - Method RBVoiceEventHandler::onMessageReceived(...) _entering_
+14/10/2025 11:32:49:306 [1760434369306] - debug: vincent00@vbe.test.openrainbow.net - PROD HIDDEN : XMPP/HNDL/RBVOICE - (onMessageReceived) _entering_ :  l8upfjhg.jabber:client.message.chat <message
+  xmlns="jabber:client" to="adcf613d42984a79a7bebccc80c2b65e@openrainbow.net/node_ciBHlrJd" from="adcf613d42984a79a7bebccc80c2b65e@openrainbow.net" type="chat">
+  <sent
+    xmlns="urn:xmpp:carbons:2">
+    <forwarded
+      xmlns="urn:xmpp:forward:0">
+      <message to="6ac069e5eb4741e2af64a8beac59406f@openrainbow.net" from="adcf613d42984a79a7bebccc80c2b65e@openrainbow.net" type="chat" id="a586315c-6cab-4fe6-8305-30c5e1632a80_66906"
+        xmlns="jabber:client">
+        <archived stamp="2025-10-14T09:32:49.208609Z" by="adcf613d42984a79a7bebccc80c2b65e@openrainbow.net" id="1760434369208609"
+          xmlns="urn:xmpp:mam:tmp"/>
+          <stanza-id by="adcf613d42984a79a7bebccc80c2b65e@openrainbow.net" id="1760434369208609"
+            xmlns="urn:xmpp:sid:0"/>
+            <body>Sample IM notification body from Samples/index.ts at 2025-10-14T09:32:49.104Z</body>
+            <subject>Sample IM notification subject</subject>
+          </message>
+        </forwarded>
+      </sent>
+    </message>
+14/10/2025 11:32:49:307 [1760434369307] - debug: vincent00@vbe.test.openrainbow.net - XMPP/HNDL/RBVOICE - (onMessageReceived) jsonStanza :  {
+  message: {
+    '$attrs': {
+      xmlns: 'jabber:client',
+      to: 'adcf613d42984a79a7bebccc80c2b65e@openrainbow.net/node_ciBHlrJd',
+      from: 'adcf613d42984a79a7bebccc80c2b65e@openrainbow.net',
+      type: 'chat'
+    },
+    sent: {
+      '$attrs': { xmlns: 'urn:xmpp:carbons:2' },
+      forwarded: { '$attrs': [Object], message: [Object] }
+    }
+  }
+}
+         */
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendMessageNotification) called. data defined:", isDefined(data));
+        return that._rest.sendMessageNotification(data);
+    }
+    //endregion Notifications
+
 }
 
 module.exports.ImsService = ImsService;

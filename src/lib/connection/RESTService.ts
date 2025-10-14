@@ -2524,6 +2524,28 @@ class RESTService extends GenericRESTService {
         });
     }
 
+    /**
+     * Send a message notification (IM) via REST
+     * POST /api/rainbow/enduser/v1.0/notifications/message
+     * See https://api.openrainbow.org/enduser/#api-notifications_IM-sendMessageNotification
+     * @param data object body as required by server (to, type, message, etc.)
+     */
+    sendMessageNotification(data: any) {
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that._logger.log(that.INTERNAL, LOG_ID + "(sendMessageNotification) REST.");
+            that._core._http._post("/api/rainbow/enduser/v1.0/notifications/message", that.getRequestHeader(), data, undefined).then((json) => {
+                that._logger.log(that.DEBUG, LOG_ID + "(sendMessageNotification) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(sendMessageNotification) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(sendMessageNotification) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(sendMessageNotification) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
     changePassword(password, userId) {
         let that = this;
         return new Promise(function (resolve, reject) {

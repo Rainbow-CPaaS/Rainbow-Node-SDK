@@ -1844,6 +1844,62 @@ let expressEngine = undefined;
             });
         }
 
+        /**
+         * Test for ImsService.sendMessageNotification
+         * Retrieves contact by email 'vincent02@vbe.test.openrainbow.net' and sends a simple IM notification via REST.
+         * Usage from CLI: tests.testSendMessageNotificationToVincent02()
+         */
+        async testSendMessageNotificationToVincent02() {
+            const email = "vincent02@vbe.test.openrainbow.net";
+            try {
+                const contact: any = await rainbowSDK.contacts.getContactByLoginEmail(email);
+                _logger.log("info", "MAIN - [testSendMessageNotificationToVincent02] contact:", contact && contact.jid ? contact.jid : contact);
+
+                const payload: any = {
+                    type: "user",
+                    recipientId: contact.id,
+                    imSubject: `Sample IM notification subject`,
+                    imBody: `Sample IM notification body from Samples/index.ts at ${new Date().toISOString()}`
+                };
+
+                const res = await rainbowSDK.im.sendMessageNotification(payload);
+                _logger.log("info", "MAIN - [testSendMessageNotificationToVincent02] result:", res);
+            } catch (err) {
+                _logger.log("error", "MAIN - [testSendMessageNotificationToVincent02] error:", err);
+            }
+        }
+
+        /**
+         * Test for ImsService.sendMessageNotification
+         * Retrieves contact by email 'vincent02@vbe.test.openrainbow.net' and sends a simple IM notification via REST.
+         * Usage from CLI: tests.testSendMessageNotificationToVincent02()
+         */
+        async testSendMessageNotificationToBubble() {
+            const email = "vincent02@vbe.test.openrainbow.net";
+            try {
+                //const contact: any = await rainbowSDK.contacts.getContactByLoginEmail(email);
+                //_logger.log("info", "MAIN - [testSendMessageNotificationToVincent02] contact:", contact && contact.jid ? contact.jid : contact);
+                // vincent00 on .net use bubble : testBotDescription_2024/02/07T15:18:39.669Z
+                let bubbles = rainbowSDK.bubbles.getAllActiveBubbles();
+                _logger.log("debug", "MAIN - testupdateAvatarForBubble - getAllActiveBubbles bubble.length : ", bubbles ? bubbles.length:0);
+                let bubble = bubbles.find(element => element.name==="testBotName_2024/02/07T15:18:39.669ZGuestUser");
+                _logger.log("debug", "MAIN - testupdateAvatarForBubble -  bubble \"testBotName_2024/02/07T15:18:39.669ZGuestUser\" : ", bubble);
+                //let conversation = await rainbowSDK.conversations.openConversationForBubble(bubble);
+
+                const payload: any = {
+                    type: "room",
+                    recipientId: bubble.id,
+                    imSubject: `Sample IM notification subject to bubble.`,
+                    imBody: `Sample IM notification body from Samples/index.ts at ${new Date().toISOString()} to bubble.`
+                };
+
+                const res = await rainbowSDK.im.sendMessageNotification(payload);
+                _logger.log("info", "MAIN - [testSendMessageNotificationToVincent02] result:", res);
+            } catch (err) {
+                _logger.log("error", "MAIN - [testSendMessageNotificationToVincent02] error:", err);
+            }
+        }
+
         async testEvents() {
             let listenerData = await rainbowSDK.events.listenerData();
             _logger.log("debug", "MAIN - [testEvents    ] ::  listenerData : ", prettydata.json(listenerData));
@@ -3450,9 +3506,9 @@ let expressEngine = undefined;
             let that = this;
             //let contactIdToSearch = "5bbdc3812cf496c07dd89128"; // vincent01 vberder
             //let contactIdToSearch = "5bbb3ef9b0bb933e2a35454b"; // vincent00 official
-            //let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
+            let contactEmailToSearch = "vincent01@vbe.test.openrainbow.net";
             // Retrieve a contact by its id
-            //let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+            let contact = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
             // Retrieve the associated conversation
             //let conversation = await rainbowSDK.conversations.openConversationForContact(contact);
             let nbMsgToSend = 1;
@@ -3462,7 +3518,7 @@ let expressEngine = undefined;
             let adaptiveCardTxtContent = "original msg : ";
             //let ndCarAdded = 100;
             for (let i = 0; i < ndCarAdded; i++) {
-                adaptiveCardTxtContent += "#";
+                adaptiveCardTxtContent += "\"";
             }
             let formattedMessage = "";
             switch (formatCardId) {
