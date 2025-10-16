@@ -1224,7 +1224,7 @@ class XMPPService extends GenericService {
                 "id": id
             }, xml("body", {
                 "xml:lang": lang
-            }, message), xml("request", {
+            }, this.xmppUtils.makeCData(message)), xml("request", {
                     "xmlns": NameSpacesLabels.ReceiptsNameSpace
             }), xml("active", {
                     "xmlns": NameSpacesLabels.ChatestatesNameSpace
@@ -1259,7 +1259,7 @@ class XMPPService extends GenericService {
                 stanza.append(xml("content", {
                     "type": contentType,
                     "xmlns": NameSpacesLabels.ContentNameSpace
-                }, content.message));
+                }, this.xmppUtils.makeCData(content.message)));
                 alternativeContent.push({
                     "message": content.message,
                     "type": contentType
@@ -1420,7 +1420,7 @@ class XMPPService extends GenericService {
             let to = conversation.id; //that.contact.jid;
             if (that.useMessageEditionAndDeletionV2 == false) {
                 xmppMessage = xml("message", {to: to, type: "chat", id: messageToSendID, "xml:lang": lang},
-                        xml("body", {"xml:lang": lang}, data),
+                        xml("body", {"xml:lang": lang}, this.xmppUtils.makeCData(data)),
                         xml("replace", {id: origMsgId, "xmlns": NameSpacesLabels.MessageCorrectNameSpace}),
                         xml("store", {"xmlns": NameSpacesLabels.HintsNameSpace}),
                         xml("request", {"xmlns": NameSpacesLabels.ReceiptNS}),
@@ -1430,7 +1430,7 @@ class XMPPService extends GenericService {
                 messageToSendID = origMsgId;
                 if (data === "") {
                     xmppMessage = xml("message", {to: to, type: "chat", id: messageToSendID, "xml:lang": lang},
-                            xml("body", {"xml:lang": lang}, data),
+                            xml("body", {"xml:lang": lang}, this.xmppUtils.makeCData(data)),
                             xml("deleted", {"xmlns": NameSpacesLabels.MessageCorrectNameSpace}),
                             xml("store", {"xmlns": NameSpacesLabels.HintsNameSpace}),
                             xml("request", {"xmlns": NameSpacesLabels.ReceiptNS}),
@@ -1439,7 +1439,7 @@ class XMPPService extends GenericService {
                 } else {
                     if (data == undefined) {
                         xmppMessage = xml("message", {to: to, type: "chat", id: messageToSendID, "xml:lang": lang},
-                                //xml("body", {"xml:lang": lang}, data),
+                                //xml("body", {"xml:lang": lang}, this.xmppUtils.makeCData(data)),
                                 xml("modified", {"xmlns": NameSpacesLabels.MessageCorrectNameSpace}),
                                 xml("store", {"xmlns": NameSpacesLabels.HintsNameSpace}),
                                 xml("request", {"xmlns": NameSpacesLabels.ReceiptNS}),
@@ -1447,7 +1447,7 @@ class XMPPService extends GenericService {
                         );
                     } else {
                         xmppMessage = xml("message", {to: to, type: "chat", id: messageToSendID, "xml:lang": lang},
-                                xml("body", {"xml:lang": lang}, data),
+                                xml("body", {"xml:lang": lang}, this.xmppUtils.makeCData(data)),
                                 xml("modified", {"xmlns": NameSpacesLabels.MessageCorrectNameSpace}),
                                 xml("store", {"xmlns": NameSpacesLabels.HintsNameSpace}),
                                 xml("request", {"xmlns": NameSpacesLabels.ReceiptNS}),
@@ -1468,7 +1468,7 @@ class XMPPService extends GenericService {
                 xmppMessage.append(xml("content", {
                     "type": contentType,
                     "xmlns": NameSpacesLabels.ContentNameSpace
-                }, content.message));
+                }, this.xmppUtils.makeCData(content.message)));
             }
 
         }
@@ -1476,7 +1476,7 @@ class XMPPService extends GenericService {
         else {
             if (that.useMessageEditionAndDeletionV2 == false) {
                 xmppMessage = xml("message", {to: conversation.bubble.jid, type: "groupchat", id: messageToSendID},
-                xml("body", {"xml:lang": lang}, data),
+                xml("body", {"xml:lang": lang}, this.xmppUtils.makeCData(data)),
                 xml("replace", {id: origMsgId, "xmlns": NameSpacesLabels.MessageCorrectNameSpace}),
                 xml("store", {"xmlns": NameSpacesLabels.HintsNameSpace}),
                 xml("request", {"xmlns": NameSpacesLabels.ReceiptNS}),
@@ -1485,7 +1485,7 @@ class XMPPService extends GenericService {
                 messageToSendID = origMsgId;
                 if (data==="") {
                     xmppMessage = xml("message", {to: conversation.bubble.jid, type: "groupchat", id: messageToSendID},
-                            xml("body", {"xml:lang": lang}, data),
+                            xml("body", {"xml:lang": lang}, this.xmppUtils.makeCData(data)),
                             xml("deleted", {"xmlns": NameSpacesLabels.MessageCorrectNameSpace}),
                             xml("store", {"xmlns": NameSpacesLabels.HintsNameSpace}),
                             xml("request", {"xmlns": NameSpacesLabels.ReceiptNS}),
@@ -1508,7 +1508,7 @@ class XMPPService extends GenericService {
                                     type: "groupchat",
                                     id: messageToSendID
                                 },
-                                xml("body", {"xml:lang": lang}, data),
+                                xml("body", {"xml:lang": lang}, this.xmppUtils.makeCData(data)),
                                 xml("modified", {"xmlns": NameSpacesLabels.MessageCorrectNameSpace}),
                                 xml("store", {"xmlns": NameSpacesLabels.HintsNameSpace}),
                                 xml("request", {"xmlns": NameSpacesLabels.ReceiptNS}),
@@ -1527,7 +1527,7 @@ class XMPPService extends GenericService {
                 xmppMessage.append(xml("content", {
                     "type": contentType,
                     "xmlns": NameSpacesLabels.ContentNameSpace
-                }, content.message));
+                }, this.xmppUtils.makeCData(content.message)));
             }
             
         }
@@ -1729,7 +1729,7 @@ class XMPPService extends GenericService {
                     "id": id
                 }, xml("body", {
                     "xml:lang": lang
-                }, message), xml("request", {
+                }, this.xmppUtils.makeCData(message)), xml("request", {
                     "xmlns": NameSpacesLabels.ReceiptsNameSpace
                 }, xml("active", {
                     "xmlns": NameSpacesLabels.ChatestatesNameSpace
@@ -1793,7 +1793,7 @@ class XMPPService extends GenericService {
                     "id": id
                 }, xml("body", {
                     "xml:lang": lang
-                }, message), xml("request", {
+                }, this.xmppUtils.makeCData(message)), xml("request", {
                     "xmlns": NameSpacesLabels.ReceiptsNameSpace
                 }, xml("active", {
                     "xmlns": NameSpacesLabels.ChatestatesNameSpace
@@ -2596,7 +2596,7 @@ class XMPPService extends GenericService {
                 "xmlns": NameSpacesLabels.ClientNameSpace,
                 "type": TYPE_HEADLINE,
                 "id": uniqMessageId
-            }, xml("body", {}, body), xml("request", {
+            }, xml("body", {}, this.xmppUtils.makeCData(body)), xml("request", {
                     "xmlns": NameSpacesLabels.ReceiptsNameSpace
                 }, xml("active", {
                     "xmlns": NameSpacesLabels.ChatestatesNameSpace
