@@ -6,6 +6,23 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+### [2.41.4] - 2025-10-XX
+#### Removed
+-   None
+
+#### Fixed
+-   None.
+
+#### Added
+-   Add `XMPPUtils::estimateStanzaByteSize` Estimates the size (UTF-8 bytes) of an XMPP stanza (ltx.Element).
+-   Add in `XmppClient` use of `XMPPUtils::estimateStanzaByteSize` to return an error if Stanza size in Bytes is over the Max size allowed by transport layer
+-   Add SDK option `"xmpp">"stanzaMaxLength"` to the transport layer max size in Bytes (used to compare with `XMPPUtils::estimateStanzaByteSize` result in XmppClient)
+-   Add `XMPPUtils::makeCData` to add an object in body and content text in a `<![CDATA[` xml tag instead of transforming to string.
+-   Add in `XMPPService::sendChatMessageToBubble` the use of `XMPPUtils::makeCData` to set body and content. Should use it in every send message.
+ 
+#### Changed
+-   None.
+
 ### [2.41.3] - 2025-10-10
 #### Removed
 -   None
