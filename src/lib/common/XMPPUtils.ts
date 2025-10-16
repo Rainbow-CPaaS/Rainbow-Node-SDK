@@ -307,6 +307,159 @@ export class XMPPUTils {
         return { exceeds: estimated > limit, estimated, limit };
     }
 
+    private static readonly CDATA_END_SEQUENCE = "]]>";
+    private static readonly CDATA_ESCAPE_REPLACEMENT = "]]]]]><![CDATA[>";
+
+    /**
+     * Estimates the size (UTF-8 bytes) of an XMPP stanza (ltx.Element).
+     * Uses ltx's XML escaping for attributes/text and applies escapeXMLText
+     * explicitly to body and content nodes as requested.
+     */
+    estimateStanzaByteSize(el: any): number {
+        // Import tardif pour ne pas casser les environnements qui chargent ce fichier sans bundler
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        const { escapeXML, escapeXMLText } = require("ltx/lib/escape.js");
+
+        const out: string[] = [];
+        const write = (s: string) => out.push(s);
+        const byteLen = (s: string) => this.byteLen(s);
+
+        const renderAttrs = (attrs: any) => {
+            if (!attrs) return "";
+            let str = "";
+            for (const k in attrs) {
+                const v = attrs[k];
+                if (v != null) {
+                    str += " " + k + '="' + escapeXML(typeof v === "string" ? v : v.toString(10)) + '"';
+                }
+            }
+            return str;
+        };
+
+        const extractCDataInner = (raw: string): string | null => {
+            const m = raw && typeof raw === 'string' ? raw.match(/^<!\[CDATA\[(.*)\]\]>$/s) : null;
+            return m ? m[1] : null;
+        };
+
+        const serialize = (node: any, parentName?: string) => {
+            // Element (ltx)
+            if (node && typeof node === "object" && node.name && node.attrs !== undefined && node.children !== undefined) {
+                const name: string = node.name;
+                write("<" + name);
+                write(renderAttrs(node.attrs));
+
+                const children = node.children || [];
+                if (children.length === 0) {
+                    write("/>");
+                    return;
+                }
+                write(">");
+
+                for (const child of children) {
+                    // Enfant Element
+                    if (child && typeof child === "object" && child.name && child.attrs !== undefined && child.children !== undefined) {
+                        // Traitement spécial pour body/content
+                        if (typeof child.getName === 'function' && (child.getName() === 'body' || child.getName() === 'content')) {
+                            write("<" + child.name);
+                            write(renderAttrs(child.attrs));
+                            write(">");
+
+                            // Texte direct
+                            let text = child.getText ? (child.getText() ?? "") : "";
+
+                            // Si CDATA injectée via write(), en extraire l'intérieur
+                            if ((!text || text.length === 0) && Array.isArray(child.children)) {
+                                for (const sub of child.children) {
+                                    if (sub && typeof sub.write === 'function') {
+                                        const tmp: string[] = [];
+                                        sub.write((c: string) => tmp.push(c));
+                                        const raw = tmp.join("");
+                                        const inner = extractCDataInner(raw);
+                                        if (inner != null) {
+                                            text = inner;
+                                            break;
+                                        }
+                                    } else if (typeof sub === 'string') {
+                                        text += sub;
+                                    }
+                                }
+                            }
+                            write(escapeXML(text));
+                            write("</" + child.name + ">");
+                        } else {
+                            // Récursif standard
+                            serialize(child, name);
+                        }
+                        continue;
+                    }
+
+                    // Enfant texte
+                    if (typeof child === "string") {
+                        write(escapeXMLText(child));
+                        continue;
+                    }
+
+                    // Enfant avec write() (ex: CDATA)
+                    if (child && typeof child.write === 'function') {
+                        const tmp: string[] = [];
+                        child.write((c: string) => tmp.push(c));
+                        const raw = tmp.join("");
+                        if (parentName === 'body' || parentName === 'content') {
+                            const inner = extractCDataInner(raw);
+                            write(escapeXMLText(inner != null ? inner : raw));
+                        } else {
+                            write(raw);
+                        }
+                        continue;
+                    }
+
+                    // Fallback
+                    if (child && typeof child.toString === 'function') {
+                        write(escapeXMLText(child.toString(10)));
+                        continue;
+                    }
+                }
+
+                write("</" + name + ">");
+                return;
+            }
+
+            if (typeof node === 'string') {
+                write(escapeXMLText(node));
+                return;
+            }
+
+            if (node && typeof node.write === 'function') {
+                const tmp: string[] = [];
+                node.write((c: string) => tmp.push(c));
+                write(tmp.join(""));
+                return;
+            }
+
+            if (node != null) {
+                write(escapeXMLText(String(node)));
+            }
+        };
+
+        serialize(el);
+        return byteLen(out.join(""));
+    }
+
+    makeCData(content: string) {
+        // Un CDATA ne peut pas contenir "]]>", on segmente si besoin
+        const safe = content.indexOf(XMPPUTils.CDATA_END_SEQUENCE) === -1
+            ? content
+            : content.split(XMPPUTils.CDATA_END_SEQUENCE)
+                .join(XMPPUTils.CDATA_ESCAPE_REPLACEMENT);
+        return {
+            write: (writer: (chunk: string) => void) => {
+                writer(`<![CDATA[${safe}]]>`);
+            },
+            toString: () => {
+                return `<![CDATA[${safe}]]>`;
+            }
+        };
+    }
 }
 
 export let xu = XMPPUTils.getXMPPUtils();

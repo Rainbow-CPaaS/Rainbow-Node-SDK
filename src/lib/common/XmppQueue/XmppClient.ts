@@ -40,6 +40,7 @@ let LOG_ID='XMPPCLIENT - ';
 
 class XmppClient {
     public options: any;
+    public xmppOptions: any;
     public eventEmitter: any;
     public restartConnectEnabled: any;
     public client: any;
@@ -395,9 +396,11 @@ class XmppClient {
                     //that.logger.log("debug", LOG_ID + "(send) enablesendurgentpushmessages is setted, stanza of type message with not empty body.");
                     // <retry-push xmlns='urn:xmpp:hints'/> 
                     let retryPush = "retry-push";
+
                     stanza.append(xml(retryPush, {
                         "xmlns": NameSpacesLabels.HintsNameSpace
                     }));
+                    // */
                     that.logger.log("debug", LOG_ID + "(send) enablesendurgentpushmessages is setted, stanza of type message with not empty body.");
                 }
                 //} 
@@ -465,6 +468,12 @@ class XmppClient {
             }
             // */
             try {
+                let stanzaSize = xmppUtils.estimateStanzaByteSize(stanza);
+                that.logger.log("debug", LOG_ID + "(send) estimateStanzaByteSize : ", stanzaSize);
+                if (stanzaSize > that.xmppOptions.stanzaMaxLength) {
+                    return reject2 (new Error(`Stanza size ${stanzaSize} Bytes is over the Max size allowed by transport layer ${that.xmppOptions.stanzaMaxLength}`));
+                } // */
+               // that.logger.log("info", LOG_ID + "(send) wire stanza : ", stanza.toString());
                 await this.client.send(...args).then(() => {
                     if (stanzaJson?.message?.body || stanzaJson?.message?.content) {
                         that.nbMessagesSentThisHour++;

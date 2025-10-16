@@ -175,6 +175,7 @@ class XMPPService extends GenericService {
     private maxPingAnswerTimer: number;
     private company: any;
     private xmppRessourceName: string;
+    private xmppOptions: any;
 //    private _core: Core;
 
     static getClassName(){ return 'XMPPService'; }
@@ -183,12 +184,12 @@ class XMPPService extends GenericService {
     static getAccessorName(){ return 'xmpp'; }
     getAccessorName(){ return XMPPService.getAccessorName(); }
 
-    constructor(_core, _xmpp, _im, _application, _eventEmitter, _logger, _proxy, _rest, _options) {
+    constructor(_core, _xmppOptions, _im, _application, _eventEmitter, _logger, _proxy, _rest, _options) {
         super(_logger, LOG_ID, _eventEmitter);
         this.setLogLevels(this);
         let that = this;
-        that.serverURL = _xmpp.protocol + "://" + _xmpp.host + ":" + _xmpp.port + "/websocket";
-        that.host = _xmpp.host;
+        that.serverURL = _xmppOptions.protocol + "://" + _xmppOptions.host + ":" + _xmppOptions.port + "/websocket";
+        that.host = _xmppOptions.host;
         that.eventEmitter = _eventEmitter;
         that.version = "0.1";
         that.jid_im = "";
@@ -213,19 +214,20 @@ class XMPPService extends GenericService {
         that.rateLimitPerHour = _im.rateLimitPerHour;
         that.messagesDataStore = _im.messagesDataStore;
         that.useXMPP = true;
-        that.timeBetweenXmppRequests = _xmpp.timeBetweenXmppRequests;
-        that.maxPendingAsyncLockXmppQueue = _xmpp.maxPendingAsyncLockXmppQueue;
+        that.timeBetweenXmppRequests = _xmppOptions.timeBetweenXmppRequests;
+        that.maxPendingAsyncLockXmppQueue = _xmppOptions.maxPendingAsyncLockXmppQueue;
         that.isReconnecting = false;
         that.maxAttempts = 1;
         that.idleTimer = null;
         that.pingTimer = null;
         that.forceClose = false;
         that.applicationId = _application.appID;
-        that.raiseLowLevelXmppInEvent = _xmpp.raiseLowLevelXmppInEvent;
-        that.raiseLowLevelXmppOutReq = _xmpp.raiseLowLevelXmppOutReq;
-        that.maxIdleTimer = ( _xmpp.maxIdleTimer && (_xmpp.maxIdleTimer > 10000) )? _xmpp.maxIdleTimer: MAX_IDLE_TIMER;
-        that.maxPingAnswerTimer = ( _xmpp.maxPingAnswerTimer && (_xmpp.maxPingAnswerTimer > 5000) ) ? _xmpp.maxPingAnswerTimer : MAX_PING_ANSWER_TIMER;
-        that.xmppRessourceName = _xmpp.xmppRessourceName;
+        that.raiseLowLevelXmppInEvent = _xmppOptions.raiseLowLevelXmppInEvent;
+        that.raiseLowLevelXmppOutReq = _xmppOptions.raiseLowLevelXmppOutReq;
+        that.maxIdleTimer = ( _xmppOptions.maxIdleTimer && (_xmppOptions.maxIdleTimer > 10000) )? _xmppOptions.maxIdleTimer: MAX_IDLE_TIMER;
+        that.maxPingAnswerTimer = ( _xmppOptions.maxPingAnswerTimer && (_xmppOptions.maxPingAnswerTimer > 5000) ) ? _xmppOptions.maxPingAnswerTimer : MAX_PING_ANSWER_TIMER;
+        that.xmppRessourceName = _xmppOptions.xmppRessourceName;
+        that.xmppOptions = _xmppOptions;
 
         that._startConfig =  {
             start_up: true,
@@ -714,7 +716,9 @@ class XMPPService extends GenericService {
         that._logger.log(that.INTERNAL, LOG_ID + "(handleXMPPConnection) ", " xmppLinkOptions : ", xmppLinkOptions);
 
         that.xmppClient = new Client(xmppLinkOptions); //"domain": domain,
-// */
+        that.xmppClient.xmppOptions = that.xmppOptions;
+
+        // */
 
         await that.xmppClient.init(that._logger, that.eventEmitter, that.timeBetweenXmppRequests, that.storeMessages, that.rateLimitPerHour, that.messagesDataStore, that.copyMessage, that.enablesendurgentpushmessages, that.maxPendingAsyncLockXmppQueue);
 
@@ -1302,7 +1306,7 @@ class XMPPService extends GenericService {
                 'id': id
             }, xml("body", {
                 "xml:lang": lang
-            }, message), xml("request", {
+            }, this.xmppUtils.makeCData(message)), xml("request", {
                     "xmlns": NameSpacesLabels.ReceiptsNameSpace
                 }, xml("active", {
                     "xmlns": NameSpacesLabels.ChatestatesNameSpace
@@ -1332,10 +1336,17 @@ class XMPPService extends GenericService {
 
             if (content && content.message) {
                 let contentType = content.type || "text/markdown";
-                stanza.append(xml("content", {
+                let nodeContent = xml("content", {
                     "type": contentType,
                     "xmlns": NameSpacesLabels.ContentNameSpace
-                }, content.message));
+                });
+                //}, ));
+                nodeContent.cnode(this.xmppUtils.makeCData(content.message));
+                //nodeContent.t(content.message);
+                //nodeContent.append(xml("![CDATA[" + JSON.parse(content.message) + "]]"));
+
+                stanza.cnode(nodeContent);
+                //}, xml("![CDATA[" + content.message + "]]")));
             }
 
             // Handle urgency

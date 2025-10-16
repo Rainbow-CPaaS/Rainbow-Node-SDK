@@ -72,7 +72,8 @@ let conf =  {
             "maxIdleTimer": 15000,
             "maxPingAnswerTimer": 10000,
             "xmppRessourceName": undefined,
-            "maxPendingAsyncLockXmppQueue": 10000
+            "maxPendingAsyncLockXmppQueue": 10000,
+            "stanzaMaxLength" : 18380, // Max stanza size on server is 18432
         },
         "s2s": {
             "hostCallback": "nrock",
@@ -143,7 +144,8 @@ let conf =  {
             "maxIdleTimer": 15000,
             "maxPingAnswerTimer": 10000,
             "xmppRessourceName": undefined,
-            "maxPendingAsyncLockXmppQueue": 10000
+            "maxPendingAsyncLockXmppQueue": 10000,
+            "stanzaMaxLength" : 18380, // Max stanza size on server is 18432
         },
         "s2s": {
             "hostCallback": "nrock",
@@ -214,7 +216,8 @@ let conf =  {
             "maxIdleTimer": 15000,
             "maxPingAnswerTimer": 10000,
             "xmppRessourceName": undefined,
-            "maxPendingAsyncLockXmppQueue": 10000
+            "maxPendingAsyncLockXmppQueue": 10000,
+            "stanzaMaxLength" : 18380, // Max stanza size on server is 18432
         },
         "s2s": {
             "hostCallback": "nrock",

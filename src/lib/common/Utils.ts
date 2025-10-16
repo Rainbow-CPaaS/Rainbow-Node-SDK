@@ -875,7 +875,7 @@ async function getJsonFromXML(xml : string) {
         return result;
         //return JSON.stringify(result, null, 4);
     } catch (err) {
-        //console.log(err);
+        // console.log(err);
         return {};
     }
 }

@@ -373,6 +373,9 @@ class Options {
             if (isDefined(this._options.xmpp.maxPingAnswerTimer)) {
                 xmppOptions.maxPingAnswerTimer = this._options.xmpp.maxPingAnswerTimer;
             }
+            if (isDefined(this._options.xmpp.stanzaMaxLength)) {
+                xmppOptions.stanzaMaxLength = this._options.xmpp.stanzaMaxLength;
+            }
               /*
         let paramArray = [];
         paramArray.push(xmppOptions);
