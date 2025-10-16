@@ -19,7 +19,8 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add SDK option `"xmpp">"stanzaMaxLength"` to the transport layer max size in Bytes (used to compare with `XMPPUtils::estimateStanzaByteSize` result in XmppClient)
 -   Add `XMPPUtils::makeCData` to add an object in body and content text in a `<![CDATA[` xml tag instead of transforming to string.
 -   Add in `XMPPService::sendChatMessageToBubble` the use of `XMPPUtils::makeCData` to set body and content. Should use it in every send message.
- 
+-   Add use of `xmppUtils.makeCData` for content in XMPPService send message.
+
 #### Changed
 -   None.
 
