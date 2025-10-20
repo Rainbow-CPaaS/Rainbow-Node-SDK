@@ -566,7 +566,7 @@ pipeline {
                                 if [ "${PUBLISHTONPM}" = "true" ]; then
                                     if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM.LTS}" ]; then
                                          echo "Publish latest on npmjs."
-                                         npm publish --tag lts --access public
+                                         npm publish --tag latest --access public
                                     fi
                                     if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM.STS}" ]; then
                                         if [ "${PUBLISHONNPMJSWITHSTSTAG}" = "true" ]; then
