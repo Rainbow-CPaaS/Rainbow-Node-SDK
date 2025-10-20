@@ -104,6 +104,8 @@ pipeline {
         booleanParam(name: 'PUBLISHONNPMJSWITHSTSTAG', defaultValue: false, description: 'Publish this STS/LTS version to npmjs with the tag \"sts\" else with \".net\" tag ?')
         booleanParam(name: 'PUBLISHTONPM', defaultValue: true, description: 'Publish the sts SDK/LTS built to npmjs.')
         booleanParam(name: 'PUSHINGIT', defaultValue: true, description: 'Save the tag/branch to GIT.')
+        booleanParam(name: 'PREPARE_DOCS', defaultValue: true, description: 'Prepare documentation stages.')
+        booleanParam(name: 'BUILD_DOCS', defaultValue: true, description: 'Build documentation package.')
         //string(name: 'PERSON', defaultValue: 'Mr Jenkins', description: 'Who should I say hello to?')
         //text(name: 'BIOGRAPHY', defaultValue: '', description: 'Enter some information about the person')
         //booleanParam(name: 'TOGGLE', defaultValue: true, description: 'Toggle this value')
@@ -252,6 +254,8 @@ pipeline {
                     echo "PUBLISHONNPMJSWITHSTSTAG : ${params.PUBLISHONNPMJSWITHSTSTAG} "
                     echo "PUBLISHTONPM : ${params.PUBLISHTONPM} "
                     echo "PUSHINGIT : ${params.PUSHINGIT} "
+                    echo "PREPARE_DOCS : ${params.PREPARE_DOCS} "
+                    echo "BUILD_DOCS : ${params.BUILD_DOCS} "
 
                     echo "Environment variables to build from branch ${env.BRANCH_NAME} : "
                     echo "RELEASENAMEUPPERNAME : ${env.RELEASENAMEUPPERNAME}"
@@ -622,20 +626,23 @@ pipeline {
               
             stage('Build Documentation from Rainbow Node SDK') {
                 when {
-                      anyOf {
-                        allOf {
-                            branch "STSDelivery";
-                            triggeredBy 'user'
+                    allOf {
+                        expression { return params.PREPARE_DOCS }
+                        anyOf {
+                            allOf {
+                                branch "STSDelivery";
+                                triggeredBy 'user'
+                            }
+                            allOf {
+                                branch "LTSDelivery";
+                                triggeredBy 'user'
+                            }
+                            allOf {
+                                branch "LTSDeliveryNew";
+                                triggeredBy 'user'
+                            }
                         }
-                        allOf {
-                            branch "LTSDelivery";
-                            triggeredBy 'user'
-                        }
-                        allOf {
-                            branch "LTSDeliveryNew";
-                            triggeredBy 'user'
-                        }
-                      }
+                    }
                 }
                 steps{
                     sh script: """
@@ -663,20 +670,24 @@ pipeline {
               
             stage('Documentation Packaging') {
                 when {
-                      anyOf {
-                        allOf {
-                            branch "STSDelivery";
-                            triggeredBy 'user'
+                    allOf {
+                        expression { return params.PREPARE_DOCS }
+                        expression { return params.BUILD_DOCS }
+                        anyOf {
+                            allOf {
+                                branch "STSDelivery";
+                                triggeredBy 'user'
+                            }
+                            allOf {
+                                branch "LTSDelivery";
+                                triggeredBy 'user'
+                            }
+                            allOf {
+                                branch "LTSDeliveryNew";
+                                triggeredBy 'user'
+                            }
                         }
-                        allOf {
-                            branch "LTSDelivery";
-                            triggeredBy 'user'
-                        }
-                        allOf {
-                            branch "LTSDeliveryNew";
-                            triggeredBy 'user'
-                        }
-                      }
+                    }
                 }
                 steps { 
                     script   {
@@ -823,8 +834,6 @@ pipeline {
     post {
         always {
             sh 'echo "---- GLOBAL Post THE END ----"'
-
-
             cleanWs(cleanWhenNotBuilt: false,
                            deleteDirs: true,
                            disableDeferredWipeout: true,
