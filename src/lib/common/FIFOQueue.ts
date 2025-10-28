@@ -110,7 +110,9 @@ class FIFOQueue<T> extends Array<T>{
     emulateArrayMethod(object, key, container, getter) {
         return (...args) => {
             try {
+                // dev-code-console //
                 console.log("Deprecated emulation. Better to define method " + key + "() by hands.");
+                // end-dev-code-console //
                 return ;
                 //return Reflect.apply([][key], container(object), args).map(x => getter(x));
             } catch (err) {

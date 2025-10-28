@@ -129,25 +129,39 @@ class GenericRESTService extends LevelLogs{
             //*/
             headers['x-rainbow-api-key'] = that._credentials.apikey;
             let challenge = makeId(22);
+            // dev-code-console //
             console.log('challenge: ' + challenge);
+            // end-dev-code-console //
             headers['x-rainbow-challenge'] = challenge;
             let xapp = "XXX";
             // Basic <base64encode(appId:sha256(appSecret challenge))> (Concatenation of appSecret and provided challenge, hashed with sha256).
             let appIdNet = that.application.appID;
+            // dev-code-console //
             console.log('appIdNet: ' + appIdNet);
+            // end-dev-code-console //
             let appSecretNet = that.application.appSecret;
+            // dev-code-console //
             console.log('appSecretNet: ' + appSecretNet);
+            // end-dev-code-console //
 
             let toEncrypt = appSecretNet + challenge;
+            // dev-code-console //
             console.log('appSecretNet + challenge : ' + toEncrypt);
+            // end-dev-code-console //
 
             let encrypted = CryptoJS.SHA256(toEncrypt).toString();
+            // dev-code-console //
             console.log('appSecretNet + challenge encrypted : ' + encrypted);
+            // end-dev-code-console //
 
             let appCode = appIdNet + ':' + encrypted
+            // dev-code-console //
             console.log('appIdNet:encrypted : ' + appCode);
+            // end-dev-code-console //
             let base64 = btoa(appCode);
+            // dev-code-console //
             console.log('base64: ' + base64);
+            // end-dev-code-console //
 
             xapp = base64;
 
@@ -179,25 +193,39 @@ class GenericRESTService extends LevelLogs{
             //*/
             headers['x-rainbow-api-key'] = that._credentials.apikey;
             let challenge = makeId(22);
+            // dev-code-console //
             console.log('challenge: ' + challenge);
+            // end-dev-code-console //
             headers['x-rainbow-challenge'] = challenge;
             let xapp = "XXX";
             // Basic <base64encode(appId:sha256(appSecret challenge))> (Concatenation of appSecret and provided challenge, hashed with sha256).
             let appIdNet = that.application.appID;
+            // dev-code-console //
             console.log('appIdNet: ' + appIdNet);
+            // end-dev-code-console //
             let appSecretNet = that.application.appSecret;
+            // dev-code-console //
             console.log('appSecretNet: ' + appSecretNet);
+            // end-dev-code-console //
 
             let toEncrypt = appSecretNet + challenge;
+            // dev-code-console //
             console.log('appSecretNet + challenge : ' + toEncrypt);
+            // end-dev-code-console //
 
             let encrypted = CryptoJS.SHA256(toEncrypt).toString();
+            // dev-code-console //
             console.log('appSecretNet + challenge encrypted : ' + encrypted);
+            // end-dev-code-console //
 
             let appCode = appIdNet + ':' + encrypted
+            // dev-code-console //
             console.log('appIdNet:encrypted : ' + appCode);
+            // end-dev-code-console //
             let base64 = btoa(appCode);
+            // dev-code-console //
             console.log('base64: ' + base64);
+            // end-dev-code-console //
 
             xapp = base64;
 
@@ -255,25 +283,39 @@ class GenericRESTService extends LevelLogs{
             //*/
             headers['x-rainbow-api-key'] = that._credentials.apikey;
             let challenge = makeId(22);
+            // dev-code-console //
             console.log('challenge: ' + challenge);
+            // end-dev-code-console //
             headers['x-rainbow-challenge'] = challenge;
             let xapp = "XXX";
             // Basic <base64encode(appId:sha256(appSecret challenge))> (Concatenation of appSecret and provided challenge, hashed with sha256).
             let appIdNet = that.application.appID;
+            // dev-code-console //
             console.log('appIdNet: ' + appIdNet);
+            // end-dev-code-console //
             let appSecretNet = that.application.appSecret;
+            // dev-code-console //
             console.log('appSecretNet: ' + appSecretNet);
+            // end-dev-code-console //
 
             let toEncrypt = appSecretNet + challenge;
+            // dev-code-console //
             console.log('appSecretNet + challenge : ' + toEncrypt);
+            // end-dev-code-console //
 
             let encrypted = CryptoJS.SHA256(toEncrypt).toString();
+            // dev-code-console //
             console.log('appSecretNet + challenge encrypted : ' + encrypted);
+            // end-dev-code-console //
 
             let appCode = appIdNet + ':' + encrypted
+            // dev-code-console //
             console.log('appIdNet:encrypted : ' + appCode);
+            // end-dev-code-console //
             let base64 = btoa(appCode);
+            // dev-code-console //
             console.log('base64: ' + base64);
+            // end-dev-code-console //
 
             xapp = base64;
 

@@ -251,8 +251,8 @@ class Task {
                             //console.log("WARNING : One property of the parameter of updateChannel method is not present in the Bubble class : ", val, " -> ", data[val]);
                             that[val] = data[val];
                         } else {
-                            console.log("WARNING : One property of the parameter of updateTask method is not present in the Task class can not update Task with : ", val, " -> ", data[val]);
                             // dev-code-console //
+                            console.log("WARNING : One property of the parameter of updateTask method is not present in the Task class can not update Task with : ", val, " -> ", data[val]);
                             //console.log("WARNING : One property of the parameter of updateTask method is not present in the Task class can not update Task with : ");
                             // end-dev-code-console //
                         }

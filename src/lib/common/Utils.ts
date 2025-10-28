@@ -671,7 +671,9 @@ function resizeImage (avatarImg, maxWidth, maxHeight) {
                     );
             })
             .catch(err => {
+                // dev-code-console //
                 console.log("error", "(resizeImage) Error : ", err);
+                // end-dev-code-console //
             });
     });
 
@@ -1058,8 +1060,10 @@ function callerName() {
 }
 
 function currentFunction(){
+    // dev-code-console //
     let whoCallMe = callerName();
     console.log(whoCallMe);
+    // end-dev-code-console //
 }
 
 function functionName(functionPtr) {
@@ -1104,7 +1108,9 @@ async function traceExecutionTime(thisToUse, methodName, methodDefinition, param
     let stopDate = new Date();
     // @ts-ignore
     let startDuration = Math.round(stopDate - startDate);
+    // dev-code-console //
     console.log("start duration of the method : " + methodName + " === STARTED (" + startDuration + " ms) ===");
+    // end-dev-code-console //
     return result;
 }
 

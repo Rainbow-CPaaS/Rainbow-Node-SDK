@@ -237,7 +237,9 @@ export class XMPPUTils {
                         // Appelle récursivement la fonction pour parcourir les enfants de l'enfant
                         this.offendXml(element.children[i]);
                     } else {
+                        // dev-code-console //
                         console.log("typeof  typeof (element.children[" + i + "]) : ", typeof (element.children[i]));
+                        // end-dev-code-console //
                     }
                 }
             }

@@ -543,14 +543,19 @@ class Bubble {
                             that[val] = data[val];
                         }
                     } else {
-                        console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class can not update Bubble with : ", val, " -> ", data[val]);
                         // dev-code-console //
+                        console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class can not update Bubble with : ", val, " -> ", data[val]);
                         //console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class can not update Bubble property : ", val);
                         // end-dev-code-console //
                     }
                 });
             if (data.creator) {
-                that.ownerContact = await contactsService.getContactById(data.creator, false).catch((err)=>{ console.log(" getContactById failed : ", err); return undefined;});
+                that.ownerContact = await contactsService.getContactById(data.creator, false).catch((err)=>{
+                        // dev-code-console //
+                    console.log(" getContactById failed : ", err); return undefined;
+                        // end-dev-code-console //
+                }
+                );
                 that.owner = (that.ownerContact.jid === contactsService.userContact.jid);
             }
 
@@ -585,7 +590,11 @@ class Bubble {
 
                 } else {
                     data.users.forEach(async (userData: any) => {
-                        const contact = await contactsService.getContactById(userData.userId).catch((err)=>{ console.log(" getContactById failed : ", err); return undefined;});;
+                        const contact = await contactsService.getContactById(userData.userId).catch((err)=>{
+                            // dev-code-console //
+                            console.log(" getContactById failed : ", err); return undefined;
+                            // end-dev-code-console //
+                        });;
                         //if (contact) {
                         if (contactsService.isUserContact(contact)) {
                             that.status = userData.status;
@@ -651,15 +660,19 @@ class Bubble {
                         if (!bubbleproperties.find((el) => {
                             return val == el;
                         })) {
-                            console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class : ", val, " -> ", data[val]);
                             // dev-code-console //
+                            console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class : ", val, " -> ", data[val]);
                             //console.log("WARNING : One property of the parameter of BubbleFactory method is not present in the Bubble class : ", val);
                             // end-dev-code-console //
                         }
                     });
                 if (data.creator) {
                     //await contactsService.getContactById(data.creator, false).then((result : Contact) => {
-                    let result2 : Contact = await contactsService.getContactById(data.creator, false).catch((err)=>{ console.log(" getContactById failed : ", err); return undefined;});
+                    let result2 : Contact = await contactsService.getContactById(data.creator, false).catch((err)=>{
+                        // dev-code-console //
+                        console.log(" getContactById failed : ", err); return undefined;
+                        // end-dev-code-console //
+                    });
                     //console.log("(BubbleFactory) getContactById : ", result);
                     bubble.ownerContact = result2;
                     if (bubble.ownerContact) {
