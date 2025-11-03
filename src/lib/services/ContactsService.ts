@@ -1504,6 +1504,158 @@ class ContactsService extends GenericService {
         });
     }
 
+    //region Contacts THEMES
+
+    /**
+     * @public
+     * @nodered true
+     * @method getThemes
+     * @instance
+     * @category Contacts THEMES
+     * @async
+     * @since 2.31.0
+     * @param {string} [format="small"] Controls the amount of details returned for themes. Possible values: small, medium, full (see End‑User Themes doc).
+     * @param {string} [variant] Targeted theme variant, for example "light" or "dark".
+     * @param {number} [limit=100] Number of items to retrieve.
+     * @param {number} [offset=0] Position of the first item to retrieve.
+     * @param {string} [sortField="name"] Field used to sort the results.
+     * @param {number} [sortOrder=1] Sort order: 1 ascending, -1 descending.
+     * @param {string} [name] Filter themes by keyword (partial, case-insensitive as per API spec).
+     * @return {Promise<Object>} A paginated list of themes available for the user (owned by the company, visible, and public if allowed).
+     * @description
+     *      Retrieve the list of available themes via End‑User API: GET /api/rainbow/enduser/v1.0/themes.
+     */
+    getThemes(format: string = "small", variant: string = undefined, limit: number = 100, offset: number = 0, sortField: string = "name", sortOrder: number = 1, name: string = undefined): Promise<any> {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getThemes) .");
+        return new Promise(function (resolve, reject) {
+            try {
+                that._rest.getThemes(format, variant, limit, offset, sortField, sortOrder, name).then((result) => {
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getThemes) Successfully result : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log(that.ERROR, LOG_ID + "(getThemes) Error when getting themes.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getThemes) Error : ", err);
+                    return reject(err);
+                });
+            } catch (err) {
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getThemes) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @nodered true
+     * @method getMyThemes
+     * @instance
+     * @category Contacts THEMES
+     * @async
+     * @since 2.31.0
+     * @param {boolean} [selectedThemeObj=false] When true, returns selectedTheme as an object (e.g. { light: "<id>", dark: "<id>" }); when false, returns it as a string.
+     * @param {string} [variant] Targeted variant (light|dark). If provided, the server may return the selection related to this variant.
+     * @return {Promise<Object>} The user's theme information (current selection and available options according to the company and permissions).
+     * @description
+     *      Retrieve the connected user's themes via End‑User API: GET /api/rainbow/enduser/v1.0/users/:userId/themes.
+     */
+    getMyThemes(selectedThemeObj: boolean = false, variant: string = undefined): Promise<any> {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getMyThemes) .");
+        return new Promise(function (resolve, reject) {
+            try {
+                let meId = that._rest.account.id;
+                that._rest.getUserThemes(meId, selectedThemeObj, variant).then((result) => {
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getMyThemes) Successfully result : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log(that.ERROR, LOG_ID + "(getMyThemes) Error when getting user themes.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getMyThemes) Error : ", err);
+                    return reject(err);
+                });
+            } catch (err) {
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getMyThemes) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @nodered true
+     * @method setMyTheme
+     * @instance
+     * @category Contacts THEMES
+     * @async
+     * @since 2.31.0
+     * @param {string} themeId Theme identifier to apply to the user.
+     * @param {string} [variant] Variant to set (light|dark) if the API supports selection by variant.
+     * @return {Promise<Object>} Update result.
+     * @description
+     *      Set the connected user's theme via End‑User API: PUT /api/rainbow/enduser/v1.0/users/:userId/themes/:themeId.
+     */
+    setMyTheme(themeId: string, variant: string = undefined): Promise<any> {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(setMyTheme) themeId : ", that._logger.stripStringForLogs(themeId));
+        return new Promise(function (resolve, reject) {
+            try {
+                if (!themeId) {
+                    that._logger.log(that.ERROR, LOG_ID + "(setMyTheme) bad or empty 'themeId' parameter");
+                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    return;
+                }
+                let meId = that._rest.account.id;
+                that._rest.setUserTheme(meId, themeId, variant).then((result) => {
+                    that._logger.log(that.INTERNAL, LOG_ID + "(setMyTheme) Successfully result : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log(that.ERROR, LOG_ID + "(setMyTheme) Error when setting user theme.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(setMyTheme) Error : ", err);
+                    return reject(err);
+                });
+            } catch (err) {
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(setMyTheme) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @nodered true
+     * @method deleteMyThemes
+     * @instance
+     * @category Contacts THEMES
+     * @async
+     * @since 2.31.0
+     * @param {string} [variant] Variant to delete (light|dark). If omitted, deletes the user's theme selection according to the API specification.
+     * @return {Promise<Object>} Deletion result.
+     * @description
+     *      Delete the connected user's theme selection via End‑User API: DELETE /api/rainbow/enduser/v1.0/users/:userId/themes.
+     */
+    deleteMyThemes(variant: string = undefined): Promise<any> {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteMyThemes) .");
+        return new Promise(function (resolve, reject) {
+            try {
+                let meId = that._rest.account.id;
+                that._rest.deleteUserThemes(meId, variant).then((result) => {
+                    that._logger.log(that.INTERNAL, LOG_ID + "(deleteMyThemes) Successfully result : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log(that.ERROR, LOG_ID + "(deleteMyThemes) Error when deleting user themes.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteMyThemes) Error : ", err);
+                    return reject(err);
+                });
+            } catch (err) {
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteMyThemes) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    //endregion Contacts THEMES
+
     //endregion Contacts INFORMATION
 
     //region Contacts Sources

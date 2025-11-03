@@ -2612,6 +2612,135 @@ class RESTService extends GenericRESTService {
         });
     }
 
+    //region Enduser Themes API
+
+    getThemes(format = "small", variant = undefined, limit = 100, offset = 0, sortField = "name", sortOrder = 1, name = undefined) {
+        // API: https://api.openrainbow.org/enduser/#api-themes
+        // GET /api/rainbow/enduser/v1.0/themes
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            try {
+                let url = "/api/rainbow/enduser/v1.0/themes";
+                let urlParamsTab: string[] = [];
+                urlParamsTab.push(url);
+                addParamToUrl(urlParamsTab, "format", format);
+                addParamToUrl(urlParamsTab, "variant", variant);
+                addParamToUrl(urlParamsTab, "limit", limit);
+                addParamToUrl(urlParamsTab, "offset", offset);
+                addParamToUrl(urlParamsTab, "sortField", sortField);
+                addParamToUrl(urlParamsTab, "sortOrder", sortOrder);
+                addParamToUrl(urlParamsTab, "name", name);
+                url = urlParamsTab[0];
+
+                that._logger.log(that.INTERNAL, LOG_ID + "(getThemes) REST url : ", url);
+
+                that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
+                    that._logger.log(that.DEBUG, LOG_ID + "(getThemes) successfull");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getThemes) REST result : ", json);
+                    resolve(json?.data);
+                }).catch(function (err) {
+                    that._logger.log(that.ERROR, LOG_ID, "(getThemes) error");
+                    that._logger.log(that.INTERNALERROR, LOG_ID, "(getThemes) error : ", err);
+                    return reject(err);
+                });
+            } catch (err) {
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getThemes) exception : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    getUserThemes(userId, selectedThemeObj = false, variant = undefined) {
+        // API: https://api.openrainbow.org/enduser/#api-themes
+        // GET /api/rainbow/enduser/v1.0/users/:userId/themes
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            try {
+                let url = "/api/rainbow/enduser/v1.0/users/" + userId + "/themes";
+                let urlParamsTab: string[] = [];
+                urlParamsTab.push(url);
+                addParamToUrl(urlParamsTab, "selectedThemeObj", selectedThemeObj);
+                addParamToUrl(urlParamsTab, "variant", variant);
+                url = urlParamsTab[0];
+
+                that._logger.log(that.INTERNAL, LOG_ID + "(getUserThemes) REST url : ", url);
+
+                that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
+                    that._logger.log(that.DEBUG, LOG_ID + "(getUserThemes) successfull");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getUserThemes) REST result : ", json);
+                    resolve(json?.data);
+                }).catch(function (err) {
+                    that._logger.log(that.ERROR, LOG_ID, "(getUserThemes) error");
+                    that._logger.log(that.INTERNALERROR, LOG_ID, "(getUserThemes) error : ", err);
+                    return reject(err);
+                });
+            } catch (err) {
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getUserThemes) exception : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    setUserTheme(userId, themeId, variant = undefined) {
+        // API: https://api.openrainbow.org/enduser/#api-themes
+        // PUT /api/rainbow/enduser/v1.0/users/:userId/themes/:themeId
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            try {
+                let url = "/api/rainbow/enduser/v1.0/users/" + userId + "/themes/" + themeId;
+                let body: any = {};
+                addPropertyToObj(body, "variant", variant, false);
+
+                that._logger.log(that.INTERNAL, LOG_ID + "(setUserTheme) REST url : ", url, ", body : ", body);
+
+                that.http.put(url, that.getRequestHeader(), body, undefined).then(function (json) {
+                    that._logger.log(that.DEBUG, LOG_ID + "(setUserTheme) successfull");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(setUserTheme) REST result : ", json);
+                    resolve(json?.data);
+                }).catch(function (err) {
+                    that._logger.log(that.ERROR, LOG_ID, "(setUserTheme) error");
+                    that._logger.log(that.INTERNALERROR, LOG_ID, "(setUserTheme) error : ", err);
+                    return reject(err);
+                });
+            } catch (err) {
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(setUserTheme) exception : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    deleteUserThemes(userId, variant = undefined) {
+        // API: https://api.openrainbow.org/enduser/#api-themes
+        // DELETE /api/rainbow/enduser/v1.0/users/:userId/themes
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            try {
+                let url = "/api/rainbow/enduser/v1.0/users/" + userId + "/themes";
+                let urlParamsTab: string[] = [];
+                urlParamsTab.push(url);
+                addParamToUrl(urlParamsTab, "variant", variant);
+                url = urlParamsTab[0];
+
+                that._logger.log(that.INTERNAL, LOG_ID + "(deleteUserThemes) REST url : ", url);
+
+                that.http.delete(url, that.getRequestHeader()).then(function (json) {
+                    that._logger.log(that.DEBUG, LOG_ID + "(deleteUserThemes) successfull");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(deleteUserThemes) REST result : ", json);
+                    resolve(json?.data);
+                }).catch(function (err) {
+                    that._logger.log(that.ERROR, LOG_ID, "(deleteUserThemes) error");
+                    that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteUserThemes) error : ", err);
+                    return reject(err);
+                });
+            } catch (err) {
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteUserThemes) exception : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    //endregion Enduser Themes API
+
     //endregion Contacts API
 
     //region Applications
