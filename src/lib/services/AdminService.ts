@@ -3003,6 +3003,232 @@ class AdminService extends GenericService {
         });
     }
 
+    //region Admin THEMES
+
+    /**
+     * @public
+     * @nodered true
+     * @method getAdminThemes
+     * @instance
+     * @category Admin THEMES
+     * @since 2.31.0
+     * @async
+     * @param {string} [format="small"] Controls the amount of details returned for themes. Possible values: small, medium, full.
+     * @param {string} [variant] Targeted theme variant (e.g. "light" or "dark").
+     * @param {number} [limit=100] Number of items to retrieve.
+     * @param {number} [offset=0] Position of the first item to retrieve.
+     * @param {string} [sortField="name"] Field used to sort the results.
+     * @param {number} [sortOrder=1] Sort order: 1 ascending, -1 descending.
+     * @param {string} [name] Filter themes by keyword (partial, case-insensitive as per API spec).
+     * @return {Promise<Object>} A paginated list of themes available at admin scope.
+     * @description
+     *      Retrieve the list of themes via Admin API: GET /api/rainbow/admin/v1.0/themes.
+     */
+    getAdminThemes(format: string = "small", variant: string = undefined, limit: number = 100, offset: number = 0, sortField: string = "name", sortOrder: number = 1, name: string = undefined): Promise<any> {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getAdminThemes) .");
+        return new Promise(function (resolve, reject) {
+            try {
+                that._rest.getAdminThemes(format, variant, limit, offset, sortField, sortOrder, name).then((result) => {
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getAdminThemes) Successfully result : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log(that.ERROR, LOG_ID + "(getAdminThemes) Error when getting admin themes.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getAdminThemes) Error : ", err);
+                    return reject(err);
+                });
+            } catch (err) {
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getAdminThemes) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @nodered true
+     * @method getCompanyThemes
+     * @instance
+     * @category Admin THEMES
+     * @since 2.31.0
+     * @async
+     * @param {string} companyId Company identifier.
+     * @param {boolean} [selectedThemeObj=false] When true, returns selectedTheme as an object (e.g. { light: "<id>", dark: "<id>" }); when false, returns it as a string.
+     * @param {string} [variant] Targeted variant (light|dark). If provided, the server may return the selection related to this variant.
+     * @return {Promise<Object>} Company theme settings and available themes depending on visibility.
+     * @description
+     *      Retrieve company themes via Admin API: GET /api/rainbow/admin/v1.0/companies/:companyId/themes.
+     */
+    getCompanyThemes(companyId: string, selectedThemeObj: boolean = false, variant: string = undefined): Promise<any> {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getCompanyThemes) companyId : ", that._logger.stripStringForLogs(companyId));
+        return new Promise(function (resolve, reject) {
+            try {
+                if (!companyId) {
+                    that._logger.log(that.WARN, LOG_ID + "(getCompanyThemes) bad or empty 'companyId' parameter.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getCompanyThemes) bad or empty 'companyId' parameter : ", companyId);
+                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+                that._rest.getCompanyThemes(companyId, selectedThemeObj, variant).then((result) => {
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getCompanyThemes) Successfully result : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log(that.ERROR, LOG_ID + "(getCompanyThemes) Error when getting company themes.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getCompanyThemes) Error : ", err);
+                    return reject(err);
+                });
+            } catch (err) {
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getCompanyThemes) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @nodered true
+     * @method createCompanyTheme
+     * @instance
+     * @category Admin THEMES
+     * @since 2.31.0
+     * @async
+     * @param {string} companyId Company identifier that will own the theme.
+     * @param {string} name Theme name.
+     * @param {string} [variant] Variant (light|dark) for which the data applies.
+     * @param {string} [description] Optional description.
+     * @param {boolean} [isPublic] Whether the theme is public.
+     * @param {Array<string>} [visibleBy] List of companyIds allowed to see/use the theme when not public.
+     * @param {any} [data] Theme data/payload as defined by the Admin API.
+     * @return {Promise<Object>} Created theme object.
+     * @description
+     *      Create a new theme for a company via Admin API: POST /api/rainbow/admin/v1.0/companies/:companyId/themes.
+     */
+    createCompanyTheme(companyId: string, name: string, variant: string = undefined, description: string = undefined, isPublic: boolean = undefined, visibleBy: Array<string> = undefined, data: any = undefined): Promise<any> {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(createCompanyTheme) companyId : ", that._logger.stripStringForLogs(companyId), ", name : ", that._logger.stripStringForLogs(name));
+        return new Promise(function (resolve, reject) {
+            try {
+                if (!companyId) {
+                    that._logger.log(that.WARN, LOG_ID + "(createCompanyTheme) bad or empty 'companyId' parameter.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(createCompanyTheme) bad or empty 'companyId' parameter : ", companyId);
+                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+                if (!name) {
+                    that._logger.log(that.WARN, LOG_ID + "(createCompanyTheme) bad or empty 'name' parameter.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(createCompanyTheme) bad or empty 'name' parameter : ", name);
+                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+                that._rest.createCompanyTheme(companyId, name, variant, description, isPublic, visibleBy, data).then((result) => {
+                    that._logger.log(that.INTERNAL, LOG_ID + "(createCompanyTheme) Successfully result : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log(that.ERROR, LOG_ID + "(createCompanyTheme) Error when creating company theme.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(createCompanyTheme) Error : ", err);
+                    return reject(err);
+                });
+            } catch (err) {
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(createCompanyTheme) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @nodered true
+     * @method updateCompanyTheme
+     * @instance
+     * @category Admin THEMES
+     * @since 2.31.0
+     * @async
+     * @param {string} companyId Company identifier.
+     * @param {string} themeId Theme identifier to update.
+     * @param {string} [name] Theme name.
+     * @param {string} [variant] Variant (light|dark) for which the data applies.
+     * @param {string} [description] Optional description.
+     * @param {boolean} [isPublic] Whether the theme is public.
+     * @param {Array<string>} [visibleBy] List of companyIds allowed to see/use the theme when not public.
+     * @param {any} [data] Theme data/payload as defined by the Admin API.
+     * @return {Promise<Object>} Updated theme object.
+     * @description
+     *      Update an existing theme via Admin API: PUT /api/rainbow/admin/v1.0/companies/:companyId/themes/:themeId.
+     */
+    updateCompanyTheme(companyId: string, themeId: string, name: string = undefined, variant: string = undefined, description: string = undefined, isPublic: boolean = undefined, visibleBy: Array<string> = undefined, data: any = undefined): Promise<any> {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateCompanyTheme) companyId : ", that._logger.stripStringForLogs(companyId), ", themeId : ", that._logger.stripStringForLogs(themeId));
+        return new Promise(function (resolve, reject) {
+            try {
+                if (!companyId) {
+                    that._logger.log(that.WARN, LOG_ID + "(updateCompanyTheme) bad or empty 'companyId' parameter.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(updateCompanyTheme) bad or empty 'companyId' parameter : ", companyId);
+                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+                if (!themeId) {
+                    that._logger.log(that.WARN, LOG_ID + "(updateCompanyTheme) bad or empty 'themeId' parameter.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(updateCompanyTheme) bad or empty 'themeId' parameter : ", themeId);
+                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+                that._rest.updateCompanyTheme(companyId, themeId, name, variant, description, isPublic, visibleBy, data).then((result) => {
+                    that._logger.log(that.INTERNAL, LOG_ID + "(updateCompanyTheme) Successfully result : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log(that.ERROR, LOG_ID + "(updateCompanyTheme) Error when updating company theme.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(updateCompanyTheme) Error : ", err);
+                    return reject(err);
+                });
+            } catch (err) {
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(updateCompanyTheme) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    /**
+     * @public
+     * @nodered true
+     * @method deleteCompanyTheme
+     * @instance
+     * @category Admin THEMES
+     * @since 2.31.0
+     * @async
+     * @param {string} companyId Company identifier.
+     * @param {string} themeId Theme identifier to delete.
+     * @return {Promise<Object>} Deletion result.
+     * @description
+     *      Delete a company theme via Admin API: DELETE /api/rainbow/admin/v1.0/companies/:companyId/themes/:themeId.
+     */
+    deleteCompanyTheme(companyId: string, themeId: string): Promise<any> {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteCompanyTheme) companyId : ", that._logger.stripStringForLogs(companyId), ", themeId : ", that._logger.stripStringForLogs(themeId));
+        return new Promise(function (resolve, reject) {
+            try {
+                if (!companyId) {
+                    that._logger.log(that.WARN, LOG_ID + "(deleteCompanyTheme) bad or empty 'companyId' parameter.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteCompanyTheme) bad or empty 'companyId' parameter : ", companyId);
+                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+                if (!themeId) {
+                    that._logger.log(that.WARN, LOG_ID + "(deleteCompanyTheme) bad or empty 'themeId' parameter.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteCompanyTheme) bad or empty 'themeId' parameter : ", themeId);
+                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                }
+                that._rest.deleteCompanyTheme(companyId, themeId).then((result) => {
+                    that._logger.log(that.INTERNAL, LOG_ID + "(deleteCompanyTheme) Successfully result : ", result);
+                    resolve(result);
+                }).catch((err) => {
+                    that._logger.log(that.ERROR, LOG_ID + "(deleteCompanyTheme) Error when deleting company theme.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteCompanyTheme) Error : ", err);
+                    return reject(err);
+                });
+            } catch (err) {
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteCompanyTheme) error : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    //endregion Admin THEMES
+
     /**
      * @public
      * @nodered true

@@ -15,6 +15,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 #### Added
 -   Add `ContactsService::getThemes` `ContactsService::getMyThemes` `ContactsService::setMyTheme` `ContactsService::deleteMyThemes` API to get and manage user's theme.
+-   Add `AdminService::getAdminThemes`, `getCompanyThemes`, `createCompanyTheme`, `updateCompanyTheme`, `deleteCompanyTheme` API to manage Themes as administrator. 
 
 #### Changed
 -   None.

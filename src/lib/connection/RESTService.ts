@@ -2741,6 +2741,169 @@ class RESTService extends GenericRESTService {
 
     //endregion Enduser Themes API
 
+    //region Admin Themes API
+
+    getAdminThemes(format = "small", variant = undefined, limit = 100, offset = 0, sortField = "name", sortOrder = 1, name = undefined) {
+        // API: https://api.openrainbow.org/admin/#api-themes
+        // GET /api/rainbow/admin/v1.0/themes
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            try {
+                let url = "/api/rainbow/admin/v1.0/themes";
+                let urlParamsTab: string[] = [];
+                urlParamsTab.push(url);
+                addParamToUrl(urlParamsTab, "format", format);
+                addParamToUrl(urlParamsTab, "variant", variant);
+                addParamToUrl(urlParamsTab, "limit", limit);
+                addParamToUrl(urlParamsTab, "offset", offset);
+                addParamToUrl(urlParamsTab, "sortField", sortField);
+                addParamToUrl(urlParamsTab, "sortOrder", sortOrder);
+                addParamToUrl(urlParamsTab, "name", name);
+                url = urlParamsTab[0];
+
+                that._logger.log(that.INTERNAL, LOG_ID + "(getAdminThemes) REST url : ", url);
+
+                that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
+                    that._logger.log(that.DEBUG, LOG_ID + "(getAdminThemes) successfull");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getAdminThemes) REST result : ", json);
+                    resolve(json?.data);
+                }).catch(function (err) {
+                    that._logger.log(that.ERROR, LOG_ID, "(getAdminThemes) error");
+                    that._logger.log(that.INTERNALERROR, LOG_ID, "(getAdminThemes) error : ", err);
+                    return reject(err);
+                });
+            } catch (err) {
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getAdminThemes) exception : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    getCompanyThemes(companyId, selectedThemeObj = false, variant = undefined) {
+        // API: https://api.openrainbow.org/admin/#api-themes
+        // GET /api/rainbow/admin/v1.0/companies/:companyId/themes
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            try {
+                let url = "/api/rainbow/admin/v1.0/companies/" + companyId + "/themes";
+                let urlParamsTab: string[] = [];
+                urlParamsTab.push(url);
+                addParamToUrl(urlParamsTab, "selectedThemeObj", selectedThemeObj);
+                addParamToUrl(urlParamsTab, "variant", variant);
+                url = urlParamsTab[0];
+
+                that._logger.log(that.INTERNAL, LOG_ID + "(getCompanyThemes) REST url : ", url);
+
+                that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
+                    that._logger.log(that.DEBUG, LOG_ID + "(getCompanyThemes) successfull");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getCompanyThemes) REST result : ", json);
+                    resolve(json?.data);
+                }).catch(function (err) {
+                    that._logger.log(that.ERROR, LOG_ID, "(getCompanyThemes) error");
+                    that._logger.log(that.INTERNALERROR, LOG_ID, "(getCompanyThemes) error : ", err);
+                    return reject(err);
+                });
+            } catch (err) {
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(getCompanyThemes) exception : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    createCompanyTheme(companyId, name, variant = undefined, description = undefined, isPublic = undefined, visibleBy: Array<string> = undefined, data: any = undefined) {
+        // API: https://api.openrainbow.org/admin/#api-themes
+        // POST /api/rainbow/admin/v1.0/companies/:companyId/themes
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            try {
+                let url = "/api/rainbow/admin/v1.0/companies/" + companyId + "/themes";
+                let body: any = {};
+                addPropertyToObj(body, "name", name, false);
+                addPropertyToObj(body, "variant", variant, false);
+                addPropertyToObj(body, "description", description, false);
+                addPropertyToObj(body, "isPublic", isPublic, false);
+                addPropertyToObj(body, "visibleBy", visibleBy, false);
+                addPropertyToObj(body, "data", data, false);
+
+                that._logger.log(that.INTERNAL, LOG_ID + "(createCompanyTheme) REST url : ", url, ", body : ", body);
+
+                that.http.post(url, that.getRequestHeader(), body, undefined).then(function (json) {
+                    that._logger.log(that.DEBUG, LOG_ID + "(createCompanyTheme) successfull");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(createCompanyTheme) REST result : ", json);
+                    resolve(json?.data);
+                }).catch(function (err) {
+                    that._logger.log(that.ERROR, LOG_ID, "(createCompanyTheme) error");
+                    that._logger.log(that.INTERNALERROR, LOG_ID, "(createCompanyTheme) error : ", err);
+                    return reject(err);
+                });
+            } catch (err) {
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(createCompanyTheme) exception : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    updateCompanyTheme(companyId, themeId, name = undefined, variant = undefined, description = undefined, isPublic = undefined, visibleBy: Array<string> = undefined, data: any = undefined) {
+        // API: https://api.openrainbow.org/admin/#api-themes
+        // PUT /api/rainbow/admin/v1.0/companies/:companyId/themes/:themeId
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            try {
+                let url = "/api/rainbow/admin/v1.0/companies/" + companyId + "/themes/" + themeId;
+                let body: any = {};
+                addPropertyToObj(body, "name", name, false);
+                addPropertyToObj(body, "variant", variant, false);
+                addPropertyToObj(body, "description", description, false);
+                addPropertyToObj(body, "isPublic", isPublic, false);
+                addPropertyToObj(body, "visibleBy", visibleBy, false);
+                addPropertyToObj(body, "data", data, false);
+
+                that._logger.log(that.INTERNAL, LOG_ID + "(updateCompanyTheme) REST url : ", url, ", body : ", body);
+
+                that.http.put(url, that.getRequestHeader(), body, undefined).then(function (json) {
+                    that._logger.log(that.DEBUG, LOG_ID + "(updateCompanyTheme) successfull");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(updateCompanyTheme) REST result : ", json);
+                    resolve(json?.data);
+                }).catch(function (err) {
+                    that._logger.log(that.ERROR, LOG_ID, "(updateCompanyTheme) error");
+                    that._logger.log(that.INTERNALERROR, LOG_ID, "(updateCompanyTheme) error : ", err);
+                    return reject(err);
+                });
+            } catch (err) {
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(updateCompanyTheme) exception : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    deleteCompanyTheme(companyId, themeId) {
+        // API: https://api.openrainbow.org/admin/#api-themes
+        // DELETE /api/rainbow/admin/v1.0/companies/:companyId/themes/:themeId
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            try {
+                let url = "/api/rainbow/admin/v1.0/companies/" + companyId + "/themes/" + themeId;
+
+                that._logger.log(that.INTERNAL, LOG_ID + "(deleteCompanyTheme) REST url : ", url);
+
+                that.http.delete(url, that.getRequestHeader()).then(function (json) {
+                    that._logger.log(that.DEBUG, LOG_ID + "(deleteCompanyTheme) successfull");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(deleteCompanyTheme) REST result : ", json);
+                    resolve(json?.data);
+                }).catch(function (err) {
+                    that._logger.log(that.ERROR, LOG_ID, "(deleteCompanyTheme) error");
+                    that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteCompanyTheme) error : ", err);
+                    return reject(err);
+                });
+            } catch (err) {
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteCompanyTheme) exception : ", err);
+                return reject(err);
+            }
+        });
+    }
+
+    //endregion Admin Themes API
+
     //endregion Contacts API
 
     //region Applications
