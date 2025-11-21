@@ -160,7 +160,7 @@ class S2SService extends GenericService{
                      ) // */
 
                     that._logger.log(that.INFO, LOG_ID + "(start) listen for * route of Server app.");
-                    that.app.all('*', async (req, res, next: any) => {
+                    that.app.all(/.*/, async (req, res, next: any) => {
                         //res.send('<h1>Hello World!</h1>');
                         that._logger.log(that.HTTP, LOG_ID + "*************************************************");
                         //that._logger.log(that.HTTP, LOG_ID + "next() called.");

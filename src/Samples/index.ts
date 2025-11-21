@@ -138,8 +138,8 @@ Object.defineProperty(exports, "__esModule", {value: true});
     output: process.stdout
 }); // */
 
-//let rainbowMode = "s2s" ;
-let rainbowMode = "xmpp";
+let rainbowMode = "s2s" ;
+//let rainbowMode = "xmpp";
 
 let ngrok = require('ngrok');
 //import ngrok from 'ngrok';
@@ -194,10 +194,30 @@ let expressEngine = undefined;
     if (rainbowMode==="s2s") {
         console.log("MAIN - S2S Mode, with ngrock.");
         portS2S = 4001 + Math.round(Math.random() * 1000);
-        urlS2S = await ngrok.connect(portS2S).catch((error) => {
-            console.log("MAIN - ngrock, error : ", error);
+        try {
+            // connect_url: connect.us.ngrok-agent.com:443
+            //
+            let ngrokOptions = {
+                proto: 'http', // http|tcp|tls
+                //addr: 4040, // port or network address
+                addr: portS2S, // port or network address
+                //auth: 'user:pwd', // http basic authentication for tunnel
+                //subdomain: 'alex', // reserved tunnel name https://alex.ngrok.io
+                authtoken: '1XedtXP8pRirUqteJchayDnD2BA_6EQ7T5DzSV9EMF3RAj7Zw', // your authtoken from ngrok.com
+                region: 'us' // one of ngrok regions (us, eu, au, ap), defaults to us,
+                //configPath: '~/git/project/ngrok.yml' // custom path for ngrok config file
+                //binPathReplacer: ['app.asar/bin', 'app.asar.unpacked/bin'] // custom path replacement when using for production in electron
+            };
+            //ngrokOptions = undefined;
+            console.log("ngrok options : ", ngrokOptions);
+            urlS2S = await ngrok.connect(ngrokOptions); /*.catch((error) => {
+                console.log("MAIN - ngrock, error : ", error);
+                process.exit(0);
+            }); // */
+        } catch (err) {
+            console.log("S2S starting Error : ", err);
             process.exit(0);
-        });
+        }
         console.log("MAIN - ngrock, urlS2S : ", urlS2S, ", portS2S : ", portS2S);
         expressEngine = express();
         expressEngine.use(express.json());
@@ -9785,6 +9805,16 @@ let expressEngine = undefined;
 
         }
 
+        async testretrieveAllSubscriptionsOfCompanyById() {
+            let allSubscriptionsOfCompany: any = await rainbowSDK.admin.retrieveAllSubscriptionsOfCompanyById( undefined, "full").catch(err => {
+                _logger.log("error", "MAIN - testCompanyCleanAfterbuild - retrieveAllSubscriptionsOfCompanyById() err : ", err);
+            });
+            for (let j = 0; j < allSubscriptionsOfCompany.length; j++) {
+                let subscriptionOfCompany = allSubscriptionsOfCompany[j];
+                _logger.log("debug", "MAIN - testCompanyCleanAfterbuild - subscriptionOfCompany : ", subscriptionOfCompany);
+            }
+        }
+
         //endregion Company
 
         //region Company Clean Afterbuild
@@ -11913,6 +11943,31 @@ example :
         //endregion Presence
 
         //region voicemail
+        
+        /**
+         * Test: Probe a user's presence (GET) via userId récupéré par email.
+         * Étapes:
+         *  - Récupère le contact via son email avec `getContactByLoginEmail`.
+         *  - Appelle `presence.probeUserPresenceByUserId(contact.id)`.
+         * Email ciblé: vincent02@vbe.test.openrainbow.net
+         */
+        async testProbeUserPresenceByUserId_vincent02() {
+            try {
+                const email = "vincent02@vbe.test.openrainbow.net";
+                const contact = await rainbowSDK.contacts.getContactByLoginEmail(email);
+                _logger.log("debug", "MAIN - (testProbeUserPresenceByUserId_vincent02) contact:", contact && { id: contact.id, jid: contact.jid, displayName: contact.displayName });
+
+                if (!contact || !contact.id) {
+                    _logger.log("error", "MAIN - (testProbeUserPresenceByUserId_vincent02) contact introuvable ou sans id pour l'email:", email);
+                    return;
+                }
+
+                const res = await rainbowSDK.presence.probeUserPresenceByUserId(contact.id);
+                _logger.log("debug", "MAIN - (testProbeUserPresenceByUserId_vincent02) probe result:", res);
+            } catch (e) {
+                _logger.log("error", "MAIN - (testProbeUserPresenceByUserId_vincent02) erreur:", e);
+            }
+        }
         async testsendVoicemailTranscriptionMessage() {
             /*
             const message = $iq({ id: this.xmppService.connection.getUniqueId(), from: this.xmppService.jid, to: this.xmppService.fullJid, type: 'set' });

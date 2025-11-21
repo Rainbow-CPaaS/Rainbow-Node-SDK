@@ -201,7 +201,8 @@ You can activate the log of http request by setting the parameter `http` to `tru
         "system-dev": {
             "internals": true,
              "http": true
-        }, 
+        },
+        "level": "internal",        
 },
 
 ```

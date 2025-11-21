@@ -253,6 +253,64 @@ class PresenceService extends GenericService{
             await that._settings.updateUserSettings({presence: presenceRainbow.presenceLevel});
         });
     }
+
+    /**
+     * @public
+     * @nodered true
+     * @method setPresenceShow
+     * @instance
+     * @async
+     * @category Presence CONNECTED USER
+     * @description
+     *    Définit la présence du compte via l'API REST UCS `Presence.show`.
+     *    Cette méthode est utile lorsque le mode S2S est utilisé. Elle envoie la valeur `show` (et un `status` optionnel)
+     *    au serveur via l'endpoint:
+     *    PUT /api/rainbow/ucs/v1.0/connections/{connectionId}/presences
+     *    Documentation: https://api.openrainbow.org/doc/rest/api/ucs/redoc-index.html#tag/Presence/operation/Presence.show
+     *
+     *    Remarque: une connexion S2S active est nécessaire (voir `loginS2S`).
+     *
+     * @param {string} show Valeur de présence à appliquer (ex: "online", "away", "xa", "dnd", "invisible").
+     * @param {string} [status] Message de statut libre (optionnel).
+     * @return {Promise<any>} La réponse REST (payload `data`).
+     *
+     * @example
+     * // Définit la présence en Ne pas déranger avec un message
+     * await sdk.presence.setPresenceShow("dnd", "En réunion");
+     */
+    async setPresenceShow(show: string, status: string = ""): Promise<any> {
+        const that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(setPresenceShow) called.");
+        return that._rest.presenceShow(show, status);
+    }
+    
+    /**
+     * @public
+     * @nodered true
+     * @method probeUserPresenceByUserId
+     * @instance
+     * @async
+     * @category Presence CONNECTED USER
+     * @description
+     *    Interroge/sonde la présence d’un utilisateur via l’API REST UCS (méthode GET) en utilisant son `userId` Rainbow.
+     *    Endpoint:
+     *    GET /api/rainbow/ucs/v1.0/connections/{connectionId}/presences/{userId}
+     *    Utile en mode S2S pour obtenir/rafraîchir la présence d’un contact identifié par son UUID Rainbow (pas un JID).
+     *
+     *    Remarque: une connexion S2S active est nécessaire (voir `loginS2S`).
+     *
+     * @param {string} userId Identifiant Rainbow de l'utilisateur ciblé (UUID Rainbow, pas un JID).
+     * @return {Promise<any>} La réponse REST (payload `data`).
+     *
+     * @example
+     * // Récupère/sonde la présence d’un utilisateur par son userId Rainbow
+     * await sdk.presence.probeUserPresenceByUserId("cce80c33c78c47c0907a6bfa3f4ffe72");
+     */
+    async probeUserPresenceByUserId(userId: string): Promise<any> {
+        const that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(probeUserPresenceByUserId) called.");
+        return that._rest.presenceProbeGet(userId);
+    }
     
     /**
      * @public

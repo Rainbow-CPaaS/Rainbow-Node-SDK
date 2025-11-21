@@ -4093,6 +4093,106 @@ Request Method: PUT
         });
     }
 
+    /**
+     * @method presenceShow
+     * @public
+     * @description
+     *      Appelle l'API UCS Presence.show pour définir le champ `show` (et éventuellement `status`) de la présence
+     *      du compte associé à la connexion S2S courante.
+     *      Cette méthode s'appuie sur l'endpoint REST Rainbow:
+     *      PUT /api/rainbow/ucs/v1.0/connections/{connectionId}/presences
+     *      Documentation: https://api.openrainbow.org/doc/rest/api/ucs/redoc-index.html#tag/Presence/operation/Presence.show
+     *
+     *      Prérequis: une connexion S2S doit être active (voir loginS2S) pour disposer d'un `connectionId`.
+     *
+     * @param {string} show Valeur de présence à appliquer (ex: "online", "away", "xa", "dnd", "invisible").
+     * @param {string} [status] Message de statut libre (optionnel).
+     * @param {string} [connectionId] Identifiant de connexion S2S. Si non fourni, celui de `this.connectionS2SInfo.id` est utilisé.
+     * @returns {Promise<any>} La réponse REST (payload `data`).
+     *
+     * @example
+     * // Définit la présence en Ne pas déranger avec un message personnalisé
+     * await restService.presenceShow("dnd", "En réunion");
+     */
+    async presenceShow(show: string, status: string = "", connectionId?: string): Promise<any> {
+        let that = this;
+        const cnxId = connectionId || that.connectionS2SInfo?.id;
+        that._logger.log(that.INFO, LOG_ID + "(presenceShow) will set UCS presence show.");
+        that._logger.log(that.INTERNAL, LOG_ID + "(presenceShow) params : ", { show, status, cnxIdProvided: !!connectionId });
+
+        if (!cnxId) {
+            that._logger.log(that.ERROR, LOG_ID, "(presenceShow) error: no S2S connection id available");
+            that._logger.log(that.INTERNALERROR, LOG_ID, "(presenceShow) error connectionS2SInfo.id is not defined");
+            return Promise.reject(new Error("presenceShow: connectionS2SInfo.id manquant. Appelez loginS2S d'abord."));
+        }
+
+        const body = { presence: { show: show || "", status: status || "" } };
+
+        return new Promise((resolve, reject) => {
+            that.http.put(`/api/rainbow/ucs/v1.0/connections/${cnxId}/presences`, that.getRequestHeader(), body, undefined)
+                .then((json) => {
+                    that._logger.log(that.DEBUG, LOG_ID + "(presenceShow) successfull.");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(presenceShow) REST result : ", json);
+                    resolve(json?.data);
+                })
+                .catch((err) => {
+                    that._logger.log(that.ERROR, LOG_ID, "(presenceShow) error.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID, "(presenceShow) error : ", err);
+                    return reject(err);
+                });
+        });
+    }
+
+    /**
+     * @method presenceProbeGet
+     * @public
+     * @description
+     *      Récupère/sonde la présence d’un utilisateur via l’API UCS (méthode GET).
+     *      Cette méthode s'appuie sur l'endpoint REST Rainbow:
+     *      GET /api/rainbow/ucs/v1.0/connections/{connectionId}/presences/{userId}
+     *
+     *      Prérequis: une connexion S2S doit être active (voir loginS2S) pour disposer d'un `connectionId`.
+     *
+     * @param {string} userId Identifiant Rainbow de l'utilisateur ciblé (UUID Rainbow, pas un JID).
+     * @param {string} [connectionId] Identifiant de connexion S2S. Si non fourni, celui de `this.connectionS2SInfo.id` est utilisé.
+     * @returns {Promise<any>} La réponse REST (payload `data`).
+     *
+     * @example
+     * // Récupère/sonde la présence d’un utilisateur par son userId Rainbow
+     * await restService.presenceProbeGet("cce80c33c78c47c0907a6bfa3f4ffe72");
+     */
+    async presenceProbeGet(userId: string, connectionId?: string): Promise<any> {
+        const that = this;
+        const cnxId = connectionId || that.connectionS2SInfo?.id;
+        that._logger.log(that.INFO, LOG_ID + "(presenceProbeGet) will GET UCS presence for a user.");
+        that._logger.log(that.INTERNAL, LOG_ID + "(presenceProbeGet) params : ", { userId, cnxIdProvided: !!connectionId });
+
+        if (!cnxId) {
+            that._logger.log(that.ERROR, LOG_ID, "(presenceProbeGet) error: no S2S connection id available");
+            that._logger.log(that.INTERNALERROR, LOG_ID, "(presenceProbeGet) error connectionS2SInfo.id is not defined");
+            return Promise.reject(new Error("presenceProbeGet: connectionS2SInfo.id manquant. Appelez loginS2S d'abord."));
+        }
+
+        if (!userId || typeof userId !== "string") {
+            that._logger.log(that.WARN, LOG_ID + "(presenceProbeGet) bad or empty 'userId' parameter");
+            return Promise.reject(new Error("presenceProbeGet: paramètre 'userId' invalide"));
+        }
+
+        return new Promise((resolve, reject) => {
+            that.http.get(`/api/rainbow/ucs/v1.0/connections/${cnxId}/presences/${userId}`, that.getRequestHeader(), undefined)
+                .then((json) => {
+                    that._logger.log(that.DEBUG, LOG_ID + "(presenceProbeGet) successfull.");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(presenceProbeGet) REST result : ", json);
+                    resolve(json?.data);
+                })
+                .catch((err) => {
+                    that._logger.log(that.ERROR, LOG_ID, "(presenceProbeGet) error.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID, "(presenceProbeGet) error : ", err);
+                    return reject(err);
+                });
+        });
+    }
+
     //region Bubbles
 
     createBubble(name:string, description: string, history:any="all", p_number : number=0, visibility : string="private", disableNotifications : boolean=false, autoRegister:string = 'unlock', autoAcceptInvitation:boolean = false, muteUponEntry:boolean=false, playEntryTone:boolean=true) {
