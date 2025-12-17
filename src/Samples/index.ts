@@ -138,8 +138,8 @@ Object.defineProperty(exports, "__esModule", {value: true});
     output: process.stdout
 }); // */
 
-let rainbowMode = "s2s" ;
-//let rainbowMode = "xmpp";
+//let rainbowMode = "s2s" ;
+let rainbowMode = "xmpp";
 
 let ngrok = require('ngrok');
 //import ngrok from 'ngrok';
@@ -4128,6 +4128,16 @@ let expressEngine = undefined;
             //let mychannel = mychannels ? mychannels[0]:null;
             //let utc = new Date().toJSON().replace(/-/g, "_");
             _logger.log("debug", "MAIN - testgetAllOwnedChannels - mychannels : ", mychannels);
+        }
+
+        async testupdateChannelUsersByLoginEmails() {
+            let mychannels = rainbowSDK.channels.getAllOwnedChannels();
+            let mychannel = mychannels ? mychannels[0]:null;
+            if (mychannel) {
+                let mychannelUpdated = rainbowSDK.channels.updateChannelUsers(mychannel,  [{"id": connectedUser.id, "type": "publisher"}]);
+                //let mychannelUpdated = await rainbowSDK.channels.updateChannelUsersByLoginEmails(mychannel,  [{"loginEmail": connectedUser.loginEmail, "type": "publisher"}]);
+                _logger.log("debug", "MAIN - testupdateChannelUsersByLoginEmails - mychannelUpdated : ", mychannelUpdated);
+            }
         }
 
         async testfindChannelsByName(channelName : string = "RNodeSdkChangeLog") {
@@ -11968,6 +11978,25 @@ example :
                 _logger.log("error", "MAIN - (testProbeUserPresenceByUserId_vincent02) erreur:", e);
             }
         }
+
+        async testProbeUserPresenceByUserId_68aef523c71df5cf89e02ef4() {
+            try {
+                const contactId = "68aef523c71df5cf89e02ef4";
+                const contact = await rainbowSDK.contacts.getContactById(contactId);
+                _logger.log("debug", "MAIN - (testProbeUserPresenceByUserId_68aef523c71df5cf89e02ef4) contact:", contact && { id: contact.id, jid: contact.jid, displayName: contact.displayName });
+
+                if (!contact || !contact.id) {
+                    _logger.log("error", "MAIN - (testProbeUserPresenceByUserId_68aef523c71df5cf89e02ef4) contact introuvable ou sans id pour le contact:", contact);
+                    return;
+                }
+
+                const res = await rainbowSDK.presence.probeUserPresenceByUserId(contact.id);
+                _logger.log("debug", "MAIN - (testProbeUserPresenceByUserId_68aef523c71df5cf89e02ef4) probe result:", res);
+            } catch (e) {
+                _logger.log("error", "MAIN - (testProbeUserPresenceByUserId_68aef523c71df5cf89e02ef4) erreur:", e);
+            }
+        }
+
         async testsendVoicemailTranscriptionMessage() {
             /*
             const message = $iq({ id: this.xmppService.connection.getUniqueId(), from: this.xmppService.jid, to: this.xmppService.fullJid, type: 'set' });

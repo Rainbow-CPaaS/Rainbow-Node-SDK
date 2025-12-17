@@ -1864,13 +1864,14 @@ class ChannelsService extends GenericService {
                         that._logger.log(that.WARN, LOG_ID + "(updateChannelUsersByLoginEmails) Id not found for user loginEmail parameter. Index : ", index);
                     });
                     return {
-                        id : usersIndex, 
+                        id : usersIndex?.id,
                         type : value.type 
                     }
                 });
             }
-            
-            
+
+            that._logger.log(that.INTERNAL, LOG_ID + "(updateChannelUsersByLoginEmails) usersId to update : ", usersId);
+
             that._rest.updateChannelUsers(channelId, usersId).then((res) => {
                 that._logger.log(that.INFO, LOG_ID + "(updateChannelUsersByLoginEmails) channel users updated");
                 that._logger.log(that.INTERNAL, LOG_ID + "(updateChannelUsersByLoginEmails) channel users updated : ", res);

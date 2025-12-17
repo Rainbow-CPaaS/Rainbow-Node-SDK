@@ -333,6 +333,9 @@ class RESTService extends GenericRESTService {
     private timeOutManager: TimeOutManager;
     protected apiConfigTTL: number = 1;
     protected apiConfigTTLTimeout: any = 1;
+    protected loginUrl = '/api/rainbow/authentication/v1.0/login';
+    protected logoutUrl = '/api/rainbow/authentication/v1.0/logout';
+
 
     static getClassName() { return 'RESTService'; }
     getClassName() { return RESTService.getClassName(); }
@@ -361,7 +364,7 @@ class RESTService extends GenericRESTService {
         this._options = _options;
         this.credentialsRest = _options.credentials;
         this.applicationRest = _options.applicationOptions;
-        this.loginEmail = _options.credentials.login
+        this.loginEmail = _options.credentials.login;
         this.authRest = btoa(this.credentials.login + ":" + this.credentials.password);
 
         this.currentAttempt = 0;
@@ -500,30 +503,42 @@ class RESTService extends GenericRESTService {
         // If no token is provided, then signin with user/pwd credentials.
         return new Promise(async function (resolve, reject) {
             if (that.isUserCredentialsLogin()) {
-                that.http.get("/api/rainbow/authentication/v1.0/login", that.getLoginHeader(), undefined).then(async function (JSON) {
-                    that.account = JSON.loggedInUser;
-                    that.account.jid = that.account.jid ? that.account.jid:that.account.jid_im;
-                    that.app = JSON.loggedInApplication;
-                    that.tokenRest = JSON.token;
 
-                    let companyInfo = await that.getCompanyInfos(that.account.companyId, "full", false, undefined, undefined, undefined, undefined, undefined, undefined, undefined).catch((err) => {
-                            that._logger.log(that.WARN, LOG_ID + "(signin) failed to get company information : ", err);
-                        }
-                    );
-                    that.account.company = companyInfo;
+                that.getAuthenticationUrls({"country": undefined, "uiLocales": undefined, "useBackchannelPolling": false, "uid" : that.loginEmail}).then(async function (urls : any) {
+                    that._logger.log(that.DEBUG, LOG_ID + "(signin) getAuthenticationUrls : ", urls);
 
-                    that._logger.log(that.INTERNAL, LOG_ID + "(signin) welcome " + that.account.displayName + "!");
-                    //that._logger.log(that.DEBUG, LOG_ID + "(signin) user information ", that.account);
-                    that._logger.log(that.INTERNAL, LOG_ID + "(signin) application information : ", that.app);
-                    that.getApiConfigurationFromServer();
-                    resolve(JSON);
+                    that.loginUrl = urls.loginUrl ? new URL(urls.loginUrl).pathname : '/api/rainbow/authentication/v1.0/login';
+                    that.logoutUrl = urls.logoutUrl ? new URL(urls.logoutUrl).pathname : '/api/rainbow/authentication/v1.0/logout';
+
+                    that.http.get(that.loginUrl, that.getLoginHeader(), undefined).then(async function (JSON) {
+                        that.account = JSON.loggedInUser;
+                        that.account.jid = that.account.jid ? that.account.jid:that.account.jid_im;
+                        that.app = JSON.loggedInApplication;
+                        that.tokenRest = JSON.token;
+
+                        let companyInfo = await that.getCompanyInfos(that.account.companyId, "full", false, undefined, undefined, undefined, undefined, undefined, undefined, undefined).catch((err) => {
+                                that._logger.log(that.WARN, LOG_ID + "(signin) failed to get company information : ", err);
+                            }
+                        );
+                        that.account.company = companyInfo;
+
+                        that._logger.log(that.INTERNAL, LOG_ID + "(signin) welcome " + that.account.displayName + "!");
+                        //that._logger.log(that.DEBUG, LOG_ID + "(signin) user information ", that.account);
+                        that._logger.log(that.INTERNAL, LOG_ID + "(signin) application information : ", that.app);
+                        that.getApiConfigurationFromServer();
+                        resolve(JSON);
+                    }).catch(function (err) {
+                        that._logger.log(that.ERROR, LOG_ID, "(signin) ErrorManager during REST signin");
+                        that._logger.log(that.INTERNALERROR, LOG_ID, "(signin) ErrorManager during REST signin : ", err);
+                        return reject(err);
+                    });
                 }).catch(function (err) {
                     that._logger.log(that.ERROR, LOG_ID, "(signin) ErrorManager during REST signin");
                     that._logger.log(that.INTERNALERROR, LOG_ID, "(signin) ErrorManager during REST signin : ", err);
                     return reject(err);
                 });
             } else if (that.isAPIKeyCredentialsLogin()) {
-                let myInformations = await that.getMyInformations();
+                let myInformations: any = await that.getMyInformations();
                 that._logger.log(that.INTERNAL, LOG_ID + "(signin) myInformations : ", myInformations);
                 let JSON : any = {};
                 JSON.loggedInUser = myInformations;
@@ -537,7 +552,15 @@ class RESTService extends GenericRESTService {
                 })
                 //that.tokenRest = JSON.token;
 
-                let companyInfo = await that.getCompanyInfos(that.account.companyId, "full", false, undefined, undefined, undefined, undefined, undefined, undefined, undefined).catch((err) => {
+                await that.getAuthenticationUrls({"country": undefined, "uiLocales": undefined, "useBackchannelPolling": false, "uid" : myInformations.loginEmail}).then(async function (urls : any) {
+                    that._logger.log(that.DEBUG, LOG_ID + "(signin) getAuthenticationUrls : ", urls);
+
+                    that.loginUrl = urls.loginUrl ? new URL(urls.loginUrl).pathname:'/api/rainbow/authentication/v1.0/login';
+                    that.logoutUrl = urls.logoutUrl ? new URL(urls.logoutUrl).pathname:'/api/rainbow/authentication/v1.0/logout';
+
+                });
+
+                    let companyInfo = await that.getCompanyInfos(that.account.companyId, "full", false, undefined, undefined, undefined, undefined, undefined, undefined, undefined).catch((err) => {
                         that._logger.log(that.WARN, LOG_ID + "(signin) failed to get company information : ", err);
                     }
                 );
@@ -684,7 +707,8 @@ class RESTService extends GenericRESTService {
         let that = this;
         return new Promise(function (resolve, reject) {
             if (that.http) {
-                that.http.get("/api/rainbow/authentication/v1.0/logout", that.getRequestHeader(), undefined).then(function (JSON) {
+                //that.http.get("/api/rainbow/authentication/v1.0/logout", that.getRequestHeader(), undefined).then(function (JSON) {
+                that.http.get(that.logoutUrl, that.getRequestHeader(), undefined).then(function (JSON) {
                     that.account = null;
                     that.tokenRest = null;
                     that.renewTokenInterval = null;
@@ -2470,6 +2494,59 @@ class RESTService extends GenericRESTService {
             });
         });
     }
+
+    /**
+     *
+     * Retrieve the OAuth/OpenID Connect authentication URLs (login, logout, authorize, token, etc.).
+     *
+     * **GET /api/rainbow/authentication/v1.0/urls**
+     * Official documentation: [https://api.openrainbow.org/authentication/#api-Authentication_Urls-GetLoginUrl](https://api.openrainbow.org/authentication/#api-Authentication_Urls-GetLoginUrl)
+     *
+     * 
+     */
+    getAuthenticationUrls(params: {uid:string, country : string = undefined, uiLocales : string = undefined, useBackchannelPolling : boolean = undefined}) {
+            let that = this;
+            return new Promise(function (resolve, reject) {
+                try {
+                    let url = "/api/rainbow/authentication/v1.0/urls";
+                    let urlParamsTab: string[] = [url];
+
+                    if (params && typeof params === "object") {
+                        Object.keys(params).forEach((key) => {
+                            if (isDefined(params[key])) {
+                                addParamToUrl(urlParamsTab, key, params[key]);
+                            }
+                        });
+                    }
+
+                    url = urlParamsTab[0];
+
+                    that._logger.log(that.INTERNAL, LOG_ID + "(getAuthenticationUrls) REST url : ", url, ", params : ", params);
+
+                    that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
+                        that._logger.log(that.DEBUG, LOG_ID + "(getAuthenticationUrls) successful");
+                        that._logger.log(that.INTERNAL, LOG_ID + "(getAuthenticationUrls) REST result : ", json);
+                        if (Array.isArray (json?.data) && json?.data.length > 0) {
+                            let urls = json?.data[0];
+                            resolve(urls);
+                        } else {
+                            resolve({
+                                loginUrl: '/api/rainbow/authentication/v1.0/login',
+                                logoutUrl: '/api/rainbow/authentication/v1.0/logout'
+                            })
+                        }
+                    }).catch(function (err) {
+                        that._logger.log(that.ERROR, LOG_ID, "(getAuthenticationUrls) error");
+                        that._logger.log(that.INTERNALERROR, LOG_ID, "(getAuthenticationUrls) error : ", err);
+                        return reject(err);
+                    });
+                } catch (err) {
+                    that._logger.log(that.ERROR, LOG_ID, "(getAuthenticationUrls) exception");
+                    that._logger.log(that.INTERNALERROR, LOG_ID, "(getAuthenticationUrls) exception : ", err);
+                    return reject(err);
+                }
+            });
+        }
 
     registerUserByEmailFirstStep(userInfo: {"email":string,"lang":string}) {
         let that = this;
