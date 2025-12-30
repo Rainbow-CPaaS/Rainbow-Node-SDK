@@ -1860,7 +1860,7 @@ class ChannelsService extends GenericService {
             let usersId = [];
             if (Array.isArray(users)) {
                 usersId = users.map(async (value , index, arr) => {  
-                    let usersIndex = await that._contacts.getContactIdByLoginEmail(value.loginEmail).catch((error) => {
+                    let usersIndex :any = await that._contacts.getContactIdByLoginEmail(value.loginEmail).catch((error) => {
                         that._logger.log(that.WARN, LOG_ID + "(updateChannelUsersByLoginEmails) Id not found for user loginEmail parameter. Index : ", index);
                     });
                     return {

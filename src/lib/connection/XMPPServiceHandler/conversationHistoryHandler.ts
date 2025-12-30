@@ -199,6 +199,8 @@ class ConversationHistoryHandler  extends GenericHandler {
                         // Get associated conversation
                         let conversation = this._conversationService.getConversationById(queryId);
 
+                        that._logger.log(that.INTERNAL, LOG_ID + "(onMamMessageReceived) will treat msg stanzaTabIter : ", stanzaTabIter[2]);
+
                         that.onHistoryMessageReceived("", stanzaTabIter, conversation);
                         let stopDate :any = new Date();
                         let startDuration :any = Math.round(stopDate - startDate);
@@ -480,6 +482,7 @@ class ConversationHistoryHandler  extends GenericHandler {
                                 roomEvent==="conferenceAdd" ||
                                 roomEvent==="conferenceRemove" ||
                                 roomEvent==="invitation") {
+                                that._logger.log(that.INTERNAL, LOG_ID + "(onHistoryMessageReceived) bubble event received, so ignore it : ", jsonMessage);
                                 return true;
                             }
                         }
@@ -926,20 +929,18 @@ class ConversationHistoryHandler  extends GenericHandler {
                             // */
                             let messageExisting = conversation.getMessageById(messageId);
                             if (!messageExisting) {
-                                //that._logger.log(that.DEBUG, LOG_ID + "(onHistoryMessageReceived) msg id : ", historyFirstElement.id, ", message not updated from history, so added it to conversation.messages.length : ", conversation?.messages?.length, ", conversation.messages.toSmallString() : ", that._logger.colors.yellow(conversation.messages.toSmallString()));
                                 //conversation.messages.unshift.call(conversation.messages, [historyFirstElement]);
                                 //  conversation.messages.unshift.apply(conversation.messages, [historyFirstElement]);
                                 conversation.messages.unshift(message);
+                                that._logger.log(that.DEBUG, LOG_ID + "(onHistoryMessageReceived) msg id : ", message.id, ", message not updated from history, so added it to conversation.messages.length : ", conversation?.messages?.length);
                                 // that._logger.log(that.INTERNAL, LOG_ID + "(onHistoryMessageReceived) add message in history id : ", message.id);
                             } else {
-//                                    that._logger.log(that.DEBUG, LOG_ID + "(onHistoryMessageReceived) msg id : ", message.id, ", message updated from history.");
-                                    //that._logger.log(that.DEBUG, LOG_ID + "(onHistoryMessageReceived) msg id : ", message.id, ", message already existing in history, so it has to be replaced.");
-                                    //conversation.messages.replaceMessageById(messageId, message);
-                                    conversation.messages.removeMessageById(messageId);
-                                    conversation.messages.unshift(message);
+                                //that._logger.log(that.DEBUG, LOG_ID + "(onHistoryMessageReceived) msg id : ", message.id, ", message already existing in history, so it has to be replaced.");
+                                //conversation.messages.replaceMessageById(messageId, message);
+                                conversation.messages.removeMessageById(messageId);
+                                conversation.messages.unshift(message);
+                                that._logger.log(that.DEBUG, LOG_ID + "(onHistoryMessageReceived) msg id : ", message.id, ", message already existing in history, so it has to be replaced to conversation.messages.length : ", conversation?.messages?.length);
                             }
-
-
                         }
                         return Promise.resolve(undefined);
                     }

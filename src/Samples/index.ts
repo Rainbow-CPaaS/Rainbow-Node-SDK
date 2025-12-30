@@ -6378,6 +6378,63 @@ let expressEngine = undefined;
             await rainbowSDK._core._xmpp.mockStanza(stanzamocked);
         }
 
+
+        async testGetAllMessagesInRoomConversation(bubbleNameToGetMessages : string = "[TEST A BLANC][Guardian] Bulle CCBD 2") {
+            // to be used with aleoxo.rduser+guardadmin@gmail.com on .NET with bubble "[TEST A BLANC][Guardian] Bulle CCBD 2".
+            let startDate = new Date();
+            rainbowSDK.events.on("rainbow_onloadConversationHistoryCompleted", async (conversationHistoryUpdated) => {
+                // do something when the SDK has been started
+                _logger.log("info", "MAIN - (rainbow_onloadConversationHistoryCompleted) - rainbow conversation history loaded completed, conversationHistoryUpdated?.messages?.length : ", conversationHistoryUpdated?.messages?.length);
+                let stopDate = new Date();
+                // @ts-ignore
+                let startDuration = Math.round(stopDate - startDate);
+                let historyDelay: number = rainbowSDK.conversations.conversationHistoryHandler.historyDelay;
+                _logger.log("info", "MAIN - testloadConversationHistoryAsyncBubbleByJid loadConversationHistoryAsync duration : " + startDuration + " ms => ", msToTime(startDuration));
+                _logger.log("info", "MAIN - testloadConversationHistoryAsyncBubbleByJid loadConversationHistoryAsync treatment in callback duration historyDelay : " + historyDelay + " ms => ", msToTime(historyDelay));
+                let utc = new Date().toJSON().replace(/-/g, "_").replace(/:/g, "_");
+
+                _logger.log("info", "MAIN - (rainbow_onloadConversationHistoryCompleted) - rainbow conversation history loaded completed, conversationHistoryUpdated?.messages?.length : ", conversationHistoryUpdated?.messages?.length);
+                for (let i = 0; i < conversationHistoryUpdated?.messages?.length; i++) {
+                    let msg = conversationHistoryUpdated?.messages[i];
+                    _logger.log("info", "MAIN - testloadConversationHistoryAsyncBubbleByJid conversationHistoryUpdated.messages[" + i + "] id : ", msg.id, ", fromJid : ", msg.fromJid, ", date : ", msg.date, ", content : ", msg.content);
+                }
+
+                let conversationUpdated = await rainbowSDK.conversations.getConversationById(conversationHistoryUpdated?.id);
+                _logger.log("info", "MAIN - (rainbow_onloadConversationHistoryCompleted) - rainbow conversation history loaded completed, conversationUpdated?.messages?.length : ", conversationHistoryUpdated?.messages?.length);
+                for (let i = 0; i < conversationUpdated?.messages?.length; i++) {
+                    let msg = conversationUpdated?.messages[i];
+                    _logger.log("info", "MAIN - testloadConversationHistoryAsyncBubbleByJid conversationUpdated.messages[" + i + "] id : ", msg.id, ", fromJid : ", msg.fromJid, ", date : ", msg.date, ", content : ", msg.content);
+                }
+                // */
+            });
+
+            // @ts-ignore
+            let listOfBubblesJIDs: any = await rainbowSDK.bubbles.getAllBubblesJidsOfAUserIsMemberOf();
+            _logger.log("debug", "MAIN - testGetAllMessagesInRoomConversation getAllBubblesJidsOfAUserIsMemberOf - listOfBubblesJIDs : ", listOfBubblesJIDs);
+            for (let i = 0; i < listOfBubblesJIDs.data.length; i++) {
+                let bubble = await rainbowSDK.bubbles.getBubbleByJid(listOfBubblesJIDs.data[i]);
+                //logger.log("debug", "MAIN - testGetAllMessagesInRoomConversation bubble : ", bubble);
+                if (bubble && bubble.name === bubbleNameToGetMessages) {
+                    _logger.log("debug", "MAIN - testGetAllMessagesInRoomConversation bubble name is [TEST A BLANC][Guardian] Bulle CCBD 2, so can get all messages in bubble : ", bubble);
+                    //let resultDelete = rainbowSDK.bubbles.(bubble, undefined);
+                    let conversation = await rainbowSDK.conversations.openConversationForBubble(bubble);
+                        let useBulk = true;
+
+                        rainbowSDK.conversations.loadConversationHistoryAsync(conversation, 400, useBulk).then((result) => {
+                            _logger.log("info", "MAIN - testloadConversationHistoryAsyncBubbleByJid loadConversationHistoryAsync done result : ", result);
+
+                            /*
+                            let result = conversationUpdated.historyComplete ? conversationUpdated:that.getConversationHistoryMaxime(conversationUpdated);
+                              _logger.log("debug", "MAIN - testloadConversationHistoryAsyncBubbleByJid getHistoryPage result : ", result);
+                              return result;
+                              // */
+                        });
+
+                        //_logger.log("debug", "MAIN - testGetAllMessagesInRoomConversation - resultDelete : ", resultDelete);
+                }
+            }
+        }
+
         //endregion Bubbles
 
         //region Conference V1
