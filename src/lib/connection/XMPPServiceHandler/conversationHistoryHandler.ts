@@ -59,6 +59,7 @@ class ConversationHistoryHandler  extends GenericHandler {
         private _contactsService : ContactsService;
     public forceHistoryGetContactFromServer : boolean;
     private _options: any;
+    private messagesPromisesByQueryId : any = {}; // Tab to follow messages (Object containing queryId property with Array<any> of message promises.)
 
     static getClassName(){ return 'ConversationHistoryHandler'; }
     getClassName(){ return ConversationHistoryHandler.getClassName(); }
@@ -170,7 +171,13 @@ class ConversationHistoryHandler  extends GenericHandler {
                 // jidTel are used for callLog
               //  for (let i = 0; i < jsonStanza?.message?.results?.result.length; i++) {
                  let i = 0;
-                 jsonStanza?.message?.results?.result.forEach((result) => {
+                 //jsonStanza?.message?.results?.result.forEach((result) => {
+                let messagesPromises = undefined; // Tab to follow messages
+                //const results = !jsonStanza?.message?.results?.result ? [] : ( Array.isArray(jsonStanza?.message?.results?.result) ? jsonStanza?.message?.results?.result : [].push(jsonStanza?.message?.results?.result) );
+                const rawResult = jsonStanza?.message?.results?.result;
+                const results = Array.isArray(rawResult) ? rawResult : (rawResult ? [rawResult] : []);
+
+                for (const result of results) {
                     //let result = jsonStanza?.message?.results?.result[i];
                     //that._logger.log(that.INTERNAL, LOG_ID + "(onMamMessageReceived) results [", i, "] : ", result);
 //                    that._logger.log(that.INTERNAL, LOG_ID + "(onMamMessageReceived) a result of results.");
@@ -185,13 +192,16 @@ class ConversationHistoryHandler  extends GenericHandler {
                              queryId = null;
                          }
                      } // */
-                    if (queryId.indexOf("id:") === 0 && queryId.length > 13) {
+                    if (queryId.indexOf("id:")===0 && queryId.length > 13) {
                         queryId = queryId.substring(13);
                     }
 
                     if (queryId?.indexOf("tel_")!==0 && that.onHistoryMessageReceived) {
+                        if (!that.messagesPromisesByQueryId[queryId] && !messagesPromises) {
+                            messagesPromises = that.messagesPromisesByQueryId[queryId] = [];
+                        }
                         let stanzaTabIter = [];
-                        let startDate :any = new Date();
+                        let startDate: any = new Date();
                         stanzaTabIter.push({}); // let stanza = stanzaTab[0];
                         stanzaTabIter.push({}); // let prettyStanza = stanzaTab[1];
                         stanzaTabIter.push({message: {result}}); // let jsonStanza = stanzaTab[2];
@@ -201,16 +211,29 @@ class ConversationHistoryHandler  extends GenericHandler {
 
                         that._logger.log(that.INTERNAL, LOG_ID + "(onMamMessageReceived) will treat msg stanzaTabIter : ", stanzaTabIter[2]);
 
-                        that.onHistoryMessageReceived("", stanzaTabIter, conversation);
-                        let stopDate :any = new Date();
-                        let startDuration :any = Math.round(stopDate - startDate);
+                        let p = that.onHistoryMessageReceived("", stanzaTabIter, conversation);
+                        that._logger.log(that.INTERNAL, LOG_ID + "(onMamMessageReceived) will push in messagesPromises promise for stanzaTabIter : ", stanzaTabIter[2]);
+                        messagesPromises.push(p);
+                        let stopDate: any = new Date();
+                        let startDuration: any = Math.round(stopDate - startDate);
                         that.historyDelay += startDuration;
+                    } else {
+                        that._logger.log(that.INTERNAL, LOG_ID + "(onMamMessageReceived) else of (queryId?.indexOf(\"tel_\")!==0 && that.onHistoryMessageReceived), no treatment of result : ", result);
                     }
-                    i++ ;
-                 });
+                    i++;
+                }
+
+                messagesPromises ??= []; //  Nullish coalescing operator (??): keeps the existing value unless it is null or undefined
+
+                // Wait that all messages of the bulk are inserted before leave
+                that._logger.log(that.INTERNAL, LOG_ID + "(onMamMessageReceived) begin Wait that all messages of the bulk are inserted before leave messagesPromises ");
+                await Promise.all(messagesPromises);
+                that._logger.log(that.INTERNAL, LOG_ID + "(onMamMessageReceived) end Wait that all messages of the bulk are inserted before leave messagesPromises ");
+                //});
             }
 
         } catch (error) {
+            that._logger.log(that.ERROR, LOG_ID + "(onMamMessageReceived) CATCH Error !!! error : ", error.message);
             return true;
         }
 
@@ -275,7 +298,7 @@ class ConversationHistoryHandler  extends GenericHandler {
             Object.entries(jsonStanzaIq).forEach(([key, value] : any) => // : [key, value]
             {
                 if (key==="fin" && ( value?.$attrs?.xmlns==="urn:xmpp:mam:1:bulk" || value?.$attrs?.xmlns==="urn:xmpp:mam:1")) {
-                    that._logger.log(that.DEBUG, LOG_ID + "(onIqResultReceived) found a property 'result' in jsonStanza.");
+                    that._logger.log(that.DEBUG, LOG_ID + "(onIqResultReceived) found a property 'fin' in jsonStanzaIq.");
                     that.onMamMessageReceived(msg, stanzaTab);
                     return;
                 }
@@ -386,15 +409,17 @@ class ConversationHistoryHandler  extends GenericHandler {
                     conversation.pendingPromise = [];
                 }
 
-                let promiseContact = new Promise((resolve) => {
+                let promiseContact = await new Promise((resolve) => {
 //                        that._logger.log(that.DEBUG, LOG_ID + "(onHistoryMessageReceived) - will getContactByJid - fromJid :", fromJid);
                     that._contactsService.getContactByJid(fromJid, that.forceHistoryGetContactFromServer)
                         .then((from) => {
+                            that._logger.log(that.INTERNAL, LOG_ID + "(onHistoryMessageReceived)  getContactByJid succeed from.id : ", from?.id);
                             resolve(from);
                         }).catch((err) => {
                         that._logger.log(that.ERROR, LOG_ID + "(onHistoryMessageReceived)  getContactByJid failed : ", err);
                         resolve(null);
                     }); // */
+                    that._logger.log(that.INTERNAL, LOG_ID + "(onHistoryMessageReceived) after getContactByJid.");
                     //resolve(null);
                 }).then(async (from: any) => {
                     //let type = stanzaMessage?.getAttr("type");
@@ -440,7 +465,7 @@ class ConversationHistoryHandler  extends GenericHandler {
                     let modifiedMsg: boolean = false;
                     let mentions: Array<Object> = [];
 
-//                        that._logger.log(that.DEBUG, LOG_ID + "(onHistoryMessageReceived) message - before treat answeredMsg.");
+                        that._logger.log(that.DEBUG, LOG_ID + "(onHistoryMessageReceived) message - before treat answeredMsg.");
                     if (jsonMessage?.answeredMsg) {
                         //if (stanzaMessage?.getChild( "answeredMsg")) {
                         // answeredMsgId = stanzaMessage?.getChild("answeredMsg")?.text();
@@ -945,8 +970,10 @@ class ConversationHistoryHandler  extends GenericHandler {
                         return Promise.resolve(undefined);
                     }
                 });
+                that._logger.log(that.DEBUG, LOG_ID + "(onHistoryMessageReceived) after settint promiseContact to getContactByJid.");
                 // conversation.pendingPromise.push(promise);
                 // }
+                return promiseContact;
             } else {
                 that._logger.log(that.DEBUG, LOG_ID + "(onHistoryMessageReceived) conversation not defined. Treat 'fin' history xml tag.");
 
@@ -1016,6 +1043,11 @@ class ConversationHistoryHandler  extends GenericHandler {
                         }); */
 
                         //that._logger.log(that.INTERNAL, LOG_ID + "(onHistoryMessageReceived) conversation.historyComplete = true, conversation.messages.toSmallString() : ", that._logger.colors.yellow(conversation.messages.toSmallString()));
+                        let messagesPromises = that.messagesPromisesByQueryId[queryId];
+                        that._logger.log(that.INTERNAL, LOG_ID + "(onHistoryMessageReceived) begin wait messagesPromises.");
+                        await Promise.allSettled(messagesPromises);
+                        that._logger.log(that.INTERNAL, LOG_ID + "(onHistoryMessageReceived) end wait messagesPromises.");
+                        delete that.messagesPromisesByQueryId[queryId];
                         conversation.historyComplete = true;
                         conversation.historyDefered.resolve(conversation);
                     }

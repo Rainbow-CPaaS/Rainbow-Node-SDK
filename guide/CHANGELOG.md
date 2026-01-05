@@ -6,6 +6,19 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+### [2.43.0] - 2026-XX-XX
+#### Removed
+-   None
+
+#### Fixed
+-   None.
+
+#### Added
+-   Add a Tab to follow messages history promises treatment (Object containing queryId property with Array<any> of message promises.) to wait it before sending  conversation.historyComplete to true. 
+
+#### Changed
+-   None.
+
 ### [2.42.0-lts.1] - 2025-11-XX
 #### Removed
 -   None
