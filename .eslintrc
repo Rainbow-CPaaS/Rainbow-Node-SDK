@@ -1,6 +1,10 @@
 {
+    "parserOptions": {
+        "ecmaVersion": 2020,
+        "sourceType": "module"
+    },
     "ecmaFeatures": {},
-    "parser": "espree",
+    "parser": "@typescript-eslint/parser",
     "env": {
         "browser": true,
         "amd": true,
@@ -57,7 +61,7 @@
         "sdk": true,
         "Nanobar": true
     },
-    "plugins": ["node"],
+    "plugins": ["node", "@typescript-eslint"],
     "extends": ["eslint:recommended", "plugin:node/recommended"],
     "rules": {
         /** Possible errors **/
@@ -118,7 +122,7 @@
             {
                 "vars": "all",
                 "args": "all",
-                "argsIgnorePattern": "^__" // ignore all unused function arguments with 2 leading underscore
+                "argsIgnorePattern": "^__" // ignore all unused function arguments with 2 leading underscores
             }
         ],
         /* Strict mode */

@@ -910,6 +910,8 @@ let expressEngine = undefined;
         "simplifiedCallLogs": null
     };
 
+    let currentrbvoiceevent : any = {};
+
     _logger.log("debug", "MAIN - rainbow SDK created with options : ", rainbowSDK.option);
 
     function saveCall(call) {
@@ -1396,6 +1398,7 @@ let expressEngine = undefined;
 
     rainbowSDK.events.on("rainbow_onrbvoicerawevent", async function (data) {
         _logger.log("debug", "MAIN - (rainbow_onrbvoicerawevent) data : ", data);
+        currentrbvoiceevent = data;
     });
 
     rainbowSDK.events.on("rainbow_ontaskcreated", async function (data: any) {
@@ -9526,7 +9529,7 @@ let expressEngine = undefined;
 
         //endregion MS Teams
 
-        //region Rainbow Voice
+        //region Rainbow Voice RBVoice
 
         async testgetCloudPbxById() {
             // To use with
@@ -9580,7 +9583,34 @@ let expressEngine = undefined;
             _logger.log("debug", "MAIN - testmakeCall3PCC - result : ", result);
         }
 
-        //endregion
+        async testdeflectCall3PCC(){
+            let that = this;
+            // to use with user859@pqa.test.openrainbow.net
+            //let contactEmailToSearch = "dom1@pqa.test.openrainbow.net";
+            let contactEmailToSearch = "user851@pqa.test.openrainbow.net";
+            let contactReceivingTransferedCall = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearch);
+
+            let userDevices: any = await rainbowSDK.rbvoice.getUserDevices();
+            let sipDeviceId = "";
+
+            for (let i = 0; userDevices && i < userDevices.length; i++) {
+                if (userDevices[i].type=="sip") {
+                    sipDeviceId = userDevices[i].deviceId;
+                }
+            }
+
+            _logger.log("debug", "MAIN - testdeflectCall3PCC - currentrbvoiceevent : ", currentrbvoiceevent);
+            // the rainbow_onrbvoicerawevent event received when a call is incomming allow to complete the currentrbvoiceevent
+            let callId: string = currentrbvoiceevent?.call?.$attrs?.callId;
+            let callData: { destination: string } = {destination : contactReceivingTransferedCall.phoneNumbers[0].shortNumber};
+
+            _logger.log("debug", "MAIN - testdeflectCall3PCC - callId : ", callId, " callData : ", callData);
+            let result = await rainbowSDK.rbvoice.deflectCall3PCC(callId, callData);
+            _logger.log("debug", "MAIN - testdeflectCall3PCC - result : ", result);
+
+        }
+
+        //endregion Rainbow Voice RBVoice
 
         //region Company
 
