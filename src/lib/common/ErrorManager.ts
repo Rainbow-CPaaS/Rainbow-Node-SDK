@@ -44,15 +44,15 @@ const code = {
  *  The errors raised by the SDK.
  */
 class ErrorManager {
-    private static xmppUtils: ErrorManager;
+    private static errorManager: ErrorManager;
 
     constructor() {
     }
 
     static getErrorManager() {
-        ErrorManager.xmppUtils = ErrorManager.xmppUtils ? ErrorManager.xmppUtils : new ErrorManager();
+        ErrorManager.errorManager = ErrorManager.errorManager ? ErrorManager.errorManager : new ErrorManager();
 
-        return ErrorManager.xmppUtils;
+        return ErrorManager.errorManager;
     }
 
     /**
@@ -135,7 +135,7 @@ class ErrorManager {
         };
     }
 
-    OTHERERROR(_label, _msg) {
+    OTHERERROR(_label:string, _msg: string) {
         return {
             code: code.ERROR,
             label: _label,
@@ -143,7 +143,7 @@ class ErrorManager {
         };
     }
 
-    CUSTOMERROR(codeERROR, label, msg, error) {
+    CUSTOMERROR(codeERROR, label: string = "", msg:string = "", error : any = undefined) {
         return {
             code: codeERROR,
             label,
