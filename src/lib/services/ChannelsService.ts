@@ -4,15 +4,12 @@ import {Contact} from "../common/models/Contact";
 import {ErrorManager} from "../common/ErrorManager";
 import {Appreciation, Channel} from "../common/models/Channel";
 import {ChannelEventHandler} from "../connection/XMPPServiceHandler/channelEventHandler";
-import {XMPPService} from "../connection/XMPPService";
-import {RESTService} from "../connection/RESTService";
 import {EventEmitter} from "events";
 import * as PubSub from "pubsub-js";
 import * as fs from "fs";
 import * as mimetypes from "mime-types";
-import {isDefined, isStarted, logEntryExit} from "../common/Utils";
+import {isDefined, isObject, isStarted, logEntryExit} from "../common/Utils";
 import {Logger} from "../common/Logger";
-import {S2SService} from "./S2SService";
 import {Core} from "../Core";
 import {GenericService} from "./GenericService";
 import {ContactsService} from "./ContactsService.js";
@@ -1001,24 +998,28 @@ class ChannelsService extends GenericService {
             return new Promise((resolve, reject) => {
                 try {
                     that._logger.log(that.INTERNAL, LOG_ID + "(updateChannelAvatar) channel : ", channel);
-                    let id = channel.id;
-                    let fileStats = fs.statSync(urlAvatar);
-                    let fd = fs.openSync(urlAvatar, "r+");
-                    let buf = new Buffer(fileStats.size);
-                    fs.readSync(fd, buf, 0, fileStats.size, null);
-                    let fileType = mimetypes.lookup(urlAvatar) + "";
+                    if ( !isObject(mimetypes) ) {
+                        let id = channel.id;
+                        let fileStats = fs.statSync(urlAvatar);
+                        let fd = fs.openSync(urlAvatar, "r+");
+                        let buf = new Buffer(fileStats.size);
+                        fs.readSync(fd, buf, 0, fileStats.size, null);
+                        let fileType = mimetypes?.lookup(urlAvatar) + "";
 
-                    that._rest.uploadChannelAvatar(id, buf, fileStats.size/* should resize the picture to 512*/, fileType).then(function () {
-                        that._logger.log(that.INTERNAL, LOG_ID + "(updateChannelAvatar) channel : ", channel);
-                        resolve({
-                            code: "OK",
-                            label: "OK"
+                        that._rest.uploadChannelAvatar(id, buf, fileStats.size/* should resize the picture to 512*/, fileType).then(function () {
+                            that._logger.log(that.INTERNAL, LOG_ID + "(updateChannelAvatar) channel : ", channel);
+                            resolve({
+                                code: "OK",
+                                label: "OK"
+                            });
+                        }).catch(function (err) {
+                            that._logger.log(that.ERROR, LOG_ID + "(updateChannelAvatar) !!! CATCH Error ");
+                            that._logger.log(that.INTERNALERROR, LOG_ID + "(updateChannelAvatar) !!! CATCH Error ", err, ", for channel : ", channel);
+                            return reject(err);
                         });
-                    }).catch(function (err) {
-                        that._logger.log(that.ERROR, LOG_ID + "(updateChannelAvatar) !!! CATCH Error ");
-                        that._logger.log(that.INTERNALERROR, LOG_ID + "(updateChannelAvatar) !!! CATCH Error ", err,  ", for channel : ", channel);
-                        return reject(err);
-                    });
+                    } else {
+                        return reject(ErrorManager.getErrorManager().CUSTOMERROR("-1","bad mime-types library version, can not find the file type.", "bad mime-types library version, can not find the file type."));
+                    }
                 } catch (err2) {
                     that._logger.log(that.ERROR, LOG_ID + "(updateChannelAvatar) !!! CATCH Error ");
                     that._logger.log(that.INTERNALERROR, LOG_ID + "(updateChannelAvatar) !!! CATCH Error ", err2,  ", for channel : ", channel);

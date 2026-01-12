@@ -2,7 +2,7 @@
 
 import {jwtDecode} from "jwt-decode";
 import * as btoa from "btoa";
-import * as CryptoJS from "crypto-js";
+//import * as CryptoJS from "crypto-js";
 
 import * as backoff from "backoff";
 
@@ -19,19 +19,14 @@ import {createPassword} from "../common/Utils.js";
 
 import  {RESTTelephony} from "./RestServices/RESTTelephony";
 import {HTTPService} from "./HttpService";
-import {Invitation} from "../common/models/Invitation";
 import {Contact} from "../common/models/Contact";
 import EventEmitter = NodeJS.EventEmitter;
 import {Logger} from "../common/Logger";
-import {error} from "winston";
 import {ROOMROLE, CHATSTATE} from "../services/S2SService";
-import {urlencoded} from "body-parser";
 import {Core} from "../Core";
-import {Channel} from "../common/models/Channel";
 import {ErrorManager} from "../common/ErrorManager";
 import {RESTConferenceV2} from "./RestServices/RESTConferenceV2";
 import {RESTWebinar} from "./RestServices/RESTWebinar";
-import {GenericService} from "../services/GenericService";
 import {GenericRESTService} from "./GenericRESTService";
 import {TimeOutManager} from "../common/TimeOutManager";
 import {Group} from "ts-generic-collections-linq";
@@ -2504,7 +2499,7 @@ class RESTService extends GenericRESTService {
      *
      * 
      */
-    getAuthenticationUrls(params: {uid:string, country : string = undefined, uiLocales : string = undefined, useBackchannelPolling : boolean = undefined}) {
+    getAuthenticationUrls(params: {uid:string, country : string, uiLocales : string, useBackchannelPolling : boolean}) {
             let that = this;
             return new Promise(function (resolve, reject) {
                 try {
