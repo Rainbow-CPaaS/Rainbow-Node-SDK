@@ -501,37 +501,40 @@ class RESTService extends GenericRESTService {
 
                 that.getAuthenticationUrls({"country": undefined, "uiLocales": undefined, "useBackchannelPolling": false, "uid" : that.loginEmail}).then(async function (urls : any) {
                     that._logger.log(that.DEBUG, LOG_ID + "(signin) getAuthenticationUrls : ", urls);
-
                     that.loginUrl = urls.loginUrl ? new URL(urls.loginUrl).pathname : '/api/rainbow/authentication/v1.0/login';
                     that.logoutUrl = urls.logoutUrl ? new URL(urls.logoutUrl).pathname : '/api/rainbow/authentication/v1.0/logout';
+                }).catch(function (err) {
+                    /*that._logger.log(that.ERROR, LOG_ID, "(signin) ErrorManager during REST signin");
+                    that._logger.log(that.INTERNALERROR, LOG_ID, "(signin) ErrorManager during REST signin : ", err);
+                    return reject(err);
+                    // */
+                    that.loginUrl = '/api/rainbow/authentication/v1.0/login';
+                    that.logoutUrl = '/api/rainbow/authentication/v1.0/logout';
+                });
 
-                    that.http.get(that.loginUrl, that.getLoginHeader(), undefined).then(async function (JSON) {
-                        that.account = JSON.loggedInUser;
-                        that.account.jid = that.account.jid ? that.account.jid:that.account.jid_im;
-                        that.app = JSON.loggedInApplication;
-                        that.tokenRest = JSON.token;
+                that.http.get(that.loginUrl, that.getLoginHeader(), undefined).then(async function (JSON) {
+                    that.account = JSON.loggedInUser;
+                    that.account.jid = that.account.jid ? that.account.jid:that.account.jid_im;
+                    that.app = JSON.loggedInApplication;
+                    that.tokenRest = JSON.token;
 
-                        let companyInfo = await that.getCompanyInfos(that.account.companyId, "full", false, undefined, undefined, undefined, undefined, undefined, undefined, undefined).catch((err) => {
-                                that._logger.log(that.WARN, LOG_ID + "(signin) failed to get company information : ", err);
-                            }
-                        );
-                        that.account.company = companyInfo;
+                    let companyInfo = await that.getCompanyInfos(that.account.companyId, "full", false, undefined, undefined, undefined, undefined, undefined, undefined, undefined).catch((err) => {
+                            that._logger.log(that.WARN, LOG_ID + "(signin) failed to get company information : ", err);
+                        }
+                    );
+                    that.account.company = companyInfo;
 
-                        that._logger.log(that.INTERNAL, LOG_ID + "(signin) welcome " + that.account.displayName + "!");
-                        //that._logger.log(that.DEBUG, LOG_ID + "(signin) user information ", that.account);
-                        that._logger.log(that.INTERNAL, LOG_ID + "(signin) application information : ", that.app);
-                        that.getApiConfigurationFromServer();
-                        resolve(JSON);
-                    }).catch(function (err) {
-                        that._logger.log(that.ERROR, LOG_ID, "(signin) ErrorManager during REST signin");
-                        that._logger.log(that.INTERNALERROR, LOG_ID, "(signin) ErrorManager during REST signin : ", err);
-                        return reject(err);
-                    });
+                    that._logger.log(that.INTERNAL, LOG_ID + "(signin) welcome " + that.account.displayName + "!");
+                    //that._logger.log(that.DEBUG, LOG_ID + "(signin) user information ", that.account);
+                    that._logger.log(that.INTERNAL, LOG_ID + "(signin) application information : ", that.app);
+                    that.getApiConfigurationFromServer();
+                    resolve(JSON);
                 }).catch(function (err) {
                     that._logger.log(that.ERROR, LOG_ID, "(signin) ErrorManager during REST signin");
                     that._logger.log(that.INTERNALERROR, LOG_ID, "(signin) ErrorManager during REST signin : ", err);
                     return reject(err);
                 });
+
             } else if (that.isAPIKeyCredentialsLogin()) {
                 let myInformations: any = await that.getMyInformations();
                 that._logger.log(that.INTERNAL, LOG_ID + "(signin) myInformations : ", myInformations);
@@ -2522,12 +2525,24 @@ class RESTService extends GenericRESTService {
                         that._logger.log(that.DEBUG, LOG_ID + "(getAuthenticationUrls) successful");
                         that._logger.log(that.INTERNAL, LOG_ID + "(getAuthenticationUrls) REST result : ", json);
                         if (Array.isArray (json?.data) && json?.data.length > 0) {
-                            let urls = json?.data[0];
+                            let urls = {
+                                "type": "RAINBOW",
+                                "loginUrl": '/api/rainbow/authentication/v1.0/login',
+                                "logoutUrl": '/api/rainbow/authentication/v1.0/logout'
+                            };
+                            //json?.data[0];
+                            for (let i = 0; i <json?.data.length; i++) {
+                                if (json.data[i].type === "RAINBOW") {
+                                    urls = json.data[i];
+                                    break;
+                                }
+                            }
                             resolve(urls);
                         } else {
                             resolve({
-                                loginUrl: '/api/rainbow/authentication/v1.0/login',
-                                logoutUrl: '/api/rainbow/authentication/v1.0/logout'
+                                "type": "RAINBOW",
+                                "loginUrl": '/api/rainbow/authentication/v1.0/login',
+                                "logoutUrl": '/api/rainbow/authentication/v1.0/logout'
                             })
                         }
                     }).catch(function (err) {
@@ -2662,6 +2677,69 @@ class RESTService extends GenericRESTService {
             }).catch(function (err) {
                 that._logger.log(that.ERROR, LOG_ID, "(deleteUser) error");
                 that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteUser) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    getUserExternalPresence(userId) {
+        // API : https://api.openrainbow.org/admin/#api-users_external_presence-GetUsersExternalPresence
+        // GET /api/rainbow/admin/v1.0/users/{userId}/external-presence
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url = "/api/rainbow/admin/v1.0/users/" + userId + "/external-presence";
+            that._logger.log(that.INTERNAL, LOG_ID + "(getUserExternalPresence) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
+                that._logger.log(that.DEBUG, LOG_ID + "(getUserExternalPresence) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getUserExternalPresence) REST result : ", json);
+                resolve(json?.data);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(getUserExternalPresence) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getUserExternalPresence) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    updateUserExternalPresence(userId, externalPresence) {
+        // API : https://api.openrainbow.org/admin/#api-users_external_presence-PutUsersExternalPresence
+        // PUT /api/rainbow/admin/v1.0/users/{userId}/external-presence
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url = "/api/rainbow/admin/v1.0/users/" + userId + "/external-presence";
+            let body: any = {};
+            addPropertyToObj(body, "externalPresence", externalPresence, false);
+
+            that._logger.log(that.INTERNAL, LOG_ID + "(updateUserExternalPresence) REST url : ", url, ", body : ", body);
+
+            that.http.put(url, that.getRequestHeader(), body, undefined).then(function (json) {
+                that._logger.log(that.DEBUG, LOG_ID + "(updateUserExternalPresence) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(updateUserExternalPresence) REST result : ", json);
+                resolve(json?.data);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(updateUserExternalPresence) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateUserExternalPresence) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    deleteUserExternalPresence(userId) {
+        // API : https://api.openrainbow.org/admin/#api-users_external_presence-DeleteUsersExternalPresence
+        // DELETE /api/rainbow/admin/v1.0/users/{userId}/external-presence
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url = "/api/rainbow/admin/v1.0/users/" + userId + "/external-presence";
+            that._logger.log(that.INTERNAL, LOG_ID + "(deleteUserExternalPresence) REST url : ", url);
+
+            that.http.delete(url, that.getRequestHeader()).then(function (json) {
+                that._logger.log(that.DEBUG, LOG_ID + "(deleteUserExternalPresence) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(deleteUserExternalPresence) REST result : ", json);
+                resolve(json?.data);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(deleteUserExternalPresence) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteUserExternalPresence) error : ", err);
                 return reject(err);
             });
         });

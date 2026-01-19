@@ -1329,6 +1329,62 @@ class PresenceService extends GenericService{
     }
     // endregion Presence Contact
 
+    // region Presence External
+
+    /**
+     * @public
+     * @method getUserExternalPresence
+     * @instance
+     * @category Presence External
+     * @async
+     * @description
+     *    Get the external presence of a user. <br>
+     * @param {string} userId The Rainbow user id.
+     * @return {Promise<any>}
+     */
+    async getUserExternalPresence(userId: string) {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getUserExternalPresence) userId : ", userId);
+        return that._rest.getUserExternalPresence(userId);
+    }
+
+    /**
+     * @public
+     * @method updateUserExternalPresence
+     * @instance
+     * @category Presence External
+     * @async
+     * @description
+     *    Update the external presence of a user. <br>
+     * @param {string} userId The Rainbow user id.
+     * @param {string} externalPresence The external presence to set.
+     * @return {Promise<any>}
+     */
+    async updateUserExternalPresence(userId: string, externalPresence: string) {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateUserExternalPresence) userId : ", userId, ", externalPresence : ", externalPresence);
+        return that._rest.updateUserExternalPresence(userId, externalPresence);
+    }
+
+    /**
+     * @public
+     * @method deleteUserExternalPresence
+     * @instance
+     * @category Presence External
+     * @async
+     * @description
+     *    Delete the external presence of a user. <br>
+     * @param {string} userId The Rainbow user id.
+     * @return {Promise<any>}
+     */
+    async deleteUserExternalPresence(userId: string) {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteUserExternalPresence) userId : ", userId);
+        return that._rest.deleteUserExternalPresence(userId);
+    }
+
+    // endregion Presence External
+
     //region Presence Synchronize CPE Exchange Calendar [AD/LDAP]
     // RQRAINB-12269
     /**

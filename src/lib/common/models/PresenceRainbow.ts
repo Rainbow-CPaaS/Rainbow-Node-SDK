@@ -109,6 +109,9 @@ enum PresenceStatus {
     /** The is Teams presence */
     Teams = "teams",
 
+    /** The is Teams presence */
+    External = "external_presence",
+
     /** The status is empty string. */
     EmptyString = ""
 }

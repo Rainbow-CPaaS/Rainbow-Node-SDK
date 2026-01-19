@@ -3676,6 +3676,10 @@ class ContactsService extends GenericService {
                 let calendar_dnd = false;
                 let teams_online = false;
                 let teams_dnd = false;
+                let external_presence_dnd = false;
+                let external_presence_away = false;
+                let external_presence_busy = false;
+                let external_presence_status = PresenceStatus.EmptyString;
 
                 for (let resourceId in that.userContact.resources) {
 
@@ -3695,6 +3699,15 @@ class ContactsService extends GenericService {
                             teams_online = true;
                         } else if (resource.show===PresenceShow.Dnd && resource.type===PresenceStatus.Teams && resource.applyMsTeamsPresence == true) {
                             teams_dnd = true;
+                        } else if (resource.show===PresenceShow.Dnd && resourceId===PresenceStatus.External ) {
+                            external_presence_dnd = true;
+                            external_presence_status = resource.status;
+                        } else if (resource.show===PresenceShow.Xa && resourceId===PresenceStatus.External ) {
+                            external_presence_busy = true;
+                            external_presence_status = resource.status;
+                        } else if (resource.show===PresenceShow.Away && resourceId===PresenceStatus.External ) {
+                            external_presence_away = true;
+                            external_presence_status = resource.status;
                         } else if (resource.show===PresenceShow.Xa && resource.status===PresenceStatus.EmptyString) {
                             manual_invisible = true;
                         } else if (resource.show===PresenceShow.Dnd && resource.status===PresenceStatus.EmptyString) {
@@ -3744,7 +3757,9 @@ class ContactsService extends GenericService {
                     is_online,
                     auto_away,
                     is_offline,
-                    on_the_phone
+                    on_the_phone,
+                    external_presence_dnd,
+                    external_presence_status
                 });
 
                 // Store previous presence state
@@ -3758,6 +3773,15 @@ class ContactsService extends GenericService {
                     //contact.status = "phone";
                     newPresenceRainbow.presenceLevel = PresenceLevel.Busy;
                     newPresenceRainbow.presenceStatus = PresenceStatus.Phone;
+                } else if (external_presence_dnd) {
+                    newPresenceRainbow.presenceLevel = PresenceLevel.Dnd;
+                    newPresenceRainbow.presenceStatus = external_presence_status;
+                } else if (external_presence_away) {
+                    newPresenceRainbow.presenceLevel = PresenceLevel.Away;
+                    newPresenceRainbow.presenceStatus = external_presence_status;
+                } else if (external_presence_busy) {
+                    newPresenceRainbow.presenceLevel = PresenceLevel.Busy;
+                    newPresenceRainbow.presenceStatus = external_presence_status;
                 } else if (manual_invisible) {
                     /*contact.presence = "offline";
                     contact.status = "";
@@ -3972,6 +3996,11 @@ class ContactsService extends GenericService {
                 let calendar_dnd = false;
                 let teams_online = false;
                 let teams_dnd = false;
+                let external_presence_dnd = false;
+                let external_presence_away = false;
+                let external_presence_busy = false;
+                let external_presence_status = PresenceStatus.EmptyString;
+
                 for (let resourceId in contact.resources) {
 
                     let resource = contact.resources[resourceId];
@@ -3990,6 +4019,15 @@ class ContactsService extends GenericService {
                             teams_online = true;
                         } else if (resource.show===PresenceShow.Dnd && resource.type===PresenceStatus.Teams && resource.applyMsTeamsPresence == true) {
                             teams_dnd = true;
+                        } else if (resource.show===PresenceShow.Dnd && resourceId===PresenceStatus.External ) {
+                            external_presence_dnd = true;
+                            external_presence_status = resource.status;
+                        } else if (resource.show===PresenceShow.Xa && resourceId===PresenceStatus.External ) {
+                            external_presence_busy = true;
+                            external_presence_status = resource.status;
+                        } else if (resource.show===PresenceShow.Away && resourceId===PresenceStatus.External ) {
+                            external_presence_away = true;
+                            external_presence_status = resource.status;
                         } else if (resource.show===PresenceShow.Xa && resource.status===PresenceStatus.EmptyString) {
                             manual_invisible = true;
                         } else if (resource.show===PresenceShow.Dnd && resource.status===PresenceStatus.EmptyString) {
@@ -4043,7 +4081,9 @@ class ContactsService extends GenericService {
                     is_online,
                     auto_away,
                     is_offline,
-                    on_the_phone
+                    on_the_phone,
+                    external_presence_dnd,
+                    external_presence_status
                 });
 
                 // Store previous presence state
@@ -4057,6 +4097,15 @@ class ContactsService extends GenericService {
                     //contact.status = "phone";
                     newPresenceRainbow.presenceLevel = PresenceLevel.Busy;
                     newPresenceRainbow.presenceStatus = PresenceStatus.Phone;
+                } else if (external_presence_dnd) {
+                    newPresenceRainbow.presenceLevel = PresenceLevel.Dnd;
+                    newPresenceRainbow.presenceStatus = external_presence_status;
+                } else if (external_presence_away) {
+                    newPresenceRainbow.presenceLevel = PresenceLevel.Away;
+                    newPresenceRainbow.presenceStatus = external_presence_status;
+                } else if (external_presence_busy) {
+                    newPresenceRainbow.presenceLevel = PresenceLevel.Busy;
+                    newPresenceRainbow.presenceStatus = external_presence_status;
                 } else if (manual_invisible) {
                     /*contact.presence = "offline";
                     contact.status = "";

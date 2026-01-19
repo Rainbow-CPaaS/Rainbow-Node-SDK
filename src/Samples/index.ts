@@ -12037,6 +12037,24 @@ example :
             //_logger.log("debug", "MAIN - sendIsTypingStateInConversation - conversation : ", conversation);
         }
 
+        async testpresence_busy_events() {
+            /*
+example :
+Recv: <presence xmlns='jabber:client' to='j_8170989110@openrainbow.net/web_win_2.166.0_mvcOqhYs' from='j_8170989110@openrainbow.net/external_presence'><priority>5</priority><show>xa</show><status>café pause</status></presence>
+
+Recv: <presence xmlns='jabber:client' to='j_8170989110@openrainbow.net/web_win_2.166.0_mvcOqhYs' from='j_8170989110@openrainbow.net/external_presence'><priority>5</priority><show>away</show><status>café pause</status></presence>
+
+Recv: <presence xmlns='jabber:client' to='j_8170989110@openrainbow.net/web_win_2.166.0_mvcOqhYs' from='j_8170989110@openrainbow.net/external_presence'><priority>5</priority><status>café pause</status></presence>
+
+Recv: <presence xmlns='jabber:client' to='j_8170989110@openrainbow.net/web_win_2.166.0_mvcOqhYs' from='j_8170989110@openrainbow.net/external_presence'><priority>5</priority><show>dnd</show><status>café pause</status></presence>
+             */
+            let stanzaStr = "<presence xmlns='jabber:client' from=\""+rainbowSDK._core._xmpp.jid + "/external_presence\"     to=\""+rainbowSDK._core._xmpp.jid + "\"     xmlns=\"jabber:client\"> <priority>5</priority><show>xa</show><status>café pause</status></presence>" ;
+            let stanza = prettydata.xmlmin(stanzaStr);
+            _logger.log("debug", "MAIN - testpresence_busy_events stanza : ", stanza);
+            await rainbowSDK._core._xmpp.mockStanza(stanza);
+
+        }
+
         //endregion Presence
 
         //region voicemail
