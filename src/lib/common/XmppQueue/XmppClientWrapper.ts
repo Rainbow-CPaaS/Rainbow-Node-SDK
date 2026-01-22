@@ -4,7 +4,18 @@ export {};
 
 const {xml, jid, Client} = require('@xmpp/client-core');
 
-const _reconnect = require('@xmpp/reconnect');
+const _reconnect = require('@xmpp/reconnect').default || require('@xmpp/reconnect');
+const _websocket = require('@xmpp/websocket').default || require('@xmpp/websocket');
+const _tcp = require('@xmpp/tcp').default || require('@xmpp/tcp');
+const _tls = require('@xmpp/tls').default || require('@xmpp/tls');
+const _middleware = require('@xmpp/middleware').default || require('@xmpp/middleware');
+const _streamFeatures = require('@xmpp/stream-features').default || require('@xmpp/stream-features');
+const _iqCaller = require('@xmpp/iq/caller').default || require('@xmpp/iq/caller');
+const _iqCallee = require('@xmpp/iq/callee').default || require('@xmpp/iq/callee');
+const _resolve = require('@xmpp/resolve').default || require('@xmpp/resolve');
+const SASLFactory = require('saslmechanisms');
+
+/*const _reconnect = require('@xmpp/reconnect');
 const _websocket = require('@xmpp/websocket');
 const _tcp = require('@xmpp/tcp');
 const _tls = require('@xmpp/tls');
@@ -13,17 +24,27 @@ const _streamFeatures = require('@xmpp/stream-features');
 const _iqCaller = require('@xmpp/iq/caller');
 const _iqCallee = require('@xmpp/iq/callee');
 const _resolve = require('@xmpp/resolve');
+// */
 
 // Stream features - order matters and define priority
-const _starttls = require('@xmpp/starttls/client');
+/*const _starttls = require('@xmpp/starttls/client');
 const _sasl = require('@xmpp/sasl');
 const _resourceBinding = require('@xmpp/resource-binding');
-const _sessionEstablishment = require('@xmpp/session-establishment');
+// */
+
+const _starttls = require('@xmpp/starttls').default || require('@xmpp/starttls');
+const _sasl = require('@xmpp/sasl').default || require('@xmpp/sasl');
+const _resourceBinding = require('@xmpp/resource-binding').default || require('@xmpp/resource-binding');
+
+//const _sessionEstablishment = require('@xmpp/session-establishment');
 
 // SASL mechanisms - order matters and define priority
 //const scramsha1 = require('@xmpp/sasl-scram-sha-1');
-const scramsha1 = require("@xmpp/sasl-scram-sha-1");
+/*const scramsha1 = require("@xmpp/sasl-scram-sha-1");
 const plain = require('@xmpp/sasl-plain');
+// */
+const scramsha1 = require("@xmpp/sasl-scram-sha-1").default || require("@xmpp/sasl-scram-sha-1");
+const plain = require('@xmpp/sasl-plain').default || require('@xmpp/sasl-plain');
 //const anonymous = require('@xmpp/sasl-anonymous');
 
 
@@ -57,15 +78,21 @@ function client(options = {}) {
   const resolve = _resolve({entity});
   // Stream features - order matters and define priority
   const starttls = _starttls({streamFeatures});
-  const sasl = _sasl({streamFeatures}, credentials || {username, password});
-  //console.log("resourceBinding, iqCaller : ", iqCaller, ", streamFeatures :", streamFeatures, ", resource : ", resource)
-  const resourceBinding = _resourceBinding({iqCaller, streamFeatures}, resource);
-  const sessionEstablishment = _sessionEstablishment({iqCaller, streamFeatures});
+
+  const saslFactory = new SASLFactory();
   // SASL mechanisms - order matters and define priority
   const mechanisms = Object.entries({ scramsha1, plain}).map(
   //const mechanisms = Object.entries({ plain}).map(
-    ([k, v]) => ({[k]: v(sasl)})
+    ([k, v]) => ({[k]: v(saslFactory)})
   );
+
+  const sasl = _sasl({streamFeatures, saslFactory}, async (authenticate, mechanisms) => {
+    const mechanism = mechanisms.includes('SCRAM-SHA-1') ? 'SCRAM-SHA-1' : mechanisms[0];
+    await authenticate(credentials || {username, password}, mechanism);
+  });
+  console.log("resourceBinding, iqCaller : ", iqCaller, ", streamFeatures :", streamFeatures, ", resource : ", resource)
+  const resourceBinding = _resourceBinding({iqCaller, streamFeatures}, resource);
+  //const sessionEstablishment = _sessionEstablishment({iqCaller, streamFeatures});
 
   //iqCallee.get('urn:xmpp:ping', 'ping', ctx => { return {} });
   let self = this;
@@ -82,9 +109,10 @@ function client(options = {}) {
     iqCallee,
     resolve,
     starttls,
+    saslFactory,
     sasl,
     resourceBinding,
-    sessionEstablishment,
+ //   sessionEstablishment,
     mechanisms,
   });
   entity.getQuery = (NS, adverb, callback) => {

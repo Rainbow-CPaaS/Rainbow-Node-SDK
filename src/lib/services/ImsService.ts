@@ -17,7 +17,7 @@ import {DataStoreType, UrgencyType} from "../config/config.js";
 import {Bubble} from "../common/models/Bubble.js";
 import {Contact} from "../common/models/Contact.js";
 
-const Element = require('ltx').Element;
+import {Element} from "ltx";
 
 export {};
 

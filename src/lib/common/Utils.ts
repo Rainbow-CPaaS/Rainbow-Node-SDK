@@ -323,7 +323,7 @@ function until(conditionFunction : Function, labelOfWaitingCondition : string, w
                     //throw new ErrorManager('ErrorManager the condition ' + labelOfWaitingCondition ? labelOfWaitingCondition : "" + ' failed');
                     return;
                 }
-                setTimeout(_ => poll(resolve, reject), 400);
+                const timeout = setTimeout(() => { poll(resolve, reject); }, 400);
             }
         } catch (err) {
             reject(err);

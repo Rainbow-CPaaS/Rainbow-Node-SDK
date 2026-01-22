@@ -14,7 +14,27 @@ const Request = require("request");
 const packageVersion = require("../../package.json");
 
 //let http = require('http');
-const urlParse = require("url").parse;
+function urlParse(urlStr, base = undefined) {
+    try {
+        const url = new URL(urlStr, base);
+        return {
+            protocol: url.protocol,
+            slashes: urlStr.includes('://') || (base && base.includes('://')),
+            auth: url.username ? (url.password ? `${url.username}:${url.password}` : url.username) : null,
+            host: url.host,
+            port: url.port || null,
+            hostname: url.hostname,
+            hash: url.hash || null,
+            search: url.search || null,
+            query: url.search ? url.search.substring(1) : null,
+            pathname: url.pathname,
+            path: url.pathname + url.search,
+            href: url.href
+        };
+    } catch (e) {
+        return {};
+    }
+}
 const EventEmitter = require("events").EventEmitter;
 const humanize = require("humanize-number");
 //const chalk = require("chalk");
@@ -2040,7 +2060,7 @@ safeJsonParse(str) {
         return new Promise(async function (resolve, reject) {
             try {
                 headers["user-agent"] = USER_AGENT;
-                headers["Host"] = urlParse(that.serverURL + url).host;
+                headers["Host"] = urlParse(url, that.serverURL).host;
 
                 //let urlEncoded = encodeURI(that.serverURL + url); // Can not be used because the data in url are allready encodeURIComponent
                 let urlEncoded = that.serverURL + url;
