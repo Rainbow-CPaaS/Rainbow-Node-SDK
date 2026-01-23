@@ -2230,7 +2230,7 @@ class ConversationEventHandler extends GenericHandler {
                     this.eventEmitter.emit("evt_internal_onmessagereceived", data);
                     that.eventEmitter.emit("evt_internal_conversationupdated", conv);
                     //that._logger.log(that.INTERNAL, LOG_ID + "(_onMessageReceived) cs.getConversations() : ", cs.getConversations());
-                });
+                }).catch((err) => { that._logger.log(that.WARN, LOG_ID + "(getBubbleConversation/getOrCreateOneToOneConversation) raised error : ", err); });
             } else {
                 that._logger.log(that.INTERNAL, LOG_ID + "(_onMessageReceived) conversation found in cache by Id : ", conversationId, ", for new message : ", data);
                 if (data.event === "conferenceAdd") {
@@ -2681,7 +2681,7 @@ class ConversationEventHandler extends GenericHandler {
                             let bubbleId = convId;
                             that._logger.log(that.DEBUG, LOG_ID + "(onConversationManagementMessageReceived) create, find conversation, bubbleId : " + bubbleId + ", convDbId : ", convDbId, ", peerId : ", peerId);
                             // conversationGetter = this.conversationService.getConversationByBubbleId(convId);
-                            conversationGetter = this._conversationService.getBubbleConversation(bubbleId, peerId, lastModification, lastMessageText, missedIMCounter, null, muted, new Date(), lastMessageSender);
+                            conversationGetter = this._conversationService.getBubbleConversation(bubbleId, peerId, lastModification, lastMessageText, missedIMCounter, null, muted, new Date(), lastMessageSender).catch((err) => { that._logger.log(that.WARN, LOG_ID + "(getBubbleConversation) raised error : ", err); });
                         }
 
                         if (!conversationGetter) {
@@ -2755,7 +2755,7 @@ class ConversationEventHandler extends GenericHandler {
                     let createPromise = conversationId.startsWith("room_") ? cs.getBubbleConversation(conversationId,undefined, undefined, undefined, undefined,undefined,undefined,undefined,undefined) : cs.getOrCreateOneToOneConversation(conversationId);
                     createPromise.then((conv) => {
                         that.eventEmitter.emit("evt_internal_conversationupdated", conv);
-                    });
+                    }).catch((err) => { that._logger.log(that.WARN, LOG_ID + "(getBubbleConversation/getOrCreateOneToOneConversation) raised error : ", err); });
                 } else {
                     that.eventEmitter.emit("evt_internal_conversationupdated", conversation);
                 }
@@ -2779,7 +2779,7 @@ class ConversationEventHandler extends GenericHandler {
                     let createPromise = conversationId.startsWith("room_") ? cs.getBubbleConversation(conversationId,undefined, undefined, undefined, undefined,undefined,undefined,undefined,undefined) : cs.getOrCreateOneToOneConversation(conversationId);
                     createPromise.then((conv) => {
                         that.eventEmitter.emit("evt_internal_conversationupdated", conv);
-                    });
+                    }).catch((err) => { that._logger.log(that.WARN, LOG_ID + "(getBubbleConversation/getOrCreateOneToOneConversation) raised error : ", err); });
                 } else {
                     that.eventEmitter.emit("evt_internal_conversationupdated", conversation);
                 }

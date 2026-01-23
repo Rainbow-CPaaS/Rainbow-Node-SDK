@@ -4059,6 +4059,21 @@ let expressEngine = undefined;
             await rainbowSDK._core._xmpp.mockStanza(stanza);
         }
 
+        async testmockRoomEvent() {
+
+            let stanzaStr = "<message \n" +
+                "  xmlns=\"jabber:client\" to=\"" + rainbowSDK._core._xmpp.jid + "\" from=\"room_BC2F...A99@muc.openrainbow.com\" type=\"groupchat\" id=\"7c286f24-3189-4985-81a9-3a863827e94d_69210\">\n" +
+                "  <event name=\"join\" jid=\"D9C4...8EC@openrainbow.com\"/>\n" +
+                "  <event \n" +
+                "    xmlns=\"jabber:iq:notification\" name=\"join\" jid=\"D9C4...8EC@openrainbow.com\"/>\n" +
+                "    <body>Olivier Tchilinguirian has joined the bubble</body>\n" +
+                "    <subject>room event</subject>\n" +
+                "  </message>";
+            let stanza = prettydata.xmlmin(stanzaStr);
+            _logger.log("debug", "MAIN - testmockRoomEvent stanza : ", stanza);
+            await rainbowSDK._core._xmpp.mockStanza(stanza);
+        }
+
         //endregion Messages
 
         //region group

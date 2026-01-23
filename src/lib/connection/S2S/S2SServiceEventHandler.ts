@@ -651,7 +651,7 @@ class S2SServiceEventHandler extends LevelLogs{
                     //let contact: Bubble = await that._conversations.getConversationByBubbleId(peer);
                     let bubbleId = peer;
                     let bubble = await that._bulles.getBubbleById(bubbleId) ;
-                    let conversation: Conversation = await that._conversations.getBubbleConversation(bubble.jid);
+                    let conversation: Conversation = await that._conversations.getBubbleConversation(bubble.jid).catch((err) => { that._logger.log(that.WARN, LOG_ID + "(getBubbleConversation) raised error : ", err); });
                     that._logger.log(that.DEBUG, LOG_ID + "(ParseConversationCallback) message - conversation conversation : ", conversation);
 
                     switch (action) {
