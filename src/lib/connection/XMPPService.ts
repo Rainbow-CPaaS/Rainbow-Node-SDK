@@ -125,7 +125,7 @@ const NameSpacesLabels = {
 };
 
 @logEntryExit(LOG_ID)
-@isStarted(["start", "stop"])
+@isStarted(["start", "stop", "mockStanza"])
 class XMPPService extends GenericService {
         public serverURL: any;
         public host: any;

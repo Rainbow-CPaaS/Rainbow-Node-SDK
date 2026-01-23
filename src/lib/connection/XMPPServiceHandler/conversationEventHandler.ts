@@ -3,7 +3,12 @@ import {xu} from "../../common/XMPPUtils";
 import {ConversationsService} from "../../services/ConversationsService";
 import {Conversation} from "../../common/models/Conversation";
 import {Element} from "ltx";
-import {getJsonFromXML, logEntryExit} from "../../common/Utils";
+import {
+    findAllPropInJSONByPropertyName,
+    findAllPropInJSONByPropertyNameByXmlNS,
+    getJsonFromXML,
+    logEntryExit
+} from "../../common/Utils";
 import {FileStorageService} from "../../services/FileStorageService";
 import {FileServerService} from "../../services/FileServerService";
 import {BubblesService} from "../../services/BubblesService";
@@ -3130,20 +3135,22 @@ class ConversationEventHandler extends GenericHandler {
 
         try {
 
-            if (stanza.getChild('no-store')!=undefined) {
+            //if (stanza.getChild('no-store')!=undefined) {
+            let nostore = findAllPropInJSONByPropertyNameByXmlNS(jsonStanza, 'no-store', "urn:xmpp:hints");
+            if (nostore.length > 0) {
                 that._logger.log(that.ERROR, LOG_ID + "(onErrorMessageReceived) The message could not be delivered.");
                 that._logger.log(that.ERROR, LOG_ID + "(onErrorMessageReceived) something goes wrong... : ", msg, "\n", prettyStanza);
                 let err = {
                     "id": stanza.attrs.id,
-                    "body": stanza.getChild('body').text(),
-                    "subject": stanza.getChild('subject').text()
+                    "body": findAllPropInJSONByPropertyName(jsonStanza,"body"),//stanza.getChild('body').text(),
+                    "subject": findAllPropInJSONByPropertyName(jsonStanza,"subject"), //stanza.getChild('subject').text()
                 };
                 //that._logger.log(that.ERROR, LOG_ID + "(onErrorMessageReceived) no-store message setted...");
-                that._logger.log(that.ERROR, LOG_ID + "(onErrorMessageReceived) failed to send : ", err);
+                that._logger.log(that.WARN, LOG_ID + "(onErrorMessageReceived) failed to send : ", err);
                 that.eventEmitter.emit("evt_internal_onsendmessagefailed", err);
             } else {
-                that._logger.log(that.ERROR, LOG_ID + "(onErrorMessageReceived) something goes wrong...");
-                that._logger.log(that.ERROR, LOG_ID + "(onErrorMessageReceived) something goes wrong... : ", msg, "\n", prettyStanza);
+                that._logger.log(that.WARN, LOG_ID + "(onErrorMessageReceived) something goes wrong...");
+                that._logger.log(that.WARN, LOG_ID + "(onErrorMessageReceived) something goes wrong... : ", msg, "\n", prettyStanza);
                 let errorObject = {
                     message: msg,
                     stanza: stanza.root ? prettydata.xml(stanza.root().toString()):stanza

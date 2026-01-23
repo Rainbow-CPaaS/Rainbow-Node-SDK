@@ -388,8 +388,8 @@ let expressEngine = undefined;
             "timeBetweenXmppRequests": "0",
             "raiseLowLevelXmppInEvent": false,
             "raiseLowLevelXmppOutReq": false,
-            "maxIdleTimer": 16000,
-            "maxPingAnswerTimer": 11000,
+            "maxIdleTimer": 26000, // 16000
+            "maxPingAnswerTimer": 21000, // 11000
 //            "xmppRessourceName": "vnagw",
             "maxPendingAsyncLockXmppQueue": 10000
         },
@@ -4028,6 +4028,34 @@ let expressEngine = undefined;
             let stanzaStr = "<message xmlns='jabber:client' to=\"" + rainbowSDK._core._xmpp.jid + "\" from='openrainbow.net' type='chat' id='11168115634748277303'><timestamp value='2025-09-05T14:11:16.868933Z' xmlns='urn:xmpp:receipts'/><received entity='client' event='unread' id='web_3e998484-dc0d-46d6-adc0-dba7ec64191b4' xmlns='urn:xmpp:receipts'/></message>";
             let stanza = prettydata.xmlmin(stanzaStr);
             _logger.log("debug", "MAIN - testrainbow_onmessagereceiptunreadreceived stanza : ", stanza);
+            await rainbowSDK._core._xmpp.mockStanza(stanza);
+        }
+
+        async testmock404ErrorAdaptive() {
+
+            let stanzaStr = "<message \n" +
+                "  xmlns=\"jabber:client\" xml:lang=\"en\" to=\"" + rainbowSDK._core._xmpp.jid + "\" from=\"AEAD...888@openrainbow.com\" type=\"error\" id=\"node_f6d232ca-6efd-43f1-97bd-35d46d8c80f59960\">\n" +
+                "  <modified \n" +
+                "    xmlns=\"urn:xmpp:message-correct:0\"/>\n" +
+                "    <store \n" +
+                "      xmlns=\"urn:xmpp:hints\"/>\n" +
+                "      <request \n" +
+                "        xmlns=\"urn:xmpp:receipts\"/>\n" +
+                "        <active \n" +
+                "          xmlns=\"http://jabber.org/protocol/chatstates\"/>\n" +
+                "          <content \n" +
+                "            xmlns=\"urn:xmpp:content\" type=\"form/json\">{\"$schema\":\"http:\u002F\u002Fadaptivecards.io\u002Fschemas\u002Fadaptive-card.json\",\"type\":\"AdaptiveCard\",\"version\":\"1.5\",\"body\":[{\"type\":\"TextBlock\",\"size\":\"Medium\",\"weight\":\"Bolder\",\"text\":\"Register a new on-call time range\",\"horizontalAlignment\":\"Center\",\"wrap\":true,\"style\":\"heading\"},{\"type\":\"Table\",\"columns\":[{\"width\":1},{\"width\":1}],\"rows\":[{\"type\":\"TableRow\",\"cells\":[{\"type\":\"TableCell\",\"items\":[{\"type\":\"Input.Date\",\"label\":\"Start Date\",\"id\":\"DateVal\",\"value\":\"2026-01-21\",\"isRequired\":true}]},{\"type\":\"TableCell\",\"items\":[{\"type\":\"Input.Time\",\"label\":\"Start time\",\"id\":\"TimeVal\",\"value\":\"11:45\",\"isRequired\":true}]}]},{\"type\":\"TableRow\",\"cells\":[{\"type\":\"TableCell\",\"items\":[{\"type\":\"Input.Date\",\"label\":\"End Date\",\"id\":\"EndDateVal\",\"value\":\"2026-01-21\",\"isRequired\":true}]},{\"type\":\"TableCell\",\"items\":[{\"type\":\"Input.Time\",\"label\":\"End time\",\"id\":\"EndTimeVal\",\"value\":\"11:45\",\"isRequired\":true}]}]}]},{\"type\":\"Input.Text\",\"value\":\"aleantwerp.hubuser01@gmail.com\",\"label\":\"Contacts (email, phone number)\",\"id\":\"participants\",\"isRequired\":true,\"placeholder\":\"Enter emails or numbers separated by ';'\",\"errorMessage\":\"This parameter is required\"}],\"actions\":[{\"type\":\"Action.Submit\",\"title\":\"Submit\",\"style\":\"positive\",\"data\":{\"rainbow\":{\"type\":\"messageBack\",\"value\":{},\"text\":\"\",\"formName\":\"addOnCalls\",\"formId\":\"node_f6d232ca-6efd-43f1-97bd-35d46d8c80f59960\"}}},{\"type\":\"Action.Submit\",\"title\":\"Cancel\",\"data\":{\"rainbow\":{\"type\":\"messageBack\",\"value\":{},\"text\":\"\",\"formName\":\"addOnCalls\",\"formId\":\"node_f6d232ca-6efd-43f1-97bd-35d46d8c80f59960\"},\"cancel\":true},\"associatedInputs\":\"none\"}]}\n" +
+                "          </content>\n" +
+                "          <no-store \n" +
+                "            xmlns=\"urn:xmpp:hints\"/>\n" +
+                "            <error code=\"404\" type=\"cancel\">\n" +
+                "              <item-not-found \n" +
+                "                xmlns=\"urn:ietf:params:xml:ns:xmpp-stanzas\"/>\n" +
+                "              </error>\n" +
+                "              <body xml:lang=\"en\">On-call Enrolment</body>\n" +
+                "            </message>";
+            let stanza = prettydata.xmlmin(stanzaStr);
+            _logger.log("debug", "MAIN - testmock404ErrorAdaptive stanza : ", stanza);
             await rainbowSDK._core._xmpp.mockStanza(stanza);
         }
 
