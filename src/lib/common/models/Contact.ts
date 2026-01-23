@@ -221,6 +221,16 @@ class Contact {
     public useTeamsMode : boolean;
     public selectedProgKeysGroupId : string;
     public companyNameOfGuest : string;
+    public receivedFileCustomisation : string;
+    public hidePresenceDurationCustomisation : string;
+    public userAvatarCustomisation : string;
+    public canSynchCalendar : string;
+    public canUseTranscriptionCustomisation : string;
+    public guardianData : any;
+    public canSetDNDinTeams : string;
+    public showFirstPhoneCalls : string;
+    public selectedManifestId : string;
+    public selectedHubProgKeysGroupId : string;
 
     constructor() {
 
@@ -1476,6 +1486,17 @@ class Contact {
          */
         this.companyNameOfGuest = "";
 
+        this.receivedFileCustomisation=null;
+        this.hidePresenceDurationCustomisation=null;
+        this.userAvatarCustomisation = null;
+        this.canSynchCalendar = null;
+        this.canUseTranscriptionCustomisation = null;
+        this.guardianData = null;
+        this.canSetDNDinTeams = null;
+        this.showFirstPhoneCalls = null;
+        this.selectedManifestId = null;
+        this.selectedHubProgKeysGroupId = null;
+
     }
 
     updateLastContactCacheUpdate() {
@@ -2146,6 +2167,16 @@ class Contact {
         updatePropertyToObj(that, "useTeamsMode", userData.useTeamsMode, true);
         //this.selectedProgKeysGroupId = userData.selectedProgKeysGroupId;
         updatePropertyToObj(that, "selectedProgKeysGroupId", userData.selectedProgKeysGroupId, true);
+        updatePropertyToObj(that, "receivedFileCustomisation", userData.receivedFileCustomisation, true);
+        updatePropertyToObj(that, "hidePresenceDurationCustomisation", userData.hidePresenceDurationCustomisation, true);
+        updatePropertyToObj(that, "userAvatarCustomisation", userData.userAvatarCustomisation, true);
+        updatePropertyToObj(that, "canSynchCalendar", userData.canSynchCalendar, true);
+        updatePropertyToObj(that, "canUseTranscriptionCustomisation", userData.canUseTranscriptionCustomisation, true);
+        updatePropertyToObj(that, "guardianData", userData.guardianData, true);
+        updatePropertyToObj(that, "canSetDNDinTeams", userData.canSetDNDinTeams, true);
+        updatePropertyToObj(that, "showFirstPhoneCalls", userData.showFirstPhoneCalls, true);
+        updatePropertyToObj(that, "selectedManifestId", userData.selectedManifestId, true);
+        updatePropertyToObj(that, "selectedHubProgKeysGroupId", userData.selectedHubProgKeysGroupId, true);
 
         // Compute display name
         that.computeDisplayName();
@@ -2161,6 +2192,7 @@ class Contact {
         /* objProperties.forEach((prop) => {
             console.log("Contact obj propertie Name : ", prop);
         }); // */
+        let exitIfFound: boolean= false;
         Object.getOwnPropertyNames(obj).forEach(
                 (val, idx, array) => {
                     //console.log(val + " -> " + data[val]);
@@ -2169,10 +2201,14 @@ class Contact {
                     })) {
                         // dev-code-console //
                         console.log("WARNING : One property of the parameter of obj method is not present in the Contact class : ", val, " -> ", obj[val]);
+                        exitIfFound = true;
                         //console.log("WARNING : One property of the parameter of obj method is not present in the Contact class : ", val);
                         // end-dev-code-console //
                     }
                 });
+        if (exitIfFound) {
+            // process.exit(-1);
+        }
     }
     
     isGuest() {
