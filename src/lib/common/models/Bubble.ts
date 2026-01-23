@@ -210,9 +210,14 @@ class Bubble {
     public autoAcceptInvitation: boolean;
     public tags: Array<any>;
 
+    public receivedFilePolicy : string;
+    public lastClearContentDate : string;
+    public receivedFileCustomisation : string;
+    public shareFileCustomisation : string;
+
     constructor(_id: any = "", _name: any = "", _topic: any = "", _jid: any = "", _creator: any = "", _history: any = "none", _users: any = [], _creationDate: any = "", _visibility: any = "private", _customData: any = {}, _isActive: any = false, _conference: any,
                 _disableNotifications: boolean = false, _lastAvatarUpdateDate: any = null, _guestEmails: [] = [], _activeUsersCounter: number = 0, _autoRegister: boolean = false, _lastActivityDate, _autoAcceptInvitation: boolean = false, _tags: Array<any> = [], _avatarDomain: string = "", _containerId: string = null, _containerName: string = null,
-                _isAlertNotificationEnabled : boolean = null, _isOwnedByGroup : boolean = null, _isActiveLastChange : boolean = null, _processId : any = null, _confEndpoints : string = null, _allNames:Array<string>, _participantNames:Array<string>) {
+                _isAlertNotificationEnabled : boolean = null, _isOwnedByGroup : boolean = null, _isActiveLastChange : boolean = null, _processId : any = null, _confEndpoints : string = null, _allNames:Array<string> = [], _participantNames:Array<string> = [], _receivedFilePolicy : string = null, _lastClearContentDate : string = null, _receivedFileCustomisation : string = null, _shareFileCustomisation : string = null) {
 
         /**
          * @public
@@ -478,6 +483,12 @@ class Bubble {
         this.isOwnedByRoomAdmin = false;
         this.managedRoomPolicy = "none";
         this.companyId = undefined;
+
+        this.receivedFilePolicy = _receivedFilePolicy;
+        this.lastClearContentDate = _lastClearContentDate;
+        this.receivedFileCustomisation = _receivedFileCustomisation;
+        this.shareFileCustomisation = _shareFileCustomisation;
+
     }
 
     /**
@@ -650,7 +661,11 @@ class Bubble {
                 data.processId,
                 data.confEndpoints,
                 data.allNames,
-                data.participantNames
+                data.participantNames,
+                data.receivedFilePolicy,
+                data.lastClearContentDate,
+                data.receivedFileCustomisation,
+                data.shareFileCustomisation
             );
             if (data) {
                 let bubbleproperties = Object.getOwnPropertyNames(bubble);
