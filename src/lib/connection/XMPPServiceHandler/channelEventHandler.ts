@@ -205,6 +205,8 @@ class ChannelEventHandler extends GenericHandler {
                     case "userpassword":
                         // treated in conversationEventHandler
                         break;
+                    case "customStatus":
+                    // treated in presentationEventHandler
                     default:
                         that._logger.log(that.ERROR, LOG_ID + "(onManagementMessageReceived) unmanaged management message node " + node.getName());
                         break;

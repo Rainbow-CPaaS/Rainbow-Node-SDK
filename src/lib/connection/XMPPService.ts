@@ -758,11 +758,12 @@ class XMPPService extends GenericService {
         "raiseLowLevelXmppOutReq": true
          */
         
-        that.xmppClient.on("input", this.fn_input.bind(this));
+        that.xmppClient.on("element", this.fn_input.bind(this));
+        // that.xmppClient.on("input", this.fn_input.bind(this));
 
-        that.xmppClient.on("element", function fn_input (elmt) {
+        /* that.xmppClient.on("element", function fn_input (elmt) {
           //  that._logger.log(that.DEBUG, LOG_ID + "(handleXMPPConnection) ", that._logger.colors.cyan(" element event stanza : ") + that._logger.colors.cyan(elmt));
-        });
+        }); // */
 
         that.xmppClient.on("output", function fn_output (stanzaStr) {
             let stanzaElmt : any = parse(stanzaStr);

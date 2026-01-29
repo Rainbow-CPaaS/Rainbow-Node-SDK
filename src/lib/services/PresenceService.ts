@@ -153,7 +153,8 @@ class PresenceService extends GenericService{
         that._presenceHandlerToken = [
             PubSub.subscribe( that._xmpp.hash + "." + that._presenceEventHandler.PRESENCE, that._presenceEventHandler.onPresenceReceived.bind(that._presenceEventHandler) ),
             PubSub.subscribe( that._xmpp.hash + "." + that._presenceEventHandler.IQ_SET, that._presenceEventHandler.onIqGetSetReceived.bind(that._presenceEventHandler) ),
-            PubSub.subscribe( that._xmpp.hash + "." + that._presenceEventHandler.IQ_GET, that._presenceEventHandler.onIqGetSetReceived.bind(that._presenceEventHandler) )
+            PubSub.subscribe( that._xmpp.hash + "." + that._presenceEventHandler.IQ_GET, that._presenceEventHandler.onIqGetSetReceived.bind(that._presenceEventHandler) ),
+            PubSub.subscribe( that._xmpp.hash + "." + that._presenceEventHandler.MESSAGE_MANAGEMENT, that._presenceEventHandler.onManagementMessageReceived.bind(that._presenceEventHandler)),
         ];
 
     }
@@ -1384,6 +1385,62 @@ class PresenceService extends GenericService{
     }
 
     // endregion Presence External
+
+    // region Presence Custom Status
+
+    /**
+     * @public
+     * @method getCustomStatus
+     * @instance
+     * @category Presence Custom Status
+     * @async
+     * @description
+     *    Get the custom status of a user. <br>
+     * @param {string} userId The Rainbow user id.
+     * @return {Promise<any>}
+     */
+    async getCustomStatus(userId: string) {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getCustomStatus) userId : ", userId);
+        return that._rest.getCustomStatus(userId);
+    }
+
+    /**
+     * @public
+     * @method setCustomStatus
+     * @instance
+     * @category Presence Custom Status
+     * @async
+     * @description
+     *    Update the custom status of a user. <br>
+     * @param {string} userId The Rainbow user id.
+     * @param {string} customStatus The custom status to set.
+     * @return {Promise<any>}
+     */
+    async setCustomStatus(userId: string, customStatus: string, emoji: string, expirationDate : string) {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(setCustomStatus) userId : ", userId, ", customStatus : ", customStatus, ", emoji : ", emoji, ", expirationDate : ", expirationDate);
+        return that._rest.setCustomStatus(userId, customStatus, emoji, expirationDate );
+    }
+
+    /**
+     * @public
+     * @method deleteCustomStatus
+     * @instance
+     * @category Presence Custom Status
+     * @async
+     * @description
+     *    Delete the custom status of a user. <br>
+     * @param {string} userId The Rainbow user id.
+     * @return {Promise<any>}
+     */
+    async deleteCustomStatus(userId: string) {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteCustomStatus) userId : ", userId);
+        return that._rest.deleteCustomStatus(userId);
+    }
+
+    // endregion Presence Custom Status
 
     //region Presence Synchronize CPE Exchange Calendar [AD/LDAP]
     // RQRAINB-12269

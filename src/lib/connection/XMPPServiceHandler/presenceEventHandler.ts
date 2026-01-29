@@ -1,6 +1,6 @@
 "use strict";
 import {XMPPService, NameSpacesLabels} from "../XMPPService";
-import {XMPPUTils} from "../../common/XMPPUtils";
+import {XMPPUTils, xu} from "../../common/XMPPUtils";
 import {getJsonFromXML, logEntryExit} from "../../common/Utils";
 import {PresenceLevel, PresenceRainbow, PresenceShow, PresenceStatus} from "../../common/models/PresenceRainbow";
 import {Contact} from "../../common/models/Contact";
@@ -22,6 +22,7 @@ class PresenceEventHandler extends GenericHandler {
     public IQ_SET: any;
     public IQ_RESULT: any;
     public IQ_ERROR: any;
+    public MESSAGE_MANAGEMENT: any;
         // public onPresenceReceived: any;
         private _contacts : ContactsService;
         private _xmpp : XMPPService;
@@ -42,6 +43,7 @@ class PresenceEventHandler extends GenericHandler {
         this.IQ_SET = "jabber:client.iq.set";
         this.IQ_RESULT = "jabber:client.iq.result";
         this.IQ_ERROR = "jabber:client.iq.error";
+        this.MESSAGE_MANAGEMENT = "jabber:client.message.management";
 
         this._contacts = contacts;
 
@@ -335,6 +337,148 @@ class PresenceEventHandler extends GenericHandler {
             that._logger.log(that.ERROR, LOG_ID + "(onPresenceReceived) CATCH ErrorManager !!! : ", err);
         }
     };
+
+    onManagementMessageReceived (msg, stanzaTab) {
+        let that = this;
+        let stanza = stanzaTab[0];
+        let prettyStanza = stanzaTab[1];
+        let jsonStanza = stanzaTab[2];
+
+        try {
+            that._logger.log(that.INTERNAL, LOG_ID + "(onManagementMessageReceived) _entering_ : ", msg, prettyStanza, jsonStanza);
+            /*
+            let conversation = that._conversationService.getConversationById(msg.conversationId);
+            if (conversation) {
+                that._logger.log(that.INTERNAL, LOG_ID + "(onManagementMessageReceived) conversation found in cache by Id : ", msg.conversationId, ", for new message : ", msg);
+                msg.conversation = conversation;
+                that.eventEmitter.emit("evt_internal_onmessagereceived", msg);
+                that.eventEmitter.emit("evt_internal_conversationupdated", conversation);
+            } else {
+                that._logger.log(that.INTERNAL, LOG_ID + "(onManagementMessageReceived) conversation NOT found in cache by Id : ", msg.conversationId, ", for new message : ", msg);
+            }
+            // */
+            let children = stanza.children;
+            children.forEach(function (node) {
+                let nodeJson = jsonStanza.message[node.getName()];
+                switch (node.getName()) {
+                    case "room":
+                        // treated in conversationEventHandler
+                        break;
+                    case "usersettings":
+                        // treated in conversationEventHandler
+                        break;
+                    case "userinvite":
+                        // treated in conversationEventHandler
+                        // treated also in invitationEventHandler
+                        break;
+                    case "group":
+                        // treated in conversationEventHandler
+                        break;
+                    case "conversation":
+                        // treated in conversationEventHandler
+                        break;
+                    case "mute":
+                        // treated in conversationEventHandler
+                        break;
+                    case "unmute":
+                        // treated in conversationEventHandler
+                        break;
+                    case "file":
+                        // treated in conversationEventHandler
+                        break;
+                    case "thumbnail":
+                        // treated in conversationEventHandler
+                        break;
+                    case "channel-subscription":
+                    case "channel":
+                        //treated in channelEventHandler::onFavoriteManagementMessageReceived(node);
+                        break;
+                    case "openinvite":
+                        // treated in invitationEventHandler
+                        break;
+                    case "favorite":
+                        // treated in favoriteEventHandler
+                        break;
+                    case "notification":
+                        // treated in alertEventHandler
+                        break;
+                    case "roomscontainer":
+                        // treated in conversationEventHandler
+                        break;
+                    case "webinar":
+                        // treated in webinarEventHandler
+                        break;
+                    case "poll":
+                        // treated in conversationEventHandler
+                        break;
+                    case "connectorcommand":
+                        // treated in conversationEventHandler
+                        break;
+                    case "connectorconfig":
+                        // treated in conversationEventHandler
+                        break;
+                    case "command_ended":
+                        // treated in conversationEventHandler
+                        break;
+                    case "import_status":
+                        // treated in conversationEventHandler
+                        break;
+                    case "joincompanyinvite":
+                        // treated in invitationEventHandler
+                        break;
+                    case "joincompanyrequest":
+                        // treated in invitationEventHandler
+                        break;
+                    case "logs":
+                        // treated in conversationEventHandler
+                        break;
+                    case "todo":
+                        // treated in tasksEventHandler
+                        break;
+                    case "no-store":
+                        // treated in conversationEventHandler
+                        break;
+                    case "userpassword":
+                        // treated in conversationEventHandler
+                        break;
+                    case "customStatus":
+                        that.onCustomSatusManagementMessageReceived(node, nodeJson);
+                        break;
+                    default:
+                        that._logger.log(that.ERROR, LOG_ID + "(onManagementMessageReceived) unmanaged management message node " + node.getName());
+                        break;
+                }
+            });
+        } catch (err) {
+            // that._logger.log(that.ERROR, LOG_ID + "(onManagementMessageReceived) CATCH Error !!! ");
+            that._logger.log(that.ERROR, LOG_ID + "(onManagementMessageReceived) CATCH Error !!! : ", err);
+        }
+    };
+
+    async onCustomSatusManagementMessageReceived(node, nodeJson) {
+        let that = this;
+        try {
+            that._logger.log(that.INTERNAL, LOG_ID + "(onCustomSatusManagementMessageReceived) _entering_ : ", "\n", node.root ? prettydata.xml(node.root().toString()):node, nodeJson);
+            if (node.attrs.xmlns==="jabber:iq:configuration") {
+
+                if (nodeJson.$attrs.action) {
+                    let customStatus : any = {
+                        "action": nodeJson.$attrs.action,
+                    } ;
+                    if (nodeJson?.content) {
+                        customStatus.content = nodeJson.content._;
+                    }
+                    that._logger.log(that.DEBUG, LOG_ID + "(onCustomSatusManagementMessageReceived) action received : ", customStatus);
+
+                    that.eventEmitter.emit("evt_internal_customstatusreceived", customStatus);
+                }
+            }
+        } catch (err) {
+            // that._logger.log(that.ERROR, LOG_ID + "(onCustomSatusManagementMessageReceived) CATCH Error !!! ");
+            that._logger.log(that.ERROR, LOG_ID + "(onCustomSatusManagementMessageReceived) CATCH Error !!! : ", err);
+        }
+    };
+
 
     onIqGetSetReceived (msg, stanzaTab) {
         let that = this;

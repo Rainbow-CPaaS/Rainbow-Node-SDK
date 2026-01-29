@@ -200,6 +200,7 @@ class Emitter extends EventEmitterClass{
  * @fires Events#rainbow_onconference
  * @fires Events#rainbow_onpinmanagement
  * @fires Events#rainbow_onvoicemailreceived
+ * @fires Events#rainbow_oncustomstatusreceived
  */
 class Events {
     get logEmitter(): EventEmitter {
@@ -330,7 +331,8 @@ class Events {
         "rainbow_ontelephonypcgpresence",
         "rainbow_onconference",
         "rainbow_onpinmanagement",
-        "rainbow_onvoicemailreceived"
+        "rainbow_onvoicemailreceived",
+        "rainbow_oncustomstatusreceived"
     ];
     public  waitBeforeBubblePresenceSend = false;
 
@@ -1838,6 +1840,20 @@ class Events {
              *  </br>
              */
             that.publishEvent("voicemailreceived", data);
+        });
+        this._evReceiver.on("evt_internal_customstatusreceived", function (data) {
+            /**
+             * @event Events#rainbow_oncustomstatusreceived
+             * @public
+             * @param { any | error } data The data .
+             * @description
+             *      Fired when a `custom status` event is received from server.</br>
+             *  {</br>
+             *      action: "", </br>
+             *  }</br>
+             *  </br>
+             */
+            that.publishEvent("customstatusreceived", data);
         });
 
     }

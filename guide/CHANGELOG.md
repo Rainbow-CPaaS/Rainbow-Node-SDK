@@ -14,8 +14,11 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   None.
 
 #### Added
--   Add a Tab to follow messages history promises treatment (Object containing queryId property with Array<any> of message promises.) to wait it before sending  conversation.historyComplete to true. 
-
+-   Add a Tab to follow messages history promises treatment (Object containing queryId property with Array<any> of message promises.) to wait it before sending  conversation.historyComplete to true.
+-   Add `PresenceService::getCustomStatus`, `setCustomStatus`, `deleteCustomStatus` API to get and manage user's custom status.
+-   Add `rainbow_oncustomstatusreceived` event fired when a custom status is received.
+-   Fix xmppClient listenning event after updating xmpp lib. The "input" event is not provided anymore by xmpp library, so now listen to "element" event in XMPPService.
+ 
 #### Changed
 -   None.
 

@@ -347,8 +347,8 @@ let expressEngine = undefined;
     logLevelAreas.fileStorage.level = LEVELSNAMES.INTERNAL;
 
     logLevelAreas.xmpp.level = LEVELSNAMES.INTERNAL;
-    logLevelAreas.xmpp.xmppin
-    logLevelAreas.xmpp.xmppout
+    logLevelAreas.xmpp.xmppin = true;
+    logLevelAreas.xmpp.xmppout = true;
 
     if (rainbowMode === "s2s") {
         logLevelAreas.s2s.api = true;
@@ -525,7 +525,7 @@ let expressEngine = undefined;
                 "http": true,
             },
             "filter": "",
-            //"areas": logLevelAreas,
+            "areas": logLevelAreas,
             /*,
             "areas" : {
                 "admin": {
@@ -1000,6 +1000,10 @@ let expressEngine = undefined;
 
         // do something when the SDK has been started
         _logger.log("debug", "MAIN - (rainbow_onstarted) - rainbow onstarted");
+    });
+    rainbowSDK.events.on("rainbow_oncustomstatusreceived", (data) => {
+        // do something when received
+        _logger.log("debug", "MAIN - (rainbow_oncustomstatusreceived) - data : ", data);
     });
     rainbowSDK.events.on("rainbow_oncallupdated", (data) => {
         try {
@@ -12009,6 +12013,77 @@ example :
         async testgetMyPresenceInformation() {
             let res = await rainbowSDK.presence.getMyPresenceInformation();
             _logger.log("debug", "MAIN - testgetMyPresenceInformation, res : ", res);
+        }
+
+        async testCustomStatus() {
+            try {
+                let userId = connectedUser.id;
+                _logger.log("debug", "MAIN - testCustomStatus for userId : ", userId);
+
+                // 1. Create Custom Status
+                let customStatus = "In a meeting";
+                _logger.log("debug", "MAIN - testCustomStatus - Create custom status to : ", customStatus);
+                let createRes = await rainbowSDK.presence.setCustomStatus(userId, customStatus, "😀", "2026-10-10T12:00:00Z");
+                _logger.log("debug", "MAIN - testCustomStatus - setCustomStatus result : ", createRes);
+
+                // 2. Get Custom Status
+                _logger.log("debug", "MAIN - testCustomStatus - Getting custom status...");
+                let getRes = await rainbowSDK.presence.getCustomStatus(userId);
+                _logger.log("debug", "MAIN - testCustomStatus - getCustomStatus result after create : ", getRes);
+
+                // 3. Update Custom Status
+                 customStatus = "In a meeting Updated";
+                _logger.log("debug", "MAIN - testCustomStatus - Updating custom status to : ", customStatus);
+                let updateRes = await rainbowSDK.presence.setCustomStatus(userId, customStatus, "😀", "2026-10-10T12:00:00Z");
+                _logger.log("debug", "MAIN - testCustomStatus - setCustomStatus result : ", updateRes);
+
+                // 4. Get Custom Status
+                _logger.log("debug", "MAIN - testCustomStatus - Getting custom status...");
+                let getRes2 = await rainbowSDK.presence.getCustomStatus(userId);
+                _logger.log("debug", "MAIN - testCustomStatus - getCustomStatus result after update : ", getRes2);
+
+                // 5. Delete Custom Status
+                _logger.log("debug", "MAIN - testCustomStatus - Deleting custom status...");
+                let deleteRes = await rainbowSDK.presence.deleteCustomStatus(userId);
+                _logger.log("debug", "MAIN - testCustomStatus - deleteCustomStatus result : ", deleteRes);
+
+                // 6. Get Custom Status again to verify deletion
+                _logger.log("debug", "MAIN - testCustomStatus - Getting custom status after deletion...");
+                let getResAfterDelete = await rainbowSDK.presence.getCustomStatus(userId);
+                _logger.log("debug", "MAIN - testCustomStatus - getCustomStatus result after delete : ", getResAfterDelete);
+
+            } catch (err) {
+                _logger.log("error", "MAIN - testCustomStatus - Error : ", err);
+            }
+        }
+
+        async testpresence_create_customStatus_event() {
+            /*
+example :
+Recv: <message 
+  xmlns="jabber:client" xml:lang="en" to="ccb128dd951d44b7b8a9bcdfdaa2afe7@openrainbow.net" from="pcloud_enduser_6@openrainbow.net/11830358637423796712104516" type="management" id="55a4fce9-c703-4d31-8f0c-87b3a7298ab2_21476">
+  <customStatus 
+    xmlns="jabber:iq:configuration" action="create">
+    <content 
+      xmlns="urn:xmpp:json:0">{"status":"In a meeting","emoji":"😀","expirationDate":"2026-10-10T12:00:00.000Z"}
+    </content>
+  </customStatus>
+</message>
+
+             */
+            let stanzaStr = "<message \n" +
+                "  xmlns=\"jabber:client\" xml:lang=\"en\" to=\"" + rainbowSDK._core._xmpp.jid + "\" from=\"pcloud_enduser_6@openrainbow.net/11830358637423796712104516\" type=\"management\" id=\"55a4fce9-c703-4d31-8f0c-87b3a7298ab2_21476\">\n" +
+                "  <customStatus \n" +
+                "    xmlns=\"jabber:iq:configuration\" action=\"create\">\n" +
+                "    <content \n" +
+                "      xmlns=\"urn:xmpp:json:0\">{\"status\":\"In a meeting\",\"emoji\":\"😀\",\"expirationDate\":\"2026-10-10T12:00:00.000Z\"}\n" +
+                "    </content>\n" +
+                "  </customStatus>\n" +
+                "</message>\n";//<presence xmlns='jabber:client' from=\""+rainbowSDK._core._xmpp.jid + "/external_presence\"     to=\""+rainbowSDK._core._xmpp.jid + "\"     xmlns=\"jabber:client\"> <priority>5</priority><show>xa</show><status>café pause</status></presence>" ;
+            let stanza = prettydata.xmlmin(stanzaStr);
+            _logger.log("debug", "MAIN - testpresence_create_customStatus_event stanza : ", stanza);
+            await rainbowSDK._core._xmpp.mockStanza(stanza);
+
         }
 
         async testsendIqGetMyPresenceInformation() {

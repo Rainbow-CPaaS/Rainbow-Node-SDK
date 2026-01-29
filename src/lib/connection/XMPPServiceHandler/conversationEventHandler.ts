@@ -2375,15 +2375,17 @@ class ConversationEventHandler extends GenericHandler {
                     case "logs":
                         that.onLogsMessageReceived(node);
                         break;
+                    case "todo":
+                        // treated in tasksEventHandler
+                        break;
                     case "no-store":
                         // ignore that information
                         break;
                     case "userpassword":
                         that.onUserPasswordMessageReceived(jsonStanza[stanza.getName()]["userpassword"]);
                         break;
-                    case "todo":
-                        // treated in tasksEventHandler
-                        break;
+                    case "customStatus":
+                    // treated in presentationEventHandler
                     default:
                         that._logger.log(that.ERROR, LOG_ID + "(onManagementMessageReceived) unmanaged management message node " + node.getName());
                         break;

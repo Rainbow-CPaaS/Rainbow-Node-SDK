@@ -2745,6 +2745,71 @@ class RESTService extends GenericRESTService {
         });
     }
 
+    getCustomStatus(userId) {
+        // API : https://api.openrainbow.org/enduser/#api-custom_status-GetCustomStatus
+        // GET /api/rainbow/enduser/v1.0/users/{userId}/custom-status
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url = "/api/rainbow/enduser/v1.0/users/" + userId + "/custom-status";
+            that._logger.log(that.INTERNAL, LOG_ID + "(getCustomStatus) REST url : ", url);
+
+            that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
+                that._logger.log(that.DEBUG, LOG_ID + "(getCustomStatus) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getCustomStatus) REST result : ", json);
+                resolve(json?.data);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(getCustomStatus) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getCustomStatus) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    setCustomStatus(userId : string, customStatus: string, emoji: string, expirationDate : string) {
+        // API : https://api.openrainbow.org/enduser/#api-custom-status-setOrChangeUserCustomStatus
+        // POST /api/rainbow/enduser/v1.0/users/{userId}/custom-status
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url = "/api/rainbow/enduser/v1.0/users/" + userId + "/custom-status";
+            let body: any = {};
+            addPropertyToObj(body, "status", customStatus, false);
+            addPropertyToObj(body, "emoji", emoji, false);
+            addPropertyToObj(body, "expirationDate", expirationDate, false);
+
+            that._logger.log(that.INTERNAL, LOG_ID + "(setCustomStatus) REST url : ", url, ", body : ", body);
+
+            that.http.post(url, that.getRequestHeader(), body, undefined).then(function (json) {
+                that._logger.log(that.DEBUG, LOG_ID + "(setCustomStatus) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(setCustomStatus) REST result : ", json);
+                resolve(json?.data);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(setCustomStatus) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(setCustomStatus) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    deleteCustomStatus(userId) {
+        // API : https://api.openrainbow.org/enduser/#api-custom_status-DeleteCustomStatus
+        // DELETE /api/rainbow/enduser/v1.0/users/{userId}/custom-status
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let url = "/api/rainbow/enduser/v1.0/users/" + userId + "/custom-status";
+            that._logger.log(that.INTERNAL, LOG_ID + "(deleteCustomStatus) REST url : ", url);
+
+            that.http.delete(url, that.getRequestHeader()).then(function (json) {
+                that._logger.log(that.DEBUG, LOG_ID + "(deleteCustomStatus) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(deleteCustomStatus) REST result : ", json);
+                resolve(json?.data);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(deleteCustomStatus) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteCustomStatus) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
     updateEndUserInformations(userId, objData) {
         // API : https://api.openrainbow.org/enduser/#api-users-updateUser
         // URL PUT /api/rainbow/enduser/v1.0/users/:userId
