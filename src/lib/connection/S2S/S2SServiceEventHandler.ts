@@ -24,7 +24,7 @@ import {LevelLogs} from "../../common/LevelLogs.js";
 
 const util = require('util');
 
-const xml = require("@xmpp/xml");
+const xml = require("@xmpp/xml").xml || require("@xmpp/xml");
 
 const LOG_ID = "S2S/HNDL - ";
 

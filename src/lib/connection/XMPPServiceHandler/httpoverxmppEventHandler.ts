@@ -6,7 +6,7 @@ import {GenericHandler} from "./GenericHandler";
 import {RESTService} from "../RESTService";
 
 
-const xml = require("@xmpp/xml");
+const xml = require("@xmpp/xml").xml || require("@xmpp/xml");
 const packageVersion = require("../../../package");
 
 const prettydata = require("../pretty-data").pd;

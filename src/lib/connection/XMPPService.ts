@@ -55,7 +55,7 @@ class XmppWebSocket extends WS {
 global.WebSocket = XmppWebSocket;
 
 const Client = require("../common/XmppQueue/XmppClient").XmppClient;
-const xml = require("@xmpp/xml").xml;
+const xml = require("@xmpp/xml").xml || require("@xmpp/xml");
 import {Element} from "ltx";
 let backoff = require("backoff");
 //const setTimeout = require("timers").setTimeout;

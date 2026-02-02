@@ -90,8 +90,8 @@ import {tmpdir} from "node:os";
 import {PresenceLevel} from "../lib/common/models/PresenceRainbow.js";
 import fs = require("fs");
 
-const xml = require("@xmpp/xml");
-const parse = require("@xmpp/xml/lib/parse");
+const xml = require("@xmpp/xml").xml || require("@xmpp/xml");
+ const parse = require("@xmpp/xml/lib/parse");
 const xmppUtils = XMPPUTils.getXMPPUtils();
 
 const prettydata = require("../lib/connection/pretty-data").pd;

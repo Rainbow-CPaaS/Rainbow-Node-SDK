@@ -18,7 +18,7 @@ momentDurationFormatSetup(moment);
 // @ts-ignore
 global.window = undefined;
 
-const xml = require("@xmpp/xml");
+const xml = require("@xmpp/xml").xml || require("@xmpp/xml");
 import {Message} from "../../common/models/Message";
 import {
     findAllPropInJSONByPropertyName,

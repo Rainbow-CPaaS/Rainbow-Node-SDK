@@ -12,7 +12,7 @@ export {};
 
 const Utils = require("../../common/Utils");
 
-const xml = require("@xmpp/xml");
+const xml = require("@xmpp/xml").xml || require("@xmpp/xml");
 
 const prettydata = require("../pretty-data").pd;
 

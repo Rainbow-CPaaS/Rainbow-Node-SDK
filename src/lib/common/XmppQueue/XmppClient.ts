@@ -29,7 +29,7 @@ const _sasl = require('@xmpp/sasl');
 const _middleware = require('@xmpp/middleware');
 const _streamFeatures = require('@xmpp/stream-features');
 const plain = require('@xmpp/sasl-plain');
-const xml = require("@xmpp/xml");
+const xml = require("@xmpp/xml").xml || require("@xmpp/xml");
 //const debug = require("@xmpp/debug");
 
 // @ts-ignore

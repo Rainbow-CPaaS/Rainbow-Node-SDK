@@ -15,7 +15,7 @@ export {};
 const Utils = require("../../common/Utils");
 const NameUpdatePrio = require("../../common/models/Contact").NameUpdatePrio;
 
-const xml = require("@xmpp/xml");
+const xml = require("@xmpp/xml").xml || require("@xmpp/xml");
 const PromiseQueue = require("../../common/promiseQueue");
 
 const prettydata = require("../pretty-data").pd;

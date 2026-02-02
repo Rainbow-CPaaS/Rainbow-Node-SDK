@@ -8,7 +8,7 @@ import {RPCoverXMPPService} from "../../services/RPCoverXMPPService.js";
 import {RPCManager} from "../../common/RPCManager.js";
 
 
-const xml = require("@xmpp/xml");
+const xml = require("@xmpp/xml").xml || require("@xmpp/xml");
 const packageVersion = require("../../../package");
 
 const prettydata = require("../pretty-data").pd;

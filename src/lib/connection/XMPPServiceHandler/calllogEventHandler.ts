@@ -13,7 +13,7 @@ const moment = require("moment");
 const Deferred = require("../../common/Utils").Deferred;
 const CallLog = require("../../common/models/CallLog");
 
-const xml = require("@xmpp/xml");
+const xml = require("@xmpp/xml").xml || require("@xmpp/xml");
 const PromiseQueue = require("../../common/promiseQueue");
 const prettydata = require("../pretty-data").pd;
 

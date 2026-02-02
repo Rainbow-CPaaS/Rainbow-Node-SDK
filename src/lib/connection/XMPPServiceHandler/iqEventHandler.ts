@@ -5,7 +5,7 @@ import {logEntryExit} from "../../common/Utils";
 import {GenericHandler} from "./GenericHandler";
 
 
-const xml = require("@xmpp/xml");
+const xml = require("@xmpp/xml").xml || require("@xmpp/xml");
 const packageVersion = require("../../../package");
 
 const prettydata = require("../pretty-data").pd;

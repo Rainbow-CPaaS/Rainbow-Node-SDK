@@ -9,7 +9,7 @@ import {GenericHandler} from "./GenericHandler";
 
 export {};
 
-const xml = require("@xmpp/xml");
+const xml = require("@xmpp/xml").xml || require("@xmpp/xml");
 
 const prettydata = require("../pretty-data").pd;
 
