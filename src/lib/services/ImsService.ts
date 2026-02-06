@@ -726,7 +726,8 @@ class ImsService extends GenericService{
             return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'jid' parameter"}));
         }
 
-        let messageUnicode = shortnameToUnicode(message);
+        //let messageUnicode = shortnameToUnicode(message);
+        let messageUnicode = message === "" ? "" : (message?shortnameToUnicode(message):undefined);
 
         jid = XMPPUTils.getXMPPUtils().getBareJIDFromFullJID(jid);
 
@@ -920,7 +921,8 @@ class ImsService extends GenericService{
             return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'jid' parameter"}));
         }
 
-        let messageUnicode = shortnameToUnicode(message);
+        //let messageUnicode = shortnameToUnicode(message);
+        let messageUnicode = message === "" ? "" : (message?shortnameToUnicode(message):undefined);
 
         jid = XMPPUTils.getXMPPUtils().getRoomJIDFromFullJID(jid);
 
@@ -1018,7 +1020,8 @@ class ImsService extends GenericService{
             return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'jid' parameter"}));
         }
 
-        let messageUnicode = shortnameToUnicode(message);
+        //let messageUnicode = shortnameToUnicode(message);
+        let messageUnicode = message === "" ? "" : (message?shortnameToUnicode(message):undefined);
 
         jid = XMPPUTils.getXMPPUtils().getRoomJIDFromFullJID(jid);
 
