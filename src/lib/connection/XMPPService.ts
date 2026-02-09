@@ -2732,7 +2732,7 @@ class XMPPService extends GenericService {
 // */
     }
 
-// enregion Alerts
+// endregion Alerts
 
 //region Mam
     mamQuery( jid, options, useBulk) {

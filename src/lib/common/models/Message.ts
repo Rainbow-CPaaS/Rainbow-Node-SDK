@@ -85,6 +85,7 @@ class Message {
     public serverAckTimer: any;
     private index: any;
     public id: string;
+    public stanzaId: string;
     public type: any;
     public date: Date;
     public from: any;
@@ -163,7 +164,8 @@ class Message {
 
     constructor(serverAckTimer: any, 
                 index: any, 
-                id: string, 
+                id: string,
+                stanzaId : string,
                 type: any, 
                 date: Date, 
                 from: any, 
@@ -246,6 +248,8 @@ class Message {
          * @instance
          */
         this.id = id;
+
+        this.stanzaId = stanzaId;
 
         // Answer message.
         /**
@@ -642,7 +646,7 @@ class Message {
      * @method
      * @instance
      */
-    static create(serverAckTimer: any, index: any, id: string, type: any, date: Date, from: any, side: string, /*  data: string ,*/ status: string, receiptStatus: number, /* fileId: string, */ /* fileName: string, */ isMarkdown: boolean, subject: string, geoloc: GeoLoc, voiceMessage: any, alternativeContent: any, attention: any, mentions : any,  urgency: string, urgencyAck: boolean = false, urgencyHandler: any = null,/* translatedText: string = null, */ /* isMerged: boolean, */ historyIndex: string = null, /*showCorrectedMessages: boolean,*//* replaceMsgs: any[],*/ /* fileErrorMsg: string = null, */ attachedMsgId: string = null, attachIndex: number, attachNumber: number, /* fromJid: any, */resource: any, toJid: any, content: any, lang: any, cc: any, cctype: any, isEvent: any, event: any, oob: { url: string, mime: string, filename: string, filesize: string }, fromBubbleJid: any, fromBubbleUserJid: any, answeredMsg: Message, answeredMsgId: string, answeredMsgDate: string, answeredMsgStamp: string, /* fileTransfer: any,*/ eventJid: string, originalMessageReplaced: Message, confOwnerId: string, confOwnerDisplayName: string, confOwnerJid: string, isForwarded: boolean, forwardedMsg : any, deleted : boolean = false, modified : boolean = false, rainbowCpaas: any = null, datastoretypeOfMsg : DataStoreType = DataStoreType.StoreTwinSide) {
+    static create(serverAckTimer: any, index: any, id: string, stanzaId : string, type: any, date: Date, from: any, side: string, /*  data: string ,*/ status: string, receiptStatus: number, /* fileId: string, */ /* fileName: string, */ isMarkdown: boolean, subject: string, geoloc: GeoLoc, voiceMessage: any, alternativeContent: any, attention: any, mentions : any,  urgency: string, urgencyAck: boolean = false, urgencyHandler: any = null,/* translatedText: string = null, */ /* isMerged: boolean, */ historyIndex: string = null, /*showCorrectedMessages: boolean,*//* replaceMsgs: any[],*/ /* fileErrorMsg: string = null, */ attachedMsgId: string = null, attachIndex: number, attachNumber: number, /* fromJid: any, */resource: any, toJid: any, content: any, lang: any, cc: any, cctype: any, isEvent: any, event: any, oob: { url: string, mime: string, filename: string, filesize: string }, fromBubbleJid: any, fromBubbleUserJid: any, answeredMsg: Message, answeredMsgId: string, answeredMsgDate: string, answeredMsgStamp: string, /* fileTransfer: any,*/ eventJid: string, originalMessageReplaced: Message, confOwnerId: string, confOwnerDisplayName: string, confOwnerJid: string, isForwarded: boolean, forwardedMsg : any, deleted : boolean = false, modified : boolean = false, rainbowCpaas: any = null, datastoretypeOfMsg : DataStoreType = DataStoreType.StoreTwinSide) {
         // convert emojione from unicode to short
         //let message = $filter("emojiUnicodeToShort")(data);
         //const message = data;
@@ -651,7 +655,8 @@ class Message {
         return Message.MessageFactory()({
             serverAckTimer, 
             index, 
-            id, 
+            id,
+            stanzaId,
             type, 
             date, 
             from, 
@@ -716,11 +721,11 @@ class Message {
      * @method
      * @instance
      */
-    static createFileSharingMessage(id, date, from, side, data, status, fileId) {
+    static createFileSharingMessage(id, stanzaId, date, from, side, data, status, fileId) {
         // convert emojione from unicode to short
         let message = data;
         //return new Message(id, Message.Type.FS, date, from, side, message, status, fileId);
-        return Message.MessageFactory()({id, type: Message.Type.FS, date, from, side, data: message, status, fileId});
+        return Message.MessageFactory()({id, stanzaId, type: Message.Type.FS, date, from, side, data: message, status, fileId});
     }
 
     /**
@@ -728,9 +733,9 @@ class Message {
      * @method
      * @instance
      */
-    static createWebRTCMessage(id, date, from, side, data, status) {
+    static createWebRTCMessage(id, stanzaId, date, from, side, data, status) {
         //return new Message(id, Message.Type.WEBRTC, date, from, side, data, status);
-        return Message.MessageFactory()({id, type: Message.Type.WEBRTC, date, from, side, data, status});
+        return Message.MessageFactory()({id, stanzaId, type: Message.Type.WEBRTC, date, from, side, data, status});
     }
 
     /**
@@ -738,9 +743,9 @@ class Message {
      * @method
      * @instance
      */
-    static createFTMessage(id, date, from, side, data, status, fileTransfer) {
+    static createFTMessage(id, stanzaId, date, from, side, data, status, fileTransfer) {
         //let message = new Message(id, Message.Type.FT, date, from, side, data, status);
-        let message = Message.MessageFactory()({id, type: Message.Type.FT, date, from, side, data, status});
+        let message = Message.MessageFactory()({id, stanzaId, type: Message.Type.FT, date, from, side, data, status});
         message.fileTransfer = fileTransfer;
         return message;
     }
@@ -750,12 +755,12 @@ class Message {
      * @method
      * @instance
      */
-    static createBubbleAdminMessage(id, date, from, type, body, subject) {
+    static createBubbleAdminMessage(id, stanzaId, date, from, type, body, subject) {
         let event = type;
         let isEvent = isDefined(event)?true:false;
         let side = Message.Side.ADMIN;
-        //let message = Message.create(id, date, from, side, data, false);
-        let message = Message.MessageFactory()({id, date, from, side, event, status: false, content:body, subject, isEvent});
+        //let message = Message.create(id, stanzaId, date, from, side, data, false);
+        let message = Message.MessageFactory()({id, stanzaId, date, from, side, event, status: false, content:body, subject, isEvent});
 
         return message;
     }
@@ -765,15 +770,16 @@ class Message {
      * @method
      * @instance
      */
-    static createRecordingAdminMessage(id, date, from, type, cmd) {
+    static createRecordingAdminMessage(id, stanzaId, date, from, type, cmd) {
         let data = type + "Recording";
         if (cmd) {
             data = data + cmd;
         }
         let side = Message.Side.ADMIN;
-        //let message = new Message(id, Message.Type.RECORDING, date, from, side, data, false);
+        //let message = new Message(id, stanzaId, Message.Type.RECORDING, date, from, side, data, false);
         let message = Message.MessageFactory()({
             id,
+            stanzaId,
             type: Message.Type.RECORDING,
             date,
             from,
@@ -840,7 +846,8 @@ class Message {
             let message = new Message(
                     null, 
                     null,  
-                    data.id, 
+                    data.id,
+                    data.stanzaId,
                     data.type, 
                     data.date, 
                     data.from, 

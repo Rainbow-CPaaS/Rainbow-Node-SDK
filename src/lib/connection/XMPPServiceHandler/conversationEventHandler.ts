@@ -515,6 +515,8 @@ class ConversationEventHandler extends GenericHandler {
             let rainbowCpaas = undefined;
             let datastoretypeOfMsg : DataStoreType = DataStoreType.StoreTwinSide;
 
+            let stanzaId = undefined;
+
             voiceMessage = stanza.find("voicemessage").text();
             historyIndex = id;
             for (const node of children) {
@@ -588,6 +590,7 @@ class ConversationEventHandler extends GenericHandler {
                                                     "type": messageType,
                                                     "content": nodeChild.getText(),
                                                     "id": id,
+                                                    stanzaId,
                                                     "lang": nodeChild.attrs["xml:lang"],
                                                     "cc": true,
                                                     "cctype": "sent",
@@ -616,6 +619,7 @@ class ConversationEventHandler extends GenericHandler {
                                                         null,
                                                         null,
                                                         data.id,
+                                                        data.stanzaId,
                                                         data.type,
                                                         data.date,
                                                         data.fromJid,
@@ -715,6 +719,7 @@ class ConversationEventHandler extends GenericHandler {
                                                     "type": messageType,
                                                     "content": nodeChild.getText(),
                                                     "id": id,
+                                                    stanzaId,
                                                     "lang": nodeChild.attrs["xml:lang"],
                                                     "cc": true,
                                                     "cctype": "sent",
@@ -792,6 +797,7 @@ class ConversationEventHandler extends GenericHandler {
                     case "archived":
                         break;
                     case "stanza-id":
+                        stanzaId = jsonStanza?.message ? jsonStanza.message["stanza-id"] : undefined;
                         break;
                     case "subject":
                         subject = node.getText();
@@ -1278,6 +1284,7 @@ class ConversationEventHandler extends GenericHandler {
                     "content": content,
                     "alternativeContent": alternativeContent,
                     "id": stanza.attrs.id,
+                    stanzaId,
                     "lang": lang,
                     "cc": false,
                     "cctype": "",
@@ -1427,6 +1434,7 @@ class ConversationEventHandler extends GenericHandler {
                         null,
                         null,
                         data.id,
+                        data.stanzaId,
                         data.type,
                         data.date,
                         data.fromJid,

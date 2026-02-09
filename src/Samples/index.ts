@@ -9951,11 +9951,11 @@ let expressEngine = undefined;
 
         async testretrieveAllSubscriptionsOfCompanyById() {
             let allSubscriptionsOfCompany: any = await rainbowSDK.admin.retrieveAllSubscriptionsOfCompanyById( undefined, "full").catch(err => {
-                _logger.log("error", "MAIN - testCompanyCleanAfterbuild - retrieveAllSubscriptionsOfCompanyById() err : ", err);
+                _logger.log("error", "MAIN - retrieveAllSubscriptionsOfCompanyById() err : ", err);
             });
             for (let j = 0; j < allSubscriptionsOfCompany.length; j++) {
                 let subscriptionOfCompany = allSubscriptionsOfCompany[j];
-                _logger.log("debug", "MAIN - testCompanyCleanAfterbuild - subscriptionOfCompany : ", subscriptionOfCompany);
+                _logger.log("debug", "MAIN - subscriptionOfCompany : ", subscriptionOfCompany);
             }
         }
 

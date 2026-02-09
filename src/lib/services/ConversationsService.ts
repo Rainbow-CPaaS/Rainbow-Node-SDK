@@ -246,6 +246,7 @@ class ConversationsService extends GenericService {
                     null,
                     null,
                     data.id,
+                    data.stanzaId,
                     data.type,
                     data.date,
                     data.fromJid,

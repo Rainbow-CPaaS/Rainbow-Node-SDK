@@ -429,6 +429,7 @@ class ConversationHistoryHandler  extends GenericHandler {
                     //let date = new Date(stanzaForwarded?.getChild("delay")?.getAttr("stamp"));
                     let date = new Date(jsonForwarded?.delay?.$attrs?.stamp);
                     let body = getTextFromJSONProperty(jsonMessage?.body);
+                    let stanzaId = findAllPropInJSONByPropertyName(jsonMessage, "stanza-id");
                     //let body = stanzaMessage?.getChild("body")?.text();
                     //let ack = stanzaMessage?.getChild("ack");
                     let ack = jsonMessage?.ack;
@@ -531,7 +532,7 @@ class ConversationHistoryHandler  extends GenericHandler {
                         let side = that._contactsService.isUserContact(from) ? Message.Side.RIGHT:Message.Side.LEFT;
                         switch (type) {
                             case "webrtc":
-                                message = Message.createWebRTCMessage(messageId, date, from, side, body, false);
+                                message = Message.createWebRTCMessage(messageId, stanzaId, date, from, side, body, false);
                                 break;
                             case "admin":
                                 /* let forwardedElmt = stanzaMessage.find("forwarded");
@@ -554,7 +555,7 @@ class ConversationHistoryHandler  extends GenericHandler {
                                 //subjectEvent = stanzaMessage.find("subject")?.text();// <subject>room event</subject>
                                 subjectEvent = getTextFromJSONProperty(jsonMessage?.subject);// <subject>room event</subject>
 
-                                message = Message.createBubbleAdminMessage(messageId, date, from, roomEvent, bodyEvent, subjectEvent);
+                                message = Message.createBubbleAdminMessage(messageId, stanzaId, date, from, roomEvent, bodyEvent, subjectEvent);
                                 let eventElmt2 = findAllPropInJSONByPropertyName(jsonMessage, "event");
                                 //let eventElmt2 = stanzaMessage.find("event");
                                 if (eventElmt2?.length > 0) {
@@ -850,6 +851,7 @@ class ConversationHistoryHandler  extends GenericHandler {
                                     null,
                                     null,
                                     messageId,
+                                    stanzaId,
                                     type,
                                     date,
                                     from,
@@ -1197,6 +1199,7 @@ class ConversationHistoryHandler  extends GenericHandler {
         try {
             let stanzaMessage = stanza?.getChild("result")?.getChild("forwarded")?.getChild("message");
             let messageId = stanzaMessage?.getAttr("id");
+            let stanzaId = stanzaMessage?.getAttr("stanza-id");
             let stanzaMessageCallLog = stanzaMessage?.getChild("call_log");
             let callerJid = stanzaMessageCallLog?.getChild("caller")?.text();
             let state = stanzaMessageCallLog?.getChild("state")?.text();
@@ -1259,7 +1262,7 @@ class ConversationHistoryHandler  extends GenericHandler {
 
                     let side = that._contactsService.isUserContact(from) ? Message.Side.RIGHT : Message.Side.LEFT;
 
-                    message = Message.createWebRTCMessage(messageId, date, from, side, body, false);
+                    message = Message.createWebRTCMessage(messageId, stanzaId, date, from, side, body, false);
 
                     let ack = stanzaMessage?.getChild('ack');
                     if (ack) {
