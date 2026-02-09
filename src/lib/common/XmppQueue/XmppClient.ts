@@ -33,8 +33,11 @@ const xml = require("@xmpp/xml").xml || require("@xmpp/xml");
 //const debug = require("@xmpp/debug");
 
 // @ts-ignore
-const Element = require('ltx').Element;
+//const Element = require('ltx').Element;
 const parse = require('ltx').parse;
+
+const XmppElement = require("@xmpp/xml").Element;
+const LtxElement = require('ltx').Element;
 
 let LOG_ID='XMPPCLIENT - ';
 
@@ -853,6 +856,7 @@ function getXmppClient(...args) {
 // Increase Element Behaviour
 // *************************************
 
+/*
 // Find elements of child by name
 // If none is found then an empty Element is return (to allow call of methods like text...)
 // If only one is found then return it, but with a length value to 1
@@ -894,6 +898,58 @@ Element.prototype.text = function () {
 Element.prototype.attr = function (attrName) {
     return this.attrs[attrName];
 };
+// */
+const extendElement = (ElementClass) => {
+    if (!ElementClass) return;
+
+    // Find elements of child by name
+    // If none is found then an empty Element is return (to allow call of methods like text...)
+    // If only one is found then return it, but with a length value to 1
+    // If severals are found then return an Array with them
+    ElementClass.prototype.find = function (name) { // Warning do not put an Array function because the "this" will be lost
+        // IMPORTANT: On utilise le constructeur de l'instance courante
+        // pour rester compatible avec la classe d'origine (ltx ou @xmpp/xml)
+        let result = new this.constructor();
+        result.length = 0;
+
+        // "this.name" est utilisé par @xmpp/xml, "getName()" souvent par ltx
+        let currentName = this.getName ? this.getName():this.name;
+
+        if (currentName===name) {
+            result = this;
+            result.length = 1;
+            return result;
+        }
+
+        let children = this.getChildrenByFilter((element) => {
+            let elmtName = element.getName ? element.getName():element.name;
+            return elmtName===name;
+        }, true);
+
+        if (children.length===1) {
+            result = children[0];
+            result.length = 1;
+        } else if (children.length > 1) {
+            children.attr = function (attrName) {
+                return this[0].attr(attrName);
+            };
+            children.attrs = children[0].attrs;
+            result = children;
+        }
+        return result;
+    };
+
+    ElementClass.prototype.text = function () {
+        return this.getText ? this.getText() : this.text();
+    };
+
+    ElementClass.prototype.attr = function (attrName) {
+        return this.attrs[attrName];
+    };
+};
+
+extendElement(LtxElement);
+extendElement(XmppElement);
 
 module.exports.getXmppClient = getXmppClient;
 module.exports.XmppClient = XmppClient;
