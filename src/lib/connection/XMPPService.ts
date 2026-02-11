@@ -765,8 +765,10 @@ class XMPPService extends GenericService {
           //  that._logger.log(that.DEBUG, LOG_ID + "(handleXMPPConnection) ", that._logger.colors.cyan(" element event stanza : ") + that._logger.colors.cyan(elmt));
         }); // */
 
-        that.xmppClient.on("output", function fn_output (stanzaStr) {
-            let stanzaElmt : any = parse(stanzaStr);
+        //that.xmppClient.on("output", function fn_output (stanzaStr) {
+        //    let stanzaElmt : any = parse(stanzaStr);
+        that.xmppClient.on("send", function fn_output (stanzaElmt) {
+            let stanzaStr = stanzaElmt.toString();
             let stanzaElmtOffended = that.xmppUtils.offendXml(stanzaElmt);
             let xmlOffendedStr = prettydata.xml(stanzaElmtOffended.toString());
             that._logger.log(that.XMPP, LOG_ID + "(handleXMPPConnection) ", that._logger.colors.cyan(" raw out - ⮊ stanza : ") + that._logger.colors.cyan(xmlOffendedStr));
