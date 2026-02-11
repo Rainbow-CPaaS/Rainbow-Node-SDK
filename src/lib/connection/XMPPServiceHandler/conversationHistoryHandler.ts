@@ -126,6 +126,7 @@ class ConversationHistoryHandler  extends GenericHandler {
                     }
                 }
             } else if (jsonStanza?.message?.result) {
+                let messagesPromises = undefined; // Tab to follow messages
                 // Get queryId and deleteId
                 // let queryId2 = stanza.getChild("result") ? stanza.getChild("result")?.getAttr("queryid") : null;
                 let queryId = jsonStanza?.message?.result['$attrs']?.queryid;
@@ -149,12 +150,16 @@ class ConversationHistoryHandler  extends GenericHandler {
 
                 // jidTel are used for callLog
                 if (queryId?.indexOf("tel_")!==0 && that.onHistoryMessageReceived) {
+                    if (!that.messagesPromisesByQueryId[queryId] && !messagesPromises) {
+                        messagesPromises = that.messagesPromisesByQueryId[queryId] = [];
+                    }
                     let startDate :any = new Date();
                     // Get associated conversation
                     let conversation = this._conversationService.getConversationById(queryId);
                     // For test let bubble = {"id":"room_53851c7c4a554cb79815209cc1dda5db@muc.openrainbow.net", "jid":"room_53851c7c4a554cb79815209cc1dda5db@muc.openrainbow.net"};
                     // For Test conversation = Conversation.createBubbleConversation(bubble, that._logger, that._options._imOptions);
-                    that.onHistoryMessageReceived(msg, stanzaTab, conversation);
+                    let p = that.onHistoryMessageReceived(msg, stanzaTab, conversation);
+                    messagesPromises.push(p);
                     let stopDate :any = new Date();
                     let startDuration = Math.round(stopDate - startDate);
                     that.historyDelay += startDuration;
@@ -164,6 +169,12 @@ class ConversationHistoryHandler  extends GenericHandler {
                 //else if (that.callLogHandler) {
                 //    that.callLogHandler(stanza);
                 //}
+                messagesPromises ??= []; //  Nullish coalescing operator (??): keeps the existing value unless it is null or undefined
+
+                // Wait that the message to be inserted before leave
+                that._logger.log(that.INTERNAL, LOG_ID + "(onMamMessageReceived) begin Wait that the message is inserted before leave messagesPromises ");
+                await Promise.all(messagesPromises);
+                that._logger.log(that.INTERNAL, LOG_ID + "(onMamMessageReceived) end Wait that the message is inserted before leave messagesPromises ");
 
                 return true;
             } else if (jsonStanza?.message?.results) {
