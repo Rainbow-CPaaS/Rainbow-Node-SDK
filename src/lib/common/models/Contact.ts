@@ -231,6 +231,10 @@ class Contact {
     public showFirstPhoneCalls : string;
     public selectedManifestId : string;
     public selectedHubProgKeysGroupId : string;
+    public allowUsingFilesTooBigToVirusScan: boolean;
+    public jid_tel2 : string;
+    public jid_tel_migration : string;
+    public old_jid_tel :string;
 
     constructor() {
 
@@ -1496,7 +1500,10 @@ class Contact {
         this.showFirstPhoneCalls = null;
         this.selectedManifestId = null;
         this.selectedHubProgKeysGroupId = null;
-
+        this.allowUsingFilesTooBigToVirusScan = null;
+        this.jid_tel2 = null;
+        this.jid_tel_migration = null;
+        this.old_jid_tel = null;
     }
 
     updateLastContactCacheUpdate() {
@@ -2177,6 +2184,10 @@ class Contact {
         updatePropertyToObj(that, "showFirstPhoneCalls", userData.showFirstPhoneCalls, true);
         updatePropertyToObj(that, "selectedManifestId", userData.selectedManifestId, true);
         updatePropertyToObj(that, "selectedHubProgKeysGroupId", userData.selectedHubProgKeysGroupId, true);
+        updatePropertyToObj(that, "allowUsingFilesTooBigToVirusScan", userData.allowUsingFilesTooBigToVirusScan, true);
+        updatePropertyToObj(that, "jid_tel2", userData.jid_tel2, true);
+        updatePropertyToObj(that, "jid_tel_migration", userData.jid_tel_migration, true);
+        updatePropertyToObj(that, "old_jid_tel", userData.old_jid_tel, true);
 
         // Compute display name
         that.computeDisplayName();
