@@ -704,7 +704,10 @@ class RESTService extends GenericRESTService {
     signout() {
         let that = this;
         return new Promise(function (resolve, reject) {
-            if (that.http) {
+            if (that.isAPIKeyCredentialsLogin()) {
+                //that._logger.log(that.DEBUG, LOG_ID + "(signout) APIKey Login, so ignore REST signed-out!");
+                resolve(null);
+            } else if (that.http ) {
                 //that.http.get("/api/rainbow/authentication/v1.0/logout", that.getRequestHeader(), undefined).then(function (JSON) {
                 that.http.get(that.logoutUrl, that.getRequestHeader(), undefined).then(function (JSON) {
                     that.account = null;
