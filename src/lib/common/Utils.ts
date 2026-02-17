@@ -1257,33 +1257,41 @@ function findPackageJson(startDir: string): string | null {
 }
 
 function getStoreStanzaValue(storeMessages:boolean, messagesDataStore : DataStoreType, p_messagesDataStore : DataStoreType) : string {
-    let storeStanzaValue :string = DataStoreType.StoreTwinSide;
+    let storeStanzaValue :string = DataStoreType.Store;
     if (isDefined(p_messagesDataStore)) {
+        if (p_messagesDataStore === DataStoreType.StoreTwinSide) {
+            p_messagesDataStore = DataStoreType.Store;
+        }
         if (p_messagesDataStore != DataStoreType.UsestoreMessagesField) {
             storeStanzaValue = p_messagesDataStore;
         } else {
             if (storeMessages) {
-                storeStanzaValue = DataStoreType.StoreTwinSide;
+                storeStanzaValue = DataStoreType.Store;
             } else {
                 storeStanzaValue = DataStoreType.NoStore;
             }
         }
     } else if (isDefined(messagesDataStore)) {
         if (messagesDataStore != DataStoreType.UsestoreMessagesField) {
+            if (messagesDataStore === DataStoreType.StoreTwinSide) {
+                messagesDataStore = DataStoreType.Store;
+            }
             storeStanzaValue = messagesDataStore;
         } else {
             if (storeMessages) {
-                storeStanzaValue = DataStoreType.StoreTwinSide;
+                storeStanzaValue = DataStoreType.Store;
             } else {
                 storeStanzaValue = DataStoreType.NoStore;
             }
         }
     } else if (isDefined(storeMessages)) {
         if (storeMessages) {
-           storeStanzaValue = DataStoreType.StoreTwinSide;
+           storeStanzaValue = DataStoreType.Store;
         } else {
             storeStanzaValue = DataStoreType.NoStore;
         }
+    } else {
+        storeStanzaValue = DataStoreType.Store;
     }
     return storeStanzaValue;
 }
