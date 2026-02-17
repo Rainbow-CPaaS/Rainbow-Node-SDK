@@ -556,7 +556,7 @@ pipeline {
                                 npm version "${RAINBOWNODESDKVERSION}"  --allow-same-version
 
                                 echo ---------- STEP whoami :
-                                npm whoami
+                                #npm whoami
 
                                 #npm view
                                 npm token list
