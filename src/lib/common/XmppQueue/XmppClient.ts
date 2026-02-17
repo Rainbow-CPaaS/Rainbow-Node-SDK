@@ -411,7 +411,8 @@ class XmppClient {
 
             let storeStanzaValue = getStoreStanzaValue(that.storeMessages, that.messagesDataStore, p_messagesDataStore);
 
-            if (storeStanzaValue!=DataStoreType.StoreTwinSide && stanza && typeof stanza==="object" && stanza.name=="message") {
+            if (stanza && typeof stanza==="object" && stanza.name=="message") {
+            //if (storeStanzaValue!=DataStoreType.StoreTwinSide && stanza && typeof stanza==="object" && stanza.name=="message") {
                 //if ((that.storeMessages==false || p_messagesDataStore) && p_messagesDataStore != DataStoreType.StoreTwinSide && stanza && typeof stanza==="object" && stanza.name=="message") {
                 // if (that.storeMessages == false && stanza && typeof stanza === "object" && stanza.name == "message") {
                 // that.logger.log("debug", LOG_ID + "(send) will add <no-store /> to stanza.");
@@ -424,12 +425,15 @@ class XmppClient {
                   }));
                   // */
 
+                /*
                 let nostoreTag = "no-store";
                 if (storeStanzaValue && storeStanzaValue!=DataStoreType.UsestoreMessagesField) {
                     nostoreTag = storeStanzaValue;
                 }
-                if (stanzaJson.message.body) {
-                    stanza.append(xml(nostoreTag, {
+                // */
+                if (stanzaJson?.message?.body) {
+                    //stanza.append(xml(nostoreTag, {
+                    stanza.append(xml(storeStanzaValue, {
                         "xmlns": NameSpacesLabels.HintsNameSpace
                     }));
                 }
