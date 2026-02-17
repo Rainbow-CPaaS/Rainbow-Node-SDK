@@ -6,7 +6,7 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-### [2.43.0] - 2026-XX-XX
+### [2.43.0] - 2026-02-17
 #### Removed
 -   None
 
