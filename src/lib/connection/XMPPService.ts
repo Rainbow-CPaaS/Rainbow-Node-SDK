@@ -121,7 +121,9 @@ const NameSpacesLabels = {
     "protocolShimNS" : "http://jabber.org/protocol/shim",
     "XmppFraming": "urn:ietf:params:xml:ns:xmpp-framing",
     "RPC": "jabber:iq:rpc",
-    "RainbowCpaaSMessage":"jabber:iq:rainbow:cpaas:message"
+    "RainbowCpaaSMessage":"jabber:iq:rainbow:cpaas:message",
+    "ForwardNS": "urn:xmpp:forward:0",
+    "HintsNS": "urn:xmpp:hints"
 };
 
 @logEntryExit(LOG_ID)
@@ -1205,6 +1207,142 @@ class XMPPService extends GenericService {
     sendStanza (stanza) {
         let that = this;
         return that.xmppClient.send(stanza);
+    }
+
+    sendForwardFromPreviousMessage(to: string, previousMessage: any, lang : string, anonymously: boolean, p_messagesDataStore: DataStoreType = undefined) {
+        let that = this;
+
+        /*
+        <message id="web_17cd18a5-37e4-4222-9ae8-42aa0c305f061"
+         to="room_a1835398fde047088b6310dbf23956ca@muc.openrainbow.net"
+         type="groupchat"
+         xml:lang="fr"
+         xmlns="jabber:client">
+	<body xml:lang="fr">rrrr</body>
+	<store xmlns="urn:xmpp:hints"/>
+	<request xmlns="urn:xmpp:receipts"/>
+	<active xmlns="http://jabber.org/protocol/chatstates"/>
+	<forwarded xmlns="urn:xmpp:forward:0">
+		<message from="adcf613d42984a79a7bebccc80c2b65e@openrainbow.net"
+		         id="web_3e2a11f0-872e-4abe-8827-c8220fd54adb3"
+		         to="37dc2adbdf3c456e99ccc639742f177c@openrainbow.net"
+		         type="chat"
+		         xmlns="jabber:client">
+			<body xml:lang="fr">rrrr</body>
+			<show-identity xmlns="urn:xmpp:hints"/>
+		</message>
+	</forwarded>
+</message>
+         */
+
+        if (that.useXMPP) {
+            let id = that.xmppUtils.getUniqueMessageId();
+
+            if (!that.shouldSendMessageToConnectedUser && that.jid_im===to) {
+                return Promise.reject("Can not send a message to the connected user : " + that.jid_im);
+            }
+
+            let stanza = xml("message", {
+                //"from": that.fullJid,
+                //"from": that.jid_im,
+                "to": to,
+                "xml:lang": lang,
+                "xmlns": NameSpacesLabels.ClientNameSpace,
+                "type": to.includes("room_") ? TYPE_GROUPCHAT:TYPE_CHAT, //  const TYPE_CHAT = "chat"; */ const TYPE_GROUPCHAT = "groupchat";
+                "id": id
+            }, xml("body", {
+                "xml:lang": lang
+            }, this.xmppUtils.makeCData(previousMessage.content)), xml("request", {
+                "xmlns": NameSpacesLabels.ReceiptsNameSpace
+            }), xml("active", {
+                    "xmlns": NameSpacesLabels.ChatestatesNameSpace
+                }
+            ));
+
+            /*
+            if (that.copyMessage == false) {
+                stanza.append(xml("no-copy", {
+                    "xmlns": NameSpacesLabels.HintsNameSpace
+                }));
+            }
+
+            // Handle urgency
+            if (urgency && urgency !== 'std') {
+                stanza.append(xml('headers', { "xmlns": 'http://jabber.org/protocol/shim' }, xml('header', { name: 'Urgency' },urgency)));
+            }
+            // */
+
+
+            // Need to create here 'forwarded' node based on previousMessage.
+            let forwardedMessageStanza = xml("message", {
+                "from": `${previousMessage.from || ""}`,
+                "to": previousMessage.to,
+/*                "from": `${previousMessage.fromJid}/${previousMessage.resource || ""}`,
+                "to": (previousMessage.fromBubbleJid ? previousMessage.fromBubbleJid:previousMessage.toJid), // */
+                "id": previousMessage.id,
+                "type": (previousMessage.fromBubbleJid ? TYPE_GROUPCHAT:TYPE_CHAT),
+                "xmlns": NameSpacesLabels.ClientNameSpace
+            });
+
+            if (previousMessage.content) {
+                forwardedMessageStanza.append(xml("body", {  "xml:lang": previousMessage.lang}, previousMessage.content));
+            }
+
+            if (previousMessage.oob) {
+                forwardedMessageStanza.append(xml("x", {"xmlns": NameSpacesLabels.OobNameSpace},
+                    xml("url", {}, previousMessage.oob.url)
+                ));
+            }
+
+            if (previousMessage.alternativeContent) {
+                previousMessage.alternativeContent.forEach(content => {
+                    forwardedMessageStanza.append(xml("content", {
+                        "type": content.type,
+                        "xmlns": NameSpacesLabels.ContentNameSpace
+                    }, content.message));
+                });
+            }
+
+            if (!anonymously) {
+                forwardedMessageStanza.append(xml("show-identity", {"xmlns": NameSpacesLabels.HintsNS}));
+            }
+
+            let forwarded = xml("forwarded", {"xmlns": NameSpacesLabels.ForwardNS}, forwardedMessageStanza);
+
+            // Store the result in 'forwardedMsg' property (equivalent to ForwardedMessage in C#)
+            stanza.append(forwarded);
+
+            that._logger.log(that.INTERNAL, LOG_ID + "(sendChatMessage) send - 'message'", stanza.toString());
+            return new Promise((resolve, reject) => {
+                that.xmppClient.send(stanza, p_messagesDataStore).then(() => {
+                    that._logger.log(that.DEBUG, LOG_ID + "(sendChatMessage) sent");
+                    resolve({
+                        from: that.jid_im,
+                        to: to,
+                        lang: lang,
+                        type: "chat",
+                        id: id,
+                        date: new Date(),
+                        content: previousMessage.content,
+                        forwardedMessage: {
+                            "from": `${previousMessage.fromJid}/${previousMessage.resource || ""}`,
+                            "to": (previousMessage.fromBubbleJid ? previousMessage.fromBubbleJid:previousMessage.toJid),
+                            "id": previousMessage.id,
+                            "type": (previousMessage.fromBubbleJid ? TYPE_GROUPCHAT:TYPE_CHAT),
+                            "xmlns": NameSpacesLabels.ClientNameSpace,
+                            "content": previousMessage.content,
+                            "oob": previousMessage.oob,
+                            "alternativeContent": previousMessage.alternativeContent
+                        }
+                    });
+                }).catch((err) => {
+                    return reject(err);
+                });
+            });
+        }
+
+        that._logger.log(that.WARN, LOG_ID + "(sendChatMessage) No XMPP connection...");
+        return Promise.resolve(null);
     }
     
     sendChatMessage(message, jid, lang, content, subject, answeredMsg, urgency: string = null, p_messagesDataStore: DataStoreType = undefined) {

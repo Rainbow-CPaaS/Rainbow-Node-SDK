@@ -658,6 +658,69 @@ class ImsService extends GenericService{
     /**
      * @public
      * @nodered true
+     * @method sendForwardMessageToJid
+     * @instance
+     * @async
+     * @category Ims MESSAGES
+     * @description
+     *  Forward a previous message to a contact identified by his Jid <br>
+     * @param {string} jid The contact Jid
+     * @param {Message} previousMessage The message to forward
+     * @param {string} lang=en The content language used
+     * @param {boolean} anonymously=false If true, the identity of the original sender is hidden
+     * @param {DataStoreType} p_messagesDataStore=undefined  used to override the general of SDK's parameter "messagesDataStore". default value `undefined` to use the general value.</br>
+     * @return {Promise<Message, ErrorManager>}
+     * @fulfil {Message} - the message sent, or null in case of error, as parameter of the resolve
+     */
+    async sendForwardMessageToJid(jid: string, previousMessage: Message, lang: string = "en", anonymously: boolean = false, p_messagesDataStore: DataStoreType = undefined) {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendForwardMessageToJid) is jid defined : ", isDefined(jid), " is previousMessage defined : ", isDefined(previousMessage));
+
+        if (!jid) {
+            that._logger.log(that.WARN, LOG_ID + "(sendForwardMessageToJid) bad or empty 'jid' parameter", jid);
+            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'jid' parameter"}));
+        }
+
+        if (!previousMessage) {
+            that._logger.log(that.WARN, LOG_ID + "(sendForwardMessageToJid) bad or empty 'previousMessage' parameter", previousMessage);
+            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'previousMessage' parameter"}));
+        }
+
+        jid = XMPPUTils.getXMPPUtils().getBareJIDFromFullJID(jid);
+
+        let messageSent: any = undefined;
+
+        if (this._useXMPP) {
+            messageSent = Promise.resolve(this._xmpp.sendForwardFromPreviousMessage(jid, previousMessage, lang, anonymously, p_messagesDataStore));
+        } else {
+            messageSent = Promise.reject("only supported in xmpp mode");
+        }
+
+        return messageSent.then(async (messageSent) => {
+            if (!messageSent.from && !messageSent.fromJid) {
+                messageSent.from = that._rest.loggedInUser.jid_im;
+            }
+
+            let conversation = undefined;
+            let peer: { peer: any, type: PEERTYPE } = await that._core.contacts.getPeerByJid(jid);
+            if (peer.type === PEERTYPE.USER) {
+                conversation = await that._conversations.openConversationForContact(peer.peer);
+            }
+            if (peer.type === PEERTYPE.ROOM) {
+                conversation = await that._conversations.openConversationForBubble(peer.peer);
+            }
+
+            if (conversation) {
+                this._conversations.storePendingMessage(conversation, messageSent);
+                that._logger.log(that.INTERNAL, LOG_ID + "(sendForwardMessageToJid) stored PendingMessage : ", messageSent);
+            }
+            return messageSent;
+        });
+    }
+
+    /**
+     * @public
+     * @nodered true
      * @method sendMessageToJidAnswer
      * @instance
      * @async
