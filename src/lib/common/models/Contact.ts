@@ -1501,6 +1501,11 @@ class Contact {
         this.selectedManifestId = null;
         this.selectedHubProgKeysGroupId = null;
         this.allowUsingFilesTooBigToVirusScan = null;
+        /*
+           jid_tel_migration: {type: String, required: false, default: ""}, // String indicating jid migration state, will be removed at migration end
+            jid_tel2: {type: String, required: false, default: ""}, // New jid tel value in nex xmm domain, will be removed at migration end
+            old_jid_tel: {type: String, required: false, default: ""} // Old jid_tel value, will be removed at migration end
+         */
         this.jid_tel2 = null;
         this.jid_tel_migration = null;
         this.old_jid_tel = null;
