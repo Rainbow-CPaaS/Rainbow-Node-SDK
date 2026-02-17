@@ -4,7 +4,7 @@ import * as util from "util";
 import {
     equalIgnoreCase, getJsonFromXML, isDefined,
     isNullOrEmpty,
-    isNumber,
+    isNumber, isObject,
     isStarted,
     logEntryExit,
     makeId, randomString,
@@ -1242,13 +1242,19 @@ class XMPPService extends GenericService {
                 return Promise.reject("Can not send a message to the connected user : " + that.jid_im);
             }
 
+            if (!previousMessage || !isObject (previousMessage)) {
+                return Promise.reject("(sendForwardFromPreviousMessage) bad or empty 'previousMessage' parameter.");
+            }
+
+            that._logger.log(that.WARN, LOG_ID + "(sendForwardFromPreviousMessage) previousMessage : ", previousMessage);
+
             let stanza = xml("message", {
                 //"from": that.fullJid,
                 //"from": that.jid_im,
                 "to": to,
                 "xml:lang": lang,
                 "xmlns": NameSpacesLabels.ClientNameSpace,
-                "type": to.includes("room_") ? TYPE_GROUPCHAT:TYPE_CHAT, //  const TYPE_CHAT = "chat"; */ const TYPE_GROUPCHAT = "groupchat";
+                "type": to?.includes("room_") ? TYPE_GROUPCHAT:TYPE_CHAT, //  const TYPE_CHAT = "chat"; */ const TYPE_GROUPCHAT = "groupchat";
                 "id": id
             }, xml("body", {
                 "xml:lang": lang
@@ -1280,7 +1286,7 @@ class XMPPService extends GenericService {
 /*                "from": `${previousMessage.fromJid}/${previousMessage.resource || ""}`,
                 "to": (previousMessage.fromBubbleJid ? previousMessage.fromBubbleJid:previousMessage.toJid), // */
                 "id": previousMessage.id,
-                "type": (previousMessage.fromBubbleJid ? TYPE_GROUPCHAT:TYPE_CHAT),
+                "type": previousMessage.from?.includes("room_") ? TYPE_GROUPCHAT:TYPE_CHAT,
                 "xmlns": NameSpacesLabels.ClientNameSpace
             });
 
@@ -1290,7 +1296,7 @@ class XMPPService extends GenericService {
 
             if (previousMessage.oob) {
                 forwardedMessageStanza.append(xml("x", {"xmlns": NameSpacesLabels.OobNameSpace},
-                    xml("url", {}, previousMessage.oob.url)
+                    xml("url", {}, previousMessage.oob?.url)
                 ));
             }
 
@@ -1320,15 +1326,15 @@ class XMPPService extends GenericService {
                         from: that.jid_im,
                         to: to,
                         lang: lang,
-                        type: "chat",
+                        type: to?.includes("room_") ? TYPE_GROUPCHAT:TYPE_CHAT,
                         id: id,
                         date: new Date(),
                         content: previousMessage.content,
                         forwardedMessage: {
-                            "from": `${previousMessage.fromJid}/${previousMessage.resource || ""}`,
-                            "to": (previousMessage.fromBubbleJid ? previousMessage.fromBubbleJid:previousMessage.toJid),
+                            "from": `${previousMessage.from || ""}`,
+                            "to": previousMessage.to ,
                             "id": previousMessage.id,
-                            "type": (previousMessage.fromBubbleJid ? TYPE_GROUPCHAT:TYPE_CHAT),
+                            "type": previousMessage.from?.includes("room_") ? TYPE_GROUPCHAT:TYPE_CHAT,
                             "xmlns": NameSpacesLabels.ClientNameSpace,
                             "content": previousMessage.content,
                             "oob": previousMessage.oob,
