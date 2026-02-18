@@ -61,6 +61,21 @@ def getReleaseName(upper) {
     }
 }
 
+def getLatestVersionFromChangelog() {
+    try {
+        // Lecture du fichier CHANGELOG.md
+        def changelog = readFile('guide/CHANGELOG.md')
+        // Recherche du premier motif [X.Y.Z]
+        def matcher = changelog =~ /###\s\[(\d+\.\d+\.\d+(?:-[\w\.]+)*)\]/
+        if (matcher.find()) {
+            return matcher[0][1]
+        }
+    } catch (Exception e) {
+        println "Erreur lors de la lecture du CHANGELOG.md : ${e.message}"
+    }
+    return '2.0.0-lts.0' // Valeur par défaut de secours
+}
+
 def targets = [
     [
         name: "bookworm",
@@ -96,7 +111,7 @@ pipeline {
     }
     
     parameters {
-        string(name: 'RAINBOWNODESDKVERSION', defaultValue: '2.0.0-lts.0', description: 'What is the version of the STS/LTS SDK to build?')
+        string(name: 'RAINBOWNODESDKVERSION', defaultValue: getLatestVersionFromChangelog(), description: 'What is the version of the STS/LTS SDK to build?')
         booleanParam(name: 'SENDEMAIL', defaultValue: false, description: 'Send email after of the STS/LTS SDK built?')
         booleanParam(name: 'SENDEMAILTOVBERDER', defaultValue: false, description: 'Send email after of the lts SDK built to vincent.berder@al-enterprise.com only ?')
         booleanParam(name: 'DEBUGINTERNAL', defaultValue: true, description: 'Should this STS/LTS version be compiled with internal debug ?')
