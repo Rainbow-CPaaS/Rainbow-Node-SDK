@@ -555,12 +555,6 @@ pipeline {
                                 fi
                                 npm version "${RAINBOWNODESDKVERSION}"  --allow-same-version
 
-                                echo ---------- STEP whoami :
-                                #npm whoami
-
-                                #npm view
-                                npm token list
-
                                 echo ---------- Generate the Cyclone DX file :
                                 node ./node_modules/@cyclonedx/cyclonedx-npm/bin/cyclonedx-npm-cli.js --ignore-npm-errors --output-file build/rainbownodesdk.cdx
 
@@ -568,6 +562,12 @@ pipeline {
 
                                 echo ---------- STEP publish :
                                 if [ "${PUBLISHTONPM}" = "true" ]; then
+                                    echo ---------- STEP whoami :
+                                    npm whoami
+
+                                    #npm view
+                                    npm token list
+
                                     if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM.LTS}" ]; then
                                          echo "Publish latest on npmjs."
                                          npm publish --tag latest --access public
