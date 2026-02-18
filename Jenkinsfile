@@ -73,7 +73,7 @@ def getLatestVersionFromChangelog() {
     } catch (Exception e) {
         println "Erreur lors de la lecture du CHANGELOG.md : ${e.message}"
     }
-    return '2.0.0-lts.0' // Valeur par défaut de secours
+    return '2.42.0-lts.0' // Valeur par défaut de secours
 }
 
 def targets = [
