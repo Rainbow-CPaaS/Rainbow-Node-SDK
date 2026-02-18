@@ -66,7 +66,13 @@ def getLatestVersionFromChangelog() {
         println "Lecture du fichier CHANGELOG.md."
         // Lecture du fichier CHANGELOG.md
         //def changelog = readFile('/guide/CHANGELOG.md')
-        def changelog = readFile('${env.workspace}/guide/CHANGELOG.md')
+        //def changelog = readFile('${env.workspace}/guide/CHANGELOG.md')
+          sh script: """
+          ls ${env.workspace}
+          ls ${env.workspace}/guide
+          """
+
+        def changelog = readFile('./guide/CHANGELOG.md')
         // Recherche du premier motif [X.Y.Z]
         def matcher = changelog =~ /###\s\[([\dX\.]+(?:-[\w\.]+)*)\]/
         if (matcher.find()) {
