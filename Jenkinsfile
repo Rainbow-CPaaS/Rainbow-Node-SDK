@@ -66,12 +66,12 @@ def getLatestVersionFromChangelog() {
         // Lecture du fichier CHANGELOG.md
         def changelog = readFile('guide/CHANGELOG.md')
         // Recherche du premier motif [X.Y.Z]
-        def matcher = changelog =~ /###\s\[(\d+\.\d+\.\d+(?:-[\w\.]+)*)\]/
+        def matcher = changelog =~ /###\s\[([\dX\.]+(?:-[\w\.]+)*)\]/
         if (matcher.find()) {
             return matcher[0][1]
         }
     } catch (Exception e) {
-        println "Erreur lors de la lecture du CHANGELOG.md : ${e.message}"
+    println "CATCH Error !!! Erreur lors de la lecture du CHANGELOG.md : ${e.message}"
     }
     return '2.42.0-lts.0' // Valeur par défaut de secours
 }
@@ -111,7 +111,7 @@ pipeline {
     }
     
     parameters {
-        string(name: 'RAINBOWNODESDKVERSION', defaultValue: getLatestVersionFromChangelog(), description: 'What is the version of the STS/LTS SDK to build?')
+        string(name: 'RAINBOWNODESDKVERSION', defaultValue: 'LATESTFROMCHANGELOG', description: 'What is the version of the STS/LTS SDK to build? Laissez LATESTFROMCHANGELOG pour extraire du CHANGELOG.md')
         booleanParam(name: 'SENDEMAIL', defaultValue: false, description: 'Send email after of the STS/LTS SDK built?')
         booleanParam(name: 'SENDEMAILTOVBERDER', defaultValue: false, description: 'Send email after of the lts SDK built to vincent.berder@al-enterprise.com only ?')
         booleanParam(name: 'DEBUGINTERNAL', defaultValue: true, description: 'Should this STS/LTS version be compiled with internal debug ?')
@@ -128,6 +128,7 @@ pipeline {
         //password(name: 'PASSWORD', defaultValue: 'SECRET', description: 'Enter a password')
     }
      environment {
+                FINAL_VERSION = ""
                 RELEASENAMEUPPERNAME = getReleaseName(true) // 'Name of the release in UPPPERCASE.')
                 RELEASENAMELOWERNAME = getReleaseName(false) // 'Name of the release in LOWERCASE.')
                 MJAPIKEY = credentials('2f8c39d0-35d5-4b67-a68a-f60aaa7084ad') // 6f119214480245deed79c5a45c59bae6/****** (MailJet API Key to post emails)
@@ -153,6 +154,17 @@ pipeline {
                  steps {
                     echo "Init started."
                     script {
+                        if (params.RAINBOWNODESDKVERSION == 'LATESTFROMCHANGELOG') {
+                            echo "Extraction de la version depuis le CHANGELOG..."
+                            env.FINAL_VERSION = getLatestVersionFromChangelog()
+                            if (env.FINAL_VERSION.contains('X')) {
+                                error("La version extraite du CHANGELOG (${env.FINAL_VERSION}) contient un 'X'. Le job ne peut pas continuer.")
+                            }
+                        } else {
+                            env.FINAL_VERSION = params.RAINBOWNODESDKVERSION
+                        }
+                        echo "Version sélectionnée : ${env.FINAL_VERSION}"
+
                             /*def BuildCauses0=currentBuild.getBuildCauses()[0]
                             def BuildCauses1=currentBuild.getBuildCauses()[1]
                             echo 'currentBuild.getBuildCauses() : ' currentBuild.getBuildCauses()
@@ -261,7 +273,8 @@ pipeline {
                  } // */
                  steps {
                     echo "Parameters to build from branch ${env.BRANCH_NAME} : "
-                    echo "Rainbow-Node-SDK : ${params.RAINBOWNODESDKVERSION}"
+                    echo "Rainbow-Node-SDK (param) : ${params.RAINBOWNODESDKVERSION}"
+                    echo "Rainbow-Node-SDK (final) : ${env.FINAL_VERSION}"
                     echo "SENDEMAIL : ${params.SENDEMAIL}"
                     echo "SENDEMAILTOVBERDER : ${params.SENDEMAILTOVBERDER}"
                     echo "DEBUGINTERNAL : ${params.DEBUGINTERNAL}"
@@ -483,7 +496,7 @@ pipeline {
 
                     sshagent(['gitlab-ssh-key']) {
                                 sh script: """
-                                #echo "Build's  shell the Rainbow-Node-SDK : ${RAINBOWNODESDKVERSION} with send email : ${SENDEMAIL} and is LTSBETA : ${LTSBETA}"
+                                #echo "Build's  shell the Rainbow-Node-SDK : ${env.FINAL_VERSION} with send email : ${SENDEMAIL} and is LTSBETA : ${LTSBETA}"
                                 export NODE_TLS_REJECT_UNAUTHORIZED=0
                                 echo ---------- Set the GIT config to be able to upload to server :
                                 git config --global user.email "vincent.berder@al-enterprise.com"
@@ -493,9 +506,9 @@ pipeline {
                                     echo ---------- Create a specific branch :
                                     if [ "${PUSHINGIT}" = "true" ]; then
                                         echo ---------- Create a specific branch :
-            # REFACTOR                            git branch "delivered${RAINBOWNODESDKVERSION}"
-            # REFACTOR                            git checkout "delivered${RAINBOWNODESDKVERSION}"
-            # REFACTOR                            git push  --set-upstream origin "delivered${RAINBOWNODESDKVERSION}"
+            # REFACTOR                            git branch "delivered${env.FINAL_VERSION}"
+            # REFACTOR                            git checkout "delivered${env.FINAL_VERSION}"
+            # REFACTOR                            git push  --set-upstream origin "delivered${env.FINAL_VERSION}"
 
                                     fi
                                 fi
@@ -530,7 +543,7 @@ pipeline {
                                 ls
                                 ls ./src/**/*
 
-                                npm version "${RAINBOWNODESDKVERSION}"  --allow-same-version
+                                npm version "${env.FINAL_VERSION}"  --allow-same-version
 
 
                                 if [ "${DEBUGINTERNAL}" = "true" ]; then
@@ -568,7 +581,7 @@ pipeline {
                                 if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM.STS}" ]; then
                                     git reset --hard origin/${env.BRANCH_NAME}
                                 fi
-                                npm version "${RAINBOWNODESDKVERSION}"  --allow-same-version
+                                npm version "${env.FINAL_VERSION}"  --allow-same-version
 
                                 echo ---------- Generate the Cyclone DX file :
                                 node ./node_modules/@cyclonedx/cyclonedx-npm/bin/cyclonedx-npm-cli.js --ignore-npm-errors --output-file build/rainbownodesdk.cdx
@@ -600,17 +613,17 @@ pipeline {
 
                                 echo ---------- PUSH tags AND files :
                                 if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM.STS}" ]; then
-                                    ${PUSHINGIT} && git tag -a ${RAINBOWNODESDKVERSION} -m "${RAINBOWNODESDKVERSION} is a ${RELEASENAMELOWERNAME} version."
+                                    ${PUSHINGIT} && git tag -a ${env.FINAL_VERSION} -m "${env.FINAL_VERSION} is a ${RELEASENAMELOWERNAME} version."
                                     ${PUSHINGIT} && git push  origin HEAD:${env.BRANCH_NAME}
                                     ${PUSHINGIT} && git push --tags origin HEAD:${env.BRANCH_NAME}
                                 fi
                                 if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM.LTS}" ]; then
-                                    ${PUSHINGIT} && git tag -a ${RAINBOWNODESDKVERSION} -m "${RAINBOWNODESDKVERSION} is a ${RELEASENAMELOWERNAME} version."
+                                    ${PUSHINGIT} && git tag -a ${env.FINAL_VERSION} -m "${env.FINAL_VERSION} is a ${RELEASENAMELOWERNAME} version."
                                     ${PUSHINGIT} && git push  origin HEAD:${env.BRANCH_NAME}
                                     ${PUSHINGIT} && git push --tags origin HEAD:${env.BRANCH_NAME}
-            # REFACTOR                        ${PUSHINGIT} && git tag -a ${RAINBOWNODESDKVERSION} -m "${RAINBOWNODESDKVERSION} is a ${RELEASENAMELOWERNAME} version."
-            # REFACTOR                        ${PUSHINGIT} && git push  origin "HEAD:delivered${RAINBOWNODESDKVERSION}"
-            # REFACTOR                        ${PUSHINGIT} && git push --tags origin "HEAD:delivered${RAINBOWNODESDKVERSION}"
+            # REFACTOR                        ${PUSHINGIT} && git tag -a ${env.FINAL_VERSION} -m "${env.FINAL_VERSION} is a ${RELEASENAMELOWERNAME} version."
+            # REFACTOR                        ${PUSHINGIT} && git push  origin "HEAD:delivered${env.FINAL_VERSION}"
+            # REFACTOR                        ${PUSHINGIT} && git push --tags origin "HEAD:delivered${env.FINAL_VERSION}"
                                 fi
 
                                 echo ---------- send emails getDebianArtifacts parameters setted :
@@ -810,7 +823,7 @@ pipeline {
 
                                     debianBuild(
                                         debianPath: 'Documentation',
-                                        nextVersion: "${params.RAINBOWNODESDKVERSION}" ,
+                                        nextVersion: "${env.FINAL_VERSION}" ,
                                         language: 'other',
                                         debVersionName: target.debVersionName,
                                         artifactTarget: target.name,
