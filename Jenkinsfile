@@ -86,16 +86,19 @@ def getLatestVersionFromChangelog() {
         // Recherche du premier motif [X.Y.Z]
         def matcher = changelog =~ /###\s\[([\dX\.]+(?:-[\w\.]+)*)\]/
         if (matcher.find()) {
-            return matcher[0][1]
+            def result = matcher[0][1]
+            println "Version trouvée dans le CHANGELOG : ${result}"
+            return result
         }
 
         // Rien matché => fallback
+        println "Aucun motif de version trouvé dans le CHANGELOG, utilisation du fallback."
         return '2.42.0-lts.0'
 
     } catch (Exception e) {
-    println "CATCH Error !!! Erreur lors de la lecture du CHANGELOG.md : ${e.message}"
+        println "CATCH Error !!! Erreur lors de la lecture du CHANGELOG.md : ${e.message}"
+        return '2.42.0-lts.0'
     }
-    return '2.42.0-lts.0' // Valeur par défaut de secours
 }
 
 def targets = [
