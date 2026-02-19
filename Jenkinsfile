@@ -208,10 +208,12 @@ pipeline {
                     script {
                         if (!params.RAINBOWNODESDKVERSION?.trim() || params.RAINBOWNODESDKVERSION == 'LATESTFROMCHANGELOG') {
                             echo "Extraction de la version depuis le CHANGELOG..."
-                            env.FINAL_VERSION = getLatestVersionFromChangelog()
-                            if (!env.FINAL_VERSION) {
-                              echo "Aucune version extraite, on prend le fallback statique."
-                              env.FINAL_VERSION = '2.42.0-lts.0'
+                            def computedVersion = getLatestVersionFromChangelog()
+                            if (computedVersion) {
+                                env.FINAL_VERSION = computedVersion
+                            } else {
+                                echo "Aucune version extraite, on prend le fallback statique."
+                                env.FINAL_VERSION = '2.42.0-lts.0'
                             }
                             if (env.FINAL_VERSION?.contains('X')) {
                                 error("La version extraite du CHANGELOG (${env.FINAL_VERSION}) contient un 'X'. Le job ne peut pas continuer.")
