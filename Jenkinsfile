@@ -210,16 +210,16 @@ pipeline {
                             echo "Extraction de la version depuis le CHANGELOG..."
                             def computedVersion = getLatestVersionFromChangelog()
                             if (computedVersion) {
-                                env.FINAL_VERSION = computedVersion
+                                env.setProperty('FINAL_VERSION', computedVersion)
                             } else {
                                 echo "Aucune version extraite, on prend le fallback statique."
-                                env.FINAL_VERSION = '2.42.0-lts.0'
+                                env.setProperty('FINAL_VERSION', '2.42.0-lts.0')
                             }
                             if (env.FINAL_VERSION?.contains('X')) {
                                 error("La version extraite du CHANGELOG (${env.FINAL_VERSION}) contient un 'X'. Le job ne peut pas continuer.")
                             }
                         } else {
-                            env.FINAL_VERSION = params.RAINBOWNODESDKVERSION
+                            env.setProperty('FINAL_VERSION', params.RAINBOWNODESDKVERSION)
                         }
                         echo "Version sélectionnée : ${env.FINAL_VERSION}"
 
