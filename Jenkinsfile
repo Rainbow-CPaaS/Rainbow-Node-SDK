@@ -153,7 +153,7 @@ pipeline {
         //password(name: 'PASSWORD', defaultValue: 'SECRET', description: 'Enter a password')
     }
      environment {
-                FINAL_VERSION = ""
+            //    FINAL_VERSION = ""
                 RELEASENAMEUPPERNAME = getReleaseName(true) // 'Name of the release in UPPPERCASE.')
                 RELEASENAMELOWERNAME = getReleaseName(false) // 'Name of the release in LOWERCASE.')
                 MJAPIKEY = credentials('2f8c39d0-35d5-4b67-a68a-f60aaa7084ad') // 6f119214480245deed79c5a45c59bae6/****** (MailJet API Key to post emails)
