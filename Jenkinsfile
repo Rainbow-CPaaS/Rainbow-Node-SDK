@@ -71,6 +71,16 @@ def getLatestVersionFromChangelog() {
           ls ${env.workspace}
           ls ${env.workspace}/guide
           """
+        // S’assurer que le workspace contient le repo (idéalement faites un checkout avant d’appeler)
+        if (!fileExists('./guide/CHANGELOG.md')) {
+          echo './guide/CHANGELOG.md introuvable, tentative depuis package.json'
+          if (fileExists('./package.json')) {
+            def pkg = readJSON file: 'package.json'
+            def v = pkg?.version as String
+            return v ?: '2.42.0-lts.0'
+          }
+          return '2.42.0-lts.0'
+        }
 
         def changelog = readFile('./guide/CHANGELOG.md')
         // Recherche du premier motif [X.Y.Z]
@@ -78,6 +88,10 @@ def getLatestVersionFromChangelog() {
         if (matcher.find()) {
             return matcher[0][1]
         }
+
+        // Rien matché => fallback
+        return '2.42.0-lts.0'
+
     } catch (Exception e) {
     println "CATCH Error !!! Erreur lors de la lecture du CHANGELOG.md : ${e.message}"
     }
@@ -145,6 +159,33 @@ pipeline {
                 APP = credentials('25181a6c-2586-477d-9b95-0a1cc456c831') // (Rainbow Official Vberder AppId).
     }
     stages {
+            stage('Checkout') {
+                when {
+                      anyOf {
+                        allOf {
+                            branch "STSDelivery";
+                          //  triggeredBy 'user'
+                        }
+                        allOf {
+                            branch "LTSDelivery";
+                           // triggeredBy 'user'
+                        }
+                        allOf {
+                            branch "LTSDeliveryNew";
+                           // triggeredBy 'user'
+                        }
+                      }
+                }
+                steps{
+                    echo "Clean ${env.workspace} customWorkspace before build"
+                    cleanWs()
+                    echo "Branch is ${env.BRANCH_NAME}..."
+                    checkout scm
+
+                    //echo "Stash files used to describe debian package and lts_version.json"
+                    //stash includes: "Documentation/debian/**, Documentation/lts_version.json", name: "debianFilesDescriptor"
+                }
+            }
             stage('Init') {
                  when {
                       anyOf {
@@ -162,10 +203,14 @@ pipeline {
                  steps {
                     echo "Init started."
                     script {
-                        if (params.RAINBOWNODESDKVERSION == 'LATESTFROMCHANGELOG') {
+                        if (!params.RAINBOWNODESDKVERSION?.trim() || params.RAINBOWNODESDKVERSION == 'LATESTFROMCHANGELOG') {
                             echo "Extraction de la version depuis le CHANGELOG..."
                             env.FINAL_VERSION = getLatestVersionFromChangelog()
-                            if (env.FINAL_VERSION.contains('X')) {
+                            if (!env.FINAL_VERSION) {
+                              echo "Aucune version extraite, on prend le fallback statique."
+                              env.FINAL_VERSION = '2.42.0-lts.0'
+                            }
+                            if (env.FINAL_VERSION?.contains('X')) {
                                 error("La version extraite du CHANGELOG (${env.FINAL_VERSION}) contient un 'X'. Le job ne peut pas continuer.")
                             }
                         } else {
@@ -315,33 +360,6 @@ pipeline {
                     """
 
                  }
-            }
-            stage('Checkout') {
-                when {
-                      anyOf {
-                        allOf {
-                            branch "STSDelivery";
-                            triggeredBy 'user'
-                        }
-                        allOf {
-                            branch "LTSDelivery";
-                            triggeredBy 'user'
-                        }
-                        allOf {
-                            branch "LTSDeliveryNew";
-                            triggeredBy 'user'
-                        }
-                      }
-                }
-                steps{
-                    echo "Clean ${env.workspace} customWorkspace before build"
-                    cleanWs()
-                    echo "Branch is ${env.BRANCH_NAME}..."
-                    checkout scm
-                
-                    //echo "Stash files used to describe debian package and lts_version.json"
-                    //stash includes: "Documentation/debian/**, Documentation/lts_version.json", name: "debianFilesDescriptor"                 
-                }
             }
 /*
  stage('Check Build Cause'){
