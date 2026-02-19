@@ -63,17 +63,17 @@ def getReleaseName(upper) {
 
 def getLatestVersionFromChangelog() {
     try {
-        println "Lecture du fichier CHANGELOG.md."
-        // Lecture du fichier CHANGELOG.md
+        println "Reading CHANGELOG.md file."
+        // Reading CHANGELOG.md file
         //def changelog = readFile('/guide/CHANGELOG.md')
         //def changelog = readFile('${env.workspace}/guide/CHANGELOG.md')
           sh script: """
           ls ${env.workspace}
           ls ${env.workspace}/guide
           """
-        // S’assurer que le workspace contient le repo (idéalement faites un checkout avant d’appeler)
+        // Ensure the workspace contains the repo (ideally do a checkout before calling)
         if (!fileExists('./guide/CHANGELOG.md')) {
-          echo './guide/CHANGELOG.md introuvable, tentative depuis package.json'
+          echo './guide/CHANGELOG.md not found, trying from package.json'
           if (fileExists('./package.json')) {
             def pkg = readJSON file: 'package.json'
             def v = pkg?.version as String
@@ -83,20 +83,20 @@ def getLatestVersionFromChangelog() {
         }
 
         def changelog = readFile('./guide/CHANGELOG.md')
-        // Recherche du premier motif [X.Y.Z]
+        // Search for the first pattern [X.Y.Z]
         def matcher = changelog =~ /###\s\[([\dX\.]+(?:-[\w\.]+)*)\]/
         if (matcher.find()) {
             def result = matcher[0][1]
-            println "Version trouvée dans le CHANGELOG : ${result}"
+            println "Version found in CHANGELOG: ${result}"
             return result
         }
 
-        // Rien matché => fallback
-        println "Aucun motif de version trouvé dans le CHANGELOG, utilisation du fallback."
+        // Nothing matched => fallback
+        println "No version pattern found in CHANGELOG, using fallback."
         return '2.42.0-lts.0'
 
     } catch (Exception e) {
-        println "CATCH Error !!! Erreur lors de la lecture du CHANGELOG.md : ${e.message}"
+        println "CATCH Error !!! Error while reading CHANGELOG.md: ${e.message}"
         return '2.42.0-lts.0'
     }
 }
@@ -136,7 +136,7 @@ pipeline {
     }
     
     parameters {
-        string(name: 'RAINBOWNODESDKVERSION', defaultValue: 'LATESTFROMCHANGELOG', description: 'What is the version of the STS/LTS SDK to build? Laissez LATESTFROMCHANGELOG pour extraire du CHANGELOG.md')
+        string(name: 'RAINBOWNODESDKVERSION', defaultValue: 'LATESTFROMCHANGELOG', description: 'What is the version of the STS/LTS SDK to build? Leave LATESTFROMCHANGELOG to extract from CHANGELOG.md')
         booleanParam(name: 'SENDEMAIL', defaultValue: false, description: 'Send email after of the STS/LTS SDK built?')
         booleanParam(name: 'SENDEMAILTOVBERDER', defaultValue: false, description: 'Send email after of the lts SDK built to vincent.berder@al-enterprise.com only ?')
         booleanParam(name: 'DEBUGINTERNAL', defaultValue: true, description: 'Should this STS/LTS version be compiled with internal debug ?')
@@ -153,7 +153,7 @@ pipeline {
         //password(name: 'PASSWORD', defaultValue: 'SECRET', description: 'Enter a password')
     }
      environment {
-            //    FINAL_VERSION = ""
+            //    FINAL_VERSION = "" // Should not be initialise because our jenkins forbid the update of the value after.
                 RELEASENAMEUPPERNAME = getReleaseName(true) // 'Name of the release in UPPPERCASE.')
                 RELEASENAMELOWERNAME = getReleaseName(false) // 'Name of the release in LOWERCASE.')
                 MJAPIKEY = credentials('2f8c39d0-35d5-4b67-a68a-f60aaa7084ad') // 6f119214480245deed79c5a45c59bae6/****** (MailJet API Key to post emails)
@@ -167,15 +167,15 @@ pipeline {
                       anyOf {
                         allOf {
                             branch "STSDelivery";
-                          //  triggeredBy 'user'
+                            triggeredBy 'user'
                         }
                         allOf {
                             branch "LTSDelivery";
-                           // triggeredBy 'user'
+                            triggeredBy 'user'
                         }
                         allOf {
                             branch "LTSDeliveryNew";
-                           // triggeredBy 'user'
+                            triggeredBy 'user'
                         }
                       }
                 }
@@ -185,6 +185,24 @@ pipeline {
                     echo "Branch is ${env.BRANCH_NAME}..."
                     checkout scm
 
+                    script {
+                        if (!params.RAINBOWNODESDKVERSION?.trim() || params.RAINBOWNODESDKVERSION == 'LATESTFROMCHANGELOG') {
+                            echo "Extracting version from CHANGELOG..."
+                            def computedVersion = getLatestVersionFromChangelog()
+                            if (computedVersion) {
+                                env.setProperty('FINAL_VERSION', computedVersion)
+                            } else {
+                                echo "No version extracted, using static fallback."
+                                env.setProperty('FINAL_VERSION', '2.42.0-lts.0')
+                            }
+                            if (env.FINAL_VERSION?.contains('X')) {
+                                error("The version extracted from CHANGELOG (${env.FINAL_VERSION}) contains an 'X'. Job cannot continue.")
+                            }
+                        } else {
+                            env.setProperty('FINAL_VERSION', params.RAINBOWNODESDKVERSION)
+                        }
+                        echo "Selected version: ${env.FINAL_VERSION}"
+                    }
                     //echo "Stash files used to describe debian package and lts_version.json"
                     //stash includes: "Documentation/debian/**, Documentation/lts_version.json", name: "debianFilesDescriptor"
                 }
@@ -206,23 +224,6 @@ pipeline {
                  steps {
                     echo "Init started."
                     script {
-                        if (!params.RAINBOWNODESDKVERSION?.trim() || params.RAINBOWNODESDKVERSION == 'LATESTFROMCHANGELOG') {
-                            echo "Extraction de la version depuis le CHANGELOG..."
-                            def computedVersion = getLatestVersionFromChangelog()
-                            if (computedVersion) {
-                                env.setProperty('FINAL_VERSION', computedVersion)
-                            } else {
-                                echo "Aucune version extraite, on prend le fallback statique."
-                                env.setProperty('FINAL_VERSION', '2.42.0-lts.0')
-                            }
-                            if (env.FINAL_VERSION?.contains('X')) {
-                                error("La version extraite du CHANGELOG (${env.FINAL_VERSION}) contient un 'X'. Le job ne peut pas continuer.")
-                            }
-                        } else {
-                            env.setProperty('FINAL_VERSION', params.RAINBOWNODESDKVERSION)
-                        }
-                        echo "Version sélectionnée : ${env.FINAL_VERSION}"
-
                             /*def BuildCauses0=currentBuild.getBuildCauses()[0]
                             def BuildCauses1=currentBuild.getBuildCauses()[1]
                             echo 'currentBuild.getBuildCauses() : ' currentBuild.getBuildCauses()
