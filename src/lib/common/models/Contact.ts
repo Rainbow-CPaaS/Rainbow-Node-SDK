@@ -1661,6 +1661,16 @@ class Contact {
     updateFromUserData (userData) {
         let that = this;
 
+        // dev-code //
+        /*
+        try {
+            console.log("updateFromUserData userData : ", userData, " that.toJSON() : ", that.toJSON());
+        } catch (e) {
+            console.log("updateFromUserData : ", userData, "[props extract error]", (e && (e as any).message) ? (e as any).message : e);
+        }
+        // */
+        // end-dev-code //
+
         // Identification fields
         //that.id = userData.id;
         updatePropertyToObj(that, "id", userData.id);
@@ -2201,6 +2211,24 @@ class Contact {
         that.checkPropertiesName(userData);
         // end-dev-code //
 
+    }
+
+    toJSON() {
+        let that = this;
+        try {
+            const props: any = {};
+            Object.keys(that).forEach((key) => {
+                const val: any = (that as any)[key];
+                if (typeof val!=="function") {
+                    props[key] = val;
+                }
+            });
+            console.log("(toJSON) Contact props : ", props);
+            return props;
+        } catch (e) {
+            console.log("(toJSON) [props extract error]", (e && (e as any).message) ? (e as any).message:e);
+        }
+        // */
     }
 
     checkPropertiesName(obj : any){

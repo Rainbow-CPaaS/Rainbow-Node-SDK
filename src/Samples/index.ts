@@ -336,8 +336,10 @@ let expressEngine = undefined;
     logLevelAreas.conversationhistory.level = LEVELSNAMES.INTERNAL;
     // */
 
+    logLevelAreas.connectedUser.api = true;
+    logLevelAreas.connectedUser.level = LEVELSNAMES.INTERNAL;
     logLevelAreas.contacts.api = true;
-    logLevelAreas.contacts.level = LEVELSNAMES.ERROR;
+    logLevelAreas.contacts.level = LEVELSNAMES.INTERNAL;
 
     //logLevelAreas.bubblesmanager.level = LEVELSNAMES.INTERNAL;
 
@@ -1942,12 +1944,32 @@ let expressEngine = undefined;
             _logger.log("debug", "MAIN - [testgetContactByLoginEmailCaseSensitiveTest] after getContactByLoginEmail UpperCase : ", contactVincent00upperCase);
         }
 
-        async testgetContactByLoginEmailVincentBerder() {
-            let contactEmailToSearchVincent00 = "vincent.berder@al-enterprise.com";
+        async testgetContactByLoginEmailVincentBerder(forceServerSearch: boolean = true) {
+            let contactEmailToSearchVincentAle = "vincent.berder@al-enterprise.com";
             //let contactEmailToSearchVincent01 = "vincent01@vbe.test.openrainbow.net";
             //let utc = new Date().toJSON().replace(/-/g, "_");
-            let contactVincent00 = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincent00, true);
-            _logger.log("debug", "MAIN - [testgetContactByLoginEmailCaseSensitiveTest] after getContactByLoginEmail : ", contactVincent00);
+            let contactFound = await rainbowSDK.contacts.getContactByLoginEmail(contactEmailToSearchVincentAle, forceServerSearch);
+            _logger.log("debug", "MAIN - [testgetContactByLoginEmailCaseSensitiveTest] after getContactByLoginEmail contactFound : ", contactFound);
+        }
+
+        async testgetContactByJidVincentBerderAleVBE(forceServerSearch: boolean = true) {
+            // on .Net
+            let contactJidToSearchVincentAle = "f7818be37ce5474da86bdecd9f7e77f3@openrainbow.net"; // "vincent00@vbe.test.openrainbow.net";
+            //let contactJidToSearchVincentAle = "933950d0d2644943b6467e4b61d53d59@openrainbow.net"; // "vincent.berder@al-enterprise.com";
+            //let contactEmailToSearchVincent01 = "vincent01@vbe.test.openrainbow.net";
+            //let utc = new Date().toJSON().replace(/-/g, "_");
+            let contactFound = await rainbowSDK.contacts.getContactByJid(contactJidToSearchVincentAle, forceServerSearch);
+            _logger.log("debug", "MAIN - [testgetContactByJidVincentBerder] after getContactByJid contactFound : ", contactFound);
+        }
+
+        async testgetContactByJidVincentBerderAle(forceServerSearch: boolean = true) {
+            // on .Net
+            //let contactJidToSearchVincentAle = "f7818be37ce5474da86bdecd9f7e77f3@openrainbow.net"; // "vincent00@vbe.test.openrainbow.net";
+            let contactJidToSearchVincentAle = "933950d0d2644943b6467e4b61d53d59@openrainbow.net"; // "vincent.berder@al-enterprise.com";
+            //let contactEmailToSearchVincent01 = "vincent01@vbe.test.openrainbow.net";
+            //let utc = new Date().toJSON().replace(/-/g, "_");
+            let contactFound = await rainbowSDK.contacts.getContactByJid(contactJidToSearchVincentAle, forceServerSearch);
+            _logger.log("debug", "MAIN - [testgetContactByJidVincentBerder] after getContactByJid contactFound : ", contactFound);
         }
 
         async testgetContactIdByLoginEmailVincentBerder() {
@@ -1958,10 +1980,17 @@ let expressEngine = undefined;
             _logger.log("debug", "MAIN - [testgetContactIdByLoginEmailVincentBerder] after getContactIdByLoginEmail contactId : ", contactId);
         }
 
+        async testgetRosters() {
+            let roster = await rainbowSDK.contacts.getRosters(true);
+            _logger.log("debug", "MAIN - getRosters - roster : ", roster);
+        }
+
         displayRoster() {
             let contacts = rainbowSDK.contacts.getAll();
             let roster = contacts.filter(contact => contact.roster).map(contact => contact.displayName)
             _logger.log("debug", "MAIN - [displayRoster] roster.length : ", roster.length, ", roster : ", roster);
+
+            //console.log(rainbowSDK.contacts.getAll())
         }
 
         /* testgetContactByLoginEmail() {
@@ -1971,7 +2000,7 @@ let expressEngine = undefined;
                _logger.log("debug", "MAIN - [testgetContactByLoginEmail    ] :: getContactByLoginEmail contact : ", contact);
             }
         });
-    } // */
+        } // */
 
         testgetContactByLoginEmail(loginEmail: string = "vincent++@vbe.test.openrainbow.net", forceServerSearch: boolean = false) {
             //let loginEmail = "vincent++@vbe.test.openrainbow.net";

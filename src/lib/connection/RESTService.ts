@@ -2141,7 +2141,7 @@ class RESTService extends GenericRESTService {
                 let filter: any = {};
                 addPropertyToObj(filter, "jid_im", jid_im, false);
 
-                //that._logger.log(that.INTERNAL, LOG_ID + "(getContactInformationByLoginEmail) with params : ", { "loginEmail": email });
+                that._logger.log(that.INTERNAL, LOG_ID + "(getContactsInformationByJIDs) with params body : ", filter);
                 await that.http.post(url, that.getRequestHeader(), filter, undefined).then(function (json) {
                     that._logger.log(that.DEBUG, LOG_ID + "(getContactsInformationByJIDs) successfull");
                     that._logger.log(that.INTERNAL, LOG_ID + "(getContactsInformationByJIDs) REST result : ", json);
