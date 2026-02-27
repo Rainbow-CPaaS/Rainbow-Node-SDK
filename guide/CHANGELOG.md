@@ -11,13 +11,13 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   None
 
 #### Fixed
--   None.
-
+- Fix informations about contacts in roster (Add the contacts information return by getRosters in the cache, because getContactsInformationByJIDs does not return all info any more (loginEmail : String 	DEPRECATED (will be removed in a future release). User email address (used for login) ))
+ 
 #### Added
 -   Add `token` parameter to startCLI API, to allow start in cli mode with token.
  
 #### Changed
--   None.
+-   `Jenkinsfile` getting version to produce from CHANGELOG.md or package.json if RAINBOWNODESDKVERSION is == to 'LATESTFROMCHANGELOG' string.
 
 ### [2.43.0] - 2026-02-17
 #### Removed
