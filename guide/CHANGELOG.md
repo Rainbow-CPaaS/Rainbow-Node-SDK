@@ -6,6 +6,19 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+### [2.43.1] - 2026-02-27
+#### Removed
+-   None
+
+#### Fixed
+-   None.
+
+#### Added
+-   Add `token` parameter to startCLI API, to allow start in cli mode with token.
+ 
+#### Changed
+-   None.
+
 ### [2.43.0] - 2026-02-17
 #### Removed
 -   None

@@ -12910,6 +12910,26 @@ to='user1@pdevdv3os18f.corp.intuit.net/BANL07R9AME9X' type='get' id='e2e1'>
             await rainbowSDK.stop();
         }
 
+        async testStartCLIWithToken() {
+            await rainbowSDK.stop();
+            let token = undefined;
+
+            _logger.log("debug", "MAIN - (testStartCLIWithToken) rainbow SDK token : ", _logger.colors.green(token)); //logger.colors.green(JSON.stringify(result)));
+            token = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb3VudFJlbmV3ZWQiOjAsIm1heFRva2VuUmVuZXciOjcsInVzZXIiOnsiaWQiOiI1NzMxZmU0Zjc4MjQwOTFiMzVmNWUyYjciLCJsb2dpbkVtYWlsIjoidmluY2VudC5iZXJkZXJAYWwtZW50ZXJwcmlzZS5jb20ifSwiZW52aXJvbm1lbnQiOnsiZW52aXJvbm1lbnROYW1lIjoib2ZmaWNpYWwiLCJlbnZpcm9ubWVudEFwaVVybCI6Imh0dHBzOi8vb3BlbnJhaW5ib3cuY29tIn0sImFwcCI6eyJpZCI6ImEyZjg5MDMwMDBmMDExZTg4NmQ5YjViYmQzMjYwNzkyIiwibmFtZSI6IlJhaW5ib3cgb2ZmaWNpYWwgV2ViIGFwcGxpY2F0aW9uIn0sInNhbWwiOnsibmFtZUlkIjoidmluY2VudC5iZXJkZXJAYWwtZW50ZXJwcmlzZS5jb20iLCJzZXNzaW9uSWR4IjoiXzZhZmM4Y2ZmLTg3OTEtNDZhNy1iZWEyLTAzODgwMGI4OGIwMCJ9LCJpYXQiOjE2MjkyMTEzMDQsImV4cCI6MTYzMDUwNzMwNH0.aP4LC9HX-QO1s9gf68-R08goe4472YQYEOErRc7_piaVRRPYchD6Fo3u3CXJNmwep5MJjnypuJKlttQ4mtMRHG5np3b_1peARj0qqMpePag4JiQZWV9ne9DwcwNRhxD8uTmYEDOezGH8hhpIvkqUfuHpR4ZW7Anff5SeVOHPWzwcJ5EUJQKQKKR3sEfEC_2PHd7fywEw0BDOxCIXFQjC1jG3_JbIgnIGOqTwOFdH9-ZaurDjj9mU2JL4l9GKPn_afi1YiBjoAm3Er7hM-x6XwHHdJBvl49SY-4p7uzhqFIFNnrZ-73Cihbo8RTyb0hnCdOB36p6HfiVytL6UwZHQCw";
+            _logger.log("debug", "MAIN - (testStartCLIWithToken) rainbow SDK token : ", _logger.colors.green(token)); //logger.colors.green(JSON.stringify(result)));
+            try {
+                _logger.log("debug", "MAIN - rainbow SDK token decoded : ", jwtDecode(token));
+            } catch (err) {
+                _logger.log("error", "MAIN - rainbow SDK token decoded error : ", token);
+            }
+
+            await rainbowSDK.startCLI(token).then(async (result2) => {
+                // Do something when the SDK is started
+                _logger.log("debug", "MAIN - (testStartCLIWithToken) rainbow SDK started with token result 2: ", _logger.colors.green(result2)); //logger.colors.green(JSON.stringify(result)));
+            });
+            await rainbowSDK.stop();
+        }
+
         async testTokenJwtDecode() {
             //let token = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJjb3VudFJlbmV3ZWQiOjAsIm1heFRva2VuUmVuZXciOjcsInVzZXIiOnsiaWQiOiI1YmJkYzMzNzJjZjQ5NmMwN2RkODkxMjEiLCJsb2dpbkVtYWlsIjoidmluY2VudDAwQHZiZS50ZXN0Lm9wZW5yYWluYm93Lm5ldCJ9LCJhcHAiOnsiaWQiOiIyNzAzM2IxMDAxYmQxMWU4ODQzZDZmMDAxMzRlNTE4OSIsIm5hbWUiOiJSYWluYm93IG9mZmljaWFsIFdlYiBhcHBsaWNhdGlvbiJ9LCJpYXQiOjE1NzU0NjIyOTMsImV4cCI6MTU3Njc1ODI5M30.MA71vA1SDjf-PqYtrBnpEsPai1G4LvVFHFqolsQ6Dv3NukRpbHusEgyICvtBt0t9vJ3iuzupN-ltbrj1feSBR7VnGUf2i0QNXWRCSbOgHugQAKyRZTKt9lKphaYtEEJMjHrl7k8XO6E7E1nFLFWIgJw8pNbKSmJ84rCP-wyH6kh5N7ev10XBaZsC0kdDSgFH8M2T72xgc4gtLua5BIK8Oj6qdbpHSODaLptI7ehYdbU-Mw8ECZ_VFj8Cs6lfbQWOYKgHojkoLHakDf_6oVA40YarJZunYEasuuHKL5qiZJHGkgXHBxBUBGJbbDXu_DOkTognKMPSkAXjfnLmbk0kxw';
 //let token = 'sdfsqfsqfsdfsdfgdf';
@@ -13704,7 +13724,6 @@ to='user1@pdevdv3os18f.corp.intuit.net/BANL07R9AME9X' type='get' id='e2e1'>
 
         start() {
             rainbowSDK.start(token).then(async (result: any) => {
-//Promise.resolve({}).then(async(result: any) => {
                 try {
                     // Do something when the SDK is started
                     connectedUser = result.loggedInUser;
@@ -13712,128 +13731,6 @@ to='user1@pdevdv3os18f.corp.intuit.net/BANL07R9AME9X' type='get' id='e2e1'>
                     _logger.log("info", "MAIN - rainbow SDK started with result 1 : ", result); //logger.colors.green(JSON.stringify(result)));
                     console.log("MAIN - rainbow SDK started with result 1 : ", inspect(result)); //logger.colors.green(JSON.stringify(result)));
                     _logger.log("info", "MAIN - rainbow SDK started with credentials result 1 : ", _logger.colors.green(connectedUser)); //logger.colors.green(JSON.stringify(result)));
-                    /*
-                            let companyInfo = await rainbowSDK.contacts.getCompanyInfos().catch((err) => {
-                               _logger.log("warn", "MAIN - failed to retrieve company infos :" , err);
-                            });
-
-                           _logger.log("debug", "MAIN - company infos :" , companyInfo);
-                // */
-                    /*
-                        await rainbowSDK.stop().then((result)=>{
-                           _logger.log("debug", "MAIN - rainbow SDK stop : ", result); //logger.colors.green(JSON.stringify(result)));
-                        });
-                        await rainbowSDK.start(token).then(async(result2) => {
-                            // Do something when the SDK is started
-                           _logger.log("debug", "MAIN - rainbow SDK started result 2: ",_logger.colors.green(result2)); //logger.colors.green(JSON.stringify(result)));
-                            await rainbowSDK.stop().then((result)=>{
-                               _logger.log("debug", "MAIN - rainbow SDK stop : ", result); //logger.colors.green(JSON.stringify(result)));
-                            });
-                            await rainbowSDK.start(token).then(async (result3) => {
-                                // Do something when the SDK is started
-                               _logger.log("debug", "MAIN - rainbow SDK started result 3 : ",_logger.colors.green(result3)); //logger.colors.green(JSON.stringify(result)));
-                                await rainbowSDK.stop().then((result)=>{
-                                   _logger.log("debug", "MAIN - rainbow SDK stop : ", result); //logger.colors.green(JSON.stringify(result)));
-                                });
-                                await rainbowSDK.start(token).then(async (result4) => {
-                                    // Do something when the SDK is started
-                                   _logger.log("debug", "MAIN - rainbow SDK started result 4 : ",_logger.colors.green(result4)); //logger.colors.green(JSON.stringify(result)));
-                                    await rainbowSDK.stop().then((result)=>{
-                                       _logger.log("debug", "MAIN - rainbow SDK stop : ", result); //logger.colors.green(JSON.stringify(result)));
-                                    });
-                                    await rainbowSDK.start(token).then(async (result5) => {
-                                        // Do something when the SDK is started
-                                       _logger.log("debug", "MAIN - rainbow SDK started result 5 : ",_logger.colors.green(result5)); //logger.colors.green(JSON.stringify(result)));
-                                        await rainbowSDK.stop().then((result)=>{
-                                           _logger.log("debug", "MAIN - rainbow SDK stop : ", result); //logger.colors.green(JSON.stringify(result)));
-                                        });
-                                        await rainbowSDK.start(token).then(async (result6) => {
-                                            // Do something when the SDK is started
-                                           _logger.log("debug", "MAIN - rainbow SDK started result 6 : ",_logger.colors.green(result6)); //logger.colors.green(JSON.stringify(result)));
-                                            await rainbowSDK.stop().then((result)=>{
-                                               _logger.log("debug", "MAIN - rainbow SDK stop : ", result); //logger.colors.green(JSON.stringify(result)));
-                                            });
-                                            await rainbowSDK.start(token).then(async (result7) => {
-                                                // Do something when the SDK is started
-                                               _logger.log("debug", "MAIN - rainbow SDK started result 7 : ",_logger.colors.green(result7)); //logger.colors.green(JSON.stringify(result)));
-                                                await rainbowSDK.stop().then((result)=>{
-                                                   _logger.log("debug", "MAIN - rainbow SDK stop : ", result); //logger.colors.green(JSON.stringify(result)));
-                                                });
-                                                await rainbowSDK.start(token).then(async (result8) => {
-                                                    // Do something when the SDK is started
-                                                   _logger.log("debug", "MAIN - rainbow SDK started result 8 : ",_logger.colors.green(result8)); //logger.colors.green(JSON.stringify(result)));
-                                                    await rainbowSDK.stop().then((result)=>{
-                                                       _logger.log("debug", "MAIN - rainbow SDK stop : ", result); //logger.colors.green(JSON.stringify(result)));
-                                                    });
-                                                    await rainbowSDK.start(token).then(async (result9) => {
-                                                        // Do something when the SDK is started
-                                                       _logger.log("debug", "MAIN - rainbow SDK started result 9 : ",_logger.colors.green(result9)); //logger.colors.green(JSON.stringify(result)));
-                                                        await rainbowSDK.stop().then((result)=>{
-                                                           _logger.log("debug", "MAIN - rainbow SDK stop : ", result); //logger.colors.green(JSON.stringify(result)));
-                                                        });
-                                                        await rainbowSDK.start(token).then(async (result10) => {
-                                                            // Do something when the SDK is started
-                                                           _logger.log("debug", "MAIN - rainbow SDK started result 10 : ",_logger.colors.green(result10)); //logger.colors.green(JSON.stringify(result)));
-                                                            await rainbowSDK.stop().then((result)=>{
-                                                               _logger.log("debug", "MAIN - rainbow SDK stop : ", result); //logger.colors.green(JSON.stringify(result)));
-                                                            });
-                                                            await rainbowSDK.start(token).then(async (result11) => {
-                                                                // Do something when the SDK is started
-                                                               _logger.log("debug", "MAIN - rainbow SDK started result 11 : ",_logger.colors.green(result11)); //logger.colors.green(JSON.stringify(result)));
-                                                                await rainbowSDK.stop().then((result)=>{
-                                                                   _logger.log("debug", "MAIN - rainbow SDK stop : ", result); //logger.colors.green(JSON.stringify(result)));
-                                                                });
-                                                                await rainbowSDK.start(token).then(async (result12) => {
-                                                                    // Do something when the SDK is started
-                                                                   _logger.log("debug", "MAIN - rainbow SDK started result 12 : ",_logger.colors.green(result12)); //logger.colors.green(JSON.stringify(result)));
-                                                                });
-                                                            });
-                                                        });
-                                                    });
-                                                });
-                                            });
-                                        });
-                                    });
-                                });
-                            });
-                        });
-                // */
-
-                    //logger.log("debug", "MAIN - rainbow SDK started result : ", JSON.stringify(result)); //logger.colors.green(JSON.stringify(result)));
-                    /*
-                let list = rainbowSDK.contacts.getAll();
-
-                if (list) {
-                    list.forEach(function (contact) {
-                       _logger.log("debug", "MAIN - [start    ] :: contact : ", contact);
-                    });
-                } else {
-                   _logger.log("debug", "MAIN - [start    ] :: contacts list empty");
-                }
-                // */
-
-                    /*let roster = await rainbowSDK.contacts.getRosters();
-               _logger.log("debug", "MAIN - getRosters - roster : ", roster);
-
-                 */
-                    class Dog {
-                        private name: any;
-
-                        constructor(name) {
-                            this.name = name;
-                        }
-
-                        toString() {
-                            return "vvv" + this.name;
-                        }
-                    }
-
-                    /*Dog.prototype.toString = function dogToString() {
-                    return 'vvv' + this.name;
-                }; */
-                    let dog1 = new Dog("Gabby");
-                    _logger.log("debug", "MAIN - dog1", dog1);
-
 
                     //let startDuration = Math.round(new Date() - startDate);
                     let startDuration = result.startDuration;
@@ -13841,251 +13738,32 @@ to='user1@pdevdv3os18f.corp.intuit.net/BANL07R9AME9X' type='get' id='e2e1'>
                     _logger.log("info", "MAIN === STARTED (" + startDuration + " ms) ===");
                     console.log("MAIN === STARTED (" + startDuration + " ms) ===");
 
-                    /*
-                let nbc = 1;
-                for (let i = 0 ; i < 8000 ; i++) {
-                    console.log("MAIN iter : ", i , ", nbc : ", nbc);
-                    nbc = nbc * 3;
-                } // */
+                    // rainbowSDK.im.sendMessageToJid("😔😎😜😋👀😁😁🐣🐦🐷🐴🐮🦋🐗🙊🐧🐔🐻💿⏱⏱🎞🖨📻🇧🇴🇦🇱🇧🇼✡💔🚖🚗🚘🚜🛫🚔🚲🛫🛬\ntest  sample node : ° ✈ :airplane::airplane: ) : " + utc + ", randow : " + Math.random() * 10,
+                } catch (err) {
+                    console.log("MAIN - Error during starting : ", inspect(err));
+                }
+            }).catch((err) => {
+                console.log("MAIN - Error during starting : ", inspect(err));
+            }); // */
+        }
 
+        startCLI() {
+            rainbowSDK.startCLI(token).then(async (result: any) => {
+                try {
+                    _logger.log("info", "MAIN - rainbow SDK started with result 1 : ", result); //logger.colors.green(JSON.stringify(result)));
+                    console.log("MAIN - rainbow SDK started with result 1 : ", inspect(result)); //logger.colors.green(JSON.stringify(result)));
+                    // Do something when the SDK is started
+                    connectedUser = result.loggedInUser;
+                    token = result.token;
+                    _logger.log("info", "MAIN - rainbow SDK started with credentials result 1 : ", _logger.colors.green(connectedUser)); //logger.colors.green(JSON.stringify(result)));
 
-                    // process.exit(1);
-                    /*
-                 await rainbowSDK2.start();
-                 await rainbowSDK3.start();
-                 await rainbowSDK4.start();
-                 await rainbowSDK5.start();
-                 //await rainbowSDK6.start();
+                    //let startDuration = Math.round(new Date() - startDate);
+                    let startDuration = result.startDuration;
+                    // that.stats.push({ service: "telephonyService", startDuration: startDuration });
+                    _logger.log("info", "MAIN === STARTED (" + startDuration + " ms) ===");
+                    console.log("MAIN === STARTED (" + startDuration + " ms) ===");
 
-                // */
-
-                    //  rainbowSDK.stop().then(() => { process.exit(0); }); // testCreate50BubblesAndArchiveThem()
-                    //commandLineInteraction();
-
-                    /* while (true) {
-                     readline.question("Command>", cmd => {
-                         //console.log(`run ${cmd}!`);
-                        _logger.log("debug", "MAIN - run : ", cmd); //logger.colors.green(JSON.stringify(result)));
-
-                         try {
-                             if (cmd === "by") {
-                                 process.exit(0);
-                             }
-                             eval(cmd);
-                         } catch (e) {
-                            _logger.log("debug", "MAIN - CATCH Error : ", e); //logger.colors.green(JSON.stringify(result)));
-
-                         }
-                         readline.close();
-                     });
-                 } // */
-
-                    /*
-                setInterval(()=> {
-                    //let bubbles = rainbowSDK.bubbles.getAllActiveBubbles();
-                    let bubbles = rainbowSDK.bubbles.getAll();
-                    let bubblesCount = bubbles.length;
-                    //logger.log("debug", "MAIN - Bubbles count = ", bubblesCount, " : ", bubbles);
-
-                    let conversationBubblePromises=[];
-                    let bubblesWithLastModificationDate=[];
-
-
-                    if(bubblesCount>0) {
-                        let bubblesInfos = "";
-                        for (let bubble of bubbles) {
-                            bubblesInfos += "\n{ id : " + bubble.id + ", name : " + bubble.name + " },";
-                            if (bubble.id == "5da6d969e6ca5a023da44edd") {
-                               _logger.log("debug", "MAIN - Bubble 5da6d969e6ca5a023da44edd : ", bubble);
-                            }
-                        }
-                       _logger.log("debug", "MAIN - Bubbles count = ", bubblesCount, " bubblesInfos : ", bubblesInfos);
-                    }
-                }, 20000);
-            // */
-                    // expected output: "Gabby"
-                    //await testSendMessageToJidOfMySelf();
-                    // await testgetAllUsers();
-                    //testgetContactByLoginEmail();
-                    //testUploadFileToConversationByPath();
-                    //testmakeCallByPhoneNumber();
-                    //testmakeCallByPhoneNumberProd();
-                    //testgetServerFavorites();
-                    //testgetContactInfos();
-                    //testupdateContactInfos();
-                    //testaddToContactsList();
-                    //testjoinContacts_AddContactToRoster();
-                    //testUploadFileToBubble();
-                    //testDeleteServerConversation();
-                    //testsendMessageToConversation_html();
-                    //testSendMessageToJid();
-                    //testUploadFileToConversation();
-                    //testRetrieveOneFileDescriptor();
-                    //testSetBubbleCustomData();
-                    //testDeleteAllCallLogs();
-                    //testmarkAllCallsLogsAsRead();
-                    //testDeleteCallLogsForContact();
-                    //testmarkCallLogAsRead();
-                    //testDeleteOneCallLog();
-                    //rainbowSDK.stop();
-                    // testremoveAllMessages();
-                    //testsendCorrectedChatMessageForBubbleInExistingConversation();
-                    //testsendCorrectedChatMessageForBubble();
-                    //testsendCorrectedChatMessage();
-                    // testBubblesArchived();
-                    // testgetContactByLoginEmail_UnknownUser();
-                    //testsendMessageToConversation();
-                    //   testCreateBubbles();
-                    //testChannelupdateChannelDescription();
-                    //downloadFile();
-                    //testChannelDeleteMessage();
-                    //testPublishChannel();
-                    //testReconnection();
-                    //testChannelImage();
-                    //testcreateChannel();
-                    //testChannelDeleteMessage();
-                    //rainbowSDK.stop();
-                    //process.exit(0);
-                    /*    rainbowSDK.contacts.getContactByLoginEmail(physician.loginEmail).then(contact => {
-                        if (contact) {
-                            physician.name = contact.title + " " + contact.firstname + " " + contact.lastname
-                            physician.contact = contact;
-                            rainbowSDK.bubbles.createBubble(physician.appointmentRoom, physician.appointmentRoom).then(function (bubble) {
-                                rainbowSDK.bubbles.inviteContactToBubble(contact, bubble, false, false).then(function (updatedBubble) {
-                                    rainbowSDK.contacts.getContactByLoginEmail(botappointment).then(contactbot => {
-                                        rainbowSDK.bubbles.inviteContactToBubble(contactbot, bubble, false, false).then(function (updatedBubble) {
-                                            setTimeout(() => { rainbowSDK.bubbles.promoteContactInBubble(contactbot, bubble).then(function (updatedBubble) {
-                                                rainbowSDK.conversations.getBubbleConversation/*openConversationForBubble // */
-                    /*(updatedBubble).then(conversation => {
-                                                  _logger.log("debug", "MAIN - [start    ] :: getBubbleConversation request ok");
-                                               });
-                                           })} , 2000);
-                                       });
-                                   });
-                               });
-                           });
-                       }
-                   }); // */
-                    //    let utc = new Date().toJSON().replace(/-/g, '/');
-                    /*
-                    rainbowSDK.telephony.makeCallByPhoneNumber("23026").then((data)=>{
-                       _logger.log("debug", "MAIN - [makeCallByPhoneNumber] ", data);
-                    }).catch((error) => {
-                       _logger.log("debug", "MAIN - [makeCallByPhoneNumber] error ", error);
-                    });
-
-                    setTimeout(() => {
-                        calls.forEach((c) => {
-                            rainbowSDK.telephony.releaseCall(c);
-                        });
-                    }, 5000);
-                    // */
-                    // */
-                    //rainbowSDK.im.sendMessageToJid("test  sample node : ° ✈ :airplane::airplane: ) : " + utc , "6a2010ca31864df79b958113785492ae@vberder-all-in-one-dev-1.opentouch.cloud", "fr", "", "im");
-                    /* rainbowSDK.admin.getAllCompanies().then((restresult) => {
-                     console.log("getAllCompanies companies", restresult);
-                 }); //*/
-                    /* rainbowSDK.im.sendMessageToJid("😔😎😜😋👀😁😁🐣🐦🐷🐴🐮🦋🐗🙊🐧🐔🐻💿⏱⏱🎞🖨📻🇧🇴🇦🇱🇧🇼✡💔🚖🚗🚘🚜🛫🚔🚲🛫🛬\ntest  sample node : ° ✈ :airplane::airplane: ) : " + utc + ", randow : " + Math.random() * 10,
-
-                 "ca648c9e335f481d9b732dd99990b789@vberder-all-in-one-dev-1.opentouch.cloud", "fr", "", "im")
-             /*    then((msg) => {
-                     "6a2010ca31864df79b958113785492ae@vberder-all-in-one-dev-1.opentouch.cloud", "fr", "", "im"
-                 )// */
-                    /* .then((msg) => {
-                        //console.log("message sent", msg);
-                       _logger.log("debug", "MAIN - sendMessageToJid.then() message sent", msg);
-                    }).catch((err) => {
-                        console.log("Error while sending message ", err);
-                    }); // */
-                    /*
-                    rainbowSDK.admin.getAllCompanies().then((restresult) => {
-                        //console.log("getAllCompanies companies", restresult);
-                        let companies = restresult.data;
-                        for (let company of companies) {
-                            //Object.keys(company).forEach( (companyKey) => {
-                            if (company.name && (company.name.indexOf("WestworldGuest_") !== -1 || company.name.indexOf("WestworldHost_") !== -1)) { //
-                                console.log("WestworldXXXXX_ found : ", company);
-                                rainbowSDK.admin.removeCompany(company).then((data) => {
-                                    console.log("deleteCompany data", data);
-                                    //process.exit(-1);
-                                }).catch((err) => {
-                                        if (err.code === 403) {
-                                            let strToFind = "still linked to user(s) : ";
-                                            let indexOf = err.details.indexOf(strToFind);
-                                            let userstoDelete = err.details.substring(indexOf + strToFind.length, err.details.length - 1);
-                                            //console.log ('delete user', strToFind, userstoDelete);
-                                            let usersIdTab = userstoDelete.split(',');
-                                            let removeUsers = [];
-                                            usersIdTab.forEach((id) => {
-                                                console.log('delete user', id);
-                                                removeUsers.push(rainbowSDK.admin.deleteUser(id));
-                                            });
-
-                                            Promise.all(removeUsers).then(
-                                                () => {
-                                                    rainbowSDK.admin.removeCompany(company).then((data) => {
-                                                        console.log("deleteCompany data", data);
-                                                        //process.exit(-1);
-                                                    }).catch((err2) => {
-                                                            console.log("deleteCompany after user delete, error", err2);
-                                                        }
-                                                    );
-
-                                                });
-                                        } else {
-                                            console.log("error during deleting company : ", err);
-                                        }
-                                        //process.exit(-1);
-                                    }
-                                );
-                                //break;
-                            }
-                            //});
-                        }
-                    }).catch((err) => {
-                        console.log("error during get all companies : ", err);
-                        //process.exit(-1);
-                    }); // */
-                    /*rainbowSDK.admin.deleteCompany().then((companies) => {
-                    console.log("deleteCompany companies", companies);
-                }); //*/
-                    /* rainbowSDK.stop().then(() => {
-                    rainbowSDK.start().then((result) => {
-                        // Do something when the SDK is started
-                       _logger.log("debug", "MAIN - rainbow SDK started result : ", JSON.stringify(result)); //logger.colors.green(JSON.stringify(result)));
-                        let list = rainbowSDK.contacts.getAll();
-                        if (list) {
-                            list.forEach(function (contact) {
-                               _logger.log("debug", "MAIN - [start    ] :: contact : ", contact);
-                            });
-                        } else {
-                           _logger.log("debug", "MAIN - [start    ] :: contacts list empty");
-                        }
-
-
-                    })
-                    ;
-                }); // */
-                    /*
-                rainbowSDK.stop().then((result)=>{
-                   _logger.log("debug", "MAIN - rainbow SDK stop : ", result); //logger.colors.green(JSON.stringify(result)));
-                });
-                // */
-                    /*.then(()=>{
-                   rainbowSDK.start().then(()=>{
-                      _logger.log("debug", "MAIN - rainbow SDK started step_2 result : ", JSON.stringify(result)); //logger.colors.green(JSON.stringify(result)));
-                       let list = rainbowSDK.contacts.getAll();
-                       if (list) {
-                           list.forEach(function (contact) {
-                              _logger.log("debug", "MAIN - [start    step_2] :: contact : ", contact);
-                           });
-                       } else {
-                          _logger.log("debug", "MAIN - [start    step_2] :: contacts list empty");
-                       }
-                       rainbowSDK.stop();
-                   });
-               }); // */
-//# sourceMappingURL=index.js.map
+                    // rainbowSDK.im.sendMessageToJid("😔😎😜😋👀😁😁🐣🐦🐷🐴🐮🦋🐗🙊🐧🐔🐻💿⏱⏱🎞🖨📻🇧🇴🇦🇱🇧🇼✡💔🚖🚗🚘🚜🛫🚔🚲🛫🛬\ntest  sample node : ° ✈ :airplane::airplane: ) : " + utc + ", randow : " + Math.random() * 10,
                 } catch (err) {
                     console.log("MAIN - Error during starting : ", inspect(err));
                 }
@@ -14183,13 +13861,28 @@ to='user1@pdevdv3os18f.corp.intuit.net/BANL07R9AME9X' type='get' id='e2e1'>
 
     }
 
+    const CMDPROMPTS = {
+        "help": "help",
+        "exit": "exit",
+        "start": "start",
+        "startCLI": "startCLI",
+        "stop": "stop",
+        "history": "history",
+        "search": "search",
+        "startstop": "startstop",
+        "by": "by",
+        "quit": "quit",
+        "clear": "clear",
+        "cls": "cls"
+    };
+
     function commandLineInteraction() {
         let tests = new Tests();
         let testsFunctions = findTests(tests);
 
         //testsFunctions.unshift(["testsFunction", "exit", "by", "stop", "start", "help"]);
 
-        testsFunctions.unshift(["exit"]);
+       /* testsFunctions.unshift(["exit"]);
         testsFunctions.unshift(["quit"]);
         testsFunctions.unshift(["by"]);
         testsFunctions.unshift(["eval:"]);
@@ -14199,7 +13892,11 @@ to='user1@pdevdv3os18f.corp.intuit.net/BANL07R9AME9X' type='get' id='e2e1'>
         testsFunctions.unshift(["start"]);
         testsFunctions.unshift(["help"]);
         // */
+
+        testsFunctions?.unshift(...Utils.fromObjectToArrayValues(CMDPROMPTS));
+
         _logger.log("info", "MAIN - findTests : ", testsFunctions);
+        _logger.log("info", "MAIN - Utils.fromObjectToArrayValues(CMDPROMPTS) : ", ...Utils.fromObjectToArrayValues(CMDPROMPTS));
         _logger.log("info", "MAIN - NodeJS process memory : ", v8.getHeapStatistics().heap_size_limit/(1024*1024));
 
         let questions : any = [
@@ -14311,7 +14008,7 @@ to='user1@pdevdv3os18f.corp.intuit.net/BANL07R9AME9X' type='get' id='e2e1'>
         inquirer.registerPrompt('autocomplete', inquirerPrompt);
 
         function enterCmd() {
-            _logger.log("info", "MAIN - commandLineInteraction (help, start, stop, by, quit, exit, search, history), enter a command to eval : "); //logger.colors.green(JSON.stringify(result)));
+            _logger.log("info", "MAIN - commandLineInteraction (", ...Utils.fromObjectToArrayValues(CMDPROMPTS), "), enter a command to eval : "); //logger.colors.green(JSON.stringify(result)));
             // _logger.log("info", "MAIN - test Array : ", [1,"2",{"11":"22"}], " JSON : ", {1:2,"2":[1]});
             //let result = search(searchQuestion).then(answers => {
             inquirer.prompt(questions).then(async answers => {
@@ -14322,9 +14019,9 @@ to='user1@pdevdv3os18f.corp.intuit.net/BANL07R9AME9X' type='get' id='e2e1'>
                 _logger.log("info", "MAIN - cmd entered : ", cmd); //logger.colors.green(JSON.stringify(result)));
                 try {
                     switch (cmd) {
-                        case "exit":
-                        case "quit":
-                        case "by":
+                        case CMDPROMPTS.exit:
+                        case CMDPROMPTS.quit:
+                        case CMDPROMPTS.by:
                             _logger.log("info", "MAIN - exit."); //logger.colors.green(JSON.stringify(result)));
                             writeHistory(historyFound);
                             if (rainbowSDK) {
@@ -14338,27 +14035,33 @@ to='user1@pdevdv3os18f.corp.intuit.net/BANL07R9AME9X' type='get' id='e2e1'>
                                 process.exit(0);
                             }
                             break;
-                        case "help":
+                        case CMDPROMPTS.help:
                             _logger.log("info", "MAIN - help."); //logger.colors.green(JSON.stringify(result)));
                             for (const testsFunction of testsFunctions) {
                                 _logger.log("info", "MAIN - testsFunction : tests.", testsFunction); //logger.colors.green(JSON.stringify(result)));
                             }
                             enterCmd();
                             break;
-                        case "start":
+                        case CMDPROMPTS.start:
                             addStringToHistoryMemory(historyFound, cmd);
                             _logger.log("info", "MAIN - run cmd : tests.start()"); //logger.colors.green(JSON.stringify(result)));
                             eval("tests.start()");
                             enterCmd();
                             break;
-                        case "cls":
-                        case "clear":
+                        case CMDPROMPTS.startCLI:
+                            addStringToHistoryMemory(historyFound, cmd);
+                            _logger.log("info", "MAIN - run cmd : tests.startCLI()"); //logger.colors.green(JSON.stringify(result)));
+                            eval("tests.startCLI()");
+                            enterCmd();
+                            break;
+                        case CMDPROMPTS.cls:
+                        case CMDPROMPTS.clear:
                             //addStringToHistoryMemory(historyFound, cmd);
                             _logger.log("info", "MAIN - run cmd : clear"); //logger.colors.green(JSON.stringify(result)));
                             console.clear();
                             enterCmd();
                             break;
-                        case "search":
+                        case CMDPROMPTS.search:
                             //addStringToHistoryMemory(historyFound, cmd);
                             _logger.log("info", "MAIN - run cmd : search"); //logger.colors.green(JSON.stringify(result)));
                             await search(searchQuestion).then(answers => {
@@ -14367,7 +14070,7 @@ to='user1@pdevdv3os18f.corp.intuit.net/BANL07R9AME9X' type='get' id='e2e1'>
                             });
                             enterCmd();
                             break;
-                        case "history":
+                        case CMDPROMPTS.history:
                             _logger.log("info", "MAIN - run cmd : history"); //logger.colors.green(JSON.stringify(result)));
                             await inquirer.prompt(historyQuestion).then(async answers => {
                             // await search(historyQuestion).then(answers => {
@@ -14376,13 +14079,13 @@ to='user1@pdevdv3os18f.corp.intuit.net/BANL07R9AME9X' type='get' id='e2e1'>
                             });
                             enterCmd();
                             break;
-                        case "startstop":
+                        case CMDPROMPTS.startstop:
                             //addStringToHistoryMemory(historyFound, cmd);
                             _logger.log("info", "MAIN - run cmd : tests.startstop()"); //logger.colors.green(JSON.stringify(result)));
                             eval("tests.startstop()");
                             enterCmd();
                             break;
-                        case "stop":
+                        case CMDPROMPTS.stop:
                             //addStringToHistoryMemory(historyFound, cmd);
                             _logger.log("info", "MAIN - run cmd : tests.stop()"); //logger.colors.green(JSON.stringify(result)));
                             eval("tests.stop()");

@@ -705,14 +705,32 @@ class NodeSDK {
      * @public
      * @method startCLI
      * @instance
+     * @param {String} token a valid token to login without login/password. <br>
+     * if Oauth token is provided to the SDK then application MUST implement the refresh token and send it back to SDK with `setRenewedToken` API, while following event are raised : <br>
+     * Events rainbow_onusertokenrenewfailed : fired when an oauth token is expired. <br>
+     * Events rainbow_onusertokenwillexpire : fired when the duration of the current user token reaches half of the maximum time. <br>
+     *      For instance, if the token is valid for 1 hour, this event will arrive at 30 minutes. <br>
+     *      It is recommended to renew the token upon the arrival of this event. <br>
+     * @description
+     *    Start the SDK <br>
+     *    Note :<br>
+     *    The token must be empty to signin with credentials.<br>
+     *    The SDK is disconnected when the renew of the token had expired (No initial signin possible with out credentials.)<br>
+     *    There is a sample using the oauth and sdk at https://github.com/Rainbow-CPaaS/passport-rainbow-oauth2-with-rainbow-node-sdk-example <br>
      * @description
      *      Start the SDK in CLI Mode
      */
-    startCLI() {
+    startCLI(token) {
         let that = this;
+        that.startTime = new Date();
         return new Promise(function(resolve, reject) {
-            return that._core.start(true).then(function() {
-                resolve(undefined);
+            return that._core.start(token).then(function(result : any) {
+                let startDuration: number;
+                // @ts-ignore
+                startDuration = Math.round(new Date() - that.startTime);
+                if (!result) {result = {};}
+                result.startDuration = startDuration;
+                resolve(result);
             }).catch(async function(err) {
                 try {
                     await that.stop();

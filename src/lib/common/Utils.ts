@@ -225,6 +225,60 @@ function toBoolean(value: any): boolean {
     }
     return Boolean(value);
 }
+
+
+/**
+ * @name toJSON
+ * @description
+ *  Extract properties from an object (excluding functions) and return them as a new object.
+ * @param {any} obj The object to extract properties from.
+ * @returns {any} The extracted properties or undefined in case of error.
+ */
+function toJSON(obj: any): any {
+    if (!obj || typeof obj !== 'object') {
+        return undefined;
+    }
+    try {
+        const props: any = {};
+        Object.keys(obj).forEach((key) => {
+            const val: any = (obj as any)[key];
+            if (typeof val !== "function") {
+                props[key] = val;
+            }
+        });
+        //console.log("(toJSON) Contact props : ", props);
+        return props;
+    } catch (e) {
+        //console.log("(toJSON) [props extract error]", (e && (e as any).message) ? (e as any).message : e);
+    }
+}
+
+/**
+ * @name fromObjectToArrayValues
+ * @description
+ *  Extract properties from an object (excluding functions) and return them as an array of property values.
+ * @param {any} obj The object to extract properties from.
+ * @returns {any} The extracted properties or undefined in case of error.
+ */
+function fromObjectToArrayValues(obj: any): any {
+    if (!obj || typeof obj !== 'object') {
+        return undefined;
+    }
+    try {
+        const props: any = [];
+        Object.keys(obj).forEach((key) => {
+            const val: any = (obj as any)[key];
+            if (typeof val !== "function") {
+                props.push(val);
+            }
+        });
+        //console.log("(fromObjectToArrayValues) Contact props : ", props);
+        return props;
+    } catch (e) {
+        //console.log("(fromObjectToArrayValues) [props extract error]", (e && (e as any).message) ? (e as any).message : e);
+    }
+}
+
 /**
  * @name setTimeoutPromised
  * @description
@@ -611,7 +665,7 @@ function logEntryExit(LOG_ID) : any {
                 if (this==null || originalMethod.name==="getClassName" || propertyName==="getClassName" || originalMethod.name==="getAccessorName" || propertyName==="getAccessorName" || originalMethod.name==="setLogLevels" || propertyName==="setLogLevels") {
                     returnValue = originalMethod.apply(this, args);
                 } else {
-                    let logger = this.logger ? this.logger:this._logger ? this._logger:{log : ()=> {console.log( arguments);}, colors:{data : function (param) {return param} }};
+                    let logger = this.logger ? this.logger:this._logger ? this._logger:{log : function l () {console.log( arguments);}, colors:{data : function (param) {return param} }};
                     try {
 
                         /* if (!this.getClassName) {
@@ -1314,6 +1368,8 @@ export let objToExport = {
     isInstanceOfClass,
     isJsonObject,
     toBoolean,
+    toJSON,
+    fromObjectToArrayValues,
     Deferred,
     isSuperAdmin,
     setTimeoutPromised,
@@ -1385,6 +1441,8 @@ export {
     isInstanceOfClass,
     isJsonObject,
     toBoolean,
+    toJSON,
+    fromObjectToArrayValues,
     Deferred,
     isSuperAdmin,
     setTimeoutPromised,
@@ -1455,6 +1513,8 @@ export default {
     isInstanceOfClass,
     isJsonObject,
     toBoolean,
+    toJSON,
+    fromObjectToArrayValues,
     Deferred,
     isSuperAdmin,
     setTimeoutPromised,
