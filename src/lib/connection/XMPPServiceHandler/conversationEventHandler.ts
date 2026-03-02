@@ -2323,6 +2323,10 @@ class ConversationEventHandler extends GenericHandler {
                     case "unmute":
                         that.onUnmuteManagementMessageReceived(node);
                         break;
+                    case "vscan":
+                        //treated in conversationEventHandler::onVscanManagementMessageReceived(node);
+                        that.onVscanManagementMessageReceived(nodeJson);
+                        break;
                     case "file":
                         that.onFileManagementMessageReceived(node);
                         break;
@@ -2884,6 +2888,20 @@ class ConversationEventHandler extends GenericHandler {
         } catch (err) {
             // that._logger.log(that.ERROR, LOG_ID + "(onFileManagementMessageReceived) CATCH Error !!! ");
             that._logger.log(that.ERROR, LOG_ID + "(onFileManagementMessageReceived) CATCH Error !!! : ", err);
+        }
+    };
+
+    onVscanManagementMessageReceived (nodeJson) {
+        let that = this;
+        try {
+            that._logger.log(that.INTERNAL, LOG_ID + "(onVscanManagementMessageReceived) _entering_ : ", nodeJson);
+            if (nodeJson && nodeJson["$attrs"]) {
+                let vscanAttrs = Object.assign({}, nodeJson["$attrs"]);
+                delete vscanAttrs.xmlns;
+                that.eventEmitter.emit("evt_internal_vscanreceived", vscanAttrs);
+            }
+        } catch (err) {
+            that._logger.log(that.ERROR, LOG_ID + "(onVscanManagementMessageReceived) CATCH Error !!! : ", err);
         }
     };
 

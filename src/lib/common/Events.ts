@@ -201,6 +201,7 @@ class Emitter extends EventEmitterClass{
  * @fires Events#rainbow_onpinmanagement
  * @fires Events#rainbow_onvoicemailreceived
  * @fires Events#rainbow_oncustomstatusreceived
+ * @fires Events#rainbow_onscanreceived
  */
 class Events {
     get logEmitter(): EventEmitter {
@@ -332,7 +333,8 @@ class Events {
         "rainbow_onconference",
         "rainbow_onpinmanagement",
         "rainbow_onvoicemailreceived",
-        "rainbow_oncustomstatusreceived"
+        "rainbow_oncustomstatusreceived",
+        "rainbow_onscanreceived"
     ];
     public  waitBeforeBubblePresenceSend = false;
 
@@ -1854,6 +1856,25 @@ class Events {
              *  </br>
              */
             that.publishEvent("customstatusreceived", data);
+        });
+
+        this._evReceiver.on("evt_internal_vscanreceived", function (data) {
+            /**
+             * @event Events#rainbow_onscanreceived
+             * @public
+             * @param { any | error } data The data of the scan.
+             * @description
+             *      Fired when a `scan` event is received from server.</br>
+             *  {</br>
+             *      action: string, // Management action</br>
+             *      receivedAs: string, // receivedAs </br>
+             *      fileId: string, // fileId </br>
+             *      isClean: boolean, // isClean </br>
+             *      cantBeScannedYet: boolean // cantBeScannedYet </br>
+             *  }</br>
+             *  </br>
+             */
+            that.publishEvent("scanreceived", data);
         });
 
     }
