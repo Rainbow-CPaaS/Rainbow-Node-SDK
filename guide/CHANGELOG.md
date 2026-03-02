@@ -14,7 +14,8 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   None
  
 #### Added
--   None
+-   Add `rainbow_onscanreceived` event fired when a `scan` event is received from server.
+-   Add `test_sendApplicationAndOpenAconversation_BulleDeTest` test method to demonstrates how to send an Adaptive Card into a specific bubble (MUC) and then handle the user's interaction with that card.
  
 #### Changed
 -   None
