@@ -785,7 +785,7 @@ let expressEngine = undefined;
 //            "messageMaxLength": 1024,
             "sendMessageToConnectedUser": false,
             "conversationsRetrievedFormat": "full",
-            "storeMessages": false,
+            //"storeMessages": false,
             "copyMessage": true,
             "nbMaxConversations": 15,
             "rateLimitPerHour": 100000,
@@ -1428,6 +1428,115 @@ let expressEngine = undefined;
     });
 
     class Tests {
+
+        /**
+         * @description
+         * This test method demonstrates how to send an Adaptive Card into a specific bubble (MUC) 
+         * and then handle the user's interaction with that card.
+         * Note that empty text in Submit action allows to hide the message in Rainbow Gui.
+         *
+         * Behavior for a developer new to this method:
+         * 1. **Bubble Lookup**: It first searches for an existing bubble named "BulleDeTest" among all active bubbles.
+         * 2. **Response Handler Setup**: It registers a listener for the `rainbow_onmessagereceived` event. 
+         *    - When a message is received, it checks if it contains "alternativeContent" (the mechanism for Adaptive Cards).
+         *    - If the message comes from a room (starts with "room_"), it extracts the real sender's JID from the resource part (after the last '/').
+         *    - If a "rainbow/json" payload is found, it parses it and calls `treatmentOfAdaptiveCardMessage`.
+         * 3. **Action Processing**: Inside `treatmentOfAdaptiveCardMessage`, if the user clicked the "Chat With Me" button 
+         *    (indicated by the value `chatwithme` in the card's response), the bot sends a direct 1-to-1 message 
+         *    ("Hello this the bot.") to that specific contact.
+         * 4. **Card Dispatch**: Finally, it constructs the Adaptive Card JSON and sends it to the "BulleDeTest" bubble.
+         */
+        async test_sendApplicationAndOpenAconversation_BulleDeTest() {
+            _logger.log("info", "MAIN - [test_sendApplicationAndOpenAconversation_BulleDeTest] :: start.");
+
+            // 1. Get the bubble named "BulleDeTest"
+            let bubbles = rainbowSDK.bubbles.getAllActiveBubbles();
+            let bubble = bubbles.find(element => element.name === "BulleDeTest");
+
+            if (!bubble) {
+                _logger.log("error", "MAIN - [test_sendApplicationAndOpenAconversation_BulleDeTest] :: Bubble 'BulleDeTest' not found.");
+                return;
+            }
+
+            _logger.log("debug", "MAIN - [test_sendApplicationAndOpenAconversation_BulleDeTest] :: Bubble found : ", bubble.jid);
+
+            let alternateContent = null;
+
+
+            async function treatmentOfAdaptiveCardMessage(adaptiveResponse, contactJid) {
+                // Process data returned by the Adaptive Card.
+                if (adaptiveResponse?.rainbow?.value?.response === "chatwithme") {
+                    _logger.log("debug", "MAIN - [treatmentOfAdaptiveCardMessage] :: (rainbow_onrainbowcpaasreceived) adaptiveResponse : ", adaptiveResponse);
+                    // Send "Hello this the bot." message directly to the JID of the contact who clicked the button.
+                    if (contactJid ) {
+                        _logger.log("debug", "MAIN - [treatmentOfAdaptiveCardMessage] :: Sending response to : ", contactJid);
+                        await rainbowSDK.im.sendMessageToJid("Hello this the bot.", contactJid, "fr", undefined, "From Test Bot", UrgencyType.STANDARD, undefined);
+                    }
+                } else {
+                    // The card is not the result of an intervention.
+                }
+            }
+
+            // 2. Listen to the "rainbow_onmessagereceived" event.
+            // The Handle on the event should be only once. So in a prod program it should be outside of the initial send message of the adpative Card.
+            rainbowSDK.events.on("rainbow_onmessagereceived", async (message) => {
+                _logger.log("debug", "MAIN - (rainbow_onmessagereceived) - rainbow event received. message", message);
+                let responseObjJson = "Open P2P conversation.";
+                let contactJid = (message.from && message.from.startsWith("room_")) ? message.from.split('/').pop() : message.from;
+                if (message.alternativeContent?.length > 0 && message.alternativeContent[0]?.message && message.alternativeContent[0]?.type) {
+                    switch (message.alternativeContent[0].type) {
+                        case "rainbow/json":
+                            responseObjJson = JSON.parse(message.alternativeContent[0].message);
+                            await treatmentOfAdaptiveCardMessage(responseObjJson, contactJid);
+                        default:
+                    }
+
+                }
+            });
+
+            // 3. Send a message with an Adaptive Card.
+            // Note that empty text in Submit action allows to hide the message in Rainbow Gui.
+            let adaptiveCard = {
+                "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+                "type": "AdaptiveCard",
+                "version": "1.1",
+                "body": [
+                    {
+                        "type": "TextBlock",
+                        "text": "Bonjour"
+                    },
+                    {
+                        "type": "ActionSet", "actions": [
+                            {
+                                "type": "Action.Submit",
+                                "title": "Chat With Me",
+                                "data": {
+                                    "rainbow": {
+                                        "type": "messageBack",
+                                        "value": { "response": "chatwithme" },
+                                        "text": ""
+                                    }
+                                }
+                            }
+                        ]
+                    },
+                ]
+            };
+
+            let content = {
+                "type": "form/json",
+                "message": JSON.stringify(adaptiveCard)
+            };
+
+            try {
+                _logger.log("debug", "MAIN - [test_sendApplicationAndOpenAconversation_BulleDeTest] :: content : ", content);
+                // Send the message with the Adaptive Card into the bubble.
+                let msgSent = await rainbowSDK.im.sendMessageToBubbleJid("Bonjour", bubble.jid, "fr", content, "Test AdaptiveCard");
+                _logger.log("debug", "MAIN - [test_sendApplicationAndOpenAconversation_BulleDeTest] :: Message sent : ", msgSent.id);
+            } catch (err) {
+                _logger.log("error", "MAIN - [test_sendApplicationAndOpenAconversation_BulleDeTest] :: Error sending message : ", err);
+            }
+        }
 
         testEventsRainbow_tokenexpired() {
             rainbowSDK._core._rest.p_decodedtokenRest = undefined;
