@@ -20,7 +20,7 @@ const util = require("util");
 const fs = require('fs');
 const ini = require('ini');
 
-let isObject =  (value) => {
+let isObject = (value) => {
     return (value !== null && typeof value === 'object');
 }
 
@@ -73,6 +73,20 @@ let isSuperAdmin = (roles) => {
     return Array.isArray(roles) && roles.indexOf("superadmin") !== -1;
 };
 
+/**
+ * @name anonymizePhoneNumber
+ * @description
+ * Anonymise un numéro de téléphone en ne gardant que les 4 derniers chiffres.
+ * Si le numéro commence par '+', il est conservé.
+ * @param {string} number Le numéro à anonymiser
+ * @returns {string} Le numéro anonymisé ou null
+ *
+ * example:
+ * ```
+ * console.log(anonymizePhoneNumber("+33123456789")); // "+*******6789"
+ * console.log(anonymizePhoneNumber("0123456789"));  // "******6789"
+ * ```
+ */
 let anonymizePhoneNumber = function (number) {
     if (number === null || typeof number === "undefined") {
         return null;
@@ -94,6 +108,20 @@ let anonymizePhoneNumber = function (number) {
     return result;
 };
 
+/**
+ * @name equalIgnoreCase
+ * @description
+ * Compare deux chaînes de caractères en ignorant la casse.
+ * @param {string} s1 La première chaîne
+ * @param {string} s2 La deuxième chaîne
+ * @returns {boolean} true si les chaînes sont égales (sans tenir compte de la casse)
+ *
+ * example:
+ * ```
+ * console.log(equalIgnoreCase("Rainbow", "rainbow")); // true
+ * console.log(equalIgnoreCase("Hello", "World"));     // false
+ * ```
+ */
 let equalIgnoreCase = function(s1: string, s2: string) {
     let regex = new RegExp('^' + s1 + '$', 'i');
     if (regex.test(s2)) {
@@ -103,6 +131,20 @@ let equalIgnoreCase = function(s1: string, s2: string) {
     }
 }
 
+/**
+ * @name isNullOrEmpty
+ * @description
+ * Vérifie si une valeur est nulle, indéfinie ou une chaîne vide.
+ * @param {any} value La valeur à tester
+ * @returns {boolean} true si la valeur est nulle ou vide
+ *
+ * example:
+ * ```
+ * console.log(isNullOrEmpty(""));        // true
+ * console.log(isNullOrEmpty(null));      // true
+ * console.log(isNullOrEmpty("Hello"));   // false
+ * ```
+ */
 let isNullOrEmpty = function(value) {
     let _isNullOrEmpty = true;
     if (value) {
@@ -114,6 +156,20 @@ let isNullOrEmpty = function(value) {
     return _isNullOrEmpty;
 }
 
+/**
+ * @name isDefined
+ * @description
+ * Vérifie si une valeur est définie (ni nulle, ni indéfinie).
+ * @param {any} value La valeur à tester
+ * @returns {boolean} true si la valeur est définie
+ *
+ * example:
+ * ```
+ * console.log(isDefined("Hello"));   // true
+ * console.log(isDefined(null));      // false
+ * console.log(isDefined(undefined)); // false
+ * ```
+ */
 let isDefined = function(value) {
     let _isDefined = false;
     if (value !== null && value !== undefined) {
@@ -122,18 +178,74 @@ let isDefined = function(value) {
     return _isDefined;
 }
 
+/**
+ * @name isDefinedAndNotEmpty
+ * @description
+ * Vérifie si une valeur est définie et n'est pas vide (pour les chaînes).
+ * @param {any} value La valeur à tester
+ * @returns {boolean} true si la valeur est définie et non vide
+ *
+ * example:
+ * ```
+ * console.log(isDefinedAndNotEmpty("Hello")); // true
+ * console.log(isDefinedAndNotEmpty(""));      // false
+ * console.log(isDefinedAndNotEmpty(null));    // false
+ * ```
+ */
 let isDefinedAndNotEmpty = function(value) {
     return (isDefined(value) && !isNullOrEmpty(value));
 }
 
+/**
+ * @name isNotDefined
+ * @description
+ * Vérifie si une valeur n'est pas définie (nulle ou indéfinie).
+ * @param {any} value La valeur à tester
+ * @returns {boolean} true si la valeur n'est pas définie
+ *
+ * example:
+ * ```
+ * console.log(isNotDefined(null));      // true
+ * console.log(isNotDefined(undefined)); // true
+ * console.log(isNotDefined("Hello"));   // false
+ * ```
+ */
 let isNotDefined = function(value) {
     return (! isDefined(value));
 }
 
+/**
+ * @name isNotDefinedOrEmpty
+ * @description
+ * Vérifie si une valeur n'est pas définie ou est une chaîne vide.
+ * @param {any} value La valeur à tester
+ * @returns {boolean} true si la valeur n'est pas définie ou vide
+ *
+ * example:
+ * ```
+ * console.log(isNotDefinedOrEmpty(""));        // true
+ * console.log(isNotDefinedOrEmpty(null));      // true
+ * console.log(isNotDefinedOrEmpty("Hello"));   // false
+ * ```
+ */
 let isNotDefinedOrEmpty = function(value) {
     return ((! isDefined(value)) || value === "");
 }
 
+/**
+ * @name isNumber
+ * @description
+ * Vérifie si la donnée est un nombre valide (et non NaN).
+ * @param {any} data La donnée à tester
+ * @returns {boolean} true si c'est un nombre
+ *
+ * example:
+ * ```
+ * console.log(isNumber(123));   // true
+ * console.log(isNumber(NaN));   // false
+ * console.log(isNumber("123")); // false
+ * ```
+ */
 let isNumber = function  isNumber(data) {
     return (typeof data === 'number' && !(isNaN(data)));
 }
@@ -148,10 +260,13 @@ let isNumber = function  isNumber(data) {
  *
  *
  * example:
- * '''
+ * ```
+ * let jsonObject = { key: "value" };
+ * class MyClass {}
+ * let instance = new MyClass();
  * console.log(isPlainObject(jsonObject)); // true
  * console.log(isPlainObject(instance));  // false
- * '''
+ * ```
  *
  */
 let isPlainObject = function isPlainObject(obj: any): boolean {
@@ -167,12 +282,15 @@ let isPlainObject = function isPlainObject(obj: any): boolean {
  *
  *
  * example:
- * '''
+ * ```
+ * class MyClass {}
+ * let instance = new MyClass();
+ * let jsonObject = { key: "value" };
  * console.log(isInstanceOfClass(instance));  // true (instance de classe)
  * console.log(isInstanceOfClass(jsonObject)); // false (objet JSON)
  * console.log(isInstanceOfClass(null));      // false
  * console.log(isInstanceOfClass([]));        // false
- * '''
+ * ```
  *
  */
 let isInstanceOfClass = function isInstanceOfClass(obj: any): boolean {
@@ -188,14 +306,39 @@ let isInstanceOfClass = function isInstanceOfClass(obj: any): boolean {
  * @returns {boolean}
  *
  * example:
- * '''
+ * ```
+ * let jsonObject = { key: "value" };
+ * class MyClass {}
+ * let instance = new MyClass();
  * console.log(isJsonObject(jsonObject)); // true
  * console.log(isJsonObject(instance));   // false
- * '''
+ * ```
  *
  */
 let isJsonObject = function isJsonObject(obj: any): boolean {
     return obj !== null && typeof obj === "object" && obj.constructor === Object;
+}
+
+/**
+ * @name isObjectNotArray
+ * @description
+ * Vérifie si une valeur est un objet (instance de classe ou objet JSON littéral).
+ * @param {any} obj La valeur à tester
+ * @returns {boolean} true si la valeur est un objet (non nul et non tableau)
+ *
+ * example:
+ * ```
+ * let jsonObject = { key: "value" };
+ * class MyClass {}
+ * let instance = new MyClass();
+ * console.log(isObjectNotArray(jsonObject)); // true
+ * console.log(isObjectNotArray(instance));   // true
+ * console.log(isObjectNotArray(null));       // false
+ * console.log(isObjectNotArray([]));         // false
+ * ```
+ */
+let isObjectNotArray = function isObjectNotArray(obj: any): boolean {
+    return obj !== null && typeof obj === "object" && !Array.isArray(obj);
 }
 
 /**
@@ -1358,6 +1501,7 @@ export let objToExport = {
     equalIgnoreCase,
     isNullOrEmpty,
     isObject,
+    isObjectNotArray,
     isDefined,
     isDefinedAndNotEmpty,
     isNotDefined,
@@ -1431,6 +1575,7 @@ export {
     equalIgnoreCase,
     isNullOrEmpty,
     isObject,
+    isObjectNotArray,
     isDefined,
     isDefinedAndNotEmpty,
     isNotDefined,
@@ -1503,6 +1648,7 @@ export default {
     equalIgnoreCase,
     isNullOrEmpty,
     isObject,
+    isObjectNotArray,
     isDefined,
     isDefinedAndNotEmpty,
     isNotDefined,

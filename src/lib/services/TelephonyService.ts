@@ -1,5 +1,5 @@
 "use strict";
-import {isDefined, logEntryExit} from "../common/Utils";
+import {isDefined, isObjectNotArray, logEntryExit} from "../common/Utils";
 
 export {};
 
@@ -22,6 +22,7 @@ import {error} from "winston";
 import {S2SService} from "./S2SService";
 import {Core} from "../Core";
 import {GenericService} from "./GenericService";
+import {isNonEmptyObject} from "node-mailjet/declarations/utils/index.js";
 
 const LOG_ID = "TELEPHONY/SVCE - ";
 const API_ID = "API_CALL - ";
@@ -915,6 +916,11 @@ class TelephonyService extends GenericService {
      */
     async makeCall(contact, phoneNumber, correlatorData) {
         let that = this;
+        if (!isDefined(contact)) {
+            that._logger.log(that.WARN, LOG_ID + "(makeCall) bad or empty 'contact' parameter");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(makeCall) bad or empty 'contact' parameter : ", contact);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(makeCall) is contact defined : ", isDefined(contact));
         let activeCall = that.getActiveCall();
 
@@ -951,6 +957,11 @@ class TelephonyService extends GenericService {
      */
     private async makeSimpleCall(contact, phoneNumber, correlatorData) : Promise<any> {
         let that = this;
+        if (!isDefined(contact) || !isObjectNotArray(contact)) {
+            that._logger.log(that.WARN, LOG_ID + "(makeSimpleCall) bad or empty 'contact' parameter");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(makeSimpleCall) bad or empty 'contact' parameter : ", contact);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
         return new Promise((resolve, reject) => {
             that._logger.log(that.INTERNAL, LOG_ID + "(makeSimpleCall) to " + (contact ? contact.displayName : phoneNumber));
 
@@ -1061,6 +1072,16 @@ class TelephonyService extends GenericService {
      */
     private async makeConsultationCall(contact, phoneNumber, callId, correlatorData ) {
         let that = this;
+        if (!isDefined(contact) || !isObjectNotArray(contact)) {
+            that._logger.log(that.WARN, LOG_ID + "(makeConsultationCall) bad or empty 'contact' parameter");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(makeConsultationCall) bad or empty 'contact' parameter : ", contact);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+        if (!isDefined(callId)) {
+            that._logger.log(that.WARN, LOG_ID + "(makeConsultationCall) bad or empty 'callId' parameter");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(makeConsultationCall) bad or empty 'callId' parameter : ", callId);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
         return new Promise((resolve, reject) => {
 
             //reject not allowed operations
@@ -1170,6 +1191,11 @@ class TelephonyService extends GenericService {
      */
     async makeCallByPhoneNumber(phoneNumber, correlatorData) {
         let that = this;
+        if (!isDefined(phoneNumber)) {
+            that._logger.log(that.WARN, LOG_ID + "(makeCallByPhoneNumber) bad or empty 'phoneNumber' parameter");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(makeCallByPhoneNumber) bad or empty 'phoneNumber' parameter : ", phoneNumber);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(makeCallByPhoneNumber) is phoneNumber defined : ", isDefined(phoneNumber));
         return new Promise((resolve, reject) => {
             that._logger.log(that.INTERNAL, LOG_ID + "(makeCallByPhoneNumber) calling : " + utils.anonymizePhoneNumber(phoneNumber));
@@ -1335,6 +1361,11 @@ class TelephonyService extends GenericService {
      */
     async releaseCall(call) {
         let that = this;
+        if (!isDefined(call) || !isObjectNotArray(call)) {
+            that._logger.log(that.WARN, LOG_ID + "(releaseCall) bad or empty 'call' parameter");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(releaseCall) bad or empty 'call' parameter : ", call);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(releaseCall) is call defined : ", isDefined(call));
         return new Promise(function (resolve, reject) {
             that._logger.log(that.INTERNAL, LOG_ID + "(releaseCall) call : ", call);
@@ -1405,6 +1436,11 @@ class TelephonyService extends GenericService {
      */
      async answerCall(call) {
         let that = this;
+        if (!isDefined(call) || !isObjectNotArray(call)) {
+            that._logger.log(that.WARN, LOG_ID + "(answerCall) bad or empty 'call' parameter");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(answerCall) bad or empty 'call' parameter : ", call);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(answerCall) is call defined : ", isDefined(call));
         return new Promise((resolve, reject) => {
             if (call.contact) {
@@ -1492,6 +1528,11 @@ class TelephonyService extends GenericService {
      */
     async holdCall(call) {
         let that = this;
+        if (!isDefined(call) || !isObjectNotArray(call)) {
+            that._logger.log(that.WARN, LOG_ID + "(holdCall) bad or empty 'call' parameter");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(holdCall) bad or empty 'call' parameter : ", call);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(holdCall) is call defined : ", isDefined(call));
         return new Promise(function (resolve, reject) {
             // Ignore call already hold
@@ -1565,6 +1606,11 @@ class TelephonyService extends GenericService {
      */
     async retrieveCall(call) {
         let that = this;
+        if (!isDefined(call) || !isObjectNotArray(call)) {
+            that._logger.log(that.WARN, LOG_ID + "(retrieveCall) bad or empty 'call' parameter");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(retrieveCall) bad or empty 'call' parameter : ", call);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(retrieveCall) is call defined : ", isDefined(call));
         return new Promise(function (resolve, reject) {
             that._logger.log(that.INTERNAL, LOG_ID + "(retrieveCall) retrieveCall : " + call.contact.displayNameForLog());
@@ -1655,6 +1701,11 @@ class TelephonyService extends GenericService {
      */
     async deflectCallToVM(call) {
         let that = this;
+        if (!isDefined(call) || !isObjectNotArray(call)) {
+            that._logger.log(that.WARN, LOG_ID + "(deflectCallToVM) bad or empty 'call' parameter");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(deflectCallToVM) bad or empty 'call' parameter : ", call);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deflectCallToVM) is call defined : ", isDefined(call));
         return new Promise((resolve, reject) => {
             // Ignore wrong request
@@ -1673,7 +1724,7 @@ class TelephonyService extends GenericService {
                 return reject(profileError);
             }
 
-            that._logger.log(that.INTERNAL, LOG_ID + "(deflectCallToVM) deflectCallToVM ", call.contact.displayNameForLog());
+            that._logger.log(that.INTERNAL, LOG_ID + "(deflectCallToVM) deflectCallToVM ", call.contact?.displayNameForLog());
 
             /*$http({
                 method: "PUT",
@@ -1736,6 +1787,16 @@ class TelephonyService extends GenericService {
      */
     async deflectCall(call, callee) {
         let that = this;
+        if (!isDefined(call) || !isObjectNotArray(call)) {
+            that._logger.log(that.WARN, LOG_ID + "(deflectCall) bad or empty 'call' parameter");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(deflectCall) bad or empty 'call' parameter : ", call);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+        if (!isDefined(callee) || !isObjectNotArray(callee)) {
+            that._logger.log(that.WARN, LOG_ID + "(deflectCall) bad or empty 'callee' parameter");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(deflectCall) bad or empty 'callee' parameter : ", callee);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deflectCall) is call defined : ", isDefined(call));
         return new Promise((resolve, reject) => {
             // Ignore wrong request
@@ -1789,6 +1850,16 @@ class TelephonyService extends GenericService {
      */
     async transfertCall(activeCall, heldCall) {
         let that = this;
+        if (!isDefined(activeCall) || !isObjectNotArray(activeCall)) {
+            that._logger.log(that.WARN, LOG_ID + "(transfertCall) bad or empty 'activeCall' parameter");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(transfertCall) bad or empty 'activeCall' parameter : ", activeCall);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+        if (!isDefined(heldCall) || !isObjectNotArray(heldCall)) {
+            that._logger.log(that.WARN, LOG_ID + "(transfertCall) bad or empty 'heldCall' parameter");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(transfertCall) bad or empty 'heldCall' parameter : ", heldCall);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(transfertCall) is activeCall defined : ", isDefined(activeCall));
         return new Promise((resolve, reject) => {
             // Ignore wrong request
@@ -1853,6 +1924,16 @@ class TelephonyService extends GenericService {
      */
     async conferenceCall(activeCall, heldCall) {
         let that = this;
+        if (!isDefined(activeCall) || !isObjectNotArray(activeCall)) {
+            that._logger.log(that.WARN, LOG_ID + "(conferenceCall) bad or empty 'activeCall' parameter");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(conferenceCall) bad or empty 'activeCall' parameter : ", activeCall);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+        if (!isDefined(heldCall) || !isObjectNotArray(heldCall)) {
+            that._logger.log(that.WARN, LOG_ID + "(conferenceCall) bad or empty 'heldCall' parameter");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(conferenceCall) bad or empty 'heldCall' parameter : ", heldCall);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(conferenceCall) is activeCall defined : ", isDefined(activeCall));
 
         return new Promise((resolve, reject) => {
@@ -1915,6 +1996,11 @@ class TelephonyService extends GenericService {
     */
     async forwardToDevice(phoneNumber) {
         let that = this;
+        if (!isDefined(phoneNumber)) {
+            that._logger.log(that.WARN, LOG_ID + "(forwardToDevice) bad or empty 'phoneNumber' parameter");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(forwardToDevice) bad or empty 'phoneNumber' parameter : ", phoneNumber);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(forwardToDevice) is phoneNumber defined : ", isDefined(phoneNumber));
         return new Promise(function (resolve, reject) {
             that._logger.log(that.INTERNAL, LOG_ID + "(forwardToDevice) forwardToDevice : " + phoneNumber);
@@ -2108,6 +2194,16 @@ class TelephonyService extends GenericService {
      */
     sendDtmf(connectionId, dtmf) {
         let that = this;
+        if (!isDefined(connectionId)) {
+            that._logger.log(that.WARN, LOG_ID + "(sendDtmf) bad or empty 'connectionId' parameter");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(sendDtmf) bad or empty 'connectionId' parameter : ", connectionId);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+        if (!isDefined(dtmf)) {
+            that._logger.log(that.WARN, LOG_ID + "(sendDtmf) bad or empty 'dtmf' parameter");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(sendDtmf) bad or empty 'dtmf' parameter : ", dtmf);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendDtmf) is connectionId defined : ", isDefined(connectionId));
         return new Promise((resolve, reject) => {
 
@@ -2507,6 +2603,11 @@ that._eventEmitter.emit("evt_internal_callupdated", call);
 
     async nomadicLogin (phoneNumber, NotTakeIntoAccount?) {
         let that = this;
+        if (!isDefined(phoneNumber)) {
+            that._logger.log(that.WARN, LOG_ID + "(nomadicLogin) bad or empty 'phoneNumber' parameter");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(nomadicLogin) bad or empty 'phoneNumber' parameter : ", phoneNumber);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(nomadicLogin) is phoneNumber defined : ", isDefined(phoneNumber));
         return new Promise(function(resolve, reject) {
 
@@ -2816,6 +2917,11 @@ that._eventEmitter.emit("evt_internal_callupdated", call);
         // DELETE /api/rainbow/telephony/v1.0/voicemessages/:messageId
         // API https://api.openrainbow.org/telephony/#api-telephony-Voice_message_delete
         let that = this;
+        if (!isDefined(messageId)) {
+            that._logger.log(that.WARN, LOG_ID + "(deleteAVoiceMessageFromPbx) bad or empty 'messageId' parameter");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteAVoiceMessageFromPbx) bad or empty 'messageId' parameter : ", messageId);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteAVoiceMessageFromPbx) is messageId defined : ", isDefined(messageId));
         return that._rest.deleteAVoiceMessageFromPbx(messageId);
     }
@@ -2853,6 +2959,16 @@ that._eventEmitter.emit("evt_internal_callupdated", call);
         // API https://api.openrainbow.org/telephony/#api-telephony-Voice_message_read 
         // GET /api/rainbow/telephony/v1.0/voicemessages/:messageId
         let that = this;
+        if (!isDefined(messageId)) {
+            that._logger.log(that.WARN, LOG_ID + "(getAVoiceMessageFromPbx) bad or empty 'messageId' parameter");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(getAVoiceMessageFromPbx) bad or empty 'messageId' parameter : ", messageId);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
+        if (!isDefined(messageDate)) {
+            that._logger.log(that.WARN, LOG_ID + "(getAVoiceMessageFromPbx) bad or empty 'messageDate' parameter");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(getAVoiceMessageFromPbx) bad or empty 'messageDate' parameter : ", messageDate);
+            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+        }
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getAVoiceMessageFromPbx) is messageId defined : ", isDefined(messageId));
         return that._rest.getAVoiceMessageFromPbx( messageId , messageDate, messageFrom);
     }

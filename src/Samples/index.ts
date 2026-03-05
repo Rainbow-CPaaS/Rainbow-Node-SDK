@@ -819,7 +819,7 @@ let expressEngine = undefined;
                 "start_up": true,
             },
             "telephony": {
-                "start_up": false,
+                "start_up": true,
             },
             "channels": {
                 "start_up": true,
@@ -8659,6 +8659,82 @@ let expressEngine = undefined;
                 _logger.log("debug", "MAIN - (testdeflectCallToVM) error while deflect call to VM : ", err);
             });
             _logger.log("debug", "MAIN - (testdeflectCallToVM) result : ", result);
+        }
+
+        async testdeflectcall() {
+            let deflectedCalls = new Set();
+            rainbowSDK.events.on("rainbow_oncallupdated", (call) => {
+
+                if (call.deviceState === 'LCI_INITIATED') {
+                    console.log("✅ Call initiated successfully");
+                } else if (call.deviceState === 'LCI_ALERTING') {
+                    console.log("📣 Call is ringing...");
+                } else if (call.deviceState === 'LCI_CONNECTED') {
+                    console.log("✅ Call connected!");
+                } else if (call.deviceState === 'LCI_NULL') {
+                    console.log("❌ Call ended/cleared");
+                }
+
+                if (call.status.value === 'incomingCall' &&
+                    call.deviceState === 'LCI_ALERTING' &&
+                    !deflectedCalls.has(call.id)) {
+
+                    console.log(`\n🔁 DEFLECTING CALL ${call.id} to +34603739854...`);
+                    deflectedCalls.add(call.id);
+
+                    try {
+                        rainbowSDK.telephony.deflectCall(call, { calleeExtNumber: "+34603739854" })
+                            .then(() => {
+                                console.log(`✅ Call ${call.id} deflected successfully!`);
+                            })
+                            .catch((error) => {
+                                console.error(`❌ Failed to deflect call ${call.id}:`, error);
+                                deflectedCalls.delete(call.id); // Remove from set to allow retry
+                            });
+                    } catch (error) {
+                        console.error(`❌ SDK error during deflection of call ${call.id}:`, error.message);
+                        console.log("⚠️ Deflection may still be in progress despite SDK error...");
+                    }
+                }
+
+            });
+/*
+<message
+  xmlns="jabber:client" xml:lang="en" to="D468...D29@openrainbow.com" from="tel_D468...D29@openrainbow.com/phone" type="headline" id="103609">
+  <callservice
+    xmlns="urn:xmpp:pbxagent:callservice:1">
+    <delivered callId="32700#3939" cause="NEWCALL" deviceState="LCI_ALERTING" endpointIm="" endpointTel="1000" globalCallId="17049c69bc7f0100" type="incoming"/>
+  </callservice>
+</message>
+             // */
+            let stanzaStr = "<message\n" +
+                "  xmlns=\"jabber:client\" xml:lang=\"en\" to=\"" + rainbowSDK._core._xmpp.jid + "\" from=\"tel_D468...D29@openrainbow.com/phone\" type=\"headline\" id=\"103609\">\n" +
+                "  <callservice\n" +
+                "    xmlns=\"urn:xmpp:pbxagent:callservice:1\">\n" +
+                "    <delivered callId=\"32700#3939\" cause=\"NEWCALL\" deviceState=\"LCI_ALERTING\" endpointIm=\"\" endpointTel=\"1000\" globalCallId=\"17049c69bc7f0100\" type=\"incoming\"/>\n" +
+                "  </callservice>\n" +
+                "</message>";
+            //let stanzaStr = "<message xmlns='jabber:client' to=\"" + rainbowSDK._core._xmpp.jid + "\" from='openrainbow.net' type='chat' id='11168115634748277303'><timestamp value='2025-09-05T14:11:16.868933Z' xmlns='urn:xmpp:receipts'/><received entity='server' event='received' id='web_3e998484-dc0d-46d6-adc0-dba7ec64191b4' xmlns='urn:xmpp:receipts'/></message>";
+            let stanza = prettydata.xmlmin(stanzaStr);
+            _logger.log("debug", "MAIN - testdeflectcall incomming call stanza : ", stanza);
+            await rainbowSDK._core._xmpp.mockStanza(stanza);
+            /*
+<presence
+  xmlns="jabber:client" xml:lang="en" to="D468...D29@openrainbow.com/node_node_sdk_ctrl" from="tel_D468...D29@openrainbow.com/phone">
+  <show>c...t</show>
+  <status>EVT...TED</status>
+</presence>
+            // */
+            /*
+            stanzaStr = "<presence\n" +
+                "  xmlns=\"jabber:client\" xml:lang=\"en\" to=\"" + rainbowSDK._core._xmpp.jid + "\" from=\"tel_D468...D29@openrainbow.com/phone\">\n" +
+                "  <show>c...t</show>\n" +
+                "  <status>EVT...TED</status>\n" +
+                "</presence>";
+            stanza = prettydata.xmlmin(stanzaStr);
+            _logger.log("debug", "MAIN - testdeflectcall presence stanza : ", stanza);
+            await rainbowSDK._core._xmpp.mockStanza(stanza);
+            // */
         }
 
         //endregion Telephony
