@@ -43,6 +43,7 @@ const _resourceBinding = require('@xmpp/resource-binding').default || require('@
 /*const scramsha1 = require("@xmpp/sasl-scram-sha-1");
 const plain = require('@xmpp/sasl-plain');
 // */
+const scramsha512 = require('./sasl-scram-sha-512');
 const scramsha1 = require("@xmpp/sasl-scram-sha-1").default || require("@xmpp/sasl-scram-sha-1");
 const plain = require('@xmpp/sasl-plain').default || require('@xmpp/sasl-plain');
 //const anonymous = require('@xmpp/sasl-anonymous');
@@ -81,13 +82,14 @@ function client(options = {}) {
 
   const saslFactory = new SASLFactory();
   // SASL mechanisms - order matters and define priority
-  const mechanisms = Object.entries({ scramsha1, plain}).map(
+  const mechanisms = Object.entries({ scramsha512, scramsha1, plain}).map(
   //const mechanisms = Object.entries({ plain}).map(
     ([k, v]) => ({[k]: v(saslFactory)})
   );
 
   const sasl = _sasl({streamFeatures, saslFactory}, async (authenticate, mechanisms) => {
-    const mechanism = mechanisms.includes('SCRAM-SHA-1') ? 'SCRAM-SHA-1' : mechanisms[0];
+    const mechanism = mechanisms.includes('SCRAM-SHA-512') ? 'SCRAM-SHA-512' :
+                      mechanisms.includes('SCRAM-SHA-1') ? 'SCRAM-SHA-1' : mechanisms[0];
     await authenticate(credentials || {username, password}, mechanism);
   });
   console.log("resourceBinding, iqCaller : ", iqCaller, ", streamFeatures :", streamFeatures, ", resource : ", resource)
