@@ -6,15 +6,17 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-### [2.42.0-lts.2] - 2025-03-06
+### [2.42.0-lts.2] - 2025-03-XX
 #### Removed
 -   None
 
 #### Fixed
+
 -   None.
 
 #### Added
 -   Add `sasl-scram-sha-512` support for XMPP connection.
+-   Add `sasl-scram-sha-256` support for XMPP connection.
 
 #### Changed
 -   None.
