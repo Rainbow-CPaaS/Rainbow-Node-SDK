@@ -16,6 +16,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 #### Added
 -   Add `rainbow_onscanreceived` event fired when a `scan` event is received from server.
 -   Add `test_sendApplicationAndOpenAconversation_BulleDeTest` test method to demonstrates how to send an Adaptive Card into a specific bubble (MUC) and then handle the user's interaction with that card.
+-   Add `sasl-scram-sha-256` support for XMPP connection.
 -   Add `sasl-scram-sha-512` support for XMPP connection.
 
 #### Changed

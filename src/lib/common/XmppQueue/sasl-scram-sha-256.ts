@@ -2,13 +2,13 @@
 
 export {};
 
-// SCRAM-SHA-512 SASL mechanism (RFC 5802 with SHA-512)
+// SCRAM-SHA-256 SASL mechanism (RFC 7677)
 // Compatible with the saslmechanisms / @xmpp/sasl plugin interface.
 
-const cryptoLib : any = require('crypto');
+const cryptoLib = require('crypto');
 
-const CLIENT_KEY = 'Client Key';
-const SERVER_KEY = 'Server Key';
+const CLIENT_KEY : any = 'Client Key';
+const SERVER_KEY : any = 'Server Key';
 
 function parse(chal) {
     const dtives = {};
@@ -41,11 +41,11 @@ function genNonce() {
 }
 
 function H(data) {
-    return cryptoLib.createHash('sha512').update(data).digest();
+    return cryptoLib.createHash('sha256').update(data).digest();
 }
 
 function HMAC(key, msg) {
-    return cryptoLib.createHmac('sha512', key).update(msg).digest();
+    return cryptoLib.createHmac('sha256', key).update(msg).digest();
 }
 
 function Hi(password, salt, iterations) {
@@ -75,7 +75,7 @@ function XOR(a, b) {
     return result;
 }
 
-const RESP : any = {};
+const RESP :any = {};
 
 function Mechanism(options) {
     options = options || {};
@@ -84,7 +84,7 @@ function Mechanism(options) {
 }
 
 Mechanism.Mechanism = Mechanism;
-Mechanism.prototype.name = 'SCRAM-SHA-512';
+Mechanism.prototype.name = 'SCRAM-SHA-256';
 Mechanism.prototype.clientFirst = true;
 
 Mechanism.prototype.response = function (cred) {
@@ -92,7 +92,7 @@ Mechanism.prototype.response = function (cred) {
 };
 
 Mechanism.prototype.challenge = function (chal) {
-    const values :any = parse(chal);
+    const values : any = parse(chal);
     this._salt = Buffer.from(values.s || '', 'base64');
     this._iterationCount = parseInt(values.i, 10);
     this._nonce = values.r;
@@ -169,12 +169,11 @@ RESP.final = function () {
     return '';
 };
 
-function saslScramSha512(sasl) {
+function saslScramSha256(sasl) {
     sasl.use(Mechanism);
 }
-
 // Plugin entry-point: called as saslFactory => saslFactory.use(Mechanism)
-module.exports = saslScramSha512;
+module.exports = saslScramSha256;
 
-export {saslScramSha512};
-export default saslScramSha512;
+export {saslScramSha256};
+export default saslScramSha256;
