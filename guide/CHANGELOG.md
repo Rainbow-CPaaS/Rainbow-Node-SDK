@@ -6,6 +6,33 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+### [2.42.0-lts.2] - 2025-03-06
+#### Removed
+-   None
+
+#### Fixed
+-   None.
+
+#### Added
+-   Add `sasl-scram-sha-512` support for XMPP connection.
+
+#### Changed
+-   None.
+ 
+### [2.42.0-lts.1] - 2025-11-XX
+#### Removed
+-   None
+
+#### Fixed
+-   None.
+
+#### Added
+-   Add `ContactsService::getThemes` `ContactsService::getMyThemes` `ContactsService::setMyTheme` `ContactsService::deleteMyThemes` API to get and manage user's theme.
+-   Add `AdminService::getAdminThemes`, `getCompanyThemes`, `createCompanyTheme`, `updateCompanyTheme`, `deleteCompanyTheme` API to manage Themes as administrator. 
+
+#### Changed
+-   None.
+
 ### [2.42.0-lts.0] - 2025-10-17
 #### Removed
 -   None
