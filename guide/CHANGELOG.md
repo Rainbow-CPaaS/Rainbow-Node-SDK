@@ -18,9 +18,11 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add `test_sendApplicationAndOpenAconversation_BulleDeTest` test method to demonstrates how to send an Adaptive Card into a specific bubble (MUC) and then handle the user's interaction with that card.
 -   Add `sasl-scram-sha-256` support for XMPP connection.
 -   Add `sasl-scram-sha-512` support for XMPP connection.
+-   Add REST mocking mechanism via `addMockRestUrl`, `setMockRestUrl`, and `getMockRestUrl` methods in `NodeSDK`. This allows simulating HTTP responses for specific URL/Verb combinations during testing.
+-   Add `test_mockRenewError404` in `Samples/index.ts` to demonstrate and verify the REST mocking mechanism.
 
 #### Changed
--   None
+-   Update `HttpManager` and `HttpService` to support custom callbacks for mocked REST requests, ensuring they work both with and without the request rate limiter.
 
 ### [2.43.1] - 2026-02-27
 #### Removed
