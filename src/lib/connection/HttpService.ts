@@ -105,6 +105,19 @@ class HTTPService extends LevelLogs{
     private reqAgentHttps: any;
     public useRequestRateLimiter: boolean;
     public apiHeadersConfiguration: any[];
+    public mockRestUrl : Array<{verb:string, url : string, callback : any }> = [];
+
+    getMockRestUrl() {
+        return this.mockRestUrl;
+    }
+
+    setMockRestUrl(mockRestUrl: Array<{verb:string, url : string, callback : any }>) {
+        this.mockRestUrl = mockRestUrl;
+    }
+
+    addMockRestUrl(verb: string, url: string, callback: any) {
+        this.mockRestUrl.push({verb, url, callback});
+    }
 
     static getClassName(){ return 'HTTPService'; }
     getClassName(){ return HTTPService.getClassName(); }
@@ -426,6 +439,15 @@ safeJsonParse(str) {
    }
 } // */
 
+    private findMockRestUrl(verb: string, url: string): any {
+        let that = this;
+        let mock = that.mockRestUrl.find((m) => m.verb === verb && m.url === url);
+        if (mock) {
+            return mock.callback;
+        }
+        return null;
+    }
+
     async checkHTTPStatus() : Promise<{
         nbHttpAdded: number,
         httpQueueSize: number,
@@ -547,6 +569,7 @@ safeJsonParse(str) {
     getUrlRaw(url, headers: any = {}, params, nbRetryBeforeFailed : number = 2, timeBetweenRetry = 1000): Promise<any> {
         let that = this;
         let req : RequestForQueue = new RequestForQueue();
+        req.callback = that.findMockRestUrl("GET", url);
         req.method = that._getUrlRaw.bind(this);
         req.params = arguments;
         let xRainbowRequestNodeId = headers["x-rainbow-correlation-id"] ;
@@ -555,6 +578,9 @@ safeJsonParse(str) {
         if (that.useRequestRateLimiter) {
             return that.httpManager.add(req);
         } else {
+            if (req.callback) {
+                return req.callback(...req.params);
+            }
             return that._getUrlRaw(url, headers, params, nbRetryBeforeFailed, timeBetweenRetry);
         }
     }
@@ -790,6 +816,7 @@ safeJsonParse(str) {
     headUrlRaw(url, headers: any = {}, nbRetryBeforeFailed : number = 2, timeBetweenRetry = 1000): Promise<any> {
         let that = this;
         let req : RequestForQueue = new RequestForQueue();
+        req.callback = that.findMockRestUrl("HEAD", url);
         req.method = that._headUrlRaw.bind(this);
         req.params = arguments;
         let xRainbowRequestNodeId = headers["x-rainbow-correlation-id"] ;
@@ -798,6 +825,9 @@ safeJsonParse(str) {
         if (that.useRequestRateLimiter) {
             return that.httpManager.add(req);
         } else {
+            if (req.callback) {
+                return req.callback(...req.params);
+            }
             return that._headUrlRaw(url, headers, nbRetryBeforeFailed, timeBetweenRetry);
         }
     }
@@ -1026,6 +1056,7 @@ safeJsonParse(str) {
     postUrlRaw(url, headers: any = {}, data): Promise<any> {
         let that = this;
         let req : RequestForQueue = new RequestForQueue();
+        req.callback = that.findMockRestUrl("POST", url);
         req.method = that._postUrlRaw.bind(this);
         req.params = arguments;
         let xRainbowRequestNodeId = headers["x-rainbow-correlation-id"] ;
@@ -1034,6 +1065,9 @@ safeJsonParse(str) {
         if (that.useRequestRateLimiter) {
             return that.httpManager.add(req);
         } else {
+            if (req.callback) {
+                return req.callback(...req.params);
+            }
             return that._postUrlRaw(url, headers, data);
         }
     }
@@ -1212,6 +1246,7 @@ safeJsonParse(str) {
     putUrlRaw(url, headers: any = {}, data): Promise<any> {
         let that = this;
         let req : RequestForQueue = new RequestForQueue();
+        req.callback = that.findMockRestUrl("PUT", url);
         req.method = that._putUrlRaw.bind(this);
         req.params = arguments;
         let xRainbowRequestNodeId = headers["x-rainbow-correlation-id"] ;
@@ -1220,6 +1255,9 @@ safeJsonParse(str) {
         if (that.useRequestRateLimiter) {
             return that.httpManager.add(req);
         } else {
+            if (req.callback) {
+                return req.callback(...req.params);
+            }
             return that._putUrlRaw(url, headers, data);
         }
     }
@@ -1381,6 +1419,7 @@ safeJsonParse(str) {
     deleteUrlRaw(url, headers: any = {}, data : Object = undefined, nbRetryBeforeFailed : number = 0, timeBetweenRetry = 1000): Promise<any> {
         let that = this;
         let req : RequestForQueue = new RequestForQueue();
+        req.callback = that.findMockRestUrl("DELETE", url);
         req.method = that._deleteUrlRaw.bind(this);
         req.params = arguments;
         let xRainbowRequestNodeId = headers["x-rainbow-correlation-id"] ;
@@ -1389,6 +1428,9 @@ safeJsonParse(str) {
         if (that.useRequestRateLimiter) {
             return that.httpManager.add(req);
         } else {
+            if (req.callback) {
+                return req.callback(...req.params);
+            }
             return that._deleteUrlRaw(url, headers, data, nbRetryBeforeFailed, timeBetweenRetry);
         }
 
@@ -1643,6 +1685,7 @@ safeJsonParse(str) {
     getUrlJson(url, headers: any = {}, params, nbRetryBeforeFailed : number = 2, timeBetweenRetry = 1000): Promise<any> {
         let that = this;
         let req : RequestForQueue = new RequestForQueue();
+        req.callback = that.findMockRestUrl("GET", url);
         req.method = that._getUrlJson.bind(this);
         req.params = arguments;
         let xRainbowRequestNodeId = headers["x-rainbow-correlation-id"] ;
@@ -1651,6 +1694,9 @@ safeJsonParse(str) {
         if (that.useRequestRateLimiter) {
             return that.httpManager.add(req);
         } else {
+            if (req.callback) {
+                return req.callback(...req.params);
+            }
             return that._getUrlJson(url, headers, params, nbRetryBeforeFailed, timeBetweenRetry);
         }
     }
@@ -2041,6 +2087,7 @@ safeJsonParse(str) {
     get(url, headers: any = {}, params, responseType = "", nbRetryBeforeFailed : number = 0, timeBetweenRetry = 1000): Promise<any> {
         let that = this;
         let req : RequestForQueue = new RequestForQueue();
+        req.callback = that.findMockRestUrl("GET", url);
         req.method = that._get.bind(this);
         req.params = arguments;
         let xRainbowRequestNodeId = headers["x-rainbow-correlation-id"] ;
@@ -2050,6 +2097,9 @@ safeJsonParse(str) {
         if (that.useRequestRateLimiter) {
             return that.httpManager.add(req);
         } else {
+            if (req.callback) {
+                return req.callback(...req.params);
+            }
             return that._get(url, headers, params, responseType, nbRetryBeforeFailed, timeBetweenRetry);
         }
     }
@@ -2492,6 +2542,7 @@ safeJsonParse(str) {
     post(url, headers: any = {}, data, contentType, nbRetryBeforeFailed : number = 0, timeBetweenRetry = 1000): Promise<any> {
         let that = this;
         let req : RequestForQueue = new RequestForQueue();
+        req.callback = that.findMockRestUrl("POST", url);
         req.method = that._post.bind(this);
         req.params = arguments;
         let xRainbowRequestNodeId = headers["x-rainbow-correlation-id"] ;
@@ -2500,6 +2551,9 @@ safeJsonParse(str) {
         if (that.useRequestRateLimiter) {
             return that.httpManager.add(req);
         } else {
+            if (req.callback) {
+                return req.callback(...req.params);
+            }
             return that._post(url, headers, data, contentType, nbRetryBeforeFailed, timeBetweenRetry);
         }
     }
@@ -2852,6 +2906,7 @@ safeJsonParse(str) {
     head(url, headers: any = {}, nbRetryBeforeFailed : number = 2, timeBetweenRetry = 1000): Promise<any> {
         let that = this;
         let req : RequestForQueue = new RequestForQueue();
+        req.callback = that.findMockRestUrl("HEAD", url);
         req.method = that._head.bind(this);
         req.params = arguments;
         let xRainbowRequestNodeId = headers["x-rainbow-correlation-id"] ;
@@ -2860,6 +2915,9 @@ safeJsonParse(str) {
         if (that.useRequestRateLimiter) {
             return that.httpManager.add(req);
         } else {
+            if (req.callback) {
+                return req.callback(...req.params);
+            }
             return that._head(url, headers, nbRetryBeforeFailed, timeBetweenRetry);
         }
     }
@@ -3194,6 +3252,7 @@ safeJsonParse(str) {
     patch(url, headers: any = {}, data, type, nbRetryBeforeFailed : number = 0, timeBetweenRetry = 1000): Promise<any> {
         let that = this;
         let req : RequestForQueue = new RequestForQueue();
+        req.callback = that.findMockRestUrl("PATCH", url);
         req.method = that._patch.bind(this);
         req.params = arguments;
         let xRainbowRequestNodeId = headers["x-rainbow-correlation-id"] ;
@@ -3202,6 +3261,9 @@ safeJsonParse(str) {
         if (that.useRequestRateLimiter) {
             return that.httpManager.add(req);
         } else {
+            if (req.callback) {
+                return req.callback(...req.params);
+            }
             return that._patch(url, headers,data, type, nbRetryBeforeFailed, timeBetweenRetry);
         }
     }
@@ -3557,6 +3619,7 @@ safeJsonParse(str) {
     put(url, headers: any = {}, data, type, nbRetryBeforeFailed : number = 0, timeBetweenRetry = 1000): Promise<any> {
         let that = this;
         let req : RequestForQueue = new RequestForQueue();
+        req.callback = that.findMockRestUrl("PUT", url);
         req.method = that._put.bind(this);
         req.params = arguments;
         let xRainbowRequestNodeId = headers["x-rainbow-correlation-id"] ;
@@ -3565,6 +3628,9 @@ safeJsonParse(str) {
         if (that.useRequestRateLimiter) {
             return that.httpManager.add(req);
         } else {
+            if (req.callback) {
+                return req.callback(...req.params);
+            }
             return that._put(url, headers,data, type, nbRetryBeforeFailed, timeBetweenRetry);
         }
     }
@@ -3923,6 +3989,7 @@ safeJsonParse(str) {
     putBuffer(url, headers: any = {}, buffer): Promise<any> {
         let that = this;
         let req : RequestForQueue = new RequestForQueue();
+        req.callback = that.findMockRestUrl("PUT", url);
         req.method = that._putBuffer.bind(this);
         req.params = arguments;
         let xRainbowRequestNodeId = headers["x-rainbow-correlation-id"] ;
@@ -3931,6 +3998,9 @@ safeJsonParse(str) {
         if (that.useRequestRateLimiter) {
             return that.httpManager.add(req);
         } else {
+            if (req.callback) {
+                return req.callback(...req.params);
+            }
             return that._putBuffer(url, headers, buffer);
         }
     }
@@ -4437,6 +4507,7 @@ safeJsonParse(str) {
     delete(url, headers: any = {}, data : Object = undefined): Promise<any> {
         let that = this;
         let req : RequestForQueue = new RequestForQueue();
+        req.callback = that.findMockRestUrl("DELETE", url);
         req.method = that._delete.bind(this);
         req.params = arguments;
         let xRainbowRequestNodeId = headers["x-rainbow-correlation-id"] ;
@@ -4445,6 +4516,9 @@ safeJsonParse(str) {
         if (that.useRequestRateLimiter) {
             return that.httpManager.add(req);
         } else {
+            if (req.callback) {
+                return req.callback(...req.params);
+            }
             return that._delete(url, headers, data);
         }
     }

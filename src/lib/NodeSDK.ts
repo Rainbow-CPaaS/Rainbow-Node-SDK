@@ -1063,6 +1063,44 @@ class NodeSDK {
 
     /**
      * @public
+     * @method getMockRestUrl
+     * @instance
+     * @description
+     *    Get the list of mock rest urls
+     * @return {Array}
+     */
+    getMockRestUrl() {
+        return this._core.getMockRestUrl();
+    }
+
+    /**
+     * @public
+     * @method setMockRestUrl
+     * @instance
+     * @description
+     *    Set the list of mock rest urls
+     * @param {Array} mockRestUrl
+     */
+    setMockRestUrl(mockRestUrl: Array<{verb:string, url : string, callback : any }>) {
+        this._core.setMockRestUrl(mockRestUrl);
+    }
+
+    /**
+     * @public
+     * @method addMockRestUrl
+     * @instance
+     * @description
+     *    Add a mock rest url
+     * @param {string} verb
+     * @param {string} url
+     * @param {any} callback
+     */
+    addMockRestUrl(verb: string, url: string, callback: any) {
+        this._core.addMockRestUrl(verb, url, callback);
+    }
+
+    /**
+     * @public
      * @property {SettingsService} settings
      * @instance
      * @nodered true

@@ -512,7 +512,7 @@ let expressEngine = undefined;
         // Logs options
         "logs": {
             "enableConsoleLogs": true,
-            "enableFileLogs": true,
+            "enableFileLogs": false,
             "enableEventsLogs": false,
             "enableEncryptedLogs": false,
             "color": true,
@@ -527,7 +527,7 @@ let expressEngine = undefined;
                 "http": true,
             },
             "filter": "",
-            "areas": logLevelAreas,
+            // "areas": logLevelAreas,
             /*,
             "areas" : {
                 "admin": {
@@ -1562,6 +1562,29 @@ let expressEngine = undefined;
             });
             _logger.log("debug", "MAIN - [test_renewAuthToken    ] ::  last.",);
             //rainbowSDK._core._rest._renewAuthToken("failedurl");
+        }
+
+        async test_mockRenewError404() {
+            let url = "/api/rainbow/authentication/v1.0/renew";
+            let verb = "GET";
+            _logger.log("debug", "MAIN - [test_mockRenewError404 ] ::  start mock " + verb + " " + url);
+            rainbowSDK.addMockRestUrl(verb, url, () => {
+                _logger.log("debug", "MAIN - [test_mockRenewError404 ] ::  callback mock called, return 404 error");
+                return Promise.reject({
+                    status: 404,
+                    statusText: "Not Found",
+                    message: "Mocked 404 error"
+                });
+            });
+
+            try {
+                _logger.log("debug", "MAIN - [test_mockRenewError404 ] ::  calling _renewAuthToken...");
+                // On utilise la méthode interne de RESTService qui appelle cette URL
+                await rainbowSDK.rest._renewAuthToken();
+                _logger.log("debug", "MAIN - [test_mockRenewError404 ] ::  _renewAuthToken finished (unexpectedly success)");
+            } catch (err) {
+                _logger.log("debug", "MAIN - [test_mockRenewError404 ] ::  _renewAuthToken failed as expected : ", err);
+            }
         }
 
         testCloseXMPP() {

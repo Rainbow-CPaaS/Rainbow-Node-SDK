@@ -1506,6 +1506,18 @@ class Core extends LevelLogs{
         return this._rest;
     }
 
+    getMockRestUrl() {
+        return this._rest.getMockRestUrl();
+    }
+
+    setMockRestUrl(mockRestUrl: Array<{verb:string, url : string, callback : any }>) {
+        this._rest.setMockRestUrl(mockRestUrl);
+    }
+
+    addMockRestUrl(verb: string, url: string, callback: any) {
+        this._rest.addMockRestUrl(verb, url, callback);
+    }
+
     get state() {
         return this._stateManager.state;
     }

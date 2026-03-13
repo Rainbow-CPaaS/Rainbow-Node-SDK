@@ -35,6 +35,7 @@ class RequestForQueue {
     id : string; // id to identify the request in queue
     method : Function; // the pointer to the function with the treatment of the request. Note : do not forget to bind the function to the right object to set the correct this inside it.
     params : IArguments; // The list of arguments of the function of the treatment.
+    callback: Function; // If set, this function will be called instead of the method.
 //    resolve : Function; // Internal for the queue engine, Pointer to the function which resolve the promise waited by the caller when the treatment successfully ended.
 //    reject : Function; // Internal for the queue engine, Pointer to the function which reject the promise waited by the caller when the treatment failed ended.
     label: string; // A label to give a human readable log about the request.
@@ -59,7 +60,8 @@ class MyRequestHandler {
     async request(req : RequestForQueue) {
         let nbRunningReq = await this.httpManager.incNbRunningReq();
         this.httpManager._logger.log("internal", LOG_ID + "(MyRequestHandler::request) The req will run nbRunningReq : ", nbRunningReq, ", nbHttpAdded : ", this.httpManager.nbHttpAdded, ", req.id : ", req.id, ", req.label : ", req.label);
-        const response = await req.method(...req.params).then((result) => {
+        let methodToCall = req.callback ? req.callback : req.method;
+        const response = await methodToCall(...req.params).then((result) => {
             this.httpManager.decNbRunningReq();
             this.httpManager._logger.log("internal", LOG_ID + "(MyRequestHandler::request) The req method call SUCCEED. nbRunningReq : ", nbRunningReq, ", nbHttpAdded : ", this.httpManager.nbHttpAdded, ", req.id : ", req.id, ", req.label : ", req.label);
             return result;

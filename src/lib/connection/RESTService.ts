@@ -394,6 +394,18 @@ class RESTService extends GenericRESTService {
         return this.account ? this.account.id:"";
     }
 
+    getMockRestUrl() {
+        return this.http.getMockRestUrl();
+    }
+
+    setMockRestUrl(mockRestUrl: Array<{verb:string, url : string, callback : any }>) {
+        this.http.setMockRestUrl(mockRestUrl);
+    }
+
+    addMockRestUrl(verb: string, url: string, callback: any) {
+        this.http.addMockRestUrl(verb, url, callback);
+    }
+
     get loggedInUser() {
         return this.account;
     }
