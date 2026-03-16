@@ -1,0 +1,35 @@
+graph TD
+    %% Initial Acquisition
+    Start([Start SDK]) --> Signin{Signin Method}
+    Signin -- Credentials --> LoginAPI[GET /authentication/v1.0/login]
+    Signin -- Provided Token --> SetToken[Store Token in RESTService.tokenRest]
+
+    LoginAPI -->|Success| StoreToken[Store Token in RESTService.tokenRest]
+    StoreToken --> InitServices[Initialize Services & XMPP]
+    SetToken --> InitServices
+
+    %% Token Survey & Renewal
+    InitServices --> StartSurvey[Start Token Survey]
+    StartSurvey --> DecodeJWT[Decode JWT to find Expiration 'exp']
+    DecodeJWT --> CalcDelay[Calculate Renewal Delay - Usually 5 mins before exp or 1/2 duration]
+    CalcDelay --> SetTimer[Set Timer: renewTokenInterval]
+
+    SetTimer --> TimerWait{Timer Expired?}
+    TimerWait -- Yes --> RenewToken[GET /authentication/v1.0/renew]
+    RenewToken -->|Success: New Token| UpdateToken[Update tokenRest]
+    UpdateToken --> StartSurvey
+
+    RenewToken -->|Failure| TokenExpired[Emit evt_internal_tokenexpired]
+    TokenExpired --> StopSDK([Stop SDK / Reconnect Required])
+    StopSDK -- Reconnect --> Start
+
+    %% Usage
+    subgraph REST API Calls
+        Request[App REST Request] --> GetHeader[Get Auth Header: Bearer tokenRest]
+        GetHeader --> SendRequest[Send Request to Rainbow Server]
+    end
+
+    %% Termination
+    Stop([Stop SDK / Signout]) --> SignoutAPI[GET /authentication/v1.0/logout]
+    SignoutAPI --> ClearToken[Clear tokenRest & renewTokenInterval]
+    ClearToken --> End([End])

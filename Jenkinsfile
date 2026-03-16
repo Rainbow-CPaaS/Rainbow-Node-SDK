@@ -767,24 +767,31 @@ pipeline {
                                     find debian
 
                                     mkdir -p Documentation
+                                    mkdir -p Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides
                                     cp -R doc debian Documentation/
 
                                     echo "update files with doc/sdk/node path which should be doc/sdk/node/${RELEASENAMELOWERNAME} into the folder Documentation ."
                                     sed "s/otlite-sdk-node-doc/otlite-sdk-node-doc-${RELEASENAMELOWERNAME}/" debian/control |tee "Documentation/debian/control"
                                     sed "s/\\/usr\\/share\\/sdkdoc\\/node\\/sitemap.xml/\\/usr\\/share\\/sdkdoc\\/node\\/${RELEASENAMELOWERNAME}\\/sitemap.xml/" debian/postinst |tee "Documentation/debian/postinst"
                                     # more Documentation/debian/control
-                                    sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "guide/RainbowNodeSDKNews.md"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/RainbowNodeSDKNews.md"
-                                    # more Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/RainbowNodeSDKNews.md
-                                    sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "guide/Answering_chat_message.md" |tee  "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/Answering_chat_message.md"
-                                    sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "guide/Connecting_to_Rainbow_S2S_Mode.md"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/Connecting_to_Rainbow_S2S_Mode.md"
-                                    sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "guide/Connecting_to_Rainbow_XMPP_Mode.md"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/Connecting_to_Rainbow_XMPP_Mode.md"
-                                    sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "guide/Development_Kit.md"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/Development_Kit.md"
-                                    sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "guide/Getting_Started.md"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/Getting_Started.md"
-                                    sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "guide/Legals.md"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/Legals.md"
-                                    sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "guide/Managing_bubbles.md"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/Managing_bubbles.md"
-                                    sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "guide/Managing_conferences.md"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/Managing_conferences.md"
-                                    sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "guide/Managing_RPCoverXMPP.md"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/Managing_RPCoverXMPP.md"
-                                    sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "build/What_is_new_generated.md"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/What_is_new.md"
+                                    # store every markdown file in guide directory of the debian package structure with updated content of STS/LTS path.
+                                    for file in guide/*.md; do
+                                        filename=\$(basename "\$file")
+                                        sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "\$file" > "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/\$filename"
+                                    done
+                                    # sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "guide/RainbowNodeSDKNews.md"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/RainbowNodeSDKNews.md"
+                                    # # more Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/RainbowNodeSDKNews.md
+                                    # sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "guide/Answering_chat_message.md" |tee  "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/Answering_chat_message.md"
+                                    # sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "guide/Connecting_to_Rainbow_S2S_Mode.md"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/Connecting_to_Rainbow_S2S_Mode.md"
+                                    # sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "guide/Connecting_to_Rainbow_XMPP_Mode.md"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/Connecting_to_Rainbow_XMPP_Mode.md"
+                                    # sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "guide/tokenLifeCycle.md"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/tokenLifeCycle.md"
+                                    # sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "guide/Development_Kit.md"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/Development_Kit.md"
+                                    # sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "guide/Getting_Started.md"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/Getting_Started.md"
+                                    # sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "guide/Legals.md"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/Legals.md"
+                                    # sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "guide/Managing_bubbles.md"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/Managing_bubbles.md"
+                                    # sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "guide/Managing_conferences.md"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/Managing_conferences.md"
+                                    # sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "guide/Managing_RPCoverXMPP.md"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/Managing_RPCoverXMPP.md"
+                                    # sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "build/What_is_new_generated.md"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/What_is_new.md"
 
                                     sed "s/ref:doc\\/sdk\\/node\\//ref:doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "index.yml"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/index.yml"
                                     sed "s/\\/doc\\/sdk\\/node\\//\\/doc\\/sdk\\/node\\/${RELEASENAMELOWERNAME}\\//g" "sitemap.xml"  |tee "Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/sitemap.xml"
