@@ -82,7 +82,7 @@ class TelephonyService extends GenericService {
         start_up:boolean,
         optional:boolean
     }) {
-        super(logger, LOG_ID, _eventEmitter);
+        super(_core, logger, LOG_ID, _eventEmitter);
         this.setLogLevels(this);
         let that = this;
         this._startConfig = _startConfig;

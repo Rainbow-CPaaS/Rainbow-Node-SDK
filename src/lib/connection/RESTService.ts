@@ -325,7 +325,6 @@ class RESTService extends GenericRESTService {
     public connectionS2SInfo: any;
     private reconnectInProgress: boolean;
     private _options: any;
-    private timeOutManager: TimeOutManager;
     protected apiConfigTTL: number = 1;
     protected apiConfigTTLTimeout: any = 1;
     protected loginUrl = '/api/rainbow/authentication/v1.0/login';
@@ -339,18 +338,16 @@ class RESTService extends GenericRESTService {
     getAccessorName(){ return RESTService.getAccessorName(); }
 
     constructor(core: Core, _options, evtEmitter: EventEmitter, _logger: Logger) {
-        super(_logger, LOG_ID);
+        super(core, _logger, LOG_ID);
         let that = this;
         let self = this;
         this.eventEmitter = evtEmitter;
 
         this._logger = _logger;
-        that._core = core;
-        this.restTelephony = new RESTTelephony(evtEmitter, _logger);
-        this.restConferenceV2 = new RESTConferenceV2(evtEmitter, _logger);
-        this.restWebinar = new RESTWebinar(evtEmitter, _logger);
-
-        this.timeOutManager = core.timeOutManager;
+        this.restTelephony = new RESTTelephony(core, evtEmitter, _logger);
+        this.restConferenceV2 = new RESTConferenceV2(core, evtEmitter, _logger);
+        this.restWebinar = new RESTWebinar(core, evtEmitter, _logger);
+        //this.timeOutManager = core.timeOutManager;
         this.http = null;
         this.account = null;
         this.app = null;

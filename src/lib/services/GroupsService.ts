@@ -46,7 +46,7 @@ const API_ID = "API_CALL - ";
         start_up:boolean,
         optional:boolean
     }) {
-        super(_logger, LOG_ID, _eventEmitter);
+        super(_core, _logger, LOG_ID, _eventEmitter);
         this.setLogLevels(this);
         this._startConfig = _startConfig;
         this._xmpp = null;
@@ -58,8 +58,6 @@ const API_ID = "API_CALL - ";
         this._groups = null;
         this._eventEmitter = _eventEmitter;
         this._logger = _logger;
-
-        this._core = _core;
 
         this._eventEmitter.on("evt_internal_hdle_groupcreated", this._onGroupCreated.bind(this));
         this._eventEmitter.on("evt_internal_hdle_groupdeleted", this._onGroupDeleted.bind(this));

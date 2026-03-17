@@ -58,7 +58,7 @@ class InvitationsService extends GenericService {
         getAccessorName(){ return InvitationsService.getAccessorName(); }
 
         constructor(_core:Core, _eventEmitter: EventEmitter, _logger: Logger, _startConfig: { start_up: boolean; optional: boolean }) {//$q, $log, $http, $rootScope, authService, Invitation, contactService, xmppService, errorHelperService, settingsService) {
-                super(_logger, LOG_ID, _eventEmitter);
+                super(_core, _logger, LOG_ID, _eventEmitter);
                 this.setLogLevels(this);
                 let that = this;
                 this._startConfig = _startConfig;
@@ -70,8 +70,6 @@ class InvitationsService extends GenericService {
                 this._useS2S = false;
                 this._eventEmitter = _eventEmitter;
                 this._logger = _logger;
-
-                this._core = _core;
 
                 //update the sentInvitations list when new invitation is accepted
                 // DONE : VBR that._listeners.push($rootScope.$on("ON_ROSTER_CHANGED_EVENT", that.getAllSentInvitations));

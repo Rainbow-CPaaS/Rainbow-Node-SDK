@@ -28,10 +28,13 @@ class StateManager {
 	public state: any;
     private timeOutManager: TimeOutManager;
 
-    constructor(_eventEmitter, logger, timeOutManager : TimeOutManager) {
+    private _core: any;
+
+    constructor(_core, _eventEmitter, logger, timeOutManager : TimeOutManager) {
         this.eventEmitter = _eventEmitter;
         this.logger = logger;
         this.timeOutManager = timeOutManager;
+        this._core = _core;
 
         // Initial state
         this.state = SDKSTATUSENUM.STOPPED;

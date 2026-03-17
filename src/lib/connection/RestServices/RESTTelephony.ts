@@ -31,8 +31,8 @@ class RESTTelephony extends GenericRESTService {
         return RESTTelephony.getAccessorName();
     }
 
-    constructor(evtEmitter, _logger) {
-        super(_logger, LOG_ID);
+    constructor(_core, evtEmitter, _logger) {
+        super(_core, _logger, LOG_ID);
         this.setLogLevels(this);
         let that = this;
 

@@ -56,7 +56,7 @@ class AlertsService extends GenericService{
         start_up:boolean,
         optional:boolean
     }) {
-        super(logger, LOG_ID, _eventEmitter);
+        super(_core, logger, LOG_ID, _eventEmitter);
         this.setLogLevels(this);
 
         /*********************************************************/
@@ -71,8 +71,6 @@ class AlertsService extends GenericService{
         this._useXMPP = false;
         this._useS2S = false;
         this._logger = logger;
-
-        this._core = _core;
 
         //this._eventEmitter.on("evt_internal_alertcreated_handle", this.onAlertCreated.bind(this));
         //this._eventEmitter.on("evt_internal_alertdeleted_handle", this.onAlertDeleted.bind(this));

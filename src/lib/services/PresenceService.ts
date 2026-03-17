@@ -58,7 +58,7 @@ class PresenceService extends GenericService{
         start_up:boolean,
         optional:boolean
     }) {
-        super(_logger, LOG_ID, _eventEmitter);
+        super(_core, _logger, LOG_ID, _eventEmitter);
         this.setLogLevels(this);
         let that = this;
         this._startConfig = _startConfig;
@@ -71,8 +71,6 @@ class PresenceService extends GenericService{
         this._useS2S = false;
         that._eventEmitter = _eventEmitter;
         that._logger = _logger;
-
-        that._core = _core;
 
         that.manualState = false;
         that._currentPresence = new PresenceRainbow(PresenceLevel.Online);

@@ -1,5 +1,6 @@
 "use strict";
 import {XMPPService} from "../connection/XMPPService";
+import {TimeOutManager} from "../common/TimeOutManager";
 
 export {};
 
@@ -28,6 +29,7 @@ class GenericService extends LevelLogs{
     public _started: boolean;
     protected _initialized: boolean;
     protected _core: Core;
+    protected timeOutManager: TimeOutManager;
 
     protected _startConfig: {
         start_up:boolean,
@@ -53,7 +55,7 @@ class GenericService extends LevelLogs{
 
     protected getAccessorName(){ return "GenericService"; }
 
-    constructor( _logger : Logger, logId : string = "UNDF/SVCE - ", _eventEmitter) {
+    constructor(_core: Core, _logger : Logger, logId : string = "UNDF/SVCE - ", _eventEmitter) {
         super();
         this._eventEmitter = _eventEmitter;
         this.setLogLevels(this);
@@ -62,6 +64,11 @@ class GenericService extends LevelLogs{
         that._logger = _logger;
         if (logId) {
             that._logId = logId;
+        }
+
+        this._core = _core;
+        if (this._core && this._core.timeOutManager) {
+            this.timeOutManager = this._core.timeOutManager;
         }
 
         // that._logger.log(that.DEBUG, that._logId + "(GenericService::constructor) " );

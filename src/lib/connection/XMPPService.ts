@@ -13,6 +13,7 @@ import {
 import * as PubSub from "pubsub-js";
 import {Conversation} from "../common/models/Conversation";
 import {XMPPUTils} from "../common/XMPPUtils";
+import {TimeOutManager} from "../common/TimeOutManager";
 
 import {IQEventHandler} from "./XMPPServiceHandler/iqEventHandler";
 import {XmppClient} from "../common/XmppQueue/XmppClient";
@@ -188,7 +189,7 @@ class XMPPService extends GenericService {
     getAccessorName(){ return XMPPService.getAccessorName(); }
 
     constructor(_core, _xmppOptions, _im, _application, _eventEmitter, _logger, _proxy, _rest, _options) {
-        super(_logger, LOG_ID, _eventEmitter);
+        super(_core, _logger, LOG_ID, _eventEmitter);
         this.setLogLevels(this);
         let that = this;
         that.serverURL = _xmppOptions.protocol + "://" + _xmppOptions.host + ":" + _xmppOptions.port + "/websocket";
@@ -207,7 +208,6 @@ class XMPPService extends GenericService {
         that._rest = _rest;
         that._logger = _logger;
         that.proxy = _proxy;
-        that._core = _core;
         that.shouldSendReadReceipt = _im.sendReadReceipt;
         that.shouldSendMessageToConnectedUser = _im.sendMessageToConnectedUser;
         that.storeMessages = _im.storeMessages;
@@ -450,20 +450,20 @@ class XMPPService extends GenericService {
         that.stopIdleTimer();
         if (!that.forceClose) {
             that._logger.log(that.DEBUG, LOG_ID + "(startOrResetIdleTimer) forceClose not setted, so start setTimeout of idle Timer for ping.");
-            that.idleTimer = setTimeout(() => {
+            that.idleTimer =  that.timeOutManager.setTimeout(() => {
                 that._logger.log(that.DEBUG, LOG_ID + "(startOrResetIdleTimer) idleTimer elapsed. No message received since " + that.maxIdleTimer / 1000 + " seconds, so send a ping iq request and start setTimeout of ping Timer for waiting result.");
                 // Start waiting an answer from server else reset the connection
-                that.pingTimer = setTimeout(() => {
+                that.pingTimer =  that.timeOutManager.setTimeout(() => {
                     that.pingTimer = null;
                     that._logger.log(that.DEBUG, LOG_ID + "(startOrResetIdleTimer) first pingTimer elapsed after that.maxPingAnswerTimer (", that.maxPingAnswerTimer, " seconds). retry a ping iq request before decide it is a fatal error!");
-                    that.pingTimer = setTimeout(async () => {
+                    that.pingTimer =  that.timeOutManager.setTimeout(async () => {
                         /*let err = {
                             "condition": "No data received from server since " + ((that.maxIdleTimer + that.maxPingAnswerTimer * 2) / 1000) + " secondes. The XMPP link is badly broken, so the application needs to destroy and recreate the SDK, with fresh start(...)."
                         };
                         that._logger.log(that.ERROR, LOG_ID + "(startOrResetIdleTimer) second pingTimer elapsed after that.maxPingAnswerTimer (", that.maxPingAnswerTimer, " seconds). forceClose not setted, FATAL no reconnection for condition : ", err.condition, ", error : ", err);
                         // */
                         that._logger.log(that.ERROR, LOG_ID + "(startOrResetIdleTimer) second pingTimer elapsed after that.maxPingAnswerTimer (", that.maxPingAnswerTimer, " seconds). close the socket. : ");
-                        if (that.xmppClient.socket != null) {
+                        if (null!=that.xmppClient.socket) {
                             that.xmppClient.socket.end();
                         }
                         if (that.reconnect) {
@@ -480,7 +480,7 @@ class XMPPService extends GenericService {
                             let err = {
                                 code : -1,
                                 label: "that.reconnect is undefined, so reconnection is not possible. Raise a FATAL error."
-                            }
+                            };
                             that.eventEmitter.emit("evt_internal_xmppfatalerror", err);
                         }
 

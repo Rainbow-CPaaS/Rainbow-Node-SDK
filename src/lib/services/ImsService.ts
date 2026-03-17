@@ -57,7 +57,7 @@ class ImsService extends GenericService{
         start_up:boolean,
         optional:boolean
     }) {
-        super(_logger, LOG_ID, _eventEmitter);
+        super(_core, _logger, LOG_ID, _eventEmitter);
         this.setLogLevels(this);
         this._startConfig = _startConfig;
         this._xmpp = null;
@@ -71,8 +71,6 @@ class ImsService extends GenericService{
         this._eventEmitter = _eventEmitter;
         this._pendingMessages = {};
         this._imOptions = _imOptions;
-
-        this._core = _core;
 
         this._eventEmitter.on("evt_internal_onreceipt", this._onmessageReceipt.bind(this));
     }

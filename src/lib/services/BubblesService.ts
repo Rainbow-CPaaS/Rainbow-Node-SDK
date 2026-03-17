@@ -84,7 +84,7 @@ class Bubbles extends GenericService {
         start_up: boolean,
         optional: boolean
     }) {
-        super(_logger, LOG_ID, _eventEmitter);
+        super(_core, _logger, LOG_ID, _eventEmitter);
         this.setLogLevels(this);
         this._xmpp = null;
         this._rest = null;
@@ -99,8 +99,6 @@ class Bubbles extends GenericService {
         this._protocol = _http.protocol;
         this._host = _http.host;
         this._port = _http.port;
-
-        this._core = _core;
 
         this.bubblesManager = new BubblesManager(this._eventEmitter, this._logger)
 

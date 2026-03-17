@@ -4,7 +4,11 @@ import {LogLevelAreas, NodeSDK as RainbowSDK} from "../index";
  * @name index.ts
  *
  * @description :
- * The index.ts file is not a "best practice", but it is a file used by developper to test/validate the SDK, so you can find in it some help.
+ * This file is a comprehensive test and validation environment for the Rainbow Node SDK.
+ * It provides a CLI (Command Line Interface) for developers to interactively test various services:
+ * Contacts, Conversations, Bubbles, Channels, Files, Profiles, Telephony, and more.
+ * While not following production "best practices," it serves as a valuable resource and reference
+ * for understanding SDK features and implementation details.
  *
  */
 import * as Utils from "../lib/common/Utils";
@@ -1352,7 +1356,7 @@ let expressEngine = undefined;
         stopped = true;
         _logger.log("debug", "MAIN - (rainbow_onstopped) " + countStop + " - rainbow event received. data", data);
         //setTimeout(() => {
-        _logger.log("debug", "MAIN - (rainbow_onstopped) rainbow SDK will re start " + countStop + " result : ", data); //logger.colors.green(JSON.stringify(result)));
+        //_logger.log("debug", "MAIN - (rainbow_onstopped) rainbow SDK will re start " + countStop + " result : ", data); //logger.colors.green(JSON.stringify(result)));
         //rainbowSDK.start();
         //        rainbowSDK.start().then(()=>{
         /*logger.log("debug", "MAIN - rainbow_onstopped rainbow SDK started " + countStop + " result : ", data); //logger.colors.green(JSON.stringify(result)));
@@ -1564,9 +1568,35 @@ let expressEngine = undefined;
             //rainbowSDK._core._rest._renewAuthToken("failedurl");
         }
 
+        /**
+         * @description
+         * This method tests the SDK's behavior when a token renewal request fails with a 404 error.
+         * It mocks the renewal REST URL to return a 404 status, then triggers the renewal process.
+         * The test verifies that the SDK correctly handles the error and emits the 'rainbow_onstopped' event,
+         * and then attempts to restart the SDK.
+         * @privateRemarks
+         * Can be used with every account on .NET and .COM platforms.
+         * The rainbowSDK must be started before the call of this method.
+         */
         async test_mockRenewError404() {
             let url = "/api/rainbow/authentication/v1.0/renew";
             let verb = "GET";
+
+            let countReceivedStop = 0 ;
+            rainbowSDK.events.on("rainbow_onstopped", (data) => {
+                countReceivedStop++;
+                stopped = true;
+                _logger.log("debug", "MAIN - (rainbow_onstopped) test_mockRenewError404 " + countReceivedStop + " - rainbow event received. data", data);
+                //setTimeout(() => {
+                _logger.log("debug", "MAIN - (rainbow_onstopped) test_mockRenewError404 rainbow SDK will re start " + countReceivedStop + " result : ", data); //logger.colors.green(JSON.stringify(result)));
+                //rainbowSDK.start();
+                rainbowSDK.start().then(() => {
+                    _logger.log("debug", "MAIN - rainbow_onstopped test_mockRenewError404 rainbow SDK started " + countReceivedStop + " result : ", data); //logger.colors.green(JSON.stringify(result)));
+                });
+                //}, 1);
+                // */
+            });
+
             _logger.log("debug", "MAIN - [test_mockRenewError404 ] ::  start mock " + verb + " " + url);
             rainbowSDK.addMockRestUrl(verb, url, () => {
                 _logger.log("debug", "MAIN - [test_mockRenewError404 ] ::  callback mock called, return 404 error");

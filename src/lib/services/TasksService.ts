@@ -77,7 +77,7 @@ class TasksService extends GenericService {
         start_up: boolean,
         optional: boolean
     }) {
-        super(_logger, LOG_ID, _eventEmitter);
+        super(_core, _logger, LOG_ID, _eventEmitter);
         this.setLogLevels(this);
         this._startConfig = _startConfig;
         this._xmpp = null;
@@ -89,8 +89,6 @@ class TasksService extends GenericService {
         this._tasks = null;
         this._eventEmitter = _eventEmitter;
         this._logger = _logger;
-
-        this._core = _core;
 
         this._eventEmitter.on("evt_internal_hdle_taskcreated", this._onTaskCreated.bind(this));
         this._eventEmitter.on("evt_internal_hdle_taskdeleted", this._onTaskDeleted.bind(this));

@@ -41,7 +41,7 @@ class Settings extends GenericService {
         start_up:boolean,
         optional:boolean
     }) {
-        super(_logger, LOG_ID, _eventEmitter);
+        super(_core, _logger, LOG_ID, _eventEmitter);
         this.setLogLevels(this);
         this._startConfig = _startConfig;
         this._xmpp = null;
@@ -52,8 +52,6 @@ class Settings extends GenericService {
         this._useS2S = false;
         this._eventEmitter = _eventEmitter;
         this._logger = _logger;
-
-        this._core = _core;
 
         // this.RAINBOW_PRESENCE_ONLINE = "online";
         // this.RAINBOW_PRESENCE_DONOTDISTURB = "dnd";

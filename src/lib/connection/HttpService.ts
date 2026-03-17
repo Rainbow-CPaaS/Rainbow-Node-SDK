@@ -2,6 +2,7 @@
 
 //let unirest = require("unirest");
 import {callerName, logEntryExit, pause, stackTrace} from "../common/Utils";
+import {TimeOutManager} from "../common/TimeOutManager";
 import {HttpManager, RequestForQueue} from "./HttpManager";
 import * as util from "util";
 import {window} from "rxjs";
@@ -98,7 +99,6 @@ class HTTPService extends LevelLogs{
     public eventEmitter: any;
     public httpManager : HttpManager;
     private _options: any;
-    private _core: any;
     private mergedGot: any;
     private reqAgent: any;
     private reqAgentHttp: any;
@@ -125,6 +125,9 @@ class HTTPService extends LevelLogs{
     static getAccessorName(){ return 'httpservice'; }
     getAccessorName(){ return HTTPService.getAccessorName(); }
 
+    private timeOutManager: TimeOutManager;
+    protected _core: any;
+
     constructor(_core, _options, _logger, _proxy, _evtEmitter ) {
         super();
         this.setLogLevels(this);
@@ -137,6 +140,7 @@ class HTTPService extends LevelLogs{
         this.proxy = _proxy;
         this.eventEmitter = _evtEmitter;
         this._core = _core;
+        this.timeOutManager = _core.timeOutManager;
 
         this.httpManager = new HttpManager(_evtEmitter, _logger);
         let that = this;

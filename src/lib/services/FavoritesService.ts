@@ -49,7 +49,7 @@ class FavoritesService extends GenericService{
         start_up:boolean,
         optional:boolean
     }) {
-        super(_logger, LOG_ID, _eventEmitter);
+        super(_core, _logger, LOG_ID, _eventEmitter);
         this.setLogLevels(this);
 
         /*********************************************************/
@@ -65,8 +65,6 @@ class FavoritesService extends GenericService{
         this._useXMPP = false;
         this._useS2S = false;
         this._logger = _logger;
-
-        this._core = _core;
 
         this._eventEmitter.on("evt_internal_favoritecreated_handle", this.onFavoriteCreated.bind(this));
         this._eventEmitter.on("evt_internal_favoriteupdated_handle", this.onFavoriteUpdated.bind(this));

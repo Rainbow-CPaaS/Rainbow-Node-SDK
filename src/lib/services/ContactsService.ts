@@ -185,7 +185,7 @@ class ContactsService extends GenericService {
         start_up:boolean,
         optional:boolean
     }) {
-        super(_logger, LOG_ID, _eventEmitter);
+        super(_core, _logger, LOG_ID, _eventEmitter);
         this.setLogLevels(this);
         this._startConfig = _startConfig;
         this.avatarDomain = _http.host.split(".").length===2 ? _http.protocol + "://cdn." + _http.host + ":" + _http.port:_http.protocol + "://" + _http.host + ":" + _http.port;
@@ -201,8 +201,6 @@ class ContactsService extends GenericService {
         //this._rosterPresenceQueue3 = [];
         this._rosterPresenceQueue = new RosterPresenceQueue(_logger, this);
         this.userContact = new Contact();
-
-        this._core = _core;
 
         this._eventEmitter.on("evt_internal_presencechanged", this._onPresenceChanged.bind(this));
         this._eventEmitter.on("evt_internal_onrosterpresence", this._onRosterPresenceChanged.bind(this));
@@ -4469,7 +4467,7 @@ class ContactsService extends GenericService {
 
         switch (userPasswordConfigdata.action) {
             case "update":
-                setTimeout(() => {
+                that.timeOutManager.setTimeout(() => {
                     that._eventEmitter.emit("evt_internal_signinrequired");
                 }, 5000 + getRandomInt(5000));
                 break;

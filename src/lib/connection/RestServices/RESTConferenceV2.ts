@@ -25,8 +25,8 @@ class RESTConferenceV2 extends GenericRESTService {
     static getAccessorName(){ return 'restconferencev2'; }
     getAccessorName(){ return RESTConferenceV2.getAccessorName(); }
 
-    constructor(evtEmitter, _logger) {
-        super(_logger, LOG_ID);
+    constructor(_core, evtEmitter, _logger) {
+        super(_core, _logger, LOG_ID);
         this.setLogLevels(this);
         let that = this;
 

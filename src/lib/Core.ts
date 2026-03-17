@@ -170,7 +170,7 @@ class Core extends LevelLogs{
                     return await self.signin(true, that.lastConnectedOptions.token);
                 }).catch((err2) => {
                     self._logger.log(self.ERROR, LOG_ID + " (evt_internal_signinrequired) start/signin failed : ", err2);
-                    setTimeout(() => {
+                    that.timeOutManager.setTimeout(() => {
                         self._eventEmitter.iee.emit("evt_internal_signinrequired");
                     }, 10000 + getRandomInt(40000));
                 });
@@ -180,7 +180,7 @@ class Core extends LevelLogs{
                     return await self._signinWSOnly(true, that.lastConnectedOptions.token, that.lastConnectedOptions.userInfos);
                 }).catch((err2) => {
                     self._logger.log(self.ERROR, LOG_ID + " (evt_internal_signinrequired) start/signin failed : ", err2);
-                    setTimeout(() => {
+                    that.timeOutManager.setTimeout(() => {
                         self._eventEmitter.iee.emit("evt_internal_signinrequired");
                     }, 10000 + getRandomInt(40000));
                 });
@@ -293,7 +293,7 @@ class Core extends LevelLogs{
         self._s2s = new S2SService(self, self.options.s2sOptions, self.options.imOptions, self.options.applicationOptions, self._eventEmitter.iee, self._logger, self._proxy,self.options.servicesToStart.s2s);
 
         // Instantiate State Manager
-        self._stateManager = new StateManager(self._eventEmitter, self._logger, this._timeOutManager );
+        self._stateManager = new StateManager(self, self._eventEmitter, self._logger, this._timeOutManager );
 
         // Instantiate others Services
         self._im = new ImsService(self, self._eventEmitter.iee, self._logger, self.options.imOptions, self.options.servicesToStart.im);
@@ -540,7 +540,7 @@ class Core extends LevelLogs{
                     }
                 }
 
-                setTimeout(fn_resolveDns, 100);
+                that.timeOutManager.setTimeout(fn_resolveDns, 100);
                 await until(() => {
                     // Test if resolvedHostnames is undefined and if the Array is filled (so the dns entry was found)
                     let result = dnsFound;

@@ -58,7 +58,7 @@ class RPCoverXMPPService extends GenericService {
         start_up: boolean,
         optional: boolean
     }) {
-        super(_logger, LOG_ID, _eventEmitter);
+        super(_core, _logger, LOG_ID, _eventEmitter);
         this.setLogLevels(this);
         this._xmpp = null;
         this._rest = null;
@@ -72,8 +72,6 @@ class RPCoverXMPPService extends GenericService {
         this._protocol = _http.protocol;
         this._host = _http.host;
         this._port = _http.port;
-
-        this._core = _core;
 
         this.rpcManager = new RPCManager(this._logger);
 

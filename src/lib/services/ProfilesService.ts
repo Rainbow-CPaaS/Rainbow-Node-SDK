@@ -120,7 +120,7 @@ class ProfilesService extends GenericService {
         start_up:boolean,
         optional:boolean
     }) {
-        super(_logger, LOG_ID, _eventEmitter);
+        super(_core, _logger, LOG_ID, _eventEmitter);
         this.setLogLevels(this);
         this._startConfig = _startConfig;
         this._xmpp = null;
@@ -131,8 +131,6 @@ class ProfilesService extends GenericService {
         this._useS2S = false;
         this._eventEmitter = _eventEmitter;
         this._logger = _logger;
-
-        this._core = _core;
 
     }
 
@@ -219,7 +217,7 @@ class ProfilesService extends GenericService {
         if (that.timer) {
             return;
         }
-        that.timer = setTimeout(() => {
+        that.timer = that.timeOutManager.setTimeout(() => {
             that.getServerProfile()
                     .then(function () {
                         // $rootScope.$broadcast("ON_PROFILE_FEATURES_UPDATED");

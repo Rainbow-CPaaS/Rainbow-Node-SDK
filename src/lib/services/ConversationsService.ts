@@ -100,7 +100,7 @@ class ConversationsService extends GenericService {
         start_up:boolean,
         optional:boolean
     }, _conversationsRetrievedFormat : string, _nbMaxConversations : number,_autoLoadConversations: boolean, _autoLoadConversationHistory: boolean) {
-        super(_logger, LOG_ID, _eventEmitter);
+        super(_core, _logger, LOG_ID, _eventEmitter);
         this.setLogLevels(this);
         this._startConfig = _startConfig;
         this._xmpp = null;
@@ -114,8 +114,6 @@ class ConversationsService extends GenericService {
         this._fileServerService = null;
         this._eventEmitter = _eventEmitter;
         this._logger = _logger;
-
-        this._core = _core;
 
         this._pendingMessages = {};
         this._conversationEventHandler = null;

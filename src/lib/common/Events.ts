@@ -13,8 +13,7 @@ let EventEmitterClass = EventEmitter;
 
 EventEmitter.captureRejections = true;
 
- // dev-code //
- // @ class  Emitter EventEmitter class extended to log the event names and parameters.
+// @ class Emitter EventEmitter class extended to log the event names and parameters.
 class Emitter extends EventEmitter {
     public _logger: Logger;
 
@@ -62,15 +61,10 @@ class Emitter extends EventEmitter {
         return this;
     }
 }
-// end-dev-code //
-
-// dev-code //
 
 /*
 
-// The comment is removed at grunt build so the default EventEmitter is used when delivered.
-
-// end-dev-code //
+// Remove the comment so the default EventEmitter is used.
 
 class Emitter extends EventEmitterClass{
     constructor(props) {

@@ -12,6 +12,7 @@ import {
 } from "../common/Utils.js";
 import {Logger} from "../common/Logger.js";
 import {LevelLogs} from "../common/LevelLogs.js";
+import {TimeOutManager} from "../common/TimeOutManager";
 let packageVersion = require("../../package.json");
 
 class GenericRESTService extends LevelLogs{
@@ -22,6 +23,8 @@ class GenericRESTService extends LevelLogs{
     protected _auth: any;
     protected _logger: Logger;
     protected _logId: string;
+    protected _core: any;
+    protected timeOutManager: TimeOutManager;
 
     protected startingInfos : {
         constructorDate: Date,
@@ -37,13 +40,18 @@ class GenericRESTService extends LevelLogs{
         readyDate: new Date()
     };
 
-    constructor( _logger : Logger, logId : string = "UNDF/SVCE - ") {
+    constructor(_core: any, _logger : Logger, logId : string = "UNDF/SVCE - ") {
         super();
         this.setLogLevels(this);
         let that = this;
         that._logger = _logger;
         if (logId) {
             that._logId = logId;
+        }
+
+        this._core = _core;
+        if (this._core && this._core.timeOutManager) {
+            this.timeOutManager = this._core.timeOutManager;
         }
 
         // that._logger.log("debug", that._logId + "(GenericService::constructor) " );
