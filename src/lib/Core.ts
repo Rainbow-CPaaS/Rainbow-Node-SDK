@@ -159,11 +159,16 @@ class Core extends LevelLogs{
                 //await self._stateManager.transitTo(true, self._stateManager.STOPPED, error);
                 //self.events.publish("stopped", error);
             });
-            await self._stateManager.transitTo(true, self._stateManager.STOPPED, error);
+            // 2. Passage en état RECONNECTING (bloque start()) sans notifier l'utilisateur (false)
+            await self._stateManager.transitTo(false, self._stateManager.RECONNECTING, error);
+            //await self._stateManager.transitTo(true, self._stateManager.STOPPED, error);
 
             self._logger.log(self.INFO, LOG_ID + " (evt_internal_signinrequired) pause before continue the reconnection !");
             await pause(20000);
             self._logger.log(self.INFO, LOG_ID + " (evt_internal_signinrequired) pause done, so continue the reconnection !");
+
+            // 3. Remise à l'état STOPPED en interne pour permettre au start() suivant de réussir
+            await self._stateManager.stop(false);
 
             if (that._signinmethodName == SIGNINMETHODNAME.SIGNIN ) {
                 await self.start(that.lastConnectedOptions.token).then(async function () {
