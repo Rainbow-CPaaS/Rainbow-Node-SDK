@@ -330,6 +330,93 @@ class TimeOutManager {
         }); // */
         // return timeoutId;
     }
+
+    /**
+     * @public
+     * @method cleanTimeoutById
+     * @instance
+     * @category Timeout
+     * @description
+     *    Cleans up and removes a timeout from the list based on its identifier (id).
+     * @param {string} id L'identifiant du timeout à supprimer.
+     */
+    async cleanTimeoutById(id: string) {
+        let that = this;
+        that.logger.log("debug", LOG_ID + "(cleanTimeoutById) - id : ", id, " - __ entering __ ");
+
+        return that.lock(async () => {
+            try {
+                let item = that.timeoutFnTab.tryGetValue(id);
+                if (item) {
+                    that.logger.log("debug", LOG_ID + "(cleanTimeoutById) - id : ", id, " - Item found, stopping and removing. label : ", item.getLabel());
+                    if (item.timetoutInProgress === true) {
+                        await item.stop();
+                    }
+                    that.timeoutFnTab.remove( (pair : KeyValuePair<string, ItemForTimeOutQueue>) => {
+                        return pair.key === id;
+                    });
+                    return "cleaned";
+                } else {
+                    that.logger.log("debug", LOG_ID + "(cleanTimeoutById) - id : ", id, " - Item not found in timeoutFnTab.");
+                    return "not found";
+                }
+            } catch (err) {
+                that.logger.log("error", LOG_ID + "(cleanTimeoutById) - id : ", id, " - CATCH Error !!! in lock, error : ", err);
+            }
+        }, id).then(() => {
+            that.logger.log("debug", LOG_ID + "(cleanTimeoutById) - id : ", id, " - lock succeed.");
+        }).catch((error) => {
+            that.logger.log("error", LOG_ID + "(cleanTimeoutById) - id : ", id, " - Catch Error, error : ", error);
+        });
+    }
+
+    /**
+     * @public
+     * @method cleanTimeoutByTimeoutId
+     * @instance
+     * @category Timeout
+     * @description
+     *    Nettoie et supprime un timeout de la liste en fonction de son identifiant système (timeoutId).
+     * @param {NodeJS.Timeout} timeoutId L'identifiant système du timeout à supprimer.
+     */
+    async cleanTimeoutByTimeoutId(timeoutId: NodeJS.Timeout) {
+        let that = this;
+        that.logger.log("debug", LOG_ID + "(cleanTimeoutByTimeoutId) - timeoutId : ", timeoutId, " - __ entering __ ");
+
+        return that.lock(async () => {
+            try {
+                let itemFound = null;
+                for (let i = 0; i < that.timeoutFnTab.length ; i++) {
+                    let pair = that.timeoutFnTab.elementAt(i);
+                    if (pair.value && pair.value.timeoutId === timeoutId) {
+                        itemFound = pair.value;
+                        break;
+                    }
+                }
+
+                if (itemFound) {
+                    let id = itemFound.getId();
+                    that.logger.log("debug", LOG_ID + "(cleanTimeoutByTimeoutId) - timeoutId : ", timeoutId, " - Item found (id:", id, "), stopping and removing. label : ", itemFound.getLabel());
+                    if (itemFound.timetoutInProgress === true) {
+                        await itemFound.stop();
+                    }
+                    that.timeoutFnTab.remove( (pair : KeyValuePair<string, ItemForTimeOutQueue>) => {
+                        return pair.value === itemFound;
+                    });
+                    return "cleaned";
+                } else {
+                    that.logger.log("debug", LOG_ID + "(cleanTimeoutByTimeoutId) - timeoutId : ", timeoutId, " - Item not found in timeoutFnTab.");
+                    return "not found";
+                }
+            } catch (err) {
+                that.logger.log("error", LOG_ID + "(cleanTimeoutByTimeoutId) - timeoutId : ", timeoutId, " - CATCH Error !!! in lock, error : ", err);
+            }
+        }, "cleanByTimeoutId").then(() => {
+            that.logger.log("debug", LOG_ID + "(cleanTimeoutByTimeoutId) - timeoutId : ", timeoutId, " - lock succeed.");
+        }).catch((error) => {
+            that.logger.log("error", LOG_ID + "(cleanTimeoutByTimeoutId) - timeoutId : ", timeoutId, " - Catch Error, error : ", error);
+        });
+    }
     
     async clearEveryTimeout() {
         let that = this;

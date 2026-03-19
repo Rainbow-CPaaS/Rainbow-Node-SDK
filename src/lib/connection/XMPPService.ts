@@ -508,11 +508,11 @@ class XMPPService extends GenericService {
         let that = this;
         that._logger.log(that.DEBUG, LOG_ID + "(stopIdleTimer).");
         if (that.idleTimer) {
-            clearTimeout(that.idleTimer);
+            that.timeOutManager.cleanTimeoutByTimeoutId(that.idleTimer);
             that.idleTimer = null;
         }
         if (that.pingTimer) {
-            clearTimeout(that.pingTimer);
+            that.timeOutManager.cleanTimeoutByTimeoutId(that.pingTimer);
             that.pingTimer = null;
         }
     }
