@@ -358,7 +358,7 @@ class XMPPService extends GenericService {
                     that._logger.log(that.ERROR, LOG_ID + "(signin) xmppClient is not defined. Can not subscribe to events.");
                 }
 
-                that.startOrResetIdleTimer();
+                await that.startOrResetIdleTimer();
                 //resolve(undefined);
             } else {
                 resolve(undefined);
@@ -378,7 +378,7 @@ class XMPPService extends GenericService {
                 that.initialPresence = true;
                 that._logger.log(that.INFO, LOG_ID + "(stop) __ entering __ stop XMPP connection.");
                 if (that.useXMPP && forceStop) {
-                    that.stopIdleTimer();
+                    await that.stopIdleTimer();
 
                     delete that.IQEventHandler;
                     that.IQEventHandler = null;
@@ -441,13 +441,13 @@ class XMPPService extends GenericService {
         });
     }
 
-    startOrResetIdleTimer(incomingStanza = false) {
+    async startOrResetIdleTimer(incomingStanza = false) {
         let that = this;
         if ((that.pingTimer && !incomingStanza) || (that.reconnect && that.reconnect.isReconnecting)) {
             that._logger.log(that.DEBUG, LOG_ID + "(startOrResetIdleTimer) ignored with that.pingTimer.triggerId : ", that.pingTimer ? that.pingTimer.triggerId : "", ", incomingStanza : ", incomingStanza, ", that.reconnect.isReconnecting : ", that.reconnect.isReconnecting );
             return;
         }
-        that.stopIdleTimer();
+        await that.stopIdleTimer();
         if (!that.forceClose) {
             that._logger.log(that.DEBUG, LOG_ID + "(startOrResetIdleTimer) forceClose not setted, so start setTimeout of idle Timer for ping.");
             that.idleTimer =  that.timeOutManager.setTimeout(() => {
@@ -469,7 +469,7 @@ class XMPPService extends GenericService {
                         if (that.reconnect) {
                             if (that.reconnect.isReconnecting) {
                                 that._logger.log(that.DEBUG, LOG_ID + "(startOrResetIdleTimer) the SDK is that.reconnect.isReconnecting : ", that.reconnect.isReconnecting, " so only stop the idle timer");
-                                that.stopIdleTimer();
+                                await that.stopIdleTimer();
                             } else {
                                 that._logger.log(that.INFO, LOG_ID + "(startOrResetIdleTimer) SDK is NOT reconnecting, so try to reconnect...");
                                 await that.reconnect.reconnect().catch((err) => {
@@ -504,15 +504,17 @@ class XMPPService extends GenericService {
         }
     }
 
-    stopIdleTimer() {
+    async stopIdleTimer() {
         let that = this;
         that._logger.log(that.DEBUG, LOG_ID + "(stopIdleTimer).");
         if (that.idleTimer) {
-            that.timeOutManager.cleanTimeoutByTimeoutId(that.idleTimer);
+            that._logger.log(that.DEBUG, LOG_ID + "(stopIdleTimer) will clean that.idleTimer : ", that.idleTimer);
+            await that.timeOutManager.clearTimeoutById(that.idleTimer);
             that.idleTimer = null;
         }
         if (that.pingTimer) {
-            that.timeOutManager.cleanTimeoutByTimeoutId(that.pingTimer);
+            that._logger.log(that.DEBUG, LOG_ID + "(stopIdleTimer) will clean that.pingTimer : ", that.pingTimer);
+            await that.timeOutManager.clearTimeoutById(that.pingTimer);
             that.pingTimer = null;
         }
     }
@@ -524,7 +526,7 @@ class XMPPService extends GenericService {
     }
 
 
-    fn_input (stanzaStr) {
+    async fn_input (stanzaStr) {
         let that = this;
 
         //let jsonStanzaIn = getJsonFromXML(stanzaStr);
@@ -551,7 +553,7 @@ class XMPPService extends GenericService {
             that._logger.log(that.XMPP, LOG_ID + "(handleXMPPConnection) ", " raw in - encoded : (" + encodedXml + ")");
             that._logger.log(that.XMPP, LOG_ID + "(handleXMPPConnection) ", that._logger.colors.yellow(" raw in - decoded : <") + that._logger.decrypt(encodedXml) + ">");
         }
-        that.startOrResetIdleTimer(true);
+        await that.startOrResetIdleTimer(true);
         if (that.raiseLowLevelXmppInEvent ) {
             that.eventEmitter.emit("evt_internal_xmmpeventreceived", xmlStr);
         }
@@ -769,7 +771,7 @@ class XMPPService extends GenericService {
 
         //that.xmppClient.on("output", function fn_output (stanzaStr) {
         //    let stanzaElmt : any = parse(stanzaStr);
-        that.xmppClient.on("send", function fn_output (stanzaElmt) {
+        that.xmppClient.on("send", async function fn_output (stanzaElmt) {
             let stanzaStr = stanzaElmt.toString();
             let stanzaElmtOffended = that.xmppUtils.offendXml(stanzaElmt);
             let xmlOffendedStr = prettydata.xml(stanzaElmtOffended.toString());
@@ -783,7 +785,7 @@ class XMPPService extends GenericService {
                 that._logger.log(that.XMPP, LOG_ID + "(handleXMPPConnection) ", " raw out - encoded : (" + encodedXml + ")");
                 that._logger.log(that.XMPP, LOG_ID + "(handleXMPPConnection) ", that._logger.colors.yellow(" raw out - decoded : <") + that._logger.decrypt(encodedXml) + ">");
             }
-            that.startOrResetIdleTimer(false);
+            await that.startOrResetIdleTimer(false);
             if (that.raiseLowLevelXmppOutReq ) {
                 that.eventEmitter.emit("evt_internal_xmpprequestsent", xmlStr);
             }
@@ -852,7 +854,7 @@ class XMPPService extends GenericService {
                         case "reset":
                         case "connection-timeout":
                         case "system-shutdown":
-                            that.stopIdleTimer();
+                            await that.stopIdleTimer();
                             let waitime = 21 + Math.floor(Math.random() * Math.floor(15));
                             that._logger.log(that.WARN, LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT :  wait ", waitime, " seconds before try to reconnect");
                             await setTimeoutPromised(waitime);
@@ -909,7 +911,7 @@ class XMPPService extends GenericService {
                                 that._logger.log(that.ERROR, LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : Fatal for condition : ", err.condition, ". ", err);
                             }
                         case "unsupported-version":
-                            that.stopIdleTimer();
+                            await that.stopIdleTimer();
                             // Disconnect the auto-reconnect mode
                             if (that.reconnect) {
                                 that._logger.log(that.DEBUG, LOG_ID + "(stop) stop XMPP auto-reconnect mode");
@@ -929,7 +931,7 @@ class XMPPService extends GenericService {
                     that._logger.log(that.ERROR, LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : CATCH Error  error : ", err2, ", err received : ", err);
                 } 
             } else {
-                that.stopIdleTimer();
+                await that.stopIdleTimer();
                 that._logger.log(that.INFO, LOG_ID + "(handleXMPPConnection) event - ERROR_EVENT : reconnection disabled so no reconnect");
             }
         });

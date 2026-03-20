@@ -775,7 +775,7 @@ class RESTService extends GenericRESTService {
                 that._logger.log(that.INFO, LOG_ID + "(startTokenSurvey) start token survey (expirationDate: " + expirationDate + " currentDate: " + currentDate + " halftokenExpirationDuration: " + halftokenExpirationDuration + "ms usedExpirationDuration: " + usedExpirationDuration + "ms fulltokenExpirationDuration: ", fulltokenExpirationDuration, ")");
                 if (that.renewTokenInterval) {
                     that._logger.log(that.INFO, LOG_ID + "(startTokenSurvey) remove timer");
-                    clearTimeout(that.renewTokenInterval);
+                    that.timeOutManager.clearTimeoutById(that.renewTokenInterval);
                 }
                 that._logger.log(that.INFO, LOG_ID + "(startTokenSurvey) start a new timer for renewing token usedExpirationDuration in ", usedExpirationDuration, " ms => ", msToTime(usedExpirationDuration));
                 that.renewTokenInterval = that.timeOutManager.setTimeout(function () {
@@ -793,7 +793,7 @@ class RESTService extends GenericRESTService {
                 that._logger.log(that.INFO, LOG_ID + "(startTokenSurvey) start token survey (expirationDate: " + expirationDate + " currentDate: " + currentDate + " halftokenExpirationDuration: " + halftokenExpirationDuration + "ms usedExpirationDuration: " + usedExpirationDuration + "ms fulltokenExpirationDuration: ", fulltokenExpirationDuration, ")");
                 if (that.renewTokenInterval) {
                     that._logger.log(that.INFO, LOG_ID + "(startTokenSurvey) remove timer");
-                    clearTimeout(that.renewTokenInterval);
+                    that.timeOutManager.clearTimeoutById(that.renewTokenInterval);
                 }
                 that._logger.log(that.INFO, LOG_ID + "(startTokenSurvey) start a new timer for renewing token in ", usedExpirationDuration, " ms");
                 that.renewTokenInterval = that.timeOutManager.setTimeout(function () {
@@ -815,7 +815,7 @@ class RESTService extends GenericRESTService {
             } else {
                 if (that.renewTokenInterval) {
                     that._logger.log(that.INFO, LOG_ID + "(startTokenSurvey) remove timer");
-                    clearTimeout(that.renewTokenInterval);
+                    that.timeOutManager.clearTimeoutById(that.renewTokenInterval);
                 }
                 that._logger.log(that.INFO, LOG_ID + "(startTokenSurvey) start a new timer for renewing token in ", usedExpirationDuration, " ms");
                 that.renewTokenInterval = that.timeOutManager.setTimeout(function () {
@@ -839,7 +839,7 @@ class RESTService extends GenericRESTService {
         }).catch(function (err) {
             that._logger.log(that.ERROR, LOG_ID, "(_renewAuthToken) renew authentication token failure");
             that._logger.log(that.INTERNALERROR, LOG_ID, "(_renewAuthToken) renew authentication token failure : ", err);
-            clearTimeout(that.renewTokenInterval);
+            that.timeOutManager.clearTimeoutById(that.renewTokenInterval);
             that.renewTokenInterval = null;
             that.eventEmitter.emit("evt_internal_tokenexpired");
         });

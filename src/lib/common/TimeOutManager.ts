@@ -1,5 +1,13 @@
 "use strict";
-import {Deferred, doWithinInterval, pause, setTimeoutPromised} from "./Utils";
+import {
+    Deferred,
+    doWithinInterval,
+    isDefined,
+    isDefinedAndNotEmpty,
+    pause,
+    setTimeoutPromised,
+    toBoolean
+} from "./Utils";
 import {Dictionary, KeyValuePair, List} from "ts-generic-collections-linq";
 import {XMPPUTils} from "./XMPPUtils";
 import {type} from "os";
@@ -61,7 +69,7 @@ class ItemForTimeOutQueue {
     }
     // */
 
-    async start() {
+    start() {
         let that = this;
         try {
             that.timetoutInProgress = true;
@@ -127,10 +135,10 @@ class TimeOutManager {
         let that = this;
         let resultLock = "Lock failed.";
         try {
-            that.logger.log("internal", LOG_ID + "(lock) - id : ", id, " - will acquire lock the ", that.lockKey);
+           // that.logger.log("internal", LOG_ID + "(lock) - id : ", id, " - will acquire lock the ", that.lockKey);
             await that.lockEngine.acquire(that.lockKey, async () => {
                 // that._logger.log("debug", LOG_ID + "(lock) lock the ", that.lockKey);
-                that.logger.log("internal", LOG_ID + "(lock) - id : ", id, " - lock the ", that.lockKey);
+             //   that.logger.log("internal", LOG_ID + "(lock) - id : ", id, " - lock the ", that.lockKey);
                 let result = undefined;
                 try {
                     result = await fn(); // async work
@@ -140,7 +148,7 @@ class TimeOutManager {
                 }
             }).then((result) => {
                 // that._logger.log("debug", LOG_ID + "(lock) release the ", that.lockKey);
-                that.logger.log("internal", LOG_ID + "(lock) - id : ", id, " - release the ", that.lockKey, ", result : ", result);
+                //that.logger.log("internal", LOG_ID + "(lock) - id : ", id, " - release the ", that.lockKey, ", result : ", result);
                 resultLock = result;
             }).catch((err2) => {
                         that.logger.log("warn", LOG_ID + "(lock) - id : ", id, " - catch at acquire : ", that.lockKey, ", error : ", err2);
@@ -151,7 +159,7 @@ class TimeOutManager {
             that.logger.log("error", LOG_ID + "(lock) - id : ", id, " - CATCH Error !!! error at acquire : ", that.lockKey, ", error : ", err);
             throw resultLock = err;
         }
-        that.logger.log("internal", LOG_ID + "(lock) - id : ", id, " - __ exiting __ ", that.lockKey, ", resultLock : ", resultLock);
+        // that.logger.log("internal", LOG_ID + "(lock) - id : ", id, " - __ exiting __ ", that.lockKey, ", resultLock : ", resultLock);
         return resultLock;
     }
 
@@ -173,39 +181,40 @@ class TimeOutManager {
      */
     setTimeout(fn, timer, label? : string) {
         let that = this;
-
-        //let that = this;
         let timestamp = (new Date()).toUTCString();
-        let timeoutId = null;
 
         try {
+            const fnInternal = () => {
+                return setTimeout(async () => { 
+                    try {
+                        await fn(); 
+                    } finally {
+                        that.logger.log("debug", LOG_ID + "(setTimeout) - id : ", timeoutItem.getId(), " - finally.");
+                        timeoutItem.timetoutInProgress = false;
+                        await that.clearAtimeOut(timeoutItem);
+                    }
+                }, timer);
+            };
+
             let timeoutItem = new ItemForTimeOutQueue(fnInternal, label, false);
-            that.logger.log("debug", LOG_ID + "(setTimeout) - timestamp : ", timestamp, " - id : ", timeoutItem.getId(), " - ItemForTimeOutQueue storing");
-            function fnInternal() {
-                return setTimeout(async () => { fn() ; timeoutItem.timetoutInProgress = false ; await that.cleanAtimeOut(timeoutItem) ;} , timer);
-            }
+            // that.logger.log("debug", LOG_ID + "(setTimeout) - timestamp : ", timestamp, " - id : ", timeoutItem.getId(), " - ItemForTimeOutQueue storing");
+
+            that.logger.log("debug", LOG_ID + "(setTimeout) - id : ", timeoutItem.getId(), " - ItemForTimeOutQueue will start.");
+            let timeoutId = timeoutItem.start();
 
             that.lock(async () => {
                 try {
-                    //deferedItem.start.bind(deferedItem)();
-                    //await pause(that.timeBetweenXmppRequests);
-                    that.logger.log("debug", LOG_ID + "(setTimeout) - id : ", timeoutItem.getId(), " - ItemForTimeOutQueue will start.");
-                    timeoutId = await timeoutItem.start();
-                    that.logger.log("debug", LOG_ID + "(setTimeout) - id : ", timeoutItem.getId(), " - timeoutId : ", timeoutId);
                     that.timeoutFnTab.add(timeoutItem.getId(), timeoutItem);
-                    //await until(() => { deferedResult.state != "pending"}, "Waiting the promises to complete.");
-                    that.logger.log("debug", LOG_ID + "(setTimeout) - id : ", timeoutItem.getId(), " - ItemForTimeOutQueue started and finished. Will pause before leave lock. timeoutId : ", timeoutId);
+                    // that.logger.log("debug", LOG_ID + "(setTimeout) - id : ", timeoutItem.getId(), " - ItemForTimeOutQueue started and finished. Will pause before leave lock. timeoutId : ", timeoutId);
                 } catch (err) {
                     that.logger.log("error", LOG_ID + "(setTimeout) - id : ", timeoutItem.getId(), " - CATCH Error !!! in lock, error : ", err);
                 }
-                //await pause(300);
             }, timeoutItem.getId()).then(() => {
-                that.logger.log("debug", LOG_ID + "(setTimeout) - id : ", timeoutItem.getId(), " -  lock succeed.");
+               // that.logger.log("debug", LOG_ID + "(setTimeout) - id : ", timeoutItem.getId(), " -  lock succeed.");
             }).catch((error) => {
                 that.logger.log("error", LOG_ID + "(setTimeout) - id : ", timeoutItem.getId(), " - Catch Error, error : ", error);
-                //timeoutItem.reject(error);
-            }); // */
-            return timeoutId;
+            }); 
+            return timeoutItem.getId();
         } catch (err) {
             let error = {err : err};
             that.logger.log("error", LOG_ID + "(setTimeout) - timestamp : ", timestamp, " - CATCH Error !!! error : ", error);
@@ -224,7 +233,7 @@ class TimeOutManager {
 
         try {
             let timeoutItem = new ItemForTimeOutQueue(fnInternal, label, true);
-            that.logger.log("debug", LOG_ID + "(setTimeoutPromised) - timestamp : ", timestamp, " - id : ", timeoutItem.getId(), " - ItemForTimeOutQueue storing");
+            // that.logger.log("debug", LOG_ID + "(setTimeoutPromised) - timestamp : ", timestamp, " - id : ", timeoutItem.getId(), " - ItemForTimeOutQueue storing");
             function fnInternal(resolve, reject, id) {
                 return setTimeout(async () => { 
                         if (fn && typeof fn === 'function') {
@@ -236,26 +245,27 @@ class TimeOutManager {
                         } 
                         resolve() ; 
                         timeoutItem.timetoutInProgress = false ; 
-                        await that.cleanAtimeOut(timeoutItem) ; 
+                        await that.clearAtimeOut(timeoutItem) ;
                     } , timer);
             }
+
+            //     that.logger.log("debug", LOG_ID + "(setTimeoutPromised) - id : ", timeoutItem.getId(), " - ItemForTimeOutQueue will start.");
+            timeoutPromise = timeoutItem.startPromised();
 
             that.lock(async () => {
                 try {
                     //deferedItem.start.bind(deferedItem)();
                     //await pause(that.timeBetweenXmppRequests);
-                    that.logger.log("debug", LOG_ID + "(setTimeoutPromised) - id : ", timeoutItem.getId(), " - ItemForTimeOutQueue will start.");
-                    timeoutPromise = timeoutItem.startPromised();
-                    that.logger.log("debug", LOG_ID + "(setTimeoutPromised) - id : ", timeoutItem.getId(), " - timeoutId : ", timeoutItem.timeoutId);
+                 //   that.logger.log("debug", LOG_ID + "(setTimeoutPromised) - id : ", timeoutItem.getId(), " - timeoutId : ", timeoutItem.timeoutId);
                     that.timeoutFnTab.add(timeoutItem.getId(), timeoutItem);
                     //await until(() => { deferedResult.state != "pending"}, "Waiting the promises to complete.");
-                    that.logger.log("debug", LOG_ID + "(setTimeoutPromised) - id : ", timeoutItem.getId(), " - ItemForTimeOutQueue started and finished. Will pause before leave lock. timeoutId : ", timeoutId);
+                   // that.logger.log("debug", LOG_ID + "(setTimeoutPromised) - id : ", timeoutItem.getId(), " - ItemForTimeOutQueue started and finished. Will pause before leave lock. timeoutId : ", timeoutId);
                 } catch (err) {
                     that.logger.log("error", LOG_ID + "(setTimeoutPromised) - id : ", timeoutItem.getId(), " - CATCH Error !!! in lock, error : ", err);
                 }
                 //await pause(300);
             }, timeoutItem.getId()).then(() => {
-                that.logger.log("debug", LOG_ID + "(setTimeoutPromised) - id : ", timeoutItem.getId(), " -  lock succeed.");
+                //that.logger.log("debug", LOG_ID + "(setTimeoutPromised) - id : ", timeoutItem.getId(), " -  lock succeed.");
             }).catch((error) => {
                 that.logger.log("error", LOG_ID + "(setTimeoutPromised) - id : ", timeoutItem.getId(), " - Catch Error, error : ", error);
                 //timeoutItem.reject(error);
@@ -306,82 +316,107 @@ class TimeOutManager {
         // */
     }
     
-    async cleanAtimeOut(timeoutItemQueue : ItemForTimeOutQueue) {
+    async clearAtimeOut(timeoutItemQueue : ItemForTimeOutQueue) {
         let that = this;
+        let id = timeoutItemQueue?.getId();
+        that.logger.log("debug", LOG_ID + "(clearAtimeOut) - id : ", id, " -- entering --");
         if (timeoutItemQueue && timeoutItemQueue.timetoutInProgress === true) {
             await timeoutItemQueue.stop();
         }
-        let id = timeoutItemQueue.getId();
         that.lock(async () => {
             try {
-                that.logger.log("debug", LOG_ID + "(setTimeout) - id : ", id, " - ItemForTimeOutQueue will stop. label : ", timeoutItemQueue.getLabel());
+                // that.logger.log("debug", LOG_ID + "(clearAtimeOut) - id : ", id, " - ItemForTimeOutQueue will stop. label : ", timeoutItemQueue.getLabel());
                 that.timeoutFnTab.remove( (item : KeyValuePair<string, ItemForTimeOutQueue>) => {
-                    return timeoutItemQueue.getId()=== timeoutItemQueue.getId();
+                    return item.key === id;
                 });
-                that.logger.log("debug", LOG_ID + "(setTimeout) - id : ", id, " - ItemForTimeOutQueue started and finished.");
+                // that.logger.log("debug", LOG_ID + "(clearAtimeOut) - id : ", id, " - ItemForTimeOutQueue started and finished.");
             } catch (err) {
-                that.logger.log("error", LOG_ID + "(setTimeout) - id : ", id, " - CATCH Error !!! in lock, error : ", err);
+                that.logger.log("error", LOG_ID + "(clearAtimeOut) - id : ", id, " - CATCH Error !!! in lock, error : ", err);
             }
             //await pause(300);
         }, id).then(() => {
-            that.logger.log("debug", LOG_ID + "(setTimeout) - id : ", id, " -  lock succeed.");
+            // that.logger.log("debug", LOG_ID + "(clearAtimeOut) - id : ", id, " -  lock succeed.");
         }).catch((error) => {
-            that.logger.log("error", LOG_ID + "(setTimeout) - id : ", id, " - Catch Error, error : ", error);
+            that.logger.log("error", LOG_ID + "(clearAtimeOut) - id : ", id, " - Catch Error, error : ", error);
         }); // */
         // return timeoutId;
     }
 
     /**
      * @public
-     * @method cleanTimeoutById
+     * @method clearTimeoutById
      * @instance
      * @category Timeout
      * @description
      *    Cleans up and removes a timeout from the list based on its identifier (id).
      * @param {string} id L'identifiant du timeout à supprimer.
      */
-    async cleanTimeoutById(id: string) {
+    async clearTimeoutById(id: string) {
         let that = this;
-        that.logger.log("debug", LOG_ID + "(cleanTimeoutById) - id : ", id, " - __ entering __ ");
+         that.logger.log("debug", LOG_ID + "(clearTimeoutById) - id : ", id, " - __ entering __ ");
 
         return that.lock(async () => {
             try {
-                let item = that.timeoutFnTab.tryGetValue(id);
-                if (item) {
-                    that.logger.log("debug", LOG_ID + "(cleanTimeoutById) - id : ", id, " - Item found, stopping and removing. label : ", item.getLabel());
-                    if (item.timetoutInProgress === true) {
-                        await item.stop();
+                //let item = that.timeoutFnTab.containsKey(id) ? that.timeoutFnTab.tryGetValue(id) : null;
+                that.logger.log("debug", LOG_ID + "(clearTimeoutById) - id : ", id, " - 1, that.timeoutFnTab.length : ", that.timeoutFnTab.length);
+                let itemValue = that.timeoutFnTab.tryGetValue(id);
+                /*
+                let item = that.timeoutFnTab.first( (pair : KeyValuePair<string, ItemForTimeOutQueue>) => {
+                    that.logger.log("warn", LOG_ID + "(clearTimeoutById) - id : ", id, " - in first.");
+                    if (!pair) {
+                        that.logger.log("warn", LOG_ID + "(clearTimeoutById) - id : ", id, " - pair is null");
+                    }
+                    return pair.key === id;
+                });
+                // */
+                that.logger.log("debug", LOG_ID + "(clearTimeoutById) - id : ", id, " - 2");
+                // let itemValue = item?.value;
+                that.logger.log("debug", LOG_ID + "(clearTimeoutById) - id : ", id, " - 3");
+                if (itemValue) {
+                    that.logger.log("debug", LOG_ID + "(clearTimeoutById) - id : ", id, " - Item found, stopping and removing. label : ", itemValue.getLabel());
+                    if (itemValue.timetoutInProgress === true) {
+                        that.logger.log("debug", LOG_ID + "(clearTimeoutById) - id : ", id, " - 4");
+                        await itemValue.stop();
                     }
                     that.timeoutFnTab.remove( (pair : KeyValuePair<string, ItemForTimeOutQueue>) => {
                         return pair.key === id;
                     });
+                    that.logger.log("debug", LOG_ID + "(clearTimeoutById) - id : ", id, " - 5");
+                    itemValue = that.timeoutFnTab.tryGetValue(id);
+                    that.logger.log("debug", LOG_ID + "(clearTimeoutById) - id : ", id, " - 6,  isDefined (that.timeoutFnTab.tryGetValue(id)) : ", isDefinedAndNotEmpty(itemValue));
                     return "cleaned";
                 } else {
-                    that.logger.log("debug", LOG_ID + "(cleanTimeoutById) - id : ", id, " - Item not found in timeoutFnTab.");
+                    that.logger.log("debug", LOG_ID + "(clearTimeoutById) - id : ", id, " - Item not found in timeoutFnTab.");
+                    if (that.timeoutFnTab.length > 0) {
+                        for (let i = 0; i < that.timeoutFnTab.length; i++) {
+                            let pair = that.timeoutFnTab.elementAt(i);
+                            that.logger.log("debug", LOG_ID + "(clearTimeoutById) - dictionary contains key : '", pair.key, "'");
+                        }
+                    }
                     return "not found";
                 }
             } catch (err) {
-                that.logger.log("error", LOG_ID + "(cleanTimeoutById) - id : ", id, " - CATCH Error !!! in lock, error : ", err);
+                that.logger.log("error", LOG_ID + "(clearTimeoutById) - id : ", id, " - CATCH Error !!! in lock, error : ", err);
             }
         }, id).then(() => {
-            that.logger.log("debug", LOG_ID + "(cleanTimeoutById) - id : ", id, " - lock succeed.");
+            // that.logger.log("debug", LOG_ID + "(clearTimeoutById) - id : ", id, " - lock succeed.");
         }).catch((error) => {
-            that.logger.log("error", LOG_ID + "(cleanTimeoutById) - id : ", id, " - Catch Error, error : ", error);
+            that.logger.log("error", LOG_ID + "(clearTimeoutById) - id : ", id, " - Catch Error, error : ", error);
         });
     }
 
     /**
      * @public
-     * @method cleanTimeoutByTimeoutId
+     * @method clearTimeoutByTimeoutId
      * @instance
      * @category Timeout
      * @description
      *    Nettoie et supprime un timeout de la liste en fonction de son identifiant système (timeoutId).
      * @param {NodeJS.Timeout} timeoutId L'identifiant système du timeout à supprimer.
      */
-    async cleanTimeoutByTimeoutId(timeoutId: NodeJS.Timeout) {
+    async clearTimeoutByTimeoutId(timeoutId: NodeJS.Timeout) {
         let that = this;
-        that.logger.log("debug", LOG_ID + "(cleanTimeoutByTimeoutId) - timeoutId : ", timeoutId, " - __ entering __ ");
+        that.logger.log("debug", LOG_ID + "(clearTimeoutByTimeoutId) - timeoutId : ", timeoutId, " - __ entering __ ");
 
         return that.lock(async () => {
             try {
@@ -396,7 +431,7 @@ class TimeOutManager {
 
                 if (itemFound) {
                     let id = itemFound.getId();
-                    that.logger.log("debug", LOG_ID + "(cleanTimeoutByTimeoutId) - timeoutId : ", timeoutId, " - Item found (id:", id, "), stopping and removing. label : ", itemFound.getLabel());
+        //            that.logger.log("debug", LOG_ID + "(clearTimeoutByTimeoutId) - timeoutId : ", timeoutId, " - Item found (id:", id, "), stopping and removing. label : ", itemFound.getLabel());
                     if (itemFound.timetoutInProgress === true) {
                         await itemFound.stop();
                     }
@@ -405,29 +440,29 @@ class TimeOutManager {
                     });
                     return "cleaned";
                 } else {
-                    that.logger.log("debug", LOG_ID + "(cleanTimeoutByTimeoutId) - timeoutId : ", timeoutId, " - Item not found in timeoutFnTab.");
+          //          that.logger.log("debug", LOG_ID + "(clearTimeoutByTimeoutId) - timeoutId : ", timeoutId, " - Item not found in timeoutFnTab.");
                     return "not found";
                 }
             } catch (err) {
-                that.logger.log("error", LOG_ID + "(cleanTimeoutByTimeoutId) - timeoutId : ", timeoutId, " - CATCH Error !!! in lock, error : ", err);
+                that.logger.log("error", LOG_ID + "(clearTimeoutByTimeoutId) - timeoutId : ", timeoutId, " - CATCH Error !!! in lock, error : ", err);
             }
         }, "cleanByTimeoutId").then(() => {
-            that.logger.log("debug", LOG_ID + "(cleanTimeoutByTimeoutId) - timeoutId : ", timeoutId, " - lock succeed.");
+          //  that.logger.log("debug", LOG_ID + "(clearTimeoutByTimeoutId) - timeoutId : ", timeoutId, " - lock succeed.");
         }).catch((error) => {
-            that.logger.log("error", LOG_ID + "(cleanTimeoutByTimeoutId) - timeoutId : ", timeoutId, " - Catch Error, error : ", error);
+            that.logger.log("error", LOG_ID + "(clearTimeoutByTimeoutId) - timeoutId : ", timeoutId, " - Catch Error, error : ", error);
         });
     }
     
     async clearEveryTimeout() {
         let that = this;
-        that.logger.log("debug", LOG_ID + "(clearEveryTimeout) - __ entering __ ");
+        // that.logger.log("debug", LOG_ID + "(clearEveryTimeout) - __ entering __ ");
         return that.lock(async () => {
             try {
-                that.logger.log("debug", LOG_ID + "(clearEveryTimeout) - clear all timeout.");
+           //     that.logger.log("debug", LOG_ID + "(clearEveryTimeout) - clear all timeout.");
                 if (that.timeoutFnTab) {
                     for (let i = 0; i < that.timeoutFnTab.length ; i++) {
                         let item = that.timeoutFnTab.elementAt(i);
-                        that.logger.log("info", LOG_ID + "(clearEveryTimeout) - that.timeoutFnTab[", item.key, "] id : ", item.value?.getId(), ", label : ", item.value?.getLabel());
+             //           that.logger.log("info", LOG_ID + "(clearEveryTimeout) - that.timeoutFnTab[", item.key, "] id : ", item.value?.getId(), ", label : ", item.value?.getLabel());
                         if (item.value && item.value.timetoutInProgress===true) {
                             item.value.stop();
                         }
@@ -448,7 +483,7 @@ class TimeOutManager {
             }
             await pause(300);
         },"clearEveryTimeout").then(() => {
-            that.logger.log("debug", LOG_ID + "(clearEveryTimeout) - clear all timeout -  lock succeed.");
+            // that.logger.log("debug", LOG_ID + "(clearEveryTimeout) - clear all timeout -  lock succeed.");
         }).catch((error) => {
             that.logger.log("error", LOG_ID + "(clearEveryTimeout) - clear all timeout - Catch Error, error : ", error);
             //timeoutItem.reject(error);
@@ -457,16 +492,16 @@ class TimeOutManager {
 
     cleanNotInProgressTimeoutCache(){
         let that = this;
-        that.logger.log("debug", LOG_ID + "(cleanNotInProgressTimeoutCache) - __ entering __ ");
+        // that.logger.log("debug", LOG_ID + "(cleanNotInProgressTimeoutCache) - __ entering __ ");
         that.lock(async () => {
             try {
-                that.logger.log("debug", LOG_ID + "(cleanNotInProgressTimeoutCache) - clear all timeout.");
+           //     that.logger.log("debug", LOG_ID + "(cleanNotInProgressTimeoutCache) - clear all timeout.");
                 if (that.timeoutFnTab) {
                     that.timeoutFnTab.remove((item) => {
                         if (item.value && item.value.timetoutInProgress === true) {
                             return false;
                         } else {
-                            that.logger.log("debug", LOG_ID + "(cleanNotInProgressTimeoutCache) - remove that.timeoutFnTab[", item.key,  "] : ", item.value);
+             //               that.logger.log("debug", LOG_ID + "(cleanNotInProgressTimeoutCache) - remove that.timeoutFnTab[", item.key,  "] : ", item.value);
                             return true;
                         }         
                     });
@@ -478,7 +513,7 @@ class TimeOutManager {
             }
             await pause(300);
         },"cleanNotInProgressTimeoutCache").then(() => {
-            that.logger.log("debug", LOG_ID + "(cleanNotInProgressTimeoutCache) - clear all timeout -  lock succeed.");
+            // that.logger.log("debug", LOG_ID + "(cleanNotInProgressTimeoutCache) - clear all timeout -  lock succeed.");
         }).catch((error) => {
             that.logger.log("error", LOG_ID + "(cleanNotInProgressTimeoutCache) - clear all timeout - Catch Error, error : ", error);
             //timeoutItem.reject(error);
@@ -510,27 +545,31 @@ class TimeOutManager {
         
     }
 // */
-    listEveryTimeout() {
+    listEveryTimeout(label : string = "") {
         let that = this;
-        that.logger.log("debug", LOG_ID + "(listEveryTimeout) - __ entering __ ");
+        // that.logger.log("debug", LOG_ID + "(listEveryTimeout) - __ entering __ ");
         that.lock(async () => {
             try {
-                that.logger.log("debug", LOG_ID + "(listEveryTimeout) - list all timeout.");
+                // that.logger.log("debug", LOG_ID + "(listEveryTimeout) - list all timeout.");
                 if (that.timeoutFnTab) {
-                    that.timeoutFnTab.forEach((item) => {
-                        that.logger.log("debug", LOG_ID + "(listEveryTimeout) - that.timeoutFnTab[", item.key,  "] : ", item.value);
-                    });
+                    if (that.timeoutFnTab.length===0) {
+                        that.logger.log("debug", LOG_ID + "(listEveryTimeout) - ", label, " - that.timeoutFnTab[] empty.");
+                    } else {
+                        that.timeoutFnTab.forEach((item) => {
+                            that.logger.log("debug", LOG_ID + "(listEveryTimeout) - ", label, " - that.timeoutFnTab[", item.key, "] : ", item.value._label);
+                        });
+                    }
                 }
                 // that.timeoutFnTab.clear();
                 return "listed";
             } catch (err) {
-                that.logger.log("error", LOG_ID + "(listEveryTimeout) - list all timeout - CATCH Error !!! in lock, error : ", err);
+                that.logger.log("error", LOG_ID + "(listEveryTimeout) - ", label, " - list all timeout - CATCH Error !!! in lock, error : ", err);
             }
             await pause(300);
         },"listEveryTimeout").then(() => {
-            that.logger.log("debug", LOG_ID + "(listEveryTimeout) - list all timeout -  lock succeed.");
+            // that.logger.log("debug", LOG_ID + "(listEveryTimeout) - list all timeout -  lock succeed.");
         }).catch((error) => {
-            that.logger.log("error", LOG_ID + "(listEveryTimeout) - list all timeout - Catch Error, error : ", error);
+            that.logger.log("error", LOG_ID + "(listEveryTimeout) - ", label, " - list all timeout - Catch Error, error : ", error);
             //timeoutItem.reject(error);
         });
     }

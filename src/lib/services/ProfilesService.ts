@@ -108,7 +108,7 @@ class ProfilesService extends GenericService {
         public mainOffers: any;
     private thirdPartyApps: any = null;
     private startDate: any;
-    private timer: NodeJS.Timeout;
+    private timer: any;
 
     static getClassName(){ return 'ProfilesService'; }
     getClassName(){ return ProfilesService.getClassName(); }
@@ -223,7 +223,7 @@ class ProfilesService extends GenericService {
                         // $rootScope.$broadcast("ON_PROFILE_FEATURES_UPDATED");
                         //that._logger.log(that.DEBUG, LOG_ID + "(start) send rainbow_onprofilefeatureupdated ");
                         that._eventEmitter.emit("evt_internal_profilefeatureupdated");
-                        clearInterval(that.timer);
+                        //clearInterval(that.timer);
                         that.timer = null;
                     })
                     .catch(function (err) {

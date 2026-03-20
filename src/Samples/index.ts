@@ -13007,9 +13007,9 @@ to='user1@pdevdv3os18f.corp.intuit.net/BANL07R9AME9X' type='get' id='e2e1'>
             //setTimeout(timeOutManager.cleanNotInProgressTimeoutCache.bind(timeOutManager), 5000);
             //setTimeout(timeOutManager.cleanNotInProgressTimeoutCache.bind(timeOutManager), 15000);
             //setTimeout(timeOutManager.cleanNotInProgressTimeoutCache.bind(timeOutManager), 25000);
-            setTimeout(timeOutManager.listEveryTimeout.bind(timeOutManager), 5000);
-            setTimeout(timeOutManager.listEveryTimeout.bind(timeOutManager), 15000);
-            setTimeout(timeOutManager.listEveryTimeout.bind(timeOutManager), 30000);
+            setTimeout(() => timeOutManager.listEveryTimeout("deux"), 5000);
+            setTimeout(() => timeOutManager.listEveryTimeout("trois"), 15000);
+            setTimeout(() => timeOutManager.listEveryTimeout("quatre"), 30000);
             /*
         timeOutManager.clearEveryTimeout();
         setTimeout(timeOutManager.clearEveryTimeout.bind(timeOutManager), 5000);
@@ -13047,10 +13047,48 @@ to='user1@pdevdv3os18f.corp.intuit.net/BANL07R9AME9X' type='get' id='e2e1'>
         setTimeout(timeOutManager.cleanNotInProgressTimeoutCache.bind(timeOutManager), 15000);
         setTimeout(timeOutManager.cleanNotInProgressTimeoutCache.bind(timeOutManager), 25000);
         // */
-            setTimeout(timeOutManager.listEveryTimeout.bind(timeOutManager), 30000);
+            setTimeout(() => timeOutManager.listEveryTimeout("deux"), 30000);
 
             timeOutManager.clearEveryTimeout();
             /*
+        setTimeout(timeOutManager.clearEveryTimeout.bind(timeOutManager), 5000);
+        setTimeout(timeOutManager.clearEveryTimeout.bind(timeOutManager), 15000);
+        setTimeout(timeOutManager.clearEveryTimeout.bind(timeOutManager), 20000);
+        setTimeout(timeOutManager.clearEveryTimeout.bind(timeOutManager), 25000);
+        // */
+
+
+        }
+
+        async testtimeOutManagersetTimeoutClearTimeout() {
+
+            if (rainbowSDK.state==="ready") {
+                await rainbowSDK.stop();
+            }
+
+            let timeOutManager = new TimeOutManager(_logger);
+
+            function fn(id) {
+                return () => {
+                    _logger.log("debug", "MAIN - testtimeOutManagersetTimeout, id : ", id, " done at : ", new Date().toTimeString());
+                }
+            }
+
+            _logger.log("debug", "MAIN - testtimeOutManagersetTimeout, start at : ", new Date().toTimeString());
+            let timeout1 = timeOutManager.setTimeout(fn("1"), 25000, "timer 1");
+            let timeout2 = timeOutManager.setTimeout(fn("2"), 25000, "timer 2");
+            timeOutManager.listEveryTimeout("initial must have 2 items");
+            //setTimeout(timeOutManager.cleanNotInProgressTimeoutCache.bind(timeOutManager), 5000);
+            //setTimeout(timeOutManager.cleanNotInProgressTimeoutCache.bind(timeOutManager), 15000);
+            //setTimeout(timeOutManager.cleanNotInProgressTimeoutCache.bind(timeOutManager), 25000);
+            setTimeout(() => {
+                timeOutManager.listEveryTimeout("must have 2 items");
+                timeOutManager.clearTimeoutById(timeout1);
+            }, 5000);
+            setTimeout(() => timeOutManager.listEveryTimeout("must have 1 item"), 15000);
+            setTimeout(() => timeOutManager.listEveryTimeout("must have 0 items"), 30000);
+            /*
+        timeOutManager.clearEveryTimeout();
         setTimeout(timeOutManager.clearEveryTimeout.bind(timeOutManager), 5000);
         setTimeout(timeOutManager.clearEveryTimeout.bind(timeOutManager), 15000);
         setTimeout(timeOutManager.clearEveryTimeout.bind(timeOutManager), 20000);
