@@ -358,7 +358,7 @@ class TimeOutManager {
         return that.lock(async () => {
             try {
                 //let item = that.timeoutFnTab.containsKey(id) ? that.timeoutFnTab.tryGetValue(id) : null;
-                that.logger.log("debug", LOG_ID + "(clearTimeoutById) - id : ", id, " - 1, that.timeoutFnTab.length : ", that.timeoutFnTab.length);
+                //that.logger.log("debug", LOG_ID + "(clearTimeoutById) - id : ", id, " - 1, that.timeoutFnTab.length : ", that.timeoutFnTab.length);
                 let itemValue = that.timeoutFnTab.tryGetValue(id);
                 /*
                 let item = that.timeoutFnTab.first( (pair : KeyValuePair<string, ItemForTimeOutQueue>) => {
@@ -369,30 +369,30 @@ class TimeOutManager {
                     return pair.key === id;
                 });
                 // */
-                that.logger.log("debug", LOG_ID + "(clearTimeoutById) - id : ", id, " - 2");
+                //that.logger.log("debug", LOG_ID + "(clearTimeoutById) - id : ", id, " - 2");
                 // let itemValue = item?.value;
-                that.logger.log("debug", LOG_ID + "(clearTimeoutById) - id : ", id, " - 3");
+                //that.logger.log("debug", LOG_ID + "(clearTimeoutById) - id : ", id, " - 3");
                 if (itemValue) {
                     that.logger.log("debug", LOG_ID + "(clearTimeoutById) - id : ", id, " - Item found, stopping and removing. label : ", itemValue.getLabel());
                     if (itemValue.timetoutInProgress === true) {
-                        that.logger.log("debug", LOG_ID + "(clearTimeoutById) - id : ", id, " - 4");
+                    //    that.logger.log("debug", LOG_ID + "(clearTimeoutById) - id : ", id, " - 4");
                         await itemValue.stop();
                     }
                     that.timeoutFnTab.remove( (pair : KeyValuePair<string, ItemForTimeOutQueue>) => {
                         return pair.key === id;
                     });
-                    that.logger.log("debug", LOG_ID + "(clearTimeoutById) - id : ", id, " - 5");
+                  //  that.logger.log("debug", LOG_ID + "(clearTimeoutById) - id : ", id, " - 5");
                     itemValue = that.timeoutFnTab.tryGetValue(id);
-                    that.logger.log("debug", LOG_ID + "(clearTimeoutById) - id : ", id, " - 6,  isDefined (that.timeoutFnTab.tryGetValue(id)) : ", isDefinedAndNotEmpty(itemValue));
+                   // that.logger.log("debug", LOG_ID + "(clearTimeoutById) - id : ", id, " - 6,  isDefined (that.timeoutFnTab.tryGetValue(id)) : ", isDefinedAndNotEmpty(itemValue));
                     return "cleaned";
                 } else {
                     that.logger.log("debug", LOG_ID + "(clearTimeoutById) - id : ", id, " - Item not found in timeoutFnTab.");
-                    if (that.timeoutFnTab.length > 0) {
+                    /*if (that.timeoutFnTab.length > 0) {
                         for (let i = 0; i < that.timeoutFnTab.length; i++) {
                             let pair = that.timeoutFnTab.elementAt(i);
                             that.logger.log("debug", LOG_ID + "(clearTimeoutById) - dictionary contains key : '", pair.key, "'");
                         }
-                    }
+                    } // */
                     return "not found";
                 }
             } catch (err) {

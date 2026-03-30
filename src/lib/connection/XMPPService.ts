@@ -165,7 +165,8 @@ class XMPPService extends GenericService {
         public rpcoverxmppEventHandler: RpcoverxmppEventHandler;
         public conversationHistoryHandler: ConversationHistoryHandler;
         public calllogEventHandler: CallLogEventHandler;
-        public xmppUtils : XMPPUTils;
+    public xmppUtils : XMPPUTils;
+    public lastXMPPActivity: number;
     private shouldSendMessageToConnectedUser: any;
     private storeMessages: boolean;
     private copyMessage: boolean;
@@ -223,6 +224,7 @@ class XMPPService extends GenericService {
         that.maxAttempts = 1;
         that.idleTimer = null;
         that.pingTimer = null;
+        that.lastXMPPActivity = Date.now();
         that.forceClose = false;
         that.applicationId = _application.appID;
         that.raiseLowLevelXmppInEvent = _xmppOptions.raiseLowLevelXmppInEvent;
@@ -443,62 +445,63 @@ class XMPPService extends GenericService {
 
     async startOrResetIdleTimer(incomingStanza = false) {
         let that = this;
+        that.lastXMPPActivity = Date.now();
+        if (incomingStanza && that.pingTimer) {
+            that._logger.log(that.DEBUG, LOG_ID + "(startOrResetIdleTimer) incoming stanza received, clearing pingTimer.");
+            await that.timeOutManager.clearTimeoutById(that.pingTimer);
+            that.pingTimer = null;
+        }
+
         if ((that.pingTimer && !incomingStanza) || (that.reconnect && that.reconnect.isReconnecting)) {
             that._logger.log(that.DEBUG, LOG_ID + "(startOrResetIdleTimer) ignored with that.pingTimer.triggerId : ", that.pingTimer ? that.pingTimer.triggerId : "", ", incomingStanza : ", incomingStanza, ", that.reconnect.isReconnecting : ", that.reconnect.isReconnecting );
             return;
         }
-        await that.stopIdleTimer();
+
         if (!that.forceClose) {
-            that._logger.log(that.DEBUG, LOG_ID + "(startOrResetIdleTimer) forceClose not setted, so start setTimeout of idle Timer for ping.");
-            that.idleTimer =  that.timeOutManager.setTimeout(() => {
-                that._logger.log(that.DEBUG, LOG_ID + "(startOrResetIdleTimer) idleTimer elapsed. No message received since " + that.maxIdleTimer / 1000 + " seconds, so send a ping iq request and start setTimeout of ping Timer for waiting result.");
-                // Start waiting an answer from server else reset the connection
-                that.pingTimer =  that.timeOutManager.setTimeout(() => {
-                    that.pingTimer = null;
-                    that._logger.log(that.DEBUG, LOG_ID + "(startOrResetIdleTimer) first pingTimer elapsed after that.maxPingAnswerTimer (", that.maxPingAnswerTimer, " seconds). retry a ping iq request before decide it is a fatal error!");
-                    that.pingTimer =  that.timeOutManager.setTimeout(async () => {
-                        /*let err = {
-                            "condition": "No data received from server since " + ((that.maxIdleTimer + that.maxPingAnswerTimer * 2) / 1000) + " secondes. The XMPP link is badly broken, so the application needs to destroy and recreate the SDK, with fresh start(...)."
-                        };
-                        that._logger.log(that.ERROR, LOG_ID + "(startOrResetIdleTimer) second pingTimer elapsed after that.maxPingAnswerTimer (", that.maxPingAnswerTimer, " seconds). forceClose not setted, FATAL no reconnection for condition : ", err.condition, ", error : ", err);
-                        // */
-                        that._logger.log(that.ERROR, LOG_ID + "(startOrResetIdleTimer) second pingTimer elapsed after that.maxPingAnswerTimer (", that.maxPingAnswerTimer, " seconds). close the socket. : ");
-                        if (null!=that.xmppClient.socket) {
-                            that.xmppClient.socket.end();
+            if (!that.idleTimer) {
+                that._logger.log(that.DEBUG, LOG_ID + "(startOrResetIdleTimer) forceClose not setted, so start setInterval of idle Timer for ping.");
+                that.idleTimer = setInterval(() => {
+                    let now = Date.now();
+                    if (now - that.lastXMPPActivity > that.maxIdleTimer) {
+                        if (that.pingTimer) {
+                            that._logger.log(that.DEBUG, LOG_ID + "(startOrResetIdleTimer) idleTimer elapsed but pingTimer already set, so ignore.");
+                            return;
                         }
-                        if (that.reconnect) {
-                            if (that.reconnect.isReconnecting) {
-                                that._logger.log(that.DEBUG, LOG_ID + "(startOrResetIdleTimer) the SDK is that.reconnect.isReconnecting : ", that.reconnect.isReconnecting, " so only stop the idle timer");
-                                await that.stopIdleTimer();
-                            } else {
-                                that._logger.log(that.INFO, LOG_ID + "(startOrResetIdleTimer) SDK is NOT reconnecting, so try to reconnect...");
-                                await that.reconnect.reconnect().catch((err) => {
-                                    that._logger.log(that.INFO, LOG_ID + "(handleXMPPConnection) Error while reconnect : ", err);
-                                });                            }
-                        } else {
-                            that._logger.log(that.ERROR, LOG_ID + "(startOrResetIdleTimer) that.reconnect is undefined, so reconnection is not possible. Raise a FATAL error.");
-                            let err = {
-                                code : -1,
-                                label: "that.reconnect is undefined, so reconnection is not possible. Raise a FATAL error."
-                            };
-                            that.eventEmitter.emit("evt_internal_xmppfatalerror", err);
-                        }
-
-                        /*
-                        // Disconnect the auto-reconnect mode
-                        if (that.reconnect) {
-                            that._logger.log(that.DEBUG, LOG_ID + "(startOrResetIdleTimer) stop XMPP auto-reconnect mode");
-                            that.reconnect.stop();
-                            that.reconnect = null;
-                        }
-
-                        that.eventEmitter.emit("evt_internal_xmppfatalerror", err);
-                        // */
-                    }, that.maxPingAnswerTimer);
-                    that.sendPing();
-                }, that.maxPingAnswerTimer);
-                that.sendPing();
-            }, that.maxIdleTimer);
+                        that._logger.log(that.DEBUG, LOG_ID + "(startOrResetIdleTimer) idleTimer elapsed. No message received since " + (now - that.lastXMPPActivity) / 1000 + " seconds, so send a ping iq request and start setTimeout of ping Timer for waiting result.");
+                        // Start waiting an answer from server else reset the connection
+                        that.pingTimer = that.timeOutManager.setTimeout(() => {
+                            that.pingTimer = null;
+                            that._logger.log(that.DEBUG, LOG_ID + "(startOrResetIdleTimer) first pingTimer elapsed after that.maxPingAnswerTimer (", that.maxPingAnswerTimer, " seconds). retry a ping iq request before decide it is a fatal error!");
+                            that.pingTimer = that.timeOutManager.setTimeout(async () => {
+                                that._logger.log(that.ERROR, LOG_ID + "(startOrResetIdleTimer) second pingTimer elapsed after that.maxPingAnswerTimer (", that.maxPingAnswerTimer, " seconds). close the socket. : ");
+                                if (null != that.xmppClient.socket) {
+                                    that.xmppClient.socket.end();
+                                }
+                                if (that.reconnect) {
+                                    if (that.reconnect.isReconnecting) {
+                                        that._logger.log(that.DEBUG, LOG_ID + "(startOrResetIdleTimer) the SDK is that.reconnect.isReconnecting : ", that.reconnect.isReconnecting, " so only stop the idle timer");
+                                        await that.stopIdleTimer();
+                                    } else {
+                                        that._logger.log(that.INFO, LOG_ID + "(startOrResetIdleTimer) SDK is NOT reconnecting, so try to reconnect...");
+                                        await that.reconnect.reconnect().catch((err) => {
+                                            that._logger.log(that.INFO, LOG_ID + "(handleXMPPConnection) Error while reconnect : ", err);
+                                        });
+                                    }
+                                } else {
+                                    that._logger.log(that.ERROR, LOG_ID + "(startOrResetIdleTimer) that.reconnect is undefined, so reconnection is not possible. Raise a FATAL error.");
+                                    let err = {
+                                        code: -1,
+                                        label: "that.reconnect is undefined, so reconnection is not possible. Raise a FATAL error."
+                                    };
+                                    that.eventEmitter.emit("evt_internal_xmppfatalerror", err);
+                                }
+                            }, that.maxPingAnswerTimer);
+                            that.sendPing();
+                        }, that.maxPingAnswerTimer);
+                        that.sendPing();
+                    }
+                }, 5000);
+            }
         } else {
             that._logger.log(that.DEBUG, LOG_ID + "(startOrResetIdleTimer) forceClose setted so do not send ping.");
         }
@@ -508,8 +511,8 @@ class XMPPService extends GenericService {
         let that = this;
         that._logger.log(that.DEBUG, LOG_ID + "(stopIdleTimer).");
         if (that.idleTimer) {
-            that._logger.log(that.DEBUG, LOG_ID + "(stopIdleTimer) will clean that.idleTimer : ", that.idleTimer);
-            await that.timeOutManager.clearTimeoutById(that.idleTimer);
+            that._logger.log(that.DEBUG, LOG_ID + "(stopIdleTimer) will clean that.idleTimer (interval) : ", that.idleTimer);
+            clearInterval(that.idleTimer);
             that.idleTimer = null;
         }
         if (that.pingTimer) {

@@ -104,6 +104,9 @@ class IQEventHandler extends GenericHandler {
             let children = stanza.children;
             children.forEach((node) => {
                 switch (node.getName()) {
+                    case "ping":
+                        // The treatment is done by the caller (XMPPService.fn_input) because startOrResetIdleTimer(true) clear pingTimer
+                        break;
                     case "query":
                         that._onIqGetQueryReceived(stanza, node);
                         break;
