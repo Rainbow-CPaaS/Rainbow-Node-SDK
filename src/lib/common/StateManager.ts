@@ -63,14 +63,14 @@ class StateManager {
         });
     }
 
-    stop() {
+    stop(publishEvent : boolean = true) {
         let that = this;
 
         this.logger.log("debug", LOG_ID + "(stop) _entering_");
 
         return new Promise(function(resolve, reject) {
             try {
-                that.transitTo(true, SDKSTATUSENUM.STOPPED).then(() => {
+                that.transitTo(publishEvent, SDKSTATUSENUM.STOPPED).then(() => {
                     that.logger.log("info", LOG_ID + "(stop) current state", that.state);
                     that.logger.log("debug", LOG_ID + "(stop) _exiting_");
                     resolve(undefined);
