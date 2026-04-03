@@ -22,7 +22,6 @@ import {error} from "winston";
 import {S2SService} from "./S2SService";
 import {Core} from "../Core";
 import {GenericService} from "./GenericService";
-import {isNonEmptyObject} from "node-mailjet/declarations/utils/index.js";
 
 const LOG_ID = "TELEPHONY/SVCE - ";
 const API_ID = "API_CALL - ";
