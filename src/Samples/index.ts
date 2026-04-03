@@ -26,6 +26,7 @@ import {
     getStoreStanzaValue,
     getTextFromJSONProperty,
     isDefined,
+    isNotDefined,
     isInstanceOfClass,
     isJsonObject,
     isPlainObject,
@@ -73,7 +74,7 @@ import * as ini from 'ini';
 // Load the SDK
 // For using the fiddler proxy which logs requests to server
 // process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0";
-import Bubble_1 from "../lib/common/models/Bubble";
+import Bubble_1, {Bubble} from "../lib/common/models/Bubble";
 //import fileapi from "file-api";
 //let fileapi = require('file-api');
 import * as util from "util";
@@ -93,6 +94,7 @@ import * as v8 from "v8";
 import {tmpdir} from "node:os";
 import {PresenceLevel} from "../lib/common/models/PresenceRainbow.js";
 import fs = require("fs");
+import assert = require("node:assert");
 
 const xml = require("@xmpp/xml").xml || require("@xmpp/xml");
  const parse = require("@xmpp/xml/lib/parse");
@@ -1430,6 +1432,105 @@ let expressEngine = undefined;
     rainbowSDK.events.on("rainbow_onpinmanagement", async function (data: any) {
         _logger.log("debug", "MAIN - (rainbow_onpinmanagement) data : ", data);
     });
+
+    function  on_rainbow_event(promise, resolve, timeoutId, eventName, callback) {
+        _logger.log("debug", "MAIN - (on_rainbow_event) :: attach event's method to ", _logger.colors.yellow( ", eventName : ", eventName));
+        return (data) => {
+            _logger.log("debug", "MAIN - (on_rainbow_event) :: eventName : ", eventName, " event data param info : ", data);
+            let state1 = util.inspect(promise);
+            _logger.log("debug", "MAIN - (on_rainbow_event) :: promiseState : ", state1);
+            if (state1 === 'Promise { <pending> }') {
+                _logger.log("debug", "MAIN - (on_rainbow_event) :: event received, and promise is pending, so it can be resolved");
+                if (timeoutId) {
+                    _logger.log("debug", "MAIN - (on_rainbow_event) :: clear the timeout for the event");
+                    clearTimeout(timeoutId);
+                }
+                // test expecting
+                resolve(data);
+            } else {
+                resolve(undefined);
+            }
+
+        };
+    }
+
+    function listenForAnEvent(rainbowSDK, eventToWaitName, callback) : Promise<any> {
+
+        /*
+          "waiting": [
+                {
+                  "forEvent": "api:rainbow_oncallforwarded",
+                  "resulting": "forwardEvtResult>obj",
+                  "using": [
+                    "vincent00"
+                  ]
+                }
+              ],
+         */
+        
+        let timeoutForEvent = undefined;
+        let resolvedSaved = undefined;
+        let rejectedSaved = undefined;
+        let waitingTimeForEvent = 120000; // 40000;
+
+        let promise = new Promise(function (resolve, reject) {
+            if (!eventToWaitName) {
+                resolve(null);
+            }
+            else {
+                try {
+                    resolvedSaved = resolve;
+                    rejectedSaved = reject;
+                    _logger.log("debug", "MAIN - (listenForAnEvent) ::          setTimeout  ");
+                    timeoutForEvent = setTimeout(() => {
+                        _logger.log("debug", "MAIN - (listenForAnEvent) ::          timeoutForEvent  ", timeoutForEvent, "eventToWaitName : ", eventToWaitName);
+                        //let user = Array.isArray(waiting?.using) ? waiting?.using[0]: "";
+                        reject("event " + eventToWaitName + " forced to be failed by timeout !!! " );
+                    }, waitingTimeForEvent);
+                }
+                catch (err) {
+                    _logger.log("error", "MAIN - (listenForAnEvent) ::  CATCH Error !!! : ", err);
+                    reject(err);
+                }
+            }
+        });
+
+        if (eventToWaitName) {
+            try {
+                let eventToWaitCallBackName = "on_" + eventToWaitName;
+                //let eventToWaitCallBack = eval(eventToWaitCallBackName);
+                let eventToWaitCallBack = on_rainbow_event;
+                let typeofeventToWaitCallBack = typeof eventToWaitCallBack;
+                if (typeofeventToWaitCallBack === "function") {
+                    rainbowSDK.events.once(eventToWaitName, eventToWaitCallBack(promise, resolvedSaved, timeoutForEvent, eventToWaitName,  callback));
+                } else {
+                    _logger.log("error", "MAIN - (listenForAnEvent) :: event ", eventToWaitName, " is not listen by afterbuild code , so the test will FAILED!!! ");
+                }
+            }
+            catch (err) {
+                _logger.log("error", "MAIN - (listenForAnEvent) ::  CATCH Error !!! : ", err);
+                rejectedSaved(err);
+            }
+        }
+
+        return promise;
+    };
+
+    // regin Asserts
+
+    function expectingIsDefined(value:any, errorlabel) {
+        assert.strictEqual(isDefined(value), true, errorlabel);
+    }
+
+    function expectingIsNotDefined(value:any, errorlabel) {
+        assert.strictEqual(isNotDefined(value), true, errorlabel);
+    }
+
+    function expectingEqual(value:any, expectedValue, errorlabel) {
+        assert.strictEqual(value, expectedValue, errorlabel);
+    }
+
+    // endregin Asserts
 
     class Tests {
 
@@ -6327,6 +6428,134 @@ let expressEngine = undefined;
             });
         }
 
+        async testrainbow_onmessage_roompassword() {
+            /*
+<message xmlns='jabber:client' xml:lang='en' to='adcf613d42984a79a7bebccc80c2b65e@openrainbow.net' from='pcloud_enduser_3@openrainbow.net/1233189196439985501267640932' type='management' id='27069e5b-af3c-48e0-a5ac-916bfdf1fc7d_19318'><roompassword xmlns='jabber:iq:configuration' action='create' roomid='69cbd981613b9558aea253ea' roomjid='room_e69e7d22a4754b1180b573a2fd57de2c@muc.openrainbow.net' haspassword='true' roomname='testRoomPassword_1' password='aSzhq3$*'/></message>
+             */
+            let stanzaStr = "<message xmlns='jabber:client' xml:lang='en' to=\"" + rainbowSDK._core._xmpp.jid + "\" from='openrainbow.net' type='management' id='27069e5b-af3c-48e0-a5ac-916bfdf1fc7d_19318'><roompassword xmlns='jabber:iq:configuration' action='create' roomid='69cbd981613b9558aea253ea' roomjid='room_e69e7d22a4754b1180b573a2fd57de2c@muc.openrainbow.net' haspassword='true' roomname='testRoomPassword_1' password='aSzhq3$*'/></message>";
+            let stanza = prettydata.xmlmin(stanzaStr);
+            _logger.log("debug", "MAIN - testrainbow_onmessageserverreceiptreceived stanza : ", stanza);
+            await rainbowSDK._core._xmpp.mockStanza(stanza);
+            await listenForAnEvent(rainbowSDK,"rainbow_onbubbleroompasswordreceived", undefined).then((data) => {
+                _logger.log("debug", "MAIN - testrainbow_onmessageserverreceiptreceived rainbow_onbubbleroompasswordreceived result : ", data);
+                expectingIsDefined(data?.password, " password should be defined in event's data");
+            }).catch ((err) => {
+                _logger.log("debug", "MAIN - testrainbow_onmessageserverreceiptreceived while waiting event rainbow_onbubbleroompasswordreceived, error : ", err);
+            });
+        }
+
+
+        /**
+         * @public
+         * @method testRoomPasswordManagement
+         * @instance
+         * @async
+         * @description
+         *      This test method demonstrates how to manage a room's password. <br>
+         *      It searches for a bubble named 'testRoomPassword_1', creates it if it doesn't exist,
+         *      then sets a password, deletes it, and finally deletes the bubble. <br>
+         * @return {Promise<void>}
+         */
+        async testRoomPasswordManagement() {
+            try {
+                let bubbleName = "testRoomPassword_1";
+                let bubble: Bubble;
+                let loginEmail = "vincentGuest+" + genererCode() + "@vbe.test.openrainbow.net";
+                let password = "Password_123";
+
+                _logger.log("debug", "MAIN - [testRoomPasswordManagement] :: Searching for bubble : ", bubbleName);
+                let bubbles = await rainbowSDK.bubbles.getAllBubbles();
+                bubble = bubbles.find(b => b.name === bubbleName);
+
+                if (bubble) {
+                    _logger.log("debug", "MAIN - [testRoomPasswordManagement] :: Bubble found : ", bubble.id);
+                } else {
+                    _logger.log("debug", "MAIN - [testRoomPasswordManagement] :: Bubble not found, creating it...");
+                    bubble = await rainbowSDK.bubbles.createBubble(bubbleName, "Test password management");
+                    _logger.log("debug", "MAIN - [testRoomPasswordManagement] :: Bubble created : ", bubble.id);
+                    let pauseTime = 10000; // ms
+                    _logger.log("debug", "MAIN - [testRoomPasswordManagement] :: pause : ", pauseTime);
+                    await pause(pauseTime);
+                }
+
+                rainbowSDK.bubbles.createPublicUrl(bubble).then(async (publicUrl : any) => {
+                    _logger.log("debug", "MAIN - [testRoomPasswordManagement] :: createPublicUrl publicUrl : ", publicUrl);
+
+                    expectingIsDefined(publicUrl, "createPublicUrl - publicUrl should be defined.");
+                    expectingIsDefined(publicUrl?.userId, "createPublicUrl - publicUrl?.userId should be defined.");
+                    expectingIsDefined(publicUrl?.openInviteId, "createPublicUrl - publicUrl?.openInviteId should be defined.");
+                    expectingIsDefined(publicUrl?.roomId, "createPublicUrl - publicUrl?.roomId should be defined.");
+                    expectingIsDefined(publicUrl?.roomType, "createPublicUrl - publicUrl?.roomType should be defined.");
+                    expectingIsDefined(publicUrl?.roomPassword, "createPublicUrl - publicUrl?.roomPassword should be defined.");
+                    expectingIsDefined(publicUrl?.invitationURL, "createPublicUrl - publicUrl?.invitationURL should be defined.");
+
+                    let eventWaitPromise : Promise<any> = listenForAnEvent(rainbowSDK,"rainbow_onbubbleroompasswordreceived", undefined);
+
+                    let haspassword :boolean = true;
+                    _logger.log("debug", "MAIN - [testRoomPasswordManagement] :: Setting password...");
+                    let resultSet : any = await rainbowSDK.bubbles.setRoomHasPassword(bubble.id, haspassword);
+                    _logger.log("debug", "MAIN - [testRoomPasswordManagement] :: setRoomHasPassword result : ", resultSet);
+                    expectingIsDefined(resultSet, "setRoomHasPassword - resultSet should be defined.");
+                    expectingIsDefined(resultSet?.userId, "setRoomHasPassword - resultSet?.userId should be defined.");
+                    expectingIsDefined(resultSet?.openInviteId, "setRoomHasPassword - resultSet?.openInviteId should be defined.");
+                    expectingIsDefined(resultSet?.roomId, "setRoomHasPassword - resultSet?.roomId should be defined.");
+                    expectingIsDefined(resultSet?.roomType, "setRoomHasPassword - resultSet?.roomType should be defined.");
+                    expectingIsDefined(resultSet?.roomPassword, "setRoomHasPassword - resultSet?.roomPassword should be defined.");
+                    expectingIsDefined(resultSet?.invitationURL, "setRoomHasPassword - resultSet?.invitationURL should be defined.");
+
+                    eventWaitPromise.then((data) => {
+                        _logger.log("debug", "MAIN - [testRoomPasswordManagement] rainbow_onbubbleroompasswordreceived for set result : ", data);
+                        expectingIsDefined(data?.password,"setRoomHasPassword - password should be defined in event's data for renew.");
+                    }).catch ((err) => {
+                        _logger.log("error", "MAIN - [testRoomPasswordManagement] while waiting event rainbow_onbubbleroompasswordreceived, error : ", err);
+                    });
+
+
+                    await rainbowSDK.bubbles.getAllPublicUrlOfABubble(bubble).then(async (publicUrl) => {
+                        _logger.log("debug", "MAIN - [testRoomPasswordManagement] getAllPublicUrlOfABubble publicUrl : ", publicUrl);
+                        expectingIsDefined(publicUrl, "getAllPublicUrlOfABubble - publicUrl should be defined.");
+                        /*
+                        expectingIsDefined(publicUrl?.publicLink?.openInviteId, "publicUrl?.publicLink?.openInviteId should be defined.");
+                        expectingIsDefined(publicUrl?.publicLink?.invitationURL, "publicUrl?.publicLink?.invitationURL should be defined.");
+                        expectingIsDefined(publicUrl?.publicLink?.roomPassword, "publicUrl?.publicLink?.roomPassword should be defined.");
+                        // */
+                    });
+
+                    eventWaitPromise = listenForAnEvent(rainbowSDK,"rainbow_onbubbleroompasswordreceived", undefined);
+
+                    _logger.log("debug", "MAIN - [testRoomPasswordManagement] :: Reset password...");
+                    let resultDeletePass = await rainbowSDK.bubbles.renewRoomPassword(bubble.id);
+                    _logger.log("debug", "MAIN - [testRoomPasswordManagement] :: resetRoomPassword result : ", resultDeletePass);
+
+                    let roomPassword = null;
+                    eventWaitPromise.then((data) => {
+                        _logger.log("debug", "MAIN - [testRoomPasswordManagement] rainbow_onbubbleroompasswordreceived for renew result : ", data);
+                        expectingIsDefined(data?.password, "renewRoomPassword - password should be defined in event's data for renew.");
+                        roomPassword = data.password;
+                    }).catch ((err) => {
+                        _logger.log("error", "MAIN - [testRoomPasswordManagement] while waiting event rainbow_onbubbleroompasswordreceived for renew, error : ", err);
+                    });
+                    
+                    _logger.log("debug", "MAIN - [testRoomPasswordManagement] :: createPublicUrl publicUrl : ", publicUrl);
+                    rainbowSDK.bubbles.registerGuestForAPublicURL(publicUrl, loginEmail, password, "VincentGuest", "berderGuest", "VBGuest", "Mr.", "DevGuest", "ITGuest", null,null,null,null,null,null,null,null, roomPassword).then(async (result) => {
+                        _logger.log("debug", "MAIN - [testRoomPasswordManagement] :: registerGuestForAPublicURL result : ", result);
+                        expectingIsDefined(result, "registerGuestForAPublicURL - result should be defined.");
+                    }).catch ((err) => {
+                        _logger.log("error", "MAIN - [testRoomPasswordManagement] while registerGuestForAPublicURL, error : ", err);
+                    });
+
+                });
+
+                /*
+                _logger.log("debug", "MAIN - [testRoomPasswordManagement] :: Cleaning up, deleting bubble...");
+                await rainbowSDK.bubbles.deleteBubble(bubble);
+                _logger.log("debug", "MAIN - [testRoomPasswordManagement] :: Success");
+                // */
+            } catch (err) {
+                _logger.log("error", "MAIN - [testRoomPasswordManagement] :: Error : ", err);
+            }
+        }
+
         async testLeaveBubble() {
             let bubbles = await rainbowSDK.bubbles.getAllBubbles();
             _logger.log("debug", "MAIN - testLeaveBubble bubbles : ", bubbles); //logger.colors.green(JSON.stringify(result)));
@@ -6822,7 +7051,7 @@ let expressEngine = undefined;
 
         async testCreateAGuestAndAddItToACreatedBubble() {
             let loginEmail = "vincentGuest+" + genererCode() + "@vbe.test.openrainbow.net";
-            let password = "Password_123"
+            let password = "Password_123";
             let bubbleName = "testBotName_";
             let bubbleDescription = "testBotDescription_";
             let bubbleMessage = "testBotMessage_";

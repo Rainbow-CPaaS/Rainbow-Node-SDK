@@ -6,7 +6,7 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-### [2.43.X] - 2026-XX-XX
+### [2.43.2] - 2026-XX-XX
 #### Removed
 -   None
 
@@ -14,6 +14,10 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   None
  
 #### Added
+-   Add `setRoomPassword` and `deleteRoomPassword` methods in `BubblesService` to manage room passwords (RQRAINB-13820).
+-   Add `setRoomPassword` and `deleteRoomPassword` methods in `RESTService` to call room password management endpoints (RQRAINB-13820).
+-   Add `testRoomPasswordManagement` in `Samples/index.ts` to verify room password management flow (RQRAINB-13820).
+-   Add `rainbow_onbubbleroompasswordreceived` event fired when a password is setted for public links in a bubble.
 -   Add `rainbow_onscanreceived` event fired when a `scan` event is received from server.
 -   Add `test_sendApplicationAndOpenAconversation_BulleDeTest` test method to demonstrates how to send an Adaptive Card into a specific bubble (MUC) and then handle the user's interaction with that card.
 -   Add `sasl-scram-sha-256` support for XMPP connection.
@@ -23,6 +27,8 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 #### Changed
 -   Update `HttpManager` and `HttpService` to support custom callbacks for mocked REST requests, ensuring they work both with and without the request rate limiter.
+-   Update `BubblesService::registerGuestForAPublicURL` with new parameters emails, phoneNumbers, country, state, language, timezone, visibility, customData, companyNameOfGuest, roomPassword. The method's return also changed by an object instead of string.
+-   Update `BubblesService::joinBubbleByOpenInviteId` with new parameters roomPassword. The method's return also changed by an object instead of string.
 
 ### [2.43.1] - 2026-02-27
 #### Removed

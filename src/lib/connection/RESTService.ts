@@ -162,8 +162,10 @@ class GuestParams {
     // */
     }; //     User's custom data.
 
-    public companyNameOfGuest: string; // A string represention the name ofg the company of the Guest (only an info property, the guests are created in the "Rainbow" company).
+    public companyNameOfGuest: string; // A string represention the name of the company of the Guest (only an info property, the guests are created in the "Rainbow" company).
 
+    public roomPassword: string; // Password of the bubble if required.
+    
     constructor(
         _loginEmail: string = null,
         _password: string= null,
@@ -190,7 +192,8 @@ class GuestParams {
         _timezone: string= null,
         _visibility: string= null,
         _customData: any= null,
-        _companyNameOfGuest:string = null
+        _companyNameOfGuest:string = null,
+        _roomPassword: string = null
     ) {
     let that = this;
         that.loginEmail = _loginEmail;
@@ -216,6 +219,7 @@ class GuestParams {
         that.visibility = _visibility;
         that.customData = _customData;
         that.companyNameOfGuest = _companyNameOfGuest;
+        that.roomPassword = _roomPassword;
     }
 
     getUrlParam () {
@@ -290,7 +294,9 @@ class GuestParams {
         if (that.companyNameOfGuest) {
             param.companyNameOfGuest = that.companyNameOfGuest;
         }
-
+        if (that.roomPassword) {
+            param.roomPassword = that.roomPassword;
+        }
         return param
     }
 
@@ -5099,6 +5105,44 @@ Request Method: PUT
             }).catch(function (err) {
                 that._logger.log(that.ERROR, LOG_ID, "(deleteBubble) error");
                 that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteBubble) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    setRoomHasPassword(roomId, hasPassword :boolean = false) {
+        // API https://api.openrainbow.org/enduser/#api-rooms_password_management-activateRoomAccessByPassword
+        // POST /api/rainbow/enduser/v1.0/rooms/:roomId/passwords
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let data = {
+                hasPassword: hasPassword
+            };
+            that.http.put("/api/rainbow/enduser/v1.0/rooms/" + roomId + "/passwords", that.getRequestHeader(), data, undefined).then(function (json) {
+                that._logger.log(that.DEBUG, LOG_ID + "(setRoomHasPassword) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(setRoomHasPassword) REST result : ", json);
+                resolve(json?.data);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(setRoomHasPassword) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(setRoomHasPassword) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    renewRoomPassword(roomId) {
+        // API https://api.openrainbow.org/enduser/#api-rooms_password_management-renewPassword
+        // PUT /api/rainbow/enduser/v1.0/rooms/:roomId/passwords/reset
+        let that = this;
+        let data = {};
+        return new Promise(function (resolve, reject) {
+            that.http.put("/api/rainbow/enduser/v1.0/rooms/" + roomId + "/passwords/reset", that.getRequestHeader(), data).then(function (json) {
+                that._logger.log(that.DEBUG, LOG_ID + "(renewRoomPassword) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(renewRoomPassword) REST result : ", json);
+                resolve(json?.data);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(renewRoomPassword) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(renewRoomPassword) error : ", err);
                 return reject(err);
             });
         });
@@ -9974,13 +10018,14 @@ addPropertyToObj(param, "peerId", body.peerId, false);
         });
     }
 
-    joinBubbleByOpenInviteId(openInviteId: string) {
+    joinBubbleByOpenInviteId(openInviteId: string, roomPassword : string = undefined) {
         // API https://api.openrainbow.org/enduser/#api-rooms_open_invite-sendJoinRoomInvitationUsingOpenInviteiId
         // POST /api/rainbow/enduser/v1.0/rooms/open-invites
         let that = this;
         return new Promise(function (resolve, reject) {
             let params: any = {
-                openInviteId //, // Id 
+                openInviteId, //, // Id
+                roomPassword
             };
 
             that._logger.log(that.INTERNAL, LOG_ID + "(joinBubbleByOpenInviteId) REST params : ", params);

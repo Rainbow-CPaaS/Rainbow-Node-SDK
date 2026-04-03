@@ -9,7 +9,7 @@ import {EventEmitter} from "events";
 import {createPromiseQueue} from "../common/promiseQueue";
 import {
     addParamToUrl,
-    getBinaryData, isDefined,
+    getBinaryData, isDefined, isNotDefined,
     isStarted,
     logEntryExit,
     resizeImage,
@@ -1818,7 +1818,7 @@ class Bubbles extends GenericService {
          * @return {Promise<Bubble, ErrorManager>}
          * @fulfil {Bubble} - Bubble object, else an ErrorManager object
          */
-        async createBubble(name: string, description: string, history:any="all", p_number : number=0, visibility : string="private", disableNotifications : boolean=false, autoRegister:string = 'unlock', autoAcceptInvitation:boolean = false, muteUponEntry:boolean=false, playEntryTone:boolean=true) {
+        async createBubble(name: string, description: string, history:any="all", p_number : number=0, visibility : string="private", disableNotifications : boolean=false, autoRegister:string = 'unlock', autoAcceptInvitation:boolean = false, muteUponEntry:boolean=false, playEntryTone:boolean=true): Promise<Bubble|any> {
             let that = this;
             that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(createBubble) name : ",  that._logger.stripStringForLogs(name), ", description : ",  that._logger.stripStringForLogs(description), ", history : ", history);
             
@@ -4701,7 +4701,8 @@ class Bubbles extends GenericService {
         that._logger.log(that.INTERNAL, LOG_ID + "(createPublicUrl) bubble parameter : ", bubble?.id);
 
         let bubbleId: string = bubble.id;
-        return that.getPublicURLFromResponseContent(await that._rest.createPublicUrl(bubbleId));
+        //return that.getPublicURLFromResponseContent(await that._rest.createPublicUrl(bubbleId));
+        return that._rest.createPublicUrl(bubbleId);
     }
     
     /**
@@ -4728,7 +4729,8 @@ class Bubbles extends GenericService {
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }
         let bubbleId: string = bubble.id;
-        return that.getPublicURLFromResponseContent(await that._rest.generateNewPublicUrl(bubbleId));
+        //return that.getPublicURLFromResponseContent(await that._rest.generateNewPublicUrl(bubbleId));
+        return await that._rest.generateNewPublicUrl(bubbleId);
     }
     
     /**
@@ -4833,37 +4835,50 @@ class Bubbles extends GenericService {
     }
     
     /**
-         * @public
-         * @nodered true
-         * @method registerGuestForAPublicURL
-         * @since 1.75
-         * @instance
-         * @category Manage Bubbles - Bubbles PUBLIC URL
-         * @description
-         *    register a guest user with a mail and a password and join a bubble with a public url. <br>
-         *    For this use case, first generate a public link using createPublicUrl(bubbleId) API for the requested bubble. <br>
-         *    If the provided openInviteId is valid, the user account is created in guest mode (guestMode=true) <br>
-         *    and automatically joins the room to which the public link is bound. <br>
-         * <br>
-         *    Note: The guest account can be destroy only with a user having one of the following rights : superadmin,bp_admin,bp_finance,admin. <br>
-         * @param {string} publicUrl the public url to get the openinviteId.
-         * @param {string} loginEmail User email address (used for login). Must be unique (409 error is returned if a user already exists with the same email address).
-         * @param {string} password User password. </BR>
-         * Rules: </BR>
-         * * more than 8 characters, </BR>
-         *     * ⚠️ Warning: the minimal password length will soon be increased to 12, planned to be effective mid-june 2023 (8 characters are still accepted until this date) </BR>
-         * * at least 1 capital letter, </BR>
-         * * 1 number, </BR>
-         * * 1 special character. </BR>
-         * @param {string} firstName User first name
-         * @param {string} lastName User last name
-         * @param {string} nickName User nickName
-         * @param {string} title User title (honorifics title, like Mr, Mrs, Sir, Lord, Lady, Dr, Prof,...)
-         * @param {string} jobTitle User job title
-         * @param {string} department User department
-         * @return {Promise<any>} An object of the result
-    */
-    registerGuestForAPublicURL(publicUrl: string, loginEmail: string, password: string, firstName: string, lastName: string, nickName: string, title: string, jobTitle: string, department: string) {
+     * @public
+     * @nodered true
+     * @method registerGuestForAPublicURL
+     * @since 1.75
+     * @instance
+     * @category Manage Bubbles - Bubbles PUBLIC URL
+     * @description
+     *    register a guest user with a mail and a password and join a bubble with a public url. <br>
+     *    For this use case, first generate a public link using createPublicUrl(bubbleId) API for the requested bubble. <br>
+     *    If the provided openInviteId is valid, the user account is created in guest mode (guestMode=true) <br>
+     *    and automatically joins the room to which the public link is bound. <br>
+     * <br>
+     *    Note: The guest account can be destroy only with a user having one of the following rights : superadmin,bp_admin,bp_finance,admin. <br>
+     * @param {string} publicUrl the public url to get the openinviteId.
+     * @param {string} loginEmail User email address (used for login). Must be unique (409 error is returned if a user already exists with the same email address).
+     * @param {string} password User password. </BR>
+     * Rules: </BR>
+     * * more than 8 characters, </BR>
+     *     * ⚠️ Warning: the minimal password length will soon be increased to 12, planned to be effective mid-june 2023 (8 characters are still accepted until this date) </BR>
+     * * at least 1 capital letter, </BR>
+     * * 1 number, </BR>
+     * * 1 special character. </BR>
+     * @param {string} firstName User first name
+     * @param {string} lastName User last name
+     * @param {string} nickName User nickName
+     * @param {string} title User title (honorifics title, like Mr, Mrs, Sir, Lord, Lady, Dr, Prof,...)
+     * @param {string} jobTitle User job title
+     * @param {string} department User department
+     * @param {Object} emails Array of user emails addresses objects. Each object contains: email (string) and type (string: home, work, other).
+     * @param {Array} phoneNumbers Array of user phone numbers objects. Each object contains: number (string), country (ISO 3166-1 alpha3 format), type (home, work, other), deviceType (landline, mobile, fax, other), and isVisibleByOthers (boolean).
+     * @param {string} country User country (ISO 3166-1 alpha3 format).
+     * @param {string} state When country is 'USA' or 'CAN', a state can be defined. Else it is not managed (null).
+     * @param {string} language User language (composed of locale using format ISO 639-1, with optionally the regional variation using ISO 3166-1 alpha-2, e.g., en, fr-FR, ...).
+     * @param {string} timezone User timezone name (one of the timezone names defined in IANA tz database, e.g., Europe/Paris).
+     * @param {string} visibility User visibility. Authorized values : same_than_company, public, private, closed, isolated, none.
+     * @param {Object} customData User's custom data (max 10 keys, max key length: 64 characters, max value length: 512 characters).
+     * @param {string} companyNameOfGuest A string representation the name of the company of the Guest (only an info property).
+     * @param {string} roomPassword Password of the bubble if required.
+     * @return {Promise<any>} An object of the result
+     */
+    registerGuestForAPublicURL(publicUrl: string, loginEmail: string, password: string, firstName: string, lastName: string, nickName: string, title: string, jobTitle: string, department: string,   emails: {
+                                   email: string,
+                                   type: string
+                               }= null, phoneNumbers: Array<any>= null, country: string= null, state: string= null, language: string= null, timezone: string= null, visibility: string= null, customData: any= null, companyNameOfGuest:string = null, roomPassword: string = null) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(registerGuestForAPublicURL) .");
 
@@ -4886,7 +4901,8 @@ class Bubbles extends GenericService {
             that._logger.log(that.INTERNAL, LOG_ID + "(registerGuestForAPublicURL) decode openInviteId.");
             let openInviteId = publicUrl.split("/").pop();
             that._logger.log(that.INTERNAL, LOG_ID + "(registerGuestForAPublicURL) openInviteId found : ", openInviteId);
-            let guestParam = new GuestParams(loginEmail, password, null, null, null, null, openInviteId, null, firstName, lastName, nickName, title, jobTitle, department);
+            let guestParam = new GuestParams(loginEmail, password, null, null, null, null, openInviteId, null, firstName, lastName, nickName, title, jobTitle, department,
+                    emails, phoneNumbers, country, state, language, timezone, visibility, customData, companyNameOfGuest, roomPassword);
             that._rest.registerGuest(guestParam).then(function (joinResult: any) {
                 resolve(joinResult);
             }).catch(function (err) {
@@ -4958,6 +4974,7 @@ class Bubbles extends GenericService {
      *    Each user can create on demand a public URL to one of his rooms(users public link). <br>
      *    The public URL format is designed by the Rainbow application programmer and must contain at least an 'openInviteId'. This openInviteId is an UUID-V4 value. <br>
      * @param {string} openInviteId uuid representing a part of the user's public URL to invite somebody to join a bubble. Example of public URL: https://web.openrainbow.com/#/invite?invitationId=0fc06e0ce4a849fcbe214ae5e1107417&scenario='public-url'
+     * @param {string} [roomPassword] Optional password required to join the bubble if it is password-protected.
      * @return {Promise<any>} An object of the result
      *
      *
@@ -4965,9 +4982,9 @@ class Bubbles extends GenericService {
      * | --- | --- | --- |
      * | roomId | String | Room unique identifier. |
      * | hasAlreadyJoinThisRoom | Boolean | True when the loggedInUser has previously join this room. |
-     * 
+     *
      */
-    joinBubbleByOpenInviteId (openInviteId : string ) {
+    joinBubbleByOpenInviteId (openInviteId : string, roomPassword : string = undefined ) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(joinBubbleByOpenInviteId) .");
 
@@ -4979,7 +4996,7 @@ class Bubbles extends GenericService {
 
         return new Promise(async function (resolve, reject) {
             that._logger.log(that.INTERNAL, LOG_ID + "(joinBubbleByOpenInviteId) openInviteId found : ", openInviteId);
-            that._rest.joinBubbleByOpenInviteId(openInviteId).then(function (result: any) {
+            that._rest.joinBubbleByOpenInviteId(openInviteId, roomPassword).then(function (result: any) {
                 resolve(result);
             }).catch(function (err) {
                 that._logger.log(that.ERROR, LOG_ID + "(joinBubbleByOpenInviteId) error");
@@ -6829,7 +6846,87 @@ class Bubbles extends GenericService {
         });
     }
 
-   //endregion Bubbles - dialIn
+    //endregion Bubbles - dialIn
+
+    //region Bubbles - password
+
+    /**
+     * @public
+     * @nodered true
+     * @method setRoomHasPassword
+     * @instance
+     * @since 2.30.0
+     * @category Bubbles - password
+     * @param {string} roomId The id of the room.
+     * @param {boolean} hasPassword Set to true to activate room access by password, false otherwise.
+     * @async
+     * @description
+     *       This API allows activating or deactivating the room access by password. <br>
+     * @return {Promise<any>} the result of the operation.
+     */
+    setRoomHasPassword(roomId : string, hasPassword : boolean = false) {
+        let that = this;
+        const API_ID = "setRoomHasPassword";
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(setRoomHasPassword) roomId : ", roomId);
+
+        return new Promise((resolve, reject) => {
+            that._logger.log(that.DEBUG, LOG_ID + "(setRoomHasPassword) roomId : " + roomId);
+
+            if (!roomId) {
+                that._logger.log(that.DEBUG, LOG_ID + "(setRoomHasPassword) bad or empty 'roomId' parameter : ", roomId);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            if (isNotDefined(hasPassword)) {
+                that._logger.log(that.DEBUG, LOG_ID + "(setRoomHasPassword) bad or empty 'hasPassword' parameter : ", hasPassword);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            that._rest.setRoomHasPassword(roomId, hasPassword).then(async (result) => {
+                that._logger.log(that.INTERNAL, LOG_ID + "(setRoomHasPassword) result from server : ", result);
+                resolve(result);
+            }).catch((err) => {
+                return reject(err);
+            });
+        });
+    }
+
+    /**
+     * @public
+     * @nodered true
+     * @method renewRoomPassword
+     * @instance
+     * @since 2.30.0
+     * @category Bubbles - password
+     * @param {string} roomId The id of the room.
+     * @async
+     * @description
+     *       This API allows reseting the password from a room. <br>
+     * @return {Promise<any>} the result of the operation.
+     */
+    renewRoomPassword(roomId : string) {
+        let that = this;
+        const API_ID = "renewRoomPassword";
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(renewRoomPassword) roomId : ", roomId);
+
+        return new Promise((resolve, reject) => {
+            that._logger.log(that.DEBUG, LOG_ID + "(renewRoomPassword) roomId : " + roomId);
+
+            if (!roomId) {
+                that._logger.log(that.DEBUG, LOG_ID + "(renewRoomPassword) bad or empty 'roomId' parameter : ", roomId);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            that._rest.renewRoomPassword(roomId).then(async (result) => {
+                that._logger.log(that.INTERNAL, LOG_ID + "(renewRoomPassword) result from server : ", result);
+                resolve(result);
+            }).catch((err) => {
+                return reject(err);
+            });
+        });
+    }
+
+    //endregion Bubbles - password
 
 
 }
