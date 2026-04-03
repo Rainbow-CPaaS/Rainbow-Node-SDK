@@ -130,6 +130,12 @@ class FavoriteEventHandler extends GenericHandler {
                         break;
                     case "unmute":
                         break;
+                    case "vscan":
+                        //treated in conversationEventHandler::onVscanManagementMessageReceived(node);
+                        break;
+                    case "roompassword":
+                        //treated in conversationEventHandler::onRoomPasswordManagementMessageReceived(node);
+                        break;
                     case "file":
                         break;
                     case "thumbnail":

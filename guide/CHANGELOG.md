@@ -27,8 +27,9 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 #### Changed
 -   Update `HttpManager` and `HttpService` to support custom callbacks for mocked REST requests, ensuring they work both with and without the request rate limiter.
--   Update `BubblesService::registerGuestForAPublicURL` with new parameters emails, phoneNumbers, country, state, language, timezone, visibility, customData, companyNameOfGuest, roomPassword. The method's return also changed by an object instead of string.
+-   Update `BubblesService::registerGuestForAPublicURL` with new parameters emails, phoneNumbers, country, state, language, timezone, visibility, customData, companyNameOfGuest, roomPassword.
 -   Update `BubblesService::joinBubbleByOpenInviteId` with new parameters roomPassword. The method's return also changed by an object instead of string.
+-   Update `BubblesService::createPublicUrl` the method's return changed by an object instead of string.
 
 ### [2.43.1] - 2026-02-27
 #### Removed

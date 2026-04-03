@@ -383,6 +383,12 @@ class PresenceEventHandler extends GenericHandler {
                     case "unmute":
                         // treated in conversationEventHandler
                         break;
+                    case "vscan":
+                        //treated in conversationEventHandler::onVscanManagementMessageReceived(node);
+                        break;
+                    case "roompassword":
+                        //treated in conversationEventHandler::onRoomPasswordManagementMessageReceived(node);
+                        break;
                     case "file":
                         // treated in conversationEventHandler
                         break;

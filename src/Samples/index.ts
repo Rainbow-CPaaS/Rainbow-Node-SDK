@@ -6496,24 +6496,28 @@ let expressEngine = undefined;
                     let resultSet : any = await rainbowSDK.bubbles.setRoomHasPassword(bubble.id, haspassword);
                     _logger.log("debug", "MAIN - [testRoomPasswordManagement] :: setRoomHasPassword result : ", resultSet);
                     expectingIsDefined(resultSet, "setRoomHasPassword - resultSet should be defined.");
-                    expectingIsDefined(resultSet?.userId, "setRoomHasPassword - resultSet?.userId should be defined.");
-                    expectingIsDefined(resultSet?.openInviteId, "setRoomHasPassword - resultSet?.openInviteId should be defined.");
-                    expectingIsDefined(resultSet?.roomId, "setRoomHasPassword - resultSet?.roomId should be defined.");
-                    expectingIsDefined(resultSet?.roomType, "setRoomHasPassword - resultSet?.roomType should be defined.");
-                    expectingIsDefined(resultSet?.roomPassword, "setRoomHasPassword - resultSet?.roomPassword should be defined.");
-                    expectingIsDefined(resultSet?.invitationURL, "setRoomHasPassword - resultSet?.invitationURL should be defined.");
+                    expectingIsDefined(resultSet?.publicLink?.openInviteId, "setRoomHasPassword - resultSet?.publicLink?.openInviteId should be defined.");
+                    expectingIsDefined(resultSet?.publicLink?.invitationURL, "setRoomHasPassword - resultSet?.publicLink?.invitationURL should be defined.");
+                    expectingIsDefined(resultSet?.publicLink?.roomPassword, "setRoomHasPassword - resultSet?.publicLink?.roomPassword should be defined.");
+                    expectingIsDefined(resultSet?.room?.id, "setRoomHasPassword - resultSet?.room?.id should be defined.");
+                    expectingIsDefined(resultSet?.room?.name, "setRoomHasPassword - resultSet?.room?.name should be defined.");
+                    expectingEqual(resultSet?.room?.name, "testRoomPassword_1", "setRoomHasPassword - resultSet?.room?.name should be equals to testRoomPassword_1.");
+                    expectingIsDefined(resultSet?.room?.jid, "setRoomHasPassword - resultSet?.room?.jid should be defined.");
+                    expectingIsDefined(resultSet?.room?.hasPassword, "setRoomHasPassword - resultSet?.room?.hasPassword should be defined.");
 
                     eventWaitPromise.then((data) => {
                         _logger.log("debug", "MAIN - [testRoomPasswordManagement] rainbow_onbubbleroompasswordreceived for set result : ", data);
                         expectingIsDefined(data?.password,"setRoomHasPassword - password should be defined in event's data for renew.");
                     }).catch ((err) => {
                         _logger.log("error", "MAIN - [testRoomPasswordManagement] while waiting event rainbow_onbubbleroompasswordreceived, error : ", err);
+                        expectingIsNotDefined(err, " while waiting event rainbow_onbubbleroompasswordreceived for set - error.");
                     });
 
 
                     await rainbowSDK.bubbles.getAllPublicUrlOfABubble(bubble).then(async (publicUrl) => {
                         _logger.log("debug", "MAIN - [testRoomPasswordManagement] getAllPublicUrlOfABubble publicUrl : ", publicUrl);
                         expectingIsDefined(publicUrl, "getAllPublicUrlOfABubble - publicUrl should be defined.");
+                        expectingIsDefined(publicUrl[0]?.publicUrl, "getAllPublicUrlOfABubble - publicUrl[0]?.publicUrl should be defined.");
                         /*
                         expectingIsDefined(publicUrl?.publicLink?.openInviteId, "publicUrl?.publicLink?.openInviteId should be defined.");
                         expectingIsDefined(publicUrl?.publicLink?.invitationURL, "publicUrl?.publicLink?.invitationURL should be defined.");
@@ -6523,27 +6527,38 @@ let expressEngine = undefined;
 
                     eventWaitPromise = listenForAnEvent(rainbowSDK,"rainbow_onbubbleroompasswordreceived", undefined);
 
-                    _logger.log("debug", "MAIN - [testRoomPasswordManagement] :: Reset password...");
-                    let resultDeletePass = await rainbowSDK.bubbles.renewRoomPassword(bubble.id);
-                    _logger.log("debug", "MAIN - [testRoomPasswordManagement] :: resetRoomPassword result : ", resultDeletePass);
+                    _logger.log("debug", "MAIN - [testRoomPasswordManagement] :: Renew bubble password...");
+                    let resultRenewPass : any = await rainbowSDK.bubbles.renewRoomPassword(bubble.id);
+                    _logger.log("debug", "MAIN - [testRoomPasswordManagement] :: renewRoomPassword result : ", resultRenewPass);
+                    expectingIsDefined(resultRenewPass, "renewRoomPassword - resultRenewPass should be defined.");
+                    expectingIsDefined(resultRenewPass?.publicLink?.openInviteId, "renewRoomPassword - resultRenewPass?.publicLink?.openInviteId should be defined.");
+                    expectingIsDefined(resultRenewPass?.publicLink?.invitationURL, "renewRoomPassword - resultRenewPass?.publicLink?.invitationURL should be defined.");
+                    expectingIsDefined(resultRenewPass?.publicLink?.roomPassword, "renewRoomPassword - resultRenewPass?.publicLink?.roomPassword should be defined.");
+                    expectingIsDefined(resultRenewPass?.room?.id, "renewRoomPassword - resultRenewPass?.room?.id should be defined.");
+                    expectingIsDefined(resultRenewPass?.room?.name, "renewRoomPassword - resultRenewPass?.room?.name should be defined.");
+                    expectingEqual(resultRenewPass?.room?.name, "testRoomPassword_1", "renewRoomPassword - resultRenewPass?.room?.name should be equals to testRoomPassword_1.");
+                    expectingIsDefined(resultRenewPass?.room?.jid, "renewRoomPassword - resultRenewPass?.room?.jid should be defined.");
+                    expectingIsDefined(resultRenewPass?.room?.hasPassword, "renewRoomPassword - resultRenewPass?.room?.hasPassword should be defined.");
 
                     let roomPassword = null;
                     eventWaitPromise.then((data) => {
                         _logger.log("debug", "MAIN - [testRoomPasswordManagement] rainbow_onbubbleroompasswordreceived for renew result : ", data);
                         expectingIsDefined(data?.password, "renewRoomPassword - password should be defined in event's data for renew.");
                         roomPassword = data.password;
+
+                        _logger.log("debug", "MAIN - [testRoomPasswordManagement] :: publicUrl : ", publicUrl);
+                        rainbowSDK.bubbles.registerGuestForAPublicURL(publicUrl?.invitationURL, loginEmail, password, "VincentGuest", "berderGuest", "VBGuest", "Mr.", "DevGuest", "ITGuest", null,null,null,null,null,null,null,null, null, roomPassword).then(async (result) => {
+                            _logger.log("debug", "MAIN - [testRoomPasswordManagement] :: registerGuestForAPublicURL result : ", result);
+                            expectingIsDefined(result, "registerGuestForAPublicURL - result should be defined.");
+                        }).catch ((err) => {
+                            _logger.log("error", "MAIN - [testRoomPasswordManagement] while registerGuestForAPublicURL, error : ", err);
+                            expectingIsNotDefined(err, "registerGuestForAPublicURL - error.");
+                        });
                     }).catch ((err) => {
                         _logger.log("error", "MAIN - [testRoomPasswordManagement] while waiting event rainbow_onbubbleroompasswordreceived for renew, error : ", err);
+                        expectingIsNotDefined(err, " while waiting event rainbow_onbubbleroompasswordreceived for renew - error.");
                     });
                     
-                    _logger.log("debug", "MAIN - [testRoomPasswordManagement] :: createPublicUrl publicUrl : ", publicUrl);
-                    rainbowSDK.bubbles.registerGuestForAPublicURL(publicUrl, loginEmail, password, "VincentGuest", "berderGuest", "VBGuest", "Mr.", "DevGuest", "ITGuest", null,null,null,null,null,null,null,null, roomPassword).then(async (result) => {
-                        _logger.log("debug", "MAIN - [testRoomPasswordManagement] :: registerGuestForAPublicURL result : ", result);
-                        expectingIsDefined(result, "registerGuestForAPublicURL - result should be defined.");
-                    }).catch ((err) => {
-                        _logger.log("error", "MAIN - [testRoomPasswordManagement] while registerGuestForAPublicURL, error : ", err);
-                    });
-
                 });
 
                 /*

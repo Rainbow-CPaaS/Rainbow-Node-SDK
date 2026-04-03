@@ -4881,6 +4881,7 @@ class Bubbles extends GenericService {
                                }= null, phoneNumbers: Array<any>= null, country: string= null, state: string= null, language: string= null, timezone: string= null, visibility: string= null, customData: any= null, companyNameOfGuest:string = null, roomPassword: string = null) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(registerGuestForAPublicURL) .");
+        //that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(registerGuestForAPublicURL) arguments : ", ...arguments);
 
         if (!publicUrl) {
             that._logger.log(that.WARN, LOG_ID + "(registerGuestForAPublicURL) bad or empty 'publicUrl' parameter ");
