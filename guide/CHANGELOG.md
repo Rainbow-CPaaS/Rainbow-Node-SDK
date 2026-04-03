@@ -11,8 +11,10 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   None
 
 #### Fixed
--   None
- 
+-   Fix `Samples/index.ts`.
+-   Fix use of `timeOutManager.setTimeout` and `timeOutManager.clearTimeoutById`.
+-   Fix `evt_internal_signinrequired` callback to avoid a call of a second `start()` from the application.
+
 #### Added
 -   Add `setRoomPassword` and `deleteRoomPassword` methods in `BubblesService` to manage room passwords (RQRAINB-13820).
 -   Add `setRoomPassword` and `deleteRoomPassword` methods in `RESTService` to call room password management endpoints (RQRAINB-13820).
@@ -24,12 +26,20 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add `sasl-scram-sha-512` support for XMPP connection.
 -   Add REST mocking mechanism via `addMockRestUrl`, `setMockRestUrl`, and `getMockRestUrl` methods in `NodeSDK`. This allows simulating HTTP responses for specific URL/Verb combinations during testing.
 -   Add `test_mockRenewError404` in `Samples/index.ts` to demonstrate and verify the REST mocking mechanism.
+-   Add in `Samples/index.ts` the methods to test asserts : `expectingIsDefined`, `expectingIsNotDefined`, `expectingEqual`, and to wait for an event : `listenForAnEvent`.
+-   Add `TimeOutManager::cleanTimeoutById` and `TimeOutManager::cleanTimeoutByTimeoutId`.
+-   Add `tokenLifeCycle` documentation.
+-   Add `Bubble::hasPassword` Indicates whether the bubble is protected by a password.
+-   Add `Contact::autoAcceptExternalApp`, `Contact::changeDNDFullScreen`, `Contact::ignoreVoipCallInDND`, `Contact::manageCustomizationFile`, `Contact::setDNDAppointment`, `Contact::usePersonalAccessTokens`
 
 #### Changed
 -   Update `HttpManager` and `HttpService` to support custom callbacks for mocked REST requests, ensuring they work both with and without the request rate limiter.
 -   Update `BubblesService::registerGuestForAPublicURL` with new parameters emails, phoneNumbers, country, state, language, timezone, visibility, customData, companyNameOfGuest, roomPassword.
 -   Update `BubblesService::joinBubbleByOpenInviteId` with new parameters roomPassword. The method's return also changed by an object instead of string.
 -   Update `BubblesService::createPublicUrl` the method's return changed by an object instead of string.
+-   Update `HttpService.ts` typescript parameter type.
+-   Update to use `setInterval` instead of `timeOutManager.setTimeout` to avoid the accumulation of `setTimeout` contexts for XMPP idleTimer.
+-   Update `Events.ts` to use the custom Emitter to emit/receive events.
 
 ### [2.43.1] - 2026-02-27
 #### Removed

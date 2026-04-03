@@ -232,6 +232,12 @@ class Contact {
     public selectedManifestId : string;
     public selectedHubProgKeysGroupId : string;
     public allowUsingFilesTooBigToVirusScan: boolean;
+    public autoAcceptExternalApp: boolean;
+    public changeDNDFullScreen: boolean;
+    public ignoreVoipCallInDND: boolean;
+    public manageCustomizationFile: boolean;
+    public setDNDAppointment: boolean;
+    public usePersonalAccessTokens: boolean;
     public jid_tel2 : string;
     public jid_tel_migration : string;
     public old_jid_tel :string;
@@ -1501,6 +1507,12 @@ class Contact {
         this.selectedManifestId = null;
         this.selectedHubProgKeysGroupId = null;
         this.allowUsingFilesTooBigToVirusScan = null;
+        this.autoAcceptExternalApp = false;
+        this.changeDNDFullScreen = false;
+        this.ignoreVoipCallInDND = false;
+        this.manageCustomizationFile = false;
+        this.setDNDAppointment = false;
+        this.usePersonalAccessTokens = false;
         /*
            jid_tel_migration: {type: String, required: false, default: ""}, // String indicating jid migration state, will be removed at migration end
             jid_tel2: {type: String, required: false, default: ""}, // New jid tel value in nex xmm domain, will be removed at migration end
@@ -2200,6 +2212,12 @@ class Contact {
         updatePropertyToObj(that, "selectedManifestId", userData.selectedManifestId, true);
         updatePropertyToObj(that, "selectedHubProgKeysGroupId", userData.selectedHubProgKeysGroupId, true);
         updatePropertyToObj(that, "allowUsingFilesTooBigToVirusScan", userData.allowUsingFilesTooBigToVirusScan, true);
+        updatePropertyToObj(that, "autoAcceptExternalApp", userData.autoAcceptExternalApp, true);
+        updatePropertyToObj(that, "changeDNDFullScreen", userData.changeDNDFullScreen, true);
+        updatePropertyToObj(that, "ignoreVoipCallInDND", userData.ignoreVoipCallInDND, true);
+        updatePropertyToObj(that, "manageCustomizationFile", userData.manageCustomizationFile, true);
+        updatePropertyToObj(that, "setDNDAppointment", userData.setDNDAppointment, true);
+        updatePropertyToObj(that, "usePersonalAccessTokens", userData.usePersonalAccessTokens, true);
         updatePropertyToObj(that, "jid_tel2", userData.jid_tel2, true);
         updatePropertyToObj(that, "jid_tel_migration", userData.jid_tel_migration, true);
         updatePropertyToObj(that, "old_jid_tel", userData.old_jid_tel, true);

@@ -151,6 +151,7 @@ class Bubble {
     public isOwnedByRoomAdmin:boolean;
     public managedRoomPolicy:any;
     public companyId:string;
+    public hasPassword:boolean;
 
 
 
@@ -217,7 +218,7 @@ class Bubble {
 
     constructor(_id: any = "", _name: any = "", _topic: any = "", _jid: any = "", _creator: any = "", _history: any = "none", _users: any = [], _creationDate: any = "", _visibility: any = "private", _customData: any = {}, _isActive: any = false, _conference: any,
                 _disableNotifications: boolean = false, _lastAvatarUpdateDate: any = null, _guestEmails: [] = [], _activeUsersCounter: number = 0, _autoRegister: boolean = false, _lastActivityDate, _autoAcceptInvitation: boolean = false, _tags: Array<any> = [], _avatarDomain: string = "", _containerId: string = null, _containerName: string = null,
-                _isAlertNotificationEnabled : boolean = null, _isOwnedByGroup : boolean = null, _isActiveLastChange : boolean = null, _processId : any = null, _confEndpoints : string = null, _allNames:Array<string> = [], _participantNames:Array<string> = [], _receivedFilePolicy : string = null, _lastClearContentDate : string = null, _receivedFileCustomisation : string = null, _shareFileCustomisation : string = null) {
+                _isAlertNotificationEnabled : boolean = null, _isOwnedByGroup : boolean = null, _isActiveLastChange : boolean = null, _processId : any = null, _confEndpoints : string = null, _allNames:Array<string> = [], _participantNames:Array<string> = [], _receivedFilePolicy : string = null, _lastClearContentDate : string = null, _receivedFileCustomisation : string = null, _shareFileCustomisation : string = null, _hasPassword : boolean = false) {
 
         /**
          * @public
@@ -489,6 +490,13 @@ class Bubble {
         this.receivedFileCustomisation = _receivedFileCustomisation;
         this.shareFileCustomisation = _shareFileCustomisation;
 
+        /**
+         * @public
+         * @property {boolean} hasPassword Indicates whether the bubble is protected by a password.
+         * @readonly
+         */
+        this.hasPassword = _hasPassword;
+
     }
 
     /**
@@ -665,7 +673,8 @@ class Bubble {
                 data.receivedFilePolicy,
                 data.lastClearContentDate,
                 data.receivedFileCustomisation,
-                data.shareFileCustomisation
+                data.shareFileCustomisation,
+                data.hasPassword
             );
             if (data) {
                 let bubbleproperties = Object.getOwnPropertyNames(bubble);
