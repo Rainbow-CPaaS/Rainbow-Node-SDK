@@ -1057,7 +1057,7 @@ safeJsonParse(str) {
         });
     }
 
-    postUrlRaw(url, headers: any = {}, data): Promise<any> {
+    postUrlRaw(url, headers: any = {}, data: any = undefined): Promise<any> {
         let that = this;
         let req : RequestForQueue = new RequestForQueue();
         req.callback = that.findMockRestUrl("POST", url);
@@ -1076,7 +1076,7 @@ safeJsonParse(str) {
         }
     }
 
-    _postUrlRaw(url, headers: any = {}, data): Promise<any> {
+    _postUrlRaw(url, headers: any = {}, data : any = undefined): Promise<any> {
         let that = this;
 
         return new Promise(async function (resolve, reject) {
@@ -1247,7 +1247,7 @@ safeJsonParse(str) {
         });
     }
 
-    putUrlRaw(url, headers: any = {}, data): Promise<any> {
+    putUrlRaw(url, headers: any = {}, data: any = undefined): Promise<any> {
         let that = this;
         let req : RequestForQueue = new RequestForQueue();
         req.callback = that.findMockRestUrl("PUT", url);
@@ -1266,7 +1266,7 @@ safeJsonParse(str) {
         }
     }
 
-    _putUrlRaw(url, headers: any = {}, data): Promise<any> {
+    _putUrlRaw(url, headers: any = {}, data : any = undefined): Promise<any> {
         let that = this;
 
         return new Promise(async function (resolve, reject) {
@@ -1420,7 +1420,7 @@ safeJsonParse(str) {
         });
     }
 
-    deleteUrlRaw(url, headers: any = {}, data : Object = undefined, nbRetryBeforeFailed : number = 0, timeBetweenRetry = 1000): Promise<any> {
+    deleteUrlRaw(url, headers: any = {}, data : any = undefined, nbRetryBeforeFailed : number = 0, timeBetweenRetry = 1000): Promise<any> {
         let that = this;
         let req : RequestForQueue = new RequestForQueue();
         req.callback = that.findMockRestUrl("DELETE", url);
@@ -1440,7 +1440,7 @@ safeJsonParse(str) {
 
     }
 
-    _deleteUrlRaw(url, headers: any = {}, data : Object = undefined, nbRetryBeforeFailed : number = 0, timeBetweenRetry = 1000): Promise<any> {
+    _deleteUrlRaw(url, headers: any = {}, data : any = undefined, nbRetryBeforeFailed : number = 0, timeBetweenRetry = 1000): Promise<any> {
 
         let that = this;
 
@@ -2543,7 +2543,7 @@ safeJsonParse(str) {
         });
     }
 
-    post(url, headers: any = {}, data, contentType, nbRetryBeforeFailed : number = 0, timeBetweenRetry = 1000): Promise<any> {
+    post(url, headers: any = {}, data: any = undefined, contentType : string = undefined, nbRetryBeforeFailed : number = 0, timeBetweenRetry = 1000): Promise<any> {
         let that = this;
         let req : RequestForQueue = new RequestForQueue();
         req.callback = that.findMockRestUrl("POST", url);
@@ -2562,7 +2562,7 @@ safeJsonParse(str) {
         }
     }
 
-    _post(url, headers: any = {}, data, contentType, nbRetryBeforeFailed : number = 0, timeBetweenRetry = 1000): Promise<any> {
+    _post(url, headers: any = {}, data: any = undefined, contentType : string = undefined, nbRetryBeforeFailed : number = 0, timeBetweenRetry = 1000): Promise<any> {
         let that = this;
 
         return new Promise(async function (resolve, reject) {
@@ -3253,7 +3253,7 @@ safeJsonParse(str) {
         });
     }
 
-    patch(url, headers: any = {}, data, type, nbRetryBeforeFailed : number = 0, timeBetweenRetry = 1000): Promise<any> {
+    patch(url, headers: any = {}, data: any = undefined, contentType : string = undefined, nbRetryBeforeFailed : number = 0, timeBetweenRetry = 1000): Promise<any> {
         let that = this;
         let req : RequestForQueue = new RequestForQueue();
         req.callback = that.findMockRestUrl("PATCH", url);
@@ -3268,11 +3268,11 @@ safeJsonParse(str) {
             if (req.callback) {
                 return req.callback(...req.params);
             }
-            return that._patch(url, headers,data, type, nbRetryBeforeFailed, timeBetweenRetry);
+            return that._patch(url, headers,data, contentType, nbRetryBeforeFailed, timeBetweenRetry);
         }
     }
 
-    _patch(url, headers: any = {}, data, type, nbRetryBeforeFailed : number = 0, timeBetweenRetry = 1000): Promise<any> {
+    _patch(url, headers: any = {}, data: any = undefined, contentType : string = undefined, nbRetryBeforeFailed : number = 0, timeBetweenRetry = 1000): Promise<any> {
         let that = this;
 
         return new Promise(async function (resolve, reject) {
@@ -3290,9 +3290,9 @@ safeJsonParse(str) {
             that._logger.log(that.INTERNAL, LOG_ID + "(patch) url : ", urlEncoded, ", headers : ", headers, ", data : ", data);
 
             let body = data;
-            if (type) {
+            if (contentType) {
                 //request.type(type);
-                headers["Content-Type"] = type;
+                headers["Content-Type"] = contentType;
             } else {
                 //request.type("json");
                 if (!headers["Content-Type"]) {
@@ -3506,9 +3506,9 @@ safeJsonParse(str) {
 
 
             // let body = data;
-            if (type) {
+            if (contentType) {
                 //request.type(type);
-                headers["Content-Type"] = type;
+                headers["Content-Type"] = contentType;
             } else {
                 //request.type("json");
                 if (!headers["Content-Type"]) {
@@ -3620,7 +3620,7 @@ safeJsonParse(str) {
         });
     }
 
-    put(url, headers: any = {}, data, type, nbRetryBeforeFailed : number = 0, timeBetweenRetry = 1000): Promise<any> {
+    put(url, headers: any = {}, data: any = undefined, contentType : string = undefined, nbRetryBeforeFailed : number = 0, timeBetweenRetry = 1000): Promise<any> {
         let that = this;
         let req : RequestForQueue = new RequestForQueue();
         req.callback = that.findMockRestUrl("PUT", url);
@@ -3635,11 +3635,11 @@ safeJsonParse(str) {
             if (req.callback) {
                 return req.callback(...req.params);
             }
-            return that._put(url, headers,data, type, nbRetryBeforeFailed, timeBetweenRetry);
+            return that._put(url, headers,data, contentType, nbRetryBeforeFailed, timeBetweenRetry);
         }
     }
 
-    _put(url, headers: any = {}, data, type, nbRetryBeforeFailed : number = 0, timeBetweenRetry = 1000): Promise<any> {
+    _put(url, headers: any = {}, data: any = undefined, contentType : string = undefined, nbRetryBeforeFailed : number = 0, timeBetweenRetry = 1000): Promise<any> {
         let that = this;
 
         return new Promise(async function (resolve, reject) {
@@ -3658,9 +3658,9 @@ safeJsonParse(str) {
             that._logger.log(that.INTERNAL, LOG_ID + "(put) url : ", urlEncoded, ", headers : ", headers, ", data : ", data);
 
             let body = data;
-            if (type) {
+            if (contentType) {
                 //request.type(type);
-                headers["Content-Type"] = type;
+                headers["Content-Type"] = contentType;
             } else {
                 //request.type("json");
                 if (!headers["Content-Type"]) {
@@ -4508,7 +4508,7 @@ safeJsonParse(str) {
         });
     }
 
-    delete(url, headers: any = {}, data : Object = undefined): Promise<any> {
+    delete(url, headers: any = {}, data : any = undefined): Promise<any> {
         let that = this;
         let req : RequestForQueue = new RequestForQueue();
         req.callback = that.findMockRestUrl("DELETE", url);
@@ -4527,7 +4527,7 @@ safeJsonParse(str) {
         }
     }
 
-    _delete(url, headers: any = {}, data : Object = undefined): Promise<any> {
+    _delete(url, headers: any = {}, data : any = undefined): Promise<any> {
 
         let that = this;
 
