@@ -498,7 +498,7 @@ class ContactsService extends GenericService {
      * @private
      * @name getContactIdByCriteria
      * @param {string|Object} info it can be a string (for a `jid` or an `email`) or a `Contact` to retrieve an id.
-     * @param {string} typeInfo="jid" if the `info` parameter is a string, it is possible to specify the kind of info. Possible values : "jid"
+     * @param {string} [typeInfo="jid"] if the `info` parameter is a string, it is possible to specify the kind of info. Possible values : "jid"
      * @instance
      * @description
      *    this method allows retrieving a contact id
@@ -586,7 +586,7 @@ class ContactsService extends GenericService {
      * @instance
      * @category Contacts INFORMATION
      * @param {string} jid The contact jid
-     * @param {boolean} forceServerSearch=false Boolean to force the search of the _contacts information on the server.
+     * @param {boolean} [forceServerSearch=false] Boolean to force the search of the _contacts information on the server.
      * @description
      *  Get a contact by his JID by searching in the connected user _contacts list (full information) and if not found by searching on the server too (limited set of information) <br>
      * @async
@@ -664,7 +664,7 @@ class ContactsService extends GenericService {
      * @instance
      * @category Contacts INFORMATION
      * @param {string} id The contact id
-     * @param {boolean} forceServerSearch=false Boolean to force the search of the _contacts information on the server.
+     * @param {boolean} [forceServerSearch=false] Boolean to force the search of the _contacts information on the server.
      * @description
      *  Get a contact by his id <br>
      * @async
@@ -745,7 +745,7 @@ class ContactsService extends GenericService {
      * @instance
      * @category Contacts INFORMATION
      * @param {string} loginEmail The contact loginEmail
-     * @param {boolean} forceServerSearch=false Boolean to force the search of the _contacts information on the server.
+     * @param {boolean} [forceServerSearch=false] Boolean to force the search of the _contacts information on the server.
      * @description
      *  Get a contact by his loginEmail <br>
      * @async
@@ -838,7 +838,7 @@ class ContactsService extends GenericService {
      * @instance
      * @category Contacts INFORMATION
      * @param {string} loginEmail The contact loginEmail
-     * @param {boolean} forceServerSearch=false Boolean to force the search of the _contacts information on the server.
+     * @param {boolean} [forceServerSearch=false] Boolean to force the search of the _contacts information on the server.
      * @description
      *  Get a contact Id by his loginEmail <br>
      * @async
@@ -1015,8 +1015,8 @@ class ContactsService extends GenericService {
      * @instance
      * @category Contacts INFORMATION
      * @param {Array<string>} iDs Allows to search users having id equal to one of the ids provided in this option.
-     * @param {string} sortOrder=1 Users are sorted by id. sortOrder allows to specify order when sorting user list. Default value : 1. Possible values : -1, 1.
-     * @param {boolean} forceServerSearch=false Boolean to force the search of the _contacts information on the server.
+     * @param {string} [sortOrder=1] Users are sorted by id. sortOrder allows to specify order when sorting user list. Default value : 1. Possible values : -1, 1.
+     * @param {boolean} [forceServerSearch=false] Boolean to force the search of the _contacts information on the server.
      * @description
      *      Get a list of _contacts details by IDs. <br>
      * @async
@@ -1101,8 +1101,8 @@ class ContactsService extends GenericService {
      * @instance
      * @category Contacts INFORMATION
      * @param {Array<string>} JIDs Allows to search users having jid_im equal to one of the jids provided in this option.
-     * @param {string} sortOrder=1 Users are sorted by jid_im. sortOrder allows to specify order when sorting user list. Default value : 1. Possible values : -1, 1.
-     * @param {boolean} forceServerSearch=false Boolean to force the search of the _contacts information on the server.
+     * @param {string} [sortOrder=1] Users are sorted by jid_im. sortOrder allows to specify order when sorting user list. Default value : 1. Possible values : -1, 1.
+     * @param {boolean} [forceServerSearch=false] Boolean to force the search of the _contacts information on the server.
      * @description
      *      Get a list of _contacts details by JIDs. <br>
      * @async
@@ -1186,39 +1186,39 @@ class ContactsService extends GenericService {
      * @method getCompanyInfos
      * @instance
      * @category Contacts INFORMATION
-     * @param {string} companyId The company id unique identifier
-     * @param {string} format="small" Allows to retrieve more or less company details in response. </BR>
+     * @param {string} [companyId] The company id unique identifier
+     * @param {string} [format="small"] Allows to retrieve more or less company details in response. </BR>
      * * small: id, name </BR>
      * * medium: id, name, status, adminEmail, companyContactId, country, website, slogan, description, size, economicActivityClassification, lastAvatarUpdateDate, lastBannerUpdateDate, avatarShape </BR>
      * * full: id, name, status, adminEmail, companyContactId, country, website, slogan, description, size, economicActivityClassification, lastAvatarUpdateDate, lastBannerUpdateDate, avatarShape </BR>
      * When a user wants data of his own company in 'full' mode, he gets all fields except subscriptions and fields related to a business partner managing this company. </BR>
      * Default value : full. Possibles values : small, medium, full
-     * @param {boolean} selectedThemeObj Allows to return selectedTheme attribute as an object: </BR>
+     * @param {boolean} [selectedThemeObj=false] Allows to return selectedTheme attribute as an object: </BR>
      * * true returns selectedTheme as an object (e.g. { "light": "60104754c8fada2ad4be3e48", "dark": "5ea304e4359c0e6815fc8b57" }), </BR>
      * * false return selectedTheme as a string. </BR>
-     * @param {string} name Allows to filter companies list on the given keyword(s) on field name. </BR>
+     * @param {string} [name] Allows to filter companies list on the given keyword(s) on field name. </BR>
      * The filtering is case insensitive and on partial name match: all companies containing the provided name value will be returned (whatever the position of the match). </BR>
      * Ex: if filtering is done on comp, companies with the following names are match the filter 'My company', 'Company', 'A comp 1', 'Comp of comps', ...
-     * @param {string} status Allows to filter companies list on the provided status(es). Possibles values initializing, active, alerting, hold, terminated
-     * @param {string} visibility Allows to filter companies list on the provided visibility(ies). Possibles values public, private, organization, closed, isolated
-     * @param {string} organisationId Allows to filter companies list on the organisationIds provided in this option. This filter can only be used if user has role(s) superadmin, support, bp_admin or admin
-     * @param {boolean} isBP Allows to filter companies list on isBP field: </BR>
+     * @param {string} [status] Allows to filter companies list on the provided status(es). Possibles values initializing, active, alerting, hold, terminated
+     * @param {string} [visibility] Allows to filter companies list on the provided visibility(ies). Possibles values public, private, organization, closed, isolated
+     * @param {string} [organisationId] Allows to filter companies list on the organisationIds provided in this option. This filter can only be used if user has role(s) superadmin, support, bp_admin or admin
+     * @param {boolean} [isBP] Allows to filter companies list on isBP field: </BR>
      * * true returns only Business Partner companies, </BR>
      * * false return only companies which are not Business Partner. </BR>
      * This filter can only be used if user has role(s) superadmin, business_admin,customer_success_admin, support, bp_admin or admin.
-     * @param {boolean} hasBP Allows to filter companies list on companies being linked or not to a BP: </BR>
+     * @param {boolean} [hasBP] Allows to filter companies list on companies being linked or not to a BP: </BR>
      * * true returns only companies linked to a BP (BP IR companies are also returned), </BR>
      * * false return only companies which are not linked to a BP. </BR>
      * This filter can only be used if user has role(s) superadmin, business_admin,customer_success_admin, support or bp_admin. </BR>
      * Users with role bp_admin can only use this filter with value false.
-     * @param {string} bpType Allows to filter companies list on bpType field. </BR>
+     * @param {string} [bpType] Allows to filter companies list on bpType field. </BR>
      * This filter allow to get all the Business Partner companies from a given bpType. </BR>
      * Only users with role superadmin, business_admin,customer_success_admin, support or bp_admin can use this filter.
      * @description
      *  This API allows user to get a company data.<br>
      *     **Users can only retrieve their own company and companies they can see** (companies with `visibility`=`public`, companies having user's companyId in `visibleBy` field, companies being in user's company organization and having `visibility`=`organization`, BP company of user's company).<br>
      *     If user request his own company, `numberUsers` field is returned with the number of Rainbow users being in this company. <br>
-     * @return {string} Contact avatar URL or file
+     * @return {Promise<Object>} A promise that resolves with the company data object, or rejects with an error.
      *
      *
      * | Champ | Type | Description |
@@ -1847,16 +1847,16 @@ class ContactsService extends GenericService {
      *
      * @description
      *          This API is used to get all sources by userId. </br>
-     * @param {string} userId User unique identifier
-     * @param {string} format="small" Allows to retrieve more or less source details in response. </BR>
+     * @param {string} [userId] User unique identifier
+     * @param {string} [format="small"] Allows to retrieve more or less source details in response. </BR>
      * - small: id, sourceId </BR>
      * - medium: id, sourceId, os </BR>
      * - full: all source fields </BR>
      * Default value : small. Possibles values : small, medium, full
-     * @param {string} sortField="name" Sort items list based on the given field. Default value : name
-     * @param {number} limit=100 Allow to specify the number of items to retrieve. Default value : 100.
-     * @param {number} offset=0 Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Default value : 0
-     * @param {number} sortOrder=1 Specify order when sorting items list. Default value : 1. Possibles values -1, 1.
+     * @param {string} [sortField="name"] Sort items list based on the given field. Default value : name
+     * @param {number} [limit=100] Allow to specify the number of items to retrieve. Default value : 100.
+     * @param {number} [offset=0] Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Default value : 0
+     * @param {number} [sortOrder=1] Specify order when sorting items list. Default value : 1. Possibles values -1, 1.
      */
     async getAllSourcesByUserId (userId? : string, format : string = "small", sortField : string = "name", limit : number = 100, offset : number = 0, sortOrder : number = 1) {
         let that = this;
@@ -1993,16 +1993,16 @@ class ContactsService extends GenericService {
      * @param {string} userId User unique identifier
      * @param {string} sourceId Source unique identifier
      * @param {string} contactIddb Contact unique identifier
-     * @param {string} contactId Contact unique id used by target mobile
-     * @param {string} firstName First name
-     * @param {string} lastName Last name
-     * @param {string} displayName First/last name, some OS don’t mind to have it in two attribute
-     * @param {string} company Company name
-     * @param {string} jobTitle Job title
-     * @param {Array<Object>} phoneNumbers Contact phone numbers  </BR>
+     * @param {string} [contactId] Contact unique id used by target mobile
+     * @param {string} [firstName] First name
+     * @param {string} [lastName] Last name
+     * @param {string} [displayName] First/last name, some OS don’t mind to have it in two attribute
+     * @param {string} [company] Company name
+     * @param {string} [jobTitle] Job title
+     * @param {Array<Object>} [phoneNumbers] Contact phone numbers  </BR>
      * { number : string // Contact phone number, type  : string // Phone number type. Possibles values home, work, other }
-     * @param {Array<Object>} emails Contact emails { email : string // Contact email, type : string // Contact email type Possibles values home, work, other }
-     * @param {Array<Object>} addresses Contact addresses {type  : string // Contact address type Possibles values home, work, other , </BR>
+     * @param {Array<Object>} [emails] Contact emails { email : string // Contact email, type : string // Contact email type Possibles values home, work, other }
+     * @param {Array<Object>} [addresses] Contact addresses {type  : string // Contact address type Possibles values home, work, other , </BR>
      * address  : string // Contact address , </BR>
      * street  : string // Contact street , </BR>
      * city  : string // Contact city , </BR>
@@ -2010,8 +2010,8 @@ class ContactsService extends GenericService {
      * postalCode  : string // Contact postalCode , </BR>
      * country  : string // Contact country  </BR>
      * } </BR>
-     * @param {Array<Object>} groups Contact groups type. Possibles values home, work, other
-     * @param {Array<Object>} otherData Other user data – may include birthday date, Skype/Facebook pseudo/profile.  </BR>
+     * @param {Array<Object>} [groups] Contact groups type. Possibles values home, work, other
+     * @param {Array<Object>} [otherData] Other user data – may include birthday date, Skype/Facebook pseudo/profile.  </BR>
      * { key  : string // Other user data key , value  : string // Other user data value }
      */
     async updateContactData (userId  : string, sourceId  : string, contactIddb  : string, contactId  : string = undefined, firstName  : string = undefined, lastName : string = undefined, displayName : string = undefined, company  : string = undefined, jobTitle  : string = undefined, phoneNumbers : Array<any> = undefined, emails : Array<any> = undefined,addresses : Array<any> = undefined, groups : Array<string> = undefined, otherData : Array<any> = undefined) {
@@ -2100,10 +2100,10 @@ class ContactsService extends GenericService {
      * @param {string} displayName First/last name, some OS don’t mind to have it in two attribute
      * @param {string} company Company name
      * @param {string} jobTitle Job title
-     * @param {Array<Object>} phoneNumbers=[] Contact phone numbers  </BR>
+     * @param {Array<Object>} [phoneNumbers=[]] Contact phone numbers  </BR>
      * { number : string // Contact phone number, type  : string // Phone number type. Possibles values home, work, other }
-     * @param {Array<Object>} emails=[] Contact emails { email : string // Contact email, type : string // Contact email type Possibles values home, work, other }
-     * @param {Array<Object>} addresses=[] Contact addresses {type  : string // Contact address type Possibles values home, work, other , </BR>
+     * @param {Array<Object>} [emails=[]] Contact emails { email : string // Contact email, type : string // Contact email type Possibles values home, work, other }
+     * @param {Array<Object>} [addresses=[]] Contact addresses {type  : string // Contact address type Possibles values home, work, other , </BR>
      * address  : string // Contact address , </BR>
      * street  : string // Contact street , </BR>
      * city  : string // Contact city , </BR>
@@ -2111,8 +2111,8 @@ class ContactsService extends GenericService {
      * postalCode  : string // Contact postalCode , </BR>
      * country  : string // Contact country  </BR>
      * } </BR>
-     * @param {Array<Object>} groups=[] Contact groups type. Possibles values home, work, other
-     * @param {Array<Object>} otherData=[] Other user data – may include birthday date, Skype/Facebook pseudo/profile.  </BR>
+     * @param {Array<Object>} [groups=[]] Contact groups type. Possibles values home, work, other
+     * @param {Array<Object>} [otherData=[]] Other user data – may include birthday date, Skype/Facebook pseudo/profile.  </BR>
      * { key  : string // Other user data key , value  : string // Other user data value }
      */
     async createContact (userId : string, sourceId : string, contactId : string, firstName : string, lastName : string, displayName : string, company : string, jobTitle : string, phoneNumbers : Array<any>= [], emails : Array<any>= [], addresses : Array<any>= [], groups : Array<string>= [], otherData : Array<any> = []) {
@@ -2327,7 +2327,7 @@ class ContactsService extends GenericService {
      *          This API is used to get contacts list. </br>
      * @param {string} userId User unique identifier
      * @param {string} sourceId Source unique identifier
-     * @param {string} format="small" Allows to retrieve more or less contact details in response. </BR>
+     * @param {string} [format="small"] Allows to retrieve more or less contact details in response. </BR>
      * - small: id, contactId </BR>
      * - medium: id, contactId, firstName, lastName, displayName, company, jobTitle </BR>
      * - full: all contact fields </BR>
@@ -2484,7 +2484,7 @@ class ContactsService extends GenericService {
      * @method getRosters
      * @instance
      * @category Contacts NETWORK
-     * @param {boolean} bulkLoadOfInformations=true Load of contacts from roster with bulk mode.
+     * @param {boolean} [bulkLoadOfInformations=true] Load of contacts from roster with bulk mode.
      * @description
      *      Get the list of _contacts that are in the user's network (aka rosters) <br>
      * @async
@@ -2952,15 +2952,15 @@ class ContactsService extends GenericService {
      * | id  | String | id of the user (if a user is found) |
      * | jid_im | String | jid_im of the user (if a user is found) |
      *
-     * @param {string} pbxId pbxId of the system for which the search is requested. One of systemId or pbxId is mandatory.
-     * @param {string} systemId identifier of the system for which the search is requested. One of systemId or pbxId is mandatory.
-     * @param {string} numberE164 Allows to filter users list on the numberE164 provided in this option.
-     * @param {string} shortnumber Allows to filter users list on the phone short number provided in this option.
-     * @param {string} format="small" Allows to retrieve more or less phone book details in response. small: id, firstName, lastName, number. medium: id, firstName, lastName, number. full: id, firstName, lastName, number. Default value : small Possible values : small, medium, full.
-     * @param {number} limit=100 Allow to specify the number of phone book entries to retrieve. Default value : 100
-     * @param {number} offset Allow to specify the position of first phone book entry to retrieve (first entry if not specified). Warning: if offset > total, no results are returned.
-     * @param {string} sortField="reverseDisplayName" Sort phone book list based on the given field. Default value : reverseDisplayName
-     * @param {number} sortOrder=1 Specify order when sorting phone book list. Default value : 1. Possible values : -1, 1.
+     * @param {string} [pbxId] pbxId of the system for which the search is requested. One of systemId or pbxId is mandatory.
+     * @param {string} [systemId] identifier of the system for which the search is requested. One of systemId or pbxId is mandatory.
+     * @param {string} [numberE164] Allows to filter users list on the numberE164 provided in this option.
+     * @param {string} [shortnumber] Allows to filter users list on the phone short number provided in this option.
+     * @param {string} [format="small"] Allows to retrieve more or less phone book details in response. small: id, firstName, lastName, number. medium: id, firstName, lastName, number. full: id, firstName, lastName, number. Default value : small Possible values : small, medium, full.
+     * @param {number} [limit=100] Allow to specify the number of phone book entries to retrieve. Default value : 100
+     * @param {number} [offset] Allow to specify the position of first phone book entry to retrieve (first entry if not specified). Warning: if offset > total, no results are returned.
+     * @param {string} [sortField="reverseDisplayName"] Sort phone book list based on the given field. Default value : reverseDisplayName
+     * @param {number} [sortOrder=1] Specify order when sorting phone book list. Default value : 1. Possible values : -1, 1.
      */
     searchInAlldirectories (pbxId? : string, systemId? : string, numberE164? : string, shortnumber? : string, format : string = "small", limit : number = 100, offset? : number, sortField : string = "reverseDisplayName", sortOrder : number = 1) {
         let that = this;
@@ -3028,11 +3028,11 @@ class ContactsService extends GenericService {
      * @param {string} pbxId Mandatory if role is pcg.
      * @param {string} name Allows to filter users list on the given keyword(s) provided in this option.
      * @param {string} number Allows to filter users list on the phone number provided in this option.
-     * @param {string} format="small" Allows to retrieve more or less phone book details in response. small: id, firstName, lastName, number. medium: id, firstName, lastName, number. full: id, firstName, lastName, number. Default value : small Possible values : small, medium, full.
-     * @param {number} limit=100 Allow to specify the number of phone book entries to retrieve. Default value : 100
+     * @param {string} [format="small"] Allows to retrieve more or less phone book details in response. small: id, firstName, lastName, number. medium: id, firstName, lastName, number. full: id, firstName, lastName, number. Default value : small Possible values : small, medium, full.
+     * @param {number} [limit=100] Allow to specify the number of phone book entries to retrieve. Default value : 100
      * @param {number} offset Allow to specify the position of first phone book entry to retrieve (first entry if not specified). Warning: if offset > total, no results are returned.
      * @param {string} sortField Sort phone book list based on the given field.
-     * @param {number} sortOrder=1 Specify order when sorting phone book list. Default value : 1. Possible values : -1, 1.
+     * @param {number} [sortOrder=1] Specify order when sorting phone book list. Default value : 1. Possible values : -1, 1.
      */
     searchInPhonebook (pbxId : string, name : string, number : string, format : string="small", limit : number = 100, offset : number, sortField : string, sortOrder : number = 1) {
         let that = this;
@@ -3212,14 +3212,14 @@ class ContactsService extends GenericService {
      * | deviceType | String | Phone number device type, one of `landline`, `mobile`, `fax`, `other`. |
      * | isVisibleByOthers | Boolean | Allow user to choose if the phone number is visible by other users or not.  <br>Note that administrators can see all the phone numbers, even if `isVisibleByOthers` is set to false.  <br>Note that phone numbers linked to a system (`isFromSystem`=true) are always visible, `isVisibleByOthers` can't be set to false for these numbers. |
      *
-     * @param {number} limit=20 Allow to specify the number of users to retrieve. Default value : 20
-     * @param {string} displayName earch users on the given displayName. displayName and search parameters are exclusives, displayName parameter can only be set if search parameter is not provided.
-     * @param {string} search Search users belonging to the same company/organisation than logged in user on the given search tags on fields firstName, lastName, companyName, jobTitle, department,tags. Other public users/users in companies visible by logged in user's company are searched only on fields firstName and lastName (except if logged in user has visibility closed or isolated). displayName and search parameters are exclusives, search parameter can only be set if displayName parameter is not provided.
-     * @param {string} companyId Search users being in the requested company(ies). companyId and excludeCompanyId parameters are exclusives, companyId parameter can only be set if excludeCompanyId parameter is not provided.
-     * @param {string} excludeCompanyId Exclude users being in the requested company(ies) from the search results. companyId and excludeCompanyId parameters are exclusives, excludeCompanyId parameter can only be set if companyId parameter is not provided.
-     * @param {number} offset Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned.
-     * @param {string} sortField Sort items list based on the given field.
-     * @param {number} sortOrder=1 Specify order when sorting items list. Default value : 1. Possible values : -1, 1
+     * @param {number} [limit=20] Allow to specify the number of users to retrieve. Default value : 20
+     * @param {string} [displayName] earch users on the given displayName. displayName and search parameters are exclusives, displayName parameter can only be set if search parameter is not provided.
+     * @param {string} [search] Search users belonging to the same company/organisation than logged in user on the given search tags on fields firstName, lastName, companyName, jobTitle, department,tags. Other public users/users in companies visible by logged in user's company are searched only on fields firstName and lastName (except if logged in user has visibility closed or isolated). displayName and search parameters are exclusives, search parameter can only be set if displayName parameter is not provided.
+     * @param {string} [companyId] Search users being in the requested company(ies). companyId and excludeCompanyId parameters are exclusives, companyId parameter can only be set if excludeCompanyId parameter is not provided.
+     * @param {string} [excludeCompanyId] Exclude users being in the requested company(ies) from the search results. companyId and excludeCompanyId parameters are exclusives, excludeCompanyId parameter can only be set if companyId parameter is not provided.
+     * @param {number} [offset] Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned.
+     * @param {string} [sortField] Sort items list based on the given field.
+     * @param {number} [sortOrder=1] Specify order when sorting items list. Default value : 1. Possible values : -1, 1
      */
     searchUsers(limit : number = 20, displayName? : string, search? : string, companyId? : string, excludeCompanyId? : string, offset? : number, sortField? : string, sortOrder : number = 1){
         let that = this;
@@ -3343,7 +3343,7 @@ class ContactsService extends GenericService {
      * @async
      * @category  Contacts Personnal Directory
      * @param {string} entryId Id of the entry.
-     * @param {string} format="small" Allows to retrieve more or less entry details in response. <br>
+     * @param {string} [format="small"] Allows to retrieve more or less entry details in response. <br>
      * - small: id, firstName, lastName  <br>
      * - medium: id, companyId, firstName, lastName, workPhoneNumbers  <br>
      * - full: all fields. <br>
@@ -3418,17 +3418,17 @@ class ContactsService extends GenericService {
      * @param {string} tags Allows to filter the list of directory entries on the tag(s) provided in this option. <br>
      *     Only usable by users with admin rights, so that he can list the directory entries to which a given tag is assigned (useful for tag administration). <br>
      *     Using this parameter, the tags are matched with strict equality (i.e. it is case sensitive and the whole tag must be provided).
-     * @param {string} format="small" Allows to retrieve more or less entry details in response. <br>
+     * @param {string} [format="small"] Allows to retrieve more or less entry details in response. <br>
      * - small: id, firstName, lastName  <br>
      * - medium: id, companyId, firstName, lastName, workPhoneNumbers  <br>
      * - full: all fields. <br>
      * default : small <br>
      * Valid values : small, medium, full <br>
-     * @param {number} limit=100 Allow to specify the number of phone book entries to retrieve. Default value : 100
-     * @param {number} offset=0 Allow to specify the position of first phone book entry to retrieve (first one if not specified) Warning: if offset > total, no results are returned.
-     * @param {string} sortField="lastName" Sort directory list based on the given field. Default value : lastName
-     * @param {number} sortOrder=1 Specify order when sorting phone book list. Default value : 1. Possible values : -1, 1
-     * @param {string} view="all" Precises ios the user would like to consult either his personal directory, his company directory or the both. Default value : all. Possible values : personal, company, all
+     * @param {number} [limit=100] Allow to specify the number of phone book entries to retrieve. Default value : 100
+     * @param {number} [offset=0] Allow to specify the position of first phone book entry to retrieve (first one if not specified) Warning: if offset > total, no results are returned.
+     * @param {string} [sortField="lastName"] Sort directory list based on the given field. Default value : lastName
+     * @param {number} [sortOrder=1] Specify order when sorting phone book list. Default value : 1. Possible values : -1, 1
+     * @param {string} [view="all"] Precises ios the user would like to consult either his personal directory, his company directory or the both. Default value : all. Possible values : personal, company, all
      * @description
      *   This API allows connected users to get an entry of his personal directory.<br>
      *   <br>
@@ -3509,25 +3509,25 @@ class ContactsService extends GenericService {
      * @async
      * @category Contacts Personnal Directory
      * @param {string} entryId Id of the entry.
-     * @param {string} firstName Contact first Name
-     * @param {string} lastName Contact last Name
-     * @param {string} companyName Company Name of the contact
-     * @param {string} department Contact address: Department
-     * @param {string} street Contact address: Street
-     * @param {string} city Contact address: City
-     * @param {string} state When country is 'USA' or 'CAN', a state should be defined. Else it is not managed. Allowed values: "AK", "AL", "....", "NY", "WY"
-     * @param {string} postalCode Contact address: postal code / ZIP
-     * @param {string} country Contact address: country (ISO 3166-1 alpha3 format)
-     * @param {Array<string>} workPhoneNumbers Work phone numbers. Allowed format are E164 or national with a country code. e.g: ["+33390671234"] or ["+33390671234, 0690676790"] with "country": "FRA") If a number is not in E164 format, it is converted to E164 format using provided country (or company country if contact's country is not set)
-     * @param {Array<string>} mobilePhoneNumbers Mobile phone numbers. Allowed format are E164 or national with a country code. e.g: ["+33390671234"] or ["+33390671234, 0690676790"] with "country": "FRA") If a number is not in E164 format, it is converted to E164 format using provided country (or company country if contact's country is not set)
-     * @param {Array<string>} otherPhoneNumbers Other phone numbers. Allowed format are E164 or national with a country code. e.g: ["+33390671234"] or ["+33390671234, 0690676790"] with "country": "FRA") If a number is not in E164 format, it is converted to E164 format using provided country (or company country if contact's country is not set)
-     * @param {string} jobTitle Contact Job title
-     * @param {string} eMail Contact Email address
-     * @param {Array<string>} tags An Array of free tags <br>
+     * @param {string} [firstName] Contact first Name
+     * @param {string} [lastName] Contact last Name
+     * @param {string} [companyName] Company Name of the contact
+     * @param {string} [department] Contact address: Department
+     * @param {string} [street] Contact address: Street
+     * @param {string} [city] Contact address: City
+     * @param {string} [state] When country is 'USA' or 'CAN', a state should be defined. Else it is not managed. Allowed values: "AK", "AL", "....", "NY", "WY"
+     * @param {string} [postalCode] Contact address: postal code / ZIP
+     * @param {string} [country] Contact address: country (ISO 3166-1 alpha3 format)
+     * @param {Array<string>} [workPhoneNumbers] Work phone numbers. Allowed format are E164 or national with a country code. e.g: ["+33390671234"] or ["+33390671234, 0690676790"] with "country": "FRA") If a number is not in E164 format, it is converted to E164 format using provided country (or company country if contact's country is not set)
+     * @param {Array<string>} [mobilePhoneNumbers] Mobile phone numbers. Allowed format are E164 or national with a country code. e.g: ["+33390671234"] or ["+33390671234, 0690676790"] with "country": "FRA") If a number is not in E164 format, it is converted to E164 format using provided country (or company country if contact's country is not set)
+     * @param {Array<string>} [otherPhoneNumbers] Other phone numbers. Allowed format are E164 or national with a country code. e.g: ["+33390671234"] or ["+33390671234, 0690676790"] with "country": "FRA") If a number is not in E164 format, it is converted to E164 format using provided country (or company country if contact's country is not set)
+     * @param {string} [jobTitle] Contact Job title
+     * @param {string} [eMail] Contact Email address
+     * @param {Array<string>} [tags] An Array of free tags <br>
      * A maximum of 5 tags is allowed, each tag can have a maximum length of 64 characters. <br>
      * The tags can be used to search the directory entries of type user or company using multi-criterion search (search query parameter of the API GET /api/rainbow/directory/v1.0/entries). The multi-criterion search using the tags can only be done on directories belonging to the company of the logged in user (and to the companies belonging to the organisation of the logged in user if that is the case).
-     * @param {string} custom1 Custom field 1
-     * @param {string} custom2 Custom field 2
+     * @param {string} [custom1] Custom field 1
+     * @param {string} [custom2] Custom field 2
      * @description
      *      This API allows the connected user to update an entry of his personal directory.<br>
      * @return {Promise<any>}

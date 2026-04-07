@@ -40,6 +40,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Update `HttpService.ts` typescript parameter type.
 -   Update to use `setInterval` instead of `timeOutManager.setTimeout` to avoid the accumulation of `setTimeout` contexts for XMPP idleTimer.
 -   Update `Events.ts` to use the custom Emitter to emit/receive events.
+-   Update JsDoc with optionals parameters for `ContactsService`.
 
 ### [2.43.1] - 2026-02-27
 #### Removed
