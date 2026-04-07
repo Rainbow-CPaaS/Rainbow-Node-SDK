@@ -6,12 +6,24 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+### [2.42.0-lts.3] - 2025-04-07
+#### Removed
+-   None
+
+#### Fixed
+-   Fix `evt_internal_signinrequired` callback to avoid a call of a second start() (From application) during the stop of the running SDK and the auto restart..
+
+#### Added
+-   None.
+
+#### Changed
+-   None.
+ 
 ### [2.42.0-lts.2] - 2025-03-09
 #### Removed
 -   None
 
 #### Fixed
-
 -   None.
 
 #### Added
