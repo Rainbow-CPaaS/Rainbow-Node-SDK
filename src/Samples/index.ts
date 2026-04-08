@@ -4961,7 +4961,7 @@ let expressEngine = undefined;
 
         }
 
-        testUploadFileToConversation() {
+        testUploadFileToConversation(emailContact : string = "vincent02@vbe.test.openrainbow.net") {
             let that = this;
             // let conversation = null;
             let file = null;
@@ -5005,7 +5005,7 @@ let expressEngine = undefined;
                 "size": 2960156
             };
             _logger.log("debug", "MAIN - uploadFileToConversation - file.name : ", file.name, ", file.type : ", file.type, ", file.path : ", file.path, ", file.size : ", file.size);
-            rainbowSDK.contacts.getContactByLoginEmail("vincent02@vbe.test.openrainbow.net").then(function (contact) {
+            rainbowSDK.contacts.getContactByLoginEmail(emailContact).then(function (contact) {
                 // Retrieve the associated conversation
                 return rainbowSDK.conversations.openConversationForContact(contact);
             }).then(function (conversation) {
@@ -5015,6 +5015,25 @@ let expressEngine = undefined;
                 });
             });
             //});
+        }
+
+        testUploadFileBufferToConversation(emailContact : string = "vincent02@vbe.test.openrainbow.net") {
+            let that = this;
+            let fileData = {
+                "fileName": "test_buffer.txt",
+                "content": "This is the content of the file created from a buffer. It can contain any text."
+            };
+            let strMessage = "message for the file buffer";
+            _logger.log("debug", "MAIN - uploadFileBufferToConversation - fileName : ", fileData.fileName);
+            rainbowSDK.contacts.getContactByLoginEmail(emailContact).then(function (contact) {
+                // Retrieve the associated conversation
+                return rainbowSDK.conversations.openConversationForContact(contact);
+            }).then(function (conversation) {
+                // Share the file
+                return rainbowSDK.fileStorage.uploadFileBufferToConversation(conversation, fileData, strMessage).then((result) => {
+                    _logger.log("debug", "MAIN - uploadFileBufferToConversation - result : ", result);
+                });
+            });
         }
 
         testUploadFileToConversationEmpty() {

@@ -998,6 +998,62 @@ class ConversationsService extends GenericService {
 
     /**
      * @private
+     * @method sendFSBufferMessage
+     * @instance
+     * @category MESSAGES
+     * @description
+     *   Send a file sharing message from a buffer <br>
+     */
+    sendFSBufferMessage(conversation, buffer: Buffer, fileName: string, data: string, p_messagesDataStore: DataStoreType) {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            that._logger.log(that.INFO, LOG_ID + "sendFSBufferMessage");
+
+            let fileExtension = fileName.split(".").pop();
+            let viewers = [];
+            let message = data;
+            let currentFileDescriptor;
+
+            if (conversation.type === Conversation.Type.ONE_TO_ONE) {
+                viewers.push(fileViewerElementFactory(conversation.contact.id, "user", undefined,  undefined));
+            } else {
+                viewers.push(fileViewerElementFactory(conversation.bubble.id, "room", undefined,  undefined)) ;
+            }
+
+            that._fileStorageService.createFileDescriptor(fileName, fileExtension, buffer.length, viewers).then(function (fileDescriptor: any) {
+                    currentFileDescriptor = fileDescriptor;
+                    fileDescriptor.state = "uploading";
+
+                     return that._fileServerService.uploadBufferByChunk(fileDescriptor, buffer)
+                        .then(function successCallback(fileDesc) {
+                                that._logger.log(that.DEBUG, LOG_ID + "uploadBufferByChunk success");
+                                return Promise.resolve(fileDesc);
+                            },
+                            function errorCallback(error) {
+                                that._logger.log(that.ERROR, LOG_ID + "uploadBufferByChunk error.");
+                                that._logger.log(that.INTERNALERROR, LOG_ID + "uploadBufferByChunk error : ", error);
+                                that._fileStorageService.deleteFileDescriptor(currentFileDescriptor.id);
+                                currentFileDescriptor.state = "uploadError";
+                                return Promise.reject(error);
+                            });
+                })
+                .then(function successCallback(fileDescriptorResult) {
+                        fileDescriptorResult.state = "uploaded";
+                        fileDescriptorResult.chunkPerformed = 0;
+                        fileDescriptorResult.chunkTotalNumber = 0;
+                        let messagefs = that.sendExistingFSMessage(conversation, message, fileDescriptorResult, p_messagesDataStore);
+                        that.storePendingMessage(conversation, messagefs);
+                        resolve(messagefs);
+                    },
+                    function errorCallback(error) {
+                        that._logger.log(that.ERROR, LOG_ID + "createFileDescriptor error");
+                        return reject(error);
+                    });
+        });
+    }
+
+    /**
+     * @private
      * @method sendFSMessage
      * @instance
      * @category MESSAGES

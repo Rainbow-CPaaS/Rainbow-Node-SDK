@@ -5914,13 +5914,30 @@ Request Method: PUT
     uploadAFile(fileId, buffer) {
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.http.put("/api/rainbow/fileserver/v1.0/files/" + fileId, that.getRequestHeader("Content-Type: 'application/octet-stream'"), buffer, undefined).then(function (response) {
+            that.http.putBuffer("/api/rainbow/fileserver/v1.0/files/" + fileId, that.getRequestHeader("Content-Type: 'application/octet-stream'"), buffer).then(function (response) {
                 that._logger.log(that.DEBUG, LOG_ID + "(uploadAFile) successfull");
                 that._logger.log(that.INTERNAL, LOG_ID + "(uploadAFile) REST result : ", response);
                 resolve(response);
             }).catch(function (err) {
                 that._logger.log(that.ERROR, LOG_ID, "(uploadAFile) error");
                 that._logger.log(that.INTERNALERROR, LOG_ID, "(uploadAFile) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    uploadABuffer(fileId, buffer) {
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let headers = that.getRequestHeader();
+            headers['Content-Type'] = 'application/octet-stream';
+            that.http.putBuffer("/api/rainbow/fileserver/v1.0/files/" + fileId, headers, buffer).then(function (response) {
+                that._logger.log(that.DEBUG, LOG_ID + "(uploadABuffer) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(uploadABuffer) REST result : ", response);
+                resolve(response);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(uploadABuffer) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(uploadABuffer) error : ", err);
                 return reject(err);
             });
         });

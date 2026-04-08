@@ -19,6 +19,8 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add `setRoomPassword` and `deleteRoomPassword` methods in `BubblesService` to manage room passwords (RQRAINB-13820).
 -   Add `setRoomPassword` and `deleteRoomPassword` methods in `RESTService` to call room password management endpoints (RQRAINB-13820).
 -   Add `testRoomPasswordManagement` in `Samples/index.ts` to verify room password management flow (RQRAINB-13820).
+-   Add `testUploadFileBufferToConversation` in `Samples/index.ts` to verify the file upload from a buffer.
+-   Add `uploadFileBufferToConversation` in `FileStorageService` to allow adding a file (created from a text content) to an existing conversation.
 -   Add `rainbow_onbubbleroompasswordreceived` event fired when a password is setted for public links in a bubble.
 -   Add `rainbow_onscanreceived` event fired when a `scan` event is received from server.
 -   Add `test_sendApplicationAndOpenAconversation_BulleDeTest` test method to demonstrates how to send an Adaptive Card into a specific bubble (MUC) and then handle the user's interaction with that card.

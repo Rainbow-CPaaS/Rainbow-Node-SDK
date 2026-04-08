@@ -470,6 +470,98 @@ class FileServer extends GenericService{
     }
 
     /**
+     * @method uploadBufferByChunk
+     * Method sends data from buffer to server using range request mecanism (RFC7233)
+     *
+     * @private
+     * @param {FileDescriptor} fileDescriptor (required) file descriptor Object of file to be sent
+     * @param {Buffer} buffer (required) buffer of the file to be sent
+     * @returns {Promise<{FileDescriptor}>} file descriptor data received as response from server or http error response
+     *
+     */
+    async uploadBufferByChunk(fileDescriptor : FileDescriptor, buffer : Buffer) {
+        let that = this;
+
+        let promiseQueue = createPromiseQueue(that._logger);
+
+        let bufferSize = buffer.length;
+
+        let range = (await that.capabilities).maxChunkSizeUpload;
+        if (range < bufferSize) {
+            if (bufferSize >= 100 * range) {
+                range = (bufferSize / 100) + this.ONE_KILOBYTE;
+                that._logger.log(that.DEBUG, LOG_ID + "(uploadBufferByChunk) changing chunk size: " + range);
+            }
+            let deferred = new Deferred();
+            fileDescriptor.chunkTotalNumber = Math.ceil(bufferSize / range);
+            fileDescriptor.chunkPerformed = 0;
+            fileDescriptor.chunkPerformedPercent = 0;
+            fileDescriptor.state = "uploading";
+
+            let partialSent = (promiseDeferred, blob, i) => {
+                that._sendPartialDataToServer(fileDescriptor.id, blob, i)
+                    .then((response) => {
+                        fileDescriptor.chunkPerformed++;
+                        fileDescriptor.chunkPerformedPercent = 100 * fileDescriptor.chunkPerformed / fileDescriptor.chunkTotalNumber;
+                        return promiseDeferred.resolve(response);
+                    })
+                    .catch((error) => {
+                        that._logger.log(that.ERROR, LOG_ID + "(uploadBufferByChunk) error on chunk upload.");
+                        that._logger.log(that.INTERNALERROR, LOG_ID + "(uploadBufferByChunk) error on chunk upload : ", error);
+                        return promiseDeferred.reject(error);
+                    });
+                return promiseDeferred.promise;
+            };
+
+            for (let i = 0, minRange = 0, maxRange = range - 1, repetition = Math.ceil(bufferSize / range); repetition > 0; i++, repetition--, minRange += range, maxRange += range) {
+                let max = maxRange < bufferSize ? maxRange + 1 : bufferSize;
+                let sizeToRead = max - minRange;
+                let chunk = buffer.slice(minRange, max);
+
+                that._logger.log(that.DEBUG, LOG_ID + "(uploadBufferByChunk) sizeToRead=", sizeToRead, ", minRange : ", minRange, ", max : ", max, ", chunk.byteLength : ", chunk.byteLength);
+
+                let promiseDeferred = new Deferred();
+                promiseQueue.add(() => {
+                    partialSent(promiseDeferred, chunk, i);
+                    return promiseDeferred.promise;
+                });
+            }
+
+            promiseQueue.add(() => {
+                return this._rest.sendPartialFileCompletion(fileDescriptor.id)
+                    .then(
+                        (response) => {
+                            that._logger.log(that.INFO, LOG_ID + "(uploadBufferByChunk) success");
+                            fileDescriptor.state = "uploaded";
+                            fileDescriptor.chunkPerformed = 0;
+                            fileDescriptor.chunkTotalNumber = 0;
+                            fileDescriptor.chunkPerformedPercent = 0;
+                            deferred.resolve(fileDescriptor);
+                        })
+                    .catch((errorResponse) => {
+                        return deferred.reject(errorResponse);
+                    });
+            });
+            return deferred.promise;
+        }
+        
+        // Small buffer, upload in one go
+        if (fileDescriptor) {
+            fileDescriptor.state = "uploading";
+        }
+        return that._rest.uploadABuffer(fileDescriptor.id, buffer).then(
+            (response) => {
+                if (fileDescriptor) {
+                    fileDescriptor.state = "uploaded";
+                }
+                that._logger.log(that.INFO, LOG_ID + "(uploadBufferByChunk) uploadABuffer success");
+                return Promise.resolve(fileDescriptor);
+            }).catch((error) => {
+                return Promise.reject(error);
+            });
+    }
+
+    /**
      * @description
      * Upload File ByChunk progressCallback callback is displayed as part of the Requester class.
      * @callback uploadAFileByChunk~progressCallback

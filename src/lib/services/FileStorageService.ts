@@ -255,6 +255,62 @@ class FileStorage extends GenericService{
     //region Files TRANSFER
     /**
      * @public
+     * @since 2.31.0
+     * @nodered true
+     * @method uploadFileBufferToConversation
+     * @instance
+     * @async
+     * @category Files TRANSFER
+     * @param {Conversation} conversation   The conversation where the message will be added
+     * @param {{fileName, content}} fileData Object containing the fileName and the text content to be used as file content.
+     * @param {String} strMessage   An optional message to add with the file
+     * @param {DataStoreType} p_messagesDataStore  used to override the general of SDK's parameter "messagesDataStore".
+     * @description
+     *    Allow to add a file (created from a text content) to an existing conversation (ie: conversation with a contact) <br>
+     *    Return the promise <br>
+     * @return {Message} Return the message sent <br>
+     */
+    async uploadFileBufferToConversation(conversation: Conversation, fileData: {fileName: string, content: string}, strMessage: string, p_messagesDataStore: DataStoreType = undefined) {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(uploadFileBufferToConversation) conversation.id : ", that._logger.stripStringForLogs(conversation?.id));
+
+        return new Promise(function(resolve, reject) {
+            if (!conversation) {
+                let errorMessage = "Parameter 'conversation' is missing or null";
+                that._logger.log(that.ERROR, LOG_ID + "(uploadFileBufferToConversation) " + errorMessage);
+                reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
+            } else if (!fileData || !fileData.fileName || fileData.content === undefined) {
+                let errorMessage = "Parameter 'fileData' is missing or incomplete (fileName and content are required)";
+                that._logger.log(that.ERROR, LOG_ID + "(uploadFileBufferToConversation) " + errorMessage);
+                reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
+            } else if (conversation.type !== Conversation.Type.ONE_TO_ONE) {
+                let errorMessage = "Parameter 'conversation' is not a one-to-one conversation";
+                that._logger.log(that.ERROR, LOG_ID + "(uploadFileBufferToConversation) " + errorMessage);
+                reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
+            } else {
+                let buffer = Buffer.from(fileData.content, 'utf-8');
+                if (buffer.length > 100000000) {
+                    let errorMessage = "The file content is too large (limited to 100MB)";
+                    that._logger.log(that.ERROR, LOG_ID + "(uploadFileBufferToConversation) " + errorMessage);
+                    reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
+                } else {
+                    if (!strMessage || strMessage.length === 0) {
+                        strMessage = fileData.fileName;
+                    }
+                    that._conversations.sendFSBufferMessage(conversation, buffer, fileData.fileName, strMessage, p_messagesDataStore).then(function(msg) {
+                        that._logger.log(that.INFO, LOG_ID + "[uploadFileBufferToConversation] :: file added");
+                        resolve(msg);
+                    }).catch(function(err) {
+                        that._logger.log(that.ERROR, LOG_ID + "[uploadFileBufferToConversation] :: error when trying to add a file to the conversation ", conversation.id);
+                        reject(err);
+                    });
+                }
+            }
+        });
+    }
+
+    /**
+     * @public
      * @since 1.47.1
      * @nodered true
      * @method uploadFileToConversation
