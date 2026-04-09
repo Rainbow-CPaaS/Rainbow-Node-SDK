@@ -95,6 +95,7 @@ import {tmpdir} from "node:os";
 import {PresenceLevel} from "../lib/common/models/PresenceRainbow.js";
 import fs = require("fs");
 import assert = require("node:assert");
+import {notStrictEqual} from "node:assert";
 
 const xml = require("@xmpp/xml").xml || require("@xmpp/xml");
  const parse = require("@xmpp/xml/lib/parse");
@@ -1433,28 +1434,36 @@ let expressEngine = undefined;
         _logger.log("debug", "MAIN - (rainbow_onpinmanagement) data : ", data);
     });
 
-    function  on_rainbow_event(promise, resolve, timeoutId, eventName, callback) {
-        _logger.log("debug", "MAIN - (on_rainbow_event) :: attach event's method to ", _logger.colors.yellow( ", eventName : ", eventName));
-        return (data) => {
-            _logger.log("debug", "MAIN - (on_rainbow_event) :: eventName : ", eventName, " event data param info : ", data);
-            let state1 = util.inspect(promise);
-            _logger.log("debug", "MAIN - (on_rainbow_event) :: promiseState : ", state1);
-            if (state1 === 'Promise { <pending> }') {
-                _logger.log("debug", "MAIN - (on_rainbow_event) :: event received, and promise is pending, so it can be resolved");
+    function  on_rainbow_event(promise, resolve, timeoutId, eventName, callback, nbWaitEvent = 1, rainbowSDK = undefined) {
+        _logger.log("debug", "MAIN - (on_rainbow_event) :: attach event's method to ", _logger.colors.yellow( ", eventName : ", eventName, ", nbWaitEvent : ", nbWaitEvent));
+        let count = 0;
+        let eventHandler = (data) => {
+            count++;
+            _logger.log("debug", "MAIN - (on_rainbow_event) :: eventName : ", eventName, " event data param info : ", data, ", count : ", count, "/", nbWaitEvent);
+            
+            if (callback && typeof callback === "function") {
+                callback(data, count);
+            }
+
+            if (count >= nbWaitEvent) {
+                _logger.log("debug", "MAIN - (on_rainbow_event) :: last event reached, resolving promise and clearing timeout");
                 if (timeoutId) {
                     _logger.log("debug", "MAIN - (on_rainbow_event) :: clear the timeout for the event");
                     clearTimeout(timeoutId);
                 }
-                // test expecting
-                resolve(data);
+                if (rainbowSDK && nbWaitEvent > 1) {
+                    _logger.log("debug", "MAIN - (on_rainbow_event) :: unsubscribe from event ", eventName);
+                    rainbowSDK.events.removeListener(eventName, eventHandler);
+                }
+                resolve({data: data, count: count});
             } else {
-                resolve(undefined);
+                _logger.log("debug", "MAIN - (on_rainbow_event) :: waiting for next occurrence of event ", eventName);
             }
-
         };
+        return eventHandler;
     }
 
-    function listenForAnEvent(rainbowSDK, eventToWaitName, callback) : Promise<any> {
+    function listenForAnEvent(rainbowSDK, eventToWaitName, callback, waitingTimeForEvent = 120000, nbWaitEvent = 1) : Promise<any> {
 
         /*
           "waiting": [
@@ -1471,7 +1480,6 @@ let expressEngine = undefined;
         let timeoutForEvent = undefined;
         let resolvedSaved = undefined;
         let rejectedSaved = undefined;
-        let waitingTimeForEvent = 120000; // 40000;
 
         let promise = new Promise(function (resolve, reject) {
             if (!eventToWaitName) {
@@ -1502,7 +1510,12 @@ let expressEngine = undefined;
                 let eventToWaitCallBack = on_rainbow_event;
                 let typeofeventToWaitCallBack = typeof eventToWaitCallBack;
                 if (typeofeventToWaitCallBack === "function") {
-                    rainbowSDK.events.once(eventToWaitName, eventToWaitCallBack(promise, resolvedSaved, timeoutForEvent, eventToWaitName,  callback));
+                    let handler = eventToWaitCallBack(promise, resolvedSaved, timeoutForEvent, eventToWaitName, callback, nbWaitEvent, rainbowSDK);
+                    if (nbWaitEvent > 1) {
+                        rainbowSDK.events.on(eventToWaitName, handler);
+                    } else {
+                        rainbowSDK.events.once(eventToWaitName, handler);
+                    }
                 } else {
                     _logger.log("error", "MAIN - (listenForAnEvent) :: event ", eventToWaitName, " is not listen by afterbuild code , so the test will FAILED!!! ");
                 }
@@ -1528,6 +1541,10 @@ let expressEngine = undefined;
 
     function expectingEqual(value:any, expectedValue, errorlabel) {
         assert.strictEqual(value, expectedValue, errorlabel);
+    }
+
+    function expectingNotEqual(value:any, expectedValue, errorlabel) {
+        assert.notStrictEqual(value, expectedValue, errorlabel);
     }
 
     // endregin Asserts
@@ -5036,6 +5053,55 @@ let expressEngine = undefined;
             });
         }
 
+        testUploadFileBufferToConversationInfectedFileVirus(emailContact : string = "vincent02@vbe.test.openrainbow.net") {
+            let that = this;
+            let fileData = {
+                "fileName": "test_buffer_InfectedFileVirus.txt",
+                "content": "X5O!P%@AP[4\\PZX54(P^)7CC)7}" + "$EICAR-STANDARD-" + "ANTIVIRUS-TEST-FILE!$H+H*"
+            };
+            let strMessage = "message for the file buffer";
+            _logger.log("debug", "MAIN - testUploadFileBufferToConversationInfectedFileVirus - fileName : ", fileData.fileName);
+            rainbowSDK.contacts.getContactByLoginEmail(emailContact).then(function (contact) {
+                // Retrieve the associated conversation
+                return rainbowSDK.conversations.openConversationForContact(contact);
+            }).then(function (conversation) {
+
+                let eventWaitPromise : Promise<any> = listenForAnEvent(rainbowSDK,"rainbow_onscanreceived", undefined, undefined, 3);
+
+                // Share the file
+                rainbowSDK.fileStorage.uploadFileBufferToConversation(conversation, fileData, strMessage).then((result) => {
+                    _logger.log("debug", "MAIN - testUploadFileBufferToConversationInfectedFileVirus - uploadFileBufferToConversation result : ", result);
+                    expectingIsDefined(result, "uploadFileBufferToConversation - result should be defined.");
+                    //expectingEqual(resultSet?.room?.name, "testRoomPassword_1", "setRoomHasPassword - resultSet?.room?.name should be equals to testRoomPassword_1.");
+                });
+
+
+                eventWaitPromise.then((result) => {
+                    let data = result.data;
+                    let count = result.count;
+                    _logger.log("debug", "MAIN - [testUploadFileBufferToConversationInfectedFileVirus] rainbow_onscanreceived result : ", result);
+                    expectingIsDefined(data,"rainbow_onscanreceived - data should be defined in event's data.");
+                    switch (count) {
+                        case 1:
+                            expectingEqual(data?.action, "waiting", "rainbow_onscanreceived - action should be waiting.");
+                            break;
+                        case 2:
+                            expectingEqual(data?.action, "in_progress", "rainbow_onscanreceived - count should be in_progress.");
+                            break;
+                        case 3:
+                            expectingEqual(data?.action, "done", "rainbow_onscanreceived - count should be done.");
+                            break;
+                        default:
+                            assert.fail(new TypeError('rainbow_onscanreceived - count should not be ' + count));
+                            break;
+                    }
+                }).catch ((err) => {
+                    _logger.log("error", "MAIN - [testUploadFileBufferToConversationInfectedFileVirus] while waiting event rainbow_onscanreceived, error : ", err);
+                    expectingIsNotDefined(err, " while waiting event rainbow_onscanreceived for set - error.");
+                });
+            });
+        }
+
         testUploadFileToConversationEmpty() {
             let that = this;
             // let conversation = null;
@@ -6455,8 +6521,9 @@ let expressEngine = undefined;
             let stanza = prettydata.xmlmin(stanzaStr);
             _logger.log("debug", "MAIN - testrainbow_onmessageserverreceiptreceived stanza : ", stanza);
             await rainbowSDK._core._xmpp.mockStanza(stanza);
-            await listenForAnEvent(rainbowSDK,"rainbow_onbubbleroompasswordreceived", undefined).then((data) => {
-                _logger.log("debug", "MAIN - testrainbow_onmessageserverreceiptreceived rainbow_onbubbleroompasswordreceived result : ", data);
+            await listenForAnEvent(rainbowSDK,"rainbow_onbubbleroompasswordreceived", undefined).then((result) => {
+                let data = result.data;
+                _logger.log("debug", "MAIN - testrainbow_onmessageserverreceiptreceived rainbow_onbubbleroompasswordreceived result : ", result);
                 expectingIsDefined(data?.password, " password should be defined in event's data");
             }).catch ((err) => {
                 _logger.log("debug", "MAIN - testrainbow_onmessageserverreceiptreceived while waiting event rainbow_onbubbleroompasswordreceived, error : ", err);
@@ -6524,8 +6591,9 @@ let expressEngine = undefined;
                     expectingIsDefined(resultSet?.room?.jid, "setRoomHasPassword - resultSet?.room?.jid should be defined.");
                     expectingIsDefined(resultSet?.room?.hasPassword, "setRoomHasPassword - resultSet?.room?.hasPassword should be defined.");
 
-                    eventWaitPromise.then((data) => {
-                        _logger.log("debug", "MAIN - [testRoomPasswordManagement] rainbow_onbubbleroompasswordreceived for set result : ", data);
+                    eventWaitPromise.then((result) => {
+                        let data = result.data;
+                        _logger.log("debug", "MAIN - [testRoomPasswordManagement] rainbow_onbubbleroompasswordreceived for set result : ", result);
                         expectingIsDefined(data?.password,"setRoomHasPassword - password should be defined in event's data for renew.");
                     }).catch ((err) => {
                         _logger.log("error", "MAIN - [testRoomPasswordManagement] while waiting event rainbow_onbubbleroompasswordreceived, error : ", err);
@@ -6560,8 +6628,9 @@ let expressEngine = undefined;
                     expectingIsDefined(resultRenewPass?.room?.hasPassword, "renewRoomPassword - resultRenewPass?.room?.hasPassword should be defined.");
 
                     let roomPassword = null;
-                    eventWaitPromise.then((data) => {
-                        _logger.log("debug", "MAIN - [testRoomPasswordManagement] rainbow_onbubbleroompasswordreceived for renew result : ", data);
+                    eventWaitPromise.then((result) => {
+                        let data = result.data;
+                        _logger.log("debug", "MAIN - [testRoomPasswordManagement] rainbow_onbubbleroompasswordreceived for renew result : ", result);
                         expectingIsDefined(data?.password, "renewRoomPassword - password should be defined in event's data for renew.");
                         roomPassword = data.password;
 
