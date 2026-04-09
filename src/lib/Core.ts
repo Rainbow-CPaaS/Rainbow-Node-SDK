@@ -231,7 +231,7 @@ class Core extends LevelLogs{
                 });
             }).catch(async (err) => {
                 // If not already connected, it is an error in xmpp connection, so should failed
-                if (!self._stateManager.isCONNECTED() && !self._stateManager.isRECONNECTING()) {
+                if (!self._stateManager.isCONNECTED() && !self._stateManager.isRECONNECTING() && "reconnectingInProgress"!==err?.errorname) {
                     self._logger.log(self.ERROR, LOG_ID + " (rainbow_xmppreconnected) REST connection ", self._stateManager.FAILED);
                     self._logger.log(self.INTERNALERROR, LOG_ID + " (rainbow_xmppreconnected) REST connection ", self._stateManager.FAILED, ", ErrorManager : ", err);
                     await self.stop().then(function(result) {
@@ -243,7 +243,7 @@ class Core extends LevelLogs{
                         self._eventEmitter.iee.emit("evt_internal_signinrequired");
                     }
                 } else {
-                    if (err && err.errorname == "reconnectingInProgress") {
+                    if (err && "reconnectingInProgress"===err.errorname) {
                         self._logger.log(self.WARN, LOG_ID + " (rainbow_xmppreconnected) REST reconnection already in progress ignore error : ", err);
                     } else {
                         self._logger.log(self.WARN, LOG_ID + " (rainbow_xmppreconnected) REST reconnection Error, set state : ", self._stateManager.DISCONNECTED);
