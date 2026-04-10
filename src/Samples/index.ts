@@ -5041,14 +5041,59 @@ let expressEngine = undefined;
                 "content": "This is the content of the file created from a buffer. It can contain any text."
             };
             let strMessage = "message for the file buffer";
-            _logger.log("debug", "MAIN - uploadFileBufferToConversation - fileName : ", fileData.fileName);
+            _logger.log("debug", "MAIN - [testUploadFileBufferToConversation] - fileName : ", fileData.fileName);
             rainbowSDK.contacts.getContactByLoginEmail(emailContact).then(function (contact) {
                 // Retrieve the associated conversation
                 return rainbowSDK.conversations.openConversationForContact(contact);
             }).then(function (conversation) {
+                let eventWaitPromise : Promise<any> = listenForAnEvent(rainbowSDK,"rainbow_onscanreceived", undefined, undefined, 3);
+                let eventWaitPromise2 : Promise<any> = listenForAnEvent(rainbowSDK,"rainbow_onfilecreated", undefined, undefined, 1);
+                let eventWaitPromise3 : Promise<any> = listenForAnEvent(rainbowSDK,"rainbow_onfileupdated", undefined, undefined, 1);
                 // Share the file
-                return rainbowSDK.fileStorage.uploadFileBufferToConversation(conversation, fileData, strMessage).then((result) => {
-                    _logger.log("debug", "MAIN - uploadFileBufferToConversation - result : ", result);
+                rainbowSDK.fileStorage.uploadFileBufferToConversation(conversation, fileData, strMessage).then((result) => {
+                    _logger.log("debug", "MAIN - [testUploadFileBufferToConversation] uploadFileBufferToConversation - result : ", result);
+                });
+
+                eventWaitPromise.then((result) => {
+                    let data = result.data;
+                    let count = result.count;
+                    _logger.log("debug", "MAIN - [testUploadFileBufferToConversation] rainbow_onscanreceived result : ", result);
+                    expectingIsDefined(data,"rainbow_onscanreceived - data should be defined in event's data.");
+                    switch (count) {
+                        case 1:
+                            expectingEqual(data?.action, "waiting", "rainbow_onscanreceived - action should be waiting.");
+                            break;
+                        case 2:
+                            expectingEqual(data?.action, "in_progress", "rainbow_onscanreceived - count should be in_progress.");
+                            break;
+                        case 3:
+                            expectingEqual(data?.action, "done", "rainbow_onscanreceived - count should be done.");
+                            break;
+                        default:
+                            assert.fail(new TypeError('rainbow_onscanreceived - count should not be ' + count));
+                            break;
+                    }
+                }).catch ((err) => {
+                    _logger.log("error", "MAIN - [testUploadFileBufferToConversation] while waiting event rainbow_onscanreceived, error : ", err);
+                    expectingIsNotDefined(err, " while waiting event rainbow_onscanreceived for set - error.");
+                });
+                eventWaitPromise2.then((result) => {
+                    let data = result.data;
+                    let count = result.count;
+                    _logger.log("debug", "MAIN - [testUploadFileBufferToConversation] rainbow_onfilecreated result : ", result);
+                    expectingIsDefined(data,"rainbow_onfilecreated - data should be defined in event's data.");
+                }).catch ((err) => {
+                    _logger.log("error", "MAIN - [testUploadFileBufferToConversation] while waiting event rainbow_onfilecreated, error : ", err);
+                    expectingIsNotDefined(err, " while waiting event rainbow_onfilecreated for set - error.");
+                });
+                eventWaitPromise3.then((result) => {
+                    let data = result.data;
+                    let count = result.count;
+                    _logger.log("debug", "MAIN - [testUploadFileBufferToConversation] rainbow_onfileupdated result : ", result);
+                    expectingIsDefined(data,"rainbow_onfileupdated - data should be defined in event's data.");
+                }).catch ((err) => {
+                    _logger.log("error", "MAIN - [testUploadFileBufferToConversation] while waiting event rainbow_onfileupdated, error : ", err);
+                    expectingIsNotDefined(err, " while waiting event rainbow_onfileupdated for set - error.");
                 });
             });
         }
