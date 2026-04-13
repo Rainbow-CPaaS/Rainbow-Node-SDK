@@ -1,6 +1,7 @@
 "use strict";
 import {XMPPService} from "../connection/XMPPService";
 import {TimeOutManager} from "../common/TimeOutManager";
+import {ErrorManager} from "../common/ErrorManager";
 
 export {};
 
@@ -151,6 +152,36 @@ class GenericService extends LevelLogs{
                 that._logger.log(that.INTERNALERROR, that._logId  + "(" + methodName + ") error : ", err);
                 return reject(err);
             }
+        });
+    }
+
+    /**
+     * @private
+     * @method waitEvent
+     * @instance
+     * @category EVENTS
+     * @description
+     *   Wait for an event with a timeout and a test method for the received data. <br>
+     */
+    waitEvent(eventName : string, timeoutMs : number = 30000, testMethodIslastEvent : any = (data) => true, testmethodValidateDataReceived : any) : Promise<any> {
+        let that = this;
+        return new Promise((resolve, reject) => {
+            let timeout = setTimeout(() => {
+                that._logger.log(that.WARN, that._logId + "(waitEvent) timeout reached for event: " + eventName );
+                that._eventEmitter.removeListener(eventName, onEventReceived);
+                reject(ErrorManager.getErrorManager().CUSTOMERROR("-1", "Timeout reached for event: " + eventName, "Timeout reached for event: " + eventName));
+            }, timeoutMs);
+
+            let onEventReceived = (data) => {
+                if (testMethodIslastEvent(data)) {
+                    that._logger.log(that.DEBUG, that._logId + "(waitEvent) event received and test passed: " + eventName);
+                    clearTimeout(timeout);
+                    that._eventEmitter.removeListener(eventName, onEventReceived);
+                    testmethodValidateDataReceived(data).then((data) => resolve(data)).catch((data) => reject(data));
+                }
+            };
+
+            that._eventEmitter.on(eventName, onEventReceived);
         });
     }
 }

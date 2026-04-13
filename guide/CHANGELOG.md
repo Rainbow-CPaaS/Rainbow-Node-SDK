@@ -24,7 +24,9 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add `uploadFileBufferToConversation` in `FileStorageService` to allow adding a file (created from a text content) to an existing conversation.
 -   Add `rainbow_onbubbleroompasswordreceived` event fired when a password is setted for public links in a bubble.
 -   Add `rainbow_onscanreceived` event fired when a `scan` event is received from server.
+-   Added a mechanism to wait for the antivirus scan completion event (`evt_internal_vscanreceived`) after a file upload in `ConversationsService`, ensuring the file is clean before completing the upload.
 -   Add `test_sendApplicationAndOpenAconversation_BulleDeTest` test method to demonstrates how to send an Adaptive Card into a specific bubble (MUC) and then handle the user's interaction with that card.
+-   Add `testUploadFileBufferToConversationInfectedFileVirus` in `Samples/index.ts` to verify the behavior when an infected file is uploaded.
 -   Add `sasl-scram-sha-256` support for XMPP connection.
 -   Add `sasl-scram-sha-512` support for XMPP connection.
 -   Add REST mocking mechanism via `addMockRestUrl`, `setMockRestUrl`, and `getMockRestUrl` methods in `NodeSDK`. This allows simulating HTTP responses for specific URL/Verb combinations during testing.
@@ -34,6 +36,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add `tokenLifeCycle` documentation.
 -   Add `Bubble::hasPassword` Indicates whether the bubble is protected by a password.
 -   Add `Contact::autoAcceptExternalApp`, `Contact::changeDNDFullScreen`, `Contact::ignoreVoipCallInDND`, `Contact::manageCustomizationFile`, `Contact::setDNDAppointment`, `Contact::usePersonalAccessTokens`
+-   Added `waitEvent` method to `GenericService.ts` which takes an event name, a timeout (default 30s), a test method (predicate) to identify the last event and a validation method (returning a Promise) for the received data. It returns the data received in the event callback on success, or rejects with an error on timeout.
 
 #### Changed
 -   Update `HttpManager` and `HttpService` to support custom callbacks for mocked REST requests, ensuring they work both with and without the request rate limiter.

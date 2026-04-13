@@ -5100,51 +5100,59 @@ let expressEngine = undefined;
 
         testUploadFileBufferToConversationInfectedFileVirus(emailContact : string = "vincent02@vbe.test.openrainbow.net") {
             let that = this;
-            let fileData = {
-                "fileName": "test_buffer_InfectedFileVirus.txt",
-                "content": "X5O!P%@AP[4\\PZX54(P^)7CC)7}" + "$EICAR-STANDARD-" + "ANTIVIRUS-TEST-FILE!$H+H*"
-            };
-            let strMessage = "message for the file buffer";
-            _logger.log("debug", "MAIN - testUploadFileBufferToConversationInfectedFileVirus - fileName : ", fileData.fileName);
-            rainbowSDK.contacts.getContactByLoginEmail(emailContact).then(function (contact) {
-                // Retrieve the associated conversation
-                return rainbowSDK.conversations.openConversationForContact(contact);
-            }).then(function (conversation) {
+            try {
+                let fileData = {
+                    "fileName": "test_buffer_InfectedFileVirus.txt",
+                    "content": "X5O!P%@AP[4\\PZX54(P^)7CC)7}" + "$EICAR-STANDARD-" + "ANTIVIRUS-TEST-FILE!$H+H*"
+                };
+                let strMessage = "message for the file buffer";
+                _logger.log("debug", "MAIN - [testUploadFileBufferToConversationInfectedFileVirus] - fileName : ", fileData.fileName);
+                rainbowSDK.contacts.getContactByLoginEmail(emailContact).then(function (contact) {
+                    // Retrieve the associated conversation
+                    return rainbowSDK.conversations.openConversationForContact(contact);
+                }).then(function (conversation) {
 
-                let eventWaitPromise : Promise<any> = listenForAnEvent(rainbowSDK,"rainbow_onscanreceived", undefined, undefined, 3);
+                    let eventWaitPromise: Promise<any> = listenForAnEvent(rainbowSDK, "rainbow_onscanreceived", undefined, undefined, 3);
 
-                // Share the file
-                rainbowSDK.fileStorage.uploadFileBufferToConversation(conversation, fileData, strMessage).then((result) => {
-                    _logger.log("debug", "MAIN - testUploadFileBufferToConversationInfectedFileVirus - uploadFileBufferToConversation result : ", result);
-                    expectingIsDefined(result, "uploadFileBufferToConversation - result should be defined.");
-                    //expectingEqual(resultSet?.room?.name, "testRoomPassword_1", "setRoomHasPassword - resultSet?.room?.name should be equals to testRoomPassword_1.");
+                    // Share the file
+                    rainbowSDK.fileStorage.uploadFileBufferToConversation(conversation, fileData, strMessage).then((result) => {
+                        _logger.log("debug", "MAIN - [testUploadFileBufferToConversationInfectedFileVirus] - uploadFileBufferToConversation result : ", result);
+                        expectingIsDefined(result, "uploadFileBufferToConversation - result should be defined.");
+                        //expectingEqual(resultSet?.room?.name, "testRoomPassword_1", "setRoomHasPassword - resultSet?.room?.name should be equals to testRoomPassword_1.");
+                    }).catch((err) => {
+                        _logger.log("error", "MAIN - [testUploadFileBufferToConversationInfectedFileVirus] - uploadFileBufferToConversation error : ", err);
+                        assert.fail(new TypeError('MAIN - [testUploadFileBufferToConversationInfectedFileVirus] - uploadFileBufferToConversation failed.'));
+                    });
+
+
+                    eventWaitPromise.then((result) => {
+                        let data = result.data;
+                        let count = result.count;
+                        _logger.log("debug", "MAIN - [testUploadFileBufferToConversationInfectedFileVirus] rainbow_onscanreceived result : ", result);
+                        expectingIsDefined(data, "rainbow_onscanreceived - data should be defined in event's data.");
+                        switch (count) {
+                            case 1:
+                                expectingEqual(data?.action, "waiting", "rainbow_onscanreceived - action should be waiting.");
+                                break;
+                            case 2:
+                                expectingEqual(data?.action, "in_progress", "rainbow_onscanreceived - count should be in_progress.");
+                                break;
+                            case 3:
+                                expectingEqual(data?.action, "done", "rainbow_onscanreceived - count should be done.");
+                                break;
+                            default:
+                                assert.fail(new TypeError('rainbow_onscanreceived - count should not be ' + count));
+                                break;
+                        }
+                    }).catch((err) => {
+                        _logger.log("error", "MAIN - [testUploadFileBufferToConversationInfectedFileVirus] while waiting event rainbow_onscanreceived, error : ", err);
+                        expectingIsNotDefined(err, " while waiting event rainbow_onscanreceived for set - error.");
+                    });
                 });
-
-
-                eventWaitPromise.then((result) => {
-                    let data = result.data;
-                    let count = result.count;
-                    _logger.log("debug", "MAIN - [testUploadFileBufferToConversationInfectedFileVirus] rainbow_onscanreceived result : ", result);
-                    expectingIsDefined(data,"rainbow_onscanreceived - data should be defined in event's data.");
-                    switch (count) {
-                        case 1:
-                            expectingEqual(data?.action, "waiting", "rainbow_onscanreceived - action should be waiting.");
-                            break;
-                        case 2:
-                            expectingEqual(data?.action, "in_progress", "rainbow_onscanreceived - count should be in_progress.");
-                            break;
-                        case 3:
-                            expectingEqual(data?.action, "done", "rainbow_onscanreceived - count should be done.");
-                            break;
-                        default:
-                            assert.fail(new TypeError('rainbow_onscanreceived - count should not be ' + count));
-                            break;
-                    }
-                }).catch ((err) => {
-                    _logger.log("error", "MAIN - [testUploadFileBufferToConversationInfectedFileVirus] while waiting event rainbow_onscanreceived, error : ", err);
-                    expectingIsNotDefined(err, " while waiting event rainbow_onscanreceived for set - error.");
-                });
-            });
+            } catch (err) {
+                _logger.log("error", "MAIN - [testUploadFileBufferToConversationInfectedFileVirus] CATCH Error !!! error : ", err);
+                process.exit(-1);
+            }
         }
 
         testUploadFileToConversationEmpty() {

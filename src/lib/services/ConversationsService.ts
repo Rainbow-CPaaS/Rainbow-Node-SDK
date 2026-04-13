@@ -8,7 +8,7 @@ import {RESTService} from "../connection/RESTService";
 import {ErrorManager} from "../common/ErrorManager";
 import {Conversation} from "../common/models/Conversation";
 import {Call} from "../common/models/Call";
-import {Deferred, isDefined, logEntryExit, randomString} from "../common/Utils";
+import {Deferred, isDefined, logEntryExit, randomString, toBoolean} from "../common/Utils";
 import * as PubSub from "pubsub-js";
 import {ConversationEventHandler} from "../connection/XMPPServiceHandler/conversationEventHandler";
 import {ConversationHistoryHandler} from "../connection/XMPPServiceHandler/conversationHistoryHandler";
@@ -1026,8 +1026,37 @@ class ConversationsService extends GenericService {
 
                      return that._fileServerService.uploadBufferByChunk(fileDescriptor, buffer)
                         .then(function successCallback(fileDesc) {
-                                that._logger.log(that.DEBUG, LOG_ID + "uploadBufferByChunk success");
-                                return Promise.resolve(fileDesc);
+                                that._logger.log(that.DEBUG, LOG_ID + "uploadBufferByChunk success, fileDesc.id : ", fileDesc.id);
+                                return that.waitEvent("evt_internal_vscanreceived", 30000, (vscanAttrs) => {
+                                    let result = false;
+                                    if (vscanAttrs && vscanAttrs.fileId === fileDesc.id && vscanAttrs.action === "done") {
+                                       that._logger.log(that.DEBUG, LOG_ID + "last event received.");
+                                       result = true;
+                                    }
+                                    return result;
+                                }, (vscanAttrs) => {
+                                        return new Promise((resolve, reject) => {
+                                                let result = false;
+                                                if (vscanAttrs && vscanAttrs.fileId===fileDesc.id && vscanAttrs.action==="done") {
+                                                    if (toBoolean(vscanAttrs.isClean)===true) {
+                                                        that._logger.log(that.DEBUG, LOG_ID + "The file " + vscanAttrs.fileId + " is clean!");
+                                                        resolve(vscanAttrs);
+                                                    } else {
+                                                        that._logger.log(that.ERROR, LOG_ID + "The file " + vscanAttrs.fileId + " is not clean!");
+                                                        reject(ErrorManager.getErrorManager().CUSTOMERROR("-1", "evt_internal_vscanreceived The file " + vscanAttrs.fileId + " is not clean!"));
+                                                    }
+                                                }
+                                            }
+                                        );
+                                }).then(() => {
+                                    return fileDesc;
+                                }).catch((err) => {
+                                    that._logger.log(that.ERROR, LOG_ID + "uploadBufferByChunk success, but vscan wait failed or timeout: " + err.message, ", file deleted by antivirus.");
+                                    //that._fileStorageService.deleteFileDescriptor(currentFileDescriptor.id);
+                                    currentFileDescriptor.state = "uploadError";
+                                    return Promise.reject(err);
+                                    //return fileDesc;
+                                });
                             },
                             function errorCallback(error) {
                                 that._logger.log(that.ERROR, LOG_ID + "uploadBufferByChunk error.");
@@ -1037,7 +1066,7 @@ class ConversationsService extends GenericService {
                                 return Promise.reject(error);
                             });
                 })
-                .then(function successCallback(fileDescriptorResult) {
+                .then(function successCallback(fileDescriptorResult: any) {
                         fileDescriptorResult.state = "uploaded";
                         fileDescriptorResult.chunkPerformed = 0;
                         fileDescriptorResult.chunkTotalNumber = 0;
@@ -1119,8 +1148,38 @@ class ConversationsService extends GenericService {
                     } */)
                         .then(function successCallback(fileDesc) {
                                 that._logger.log(that.DEBUG, LOG_ID + "uploadAFileByChunk success");
-                               // resolve(fileDescriptor);
-                                return Promise.resolve(fileDesc);
+                                // resolve(fileDescriptor);
+                             let tabLabel = [];
+                            return that.waitEvent("evt_internal_vscanreceived", 30000, (vscanAttrs) => {
+                                let result = false;
+                                if (vscanAttrs && vscanAttrs.fileId===fileDesc.id && vscanAttrs.action==="done") {
+                                    that._logger.log(that.DEBUG, LOG_ID + "last event received.");
+                                    result = true;
+                                }
+                                return result;
+                            }, (vscanAttrs) => {
+                                return new Promise((resolve, reject) => {
+                                        let result = false;
+                                        if (vscanAttrs && vscanAttrs.fileId===fileDesc.id && vscanAttrs.action==="done") {
+                                            if (toBoolean(vscanAttrs.isClean)===true) {
+                                                that._logger.log(that.DEBUG, LOG_ID + "The file " + vscanAttrs.fileId + " is clean!");
+                                                resolve(vscanAttrs);
+                                            } else {
+                                                that._logger.log(that.ERROR, LOG_ID + "The file " + vscanAttrs.fileId + " is not clean!");
+                                                reject(ErrorManager.getErrorManager().CUSTOMERROR("-1", "evt_internal_vscanreceived The file " + vscanAttrs.fileId + " is not clean!"));
+                                            }
+                                        }
+                                    }
+                                );
+                            }).then(() => {
+                                    return fileDesc;
+                                }).catch((err) => {
+                                    that._logger.log(that.ERROR, LOG_ID + "uploadAFileByChunk success, but vscan wait failed or timeout: " + err.message, ", file deleted by antivirus.");
+                                    //that._fileStorageService.deleteFileDescriptor(currentFileDescriptor.id);
+                                    currentFileDescriptor.state = "uploadError";
+                                    return Promise.reject(err);
+                                    //return fileDesc;
+                                });
                             },
                             function errorCallback(error) {
                                 that._logger.log(that.ERROR, LOG_ID + "uploadAFileByChunk error.");
@@ -1152,7 +1211,7 @@ class ConversationsService extends GenericService {
                                 return Promise.reject(error);
                             });
                 })
-                .then(function successCallback(fileDescriptorResult) {
+                .then(function successCallback(fileDescriptorResult: any) {
                         fileDescriptorResult.state = "uploaded";
                         fileDescriptorResult.chunkPerformed = 0;
                         fileDescriptorResult.chunkTotalNumber = 0;
