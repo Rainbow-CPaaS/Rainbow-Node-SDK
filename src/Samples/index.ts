@@ -190,7 +190,8 @@ const createTempDirSync = sp(tempDirEncapse, {
 }); // performs the 'synchronized version'
 // /var/folders/71/lxgy9vm54fb7tjcwr55mwccr0000gn/T/1b114e534d3ff95ea5951bb3db5c1cb3
 
-const tempDirToSaveLogs = createTempDirSync();
+ const tempDirToSaveLogs = createTempDirSync();
+//const tempDirToSaveLogs = tmpdir();
 // */
 
 let urlS2S;
@@ -1546,6 +1547,18 @@ let expressEngine = undefined;
     function expectingNotEqual(value:any, expectedValue, errorlabel) {
         assert.notStrictEqual(value, expectedValue, errorlabel);
     }
+
+    process.on('unhandledRejection', (reason: any, promise) => {
+        if (reason && (reason.name === 'AssertionError' || reason instanceof assert.AssertionError || reason.constructor?.name === 'AssertionError' || (reason.message && reason.message.includes('AssertionError')))) {
+            _logger.log("error", "MAIN - [AssertionError] caught in unhandledRejection : ", reason.message);
+            process.exit(-1);
+        } else if (reason && reason.name === 'TypeError' && reason.message && reason.message.includes('failed')) {
+             _logger.log("error", "MAIN - [AssertionError] caught in unhandledRejection : ", reason.message);
+             process.exit(-1);
+        } else {
+            _logger.log("error", "MAIN - [unhandledRejection] reason : ", reason, ", promise : ", promise);
+        }
+    });
 
     // endregin Asserts
 
@@ -5120,8 +5133,8 @@ let expressEngine = undefined;
                         expectingIsDefined(result, "uploadFileBufferToConversation - result should be defined.");
                         //expectingEqual(resultSet?.room?.name, "testRoomPassword_1", "setRoomHasPassword - resultSet?.room?.name should be equals to testRoomPassword_1.");
                     }).catch((err) => {
-                        _logger.log("error", "MAIN - [testUploadFileBufferToConversationInfectedFileVirus] - uploadFileBufferToConversation error : ", err);
-                        assert.fail(new TypeError('MAIN - [testUploadFileBufferToConversationInfectedFileVirus] - uploadFileBufferToConversation failed.'));
+                        _logger.log("error", "MAIN - [testUploadFileBufferToConversationInfectedFileVirus] - uploadFileBufferToConversation error (expected for infected file) : ", err);
+                        assert.fail('MAIN - [testUploadFileBufferToConversationInfectedFileVirus] - uploadFileBufferToConversation failed.');
                     });
 
 
@@ -5151,7 +5164,6 @@ let expressEngine = undefined;
                 });
             } catch (err) {
                 _logger.log("error", "MAIN - [testUploadFileBufferToConversationInfectedFileVirus] CATCH Error !!! error : ", err);
-                process.exit(-1);
             }
         }
 
