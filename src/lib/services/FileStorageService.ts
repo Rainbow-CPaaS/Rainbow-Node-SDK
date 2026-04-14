@@ -12,7 +12,7 @@ import {FileDescriptor, fileDescriptorFactory} from "../common/models/FileDescri
 import {Conversation} from "../common/models/Conversation";
 import {ErrorManager} from "../common/ErrorManager";
 import * as url from 'url';
-import {getBinaryData, logEntryExit, orderByFilter, resizeImage} from "../common/Utils";
+import {getBinaryData, logEntryExit, orderByFilter, resizeImage, toBoolean} from "../common/Utils";
 import {EventEmitter} from "events";
 import {isStarted} from "../common/Utils";
 import {Logger} from "../common/Logger";
@@ -461,6 +461,98 @@ class FileStorage extends GenericService{
 
     /**
      * @public
+     * @since 2.31.0
+     * @nodered true
+     * @method uploadFileBufferToStorage
+     * @instance
+     * @async
+     * @category Files TRANSFER
+     * @param {{fileName, content}} fileData Object containing the fileName and the text content to be used as file content.
+     * @param {boolean} voicemessage When set to True, that allows to identify voice memos in a chat or multi-users chat conversation.
+     * @param {number} duration The voice message in seconds. This field must be a positive number and is only taken into account when voicemessage is true.
+     * @param {boolean} encoding AAC is the choosen format to encode a voice message. This is the native format for mobile clients, nor web client (OPUS, OGG..). This field must be set to true to order a transcodind and is only taken into account when voicemessage is true.
+     * @param {boolean} ccarelogs When set to True, that allows to identify a log file uploaded by the user
+     * @param {boolean} ccareclientlogs When set to True, that allows to identify a log file uploaded automatically by the client application
+     * @description
+     *    Allow to add a file (created from a text content) to user storage <br>
+     *    Return the promise <br>
+     * @return {FileDescriptor} Return the file descriptor created <br>
+     */
+    async uploadFileBufferToStorage(fileData: {fileName: string, content: string}, voicemessage: boolean = undefined, duration: number = undefined, encoding: boolean = undefined, ccarelogs: boolean = undefined, ccareclientlogs: boolean = undefined) {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(uploadFileBufferToStorage) .");
+
+        return new Promise(function(resolve, reject) {
+            if (!fileData || !fileData.fileName || fileData.content === undefined) {
+                let errorMessage = "Parameter 'fileData' is missing or incomplete (fileName and content are required)";
+                that._logger.log(that.ERROR, LOG_ID + "(uploadFileBufferToStorage) " + errorMessage);
+                reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage, errorMessage));
+            } else {
+                let buffer = Buffer.from(fileData.content, 'utf-8');
+                if (buffer.length > 100000000) {
+                    let errorMessage = "The file content is too large (limited to 100MB)";
+                    that._logger.log(that.ERROR, LOG_ID + "(uploadFileBufferToStorage) " + errorMessage);
+                    reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage, errorMessage));
+                } else {
+                    let fileExtension = fileData.fileName.split(".").pop();
+                    let viewers = [];
+                    let currentFileDescriptor;
+
+                    that.createFileDescriptor(fileData.fileName, fileExtension, buffer.length, viewers, voicemessage, duration, encoding, ccarelogs, ccareclientlogs).then(function(fileDescriptor: any) {
+                        currentFileDescriptor = fileDescriptor;
+                        fileDescriptor.state = "uploading";
+
+                        return that._fileServerService.uploadBufferByChunk(fileDescriptor, buffer).then(function successCallback(fileDesc) {
+                            that._logger.log(that.DEBUG, LOG_ID + "uploadFileBufferToStorage uploadBufferByChunk success, fileDesc.id : ", fileDesc.id);
+                            return that.waitEvent("evt_internal_vscanreceived", 30000, (vscanAttrs) => {
+                                let result = false;
+                                if (vscanAttrs && vscanAttrs.fileId === fileDesc.id && vscanAttrs.action === "done") {
+                                    that._logger.log(that.DEBUG, LOG_ID + "last event received.");
+                                    result = true;
+                                }
+                                return result;
+                            }, (vscanAttrs) => {
+                                return new Promise((resolve, reject) => {
+                                    if (vscanAttrs && vscanAttrs.fileId === fileDesc.id && vscanAttrs.action === "done") {
+                                        if (toBoolean(vscanAttrs.isClean) === true) {
+                                            that._logger.log(that.DEBUG, LOG_ID + "The file " + vscanAttrs.fileId + " is clean!");
+                                            resolve(vscanAttrs);
+                                        } else {
+                                            that._logger.log(that.ERROR, LOG_ID + "The file " + vscanAttrs.fileId + " is not clean!");
+                                            reject(ErrorManager.getErrorManager().CUSTOMERROR("-1", "evt_internal_vscanreceived The file " + vscanAttrs.fileId + " is not clean!"));
+                                        }
+                                    }
+                                });
+                            }).then(() => {
+                                return fileDesc;
+                            }).catch((err) => {
+                                that._logger.log(that.ERROR, LOG_ID + "uploadFileBufferToStorage uploadBufferByChunk success, but vscan wait failed or timeout: " + err.message + ", file deleted by antivirus.");
+                                currentFileDescriptor.state = "uploadError";
+                                return Promise.reject(err);
+                            });
+                        }, function errorCallback(error) {
+                            that._logger.log(that.ERROR, LOG_ID + "uploadFileBufferToStorage uploadBufferByChunk error.");
+                            that._logger.log(that.INTERNALERROR, LOG_ID + "uploadFileBufferToStorage uploadBufferByChunk error : ", error);
+                            that.deleteFileDescriptor(currentFileDescriptor.id);
+                            currentFileDescriptor.state = "uploadError";
+                            return Promise.reject(error);
+                        });
+                    }).then(function successCallback(fileDescriptorResult: any) {
+                        fileDescriptorResult.state = "uploaded";
+                        fileDescriptorResult.chunkPerformed = 0;
+                        fileDescriptorResult.chunkTotalNumber = 0;
+                        resolve(fileDescriptorResult);
+                    }, function errorCallback(error) {
+                        that._logger.log(that.ERROR, LOG_ID + "uploadFileBufferToStorage createFileDescriptor error");
+                        return reject(error);
+                    });
+                }
+            }
+        });
+    }
+
+    /**
+     * @public
      * @since 1.67.0
      * @nodered true
      * @method uploadFileToStorage
@@ -547,8 +639,33 @@ class FileStorage extends GenericService{
                 fileDescriptor.state = "uploading";
 
                 return that._fileServerService.uploadAFileByChunk(fileDescriptor, file.path ).then(function successCallback(fileDesc) {
-                            that._logger.log(that.DEBUG, LOG_ID + "uploadFileToStorage uploadAFileByChunk success");
-                            return Promise.resolve(fileDesc);
+                            that._logger.log(that.DEBUG, LOG_ID + "uploadFileToStorage uploadAFileByChunk success, fileDesc.id : ", fileDesc.id);
+                            return that.waitEvent("evt_internal_vscanreceived", 30000, (vscanAttrs) => {
+                                let result = false;
+                                if (vscanAttrs && vscanAttrs.fileId === fileDesc.id && vscanAttrs.action === "done") {
+                                    that._logger.log(that.DEBUG, LOG_ID + "last event received.");
+                                    result = true;
+                                }
+                                return result;
+                            }, (vscanAttrs) => {
+                                return new Promise((resolve, reject) => {
+                                    if (vscanAttrs && vscanAttrs.fileId === fileDesc.id && vscanAttrs.action === "done") {
+                                        if (toBoolean(vscanAttrs.isClean) === true) {
+                                            that._logger.log(that.DEBUG, LOG_ID + "The file " + vscanAttrs.fileId + " is clean!");
+                                            resolve(vscanAttrs);
+                                        } else {
+                                            that._logger.log(that.ERROR, LOG_ID + "The file " + vscanAttrs.fileId + " is not clean!");
+                                            reject(ErrorManager.getErrorManager().CUSTOMERROR("-1", "evt_internal_vscanreceived The file " + vscanAttrs.fileId + " is not clean!"));
+                                        }
+                                    }
+                                });
+                            }).then(() => {
+                                return fileDesc;
+                            }).catch((err) => {
+                                that._logger.log(that.ERROR, LOG_ID + "uploadFileToStorage uploadAFileByChunk success, but vscan wait failed or timeout: " + err.message + ", file deleted by antivirus.");
+                                currentFileDescriptor.state = "uploadError";
+                                return Promise.reject(err);
+                            });
                         },
                         function errorCallback(error) {
                             that._logger.log(that.ERROR, LOG_ID + "uploadFileToStorage uploadAFileByChunk error.");

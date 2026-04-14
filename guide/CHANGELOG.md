@@ -6,12 +6,13 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-### [2.43.2] - 2026-XX-XX
+### [2.43.2] - 2026-04-XX
 #### Removed
 -   None
 
 #### Fixed
--   Fix `Samples/index.ts`.
+-   Fix `Samples/index.ts` (SIGHUP/SIGTERM support).
+-   Fix `clean-js.bat` to avoid WebStorm issues.
 -   Fix use of `timeOutManager.setTimeout` and `timeOutManager.clearTimeoutById`.
 -   Fix `evt_internal_signinrequired` callback to avoid a call of a second `start()` from the application.
 -   Fix issue when a reconnection is already in progress.

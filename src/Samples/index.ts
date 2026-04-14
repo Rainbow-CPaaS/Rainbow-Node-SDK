@@ -38,7 +38,7 @@ import {
     setTimeoutPromised,
     until,
     updatePropertyToObj,
-    writeArrayToFile
+    writeArrayToFile, toBoolean
 } from "../lib/common/Utils";
 import {XMPPUTils} from "../lib/common/XMPPUtils";
 import {TimeOutManager} from "../lib/common/TimeOutManager";
@@ -1548,13 +1548,13 @@ let expressEngine = undefined;
         assert.notStrictEqual(value, expectedValue, errorlabel);
     }
 
-    process.on('unhandledRejection', (reason: any, promise) => {
+    process.on('unhandledRejection', async (reason: any, promise) => {
         if (reason && (reason.name === 'AssertionError' || reason instanceof assert.AssertionError || reason.constructor?.name === 'AssertionError' || (reason.message && reason.message.includes('AssertionError')))) {
             _logger.log("error", "MAIN - [AssertionError] caught in unhandledRejection : ", reason.message);
-            process.exit(-1);
+            await terminateProcess(false);
         } else if (reason && reason.name === 'TypeError' && reason.message && reason.message.includes('failed')) {
              _logger.log("error", "MAIN - [AssertionError] caught in unhandledRejection : ", reason.message);
-             process.exit(-1);
+             await terminateProcess(false);
         } else {
             _logger.log("error", "MAIN - [unhandledRejection] reason : ", reason, ", promise : ", promise);
         }
@@ -5252,6 +5252,170 @@ let expressEngine = undefined;
             }).catch((errr) => {
                 _logger.log("error", "MAIN - testuploadFileToStorageBig - uploadFileToStorage error : ", errr);
             });
+        }
+
+        testUploadFileToStorageInfectedFileVirus() {
+            let that = this;
+            try {
+                let fs = require('fs');
+                let path = require('path');
+                // Use a fixed file that is ignored by local antivirus
+                let infectedFilePath = "C:\\Projets\\RandD\\Rainbow\\CPaas\\Docs\\Antivirus\\sampleInfectedFileVirus.txt";
+                
+                _logger.log("debug", "MAIN - [testUploadFileToStorageInfectedFileVirus] - file : ", infectedFilePath);
+
+                if (!fs.existsSync(infectedFilePath)) {
+                    _logger.log("error", "MAIN - [testUploadFileToStorageInfectedFileVirus] - file not found : ", infectedFilePath);
+                    return;
+                }
+
+                let eventWaitPromise: Promise<any> = listenForAnEvent(rainbowSDK, "rainbow_onscanreceived", undefined, undefined, 3);
+
+                // Upload the file
+                rainbowSDK.fileStorage.uploadFileToStorage(infectedFilePath).then((result) => {
+                    _logger.log("debug", "MAIN - [testUploadFileToStorageInfectedFileVirus] - uploadFileToStorage result : ", result);
+                    expectingIsDefined(result, "uploadFileToStorage - result should be defined.");
+                }).catch((err) => {
+                    _logger.log("error", "MAIN - [testUploadFileToStorageInfectedFileVirus] - uploadFileToStorage error (expected for infected file) : ", err);
+                     // assert.fail('MAIN - [testUploadFileToStorageInfectedFileVirus] - uploadFileToStorage failed.');
+                });
+
+                eventWaitPromise.then((result) => {
+                    let data = result.data;
+                    let count = result.count;
+                    _logger.log("debug", "MAIN - [testUploadFileToStorageInfectedFileVirus] rainbow_onscanreceived result : ", result);
+                    expectingIsDefined(data, "rainbow_onscanreceived - data should be defined in event's data.");
+                    switch (count) {
+                        case 1:
+                            expectingEqual(data?.action, "waiting", "rainbow_onscanreceived - action should be waiting.");
+                            break;
+                        case 2:
+                            expectingEqual(data?.action, "in_progress", "rainbow_onscanreceived - count should be in_progress.");
+                            break;
+                        case 3:
+                            expectingEqual(data?.action, "done", "rainbow_onscanreceived - count should be done.");
+                            break;
+                        default:
+                            assert.fail(new TypeError('rainbow_onscanreceived - count should not be ' + count));
+                            break;
+                    }
+                }).catch((err) => {
+                    _logger.log("error", "MAIN - [testUploadFileToStorageInfectedFileVirus] while waiting event rainbow_onscanreceived, error : ", err);
+                    expectingIsNotDefined(err, " while waiting event rainbow_onscanreceived for set - error.");
+                });
+            } catch (err) {
+                _logger.log("error", "MAIN - [testUploadFileToStorageInfectedFileVirus] CATCH Error !!! error : ", err);
+            }
+        }
+
+        testUploadFileBufferToStorage() {
+            let that = this;
+            try {
+                let fileData = {
+                    fileName: "sampleSafeFile.txt",
+                    content: "This is a safe file content for testing uploadFileBufferToStorage API."
+                };
+
+                _logger.log("debug", "MAIN - [testUploadFileBufferToStorage] - file : ", fileData.fileName);
+
+                let eventWaitPromise: Promise<any> = listenForAnEvent(rainbowSDK, "rainbow_onscanreceived", undefined, undefined, 3);
+
+                // Upload the file
+                rainbowSDK.fileStorage.uploadFileBufferToStorage(fileData).then((result) => {
+                    _logger.log("debug", "MAIN - [testUploadFileBufferToStorage] - uploadFileBufferToStorage result : ", result);
+                    expectingIsDefined(result, "uploadFileBufferToStorage - result should be defined.");
+                }).catch((err) => {
+                    _logger.log("error", "MAIN - [testUploadFileBufferToStorage] - uploadFileBufferToStorage error : ", err);
+                     assert.fail('MAIN - [testUploadFileBufferToStorage] - uploadFileBufferToStorage failed.');
+                });
+
+                eventWaitPromise.then((result) => {
+                    let data = result.data;
+                    let count = result.count;
+                    _logger.log("debug", "MAIN - [testUploadFileBufferToStorage] rainbow_onscanreceived result : ", result);
+                    expectingIsDefined(data, "rainbow_onscanreceived - data should be defined in event's data.");
+                    switch (count) {
+                        case 1:
+                            expectingEqual(data?.action, "waiting", "rainbow_onscanreceived - action should be waiting.");
+                            break;
+                        case 2:
+                            expectingEqual(data?.action, "in_progress", "rainbow_onscanreceived - count should be in_progress.");
+                            break;
+                        case 3:
+                            expectingEqual(data?.action, "done", "rainbow_onscanreceived - count should be done.");
+                            expectingEqual(toBoolean(data?.isClean), true, "rainbow_onscanreceived - file should be clean.");
+                            break;
+                        default:
+                            assert.fail(new TypeError('rainbow_onscanreceived - count should not be ' + count));
+                            break;
+                    }
+                }).catch((err) => {
+                    _logger.log("error", "MAIN - [testUploadFileBufferToStorage] while waiting event rainbow_onscanreceived, error : ", err);
+                    expectingIsNotDefined(err, " while waiting event rainbow_onscanreceived for set - error.");
+                });
+            } catch (err) {
+                _logger.log("error", "MAIN - [testUploadFileBufferToStorage] CATCH Error !!! error : ", err);
+            }
+        }
+
+        testUploadFileBufferToStorageInfectedFileVirus() {
+            let that = this;
+            try {
+                let fs = require('fs');
+                let path = require('path');
+                // Use a fixed file that is ignored by local antivirus
+                let infectedFilePath = "C:\\Projets\\RandD\\Rainbow\\CPaas\\Docs\\Antivirus\\sampleInfectedFileVirus.txt";
+                
+                _logger.log("debug", "MAIN - [testUploadFileBufferToStorageInfectedFileVirus] - file : ", infectedFilePath);
+
+                if (!fs.existsSync(infectedFilePath)) {
+                    _logger.log("error", "MAIN - [testUploadFileBufferToStorageInfectedFileVirus] - file not found : ", infectedFilePath);
+                    return;
+                }
+
+                let content = fs.readFileSync(infectedFilePath, 'utf8');
+                let fileData = {
+                    fileName: "sampleInfectedFileVirus.txt",
+                    content: content
+                };
+
+                let eventWaitPromise: Promise<any> = listenForAnEvent(rainbowSDK, "rainbow_onscanreceived", undefined, undefined, 3);
+
+                // Upload the file
+                rainbowSDK.fileStorage.uploadFileBufferToStorage(fileData).then((result) => {
+                    _logger.log("debug", "MAIN - [testUploadFileBufferToStorageInfectedFileVirus] - uploadFileBufferToStorage result : ", result);
+                    expectingIsDefined(result, "uploadFileBufferToStorage - result should be defined.");
+                }).catch((err) => {
+                    _logger.log("error", "MAIN - [testUploadFileBufferToStorageInfectedFileVirus] - uploadFileBufferToStorage error (expected for infected file) : ", err);
+                     assert.fail('MAIN - [testUploadFileBufferToStorageInfectedFileVirus] - uploadFileBufferToStorage failed.');
+                });
+
+                eventWaitPromise.then((result) => {
+                    let data = result.data;
+                    let count = result.count;
+                    _logger.log("debug", "MAIN - [testUploadFileBufferToStorageInfectedFileVirus] rainbow_onscanreceived result : ", result);
+                    expectingIsDefined(data, "rainbow_onscanreceived - data should be defined in event's data.");
+                    switch (count) {
+                        case 1:
+                            expectingEqual(data?.action, "waiting", "rainbow_onscanreceived - action should be waiting.");
+                            break;
+                        case 2:
+                            expectingEqual(data?.action, "in_progress", "rainbow_onscanreceived - count should be in_progress.");
+                            break;
+                        case 3:
+                            expectingEqual(data?.action, "done", "rainbow_onscanreceived - count should be done.");
+                            break;
+                        default:
+                            assert.fail(new TypeError('rainbow_onscanreceived - count should not be ' + count));
+                            break;
+                    }
+                }).catch((err) => {
+                    _logger.log("error", "MAIN - [testUploadFileBufferToStorageInfectedFileVirus] while waiting event rainbow_onscanreceived, error : ", err);
+                    expectingIsNotDefined(err, " while waiting event rainbow_onscanreceived for set - error.");
+                });
+            } catch (err) {
+                _logger.log("error", "MAIN - [testUploadFileBufferToStorageInfectedFileVirus] CATCH Error !!! error : ", err);
+            }
         }
 
         async testfileOwnershipChange() {
@@ -14549,6 +14713,8 @@ to='user1@pdevdv3os18f.corp.intuit.net/BANL07R9AME9X' type='get' id='e2e1'>
         "cls": "cls"
     };
 
+    let historyFound : Array<any> = [];
+
     function commandLineInteraction() {
         let tests = new Tests();
         let testsFunctions = findTests(tests);
@@ -14651,7 +14817,7 @@ to='user1@pdevdv3os18f.corp.intuit.net/BANL07R9AME9X' type='get' id='e2e1'>
                 }
             }; // */
 
-        let historyFound : Array<any> = loadHistory();
+        historyFound = loadHistory();
 
         let historyQuestion : any = [
             {
@@ -14696,17 +14862,7 @@ to='user1@pdevdv3os18f.corp.intuit.net/BANL07R9AME9X' type='get' id='e2e1'>
                         case CMDPROMPTS.quit:
                         case CMDPROMPTS.by:
                             _logger.log("info", "MAIN - exit."); //logger.colors.green(JSON.stringify(result)));
-                            writeHistory(historyFound);
-                            if (rainbowSDK) {
-                                rainbowSDK.stop().then(() => {
-                                    process.exit(0);
-                                }).catch((err) => {
-                                    _logger.log("warn", "MAIN - RainbowSDK stop failed : ", err, ", but even stop the process."); //logger.colors.green(JSON.stringify(result)));
-                                    process.exit(0);
-                                });
-                            } else {
-                                process.exit(0);
-                            }
+                            await terminateProcess(false);
                             break;
                         case CMDPROMPTS.help:
                             _logger.log("info", "MAIN - help."); //logger.colors.green(JSON.stringify(result)));
@@ -14958,7 +15114,7 @@ to='user1@pdevdv3os18f.corp.intuit.net/BANL07R9AME9X' type='get' id='e2e1'>
         }
     }
 
-    function writeHistory(history){
+    async function writeHistory(history, forceNoPrompt = false){
         let userAPPDATAPath = process.env.APPDATA || (process.platform == 'darwin' ? process.env.HOME + '/Library/Preferences' : process.env.HOME + "/.local/share") ;
         _logger.log("debug", "MAIN - (writeHistory) - userAPPDATAPath : ", userAPPDATAPath, ", process.env.HOME : ", process.env.HOME);
         function writeHistoryInFile(userHomePath : any) {
@@ -14980,6 +15136,23 @@ to='user1@pdevdv3os18f.corp.intuit.net/BANL07R9AME9X' type='get' id='e2e1'>
             if (userAPPDATAPath) {
                 userAPPDATAPath += "/Rainbow/RainbowNodeSdkDir";
                 _logger.log("debug", "MAIN - (writeHistory) - userAPPDATAPath : ", userAPPDATAPath);
+
+                if (!forceNoPrompt) {
+                    let answers = await inquirer.prompt([
+                        {
+                            type: 'confirm',
+                            name: 'saveHistory',
+                            message: 'Do you want to save the history before exiting?',
+                            default: true
+                        }
+                    ]);
+
+                    if (!answers.saveHistory) {
+                        _logger.log("debug", "MAIN - (writeHistory) - history save cancelled by user.");
+                        return;
+                    }
+                }
+
                 if (!fs.existsSync(userAPPDATAPath)) {
                     _logger.log("debug", "MAIN - (writeHistory) - does not exists and can not be created, so can do the treatment.");
                     if (fs.mkdirSync(userAPPDATAPath, {recursive: true})) {
@@ -14999,7 +15172,50 @@ to='user1@pdevdv3os18f.corp.intuit.net/BANL07R9AME9X' type='get' id='e2e1'>
             if (err.code !== 'EEXIST') throw err
         }
     }
-    
+
+    let isTerminating = false;
+    async function terminateProcess(forceNoPrompt = false) {
+        if (isTerminating) return;
+        isTerminating = true;
+
+        _logger.log("info", "MAIN - (terminateProcess) - Starting termination sequence...");
+
+        try {
+            await writeHistory(historyFound, forceNoPrompt);
+        } catch (err) {
+            _logger.log("error", "MAIN - (terminateProcess) - Error while writing history : ", err);
+        }
+
+        if (rainbowSDK) {
+            _logger.log("info", "MAIN - (terminateProcess) - Stopping Rainbow SDK...");
+            try {
+                await rainbowSDK.stop();
+                _logger.log("info", "MAIN - (terminateProcess) - Rainbow SDK stopped.");
+            } catch (err) {
+                _logger.log("warn", "MAIN - (terminateProcess) - Rainbow SDK stop failed : ", err);
+            }
+        }
+
+        _logger.log("info", "MAIN - (terminateProcess) - Exiting process.");
+        process.exit(0);
+    }
+
+    // Register signal handlers for graceful shutdown
+    process.on('SIGINT', async () => {
+        _logger.log("info", "MAIN - SIGINT received.");
+        await terminateProcess(false);
+    });
+
+    process.on('SIGTERM', async () => {
+        _logger.log("info", "MAIN - SIGTERM received.");
+        await terminateProcess(false);
+    });
+
+    process.on('SIGHUP', async () => {
+        _logger.log("info", "MAIN - SIGHUP received.");
+        await terminateProcess(false);
+    });
+
     commandLineInteraction();
 
 })();

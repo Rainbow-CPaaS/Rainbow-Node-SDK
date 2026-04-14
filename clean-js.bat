@@ -37,8 +37,11 @@ if /I "%MODE%"=="modified" (
     if exist lib del /S /Q lib\*.js.map
 )
 
-:: CRITICAL: We recreate an empty Samples/index.js so WebStorm allows the run configuration to start
+:: CRITICAL: We recreate a placeholder Samples/index.js so WebStorm allows the run configuration to start
 if not exist Samples mkdir Samples
-type nul > Samples\index.js
+echo console.log("--- CLEAN-JS PLACEHOLDER USED ---"); > Samples\index.js
 
+echo Waiting 3 seconds for file system sync...
+ping 127.0.0.1 -n 4 > nul
+echo Ready.
 echo Cleaning completed (mode: %MODE%).
