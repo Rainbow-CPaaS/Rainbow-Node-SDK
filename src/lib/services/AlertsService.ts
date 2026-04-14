@@ -537,13 +537,13 @@ class AlertsService extends GenericService{
      * @instance
      * @async
      * @category DEVICE
-     * @param {string} companyId Allows to filter device list on the companyId provided in this option. (optional) If companyId is not provided, the devices linked to all the companies that the administrator manage are returned.
-     * @param {string} userId Allows to filter device list on the userId provided in this option. (optional) If the user has no admin rights, this filter is forced to the logged in user's id (i.e. the user can only list is own devices).
-     * @param {string} deviceName Allows to filter device list on the name provided in this option. (optional) The filtering is case insensitive and on partial name match: all devices containing the provided name value will be returned(whatever the position of the match). Ex: if filtering is done on My, devices with the following names are match the filter 'My device', 'My phone', 'This is my device', ...
-     * @param {string} type Allows to filter device list on the type provided in this option. (optional, exact match, case sensitive).
-     * @param {string} tag Allows to filter device list on the tag provided in this option. (optional, exact match, case sensitive).
-     * @param {number} offset=0 Allow to specify the position of first device to retrieve (default value is 0 for the first device). Warning: if offset > total, no results are returned.
-     * @param {number} limit=100 Allow to specify the number of devices to retrieve.
+     * @param {string} [companyId] Allows to filter device list on the companyId provided in this option. (optional) If companyId is not provided, the devices linked to all the companies that the administrator manage are returned.
+     * @param {string} [userId] Allows to filter device list on the userId provided in this option. (optional) If the user has no admin rights, this filter is forced to the logged in user's id (i.e. the user can only list is own devices).
+     * @param {string} [deviceName] Allows to filter device list on the name provided in this option. (optional) The filtering is case insensitive and on partial name match: all devices containing the provided name value will be returned(whatever the position of the match). Ex: if filtering is done on My, devices with the following names are match the filter 'My device', 'My phone', 'This is my device', ...
+     * @param {string} [type] Allows to filter device list on the type provided in this option. (optional, exact match, case sensitive).
+     * @param {string} [tag] Allows to filter device list on the tag provided in this option. (optional, exact match, case sensitive).
+     * @param {number} [offset=0] Allow to specify the position of first device to retrieve (default value is 0 for the first device). Warning: if offset > total, no results are returned.
+     * @param {number} [limit=100] Allow to specify the number of devices to retrieve.
      * @description
      *    Get list of devices   <br>
      * @return {Promise<AlertDevicesData>} the result of the operation.
@@ -604,7 +604,7 @@ class AlertsService extends GenericService{
      * @instance
      * @async
      * @category DEVICE
-     * @param {string} companyId Allows to list the tags set for devices associated to the companyIds provided in this option. (optional) If companyId is not provided, the tags being set for devices linked to all the companies that the administrator manage are returned.
+     * @param {string} [companyId] Allows to list the tags set for devices associated to the companyIds provided in this option. (optional) If companyId is not provided, the tags being set for devices linked to all the companies that the administrator manage are returned.
      * @description
      *    Get list of all tags being assigned to devices of the compagnies managed by the administrator <br>
      * @return {Promise<any>} the result of the operation.

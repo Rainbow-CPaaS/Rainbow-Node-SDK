@@ -968,7 +968,7 @@ class InvitationsService extends GenericService {
          *    At the end of the process, if invited user accepts the invitation, invited user and inviting user will be searchable mutually and will be in each other rosters.  <br>
          * @param {string} email The email.
          * @param {string} lang The lang of the message.
-         * @param {string} customMessage The email text (optional).
+         * @param {string} [customMessage] The email text (optional).
          * @return {Object} A promise that contains the contact added or an object describing an error
          * 
          * 
@@ -1063,7 +1063,7 @@ class InvitationsService extends GenericService {
          * @param {string} invitedPhoneNumber Invited phone number.
          * @param {string} invitedUserId Invited Rainbow user unique ID
          * @param {string} lang The lang of the message.
-         * @param {string} customMessage The email text (optional).
+         * @param {string} [customMessage] The email text (optional).
          * @return {Object} A promise that contains the contact added or an object describing an error
          *
          *

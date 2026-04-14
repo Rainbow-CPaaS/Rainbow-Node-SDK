@@ -259,15 +259,15 @@ class AdminService extends GenericService {
       * @description
       *      This API can be used to retrieve the list of bot services. </BR>
       * @async
-      * @param {string} format="small" Allows to retrieve more or less bot services details in response. </br>
+      * @param {string} [format="small"] Allows to retrieve more or less bot services details in response. </br>
       * - small: id, name, jid, capabilities
       * - medium: id, name, jid, isRainbowSupportBot, capabilities
       * - full: id, name, jid, isRainbowSupportBot, capabilities, createdByUserId, avatarId, lastAvatarUpdateDate
       * Default value : small. Possibles values : small, medium, full
-      * @param {number} limit=100 Allow to specify the number of bot services to retrieve. Default value : 100
-      * @param {number} offset=0 Allow to specify the position of first bot to retrieve (first bot if not specified). Warning: if offset > total, no results are returned.
-      * @param {string} sortField="name" Sort bots list based on the given field. Default value : name
-      * @param {number} sortOrder=1 Specify order when sorting bots list. Default value : 1. Possibles values -1, 1
+      * @param {number} [limit=100] Allow to specify the number of bot services to retrieve. Default value : 100
+      * @param {number} [offset=0] Allow to specify the position of first bot to retrieve (first bot if not specified). Warning: if offset > total, no results are returned.
+      * @param {string} [sortField="name"] Sort bots list based on the given field. Default value : name
+      * @param {number} [sortOrder=1] Specify order when sorting bots list. Default value : 1. Possibles values -1, 1
       * @category Bots
       * @return {Promise<Object, ErrorManager>} - result
       *
@@ -793,8 +793,8 @@ class AdminService extends GenericService {
      * @param {string} toExpirationDate List join company links expiring before the given date.
      * @param {string} fromNbUsersRegistered List join company links that have been used by at least the given number (nbUsersRegistered greater than or equal to the requested toNbUsersRegistered number).
      * @param {string} toNbUsersRegistered List join company links that have been used by at less than the given number (nbUsersRegistered lower than or equal to the requested toNbUsersRegistered number).
-     * @param {number} limit=100 Allow to specify the number of items to retrieve. Default value : 100.
-     * @param {number} offset=0 Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Default value : 0.
+     * @param {number} [limit=100] Allow to specify the number of items to retrieve. Default value : 100.
+     * @param {number} [offset=0] Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Default value : 0.
      * @param {string} sortField Sort items list based on the given field.
      * @param {number} sortOrder=1 Specify order when sorting items list. Default value : 1. Possibles values : -1, 1 .
      * @category Company join companies links
@@ -1131,7 +1131,7 @@ class AdminService extends GenericService {
      * * full: id, name, status, adminEmail, companyContactId, country, website, slogan, description, size, economicActivityClassification, lastAvatarUpdateDate, lastBannerUpdateDate, avatarShape </BR>
      * Default value : small. Possibles values : small, medium, full
      * @param {string} sortField="name" Sort items list based on the given field. Default value : name
-     * @param {number} limit=100 Allow to specify the number of items to retrieve. Default value : 100.
+     * @param {number} [limit=100] Allow to specify the number of items to retrieve. Default value : 100.
      * @param {number} offset=0 Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Default value : 0
      * @param {number} sortOrder=1 Specify order when sorting items list. Default value : 1. Possibles values -1, 1
      * @param {string} name Allows to filter companies list on the given keyword(s) on field name. </BR>
@@ -1208,7 +1208,7 @@ class AdminService extends GenericService {
      * * full: id, name, status, adminEmail, companyContactId, country, website, slogan, description, size, economicActivityClassification, lastAvatarUpdateDate, lastBannerUpdateDate, avatarShape </BR>
      * Default value : small. Possibles values : small, medium, full
      * @param {string} sortField="name" Sort items list based on the given field. Default value : name
-     * @param {number} limit=100 Allow to specify the number of items to retrieve. Default value : 100.
+     * @param {number} [limit=100] Allow to specify the number of items to retrieve. Default value : 100.
      * @param {number} offset=0 Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Default value : 0
      * @param {number} sortOrder=1 Specify order when sorting items list. Default value : 1. Possibles values -1, 1
      * @param {string} name Allows to filter companies list on the given keyword(s) on field name. </BR>
@@ -1258,7 +1258,7 @@ class AdminService extends GenericService {
      * - medium: id, firstName, lastName, displayName, jid_im, jid_tel, companyId, companyName, lastUpdateDate, lastAvatarUpdateDate, isTerminated, guestMode </BR>
      * - full: id, firstName, lastName, displayName, nickName, title, jobTitle, department, emails, phoneNumbers, country, state, language, timezone, jid_im, jid_tel, companyId, companyName, lastUpdateDate, lastAvatarUpdateDate, isTerminated, guestMode, lastOfflineMailReceivedDate </BR>
      * Default value : small. Possibles values : small, medium, full
-     * @param {number} limit=100 Allow to specify the number of items to retrieve. Default value : 100.
+     * @param {number} [limit=100] Allow to specify the number of items to retrieve. Default value : 100.
      * @param {number} offset=0 Allow to specify the position of first item to retrieve (first item if not specified). Warning: if offset > total, no results are returned. Default value : 0
      */
     getCompanyAdministrators (companyId? : string, format : string = "small", limit : number = 100, offset : number = 0) {

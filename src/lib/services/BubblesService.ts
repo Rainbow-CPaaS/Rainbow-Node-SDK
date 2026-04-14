@@ -1806,14 +1806,14 @@ class Bubbles extends GenericService {
          *  Create a new bubble <br>
          * @param {string} name  The name of the bubble to create
          * @param {string} description  The description of the bubble to create
-         * @param {string } history="all" (optional) Determines the amount of history available to new users. Default is "all". Allowed values: "none", "all", "number".
-         * @param {number} p_number=0 (optional) Number of messages to retrieve when history="number". Default is 0.
-         * @param {string} visibility="private" (optional) Group visibility for search, either "private" or "public". Default is "private".
-         * @param {boolean} disableNotifications=false (optional) If true, no notifications will be sent. Default is false.
-         * @param {string} autoRegister='unlock' (optional) Determines behavior for public links. Default is "unlock". Allowed values: "unlock", "lock".
-         * @param {boolean} autoAcceptInvitation=false (optional) If true, participants are automatically added to the room. Default is false.
-         * @param {boolean} muteUponEntry=false (optional) Automatically mutes participants when they join the conference. Default is false.
-         * @param {boolean} playEntryTone=true (optional) Plays a sound when a participant enters the conference. Default is true.
+         * @param {string} [history="all"] (optional) Determines the amount of history available to new users. Default is "all". Allowed values: "none", "all", "number".
+         * @param {number} [p_number=0] (optional) Number of messages to retrieve when history="number". Default is 0.
+         * @param {string} [visibility="private"] (optional) Group visibility for search, either "private" or "public". Default is "private".
+         * @param {boolean} [disableNotifications=false] (optional) If true, no notifications will be sent. Default is false.
+         * @param {string} [autoRegister='unlock'] (optional) Determines behavior for public links. Default is "unlock". Allowed values: "unlock", "lock".
+         * @param {boolean} [autoAcceptInvitation=false] (optional) If true, participants are automatically added to the room. Default is false.
+         * @param {boolean} [muteUponEntry=false] (optional) Automatically mutes participants when they join the conference. Default is false.
+         * @param {boolean} [playEntryTone=true] (optional) Plays a sound when a participant enters the conference. Default is true.
          * @async
          * @return {Promise<Bubble, ErrorManager>}
          * @fulfil {Bubble} - Bubble object, else an ErrorManager object

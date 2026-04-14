@@ -175,8 +175,8 @@ class FileServer extends GenericService{
      *
      * @param {string} url (required) server url for request
      * @param {string} mime (required) Mime type of the blob to be created
-     * @param {number} fileSize=0 (optional) size of file to be retrieved. Default: 0
-     * @param {string} fileName (optional) name of file to be downloaded
+     * @param {number} [fileSize=0] (optional) size of file to be retrieved. Default: 0
+     * @param {string} [fileName] (optional) name of file to be downloaded
      * @param {string} uploadedDate
      * @returns {Buffer} Buffer created from data received from server
      *
@@ -247,9 +247,9 @@ class FileServer extends GenericService{
      * @param {string} destFile
      * @param {string} url (required) server url for request
      * @param {string} mime (required) Mime type of the blob to be created
-     * @param {number} fileSize=0 (optional) size of file to be retrieved. Default: 0
-     * @param {string} fileName (optional) name of file to be downloaded
-     * @param {string} uploadedDate (optional) date of the upload
+     * @param {number} [fileSize=0] (optional) size of file to be retrieved. Default: 0
+     * @param {string} [fileName] (optional) name of file to be downloaded
+     * @param {string} [uploadedDate] (optional) date of the upload
      * @returns {Buffer} Buffer created from data received from server
      *
      */
@@ -704,8 +704,8 @@ class FileServer extends GenericService{
      *
      * @param {string} url (required) server url for request
      * @param {string} mime (required) Mime type of the blob to be created
-     * @param {number} fileSize=0 (optional) size of file to be retrieved. Default: 0
-     * @param {string} fileName (optional) name of file to be downloaded
+     * @param {number} [fileSize=0] (optional) size of file to be retrieved. Default: 0
+     * @param {string} [fileName] (optional) name of file to be downloaded
      * @param {string} uploadedDate
      * @returns {Promise<{
      *                          buffer : Array<any>,
@@ -820,8 +820,8 @@ class FileServer extends GenericService{
      *
      * @param {string} url (required) server url for request
      * @param {string} mime (required) Mime type of the blob to be created
-     * @param {number} fileSize=0 (optional) size of file to be retrieved. Default: 0
-     * @param {string} fileName (optional) name of file to be downloaded
+     * @param {number} [fileSize=0] (optional) size of file to be retrieved. Default: 0
+     * @param {string} [fileName] (optional) name of file to be downloaded
      * @param {string} uploadedDate
      * @returns {Promise<Observable<any>} Observer returning a Blob created from data received from server
      *
