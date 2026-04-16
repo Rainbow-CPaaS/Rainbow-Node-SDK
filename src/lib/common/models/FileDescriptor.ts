@@ -22,6 +22,7 @@ interface IThumbnail {
     md5sum: string;
     size: number;
     wantThumbnailDate: Date;
+    typeMIME: string;
 
     isThumbnailAvailable(): boolean;
 }
@@ -31,6 +32,7 @@ class Thumbnail implements IThumbnail {
     md5sum: string;
     size: number;
     wantThumbnailDate: Date;
+    typeMIME: string;
 
     /**
      * @this FileDescriptor
@@ -41,6 +43,7 @@ class Thumbnail implements IThumbnail {
             this.md5sum = data.md5sum;
             this.size = data.size;
             this.wantThumbnailDate = data.wantThumbnailDate;
+            this.typeMIME = data.typeMIME;
         } else {
             this.availableThumbnail = false;
         }
@@ -77,9 +80,26 @@ interface IFileDescriptor {
 
     // Thumbnail:
     thumbnail: IThumbnail;
+    thumbnail500: IThumbnail;
     thumbnailPlaceholder: ThumbnailPlaceholder;
     //EXIF data:
     orientation: number;
+    md5sum: string;
+    applicationId: string;
+    expirationDate: Date;
+    language: string;
+    backendType: string;
+    isClean: boolean;
+    transcription: string;
+    transcriptionStatus: string;
+    avScanStatus: string;
+    avReport: string;
+    cantBeScannedYet: boolean;
+    original_w: number;
+    original_h: number;
+    available: boolean;
+    _lockAddViewers: boolean;
+    lastActivityDate: Date;
 
     isThumbnailPossible(): boolean;
     isImage(): boolean;
@@ -126,11 +146,26 @@ class FileDescriptor implements IFileDescriptor {
 
     // Thumbnail:
     thumbnail: IThumbnail;
+    thumbnail500: IThumbnail;
     thumbnailPlaceholder: ThumbnailPlaceholder;
     //EXIF data:
     orientation: number;
     md5sum: string;
     applicationId: string;
+    expirationDate: Date;
+    language: string;
+    backendType: string;
+    isClean: boolean;
+    transcription: string;
+    transcriptionStatus: string;
+    avScanStatus: string;
+    avReport: string;
+    cantBeScannedYet: boolean;
+    original_w: number;
+    original_h: number;
+    available: boolean;
+    _lockAddViewers: boolean;
+    lastActivityDate: Date;
 
     /**
      * @this FileDescriptor
@@ -151,7 +186,22 @@ class FileDescriptor implements IFileDescriptor {
         thumbnail: IThumbnail = null,
         orientation: number,
         md5sum : string,
-        applicationId : string
+        applicationId : string,
+        expirationDate: Date = null,
+        language: string = null,
+        backendType: string = null,
+        isClean: boolean = null,
+        transcription: string = null,
+        transcriptionStatus: string = null,
+        avScanStatus: string = null,
+        avReport: string = null,
+        cantBeScannedYet: boolean = null,
+        original_w: number = null,
+        original_h: number = null,
+        available: boolean = null,
+        _lockAddViewers: boolean = null,
+        lastActivityDate: Date = null,
+        thumbnail500: IThumbnail = null
     ) {
 
         /**
@@ -241,6 +291,7 @@ class FileDescriptor implements IFileDescriptor {
         this.state = state;
 
         this.thumbnail = new Thumbnail(thumbnail);
+        this.thumbnail500 = new Thumbnail(thumbnail500);
 
         this.fileToSend = undefined;
         this.previewBlob = undefined;
@@ -272,6 +323,21 @@ class FileDescriptor implements IFileDescriptor {
          *    applicationId the file belong to.
          */
         this.applicationId = applicationId;
+
+        this.expirationDate = expirationDate;
+        this.language = language;
+        this.backendType = backendType;
+        this.isClean = isClean;
+        this.transcription = transcription;
+        this.transcriptionStatus = transcriptionStatus;
+        this.avScanStatus = avScanStatus;
+        this.avReport = avReport;
+        this.cantBeScannedYet = cantBeScannedYet;
+        this.original_w = original_w;
+        this.original_h = original_h;
+        this.available = available;
+        this._lockAddViewers = _lockAddViewers;
+        this.lastActivityDate = lastActivityDate;
 
     };
 
@@ -372,9 +438,13 @@ class FileDescriptor implements IFileDescriptor {
 
 function FileDescriptorFactory() {
     return (id, url, ownerId, fileName, extension, typeMIME,
-            size, registrationDate, uploadedDate, dateToSort, viewers, state, thumbnail, orientation, md5sum, applicationId): FileDescriptor => {
+            size, registrationDate, uploadedDate, dateToSort, viewers, state, thumbnail, orientation, md5sum, applicationId,
+            expirationDate, language, backendType, isClean, transcription, transcriptionStatus, avScanStatus, avReport,
+            cantBeScannedYet, original_w, original_h, available, _lockAddViewers, lastActivityDate, thumbnail500): FileDescriptor => {
         return new FileDescriptor(id, url, ownerId, fileName, extension, typeMIME,
-            size, registrationDate, uploadedDate, dateToSort, viewers, state, thumbnail, orientation, md5sum, applicationId);
+            size, registrationDate, uploadedDate, dateToSort, viewers, state, thumbnail, orientation, md5sum, applicationId,
+            expirationDate, language, backendType, isClean, transcription, transcriptionStatus, avScanStatus, avReport,
+            cantBeScannedYet, original_w, original_h, available, _lockAddViewers, lastActivityDate, thumbnail500);
     };
 }
 

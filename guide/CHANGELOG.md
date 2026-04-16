@@ -18,6 +18,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Fix issue when a reconnection is already in progress.
 
 #### Added
+-   Add missing fields to `FileDescriptor` and its factory to match server data: `expirationDate`, `language`, `backendType`, `isClean`, `transcription`, `transcriptionStatus`, `avScanStatus`, `avReport`, `cantBeScannedYet`, `original_w`, `original_h`, `available`, `_lockAddViewers`, `lastActivityDate`, `thumbnail500`, and `typeMIME` in `Thumbnail`.
 -   Add `setRoomPassword` and `deleteRoomPassword` methods in `BubblesService` to manage room passwords (RQRAINB-13820).
 -   Add `setRoomPassword` and `deleteRoomPassword` methods in `RESTService` to call room password management endpoints (RQRAINB-13820).
 -   Add `testRoomPasswordManagement` in `Samples/index.ts` to verify room password management flow (RQRAINB-13820).
@@ -40,6 +41,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Added `waitEvent` method to `GenericService.ts` which takes an event name, a timeout (default 30s), a test method (predicate) to identify the last event and a validation method (returning a Promise) for the received data. It returns the data received in the event callback on success, or rejects with an error on timeout.
 
 #### Changed
+-   Update `downloadFile` and `downloadFileInPath` in `FileStorageService` to include a security check that blocks infected files by default. A new optional parameter `acceptToDownloadInfectedFile` (default `false`) allows downloading these files if explicitly requested.
 -   Update `HttpManager` and `HttpService` to support custom callbacks for mocked REST requests, ensuring they work both with and without the request rate limiter.
 -   Update `BubblesService::registerGuestForAPublicURL` with new parameters emails, phoneNumbers, country, state, language, timezone, visibility, customData, companyNameOfGuest, roomPassword.
 -   Update `BubblesService::joinBubbleByOpenInviteId` with new parameters roomPassword. The method's return also changed by an object instead of string.

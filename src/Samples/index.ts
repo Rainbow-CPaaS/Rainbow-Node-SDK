@@ -4932,6 +4932,62 @@ let expressEngine = undefined;
             }
         }
 
+        async testdownloadFileInfected() {
+            let that = this;
+            // To be used with vincent04 on .NET platform.
+            rainbowSDK.fileStorage.retrieveFileDescriptorsListPerOwner().then(async (fileDescriptorsListed: any) => {
+                _logger.log("debug", "Main - [testdownloadFileInfected], retrieveFileDescriptorsListPerOwner - result : ", fileDescriptorsListed);
+                for (let fileDescriptor of fileDescriptorsListed) {
+                    _logger.log("debug", "Main - [testdownloadFileInfected] - file - ", fileDescriptor);
+                    _logger.log("debug", `Main - [testdownloadFileInfected] Checking file ${fileDescriptor.fileName} ...`);
+                    if (!fs.existsSync("c:\\temp\\" + fileDescriptor.fileName) || true) {
+                        _logger.log("debug", `Main - [testdownloadFileInfected] TEST Downloading file ${fileDescriptor.fileName} ...`);
+                        if (fileDescriptor.fileName==="sampleInfectedFileVirus.txt") {
+                            _logger.log("debug", `Main - [testdownloadFileInfected] Will Download file ${fileDescriptor.fileName} : `, fileDescriptor);
+                            // continue;
+                            let file: any;
+                            file = await rainbowSDK.fileStorage.downloadFile(fileDescriptor);
+                            _logger.log("debug", `Main - [testdownloadFileInfected] Downloading file ${fileDescriptor.fileName} done`);
+                            if (file) {
+                                try {
+                                    let blobArray = file.buffer;
+
+                                    let writeStream = createWriteStream("c:\\temp\\" + fileDescriptor.fileName);
+
+                                    writeStream.on('error', () => {
+                                        _logger.log("debug", "Main - [testdownloadFileInfected] WriteStream error event");
+                                    });
+                                    writeStream.on('drain', () => {
+                                        _logger.log("debug", "Main - [testdownloadFileInfected] WriteStream drain event");
+                                    });
+
+                                    for (let index = 0; index < blobArray.length; index++) {
+                                        if (blobArray[index]) {
+                                            _logger.log("debug", "MAIN - [testdownloadFileInfected] >writeAvailableChunksInDisk : Blob " + index + " available");
+                                            //fd.chunkWrittenInDisk = index;
+                                            writeStream.write(new Buffer(blobArray[index]));
+                                            blobArray[index] = null;
+                                        } else {
+                                            _logger.log("debug", "MAIN - [testdownloadFileInfected] >writeAvailableChunksInDisk : Blob " + index + " NOT available");
+                                            break;
+                                        }
+                                    }
+                                    _logger.log("debug", `Main - [testdownloadFileInfected] The file ${fileDescriptor.fileName} was saved!`);
+                                } catch (e) {
+                                    _logger.log("debug", `Main - [testdownloadFileInfected] Error saving file ${fileDescriptor.fileName} from Rainbow`, e);
+                                }
+                            } else {
+                                _logger.log("error", `Main - [testdownloadFileInfected] Error downloading file ${fileDescriptor.fileName}`);
+                            }
+                        }
+                    } else {
+                        _logger.log("debug", `MAIN - [testdownloadFileInfected] File ${fileDescriptor.fileName} already downloaded`)
+                    }
+                }
+            });
+
+        }
+
         async testdownloadFileInPath() {
             let that = this;
             for (let fd of rainbowSDK.fileStorage.getAllFilesReceived()) {

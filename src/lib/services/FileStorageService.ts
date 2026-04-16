@@ -720,12 +720,13 @@ class FileStorage extends GenericService{
      * @async
      * @instance
      * @param {FileDescriptor} fileDescriptor   The description of the file to download (short file descriptor)
+     * @param {boolean} [acceptToDownloadInfectedFile=false] (optional) If true, allow to download an infected file. Default is false.
      * @description
      *    Allow to download a file from the server <br>
      *    Return a promise <br>
      * @return {} Object with : Array of buffer Binary data of the file type,  Mime type, fileSize: fileSize, Size of the file , fileName: fileName The name of the file  Return the file received
      */
-    async downloadFile(fileDescriptor : any) {
+    async downloadFile(fileDescriptor : any, acceptToDownloadInfectedFile: boolean = false) {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(downloadFile) fileDescriptor.id : ", that._logger.stripStringForLogs(fileDescriptor?.id));
 
@@ -741,6 +742,12 @@ class FileStorage extends GenericService{
                     label: "Parameter 'fileDescriptor' is missing or null"
                 }); // */
             } else {
+
+                if (!acceptToDownloadInfectedFile && fileDescriptor.isClean === false && fileDescriptor.avScanStatus === "done") {
+                    let errorMessage = "The file " + fileDescriptor.fileName + " is infected and cannot be downloaded without an explicte accept with acceptToDownloadInfectedFile setted to true.";
+                    that._logger.log(that.ERROR, LOG_ID + "(downloadFile) " + errorMessage);
+                    return reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage, errorMessage));
+                }
 
                 that._logger.log(that.INTERNAL, LOG_ID + "(downloadFile) Try to get a file " + fileDescriptor.filename + "/" + fileDescriptor.fileName );
 
@@ -776,6 +783,7 @@ class FileStorage extends GenericService{
      * @async
      * @param {FileDescriptor} fileDescriptor   The description of the file to download (short file descriptor)
      * @param {string} path If provided then the retrieved file is stored in it. If not provided then
+     * @param {boolean} [acceptToDownloadInfectedFile=false] (optional) If true, allow to download an infected file. Default is false.
      * @async
      * @description
      *    Allow to download a file from the server and store it in provided path. <br>
@@ -792,7 +800,7 @@ class FileStorage extends GenericService{
      *  Warning !!! : <br>
      *  take care to not log this last data which can be very important for big files. You can test if the value is < 101. <br>
      */
-    async downloadFileInPath(fileDescriptor:any, path: string): Promise<Observable<any>> {
+    async downloadFileInPath(fileDescriptor:any, path: string, acceptToDownloadInfectedFile: boolean = false): Promise<Observable<any>> {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(downloadFileInPath) fileDescriptor.id : ", that._logger.stripStringForLogs(fileDescriptor?.id));
 
@@ -802,6 +810,12 @@ class FileStorage extends GenericService{
             // return(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
             return (Promise.reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage, errorMessage)));
         } else {
+
+            if (!acceptToDownloadInfectedFile && fileDescriptor.isClean === false && fileDescriptor.avScanStatus === "done") {
+                let errorMessage = "The file " + fileDescriptor.fileName + " is infected and cannot be downloaded without an explicte accept with acceptToDownloadInfectedFile setted to true.";
+                that._logger.log(that.ERROR, LOG_ID + "(downloadFileInPath) " + errorMessage);
+                return (Promise.reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage, errorMessage)));
+            }
 
             that._logger.log(that.INTERNAL, LOG_ID + "(downloadFileInPath) Try to get a file name : " + fileDescriptor.filename + " or " + fileDescriptor.fileName);
 
@@ -1535,7 +1549,9 @@ class FileStorage extends GenericService{
             }
 
             let fd =  fileDescriptorFactory()(data.id, url, data.ownerId, data.fileName, data.extension, data.typeMIME,
-                data.size, data.registrationDate, data.uploadedDate, data.dateToSort, viewers, state, data.thumbnail, data.orientation, data.md5sum, data.applicationId );
+                data.size, data.registrationDate, data.uploadedDate, data.dateToSort, viewers, state, data.thumbnail, data.orientation, data.md5sum, data.applicationId,
+                data.expirationDate, data.language, data.backendType, data.isClean, data.transcription, data.transcriptionStatus, data.avScanStatus, data.avReport,
+                data.cantBeScannedYet, data.original_w, data.original_h, data.available, data._lockAddViewers, data.lastActivityDate, data.thumbnail500 );
 
             return fd;
         }
@@ -1672,7 +1688,7 @@ class FileStorage extends GenericService{
                     // Call the getAllFileDescritor promise
                     getAllFileDescriptorPromise
                         .then((responsesData) => {
-                            // Contact all response in a single array
+                            // Contat all response in a single array
                             responsesData.forEach((responseData) => {
                                 fileDescriptorsData = fileDescriptorsData.concat(responseData);
                             });
