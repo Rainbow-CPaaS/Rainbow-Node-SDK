@@ -24,6 +24,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add `testRoomPasswordManagement` in `Samples/index.ts` to verify room password management flow (RQRAINB-13820).
 -   Add `testUploadFileBufferToConversation` in `Samples/index.ts` to verify the file upload from a buffer.
 -   Add `uploadFileBufferToConversation` in `FileStorageService` to allow adding a file (created from a text content) to an existing conversation.
+-   Add `uploadFileBufferToStorage` in `FileStorageService` to allow adding a file (created from a text content) to Rainbow storage.
 -   Add `rainbow_onbubbleroompasswordreceived` event fired when a password is setted for public links in a bubble.
 -   Add `rainbow_onscanreceived` event fired when a `scan` event is received from server.
 -   Added a mechanism to wait for the antivirus scan completion event (`evt_internal_vscanreceived`) after a file upload in `ConversationsService`, ensuring the file is clean before completing the upload.
@@ -50,6 +51,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Update to use `setInterval` instead of `timeOutManager.setTimeout` to avoid the accumulation of `setTimeout` contexts for XMPP idleTimer.
 -   Update `Events.ts` to use the custom Emitter to emit/receive events.
 -   Update JsDoc with optional parameters for service files in `src/lib/services/` (`ImsService.ts`, `AlertsService.ts`, `BubblesService.ts`, `FileServerService.ts`, `InvitationsService.ts`, `AdminService.ts`, `ContactsService.ts`, etc.).
+-   Remove library `Request` from project. 
 
 ### [2.43.1] - 2026-02-27
 #### Removed

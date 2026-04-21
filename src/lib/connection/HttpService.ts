@@ -1,6 +1,5 @@
 "use strict";
 
-//let unirest = require("unirest");
 import {callerName, logEntryExit, pause, stackTrace} from "../common/Utils";
 import {TimeOutManager} from "../common/TimeOutManager";
 import {HttpManager, RequestForQueue} from "./HttpManager";
@@ -10,8 +9,6 @@ import {window} from "rxjs";
 
 require('http').globalAgent.maxSockets = 999;
 
-const Request = require("request");
-//const Request = require("http").request;
 const packageVersion = require("../../package.json");
 
 //let http = require('http');
@@ -38,12 +35,9 @@ function urlParse(urlStr, base = undefined) {
 }
 const EventEmitter = require("events").EventEmitter;
 const humanize = require("humanize-number");
-//const chalk = require("chalk");
 import chalk from 'chalk';
 import {HTTPoverXMPP} from "../services/HTTPoverXMPPService.js";
 import {LevelLogs} from "../common/LevelLogs";
-
-const debugHttp = require("debug-http");
 
 //import HttpAgent, { HttpsAgent } from "agentkeepalive";
 //const HttpAgent = require('agentkeepalive');
@@ -360,7 +354,7 @@ class HTTPService extends LevelLogs{
                     });
         }
 
-        if (that._logger.logHttp) {
+                if (that._logger.logHttp) {
 
             try {
                 extendObjForGot.handlers = [
@@ -383,8 +377,6 @@ class HTTPService extends LevelLogs{
                 //that._logger.log(that.DEBUG, LOG_ID, chalk.red("DEBUG CONSOLE")  , {acc:'error', data:'ERR:'+error+' URL:'+url+' L:'+line});
                 // fnerror(...arguments);
             };
-            debugHttp(debugHandler);
-            Request.debug = true;
         } else {
             try {
                 that.mergedGot = got;
@@ -607,204 +599,171 @@ safeJsonParse(str) {
                 that._logger.log(that.HTTP, LOG_ID + "(_getUrlRaw) url : ", (urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-correlation-id : ", xRainbowRequestNodeId);
                 that._logger.log(that.INTERNAL, LOG_ID + "(_getUrlRaw) url : ", urlEncoded, ", headers : ", headers, ", params : ", params);
 
-                if (that._options.restOptions.useGotLibForHttp) {
-                    let attemptCount = 0;
-                    const newAliveAgent: any = () => {
-                        let req = {
-                            prefixUrl: "",
+                let attemptCount = 0;
+                const newAliveAgent: any = () => {
+                    let req = {
+                        prefixUrl: "",
 /*                            agent: {
-                                http: undefined,
-                                https: undefined
-                                //http: agent,
-                                //https: agent
+                            http: undefined,
+                            https: undefined
+                            //http: agent,
+                            //https: agent
 
-                                //http: new HttpAgent(liveOption),
-                                //https: new HttpsAgent(liveOption)
-                                //
-                            },
+                            //http: new HttpAgent(liveOption),
+                            //https: new HttpsAgent(liveOption)
+                            //
+                        },
 // */
-                            headers,
-                            searchParams: params,
-                            retry: {
-                                limit: nbRetryBeforeFailed,
-                                // calculateDelay: ({retryObject}) => {
-                                //     /* interface RetryObject {
-                                //         attemptCount: number;
-                                //         retryOptions: RetryOptions;
-                                //         error: RequestError;
-                                //         computedValue: number;
-                                //         retryAfter?: number;
-                                //     } of retryObject */
-                                //     that._logger.warn("internal", LOG_ID + "(get) retry HTTP GET, timeBetweenRetry : ", timeBetweenRetry, "ms , retryObject : ", retryObject);
-                                //     //return retryObject;
-                                //     return timeBetweenRetry;
-                                // },
-                                //calculateDelay: ({computedValue}) => computedValue,
-                                calculateDelay: ({computedValue}) => {
-                                    let noise = 100;
-                                    //let computedValueCalculated = ((2 ** (attemptCount - 1)) * 1000) + noise;
-                                    let shouldBeRun = (nbRetryBeforeFailed - attemptCount) > 1 ? 1:0;
-                                    let computedValueCalculated = (shouldBeRun * (timeBetweenRetry + noise));
-                                    attemptCount++;
-                                    that._logger.warn("warn", LOG_ID + "(get) (calculateDelay) retry HTTP GET, nbRetryBeforeFailed : ", nbRetryBeforeFailed, ",attemptCount : ", attemptCount, ", timeBetweenRetry : ", timeBetweenRetry, "ms , computedValue : ", computedValue, ", computedValueCalculated : ", computedValueCalculated);
-                                    return computedValueCalculated;
-                                },
-                                methods: [
-                                    'GET',
-                                    'PUT',
-                                    'HEAD',
-                                    'DELETE',
-                                    'OPTIONS',
-                                    'TRACE'
-                                ],
-                                statusCodes: [
-                                    408,
-                                    413,
-                                    429,
-                                    500,
-                                    502,
-                                    503,
-                                    504,
-                                    521,
-                                    522,
-                                    524
-                                ],
-                                errorCodes: [
-                                    'ETIMEDOUT',
-                                    'ECONNRESET',
-                                    'EADDRINUSE',
-                                    'ECONNREFUSED',
-                                    'EPIPE',
-                                    'ENOTFOUND',
-                                    'ENETUNREACH',
-                                    'EAI_AGAIN'
-                                ],
-                                maxRetryAfter: undefined,
-                                // backoffLimit: Number.POSITIVE_INFINITY,
-                                noise: 100
+                        headers,
+                        searchParams: params,
+                        retry: {
+                            limit: nbRetryBeforeFailed,
+                            // calculateDelay: ({retryObject}) => {
+                            //     /* interface RetryObject {
+                            //         attemptCount: number;
+                            //         retryOptions: RetryOptions;
+                            //         error: RequestError;
+                            //         computedValue: number;
+                            //         retryAfter?: number;
+                            //     } of retryObject */
+                            //     that._logger.warn("internal", LOG_ID + "(get) retry HTTP GET, timeBetweenRetry : ", timeBetweenRetry, "ms , retryObject : ", retryObject);
+                            //     //return retryObject;
+                            //     return timeBetweenRetry;
+                            // },
+                            //calculateDelay: ({computedValue}) => computedValue,
+                            calculateDelay: ({computedValue}) => {
+                                let noise = 100;
+                                //let computedValueCalculated = ((2 ** (attemptCount - 1)) * 1000) + noise;
+                                let shouldBeRun = (nbRetryBeforeFailed - attemptCount) > 1 ? 1:0;
+                                let computedValueCalculated = (shouldBeRun * (timeBetweenRetry + noise));
+                                attemptCount++;
+                                that._logger.warn("warn", LOG_ID + "(get) (calculateDelay) retry HTTP GET, nbRetryBeforeFailed : ", nbRetryBeforeFailed, ",attemptCount : ", attemptCount, ", timeBetweenRetry : ", timeBetweenRetry, "ms , computedValue : ", computedValue, ", computedValueCalculated : ", computedValueCalculated);
+                                return computedValueCalculated;
                             },
-                            hooks: {
-                                afterResponse: [
-                                    (response, retryWithMergedOptions) => {
-                                        let body;
-                                        let xRainbowRequestId = response?.headers["x-rainbow-request-id"];
-                                        that._logger.log(that.HTTP, LOG_ID + "(_getUrlRaw) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                            methods: [
+                                'GET',
+                                'PUT',
+                                'HEAD',
+                                'DELETE',
+                                'OPTIONS',
+                                'TRACE'
+                            ],
+                            statusCodes: [
+                                408,
+                                413,
+                                429,
+                                500,
+                                502,
+                                503,
+                                504,
+                                521,
+                                522,
+                                524
+                            ],
+                            errorCodes: [
+                                'ETIMEDOUT',
+                                'ECONNRESET',
+                                'EADDRINUSE',
+                                'ECONNREFUSED',
+                                'EPIPE',
+                                'ENOTFOUND',
+                                'ENETUNREACH',
+                                'EAI_AGAIN'
+                            ],
+                            maxRetryAfter: undefined,
+                            // backoffLimit: Number.POSITIVE_INFINITY,
+                            noise: 100
+                        },
+                        hooks: {
+                            afterResponse: [
+                                (response, retryWithMergedOptions) => {
+                                    let body;
+                                    let xRainbowRequestId = response?.headers["x-rainbow-request-id"];
+                                    that._logger.log(that.HTTP, LOG_ID + "(_getUrlRaw) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
 
-                                        if (response) {
-                                            if (response?.statusCode) {
-                                                // that._logger.log(that.INFO, LOG_ID + "(_getUrlRaw) HTTP statusCode defined : ", response.statusCode);
-                                                if (response.statusCode >= 200 && response.statusCode <= 400) {
-                                                    //if (response) {
-                                                    //response.body = body;
-                                                    //}
-                                                    resolve(response);
-                                                } else {
-                                                    that._logger.warn("warn", LOG_ID + "(_getUrlRaw) HTTP response.code != 200");
-                                                    that._logger.warn("internal", LOG_ID + "(_getUrlRaw) HTTP response.code != 200 , bodyjs : ", response?.body);
-                                                    reject({
-                                                        code: -1,
-                                                        msg: "ErrorManager while requesting",
-                                                        details: response,
-                                                        headers: response ? response.headers:undefined
-                                                    });
-                                                }
+                                    if (response) {
+                                        if (response?.statusCode) {
+                                            // that._logger.log(that.INFO, LOG_ID + "(_getUrlRaw) HTTP statusCode defined : ", response.statusCode);
+                                            if (response.statusCode >= 200 && response.statusCode <= 400) {
+                                                //if (response) {
+                                                //response.body = body;
+                                                //}
+                                                resolve(response);
                                             } else {
+                                                that._logger.warn("warn", LOG_ID + "(_getUrlRaw) HTTP response.code != 200");
+                                                that._logger.warn("internal", LOG_ID + "(_getUrlRaw) HTTP response.code != 200 , bodyjs : ", response?.body);
                                                 reject({
                                                     code: -1,
-                                                    msg: "ErrorManager while requesting _getUrlRaw no statusCode returned",
-                                                    details: undefined,
-                                                    headers: undefined
+                                                    msg: "ErrorManager while requesting",
+                                                    details: response,
+                                                    headers: response ? response.headers:undefined
                                                 });
                                             }
                                         } else {
                                             reject({
                                                 code: -1,
-                                                msg: "ErrorManager while requesting _getUrlRaw no response returned",
+                                                msg: "ErrorManager while requesting _getUrlRaw no statusCode returned",
                                                 details: undefined,
                                                 headers: undefined
                                             });
                                         }
-                                        return response;
+                                    } else {
+                                        reject({
+                                            code: -1,
+                                            msg: "ErrorManager while requesting _getUrlRaw no response returned",
+                                            details: undefined,
+                                            headers: undefined
+                                        });
                                     }
-                                ],
-                                beforeRetry: [
-                                    error => {
-                                        // This will be called on `retryWithMergedOptions(...)`
-                                    }
-                                ]
-                            },
-                        };
-
-                        /*
-                        if (responseType != "") {
-                            req["responseType"] = responseType; // 'arraybuffer'
-                        } // */
-
-                        return req;
+                                    return response;
+                                }
+                            ],
+                            beforeRetry: [
+                                error => {
+                                    // This will be called on `retryWithMergedOptions(...)`
+                                }
+                            ]
+                        },
                     };
 
-                    try {
+                    /*
+                    if (responseType != "") {
+                        req["responseType"] = responseType; // 'arraybuffer'
+                    } // */
 
-                        const secondInstance = that.mergedGot.extend({mutableDefaults: true});
-                        /*secondInstance.defaults.options.hooks = defaults.hooks;
-                        secondInstance.defaults.options.retry = defaults.retry;
-                        secondInstance.defaults.options.pagination = defaults.pagination; // */
+                    return req;
+                };
 
-                        let getOptions = newAliveAgent();
+                try {
 
-                        let response = await secondInstance.get(urlEncoded, getOptions).catch((error) => {
-                            that._logger.warn("internal", LOG_ID + "(_getUrlRaw) sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " error.code : ", error?.code, ", error.message : ", error?.message, ", urlEncoded : ", urlEncoded);
-                            return that.treatSystemError("GET Url Raw", error, reject);
-                        });
-                        that._logger.log(that.DEBUG, LOG_ID + "(_getUrlRaw) done.");
+                    const secondInstance = that.mergedGot.extend({mutableDefaults: true});
+                    /*secondInstance.defaults.options.hooks = defaults.hooks;
+                    secondInstance.defaults.options.retry = defaults.retry;
+                    secondInstance.defaults.options.pagination = defaults.pagination; // */
 
-                        /*
-                        if (response?.headers && (response?.headers["content-type"]).indexOf("application/json") === 0 ) {
-                            resolve(JSON.parse(response?.body));
-                        } else {
-                            resolve(response?.rawBody);
-                        } // */
-                    } catch (error) {
-                        //
-                        //An error to be thrown when the server response code is not 2xx nor 3xx if `options.followRedirect` is `true`, but always except for 304.
-                        //Includes a `response` property. Contains a `code` property with `ERR_NON_2XX_3XX_RESPONSE` or a more specific failure code.
-                        //
-                        that._logger.warn("warn", LOG_ID + "(_getUrlRaw) HTTP error.");
-                        that._logger.warn("internal", LOG_ID + "(_getUrlRaw) HTTP error statusCode : ", error?.statusCode);
-                    }
+                    let getOptions = newAliveAgent();
 
-                    return;
+                    let response = await secondInstance.get(urlEncoded, getOptions).catch((error) => {
+                        that._logger.warn("internal", LOG_ID + "(_getUrlRaw) sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " error.code : ", error?.code, ", error.message : ", error?.message, ", urlEncoded : ", urlEncoded);
+                        return that.treatSystemError("GET Url Raw", error, reject);
+                    });
+                    that._logger.log(that.DEBUG, LOG_ID + "(_getUrlRaw) done.");
+
+                    /*
+                    if (response?.headers && (response?.headers["content-type"]).indexOf("application/json") === 0 ) {
+                        resolve(JSON.parse(response?.body));
+                    } else {
+                        resolve(response?.rawBody);
+                    } // */
+                } catch (error) {
+                    //
+                    //An error to be thrown when the server response code is not 2xx nor 3xx if `options.followRedirect` is `true`, but always except for 304.
+                    //Includes a `response` property. Contains a `code` property with `ERR_NON_2XX_3XX_RESPONSE` or a more specific failure code.
+                    //
+                    that._logger.warn("warn", LOG_ID + "(_getUrlRaw) HTTP error.");
+                    that._logger.warn("internal", LOG_ID + "(_getUrlRaw) HTTP error statusCode : ", error?.statusCode);
                 }
 
-
-                let request = Request({
-                    url: urlEncoded,
-                    method: "GET",
-                    headers: headers,
-                    //params: params,
-                    proxy: (that.proxy && that.proxy.isProxyConfigured) ? that.proxy.proxyURL:null,
-                    agentOptions: {
-                        secureProtocol: that.proxy.secureProtocol
-                    },
-                    forever: true
-                }, (error, response, body) => {
-                    //that._logger.log(that.INFO, LOG_ID + "(_getUrlRaw) successfull");
-                    let xRainbowRequestId = response?.headers["x-rainbow-request-id"];
-                    that._logger.log(that.HTTP, LOG_ID + "(_getUrlRaw) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
-                    if (error) {
-                        return reject({
-                            code: -1,
-                            msg: "ErrorManager while requesting",
-                            details: error,
-                            headers: response ? response.headers:undefined
-                        });
-                    } else {
-                        //if (response) {
-                        //  response.body = body;
-                        //}
-                        resolve(response);
-                    }
-                });
             } catch (err) {
                 that._logger.log(that.ERROR, LOG_ID + "(_getUrlRaw) HTTP ErrorManager");
                 that._logger.log(that.INTERNALERROR, LOG_ID + "(_getUrlRaw) HTTP ErrorManager : ", err);
@@ -855,196 +814,160 @@ safeJsonParse(str) {
                 that._logger.log(that.INTERNAL, LOG_ID + "(_headUrlRaw) url : ", urlEncoded, ", headers : ", headers);
 
 
-                if (that._options.restOptions.useGotLibForHttp) {
-                    let attemptCount = 0;
-                    const newAliveAgent: any = () => {
-                        let req = {
-                            prefixUrl: "",
+                let attemptCount = 0;
+                const newAliveAgent: any = () => {
+                    let req = {
+                        prefixUrl: "",
 /*                            agent: {
-                                http: undefined,
-                                https: undefined
-                                //http: agent,
-                                //https: agent
+                            http: undefined,
+                            https: undefined
+                            //http: agent,
+                            //https: agent
 
-                                //http: new HttpAgent(liveOption),
-                                //https: new HttpsAgent(liveOption)
-                                //
-                            },
+                            //http: new HttpAgent(liveOption),
+                            //https: new HttpsAgent(liveOption)
+                            //
+                        },
 // */                            headers,
-                            //body,
-                            //searchParams: params,
-                            retry: {
-                                limit: nbRetryBeforeFailed,
-                                // calculateDelay: ({retryObject}) => {
-                                //     /* interface RetryObject {
-                                //         attemptCount: number;
-                                //         retryOptions: RetryOptions;
-                                //         error: RequestError;
-                                //         computedValue: number;
-                                //         retryAfter?: number;
-                                //     } of retryObject */
-                                //     that._logger.warn("internal", LOG_ID + "(head) retry HTTP HEAD, retryObject : ", retryObject);
-                                //     //return retryObject;
-                                //     return 1000;
-                                // },
-                                //calculateDelay: ({computedValue}) => computedValue,
-                                calculateDelay: ({computedValue}) => {
-                                    let noise = 100;
-                                    //let computedValueCalculated = ((2 ** (attemptCount - 1)) * 1000) + noise;
-                                    let shouldBeRun = (nbRetryBeforeFailed - attemptCount) > 1 ? 1:0;
-                                    let computedValueCalculated = (shouldBeRun * (timeBetweenRetry + noise));
-                                    attemptCount++;
-                                    that._logger.warn("warn", LOG_ID + "(get) (calculateDelay) retry HTTP GET, nbRetryBeforeFailed : ", nbRetryBeforeFailed, ",attemptCount : ", attemptCount, ", timeBetweenRetry : ", timeBetweenRetry, "ms , computedValue : ", computedValue, ", computedValueCalculated : ", computedValueCalculated);
-                                    return computedValueCalculated;
-                                },
-                                methods: [
-                                    'GET',
-                                    'PUT',
-                                    'HEAD',
-                                    'DELETE',
-                                    'OPTIONS',
-                                    'TRACE'
-                                ],
-                                statusCodes: [
-                                    408,
-                                    413,
-                                    429,
-                                    500,
-                                    502,
-                                    503,
-                                    504,
-                                    521,
-                                    522,
-                                    524
-                                ],
-                                errorCodes: [
-                                    'ETIMEDOUT',
-                                    'ECONNRESET',
-                                    'EADDRINUSE',
-                                    'ECONNREFUSED',
-                                    'EPIPE',
-                                    'ENOTFOUND',
-                                    'ENETUNREACH',
-                                    'EAI_AGAIN'
-                                ],
-                                maxRetryAfter: undefined,
-                                // backoffLimit: Number.POSITIVE_INFINITY,
-                                noise: 100
+                        //body,
+                        //searchParams: params,
+                        retry: {
+                            limit: nbRetryBeforeFailed,
+                            // calculateDelay: ({retryObject}) => {
+                            //     /* interface RetryObject {
+                            //         attemptCount: number;
+                            //         retryOptions: RetryOptions;
+                            //         error: RequestError;
+                            //         computedValue: number;
+                            //         retryAfter?: number;
+                            //     } of retryObject */
+                            //     that._logger.warn("internal", LOG_ID + "(head) retry HTTP HEAD, retryObject : ", retryObject);
+                            //     //return retryObject;
+                            //     return 1000;
+                            // },
+                            //calculateDelay: ({computedValue}) => computedValue,
+                            calculateDelay: ({computedValue}) => {
+                                let noise = 100;
+                                //let computedValueCalculated = ((2 ** (attemptCount - 1)) * 1000) + noise;
+                                let shouldBeRun = (nbRetryBeforeFailed - attemptCount) > 1 ? 1:0;
+                                let computedValueCalculated = (shouldBeRun * (timeBetweenRetry + noise));
+                                attemptCount++;
+                                that._logger.warn("warn", LOG_ID + "(get) (calculateDelay) retry HTTP GET, nbRetryBeforeFailed : ", nbRetryBeforeFailed, ",attemptCount : ", attemptCount, ", timeBetweenRetry : ", timeBetweenRetry, "ms , computedValue : ", computedValue, ", computedValueCalculated : ", computedValueCalculated);
+                                return computedValueCalculated;
                             },
-                            hooks: {
-                                afterResponse: [
-                                    (response, retryWithMergedOptions) => {
-                                        let body;
-                                        let xRainbowRequestId = response?.headers["x-rainbow-request-id"];
-                                        that._logger.log(that.HTTP, LOG_ID + "(_headUrlRaw) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                            methods: [
+                                'GET',
+                                'PUT',
+                                'HEAD',
+                                'DELETE',
+                                'OPTIONS',
+                                'TRACE'
+                            ],
+                            statusCodes: [
+                                408,
+                                413,
+                                429,
+                                500,
+                                502,
+                                503,
+                                504,
+                                521,
+                                522,
+                                524
+                            ],
+                            errorCodes: [
+                                'ETIMEDOUT',
+                                'ECONNRESET',
+                                'EADDRINUSE',
+                                'ECONNREFUSED',
+                                'EPIPE',
+                                'ENOTFOUND',
+                                'ENETUNREACH',
+                                'EAI_AGAIN'
+                            ],
+                            maxRetryAfter: undefined,
+                            // backoffLimit: Number.POSITIVE_INFINITY,
+                            noise: 100
+                        },
+                        hooks: {
+                            afterResponse: [
+                                (response, retryWithMergedOptions) => {
+                                    let body;
+                                    let xRainbowRequestId = response?.headers["x-rainbow-request-id"];
+                                    that._logger.log(that.HTTP, LOG_ID + "(_headUrlRaw) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
 
-                                        if (response) {
-                                            if (response?.statusCode) {
-                                                // that._logger.log(that.INFO, LOG_ID + "(_headUrlRaw) HTTP statusCode defined : ", response.statusCode);
-                                                if (response.statusCode >= 200 && response.statusCode <= 400) {
-                                                    //if (response) {
-                                                    //    response.body = body;
-                                                    //}
-                                                    resolve(response);
-                                                } else {
-                                                    that._logger.warn("warn", LOG_ID + "(_headUrlRaw) HTTP response.code != 200");
-                                                    that._logger.warn("internal", LOG_ID + "(_headUrlRaw) HTTP response.code != 200 , bodyjs : ", response?.body);
-                                                    reject({
-                                                        code: -1,
-                                                        msg: "ErrorManager while requesting _headUrlRaw",
-                                                        details: response,
-                                                        headers: response ? response.headers:undefined
-                                                    });
-                                                }
+                                    if (response) {
+                                        if (response?.statusCode) {
+                                            // that._logger.log(that.INFO, LOG_ID + "(_headUrlRaw) HTTP statusCode defined : ", response.statusCode);
+                                            if (response.statusCode >= 200 && response.statusCode <= 400) {
+                                                //if (response) {
+                                                //    response.body = body;
+                                                //}
+                                                resolve(response);
                                             } else {
+                                                that._logger.warn("warn", LOG_ID + "(_headUrlRaw) HTTP response.code != 200");
+                                                that._logger.warn("internal", LOG_ID + "(_headUrlRaw) HTTP response.code != 200 , bodyjs : ", response?.body);
                                                 reject({
                                                     code: -1,
-                                                    msg: "ErrorManager while requesting _headUrlRaw no statusCode returned",
-                                                    details: undefined,
-                                                    headers: undefined
+                                                    msg: "ErrorManager while requesting _headUrlRaw",
+                                                    details: response,
+                                                    headers: response ? response.headers:undefined
                                                 });
                                             }
                                         } else {
                                             reject({
                                                 code: -1,
-                                                msg: "ErrorManager while requesting _headUrlRaw no response returned",
+                                                msg: "ErrorManager while requesting _headUrlRaw no statusCode returned",
                                                 details: undefined,
                                                 headers: undefined
                                             });
                                         }
-                                        return response;
+                                    } else {
+                                        reject({
+                                            code: -1,
+                                            msg: "ErrorManager while requesting _headUrlRaw no response returned",
+                                            details: undefined,
+                                            headers: undefined
+                                        });
                                     }
-                                ],
-                                beforeRetry: [
-                                    error => {
-                                        // This will be called on `retryWithMergedOptions(...)`
-                                    }
-                                ]
-                            },
-                        };
-
-                        return req;
+                                    return response;
+                                }
+                            ],
+                            beforeRetry: [
+                                error => {
+                                    // This will be called on `retryWithMergedOptions(...)`
+                                }
+                            ]
+                        },
                     };
 
-                    try {
+                    return req;
+                };
 
-                        const secondInstance = that.mergedGot.extend({mutableDefaults: true});
-                        /*secondInstance.defaults.options.hooks = defaults.hooks;
-                        secondInstance.defaults.options.retry = defaults.retry;
-                        secondInstance.defaults.options.pagination = defaults.pagination; // */
+                try {
 
-                        let getOptions = newAliveAgent();
+                    const secondInstance = that.mergedGot.extend({mutableDefaults: true});
+                    /*secondInstance.defaults.options.hooks = defaults.hooks;
+                    secondInstance.defaults.options.retry = defaults.retry;
+                    secondInstance.defaults.options.pagination = defaults.pagination; // */
 
-                        let response = await secondInstance.head(urlEncoded, getOptions).catch((error) => {
-                            that._logger.warn("internal", LOG_ID + "(head) sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " error.code : ", error?.code, ", error.message : ", error?.message, ", urlEncoded : ", urlEncoded);
-                            return that.treatSystemError("HEAD", error, reject);
-                        });
-                        that._logger.log(that.DEBUG, LOG_ID + "(head) done.");
+                    let getOptions = newAliveAgent();
 
-                    } catch (error) {
-                        //
-                        //An error to be thrown when the server response code is not 2xx nor 3xx if `options.followRedirect` is `true`, but always except for 304.
-                        //Includes a `response` property. Contains a `code` property with `ERR_NON_2XX_3XX_RESPONSE` or a more specific failure code.
-                        //
-                        that._logger.warn("warn", LOG_ID + "(head) HTTP error.");
-                        that._logger.warn("internal", LOG_ID + "(head) HTTP error statusCode : ", error?.statusCode);
-                    }
+                    let response = await secondInstance.head(urlEncoded, getOptions).catch((error) => {
+                        that._logger.warn("internal", LOG_ID + "(head) sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " error.code : ", error?.code, ", error.message : ", error?.message, ", urlEncoded : ", urlEncoded);
+                        return that.treatSystemError("HEAD", error, reject);
+                    });
+                    that._logger.log(that.DEBUG, LOG_ID + "(head) done.");
 
-                    return;
+                } catch (error) {
+                    //
+                    //An error to be thrown when the server response code is not 2xx nor 3xx if `options.followRedirect` is `true`, but always except for 304.
+                    //Includes a `response` property. Contains a `code` property with `ERR_NON_2XX_3XX_RESPONSE` or a more specific failure code.
+                    //
+                    that._logger.warn("warn", LOG_ID + "(head) HTTP error.");
+                    that._logger.warn("internal", LOG_ID + "(head) HTTP error statusCode : ", error?.statusCode);
                 }
-// */
 
-
-                Request({
-                    method: 'HEAD',
-                    preambleCRLF: true,
-                    postambleCRLF: true,
-                    url: urlEncoded,
-                    headers: headers,
-                    proxy: (that.proxy && that.proxy.isProxyConfigured) ? that.proxy.proxyURL:null,
-                    agentOptions: {
-                        secureProtocol: that.proxy.secureProtocol
-                    },
-                    forever: true,
-                    body: undefined
-                }, (error, response, body) => {
-                    //that._logger.log(that.INFO, LOG_ID + "(_headUrlRaw) successfull");
-                    let xRainbowRequestId = response?.headers["x-rainbow-request-id"];
-                    that._logger.log(that.HTTP, LOG_ID + "(_headUrlRaw) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
-                    if (error) {
-                        return reject({
-                            code: -1,
-                            msg: "ErrorManager while requesting",
-                            details: error,
-                            headers: response ? response.headers:undefined
-                        });
-                    } else {
-                        if (response) {
-                            response.body = body;
-                        }
-                        resolve(response);
-                    }
-                });
             } catch (err) {
                 that._logger.log(that.ERROR, LOG_ID + "(_headUrlRaw) HTTP ErrorManager");
                 that._logger.log(that.INTERNALERROR, LOG_ID + "(_headUrlRaw) HTTP ErrorManager : ", err);
@@ -1106,135 +1029,98 @@ safeJsonParse(str) {
                 that._logger.log(that.HTTP, LOG_ID + "(_postUrlRaw) url : ", (urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-correlation-id : ", xRainbowRequestNodeId);
                 that._logger.log(that.INTERNAL, LOG_ID + "(_postUrlRaw) url : ", urlEncoded, ", headers : ", headers, ", body : ", body);
 
-                if (that._options.restOptions.useGotLibForHttp) {
-                    let attemptCount = 0;
-                    const newAliveAgent: any = () => {
-                        let req = {
-                            prefixUrl: "",
+                let attemptCount = 0;
+                const newAliveAgent: any = () => {
+                    let req = {
+                        prefixUrl: "",
 /*                            agent: {
-                                http: undefined,
-                                https: undefined
-                                //http: agent,
-                                //https: agent
+                            http: undefined,
+                            https: undefined
+                            //http: agent,
+                            //https: agent
 
-                                //http: new HttpAgent(liveOption),
-                                //https: new HttpsAgent(liveOption)
-                                //
-                            },
+                            //http: new HttpAgent(liveOption),
+                            //https: new HttpsAgent(liveOption)
+                            //
+                        },
 // */
-                            headers,
-                            body,
-                            //searchParams: params,
-                            hooks: {
-                                afterResponse: [
-                                    (response, retryWithMergedOptions) => {
-                                        let body;
-                                        let xRainbowRequestId = response?.headers["x-rainbow-request-id"];
-                                        that._logger.log(that.HTTP, LOG_ID + "(_postUrlRaw) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                        headers,
+                        body,
+                        //searchParams: params,
+                        hooks: {
+                            afterResponse: [
+                                (response, retryWithMergedOptions) => {
+                                    let body;
+                                    let xRainbowRequestId = response?.headers["x-rainbow-request-id"];
+                                    that._logger.log(that.HTTP, LOG_ID + "(_postUrlRaw) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
 
-                                        if (response) {
-                                            if (response?.statusCode) {
-                                                // that._logger.log(that.INFO, LOG_ID + "(_postUrlRaw) HTTP statusCode defined : ", response.statusCode);
-                                                if (response.statusCode >= 200 && response.statusCode <= 400) {
-                                                    //if (response) {
-                                                    //  response.body = body;
-                                                    //}
-                                                    resolve(response);
-                                                } else {
-                                                    that._logger.warn("warn", LOG_ID + "(_postUrlRaw) HTTP response.code != 200");
-                                                    that._logger.warn("internal", LOG_ID + "(_postUrlRaw) HTTP response.code != 200 , bodyjs : ", response?.body);
-                                                    reject({
-                                                        code: -1,
-                                                        msg: "ErrorManager while requesting _postUrlRaw",
-                                                        details: response,
-                                                        headers: response ? response.headers:undefined
-                                                    });
-                                                }
+                                    if (response) {
+                                        if (response?.statusCode) {
+                                            // that._logger.log(that.INFO, LOG_ID + "(_postUrlRaw) HTTP statusCode defined : ", response.statusCode);
+                                            if (response.statusCode >= 200 && response.statusCode <= 400) {
+                                                //if (response) {
+                                                //  response.body = body;
+                                                //}
+                                                resolve(response);
                                             } else {
+                                                that._logger.warn("warn", LOG_ID + "(_postUrlRaw) HTTP response.code != 200");
+                                                that._logger.warn("internal", LOG_ID + "(_postUrlRaw) HTTP response.code != 200 , bodyjs : ", response?.body);
                                                 reject({
                                                     code: -1,
-                                                    msg: "ErrorManager while requesting _postUrlRaw no statusCode returned",
-                                                    details: undefined,
-                                                    headers: undefined
+                                                    msg: "ErrorManager while requesting _postUrlRaw",
+                                                    details: response,
+                                                    headers: response ? response.headers:undefined
                                                 });
                                             }
                                         } else {
                                             reject({
                                                 code: -1,
-                                                msg: "ErrorManager while requesting _postUrlRaw no response returned",
+                                                msg: "ErrorManager while requesting _postUrlRaw no statusCode returned",
                                                 details: undefined,
                                                 headers: undefined
                                             });
                                         }
-                                        return response;
+                                    } else {
+                                        reject({
+                                            code: -1,
+                                            msg: "ErrorManager while requesting _postUrlRaw no response returned",
+                                            details: undefined,
+                                            headers: undefined
+                                        });
                                     }
-                                ],
-                            },
-                        };
-
-                        return req;
+                                    return response;
+                                }
+                            ],
+                        },
                     };
 
-                    try {
+                    return req;
+                };
 
-                        const secondInstance = that.mergedGot.extend({mutableDefaults: true});
-                        /*secondInstance.defaults.options.hooks = defaults.hooks;
-                        secondInstance.defaults.options.retry = defaults.retry;
-                        secondInstance.defaults.options.pagination = defaults.pagination; // */
+                try {
 
-                        let getOptions = newAliveAgent();
+                    const secondInstance = that.mergedGot.extend({mutableDefaults: true});
+                    /*secondInstance.defaults.options.hooks = defaults.hooks;
+                    secondInstance.defaults.options.retry = defaults.retry;
+                    secondInstance.defaults.options.pagination = defaults.pagination; // */
 
-                        let response = await secondInstance.post(urlEncoded, getOptions).catch((error) => {
-                            that._logger.warn("internal", LOG_ID + "(_postUrlRaw) sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " error.code : ", error?.code, ", error.message : ", error?.message, ", urlEncoded : ", urlEncoded);
-                            return that.treatSystemError("POST Url Raw", error, reject);
-                        });
-                        that._logger.log(that.DEBUG, LOG_ID + "(_postUrlRaw) done.");
+                    let getOptions = newAliveAgent();
 
-                    } catch (error) {
-                        //
-                        //An error to be thrown when the server response code is not 2xx nor 3xx if `options.followRedirect` is `true`, but always except for 304.
-                        //Includes a `response` property. Contains a `code` property with `ERR_NON_2XX_3XX_RESPONSE` or a more specific failure code.
-                        //
-                        that._logger.warn("warn", LOG_ID + "(_postUrlRaw) HTTP error.");
-                        that._logger.warn("internal", LOG_ID + "(_postUrlRaw) HTTP error statusCode : ", error?.statusCode);
-                    }
+                    let response = await secondInstance.post(urlEncoded, getOptions).catch((error) => {
+                        that._logger.warn("internal", LOG_ID + "(_postUrlRaw) sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " error.code : ", error?.code, ", error.message : ", error?.message, ", urlEncoded : ", urlEncoded);
+                        return that.treatSystemError("POST Url Raw", error, reject);
+                    });
+                    that._logger.log(that.DEBUG, LOG_ID + "(_postUrlRaw) done.");
 
-                    return;
+                } catch (error) {
+                    //
+                    //An error to be thrown when the server response code is not 2xx nor 3xx if `options.followRedirect` is `true`, but always except for 304.
+                    //Includes a `response` property. Contains a `code` property with `ERR_NON_2XX_3XX_RESPONSE` or a more specific failure code.
+                    //
+                    that._logger.warn("warn", LOG_ID + "(_postUrlRaw) HTTP error.");
+                    that._logger.warn("internal", LOG_ID + "(_postUrlRaw) HTTP error statusCode : ", error?.statusCode);
                 }
-// */
 
-
-                Request({
-                    method: 'POST',
-                    preambleCRLF: true,
-                    postambleCRLF: true,
-                    url: urlEncoded,
-                    headers: headers,
-                    proxy: (that.proxy && that.proxy.isProxyConfigured) ? that.proxy.proxyURL:null,
-                    agentOptions: {
-                        secureProtocol: that.proxy.secureProtocol
-                    },
-                    forever: true,
-                    body: body
-                }, (error, response, body) => {
-                    //that._logger.log(that.INFO, LOG_ID + "(_postUrlRaw) successfull");
-                    let xRainbowRequestId = response?.headers["x-rainbow-request-id"];
-                    that._logger.log(that.HTTP, LOG_ID + "(_postUrlRaw) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
-                    that._logger.log(that.INTERNAL, LOG_ID + "(_postUrlRaw) successfull - error.message : ", error?.message, ", body : ", body);
-                    if (error) {
-                        return reject({
-                            code: -1,
-                            msg: "ErrorManager while posting",
-                            details: error,
-                            headers: response ? response.headers:undefined
-                        });
-                    } else {
-                        //if (response) {
-                        //  response.body = body;
-                        //}
-                        resolve(response);
-                    }
-                });
             } catch (err) {
                 that._logger.log(that.ERROR, LOG_ID + "(_postUrlRaw) HTTP ErrorManager");
                 that._logger.log(that.INTERNALERROR, LOG_ID + "(_postUrlRaw) HTTP ErrorManager : ", err);
@@ -1286,128 +1172,94 @@ safeJsonParse(str) {
 
                 let body = data;
                 //that._logger.log(that.INTERNAL, LOG_ID + "(_putUrlRaw) url : ", urlEncoded);
-                if (that._options.restOptions.useGotLibForHttp) {
-                    let attemptCount = 0;
-                    const newAliveAgent: any = () => {
-                        let req = {
-                            prefixUrl: "",
+                let attemptCount = 0;
+                const newAliveAgent: any = () => {
+                    let req = {
+                        prefixUrl: "",
 /*                            agent: {
-                                http: undefined,
-                                https: undefined
-                                //http: agent,
-                                //https: agent
+                            http: undefined,
+                            https: undefined
+                            //http: agent,
+                            //https: agent
 
-                                //http: new HttpAgent(liveOption),
-                                //https: new HttpsAgent(liveOption)
-                                //
-                            },
+                            //http: new HttpAgent(liveOption),
+                            //https: new HttpsAgent(liveOption)
+                            //
+                        },
 // */
-                            headers,
-                            body,
-                            //searchParams: params,
-                            hooks: {
-                                afterResponse: [
-                                    (response, retryWithMergedOptions) => {
-                                        let body;
-                                        let xRainbowRequestId = response?.headers["x-rainbow-request-id"];
-                                        that._logger.log(that.HTTP, LOG_ID + "(_putUrlRaw) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                        headers,
+                        body,
+                        //searchParams: params,
+                        hooks: {
+                            afterResponse: [
+                                (response, retryWithMergedOptions) => {
+                                    let body;
+                                    let xRainbowRequestId = response?.headers["x-rainbow-request-id"];
+                                    that._logger.log(that.HTTP, LOG_ID + "(_putUrlRaw) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
 
-                                        if (response) {
-                                            if (response?.statusCode) {
-                                                // that._logger.log(that.INFO, LOG_ID + "(_putUrlRaw) HTTP statusCode defined : ", response.statusCode);
-                                                if (response.statusCode >= 200 && response.statusCode <= 400) {
-                                                    //if (response) {
-                                                    //  response.body = body;
-                                                    //}
-                                                    resolve(response);
-                                                } else {
-                                                    that._logger.warn("warn", LOG_ID + "(_putUrlRaw) HTTP response.code != 200");
-                                                    that._logger.warn("internal", LOG_ID + "(_putUrlRaw) HTTP response.code != 200 , bodyjs : ", response?.body);
-                                                    reject({
-                                                        code: -1,
-                                                        msg: "ErrorManager while requesting _putBuffer",
-                                                        details: response,
-                                                        headers: response ? response.headers:undefined
-                                                    });
-                                                }
+                                    if (response) {
+                                        if (response?.statusCode) {
+                                            // that._logger.log(that.INFO, LOG_ID + "(_putUrlRaw) HTTP statusCode defined : ", response.statusCode);
+                                            if (response.statusCode >= 200 && response.statusCode <= 400) {
+                                                //if (response) {
+                                                //  response.body = body;
+                                                //}
+                                                resolve(response);
                                             } else {
+                                                that._logger.warn("warn", LOG_ID + "(_putUrlRaw) HTTP response.code != 200");
+                                                that._logger.warn("internal", LOG_ID + "(_putUrlRaw) HTTP response.code != 200 , bodyjs : ", response?.body);
                                                 reject({
                                                     code: -1,
-                                                    msg: "ErrorManager while requesting _putUrlRaw no statusCode returned",
-                                                    details: undefined,
-                                                    headers: undefined
+                                                    msg: "ErrorManager while requesting _putBuffer",
+                                                    details: response,
+                                                    headers: response ? response.headers:undefined
                                                 });
                                             }
                                         } else {
                                             reject({
                                                 code: -1,
-                                                msg: "ErrorManager while requesting _putUrlRaw no response returned",
+                                                msg: "ErrorManager while requesting _putUrlRaw no statusCode returned",
                                                 details: undefined,
                                                 headers: undefined
                                             });
                                         }
-                                        return response;
+                                    } else {
+                                        reject({
+                                            code: -1,
+                                            msg: "ErrorManager while requesting _putUrlRaw no response returned",
+                                            details: undefined,
+                                            headers: undefined
+                                        });
                                     }
-                                ],
-                            },
-                        };
-
-                        return req;
+                                    return response;
+                                }
+                            ],
+                        },
                     };
 
-                    try {
+                    return req;
+                };
 
-                        const secondInstance = that.mergedGot.extend({mutableDefaults: true});
+                try {
 
-                        let getOptions = newAliveAgent();
-                        let response = await secondInstance.put(urlEncoded, getOptions).catch((error) => {
-                            that._logger.warn("internal", LOG_ID + "(_putUrlRaw) sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " error.code : ", error?.code, ", error.message : ", error?.message, ", urlEncoded : ", urlEncoded);
-                            return that.treatSystemError("PUT Url Raw", error, reject);
-                        });
-                        that._logger.log(that.DEBUG, LOG_ID + "(_putUrlRaw) done.");
+                    const secondInstance = that.mergedGot.extend({mutableDefaults: true});
 
-                    } catch (error) {
-                        //
-                        //An error to be thrown when the server response code is not 2xx nor 3xx if `options.followRedirect` is `true`, but always except for 304.
-                        //Includes a `response` property. Contains a `code` property with `ERR_NON_2XX_3XX_RESPONSE` or a more specific failure code.
-                        //
-                        that._logger.warn("warn", LOG_ID + "(_putUrlRaw) HTTP error.");
-                        that._logger.warn("internal", LOG_ID + "(_putUrlRaw) HTTP error statusCode : ", error?.statusCode);
-                    }
+                    let getOptions = newAliveAgent();
+                    let response = await secondInstance.put(urlEncoded, getOptions).catch((error) => {
+                        that._logger.warn("internal", LOG_ID + "(_putUrlRaw) sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " error.code : ", error?.code, ", error.message : ", error?.message, ", urlEncoded : ", urlEncoded);
+                        return that.treatSystemError("PUT Url Raw", error, reject);
+                    });
+                    that._logger.log(that.DEBUG, LOG_ID + "(_putUrlRaw) done.");
 
-                    return;
+                } catch (error) {
+                    //
+                    //An error to be thrown when the server response code is not 2xx nor 3xx if `options.followRedirect` is `true`, but always except for 304.
+                    //Includes a `response` property. Contains a `code` property with `ERR_NON_2XX_3XX_RESPONSE` or a more specific failure code.
+                    //
+                    that._logger.warn("warn", LOG_ID + "(_putUrlRaw) HTTP error.");
+                    that._logger.warn("internal", LOG_ID + "(_putUrlRaw) HTTP error statusCode : ", error?.statusCode);
                 }
 
-                Request({
-                    method: 'PUT',
-                    preambleCRLF: true,
-                    postambleCRLF: true,
-                    url: urlEncoded,
-                    headers: headers,
-                    proxy: (that.proxy && that.proxy.isProxyConfigured) ? that.proxy.proxyURL:null,
-                    agentOptions: {
-                        secureProtocol: that.proxy.secureProtocol
-                    },
-                    forever: true,
-                    body: body
-                }, (error, response, body) => {
-                    //that._logger.log(that.INFO, LOG_ID + "(_putUrlRaw) successfull");
-                    let xRainbowRequestId = response?.headers["x-rainbow-request-id"];
-                    that._logger.log(that.HTTP, LOG_ID + "(_putUrlRaw) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
-                    if (error) {
-                        return reject({
-                            code: -1,
-                            msg: "ErrorManager while posting",
-                            details: error,
-                            headers: response ? response.headers:undefined
-                        });
-                    } else {
-                        //if (response) {
-                        //    response.body = body;
-                        //}
-                        resolve(response);
-                    }
-                });
             } catch (err) {
                 that._logger.log(that.ERROR, LOG_ID + "(_putUrlRaw) HTTP ErrorManager");
                 that._logger.log(that.INTERNALERROR, LOG_ID + "(_putUrlRaw) HTTP ErrorManager : ", err);
@@ -1462,217 +1314,179 @@ safeJsonParse(str) {
                 headers["Host"] = urlParse(urlEncoded).host;
                 that._logger.log(that.INTERNAL, LOG_ID + "(_deleteUrlRaw) url : ", urlEncoded, ", headers : ", headers, ", body : ", body);
 
-                if (that._options.restOptions.useGotLibForHttp) {
-                    let attemptCount = 0;
-                    const newAliveAgent: any = () => {
-                        let req: any = {
-                            prefixUrl: "",
-/*                            agent: {
-                                http: undefined,
-                                https: undefined
-                                //http: agent,
-                                //https: agent
+                let attemptCount = 0;
+                const newAliveAgent: any = () => {
+                    let req: any = {
+                        prefixUrl: "",
+                        /*                            agent: {
+                                                        http: undefined,
+                                                        https: undefined
+                                                        //http: agent,
+                                                        //https: agent
 
-                                //http: new HttpAgent(liveOption),
-                                //https: new HttpsAgent(liveOption)
-                                //
+                                                        //http: new HttpAgent(liveOption),
+                                                        //https: new HttpsAgent(liveOption)
+                                                        //
+                                                    },
+                        // */
+                        headers,
+                        // body,
+                        //searchParams: params,
+                        retry: {
+                            limit: nbRetryBeforeFailed,
+                            // calculateDelay: ({retryObject}) => {
+                            //     /* interface RetryObject {
+                            //         attemptCount: number;
+                            //         retryOptions: RetryOptions;
+                            //         error: RequestError;
+                            //         computedValue: number;
+                            //         retryAfter?: number;
+                            //     } of retryObject */
+                            //     that._logger.warn("internal", LOG_ID + "(delete) retry HTTP GET, retryObject : ", retryObject);
+                            //     //return retryObject;
+                            //     return 1000;
+                            // },
+                            //calculateDelay: ({computedValue}) => computedValue,
+                            calculateDelay: ({computedValue}) => {
+                                let noise = 100;
+                                //let computedValueCalculated = ((2 ** (attemptCount - 1)) * 1000) + noise;
+                                let shouldBeRun = (nbRetryBeforeFailed - attemptCount) > 1 ? 1:0;
+                                let computedValueCalculated = (shouldBeRun * (timeBetweenRetry + noise));
+                                attemptCount++;
+                                that._logger.warn("warn", LOG_ID + "(get) (calculateDelay) retry HTTP GET, nbRetryBeforeFailed : ", nbRetryBeforeFailed, ",attemptCount : ", attemptCount, ", timeBetweenRetry : ", timeBetweenRetry, "ms , computedValue : ", computedValue, ", computedValueCalculated : ", computedValueCalculated);
+                                return computedValueCalculated;
                             },
-// */
-                            headers,
-                            // body,
-                            //searchParams: params,
-                            retry: {
-                                limit: nbRetryBeforeFailed,
-                                // calculateDelay: ({retryObject}) => {
-                                //     /* interface RetryObject {
-                                //         attemptCount: number;
-                                //         retryOptions: RetryOptions;
-                                //         error: RequestError;
-                                //         computedValue: number;
-                                //         retryAfter?: number;
-                                //     } of retryObject */
-                                //     that._logger.warn("internal", LOG_ID + "(delete) retry HTTP GET, retryObject : ", retryObject);
-                                //     //return retryObject;
-                                //     return 1000;
-                                // },
-                                //calculateDelay: ({computedValue}) => computedValue,
-                                calculateDelay: ({computedValue}) => {
-                                    let noise = 100;
-                                    //let computedValueCalculated = ((2 ** (attemptCount - 1)) * 1000) + noise;
-                                    let shouldBeRun = (nbRetryBeforeFailed - attemptCount) > 1 ? 1:0;
-                                    let computedValueCalculated = (shouldBeRun * (timeBetweenRetry + noise));
-                                    attemptCount++;
-                                    that._logger.warn("warn", LOG_ID + "(get) (calculateDelay) retry HTTP GET, nbRetryBeforeFailed : ", nbRetryBeforeFailed, ",attemptCount : ", attemptCount, ", timeBetweenRetry : ", timeBetweenRetry, "ms , computedValue : ", computedValue, ", computedValueCalculated : ", computedValueCalculated);
-                                    return computedValueCalculated;
-                                },
-                                methods: [
-                                    'GET',
-                                    'PUT',
-                                    'HEAD',
-                                    'DELETE',
-                                    'OPTIONS',
-                                    'TRACE'
-                                ],
-                                statusCodes: [
-                                    408,
-                                    413,
-                                    429,
-                                    500,
-                                    502,
-                                    503,
-                                    504,
-                                    521,
-                                    522,
-                                    524
-                                ],
-                                errorCodes: [
-                                    'ETIMEDOUT',
-                                    'ECONNRESET',
-                                    'EADDRINUSE',
-                                    'ECONNREFUSED',
-                                    'EPIPE',
-                                    'ENOTFOUND',
-                                    'ENETUNREACH',
-                                    'EAI_AGAIN'
-                                ],
-                                maxRetryAfter: undefined,
-                                // backoffLimit: Number.POSITIVE_INFINITY,
-                                noise: 100
-                            },
-                            hooks: {
-                                afterResponse: [
-                                    (response, retryWithMergedOptions) => {
-                                        let body;
-                                        let xRainbowRequestId = response?.headers["x-rainbow-request-id"];
-                                        that._logger.log(that.HTTP, LOG_ID + "(_deleteUrlRaw) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                            methods: [
+                                'GET',
+                                'PUT',
+                                'HEAD',
+                                'DELETE',
+                                'OPTIONS',
+                                'TRACE'
+                            ],
+                            statusCodes: [
+                                408,
+                                413,
+                                429,
+                                500,
+                                502,
+                                503,
+                                504,
+                                521,
+                                522,
+                                524
+                            ],
+                            errorCodes: [
+                                'ETIMEDOUT',
+                                'ECONNRESET',
+                                'EADDRINUSE',
+                                'ECONNREFUSED',
+                                'EPIPE',
+                                'ENOTFOUND',
+                                'ENETUNREACH',
+                                'EAI_AGAIN'
+                            ],
+                            maxRetryAfter: undefined,
+                            // backoffLimit: Number.POSITIVE_INFINITY,
+                            noise: 100
+                        },
+                        hooks: {
+                            afterResponse: [
+                                (response, retryWithMergedOptions) => {
+                                    let body;
+                                    let xRainbowRequestId = response?.headers["x-rainbow-request-id"];
+                                    that._logger.log(that.HTTP, LOG_ID + "(_deleteUrlRaw) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
 
-                                        if (response) {
-                                            if (response?.statusCode) {
-                                                // that._logger.log(that.INFO, LOG_ID + "(_deleteUrlRaw) HTTP code", response.code);
-                                                if (response.statusCode >= 200 && response.statusCode <= 400) {
-                                                    //if (response) {
-                                                    //  response.body = body;
-                                                    //}
-                                                    resolve(response);
-                                                } else {
-                                                    reject({
-                                                        code: -1,
-                                                        msg: "ErrorManager while posting",
-                                                        details: response,
-                                                        headers: response ? response.headers:undefined
-                                                    });
-                                                }
+                                    if (response) {
+                                        if (response?.statusCode) {
+                                            // that._logger.log(that.INFO, LOG_ID + "(_deleteUrlRaw) HTTP code", response.code);
+                                            if (response.statusCode >= 200 && response.statusCode <= 400) {
+                                                //if (response) {
+                                                //  response.body = body;
+                                                //}
+                                                resolve(response);
                                             } else {
-                                                if (response.error && response.error.reason) {
-                                                    that._logger.log(that.ERROR, LOG_ID + "(_deleteUrlRaw) HTTP security issue : ", response.error.reason);
-                                                    reject({
-                                                        code: -1,
-                                                        url: urlEncoded,
-                                                        msg: response.error.reason,
-                                                        details: "",
-                                                        headers: response ? response.headers:undefined
-                                                    });
-                                                } else {
-                                                    that._logger.warn("error", LOG_ID + "(_deleteUrlRaw) HTTP other issue.");
-                                                    that._logger.warn("internalerror", LOG_ID + "(_deleteUrlRaw) HTTP other issue , response : ", JSON.stringify(response), " response.message : ", response.message);
-                                                    that._logger.log(that.INTERNAL, LOG_ID + "(_deleteUrlRaw) HTTP other issue", response);
-                                                    reject({
-                                                        code: -1,
-                                                        url: urlEncoded,
-                                                        msg: "Unknown error",
-                                                        details: response,
-                                                        headers: response ? response.headers:undefined
-                                                    });
-                                                }
+                                                reject({
+                                                    code: -1,
+                                                    msg: "ErrorManager while posting",
+                                                    details: response,
+                                                    headers: response ? response.headers:undefined
+                                                });
                                             }
                                         } else {
-                                            reject({
-                                                code: -1,
-                                                msg: "ErrorManager while requesting _deleteUrlRaw no response returned",
-                                                details: undefined,
-                                                headers: undefined
-                                            });
+                                            if (response.error && response.error.reason) {
+                                                that._logger.log(that.ERROR, LOG_ID + "(_deleteUrlRaw) HTTP security issue : ", response.error.reason);
+                                                reject({
+                                                    code: -1,
+                                                    url: urlEncoded,
+                                                    msg: response.error.reason,
+                                                    details: "",
+                                                    headers: response ? response.headers:undefined
+                                                });
+                                            } else {
+                                                that._logger.warn("error", LOG_ID + "(_deleteUrlRaw) HTTP other issue.");
+                                                that._logger.warn("internalerror", LOG_ID + "(_deleteUrlRaw) HTTP other issue , response : ", JSON.stringify(response), " response.message : ", response.message);
+                                                that._logger.log(that.INTERNAL, LOG_ID + "(_deleteUrlRaw) HTTP other issue", response);
+                                                reject({
+                                                    code: -1,
+                                                    url: urlEncoded,
+                                                    msg: "Unknown error",
+                                                    details: response,
+                                                    headers: response ? response.headers:undefined
+                                                });
+                                            }
                                         }
-                                        // No changes otherwise
-                                        return response;
+                                    } else {
+                                        reject({
+                                            code: -1,
+                                            msg: "ErrorManager while requesting _deleteUrlRaw no response returned",
+                                            details: undefined,
+                                            headers: undefined
+                                        });
                                     }
-                                ],
-                                beforeRetry: [
-                                    error => {
-                                        // This will be called on `retryWithMergedOptions(...)`
-                                    }
-                                ]
-                            },
-                        };
-
-                        if (body) {
-                            req.body = body;
-                        }
-
-                        return req;
+                                    // No changes otherwise
+                                    return response;
+                                }
+                            ],
+                            beforeRetry: [
+                                error => {
+                                    // This will be called on `retryWithMergedOptions(...)`
+                                }
+                            ]
+                        },
                     };
 
-                    try {
-
-                        const secondInstance = that.mergedGot.extend({mutableDefaults: true});
-                        /*secondInstance.defaults.options.hooks = defaults.hooks;
-                        secondInstance.defaults.options.retry = defaults.retry;
-                        secondInstance.defaults.options.pagination = defaults.pagination; // */
-
-
-                        let getOptions = newAliveAgent();
-                        let response = await secondInstance.delete(urlEncoded, getOptions).catch((error) => {
-                            that._logger.warn("internal", LOG_ID + "(_deleteUrlRaw) sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " error.code : ", error?.code, ", error.message : ", error?.message, ", urlEncoded : ", urlEncoded);
-                            return that.treatSystemError("DELETE Url Raw", error, reject);
-                        });
-                        that._logger.log(that.DEBUG, LOG_ID + "(_deleteUrlRaw) done.");
-
-                    } catch (error) {
-                        //
-                        //An error to be thrown when the server response code is not 2xx nor 3xx if `options.followRedirect` is `true`, but always except for 304.
-                        //Includes a `response` property. Contains a `code` property with `ERR_NON_2XX_3XX_RESPONSE` or a more specific failure code.
-                        //
-                        that._logger.warn("warn", LOG_ID + "(_deleteUrlRaw) HTTP error.");
-                        that._logger.warn("internal", LOG_ID + "(_deleteUrlRaw) HTTP error statusCode : ", error?.statusCode);
+                    if (body) {
+                        req.body = body;
                     }
 
-                    return;
-                }
-// */
-
-
-                let deleteOptions = {
-                    url: urlEncoded,
-                    headers: headers,
-                    proxy: (that.proxy && that.proxy.isProxyConfigured) ? that.proxy.proxyURL:null,
-                    agentOptions: {
-                        secureProtocol: that.proxy.secureProtocol
-                    },
-                    body: undefined
+                    return req;
                 };
 
-                if (body) {
-                    deleteOptions.body = body;
+                try {
+
+                    const secondInstance = that.mergedGot.extend({mutableDefaults: true});
+                    /*secondInstance.defaults.options.hooks = defaults.hooks;
+                    secondInstance.defaults.options.retry = defaults.retry;
+                    secondInstance.defaults.options.pagination = defaults.pagination; // */
+
+
+                    let getOptions = newAliveAgent();
+                    let response = await secondInstance.delete(urlEncoded, getOptions).catch((error) => {
+                        that._logger.warn("internal", LOG_ID + "(_deleteUrlRaw) sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " error.code : ", error?.code, ", error.message : ", error?.message, ", urlEncoded : ", urlEncoded);
+                        return that.treatSystemError("DELETE Url Raw", error, reject);
+                    });
+                    that._logger.log(that.DEBUG, LOG_ID + "(_deleteUrlRaw) done.");
+
+                } catch (error) {
+                    //
+                    //An error to be thrown when the server response code is not 2xx nor 3xx if `options.followRedirect` is `true`, but always except for 304.
+                    //Includes a `response` property. Contains a `code` property with `ERR_NON_2XX_3XX_RESPONSE` or a more specific failure code.
+                    //
+                    that._logger.warn("warn", LOG_ID + "(_deleteUrlRaw) HTTP error.");
+                    that._logger.warn("internal", LOG_ID + "(_deleteUrlRaw) HTTP error statusCode : ", error?.statusCode);
                 }
 
-                let request = Request.delete(deleteOptions, (error, response, body) => {
-                    let xRainbowRequestId = response?.headers["x-rainbow-request-id"];
-                    that._logger.log(that.HTTP, LOG_ID + "(_deleteUrlRaw) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
-                    // that._logger.log(that.INFO, LOG_ID + "(_deleteUrlRaw) successfull");
-                    if (error) {
-                        return reject({
-                            code: -1,
-                            msg: "ErrorManager while deleting",
-                            details: error,
-                            headers: response ? response.headers:undefined
-                        });
-                    } else {
-                        //if (response) {
-                        //   response.body = body;
-                        //}
-                        resolve(response);
-                    }
-                });
             } catch (err) {
                 that._logger.log(that.ERROR, LOG_ID + "(_deleteUrlRaw) HTTP ErrorManager");
                 that._logger.log(that.INTERNALERROR, LOG_ID + "(_deleteUrlRaw) HTTP ErrorManager : ", err);
@@ -1724,270 +1538,195 @@ safeJsonParse(str) {
 
                 that._logger.log(that.INTERNAL, LOG_ID + "(_getUrlJson) url : ", urlEncoded, ", headers : ", headers, ", params : ", params);
 
-                if (that._options.restOptions.useGotLibForHttp) {
-                    let attemptCount = 0;
-                    const newAliveAgent: any = () => {
-                        let req = {
-                            prefixUrl: "",
-/*                            agent: {
-                                http: undefined,
-                                https: undefined
-                                //http: agent,
-                                //https: agent
+                let attemptCount = 0;
+                const newAliveAgent: any = () => {
+                    let req = {
+                        prefixUrl: "",
+                        /*                            agent: {
+                                                        http: undefined,
+                                                        https: undefined
+                                                        //http: agent,
+                                                        //https: agent
 
-                                //http: new HttpAgent(liveOption),
-                                //https: new HttpsAgent(liveOption)
-                                //
+                                                        //http: new HttpAgent(liveOption),
+                                                        //https: new HttpsAgent(liveOption)
+                                                        //
+                                                    },
+                        // */
+                        headers,
+                        searchParams: params,
+                        retry: {
+                            limit: nbRetryBeforeFailed,
+                            // calculateDelay: ({retryObject}) => {
+                            //     /* interface RetryObject {
+                            //         attemptCount: number;
+                            //         retryOptions: RetryOptions;
+                            //         error: RequestError;
+                            //         computedValue: number;
+                            //         retryAfter?: number;
+                            //     } of retryObject */
+                            //     that._logger.warn("internal", LOG_ID + "(get) retry HTTP GET, timeBetweenRetry : ", timeBetweenRetry, "ms , retryObject : ", retryObject);
+                            //     //return retryObject;
+                            //     return timeBetweenRetry;
+                            // },
+                            // calculateDelay: ({computedValue}) => computedValue,
+                            calculateDelay: ({computedValue}) => {
+                                let noise = 100;
+                                //let computedValueCalculated = ((2 ** (attemptCount - 1)) * 1000) + noise;
+                                let shouldBeRun = (nbRetryBeforeFailed - attemptCount) > 1 ? 1:0;
+                                let computedValueCalculated = (shouldBeRun * (timeBetweenRetry + noise));
+                                attemptCount++;
+                                that._logger.warn("warn", LOG_ID + "(get) (calculateDelay) retry HTTP GET, nbRetryBeforeFailed : ", nbRetryBeforeFailed, ",attemptCount : ", attemptCount, ", timeBetweenRetry : ", timeBetweenRetry, "ms , computedValue : ", computedValue, ", computedValueCalculated : ", computedValueCalculated);
+                                return computedValueCalculated;
                             },
-// */
-                            headers,
-                            searchParams: params,
-                            retry: {
-                                limit: nbRetryBeforeFailed,
-                                // calculateDelay: ({retryObject}) => {
-                                //     /* interface RetryObject {
-                                //         attemptCount: number;
-                                //         retryOptions: RetryOptions;
-                                //         error: RequestError;
-                                //         computedValue: number;
-                                //         retryAfter?: number;
-                                //     } of retryObject */
-                                //     that._logger.warn("internal", LOG_ID + "(get) retry HTTP GET, timeBetweenRetry : ", timeBetweenRetry, "ms , retryObject : ", retryObject);
-                                //     //return retryObject;
-                                //     return timeBetweenRetry;
-                                // },
-                                // calculateDelay: ({computedValue}) => computedValue,
-                                calculateDelay: ({computedValue}) => {
-                                    let noise = 100;
-                                    //let computedValueCalculated = ((2 ** (attemptCount - 1)) * 1000) + noise;
-                                    let shouldBeRun = (nbRetryBeforeFailed - attemptCount) > 1 ? 1:0;
-                                    let computedValueCalculated = (shouldBeRun * (timeBetweenRetry + noise));
-                                    attemptCount++;
-                                    that._logger.warn("warn", LOG_ID + "(get) (calculateDelay) retry HTTP GET, nbRetryBeforeFailed : ", nbRetryBeforeFailed, ",attemptCount : ", attemptCount, ", timeBetweenRetry : ", timeBetweenRetry, "ms , computedValue : ", computedValue, ", computedValueCalculated : ", computedValueCalculated);
-                                    return computedValueCalculated;
-                                },
-                                methods: [
-                                    'GET',
-                                    'PUT',
-                                    'HEAD',
-                                    'DELETE',
-                                    'OPTIONS',
-                                    'TRACE'
-                                ],
-                                statusCodes: [
-                                    408,
-                                    413,
-                                    429,
-                                    500,
-                                    502,
-                                    503,
-                                    504,
-                                    521,
-                                    522,
-                                    524
-                                ],
-                                errorCodes: [
-                                    'ETIMEDOUT',
-                                    'ECONNRESET',
-                                    'EADDRINUSE',
-                                    'ECONNREFUSED',
-                                    'EPIPE',
-                                    'ENOTFOUND',
-                                    'ENETUNREACH',
-                                    'EAI_AGAIN'
-                                ],
-                                maxRetryAfter: undefined,
-                                // backoffLimit: Number.POSITIVE_INFINITY,
-                                noise: 100
-                            },
-                            hooks: {
-                                afterResponse: [
-                                    (response, retryWithMergedOptions) => {
-                                        let body;
-                                        let xRainbowRequestId = response?.headers["x-rainbow-request-id"];
-                                        that._logger.log(that.HTTP, LOG_ID + "(_getUrlJson) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                            methods: [
+                                'GET',
+                                'PUT',
+                                'HEAD',
+                                'DELETE',
+                                'OPTIONS',
+                                'TRACE'
+                            ],
+                            statusCodes: [
+                                408,
+                                413,
+                                429,
+                                500,
+                                502,
+                                503,
+                                504,
+                                521,
+                                522,
+                                524
+                            ],
+                            errorCodes: [
+                                'ETIMEDOUT',
+                                'ECONNRESET',
+                                'EADDRINUSE',
+                                'ECONNREFUSED',
+                                'EPIPE',
+                                'ENOTFOUND',
+                                'ENETUNREACH',
+                                'EAI_AGAIN'
+                            ],
+                            maxRetryAfter: undefined,
+                            // backoffLimit: Number.POSITIVE_INFINITY,
+                            noise: 100
+                        },
+                        hooks: {
+                            afterResponse: [
+                                (response, retryWithMergedOptions) => {
+                                    let body;
+                                    let xRainbowRequestId = response?.headers["x-rainbow-request-id"];
+                                    that._logger.log(that.HTTP, LOG_ID + "(_getUrlJson) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
 
-                                        if (response) {
-                                            if (response?.statusCode) {
-                                                // that._logger.log(that.INFO, LOG_ID + "(_getUrlJson) HTTP statusCode defined : ", response.statusCode);
-                                                if (response.statusCode >= 200 && response.statusCode <= 206) {
-                                                    if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
-                                                        let json = {};
-                                                        if (response.body && (response.headers["content-type"].indexOf("json") > -1)) {
-                                                            json = JSON.parse(response.body);
-                                                            resolve(json);
-                                                        } else {
-                                                            resolve(response.body);
-                                                        }
+                                    if (response) {
+                                        if (response?.statusCode) {
+                                            // that._logger.log(that.INFO, LOG_ID + "(_getUrlJson) HTTP statusCode defined : ", response.statusCode);
+                                            if (response.statusCode >= 200 && response.statusCode <= 206) {
+                                                if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
+                                                    let json = {};
+                                                    if (response.body && (response.headers["content-type"].indexOf("json") > -1)) {
+                                                        json = JSON.parse(response.body);
+                                                        resolve(json);
                                                     } else {
-                                                        reject({
-                                                            code: -1,
-                                                            msg: "Bad content, please check your host",
-                                                            details: "",
-                                                            headers: response ? response.headers:undefined
-                                                        });
+                                                        resolve(response.body);
                                                     }
                                                 } else {
-                                                    that._logger.warn("warn", LOG_ID + "(_getUrlJson) HTTP response.code != 200");
-                                                    that._logger.warn("internal", LOG_ID + "(_getUrlJson) HTTP response.code != 200 , bodyjs : ", response.body);
-                                                    let bodyjs: any = {};
-                                                    if (that.hasJsonStructure(response.body)) {
-                                                        bodyjs = JSON.parse(response.body);
-                                                    } else {
-                                                        bodyjs.errorMsg = response.body;
-                                                    }
-                                                    let msg = response.statusMessage ? response.statusMessage:bodyjs ? bodyjs.errorMsg || "":"";
-                                                    let errorMsgDetail = bodyjs ? bodyjs.errorDetails + (bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode:""):"";
-                                                    errorMsgDetail = errorMsgDetail ? errorMsgDetail:bodyjs ? bodyjs.errorMsg || "":"";
-                                                    //that.tokenExpirationControl(bodyjs);
                                                     reject({
-                                                        code: response.statusCode,
-                                                        msg: msg,
-                                                        details: errorMsgDetail,
-                                                        error: bodyjs,
+                                                        code: -1,
+                                                        msg: "Bad content, please check your host",
+                                                        details: "",
                                                         headers: response ? response.headers:undefined
                                                     });
-
                                                 }
                                             } else {
+                                                that._logger.warn("warn", LOG_ID + "(_getUrlJson) HTTP response.code != 200");
+                                                that._logger.warn("internal", LOG_ID + "(_getUrlJson) HTTP response.code != 200 , bodyjs : ", response.body);
+                                                let bodyjs: any = {};
+                                                if (that.hasJsonStructure(response.body)) {
+                                                    bodyjs = JSON.parse(response.body);
+                                                } else {
+                                                    bodyjs.errorMsg = response.body;
+                                                }
+                                                let msg = response.statusMessage ? response.statusMessage:bodyjs ? bodyjs.errorMsg || "":"";
+                                                let errorMsgDetail = bodyjs ? bodyjs.errorDetails + (bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode:""):"";
+                                                errorMsgDetail = errorMsgDetail ? errorMsgDetail:bodyjs ? bodyjs.errorMsg || "":"";
+                                                //that.tokenExpirationControl(bodyjs);
                                                 reject({
-                                                    code: -1,
-                                                    msg: "ErrorManager while requesting _getUrlJson no statusCode returned",
-                                                    details: undefined,
-                                                    headers: undefined
+                                                    code: response.statusCode,
+                                                    msg: msg,
+                                                    details: errorMsgDetail,
+                                                    error: bodyjs,
+                                                    headers: response ? response.headers:undefined
                                                 });
+
                                             }
                                         } else {
                                             reject({
                                                 code: -1,
-                                                msg: "ErrorManager while requesting _getUrlJson no response returned",
+                                                msg: "ErrorManager while requesting _getUrlJson no statusCode returned",
                                                 details: undefined,
                                                 headers: undefined
                                             });
                                         }
-                                        return response;
-                                    }
-                                ],
-                                beforeRetry: [
-                                    error => {
-                                        // This will be called on `retryWithMergedOptions(...)`
-                                    }
-                                ]
-                            },
-                        };
-
-                        /*
-                        if (responseType != "") {
-                            req["responseType"] = responseType; // 'arraybuffer'
-                        } // */
-
-                        return req;
-                    };
-
-                    try {
-
-                        const secondInstance = that.mergedGot.extend({mutableDefaults: true});
-                        /*secondInstance.defaults.options.hooks = defaults.hooks;
-                        secondInstance.defaults.options.retry = defaults.retry;
-                        secondInstance.defaults.options.pagination = defaults.pagination; // */
-
-                        let getOptions = newAliveAgent();
-
-                        let response = await secondInstance.get(urlEncoded, getOptions).catch((error) => {
-                            that._logger.warn("internal", LOG_ID + "(_getUrlJson) sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " error.code : ", error?.code, ", error.message : ", error?.message, ", urlEncoded : ", urlEncoded);
-                            return that.treatSystemError("GET Url Json", error, reject);
-                        });
-                        that._logger.log(that.DEBUG, LOG_ID + "(_getUrlJson) done.");
-
-                        /*
-                        if (response?.headers && (response?.headers["content-type"]).indexOf("application/json") === 0 ) {
-                            resolve(JSON.parse(response?.body));
-                        } else {
-                            resolve(response?.rawBody);
-                        } // */
-                    } catch (error) {
-                        //
-                        //An error to be thrown when the server response code is not 2xx nor 3xx if `options.followRedirect` is `true`, but always except for 304.
-                        //Includes a `response` property. Contains a `code` property with `ERR_NON_2XX_3XX_RESPONSE` or a more specific failure code.
-                        //
-                        that._logger.warn("warn", LOG_ID + "(_getUrlJson) HTTP error.");
-                        that._logger.warn("internal", LOG_ID + "(_getUrlJson) HTTP error statusCode : ", error?.statusCode);
-                    }
-
-                    return;
-                }
-
-
-                let request = Request({
-                    url: urlEncoded,
-                    method: "GET",
-                    headers: headers,
-                    //params: params,
-                    proxy: (that.proxy && that.proxy.isProxyConfigured) ? that.proxy.proxyURL:null,
-                    agentOptions: {
-                        secureProtocol: that.proxy.secureProtocol
-                    },
-                    forever: true
-                }, (error, response, body) => {
-                    //that._logger.log(that.INFO, LOG_ID + "(_getUrlJson) successfull");
-                    let xRainbowRequestId = response?.headers["x-rainbow-request-id"];
-                    that._logger.log(that.HTTP, LOG_ID + "(_getUrlJson) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
-                    if (error) {
-                        return reject({
-                            code: -1,
-                            msg: "ErrorManager while requesting",
-                            details: error,
-                            headers: response ? response.headers:undefined
-                        });
-                    } else {
-                        if (response) {
-                            if (response.statusCode) {
-                                // that._logger.log(that.INFO, LOG_ID + "(_getUrlJson) HTTP statusCode defined : ", response.statusCode);
-                                if (response.statusCode >= 200 && response.statusCode <= 206) {
-                                    if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
-                                        let json = {};
-                                        if (response.body && (response.headers["content-type"].indexOf("json") > -1)) {
-                                            json = JSON.parse(response.body);
-                                            resolve(json);
-                                        } else {
-                                            resolve(response.body);
-                                        }
                                     } else {
-                                        return reject({
+                                        reject({
                                             code: -1,
-                                            msg: "Bad content, please check your host",
-                                            details: "",
-                                            headers: response ? response.headers:undefined
+                                            msg: "ErrorManager while requesting _getUrlJson no response returned",
+                                            details: undefined,
+                                            headers: undefined
                                         });
                                     }
-                                } else {
-                                    that._logger.warn("warn", LOG_ID + "(_getUrlJson) HTTP response.code != 200");
-                                    that._logger.warn("internal", LOG_ID + "(_getUrlJson) HTTP response.code != 200 , bodyjs : ", response.body);
-                                    let bodyjs: any = {};
-                                    if (that.hasJsonStructure(response.body)) {
-                                        bodyjs = JSON.parse(response.body);
-                                    } else {
-                                        bodyjs.errorMsg = response.body;
-                                    }
-                                    let msg = response.statusMessage ? response.statusMessage:bodyjs ? bodyjs.errorMsg || "":"";
-                                    let errorMsgDetail = bodyjs ? bodyjs.errorDetails + (bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode:""):"";
-                                    errorMsgDetail = errorMsgDetail ? errorMsgDetail:bodyjs ? bodyjs.errorMsg || "":"";
-                                    that.tokenExpirationControl(bodyjs);
-                                    return reject({
-                                        code: response.statusCode,
-                                        msg: msg,
-                                        details: errorMsgDetail,
-                                        error: bodyjs,
-                                        headers: response ? response.headers:undefined
-                                    });
-
+                                    return response;
                                 }
-                            } else {
-                            }
-                        } else {
-                        }
-                    }
-                });
+                            ],
+                            beforeRetry: [
+                                error => {
+                                    // This will be called on `retryWithMergedOptions(...)`
+                                }
+                            ]
+                        },
+                    };
+
+                    /*
+                    if (responseType != "") {
+                        req["responseType"] = responseType; // 'arraybuffer'
+                    } // */
+
+                    return req;
+                };
+
+                try {
+
+                    const secondInstance = that.mergedGot.extend({mutableDefaults: true});
+                    /*secondInstance.defaults.options.hooks = defaults.hooks;
+                    secondInstance.defaults.options.retry = defaults.retry;
+                    secondInstance.defaults.options.pagination = defaults.pagination; // */
+
+                    let getOptions = newAliveAgent();
+
+                    let response = await secondInstance.get(urlEncoded, getOptions).catch((error) => {
+                        that._logger.warn("internal", LOG_ID + "(_getUrlJson) sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " error.code : ", error?.code, ", error.message : ", error?.message, ", urlEncoded : ", urlEncoded);
+                        return that.treatSystemError("GET Url Json", error, reject);
+                    });
+                    that._logger.log(that.DEBUG, LOG_ID + "(_getUrlJson) done.");
+
+                    /*
+                    if (response?.headers && (response?.headers["content-type"]).indexOf("application/json") === 0 ) {
+                        resolve(JSON.parse(response?.body));
+                    } else {
+                        resolve(response?.rawBody);
+                    } // */
+                } catch (error) {
+                    //
+                    //An error to be thrown when the server response code is not 2xx nor 3xx if `options.followRedirect` is `true`, but always except for 304.
+                    //Includes a `response` property. Contains a `code` property with `ERR_NON_2XX_3XX_RESPONSE` or a more specific failure code.
+                    //
+                    that._logger.warn("warn", LOG_ID + "(_getUrlJson) HTTP error.");
+                    that._logger.warn("internal", LOG_ID + "(_getUrlJson) HTTP error statusCode : ", error?.statusCode);
+                }
+
             } catch (err) {
                 that._logger.log(that.ERROR, LOG_ID + "(_getUrlJson) HTTP ErrorManager");
                 that._logger.log(that.INTERNALERROR, LOG_ID + "(_getUrlJson) HTTP ErrorManager", err);
@@ -2119,417 +1858,213 @@ safeJsonParse(str) {
                 //let urlEncoded = encodeURI(that.serverURL + url); // Can not be used because the data in url are allready encodeURIComponent
                 let urlEncoded = that.serverURL + url;
 
-                let httpConfig = {URL : urlEncoded, method : "GET", headers : headers};
+                let httpConfig = {URL: urlEncoded, method: "GET", headers: headers};
                 that.addAdditionalHeaders(httpConfig);
 
-                let xRainbowRequestNodeId = headers["x-rainbow-correlation-id"] ;
+                let xRainbowRequestNodeId = headers["x-rainbow-correlation-id"];
                 that._logger.log(that.HTTP, LOG_ID + "(get) url : ", (urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-correlation-id : ", xRainbowRequestNodeId);
 
                 that._logger.log(that.INTERNAL, LOG_ID + "(get) url : ", urlEncoded, ", headers : ", headers, ", params : ", params);
 
                 if (headers.Accept && headers?.Accept?.indexOf("json") > -1) {
+                    let attemptCount = 0;
+                    const newAliveAgent: any = () => {
+                        let req = {
+                            prefixUrl: "",
+                            /*                            agent: {
+                                                            http: undefined,
+                                                            https: undefined
+                                                            //http: agent,
+                                                            //https: agent
 
-                    if (that._options.restOptions.useGotLibForHttp) {
-                        let attemptCount = 0;
-                        const newAliveAgent: any = () => {
-                            let req = {
-                                prefixUrl: "",
-/*                            agent: {
-                                http: undefined,
-                                https: undefined
-                                //http: agent,
-                                //https: agent
-
-                                //http: new HttpAgent(liveOption),
-                                //https: new HttpsAgent(liveOption)
-                                //
+                                                            //http: new HttpAgent(liveOption),
+                                                            //https: new HttpsAgent(liveOption)
+                                                            //
+                                                        },
+                            // */
+                            headers,
+                            searchParams: params,
+                            retry: {
+                                limit: nbRetryBeforeFailed,
+                                // calculateDelay: ({retryObject}) => {
+                                //     /* interface RetryObject {
+                                //         attemptCount: number;
+                                //         retryOptions: RetryOptions;
+                                //         error: RequestError;
+                                //         computedValue: number;
+                                //         retryAfter?: number;
+                                //     } of retryObject */
+                                //     that._logger.warn("internal", LOG_ID + "(get) retry HTTP GET, timeBetweenRetry : ", timeBetweenRetry, "ms , retryObject : ", retryObject);
+                                //     //return retryObject;
+                                //     return timeBetweenRetry;
+                                // },
+                                //calculateDelay: ({computedValue}) => computedValue,
+                                //calculateDelay:  ({computedValue}) => computedValue / 10,
+                                calculateDelay: ({computedValue}) => {
+                                    let noise = 100;
+                                    //let computedValueCalculated = ((2 ** (attemptCount - 1)) * 1000) + noise;
+                                    let shouldBeRun = (nbRetryBeforeFailed - attemptCount) > 1 ? 1:0;
+                                    let computedValueCalculated = (shouldBeRun * (timeBetweenRetry + noise));
+                                    attemptCount++;
+                                    that._logger.warn("warn", LOG_ID + "(get) (calculateDelay) retry HTTP GET, nbRetryBeforeFailed : ", nbRetryBeforeFailed, ",attemptCount : ", attemptCount, ", timeBetweenRetry : ", timeBetweenRetry, "ms , computedValue : ", computedValue, ", computedValueCalculated : ", computedValueCalculated);
+                                    return computedValueCalculated;
+                                },
+                                methods: [
+                                    'GET',
+                                    'PUT',
+                                    'HEAD',
+                                    'DELETE',
+                                    'OPTIONS',
+                                    'TRACE'
+                                ],
+                                statusCodes: [
+                                    408,
+                                    413,
+                                    429,
+                                    500,
+                                    502,
+                                    503,
+                                    504,
+                                    521,
+                                    522,
+                                    524
+                                ],
+                                errorCodes: [
+                                    'ETIMEDOUT',
+                                    'ECONNRESET',
+                                    'EADDRINUSE',
+                                    'ECONNREFUSED',
+                                    'EPIPE',
+                                    'ENOTFOUND',
+                                    'ENETUNREACH',
+                                    'EAI_AGAIN'
+                                ],
+                                maxRetryAfter: undefined,
+                                // backoffLimit: Number.POSITIVE_INFINITY,
+                                noise: 100
                             },
-// */
-                                headers,
-                                searchParams: params,
-                                retry: {
-                                    limit: nbRetryBeforeFailed,
-                                    // calculateDelay: ({retryObject}) => {
-                                    //     /* interface RetryObject {
-                                    //         attemptCount: number;
-                                    //         retryOptions: RetryOptions;
-                                    //         error: RequestError;
-                                    //         computedValue: number;
-                                    //         retryAfter?: number;
-                                    //     } of retryObject */
-                                    //     that._logger.warn("internal", LOG_ID + "(get) retry HTTP GET, timeBetweenRetry : ", timeBetweenRetry, "ms , retryObject : ", retryObject);
-                                    //     //return retryObject;
-                                    //     return timeBetweenRetry;
-                                    // },
-                                    //calculateDelay: ({computedValue}) => computedValue,
-                                    //calculateDelay:  ({computedValue}) => computedValue / 10,
-                                    calculateDelay:  ({computedValue}) => {
-                                        let noise = 100;
-                                        //let computedValueCalculated = ((2 ** (attemptCount - 1)) * 1000) + noise;
-                                        let shouldBeRun = (nbRetryBeforeFailed - attemptCount)> 1 ? 1 : 0;
-                                        let computedValueCalculated = (shouldBeRun * (timeBetweenRetry + noise));
-                                        attemptCount++;
-                                        that._logger.warn("warn", LOG_ID + "(get) (calculateDelay) retry HTTP GET, nbRetryBeforeFailed : ", nbRetryBeforeFailed, ",attemptCount : ", attemptCount, ", timeBetweenRetry : ", timeBetweenRetry, "ms , computedValue : ", computedValue,", computedValueCalculated : ", computedValueCalculated);
-                                        return computedValueCalculated;
-                                    },
-                                    methods: [
-                                        'GET',
-                                        'PUT',
-                                        'HEAD',
-                                        'DELETE',
-                                        'OPTIONS',
-                                        'TRACE'
-                                    ],
-                                    statusCodes: [
-                                        408,
-                                        413,
-                                        429,
-                                        500,
-                                        502,
-                                        503,
-                                        504,
-                                        521,
-                                        522,
-                                        524
-                                    ],
-                                    errorCodes: [
-                                        'ETIMEDOUT',
-                                        'ECONNRESET',
-                                        'EADDRINUSE',
-                                        'ECONNREFUSED',
-                                        'EPIPE',
-                                        'ENOTFOUND',
-                                        'ENETUNREACH',
-                                        'EAI_AGAIN'
-                                    ],
-                                    maxRetryAfter: undefined,
-                                    // backoffLimit: Number.POSITIVE_INFINITY,
-                                    noise: 100
-                                },
-                                hooks: {
-                                    afterResponse: [
-                                        (response, retryWithMergedOptions) => {
-                                            let body;
-                                            let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
-                                            that._logger.log(that.HTTP, LOG_ID + "(get) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                            hooks: {
+                                afterResponse: [
+                                    (response, retryWithMergedOptions) => {
+                                        let body;
+                                        let xRainbowRequestId = response?.headers["x-rainbow-request-id"];
+                                        that._logger.log(that.HTTP, LOG_ID + "(get) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
 
-                                            if (response?.statusCode >= 200 && response?.statusCode <= 206) {
-                                                if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
-                                                    if (response?.headers && (response?.headers["content-type"]).indexOf("application/json")===0) {
-                                                        resolve(JSON.parse(response?.body));
-                                                    } else {
-                                                        resolve(response.body);
-                                                    }
+                                        if (response?.statusCode >= 200 && response?.statusCode <= 206) {
+                                            if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
+                                                if (response?.headers && (response?.headers["content-type"]).indexOf("application/json")===0) {
+                                                    resolve(JSON.parse(response?.body));
                                                 } else {
-                                                    let responseRequest = {
-                                                        code: -1,
-                                                        url: urlEncoded,
-                                                        msg: "Bad content, please check your host",
-                                                        details: "",
-                                                        headers: response ? response.headers:undefined
-                                                    };
-                                                    reject(responseRequest);
+                                                    resolve(response.body);
                                                 }
                                             } else {
-                                                that._logger.warn("warn", LOG_ID + "(get) afterResponseHTTP response.code != 200");
-                                                that._logger.warn("internal", LOG_ID + "(get) afterResponse HTTP response.code != 200, url : ", urlEncoded, ", bodyjs : ", response.body);
-                                                that._logger.warn("internal", LOG_ID + "(get) afterResponse HTTP response.code != 200, url : ", urlEncoded, ", response.headers : ", response.headers, ", response.statusMessage : ", response.statusMessage);
-                                                let bodyjs: any = {};
-                                                if (that.hasJsonStructure(response.body)) {
-                                                    bodyjs = JSON.parse(response.body);
-                                                } else {
-                                                    bodyjs.errorMsg = response.body;
-                                                }
-                                                let msg = (response && response.statusMessage) ? response.statusMessage:bodyjs ? bodyjs.errorMsg || "":"";
-                                                let errorMsgDetail = bodyjs ? bodyjs.errorDetails + (bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode:"" ):"";
-                                                errorMsgDetail = errorMsgDetail ? errorMsgDetail:bodyjs ? bodyjs.errorMsg || "":"";
-                                                that.tokenExpirationControl(bodyjs);
                                                 let responseRequest = {
-                                                    code: response?.statusCode,
-                                                    url: urlEncoded,
-                                                    msg: msg,
-                                                    details: errorMsgDetail,
-                                                    error: bodyjs,
-                                                    headers: response?.headers
-                                                };
-
-                                                // error.response.body
-                                                reject(responseRequest);
-
-                                                /*
-                                                // Unauthorized
-                                                if (response.statusCode === 401) {
-                                                    // Refresh the access token
-                                                    const updatedOptions = {
-                                                        headers: {
-                                                            token: getNewToken()
-                                                        }
-                                                    };
-
-                                                    // Update the defaults
-                                                    instance.defaults.options.merge(updatedOptions);
-
-                                                    // Make a new retry
-                                                    return retryWithMergedOptions(updatedOptions);
-                                                }
-
-                                                // */
-                                            }
-                                            // No changes otherwise
-                                            return response;
-                                        }
-                                    ],
-                                    beforeRetry: [
-                                        error => {
-                                            // This will be called on `retryWithMergedOptions(...)`
-                                        }
-                                    ]
-                                },
-                            };
-
-                            if (responseType!="") {
-                                req["responseType"] = responseType; // 'arraybuffer'
-                            }
-
-                            return req;
-                        };
-
-                        try {
-
-                            const secondInstance = that.mergedGot.extend({mutableDefaults: true});
-                            /*secondInstance.defaults.options.hooks = defaults.hooks;
-                            secondInstance.defaults.options.retry = defaults.retry;
-                            secondInstance.defaults.options.pagination = defaults.pagination; // */
-
-                            let getOptions = newAliveAgent();
-
-                            let response = await secondInstance.get(urlEncoded, getOptions).catch((error) => {
-                                that._logger.warn("internal", LOG_ID + "(get) sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " error.code : ", error?.code, ", error.message : ", error?.message, ", urlEncoded : ", urlEncoded);
-                                return that.treatSystemError("GET", error, reject);
-                            });
-                            that._logger.log(that.DEBUG, LOG_ID + "(get) done by GOT.");
-
-                            /*
-                            if (response?.headers && (response?.headers["content-type"]).indexOf("application/json") === 0 ) {
-                                resolve(JSON.parse(response?.body));
-                            } else {
-                                resolve(response?.rawBody);
-                            } // */
-                        } catch (error) {
-                            //
-                            //An error to be thrown when the server response code is not 2xx nor 3xx if `options.followRedirect` is `true`, but always except for 304.
-                            //Includes a `response` property. Contains a `code` property with `ERR_NON_2XX_3XX_RESPONSE` or a more specific failure code.
-                            //
-                            that._logger.warn("warn", LOG_ID + "(get) HTTP error.");
-                            that._logger.warn("internal", LOG_ID + "(get) HTTP error statusCode : ", error?.statusCode);
-                        }
-
-                        that._logger.log(that.DEBUG, LOG_ID + "(get) end by GOT.");
-
-                        return;
-                    }
-// */
-
-                    let req = {
-                        url: urlEncoded,
-                        method: "GET",
-                        headers: headers,
-                        params: params,
-                        proxy: (that.proxy && that.proxy.isProxyConfigured) ? that.proxy.proxyURL : null,
-                        agentOptions: {
-                            secureProtocol: that.proxy.secureProtocol
-                        },
-                        forever: true
-                    };
-                    if (responseType != "") {
-                        req["responseType"] = responseType; // 'arraybuffer'
-                    }
-
-                    let responseRequest :any =  null; //Promise.reject({statusCode: -100, id:1});
-
-                    for (let i = 0; i < nbRetryBeforeFailed + 1 ; i++) {
-                        let responsePromRequest : any = new Promise(function(resolve2, reject2) {
-                            let request = Request(req, (error, response, body) => {
-                                that._logger.log(that.DEBUG, LOG_ID + "(get) done by request.");
-                                let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
-                                that._logger.log(that.HTTP, LOG_ID + "(get) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
-
-                                if (error) {
-                                    responseRequest = {
-                                        code: -1,
-                                        url: urlEncoded,
-                                        msg: "ErrorManager while requesting",
-                                        details: error,
-                                        headers: response ? response.headers:undefined
-                                    };
-                                    resolve2({statusCode: -100, id:2});
-                                } else {
-                                    if (response) {
-                                        if (response.statusCode) {
-                                            /*response.statusCode = 504;
-                                            response.body = "<html><body><h1>504 Gateway Time-out</h1>\n" +
-                                                "The server didn't respond in time.\n" +
-                                                "</body></html>\n";
-                                                // */
-                                            // that._logger.log(that.INFO, LOG_ID + "(get) HTTP statusCode defined : ", response.statusCode);
-                                            if (response.statusCode >= 200 && response.statusCode <= 206) {
-                                                if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
-                                                    let json = {};
-                                                    if (response.body && (response.headers["content-type"].indexOf("json") > -1)) {
-                                                        json = JSON.parse(response.body);
-                                                        responseRequest = json;
-                                                        resolve2({statusCode: response.statusCode, id:3});
-                                                    } else {
-                                                        responseRequest = response.body;
-                                                        resolve2({statusCode: response.statusCode, id:3});
-                                                    }
-                                                } else {
-                                                    responseRequest = {
-                                                        code: -1,
-                                                        url: urlEncoded,
-                                                        msg: "Bad content, please check your host",
-                                                        details: "",
-                                                        headers: response ? response.headers:undefined
-                                                    };
-                                                    resolve2({statusCode: response.statusCode, id:4});
-                                                }
-                                            } else {
-                                                that._logger.warn("warn", LOG_ID + "(get) HTTP response.code != 200");
-                                                that._logger.warn("internal", LOG_ID + "(get) HTTP response.code != 200 , bodyjs : ", response.body);
-                                                that._logger.warn("internal", LOG_ID + "(get) HTTP response.code != 200 , response.headers : ", response.headers, ", error.message : ", error?.message, ", body : ", body);
-                                                let bodyjs: any = {};
-                                                if (that.hasJsonStructure(response.body)) {
-                                                    bodyjs = JSON.parse(response.body);
-                                                } else {
-                                                    bodyjs.errorMsg = response.body;
-                                                }
-                                                let msg = response.statusMessage ? response.statusMessage:bodyjs ? bodyjs.errorMsg || "":"";
-                                                let errorMsgDetail = bodyjs ? bodyjs.errorDetails + (bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode:""):"";
-                                                errorMsgDetail = errorMsgDetail ? errorMsgDetail:bodyjs ? bodyjs.errorMsg || "":"";
-                                                that.tokenExpirationControl(bodyjs);
-                                                responseRequest = {
-                                                    code: response.statusCode,
-                                                    url: urlEncoded,
-                                                    msg: msg,
-                                                    details: errorMsgDetail,
-                                                    error: bodyjs,
-                                                    headers: response ? response.headers:undefined
-                                                };
-                                                resolve2({statusCode: response.statusCode, id:5});
-                                            }
-                                        } else {
-                                            if (response.error && response.error.reason) {
-                                                that._logger.log(that.ERROR, LOG_ID + "(get) HTTP security issue", response.error.reason);
-                                                responseRequest = {
                                                     code: -1,
                                                     url: urlEncoded,
-                                                    msg: response.error.reason,
+                                                    msg: "Bad content, please check your host",
                                                     details: "",
                                                     headers: response ? response.headers:undefined
                                                 };
-                                                resolve2({statusCode: -100, id:6});
-                                            } else {
-                                                that._logger.warn("warn", LOG_ID + "(get) HTTP other issue");
-                                                that._logger.warn("internal", LOG_ID + "(get) HTTP other issue , response : ", JSON.stringify(response), " response.message : ", response?.message);
-                                                that._logger.log(that.INTERNAL, LOG_ID + "(get) HTTP other issue", response);
-                                                responseRequest = {
-                                                    code: -1,
-                                                    url: urlEncoded,
-                                                    msg: "Unknown error",
-                                                    details: response,
-                                                    headers: response ? response.headers:undefined
-                                                };
-                                                resolve2({statusCode: -100, id:7});
+                                                reject(responseRequest);
                                             }
+                                        } else {
+                                            that._logger.warn("warn", LOG_ID + "(get) afterResponseHTTP response.code != 200");
+                                            that._logger.warn("internal", LOG_ID + "(get) afterResponse HTTP response.code != 200, url : ", urlEncoded, ", bodyjs : ", response.body);
+                                            that._logger.warn("internal", LOG_ID + "(get) afterResponse HTTP response.code != 200, url : ", urlEncoded, ", response.headers : ", response.headers, ", response.statusMessage : ", response.statusMessage);
+                                            let bodyjs: any = {};
+                                            if (that.hasJsonStructure(response.body)) {
+                                                bodyjs = JSON.parse(response.body);
+                                            } else {
+                                                bodyjs.errorMsg = response.body;
+                                            }
+                                            let msg = (response && response.statusMessage) ? response.statusMessage:bodyjs ? bodyjs.errorMsg || "":"";
+                                            let errorMsgDetail = bodyjs ? bodyjs.errorDetails + (bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode:""):"";
+                                            errorMsgDetail = errorMsgDetail ? errorMsgDetail:bodyjs ? bodyjs.errorMsg || "":"";
+                                            that.tokenExpirationControl(bodyjs);
+                                            let responseRequest = {
+                                                code: response?.statusCode,
+                                                url: urlEncoded,
+                                                msg: msg,
+                                                details: errorMsgDetail,
+                                                error: bodyjs,
+                                                headers: response?.headers
+                                            };
+
+                                            // error.response.body
+                                            reject(responseRequest);
+
+                                            /*
+                                            // Unauthorized
+                                            if (response.statusCode === 401) {
+                                                // Refresh the access token
+                                                const updatedOptions = {
+                                                    headers: {
+                                                        token: getNewToken()
+                                                    }
+                                                };
+
+                                                // Update the defaults
+                                                instance.defaults.options.merge(updatedOptions);
+
+                                                // Make a new retry
+                                                return retryWithMergedOptions(updatedOptions);
+                                            }
+
+                                            // */
                                         }
-                                    } else {
-                                        responseRequest = {
-                                            code: -1,
-                                            url: urlEncoded,
-                                            msg: "ErrorManager while requesting",
-                                            details: "error",
-                                            headers: response ? response.headers:undefined
-                                        };
-                                        resolve2({statusCode: -100, id:8});
+                                        // No changes otherwise
+                                        return response;
                                     }
-                                }
-                            });
-                        });
+                                ],
+                                beforeRetry: [
+                                    error => {
+                                        // This will be called on `retryWithMergedOptions(...)`
+                                    }
+                                ]
+                            },
+                        };
 
-                        let statusCodeHttpType = Math.floor((await responsePromRequest.catch((err) => {
-                            that._logger.warn("warn", LOG_ID + "(get) catch issue during request : ", err);
-                            return -100;
-                        })).statusCode/100);
-
-                        if (statusCodeHttpType > 0 && statusCodeHttpType < 4) {
-                            return resolve (responseRequest);
-                        } else {
-                            that.httpManager._logger.log("warn", LOG_ID + "(MyRequestHandler::request) The req method call ERROR. req.url : ", req.url, ", Iter ", i + 1,"/", nbRetryBeforeFailed, ", responseRequest : ", responseRequest);
-                            if ( (i ) < nbRetryBeforeFailed) {
-                                that.httpManager._logger.log("debug", LOG_ID + "(_get) The req method call ERROR. req.url : ", req.url, ", Iter ", i + 1,"/", nbRetryBeforeFailed, " nbRetryBeforeFailed, Will retry the request process in ", timeBetweenRetry, " milliseconds. statusCodeHttpType : ", statusCodeHttpType);
-                                await pause(timeBetweenRetry).catch((res) => {return res; });
-                            } else {
-                                that.httpManager._logger.log("debug", LOG_ID + "(_get) The req method call ERROR. req.url : ", req.url, ", Iter ", i + 1,"/", nbRetryBeforeFailed, " nbRetryBeforeFailed, Stop retry the request process and return the error. statusCodeHttpType : ", statusCodeHttpType);
-                                let res = responseRequest;
-                                return reject (res);
-                            }
+                        if (responseType!="") {
+                            req["responseType"] = responseType; // 'arraybuffer'
                         }
-                    }
-                } else {
-                    let buff = [];
-                    let err = {
-                        statusCode: null,
-                        statusMessage: null,
-                        contentType: null
+
+                        return req;
                     };
 
-                    let req = Request.get({
-                        url: urlEncoded,
-                        headers: headers,
-                        params: params,
-                        proxy: (that.proxy && that.proxy.isProxyConfigured) ? that.proxy.proxyURL : null,
-                        agentOptions: {
-                            secureProtocol: that.proxy.secureProtocol
-                        }
-                    }).on("response", function (response) {
-                        // that._logger.log(that.INFO, LOG_ID + "(get) status code:" + response.statusCode); // 200
-                        that._logger.log(that.DEBUG, LOG_ID + "(get) response headers: " + response.headers["content-type"]); // 'image/png'
-                        let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
-                        that._logger.log(that.HTTP, LOG_ID + "(get) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
-                        if (response.statusCode === 400) {
-                            req.abort();
-                            err.statusCode = response.statusCode;
-                            err.statusMessage = response.statusMessage;
-                            err.contentType = response.headers["content-type"];
-                        }
-                    }).on("data", (chunk) => {
-                        buff.push(chunk);
-                    }).on("error", (error) => {
-                        that._logger.log(that.ERROR, LOG_ID, "(get) error");
-                        that._logger.log(that.INTERNALERROR, LOG_ID, "(get) error.message : ", error.message);
-                        that._logger.log(that.DEBUG, LOG_ID + "(get) _exiting_");
-                        return reject({
-                            code: -1,
-                            url: urlEncoded,
-                            msg: error.message,
-                            details: ""
+                    try {
+
+                        const secondInstance = that.mergedGot.extend({mutableDefaults: true});
+                        /*secondInstance.defaults.options.hooks = defaults.hooks;
+                        secondInstance.defaults.options.retry = defaults.retry;
+                        secondInstance.defaults.options.pagination = defaults.pagination; // */
+
+                        let getOptions = newAliveAgent();
+
+                        let response = await secondInstance.get(urlEncoded, getOptions).catch((error) => {
+                            that._logger.warn("internal", LOG_ID + "(get) sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " error.code : ", error?.code, ", error.message : ", error?.message, ", urlEncoded : ", urlEncoded);
+                            return that.treatSystemError("GET", error, reject);
                         });
-                    }).on("end", () => {
-                        // that._logger.log(that.INFO, LOG_ID + "(get) successfull");
-                        that._logger.log(that.INFO, LOG_ID + "(get) get file buffer from Url successfull");
-                        that._logger.log(that.DEBUG, LOG_ID + "(get) _exiting_");
-                        if (!err.statusCode) {
-                            let data = Buffer.concat(buff);
-                            resolve(data);
+                        that._logger.log(that.DEBUG, LOG_ID + "(get) done by GOT.");
+
+                        /*
+                        if (response?.headers && (response?.headers["content-type"]).indexOf("application/json") === 0 ) {
+                            resolve(JSON.parse(response?.body));
                         } else {
-                            return reject({
-                                code: err.statusCode,
-                                url: urlEncoded,
-                                msg: err.statusMessage,
-                                details: ""
-                            });
-                        }
-                    }); // */
+                            resolve(response?.rawBody);
+                        } // */
+                    } catch (error) {
+                        //
+                        //An error to be thrown when the server response code is not 2xx nor 3xx if `options.followRedirect` is `true`, but always except for 304.
+                        //Includes a `response` property. Contains a `code` property with `ERR_NON_2XX_3XX_RESPONSE` or a more specific failure code.
+                        //
+                        that._logger.warn("warn", LOG_ID + "(get) HTTP error.");
+                        that._logger.warn("internal", LOG_ID + "(get) HTTP error statusCode : ", error?.statusCode);
+                    }
+
+                    that._logger.log(that.DEBUG, LOG_ID + "(get) end by GOT.");
+// */
+                } else {
+                    that._logger.log(that.ERROR, LOG_ID + "(get) for non JSON type is not supported yet. urlEncoded : ", urlEncoded);
                 }
             } catch (err) {
                 that._logger.log(that.ERROR, LOG_ID + "(get) HTTP ErrorManager");
@@ -2594,316 +2129,205 @@ safeJsonParse(str) {
             that._logger.log(that.HTTP, LOG_ID + "(post) url : ", (urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-correlation-id : ", xRainbowRequestNodeId);
 
             that._logger.log(that.INTERNAL, LOG_ID + "(post) url : ", urlEncoded, ", headers : ", headers, ", body : ", body);
+            let attemptCount = 0;
+            const newAliveAgent: any = () => {
+                let req = {
+                    prefixUrl: "",
+                    /*                            agent: {
+                                                    http: undefined,
+                                                    https: undefined
+                                                    //http: agent,
+                                                    //https: agent
 
-
-            if (that._options.restOptions.useGotLibForHttp) {
-                let attemptCount = 0;
-                const newAliveAgent: any = () => {
-                    let req = {
-                        prefixUrl: "",
-/*                            agent: {
-                                http: undefined,
-                                https: undefined
-                                //http: agent,
-                                //https: agent
-
-                                //http: new HttpAgent(liveOption),
-                                //https: new HttpsAgent(liveOption)
-                                //
-                            },
-// */
-                        headers,
-                        body,
-                        //searchParams: params,
-                        retry: {
-                            limit: nbRetryBeforeFailed,
-                            // calculateDelay: ({retryObject}) => {
-                            //     /* interface RetryObject {
-                            //         attemptCount: number;
-                            //         retryOptions: RetryOptions;
-                            //         error: RequestError;
-                            //         computedValue: number;
-                            //         retryAfter?: number;
-                            //     } of retryObject */
-                            //     that._logger.warn("internal", LOG_ID + "(get) retry HTTP PUT, retryObject : ", retryObject);
-                            //     //return retryObject;
-                            //     return 1000;
-                            // },
-                            // calculateDelay: ({computedValue}) => computedValue,
-                            calculateDelay: ({computedValue}) => {
-                                let noise = 100;
-                                //let computedValueCalculated = ((2 ** (attemptCount - 1)) * 1000) + noise;
-                                let shouldBeRun = (nbRetryBeforeFailed - attemptCount) > 1 ? 1:0;
-                                let computedValueCalculated = (shouldBeRun * (timeBetweenRetry + noise));
-                                attemptCount++;
-                                that._logger.warn("warn", LOG_ID + "(get) (calculateDelay) retry HTTP GET, nbRetryBeforeFailed : ", nbRetryBeforeFailed, ",attemptCount : ", attemptCount, ", timeBetweenRetry : ", timeBetweenRetry, "ms , computedValue : ", computedValue, ", computedValueCalculated : ", computedValueCalculated);
-                                return computedValueCalculated;
-                            },
-                            methods: [
-                                'GET',
-                                'PUT',
-                                'HEAD',
-                                'DELETE',
-                                'OPTIONS',
-                                'TRACE'
-                            ],
-                            statusCodes: [
-                                408,
-                                413,
-                                429,
-                                500,
-                                502,
-                                503,
-                                504,
-                                521,
-                                522,
-                                524
-                            ],
-                            errorCodes: [
-                                'ETIMEDOUT',
-                                'ECONNRESET',
-                                'EADDRINUSE',
-                                'ECONNREFUSED',
-                                'EPIPE',
-                                'ENOTFOUND',
-                                'ENETUNREACH',
-                                'EAI_AGAIN'
-                            ],
-                            maxRetryAfter: undefined,
-                            // backoffLimit: Number.POSITIVE_INFINITY,
-                            noise: 100
+                                                    //http: new HttpAgent(liveOption),
+                                                    //https: new HttpsAgent(liveOption)
+                                                    //
+                                                },
+                    // */
+                    headers,
+                    body,
+                    //searchParams: params,
+                    retry: {
+                        limit: nbRetryBeforeFailed,
+                        // calculateDelay: ({retryObject}) => {
+                        //     /* interface RetryObject {
+                        //         attemptCount: number;
+                        //         retryOptions: RetryOptions;
+                        //         error: RequestError;
+                        //         computedValue: number;
+                        //         retryAfter?: number;
+                        //     } of retryObject */
+                        //     that._logger.warn("internal", LOG_ID + "(get) retry HTTP PUT, retryObject : ", retryObject);
+                        //     //return retryObject;
+                        //     return 1000;
+                        // },
+                        // calculateDelay: ({computedValue}) => computedValue,
+                        calculateDelay: ({computedValue}) => {
+                            let noise = 100;
+                            //let computedValueCalculated = ((2 ** (attemptCount - 1)) * 1000) + noise;
+                            let shouldBeRun = (nbRetryBeforeFailed - attemptCount) > 1 ? 1:0;
+                            let computedValueCalculated = (shouldBeRun * (timeBetweenRetry + noise));
+                            attemptCount++;
+                            that._logger.warn("warn", LOG_ID + "(get) (calculateDelay) retry HTTP GET, nbRetryBeforeFailed : ", nbRetryBeforeFailed, ",attemptCount : ", attemptCount, ", timeBetweenRetry : ", timeBetweenRetry, "ms , computedValue : ", computedValue, ", computedValueCalculated : ", computedValueCalculated);
+                            return computedValueCalculated;
                         },
-                        hooks: {
-                            beforeRequest: [function (options) {
-                                //that._logger.log(that.HTTP, LOG_ID + "(post) beforeRequest url : ", ( urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-correlation-id : ", xRainbowRequestNodeId,", options : ", options);
-                            }],
-                            afterResponse: [
-                                (response, retryWithMergedOptions) => {
-                                    let body;
-                                    let xRainbowRequestId = response?.headers["x-rainbow-request-id"];
-                                    that._logger.log(that.HTTP, LOG_ID + "(post) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                        methods: [
+                            'GET',
+                            'PUT',
+                            'HEAD',
+                            'DELETE',
+                            'OPTIONS',
+                            'TRACE'
+                        ],
+                        statusCodes: [
+                            408,
+                            413,
+                            429,
+                            500,
+                            502,
+                            503,
+                            504,
+                            521,
+                            522,
+                            524
+                        ],
+                        errorCodes: [
+                            'ETIMEDOUT',
+                            'ECONNRESET',
+                            'EADDRINUSE',
+                            'ECONNREFUSED',
+                            'EPIPE',
+                            'ENOTFOUND',
+                            'ENETUNREACH',
+                            'EAI_AGAIN'
+                        ],
+                        maxRetryAfter: undefined,
+                        // backoffLimit: Number.POSITIVE_INFINITY,
+                        noise: 100
+                    },
+                    hooks: {
+                        beforeRequest: [function (options) {
+                            //that._logger.log(that.HTTP, LOG_ID + "(post) beforeRequest url : ", ( urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-correlation-id : ", xRainbowRequestNodeId,", options : ", options);
+                        }],
+                        afterResponse: [
+                            (response, retryWithMergedOptions) => {
+                                let body;
+                                let xRainbowRequestId = response?.headers["x-rainbow-request-id"];
+                                that._logger.log(that.HTTP, LOG_ID + "(post) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
 
-                                    if (response?.statusCode) {
-                                        if (response?.statusCode >= 200 && response?.statusCode <= 206) {
-                                            if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
-                                                if (response?.headers && (response?.headers["content-type"]).indexOf("application/json")===0) {
-                                                    resolve(JSON.parse(response?.body));
-                                                } else {
-                                                    resolve(response.body);
-                                                }
+                                if (response?.statusCode) {
+                                    if (response?.statusCode >= 200 && response?.statusCode <= 206) {
+                                        if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
+                                            if (response?.headers && (response?.headers["content-type"]).indexOf("application/json")===0) {
+                                                resolve(JSON.parse(response?.body));
                                             } else {
-                                                let responseRequest = {
-                                                    code: -1,
-                                                    url: urlEncoded,
-                                                    msg: "Bad content, please check your host",
-                                                    details: "",
-                                                    headers: response ? response.headers:undefined
-                                                };
-                                                reject(responseRequest);
+                                                resolve(response.body);
                                             }
                                         } else {
-                                            that._logger.warn("warn", LOG_ID + "(post) afterResponseHTTP response.code != 200");
-                                            that._logger.warn("internal", LOG_ID + "(post) afterResponse HTTP response.code != 200, url : ", urlEncoded, ", bodyjs : ", response.body);
-                                            that._logger.warn("internal", LOG_ID + "(post) afterResponse HTTP response.code != 200, url : ", urlEncoded, ", response.headers : ", response.headers, ", response.statusMessage : ", response.statusMessage);
-                                            let bodyjs: any = {};
-                                            if (that.hasJsonStructure(response.body)) {
-                                                bodyjs = JSON.parse(response.body);
-                                            } else {
-                                                bodyjs.errorMsg = response.body;
-                                            }
-
-                                            that._logger.warn("warn", LOG_ID + "(post) HTTP response.code != 200 ");
-                                            that._logger.warn("internal", LOG_ID + "(post) HTTP response.code != 200 , body : ", bodyjs);
-                                            let msg = response.statusMessage ? response.statusMessage:bodyjs ? bodyjs.errorMsg || "":"";
-                                            let errorDetails = bodyjs.errorDetails;
-                                            if (errorDetails) {
-                                                if (typeof errorDetails==="object") {
-                                                    // errorDetails = JSON.stringify(errorDetails);
-                                                    errorDetails = util.inspect(errorDetails, false, 4, true);
-                                                }
-                                            }
-                                            let errorMsgDetail = bodyjs ? errorDetails + (bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode:""):"";
-                                            errorMsgDetail = errorMsgDetail ? errorMsgDetail:bodyjs ? bodyjs.errorMsg || "":"";
-
-                                            that.tokenExpirationControl(bodyjs);
                                             let responseRequest = {
-                                                code: response?.statusCode,
+                                                code: -1,
                                                 url: urlEncoded,
-                                                msg: msg,
-                                                details: errorMsgDetail,
-                                                error: bodyjs,
-                                                headers: response?.headers
+                                                msg: "Bad content, please check your host",
+                                                details: "",
+                                                headers: response ? response.headers:undefined
                                             };
-
-                                            // error.response.body
                                             reject(responseRequest);
                                         }
                                     } else {
-                                        if (response.error && response.error.reason) {
-                                            that._logger.log(that.ERROR, LOG_ID + "(post) HTTP security issue", response.error.reason);
-                                            reject({
-                                                code: -1,
-                                                url: urlEncoded,
-                                                msg: response.error.reason,
-                                                details: "",
-                                                headers: response ? response.headers:undefined
-                                            });
+                                        that._logger.warn("warn", LOG_ID + "(post) afterResponseHTTP response.code != 200");
+                                        that._logger.warn("internal", LOG_ID + "(post) afterResponse HTTP response.code != 200, url : ", urlEncoded, ", bodyjs : ", response.body);
+                                        that._logger.warn("internal", LOG_ID + "(post) afterResponse HTTP response.code != 200, url : ", urlEncoded, ", response.headers : ", response.headers, ", response.statusMessage : ", response.statusMessage);
+                                        let bodyjs: any = {};
+                                        if (that.hasJsonStructure(response.body)) {
+                                            bodyjs = JSON.parse(response.body);
                                         } else {
-                                            that._logger.warn("error", LOG_ID + "(post) HTTP other issue.");
-                                            that._logger.warn("internalerror", LOG_ID + "(post) HTTP other issue , response : ", JSON.stringify(response) + " response.message : " + response?.message);
-                                            that._logger.log(that.INTERNAL, LOG_ID + "(post) HTTP other issue", response);
-                                            reject({
-                                                code: -1,
-                                                url: urlEncoded,
-                                                msg: "Unknown error",
-                                                details: response,
-                                                headers: response ? response.headers:undefined
-                                            });
+                                            bodyjs.errorMsg = response.body;
                                         }
-                                    }
-                                    // No changes otherwise
-                                    return response;
-                                }
-                            ]
-                        },
-                    };
 
-                    return req;
+                                        that._logger.warn("warn", LOG_ID + "(post) HTTP response.code != 200 ");
+                                        that._logger.warn("internal", LOG_ID + "(post) HTTP response.code != 200 , body : ", bodyjs);
+                                        let msg = response.statusMessage ? response.statusMessage:bodyjs ? bodyjs.errorMsg || "":"";
+                                        let errorDetails = bodyjs.errorDetails;
+                                        if (errorDetails) {
+                                            if (typeof errorDetails==="object") {
+                                                // errorDetails = JSON.stringify(errorDetails);
+                                                errorDetails = util.inspect(errorDetails, false, 4, true);
+                                            }
+                                        }
+                                        let errorMsgDetail = bodyjs ? errorDetails + (bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode:""):"";
+                                        errorMsgDetail = errorMsgDetail ? errorMsgDetail:bodyjs ? bodyjs.errorMsg || "":"";
+
+                                        that.tokenExpirationControl(bodyjs);
+                                        let responseRequest = {
+                                            code: response?.statusCode,
+                                            url: urlEncoded,
+                                            msg: msg,
+                                            details: errorMsgDetail,
+                                            error: bodyjs,
+                                            headers: response?.headers
+                                        };
+
+                                        // error.response.body
+                                        reject(responseRequest);
+                                    }
+                                } else {
+                                    if (response.error && response.error.reason) {
+                                        that._logger.log(that.ERROR, LOG_ID + "(post) HTTP security issue", response.error.reason);
+                                        reject({
+                                            code: -1,
+                                            url: urlEncoded,
+                                            msg: response.error.reason,
+                                            details: "",
+                                            headers: response ? response.headers:undefined
+                                        });
+                                    } else {
+                                        that._logger.warn("error", LOG_ID + "(post) HTTP other issue.");
+                                        that._logger.warn("internalerror", LOG_ID + "(post) HTTP other issue , response : ", JSON.stringify(response) + " response.message : " + response?.message);
+                                        that._logger.log(that.INTERNAL, LOG_ID + "(post) HTTP other issue", response);
+                                        reject({
+                                            code: -1,
+                                            url: urlEncoded,
+                                            msg: "Unknown error",
+                                            details: response,
+                                            headers: response ? response.headers:undefined
+                                        });
+                                    }
+                                }
+                                // No changes otherwise
+                                return response;
+                            }
+                        ]
+                    },
                 };
 
-                try {
+                return req;
+            };
 
-                    const secondInstance = that.mergedGot.extend({mutableDefaults: true});
-                    /*secondInstance.defaults.options.hooks = defaults.hooks;
-                    secondInstance.defaults.options.retry = defaults.retry;
-                    secondInstance.defaults.options.pagination = defaults.pagination; // */
+            try {
+
+                const secondInstance = that.mergedGot.extend({mutableDefaults: true});
+                /*secondInstance.defaults.options.hooks = defaults.hooks;
+                secondInstance.defaults.options.retry = defaults.retry;
+                secondInstance.defaults.options.pagination = defaults.pagination; // */
 
 
-                    let getOptions = newAliveAgent();
-                    let response = await secondInstance.post(urlEncoded, getOptions).catch((error) => {
-                        that._logger.warn("internal", LOG_ID + "(post) sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " error.code : ", error?.code, ", error.message : ", error?.message, ", urlEncoded : ", urlEncoded);
-                        return that.treatSystemError("POST", error, reject);
-                    });
-                    that._logger.log(that.DEBUG, LOG_ID + "(post) done.");
+                let getOptions = newAliveAgent();
+                let response = await secondInstance.post(urlEncoded, getOptions).catch((error) => {
+                    that._logger.warn("internal", LOG_ID + "(post) sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " error.code : ", error?.code, ", error.message : ", error?.message, ", urlEncoded : ", urlEncoded);
+                    return that.treatSystemError("POST", error, reject);
+                });
+                that._logger.log(that.DEBUG, LOG_ID + "(post) done.");
 
-                } catch (error) {
-                    //
-                    //An error to be thrown when the server response code is not 2xx nor 3xx if `options.followRedirect` is `true`, but always except for 304.
-                    //Includes a `response` property. Contains a `code` property with `ERR_NON_2XX_3XX_RESPONSE` or a more specific failure code.
-                    //
-                    that._logger.warn("warn", LOG_ID + "(post) HTTP error.");
-                    that._logger.warn("internal", LOG_ID + "(post) HTTP error statusCode : ", error?.statusCode);
-                }
-
-                return;
+            } catch (error) {
+                //
+                //An error to be thrown when the server response code is not 2xx nor 3xx if `options.followRedirect` is `true`, but always except for 304.
+                //Includes a `response` property. Contains a `code` property with `ERR_NON_2XX_3XX_RESPONSE` or a more specific failure code.
+                //
+                that._logger.warn("warn", LOG_ID + "(post) HTTP error.");
+                that._logger.warn("internal", LOG_ID + "(post) HTTP error statusCode : ", error?.statusCode);
             }
+
 // */
-
-
-            Request({
-                method: 'POST',
-                preambleCRLF: true,
-                postambleCRLF: true,
-                url: urlEncoded,
-                headers: headers,
-                proxy: (that.proxy && that.proxy.isProxyConfigured) ? that.proxy.proxyURL:null,
-                agentOptions: {
-                    secureProtocol: that.proxy.secureProtocol
-                },
-                forever: true,
-                body: body
-            }, (error, response, body) => {
-                let xRainbowRequestId = response?.headers["x-rainbow-request-id"];
-                that._logger.log(that.HTTP, LOG_ID + "(post) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
-                if (error) {
-                    that._logger.log(that.WARN, LOG_ID + "(post) failed:", error, ", url:", urlEncoded, ", response : ", response);
-                    return reject({"msg": "post failed", "error": error});
-                } else {
-                    if (response) {
-                        if (response.statusCode) {
-                            // that._logger.log(that.INFO, LOG_ID + "(post) HTTP statusCode", response.statusCode);
-                            if (response.statusCode >= 200 && response.statusCode <= 206) {
-                                if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
-                                    let json = {};
-                                    if (response.body && (response.headers["content-type"].indexOf("json") > -1)) {
-                                        json = JSON.parse(response.body);
-                                        resolve(json);
-                                    } else {
-                                        resolve(response.body);
-                                    }
-                                } else {
-                                    return reject({
-                                        code: -1,
-                                        url: urlEncoded,
-                                        msg: "Bad content, please check your host",
-                                        details: "",
-                                        headers: response ? response.headers:undefined
-                                    });
-                                }
-                            } else {
-                                let bodyjs: any = {};
-                                if (that.hasJsonStructure(response.body)) {
-                                    bodyjs = JSON.parse(response.body);
-                                } else {
-                                    bodyjs.errorMsg = response.body;
-                                }
-
-                                that._logger.warn("warn", LOG_ID + "(post) HTTP response.code != 200 ");
-                                that._logger.warn("internal", LOG_ID + "(post) HTTP response.code != 200 , body : ", bodyjs);
-                                let msg = response.statusMessage ? response.statusMessage:bodyjs ? bodyjs.errorMsg || "":"";
-                                let errorDetails = bodyjs.errorDetails;
-                                if (errorDetails) {
-                                    if (typeof errorDetails==="object") {
-                                        // errorDetails = JSON.stringify(errorDetails);
-                                        errorDetails = util.inspect(errorDetails, false, 4, true);
-                                    }
-                                }
-                                let errorMsgDetail = bodyjs ? errorDetails + (bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode:""):"";
-                                errorMsgDetail = errorMsgDetail ? errorMsgDetail:bodyjs ? bodyjs.errorMsg || "":"";
-
-                                that.tokenExpirationControl(bodyjs);
-                                return reject({
-                                    code: response.statusCode,
-                                    url: urlEncoded,
-                                    msg: msg,
-                                    details: errorMsgDetail,
-                                    error: bodyjs,
-                                    headers: response ? response.headers:undefined
-                                });
-                            }
-                        } else {
-                            if (response.error && response.error.reason) {
-                                that._logger.log(that.ERROR, LOG_ID + "(post) HTTP security issue", response.error.reason);
-                                return reject({
-                                    code: -1,
-                                    url: urlEncoded,
-                                    msg: response.error.reason,
-                                    details: "",
-                                    headers: response ? response.headers:undefined
-                                });
-                            } else {
-                                that._logger.warn("error", LOG_ID + "(post) HTTP other issue.");
-                                that._logger.warn("internalerror", LOG_ID + "(post) HTTP other issue , response : ", JSON.stringify(response), " response.message : ", response?.message);
-                                that._logger.log(that.INTERNAL, LOG_ID + "(post) HTTP other issue", response);
-                                return reject({
-                                    code: -1,
-                                    url: urlEncoded,
-                                    msg: "Unknown error",
-                                    details: response,
-                                    headers: response ? response.headers:undefined
-                                });
-                            }
-                        }
-                    } else {
-                        return reject({
-                            code: -1,
-                            url: urlEncoded,
-                            msg: "ErrorManager while requesting",
-                            details: "error"
-                        });
-                    }
-                }
-            });
         });
     }
 
@@ -2944,312 +2368,207 @@ safeJsonParse(str) {
 
             that._logger.log(that.INTERNAL, LOG_ID + "(head) url : ", urlEncoded, ", headers : ", headers);
 
+            let attemptCount = 0;
+            const newAliveAgent: any = () => {
+                let req = {
+                    prefixUrl: "",
+                    /*                            agent: {
+                                                    http: undefined,
+                                                    https: undefined
+                                                    //http: agent,
+                                                    //https: agent
 
-            if (that._options.restOptions.useGotLibForHttp) {
-                let attemptCount = 0;
-                const newAliveAgent: any = () => {
-                    let req = {
-                        prefixUrl: "",
-/*                            agent: {
-                                http: undefined,
-                                https: undefined
-                                //http: agent,
-                                //https: agent
-
-                                //http: new HttpAgent(liveOption),
-                                //https: new HttpsAgent(liveOption)
-                                //
-                            },
-// */
-                        headers,
-                        //body,
-                        //searchParams: params,
-                        retry: {
-                            limit: nbRetryBeforeFailed,
-                            // calculateDelay: ({retryObject}) => {
-                            //     /* interface RetryObject {
-                            //         attemptCount: number;
-                            //         retryOptions: RetryOptions;
-                            //         error: RequestError;
-                            //         computedValue: number;
-                            //         retryAfter?: number;
-                            //     } of retryObject */
-                            //     that._logger.warn("internal", LOG_ID + "(head) retry HTTP HEAD, retryObject : ", retryObject);
-                            //     //return retryObject;
-                            //     return 1000;
-                            // },
-                            //calculateDelay: ({computedValue}) => computedValue,
-                            calculateDelay: ({computedValue}) => {
-                                let noise = 100;
-                                //let computedValueCalculated = ((2 ** (attemptCount - 1)) * 1000) + noise;
-                                let shouldBeRun = (nbRetryBeforeFailed - attemptCount) > 1 ? 1:0;
-                                let computedValueCalculated = (shouldBeRun * (timeBetweenRetry + noise));
-                                attemptCount++;
-                                that._logger.warn("warn", LOG_ID + "(get) (calculateDelay) retry HTTP GET, nbRetryBeforeFailed : ", nbRetryBeforeFailed, ",attemptCount : ", attemptCount, ", timeBetweenRetry : ", timeBetweenRetry, "ms , computedValue : ", computedValue, ", computedValueCalculated : ", computedValueCalculated);
-                                return computedValueCalculated;
-                            },
-                            methods: [
-                                'GET',
-                                'PUT',
-                                'HEAD',
-                                'DELETE',
-                                'OPTIONS',
-                                'TRACE'
-                            ],
-                            statusCodes: [
-                                408,
-                                413,
-                                429,
-                                500,
-                                502,
-                                503,
-                                504,
-                                521,
-                                522,
-                                524
-                            ],
-                            errorCodes: [
-                                'ETIMEDOUT',
-                                'ECONNRESET',
-                                'EADDRINUSE',
-                                'ECONNREFUSED',
-                                'EPIPE',
-                                'ENOTFOUND',
-                                'ENETUNREACH',
-                                'EAI_AGAIN'
-                            ],
-                            maxRetryAfter: undefined,
-                            // backoffLimit: Number.POSITIVE_INFINITY,
-                            noise: 100
+                                                    //http: new HttpAgent(liveOption),
+                                                    //https: new HttpsAgent(liveOption)
+                                                    //
+                                                },
+                    // */
+                    headers,
+                    //body,
+                    //searchParams: params,
+                    retry: {
+                        limit: nbRetryBeforeFailed,
+                        // calculateDelay: ({retryObject}) => {
+                        //     /* interface RetryObject {
+                        //         attemptCount: number;
+                        //         retryOptions: RetryOptions;
+                        //         error: RequestError;
+                        //         computedValue: number;
+                        //         retryAfter?: number;
+                        //     } of retryObject */
+                        //     that._logger.warn("internal", LOG_ID + "(head) retry HTTP HEAD, retryObject : ", retryObject);
+                        //     //return retryObject;
+                        //     return 1000;
+                        // },
+                        //calculateDelay: ({computedValue}) => computedValue,
+                        calculateDelay: ({computedValue}) => {
+                            let noise = 100;
+                            //let computedValueCalculated = ((2 ** (attemptCount - 1)) * 1000) + noise;
+                            let shouldBeRun = (nbRetryBeforeFailed - attemptCount) > 1 ? 1:0;
+                            let computedValueCalculated = (shouldBeRun * (timeBetweenRetry + noise));
+                            attemptCount++;
+                            that._logger.warn("warn", LOG_ID + "(get) (calculateDelay) retry HTTP GET, nbRetryBeforeFailed : ", nbRetryBeforeFailed, ",attemptCount : ", attemptCount, ", timeBetweenRetry : ", timeBetweenRetry, "ms , computedValue : ", computedValue, ", computedValueCalculated : ", computedValueCalculated);
+                            return computedValueCalculated;
                         },
-                        hooks: {
-                            afterResponse: [
-                                (response, retryWithMergedOptions) => {
-                                    let body;
-                                    let xRainbowRequestId = response?.headers["x-rainbow-request-id"];
-                                    that._logger.log(that.HTTP, LOG_ID + "(head) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                        methods: [
+                            'GET',
+                            'PUT',
+                            'HEAD',
+                            'DELETE',
+                            'OPTIONS',
+                            'TRACE'
+                        ],
+                        statusCodes: [
+                            408,
+                            413,
+                            429,
+                            500,
+                            502,
+                            503,
+                            504,
+                            521,
+                            522,
+                            524
+                        ],
+                        errorCodes: [
+                            'ETIMEDOUT',
+                            'ECONNRESET',
+                            'EADDRINUSE',
+                            'ECONNREFUSED',
+                            'EPIPE',
+                            'ENOTFOUND',
+                            'ENETUNREACH',
+                            'EAI_AGAIN'
+                        ],
+                        maxRetryAfter: undefined,
+                        // backoffLimit: Number.POSITIVE_INFINITY,
+                        noise: 100
+                    },
+                    hooks: {
+                        afterResponse: [
+                            (response, retryWithMergedOptions) => {
+                                let body;
+                                let xRainbowRequestId = response?.headers["x-rainbow-request-id"];
+                                that._logger.log(that.HTTP, LOG_ID + "(head) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
 
-                                    if (response?.statusCode) {
-                                        if (response?.statusCode >= 200 && response?.statusCode <= 206) {
-                                            if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
-                                                if (response.body && response?.headers && (response?.headers["content-type"]).indexOf("application/json")===0) {
-                                                    resolve(JSON.parse(response?.body));
-                                                } else {
-                                                    resolve(response.body);
-                                                }
+                                if (response?.statusCode) {
+                                    if (response?.statusCode >= 200 && response?.statusCode <= 206) {
+                                        if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
+                                            if (response.body && response?.headers && (response?.headers["content-type"]).indexOf("application/json")===0) {
+                                                resolve(JSON.parse(response?.body));
                                             } else {
-                                                let responseRequest = {
-                                                    code: -1,
-                                                    url: urlEncoded,
-                                                    msg: "Bad content, please check your host",
-                                                    details: "",
-                                                    headers: response ? response.headers:undefined
-                                                };
-                                                reject(responseRequest);
+                                                resolve(response.body);
                                             }
                                         } else {
-                                            that._logger.warn("warn", LOG_ID + "(head) afterResponseHTTP response.code != 200");
-                                            that._logger.warn("internal", LOG_ID + "(head) afterResponse HTTP response.code != 200, url : ", urlEncoded, ", bodyjs : ", response.body);
-                                            that._logger.warn("internal", LOG_ID + "(head) afterResponse HTTP response.code != 200, url : ", urlEncoded, ", response.headers : ", response.headers, ", response.statusMessage : ", response.statusMessage);
-                                            let bodyjs: any = {};
-                                            if (that.hasJsonStructure(response.body)) {
-                                                bodyjs = JSON.parse(response.body);
-                                            } else {
-                                                bodyjs.errorMsg = response.body;
-                                            }
-
-                                            that._logger.warn("warn", LOG_ID + "(head) HTTP response.code != 200 ");
-                                            that._logger.warn("internal", LOG_ID + "(head) HTTP response.code != 200 , body : ", bodyjs);
-                                            let msg = response.statusMessage ? response.statusMessage:bodyjs ? bodyjs.errorMsg || "":"";
-                                            let errorDetails = bodyjs.errorDetails;
-                                            if (errorDetails) {
-                                                if (typeof errorDetails==="object") {
-                                                    // errorDetails = JSON.stringify(errorDetails);
-                                                    errorDetails = util.inspect(errorDetails, false, 4, true);
-                                                }
-                                            }
-                                            let errorMsgDetail = bodyjs ? errorDetails + (bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode:""):"";
-                                            errorMsgDetail = errorMsgDetail ? errorMsgDetail:bodyjs ? bodyjs.errorMsg || "":"";
-
-                                            that.tokenExpirationControl(bodyjs);
                                             let responseRequest = {
-                                                code: response?.statusCode,
+                                                code: -1,
                                                 url: urlEncoded,
-                                                msg: msg,
-                                                details: errorMsgDetail,
-                                                error: bodyjs,
-                                                headers: response?.headers
+                                                msg: "Bad content, please check your host",
+                                                details: "",
+                                                headers: response ? response.headers:undefined
                                             };
-
-                                            // error.response.body
                                             reject(responseRequest);
                                         }
                                     } else {
-                                        if (response.error && response.error.reason) {
-                                            that._logger.log(that.ERROR, LOG_ID + "(head) HTTP security issue", response.error.reason);
-                                            reject({
-                                                code: -1,
-                                                url: urlEncoded,
-                                                msg: response.error.reason,
-                                                details: "",
-                                                headers: response ? response.headers:undefined
-                                            });
+                                        that._logger.warn("warn", LOG_ID + "(head) afterResponseHTTP response.code != 200");
+                                        that._logger.warn("internal", LOG_ID + "(head) afterResponse HTTP response.code != 200, url : ", urlEncoded, ", bodyjs : ", response.body);
+                                        that._logger.warn("internal", LOG_ID + "(head) afterResponse HTTP response.code != 200, url : ", urlEncoded, ", response.headers : ", response.headers, ", response.statusMessage : ", response.statusMessage);
+                                        let bodyjs: any = {};
+                                        if (that.hasJsonStructure(response.body)) {
+                                            bodyjs = JSON.parse(response.body);
                                         } else {
-                                            that._logger.warn("error", LOG_ID + "(head) HTTP other issue.");
-                                            that._logger.warn("internalerror", LOG_ID + "(head) HTTP other issue , response : ", JSON.stringify(response), " response.message : ", response?.message);
-                                            that._logger.log(that.INTERNAL, LOG_ID + "(head) HTTP other issue", response);
-                                            reject({
-                                                code: -1,
-                                                url: urlEncoded,
-                                                msg: "Unknown error",
-                                                details: response,
-                                                headers: response ? response.headers:undefined
-                                            });
+                                            bodyjs.errorMsg = response.body;
                                         }
-                                    }
-                                    // No changes otherwise
-                                    return response;
-                                }
-                            ],
-                            beforeRetry: [
-                                error => {
-                                    // This will be called on `retryWithMergedOptions(...)`
-                                }
-                            ]
-                        },
-                    };
 
-                    return req;
+                                        that._logger.warn("warn", LOG_ID + "(head) HTTP response.code != 200 ");
+                                        that._logger.warn("internal", LOG_ID + "(head) HTTP response.code != 200 , body : ", bodyjs);
+                                        let msg = response.statusMessage ? response.statusMessage:bodyjs ? bodyjs.errorMsg || "":"";
+                                        let errorDetails = bodyjs.errorDetails;
+                                        if (errorDetails) {
+                                            if (typeof errorDetails==="object") {
+                                                // errorDetails = JSON.stringify(errorDetails);
+                                                errorDetails = util.inspect(errorDetails, false, 4, true);
+                                            }
+                                        }
+                                        let errorMsgDetail = bodyjs ? errorDetails + (bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode:""):"";
+                                        errorMsgDetail = errorMsgDetail ? errorMsgDetail:bodyjs ? bodyjs.errorMsg || "":"";
+
+                                        that.tokenExpirationControl(bodyjs);
+                                        let responseRequest = {
+                                            code: response?.statusCode,
+                                            url: urlEncoded,
+                                            msg: msg,
+                                            details: errorMsgDetail,
+                                            error: bodyjs,
+                                            headers: response?.headers
+                                        };
+
+                                        // error.response.body
+                                        reject(responseRequest);
+                                    }
+                                } else {
+                                    if (response.error && response.error.reason) {
+                                        that._logger.log(that.ERROR, LOG_ID + "(head) HTTP security issue", response.error.reason);
+                                        reject({
+                                            code: -1,
+                                            url: urlEncoded,
+                                            msg: response.error.reason,
+                                            details: "",
+                                            headers: response ? response.headers:undefined
+                                        });
+                                    } else {
+                                        that._logger.warn("error", LOG_ID + "(head) HTTP other issue.");
+                                        that._logger.warn("internalerror", LOG_ID + "(head) HTTP other issue , response : ", JSON.stringify(response), " response.message : ", response?.message);
+                                        that._logger.log(that.INTERNAL, LOG_ID + "(head) HTTP other issue", response);
+                                        reject({
+                                            code: -1,
+                                            url: urlEncoded,
+                                            msg: "Unknown error",
+                                            details: response,
+                                            headers: response ? response.headers:undefined
+                                        });
+                                    }
+                                }
+                                // No changes otherwise
+                                return response;
+                            }
+                        ],
+                        beforeRetry: [
+                            error => {
+                                // This will be called on `retryWithMergedOptions(...)`
+                            }
+                        ]
+                    },
                 };
 
-                try {
+                return req;
+            };
 
-                    const secondInstance = that.mergedGot.extend({mutableDefaults: true});
-                    /*secondInstance.defaults.options.hooks = defaults.hooks;
-                    secondInstance.defaults.options.retry = defaults.retry;
-                    secondInstance.defaults.options.pagination = defaults.pagination; // */
+            try {
 
-                    let getOptions = newAliveAgent();
+                const secondInstance = that.mergedGot.extend({mutableDefaults: true});
+                /*secondInstance.defaults.options.hooks = defaults.hooks;
+                secondInstance.defaults.options.retry = defaults.retry;
+                secondInstance.defaults.options.pagination = defaults.pagination; // */
 
-                    let response = await secondInstance.head(urlEncoded, getOptions).catch((error) => {
-                        that._logger.warn("internal", LOG_ID + "(head) sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " error.code : ", error?.code, ", error.message : ", error?.message, ", urlEncoded : ", urlEncoded);
-                        return that.treatSystemError("HEAD", error, reject);
-                    });
-                    that._logger.log(that.DEBUG, LOG_ID + "(head) done.");
-                    let xRainbowRequestId = response?.headers["x-rainbow-request-id"];
-                    that._logger.log(that.HTTP, LOG_ID + "(head) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                let getOptions = newAliveAgent();
 
-                } catch (error) {
-                    //
-                    //An error to be thrown when the server response code is not 2xx nor 3xx if `options.followRedirect` is `true`, but always except for 304.
-                    //Includes a `response` property. Contains a `code` property with `ERR_NON_2XX_3XX_RESPONSE` or a more specific failure code.
-                    //
-                    that._logger.warn("warn", LOG_ID + "(head) HTTP error.");
-                    that._logger.warn("internal", LOG_ID + "(head) HTTP error statusCode : ", error?.statusCode);
-                }
-
-                return;
-            }
-// */
-
-
-            Request({
-                method: 'HEAD',
-                preambleCRLF: true,
-                postambleCRLF: true,
-                url: urlEncoded,
-                headers: headers,
-                proxy: (that.proxy && that.proxy.isProxyConfigured) ? that.proxy.proxyURL:null,
-                agentOptions: {
-                    secureProtocol: that.proxy.secureProtocol
-                },
-                forever: true,
-                body: undefined
-            }, (error, response, body) => {
+                let response = await secondInstance.head(urlEncoded, getOptions).catch((error) => {
+                    that._logger.warn("internal", LOG_ID + "(head) sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " error.code : ", error?.code, ", error.message : ", error?.message, ", urlEncoded : ", urlEncoded);
+                    return that.treatSystemError("HEAD", error, reject);
+                });
+                that._logger.log(that.DEBUG, LOG_ID + "(head) done.");
                 let xRainbowRequestId = response?.headers["x-rainbow-request-id"];
                 that._logger.log(that.HTTP, LOG_ID + "(head) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
-                if (error) {
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(head) failed:", error, ", url:", urlEncoded);
-                    return reject("post failed");
-                } else {
-                    if (response) {
-                        if (response.statusCode) {
-                            // that._logger.log(that.INFO, LOG_ID + "(head) HTTP statusCode", response.statusCode);
-                            if (response.statusCode >= 200 && response.statusCode <= 206) {
-                                if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
-                                    let json = {};
-                                    if (response.body && (response.headers["content-type"].indexOf("json") > -1)) {
-                                        json = JSON.parse(response.body);
-                                        resolve(json);
-                                    } else {
-                                        resolve(response.body);
-                                    }
-                                } else {
-                                    return reject({
-                                        code: -1,
-                                        url: urlEncoded,
-                                        msg: "Bad content, please check your host",
-                                        details: "",
-                                        headers: response ? response.headers:undefined
-                                    });
-                                }
-                            } else {
-                                let bodyjs: any = {};
-                                if (that.hasJsonStructure(response.body)) {
-                                    bodyjs = JSON.parse(response.body);
-                                } else {
-                                    bodyjs.errorMsg = response.body;
-                                }
 
-                                that._logger.warn("warn", LOG_ID + "(head) HTTP response.code != 200 ");
-                                that._logger.warn("internal", LOG_ID + "(head) HTTP response.code != 200 , body : ", bodyjs);
-                                let msg = response.statusMessage ? response.statusMessage:bodyjs ? bodyjs.errorMsg || "":"";
-                                let errorMsgDetail = bodyjs ? bodyjs.errorDetails + (bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode:""):"";
-                                errorMsgDetail = errorMsgDetail ? errorMsgDetail:bodyjs ? bodyjs.errorMsg || "":"";
-
-                                that.tokenExpirationControl(bodyjs);
-                                return reject({
-                                    code: response.statusCode,
-                                    url: urlEncoded,
-                                    msg: msg,
-                                    details: errorMsgDetail,
-                                    error: bodyjs,
-                                    headers: response ? response.headers:undefined
-                                });
-                            }
-                        } else {
-                            if (response.error && response.error.reason) {
-                                that._logger.log(that.ERROR, LOG_ID + "(head) HTTP security issue", response.error.reason);
-                                return reject({
-                                    code: -1,
-                                    url: urlEncoded,
-                                    msg: response.error.reason,
-                                    details: "",
-                                    headers: response ? response.headers:undefined
-                                });
-                            } else {
-                                that._logger.warn("error", LOG_ID + "(head) HTTP other issue.");
-                                that._logger.warn("internalerror", LOG_ID + "(head) HTTP other issue , response : ", JSON.stringify(response), " response.message : ", response?.message);
-                                that._logger.log(that.INTERNAL, LOG_ID + "(head) HTTP other issue", response);
-                                return reject({
-                                    code: -1,
-                                    url: urlEncoded,
-                                    msg: "Unknown error",
-                                    details: response,
-                                    headers: response ? response.headers:undefined
-                                });
-                            }
-                        }
-                    } else {
-                        return reject({
-                            code: -1,
-                            url: urlEncoded,
-                            msg: "ErrorManager while requesting",
-                            details: "error"
-                        });
-                    }
-                }
-            });
+            } catch (error) {
+                //
+                //An error to be thrown when the server response code is not 2xx nor 3xx if `options.followRedirect` is `true`, but always except for 304.
+                //Includes a `response` property. Contains a `code` property with `ERR_NON_2XX_3XX_RESPONSE` or a more specific failure code.
+                //
+                that._logger.warn("warn", LOG_ID + "(head) HTTP error.");
+                that._logger.warn("internal", LOG_ID + "(head) HTTP error statusCode : ", error?.statusCode);
+            }
         });
     }
 
@@ -3304,319 +2623,199 @@ safeJsonParse(str) {
             if (headers["Content-Type"]==="application/json") {
                 body = typeof data!=="string" ? JSON.stringify(data):data;
             }
+            let attemptCount = 0;
+            const newAliveAgent: any = () => {
+                let req: any = {
+                    prefixUrl: "",
+                    /*                            agent: {
+                                                    http: undefined,
+                                                    https: undefined
+                                                    //http: agent,
+                                                    //https: agent
 
-            if (that._options.restOptions.useGotLibForHttp) {
-                let attemptCount = 0;
-                const newAliveAgent: any = () => {
-                    let req: any = {
-                        prefixUrl: "",
-/*                            agent: {
-                                http: undefined,
-                                https: undefined
-                                //http: agent,
-                                //https: agent
-
-                                //http: new HttpAgent(liveOption),
-                                //https: new HttpsAgent(liveOption)
-                                //
-                            },
-// */
-                        headers,
-                        // body,
-                        //searchParams: params,
-                        retry: {
-                            limit: nbRetryBeforeFailed,
-                            // calculateDelay: ({retryObject}) => {
-                            //     /* interface RetryObject {
-                            //         attemptCount: number;
-                            //         retryOptions: RetryOptions;
-                            //         error: RequestError;
-                            //         computedValue: number;
-                            //         retryAfter?: number;
-                            //     } of retryObject */
-                            //     that._logger.warn("internal", LOG_ID + "(delete) retry HTTP GET, retryObject : ", retryObject);
-                            //     //return retryObject;
-                            //     return 1000;
-                            // },
-                            //calculateDelay: ({computedValue}) => computedValue,
-                            calculateDelay: ({computedValue}) => {
-                                let noise = 100;
-                                //let computedValueCalculated = ((2 ** (attemptCount - 1)) * 1000) + noise;
-                                let shouldBeRun = (nbRetryBeforeFailed - attemptCount) > 1 ? 1:0;
-                                let computedValueCalculated = (shouldBeRun * (timeBetweenRetry + noise));
-                                attemptCount++;
-                                that._logger.warn("warn", LOG_ID + "(get) (calculateDelay) retry HTTP GET, nbRetryBeforeFailed : ", nbRetryBeforeFailed, ",attemptCount : ", attemptCount, ", timeBetweenRetry : ", timeBetweenRetry, "ms , computedValue : ", computedValue, ", computedValueCalculated : ", computedValueCalculated);
-                                return computedValueCalculated;
-                            },
-                            methods: [
-                                'GET',
-                                'PUT',
-                                'HEAD',
-                                'DELETE',
-                                'OPTIONS',
-                                'TRACE'
-                            ],
-                            statusCodes: [
-                                408,
-                                413,
-                                429,
-                                500,
-                                502,
-                                503,
-                                504,
-                                521,
-                                522,
-                                524
-                            ],
-                            errorCodes: [
-                                'ETIMEDOUT',
-                                'ECONNRESET',
-                                'EADDRINUSE',
-                                'ECONNREFUSED',
-                                'EPIPE',
-                                'ENOTFOUND',
-                                'ENETUNREACH',
-                                'EAI_AGAIN'
-                            ],
-                            maxRetryAfter: undefined,
-                            // backoffLimit: Number.POSITIVE_INFINITY,
-                            noise: 100
+                                                    //http: new HttpAgent(liveOption),
+                                                    //https: new HttpsAgent(liveOption)
+                                                    //
+                                                },
+                    // */
+                    headers,
+                    // body,
+                    //searchParams: params,
+                    retry: {
+                        limit: nbRetryBeforeFailed,
+                        // calculateDelay: ({retryObject}) => {
+                        //     /* interface RetryObject {
+                        //         attemptCount: number;
+                        //         retryOptions: RetryOptions;
+                        //         error: RequestError;
+                        //         computedValue: number;
+                        //         retryAfter?: number;
+                        //     } of retryObject */
+                        //     that._logger.warn("internal", LOG_ID + "(delete) retry HTTP GET, retryObject : ", retryObject);
+                        //     //return retryObject;
+                        //     return 1000;
+                        // },
+                        //calculateDelay: ({computedValue}) => computedValue,
+                        calculateDelay: ({computedValue}) => {
+                            let noise = 100;
+                            //let computedValueCalculated = ((2 ** (attemptCount - 1)) * 1000) + noise;
+                            let shouldBeRun = (nbRetryBeforeFailed - attemptCount) > 1 ? 1:0;
+                            let computedValueCalculated = (shouldBeRun * (timeBetweenRetry + noise));
+                            attemptCount++;
+                            that._logger.warn("warn", LOG_ID + "(get) (calculateDelay) retry HTTP GET, nbRetryBeforeFailed : ", nbRetryBeforeFailed, ",attemptCount : ", attemptCount, ", timeBetweenRetry : ", timeBetweenRetry, "ms , computedValue : ", computedValue, ", computedValueCalculated : ", computedValueCalculated);
+                            return computedValueCalculated;
                         },
-                        hooks: {
-                            afterResponse: [
-                                (response, retryWithMergedOptions) => {
-                                    let body;
-                                    let xRainbowRequestId = response?.headers["x-rainbow-request-id"];
-                                    that._logger.log(that.HTTP, LOG_ID + "(patch) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                        methods: [
+                            'GET',
+                            'PUT',
+                            'HEAD',
+                            'DELETE',
+                            'OPTIONS',
+                            'TRACE'
+                        ],
+                        statusCodes: [
+                            408,
+                            413,
+                            429,
+                            500,
+                            502,
+                            503,
+                            504,
+                            521,
+                            522,
+                            524
+                        ],
+                        errorCodes: [
+                            'ETIMEDOUT',
+                            'ECONNRESET',
+                            'EADDRINUSE',
+                            'ECONNREFUSED',
+                            'EPIPE',
+                            'ENOTFOUND',
+                            'ENETUNREACH',
+                            'EAI_AGAIN'
+                        ],
+                        maxRetryAfter: undefined,
+                        // backoffLimit: Number.POSITIVE_INFINITY,
+                        noise: 100
+                    },
+                    hooks: {
+                        afterResponse: [
+                            (response, retryWithMergedOptions) => {
+                                let body;
+                                let xRainbowRequestId = response?.headers["x-rainbow-request-id"];
+                                that._logger.log(that.HTTP, LOG_ID + "(patch) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
 
-                                    if (response?.statusCode) {
-                                        // that._logger.log(that.INFO, LOG_ID + "(patch) HTTP statusCode", response.statusCode);
-                                        if (response.statusCode >= 200 && response.statusCode <= 206) {
-                                            if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
-                                                let json = {};
-                                                if (response.body && (response.headers["content-type"].indexOf("json") > -1)) {
-                                                    json = JSON.parse(response.body);
-                                                    resolve(json);
-                                                } else {
-                                                    resolve(response.body);
-                                                }
+                                if (response?.statusCode) {
+                                    // that._logger.log(that.INFO, LOG_ID + "(patch) HTTP statusCode", response.statusCode);
+                                    if (response.statusCode >= 200 && response.statusCode <= 206) {
+                                        if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
+                                            let json = {};
+                                            if (response.body && (response.headers["content-type"].indexOf("json") > -1)) {
+                                                json = JSON.parse(response.body);
+                                                resolve(json);
                                             } else {
-                                                reject({
-                                                    code: -1,
-                                                    url: urlEncoded,
-                                                    msg: "Bad content, please check your host",
-                                                    details: "",
-                                                    headers: response ? response.headers:undefined
-                                                });
+                                                resolve(response.body);
                                             }
                                         } else {
-                                            let bodyjs: any = {};
-                                            if (that.hasJsonStructure(response.body)) {
-                                                bodyjs = JSON.parse(response.body);
-                                            } else {
-                                                bodyjs.errorMsg = response.body;
-                                            }
-                                            that._logger.warn("warn", LOG_ID + "(patch) HTTP response.code != 200 ");
-                                            that._logger.warn("internalerror", LOG_ID + "(patch) HTTP response.code != 200 , body : ", bodyjs);
-                                            let msg = response.statusMessage ? response.statusMessage:bodyjs ? bodyjs.errorMsg || "":"";
-                                            let errorMsgDetail = bodyjs ? bodyjs.errorDetails + (bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode:""):"";
-                                            errorMsgDetail = errorMsgDetail ? errorMsgDetail:bodyjs ? bodyjs.errorMsg || "":"";
-
-                                            that.tokenExpirationControl(bodyjs);
-                                            reject({
-                                                code: response.statusCode,
-                                                url: urlEncoded,
-                                                msg: msg,
-                                                details: errorMsgDetail,
-                                                error: bodyjs,
-                                                headers: response ? response.headers:undefined
-                                            });
-                                        }
-                                    } else {
-                                        if (response.error && response.error.reason) {
-                                            that._logger.log(that.ERROR, LOG_ID + "(patch) HTTP security issue", response.error.reason);
                                             reject({
                                                 code: -1,
                                                 url: urlEncoded,
-                                                msg: response.error.reason,
+                                                msg: "Bad content, please check your host",
                                                 details: "",
                                                 headers: response ? response.headers:undefined
                                             });
-                                        } else {
-                                            that._logger.warn("error", LOG_ID + "(patch) HTTP other issue.");
-                                            that._logger.warn("internalerror", LOG_ID + "(patch) HTTP other issue , response : ", JSON.stringify(response), " response.message : ", response?.message);
-                                            that._logger.log(that.INTERNAL, LOG_ID + "(patch) HTTP other issue", response);
-                                            reject({
-                                                code: -1,
-                                                url: urlEncoded,
-                                                msg: "Unknown error",
-                                                details: response,
-                                                headers: response ? response.headers:undefined
-                                            });
                                         }
+                                    } else {
+                                        let bodyjs: any = {};
+                                        if (that.hasJsonStructure(response.body)) {
+                                            bodyjs = JSON.parse(response.body);
+                                        } else {
+                                            bodyjs.errorMsg = response.body;
+                                        }
+                                        that._logger.warn("warn", LOG_ID + "(patch) HTTP response.code != 200 ");
+                                        that._logger.warn("internalerror", LOG_ID + "(patch) HTTP response.code != 200 , body : ", bodyjs);
+                                        let msg = response.statusMessage ? response.statusMessage:bodyjs ? bodyjs.errorMsg || "":"";
+                                        let errorMsgDetail = bodyjs ? bodyjs.errorDetails + (bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode:""):"";
+                                        errorMsgDetail = errorMsgDetail ? errorMsgDetail:bodyjs ? bodyjs.errorMsg || "":"";
+
+                                        that.tokenExpirationControl(bodyjs);
+                                        reject({
+                                            code: response.statusCode,
+                                            url: urlEncoded,
+                                            msg: msg,
+                                            details: errorMsgDetail,
+                                            error: bodyjs,
+                                            headers: response ? response.headers:undefined
+                                        });
                                     }
-                                    // No changes otherwise
-                                    return response;
+                                } else {
+                                    if (response.error && response.error.reason) {
+                                        that._logger.log(that.ERROR, LOG_ID + "(patch) HTTP security issue", response.error.reason);
+                                        reject({
+                                            code: -1,
+                                            url: urlEncoded,
+                                            msg: response.error.reason,
+                                            details: "",
+                                            headers: response ? response.headers:undefined
+                                        });
+                                    } else {
+                                        that._logger.warn("error", LOG_ID + "(patch) HTTP other issue.");
+                                        that._logger.warn("internalerror", LOG_ID + "(patch) HTTP other issue , response : ", JSON.stringify(response), " response.message : ", response?.message);
+                                        that._logger.log(that.INTERNAL, LOG_ID + "(patch) HTTP other issue", response);
+                                        reject({
+                                            code: -1,
+                                            url: urlEncoded,
+                                            msg: "Unknown error",
+                                            details: response,
+                                            headers: response ? response.headers:undefined
+                                        });
+                                    }
                                 }
-                            ],
-                            beforeRetry: [
-                                error => {
-                                    // This will be called on `retryWithMergedOptions(...)`
-                                }
-                            ]
-                        },
-                    };
-
-                    if (body) {
-                        req.body = body;
-                    }
-
-                    return req;
+                                // No changes otherwise
+                                return response;
+                            }
+                        ],
+                        beforeRetry: [
+                            error => {
+                                // This will be called on `retryWithMergedOptions(...)`
+                            }
+                        ]
+                    },
                 };
 
-                try {
-
-                    const secondInstance = that.mergedGot.extend({mutableDefaults: true});
-                    /*secondInstance.defaults.options.hooks = defaults.hooks;
-                    secondInstance.defaults.options.retry = defaults.retry;
-                    secondInstance.defaults.options.pagination = defaults.pagination; // */
-
-                    let getOptions = newAliveAgent();
-
-                    let response = await secondInstance.patch(urlEncoded, getOptions).catch((error) => {
-                        that._logger.warn("internal", LOG_ID + "(patch) sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " error.code : ", error?.code, ", error.message : ", error?.message, ", urlEncoded : ", urlEncoded);
-                        return that.treatSystemError("PATCH", error, reject);
-                    });
-                    that._logger.log(that.DEBUG, LOG_ID + "(patch) done.");
-                    let xRainbowRequestId = response?.headers["x-rainbow-request-id"];
-                    that._logger.log(that.HTTP, LOG_ID + "(patch) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
-
-                } catch (error) {
-                    //
-                    //An error to be thrown when the server response code is not 2xx nor 3xx if `options.followRedirect` is `true`, but always except for 304.
-                    //Includes a `response` property. Contains a `code` property with `ERR_NON_2XX_3XX_RESPONSE` or a more specific failure code.
-                    //
-                    that._logger.warn("warn", LOG_ID + "(patch) HTTP error.");
-                    that._logger.warn("internal", LOG_ID + "(patch) HTTP error statusCode : ", error?.statusCode);
+                if (body) {
+                    req.body = body;
                 }
 
-                return;
-            }
-// */
+                return req;
+            };
 
+            try {
 
-            // let body = data;
-            if (contentType) {
-                //request.type(type);
-                headers["Content-Type"] = contentType;
-            } else {
-                //request.type("json");
-                if (!headers["Content-Type"]) {
-                    headers["Content-Type"] = "application/json";
-                    //body = JSON.stringify(data);
-                }
-            } // */
-            if (headers["Content-Type"]==="application/json") {
-                body = typeof data!=="string" ? JSON.stringify(data):data;
-            }
+                const secondInstance = that.mergedGot.extend({mutableDefaults: true});
+                /*secondInstance.defaults.options.hooks = defaults.hooks;
+                secondInstance.defaults.options.retry = defaults.retry;
+                secondInstance.defaults.options.pagination = defaults.pagination; // */
 
+                let getOptions = newAliveAgent();
 
-            Request({
-                method: 'PATCH',
-                preambleCRLF: true,
-                postambleCRLF: true,
-                url: urlEncoded,
-                headers: headers,
-                proxy: (that.proxy && that.proxy.isProxyConfigured) ? that.proxy.proxyURL:null,
-                agentOptions: {
-                    secureProtocol: that.proxy.secureProtocol
-                },
-                forever: true,
-                body: body
-            }, (error, response, body) => {
+                let response = await secondInstance.patch(urlEncoded, getOptions).catch((error) => {
+                    that._logger.warn("internal", LOG_ID + "(patch) sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " error.code : ", error?.code, ", error.message : ", error?.message, ", urlEncoded : ", urlEncoded);
+                    return that.treatSystemError("PATCH", error, reject);
+                });
+                that._logger.log(that.DEBUG, LOG_ID + "(patch) done.");
                 let xRainbowRequestId = response?.headers["x-rainbow-request-id"];
                 that._logger.log(that.HTTP, LOG_ID + "(patch) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
-                if (error) {
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(patch) patch failed:", error, ', url : ', urlEncoded);
-                    return reject("patch failed");
-                } else {
-                    if (response) {
-                        if (response.statusCode) {
-                            // that._logger.log(that.INFO, LOG_ID + "(patch) HTTP statusCode", response.statusCode);
-                            if (response.statusCode >= 200 && response.statusCode <= 206) {
-                                if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
-                                    let json = {};
-                                    if (response.body && (response.headers["content-type"].indexOf("json") > -1)) {
-                                        json = JSON.parse(response.body);
-                                        resolve(json);
-                                    } else {
-                                        resolve(response.body);
-                                    }
-                                } else {
-                                    return reject({
-                                        code: -1,
-                                        url: urlEncoded,
-                                        msg: "Bad content, please check your host",
-                                        details: "",
-                                        headers: response ? response.headers:undefined
-                                    });
-                                }
-                            } else {
-                                let bodyjs: any = {};
-                                if (that.hasJsonStructure(response.body)) {
-                                    bodyjs = JSON.parse(response.body);
-                                } else {
-                                    bodyjs.errorMsg = response.body;
-                                }
-                                that._logger.warn("warn", LOG_ID + "(patch) HTTP response.code != 200 ");
-                                that._logger.warn("internalerror", LOG_ID + "(patch) HTTP response.code != 200 , body : ", bodyjs);
-                                let msg = response.statusMessage ? response.statusMessage:bodyjs ? bodyjs.errorMsg || "":"";
-                                let errorMsgDetail = bodyjs ? bodyjs.errorDetails + (bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode:""):"";
-                                errorMsgDetail = errorMsgDetail ? errorMsgDetail:bodyjs ? bodyjs.errorMsg || "":"";
 
-                                that.tokenExpirationControl(bodyjs);
-                                return reject({
-                                    code: response.statusCode,
-                                    url: urlEncoded,
-                                    msg: msg,
-                                    details: errorMsgDetail,
-                                    error: bodyjs,
-                                    headers: response ? response.headers:undefined
-                                });
-                            }
-                        } else {
-                            if (response.error && response.error.reason) {
-                                that._logger.log(that.ERROR, LOG_ID + "(patch) HTTP security issue : ", response?.error?.reason);
-                                return reject({
-                                    code: -1,
-                                    url: urlEncoded,
-                                    msg: response.error.reason,
-                                    details: "",
-                                    headers: response ? response.headers:undefined
-                                });
-                            } else {
-                                that._logger.warn("warn", LOG_ID + "(patch) HTTP other issue ");
-                                that._logger.warn("internalerror", LOG_ID + "(patch) HTTP other issue , response : ", JSON.stringify(response), ", response.message : ", response?.message);
-                                that._logger.log(that.INTERNAL, LOG_ID + "(patch) HTTP other issue", response);
-                                return reject({
-                                    code: -1,
-                                    url: urlEncoded,
-                                    msg: "Unknown error",
-                                    details: response,
-                                    headers: response ? response.headers:undefined
-                                });
-                            }
-                        }
-                    } else {
-                        return reject({
-                            code: -1,
-                            url: urlEncoded,
-                            msg: "ErrorManager while requesting",
-                            details: "error"
-                        });
-                    }
-                }
-            });
+            } catch (error) {
+                //
+                //An error to be thrown when the server response code is not 2xx nor 3xx if `options.followRedirect` is `true`, but always except for 304.
+                //Includes a `response` property. Contains a `code` property with `ERR_NON_2XX_3XX_RESPONSE` or a more specific failure code.
+                //
+                that._logger.warn("warn", LOG_ID + "(patch) HTTP error.");
+                that._logger.warn("internal", LOG_ID + "(patch) HTTP error statusCode : ", error?.statusCode);
+            }
         });
     }
 
@@ -3676,317 +2875,209 @@ safeJsonParse(str) {
 
             let xRainbowRequestNodeId = headers["x-rainbow-correlation-id"];
             that._logger.log(that.HTTP, LOG_ID + "(put) url : ", (urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-correlation-id : ", xRainbowRequestNodeId);
+            let attemptCount = 0;
+            const newAliveAgent: any = () => {
+                let req = {
+                    prefixUrl: "",
+                    /*                            agent: {
+                                                    http: undefined,
+                                                    https: undefined
+                                                    //http: agent,
+                                                    //https: agent
 
-            //  that._logger.log(that.INTERNAL, LOG_ID + "(put) url : ", urlEncoded, ", headers : ", headers, ", body : ", body);
-
-
-            if (that._options.restOptions.useGotLibForHttp) {
-                let attemptCount = 0;
-                const newAliveAgent: any = () => {
-                    let req = {
-                        prefixUrl: "",
-/*                            agent: {
-                                http: undefined,
-                                https: undefined
-                                //http: agent,
-                                //https: agent
-
-                                //http: new HttpAgent(liveOption),
-                                //https: new HttpsAgent(liveOption)
-                                //
-                            },
-// */
-                        headers,
-                        body,
-                        //searchParams: params,
-                        retry: {
-                            limit: nbRetryBeforeFailed,
-                            // calculateDelay: ({retryObject}) => {
-                            //     /* interface RetryObject {
-                            //         attemptCount: number;
-                            //         retryOptions: RetryOptions;
-                            //         error: RequestError;
-                            //         computedValue: number;
-                            //         retryAfter?: number;
-                            //     } of retryObject */
-                            //     that._logger.warn("internal", LOG_ID + "(get) retry HTTP PUT, retryObject : ", retryObject);
-                            //     //return retryObject;
-                            //     return 1000;
-                            // },
-                            //calculateDelay: ({computedValue}) => computedValue,
-                            calculateDelay: ({computedValue}) => {
-                                let noise = 100;
-                                //let computedValueCalculated = ((2 ** (attemptCount - 1)) * 1000) + noise;
-                                let shouldBeRun = (nbRetryBeforeFailed - attemptCount) > 1 ? 1:0;
-                                let computedValueCalculated = (shouldBeRun * (timeBetweenRetry + noise));
-                                attemptCount++;
-                                that._logger.warn("warn", LOG_ID + "(put) (calculateDelay) retry HTTP PUT, nbRetryBeforeFailed : ", nbRetryBeforeFailed, ",attemptCount : ", attemptCount, ", timeBetweenRetry : ", timeBetweenRetry, "ms , computedValue : ", computedValue, ", computedValueCalculated : ", computedValueCalculated);
-                                return computedValueCalculated;
-                            },
-                            methods: [
-                                'GET',
-                                'PUT',
-                                'HEAD',
-                                'DELETE',
-                                'OPTIONS',
-                                'TRACE'
-                            ],
-                            statusCodes: [
-                                408,
-                                413,
-                                429,
-                                500,
-                                502,
-                                503,
-                                504,
-                                521,
-                                522,
-                                524
-                            ],
-                            errorCodes: [
-                                'ETIMEDOUT',
-                                'ECONNRESET',
-                                'EADDRINUSE',
-                                'ECONNREFUSED',
-                                'EPIPE',
-                                'ENOTFOUND',
-                                'ENETUNREACH',
-                                'EAI_AGAIN'
-                            ],
-                            maxRetryAfter: undefined,
-                            // backoffLimit: Number.POSITIVE_INFINITY,
-                            noise: 100
+                                                    //http: new HttpAgent(liveOption),
+                                                    //https: new HttpsAgent(liveOption)
+                                                    //
+                                                },
+                    // */
+                    headers,
+                    body,
+                    //searchParams: params,
+                    retry: {
+                        limit: nbRetryBeforeFailed,
+                        // calculateDelay: ({retryObject}) => {
+                        //     /* interface RetryObject {
+                        //         attemptCount: number;
+                        //         retryOptions: RetryOptions;
+                        //         error: RequestError;
+                        //         computedValue: number;
+                        //         retryAfter?: number;
+                        //     } of retryObject */
+                        //     that._logger.warn("internal", LOG_ID + "(get) retry HTTP PUT, retryObject : ", retryObject);
+                        //     //return retryObject;
+                        //     return 1000;
+                        // },
+                        //calculateDelay: ({computedValue}) => computedValue,
+                        calculateDelay: ({computedValue}) => {
+                            let noise = 100;
+                            //let computedValueCalculated = ((2 ** (attemptCount - 1)) * 1000) + noise;
+                            let shouldBeRun = (nbRetryBeforeFailed - attemptCount) > 1 ? 1:0;
+                            let computedValueCalculated = (shouldBeRun * (timeBetweenRetry + noise));
+                            attemptCount++;
+                            that._logger.warn("warn", LOG_ID + "(put) (calculateDelay) retry HTTP PUT, nbRetryBeforeFailed : ", nbRetryBeforeFailed, ",attemptCount : ", attemptCount, ", timeBetweenRetry : ", timeBetweenRetry, "ms , computedValue : ", computedValue, ", computedValueCalculated : ", computedValueCalculated);
+                            return computedValueCalculated;
                         },
-                        hooks: {
-                            beforeRequest: [function (options) {
-                                //that._logger.log(that.HTTP, LOG_ID + "(put) beforeRequest url : ", ( urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-correlation-id : ", xRainbowRequestNodeId,", options : ", options);
-                            }],
-                            afterResponse: [
-                                (response, retryWithMergedOptions) => {
-                                    let body;
-                                    let xRainbowRequestId = response?.headers["x-rainbow-request-id"];
-                                    that._logger.log(that.HTTP, LOG_ID + "(put) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                        methods: [
+                            'GET',
+                            'PUT',
+                            'HEAD',
+                            'DELETE',
+                            'OPTIONS',
+                            'TRACE'
+                        ],
+                        statusCodes: [
+                            408,
+                            413,
+                            429,
+                            500,
+                            502,
+                            503,
+                            504,
+                            521,
+                            522,
+                            524
+                        ],
+                        errorCodes: [
+                            'ETIMEDOUT',
+                            'ECONNRESET',
+                            'EADDRINUSE',
+                            'ECONNREFUSED',
+                            'EPIPE',
+                            'ENOTFOUND',
+                            'ENETUNREACH',
+                            'EAI_AGAIN'
+                        ],
+                        maxRetryAfter: undefined,
+                        // backoffLimit: Number.POSITIVE_INFINITY,
+                        noise: 100
+                    },
+                    hooks: {
+                        beforeRequest: [function (options) {
+                            //that._logger.log(that.HTTP, LOG_ID + "(put) beforeRequest url : ", ( urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-correlation-id : ", xRainbowRequestNodeId,", options : ", options);
+                        }],
+                        afterResponse: [
+                            (response, retryWithMergedOptions) => {
+                                let body;
+                                let xRainbowRequestId = response?.headers["x-rainbow-request-id"];
+                                that._logger.log(that.HTTP, LOG_ID + "(put) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
 
-                                    if (response?.statusCode) {
-                                        if (response?.statusCode >= 200 && response?.statusCode <= 206) {
-                                            if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
-                                                if (response.body && response?.headers && (response?.headers["content-type"]).indexOf("application/json")===0) {
-                                                    resolve(JSON.parse(response?.body));
-                                                } else {
-                                                    resolve(response.body);
-                                                }
+                                if (response?.statusCode) {
+                                    if (response?.statusCode >= 200 && response?.statusCode <= 206) {
+                                        if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
+                                            if (response.body && response?.headers && (response?.headers["content-type"]).indexOf("application/json")===0) {
+                                                resolve(JSON.parse(response?.body));
                                             } else {
-                                                let responseRequest = {
-                                                    code: -1,
-                                                    url: urlEncoded,
-                                                    msg: "Bad content, please check your host",
-                                                    details: "",
-                                                    headers: response ? response.headers:undefined
-                                                };
-                                                reject(responseRequest);
+                                                resolve(response.body);
                                             }
                                         } else {
-                                            that._logger.warn("warn", LOG_ID + "(put) afterResponseHTTP response.code != 200");
-                                            that._logger.warn("internal", LOG_ID + "(put) afterResponse HTTP response.code != 200, url : ", urlEncoded, ", bodyjs : ", response.body);
-                                            that._logger.warn("internal", LOG_ID + "(put) afterResponse HTTP response.code != 200, url : ", urlEncoded, ", response.headers : ", response.headers, ", response.statusMessage : ", response.statusMessage);
-                                            let bodyjs: any = {};
-                                            if (that.hasJsonStructure(response.body)) {
-                                                bodyjs = JSON.parse(response.body);
-                                            } else {
-                                                bodyjs.errorMsg = response.body;
-                                            }
-
-                                            that._logger.warn("warn", LOG_ID + "(put) HTTP response.code != 200 ");
-                                            that._logger.warn("internal", LOG_ID + "(put) HTTP response.code != 200 , body : ", bodyjs);
-                                            let msg = response.statusMessage ? response.statusMessage:bodyjs ? bodyjs.errorMsg || "":"";
-                                            let errorDetails = bodyjs.errorDetails;
-                                            if (errorDetails) {
-                                                if (typeof errorDetails==="object") {
-                                                    // errorDetails = JSON.stringify(errorDetails);
-                                                    errorDetails = util.inspect(errorDetails, false, 4, true);
-                                                }
-                                            }
-                                            let errorMsgDetail = bodyjs ? errorDetails + (bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode:""):"";
-                                            errorMsgDetail = errorMsgDetail ? errorMsgDetail:bodyjs ? bodyjs.errorMsg || "":"";
-
-                                            that.tokenExpirationControl(bodyjs);
                                             let responseRequest = {
-                                                code: response?.statusCode,
+                                                code: -1,
                                                 url: urlEncoded,
-                                                msg: msg,
-                                                details: errorMsgDetail,
-                                                error: bodyjs,
-                                                headers: response?.headers
+                                                msg: "Bad content, please check your host",
+                                                details: "",
+                                                headers: response ? response.headers:undefined
                                             };
-
-                                            // error.response.body
                                             reject(responseRequest);
                                         }
                                     } else {
-                                        if (response.error && response.error.reason) {
-                                            that._logger.log(that.ERROR, LOG_ID + "(put) HTTP security issue", response.error.reason);
-                                            reject({
-                                                code: -1,
-                                                url: urlEncoded,
-                                                msg: response.error.reason,
-                                                details: "",
-                                                headers: response ? response.headers:undefined
-                                            });
+                                        that._logger.warn("warn", LOG_ID + "(put) afterResponseHTTP response.code != 200");
+                                        that._logger.warn("internal", LOG_ID + "(put) afterResponse HTTP response.code != 200, url : ", urlEncoded, ", bodyjs : ", response.body);
+                                        that._logger.warn("internal", LOG_ID + "(put) afterResponse HTTP response.code != 200, url : ", urlEncoded, ", response.headers : ", response.headers, ", response.statusMessage : ", response.statusMessage);
+                                        let bodyjs: any = {};
+                                        if (that.hasJsonStructure(response.body)) {
+                                            bodyjs = JSON.parse(response.body);
                                         } else {
-                                            that._logger.warn("error", LOG_ID + "(put) HTTP other issue.");
-                                            that._logger.warn("internalerror", LOG_ID + "(put) HTTP other issue , response : ", JSON.stringify(response), " response.message : ", response?.message);
-                                            that._logger.log(that.INTERNAL, LOG_ID + "(put) HTTP other issue", response);
-                                            reject({
-                                                code: -1,
-                                                url: urlEncoded,
-                                                msg: "Unknown error",
-                                                details: response,
-                                                headers: response ? response.headers:undefined
-                                            });
+                                            bodyjs.errorMsg = response.body;
                                         }
+
+                                        that._logger.warn("warn", LOG_ID + "(put) HTTP response.code != 200 ");
+                                        that._logger.warn("internal", LOG_ID + "(put) HTTP response.code != 200 , body : ", bodyjs);
+                                        let msg = response.statusMessage ? response.statusMessage:bodyjs ? bodyjs.errorMsg || "":"";
+                                        let errorDetails = bodyjs.errorDetails;
+                                        if (errorDetails) {
+                                            if (typeof errorDetails==="object") {
+                                                // errorDetails = JSON.stringify(errorDetails);
+                                                errorDetails = util.inspect(errorDetails, false, 4, true);
+                                            }
+                                        }
+                                        let errorMsgDetail = bodyjs ? errorDetails + (bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode:""):"";
+                                        errorMsgDetail = errorMsgDetail ? errorMsgDetail:bodyjs ? bodyjs.errorMsg || "":"";
+
+                                        that.tokenExpirationControl(bodyjs);
+                                        let responseRequest = {
+                                            code: response?.statusCode,
+                                            url: urlEncoded,
+                                            msg: msg,
+                                            details: errorMsgDetail,
+                                            error: bodyjs,
+                                            headers: response?.headers
+                                        };
+
+                                        // error.response.body
+                                        reject(responseRequest);
                                     }
-                                    // No changes otherwise
-                                    return response;
+                                } else {
+                                    if (response.error && response.error.reason) {
+                                        that._logger.log(that.ERROR, LOG_ID + "(put) HTTP security issue", response.error.reason);
+                                        reject({
+                                            code: -1,
+                                            url: urlEncoded,
+                                            msg: response.error.reason,
+                                            details: "",
+                                            headers: response ? response.headers:undefined
+                                        });
+                                    } else {
+                                        that._logger.warn("error", LOG_ID + "(put) HTTP other issue.");
+                                        that._logger.warn("internalerror", LOG_ID + "(put) HTTP other issue , response : ", JSON.stringify(response), " response.message : ", response?.message);
+                                        that._logger.log(that.INTERNAL, LOG_ID + "(put) HTTP other issue", response);
+                                        reject({
+                                            code: -1,
+                                            url: urlEncoded,
+                                            msg: "Unknown error",
+                                            details: response,
+                                            headers: response ? response.headers:undefined
+                                        });
+                                    }
                                 }
-                            ]/*,
+                                // No changes otherwise
+                                return response;
+                            }
+                        ]/*,
                             beforeRetry: [
                                 error => {
                                     // This will be called on `retryWithMergedOptions(...)`
                                 }
                             ] // */
-                        },
-                    };
-
-                    return req;
+                    },
                 };
 
-                try {
+                return req;
+            };
 
-                    const secondInstance = that.mergedGot.extend({mutableDefaults: true});
-                    /*secondInstance.defaults.options.hooks = defaults.hooks;
-                    secondInstance.defaults.options.retry = defaults.retry;
-                    secondInstance.defaults.options.pagination = defaults.pagination; // */
+            try {
+
+                const secondInstance = that.mergedGot.extend({mutableDefaults: true});
+                /*secondInstance.defaults.options.hooks = defaults.hooks;
+                secondInstance.defaults.options.retry = defaults.retry;
+                secondInstance.defaults.options.pagination = defaults.pagination; // */
 
 
-                    let getOptions = newAliveAgent();
+                let getOptions = newAliveAgent();
 
-                    let response = await secondInstance.put(urlEncoded, getOptions).catch((error) => {
-                        that._logger.warn("internal", LOG_ID + "(put) sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " error.code : ", error?.code, ", error.message : ", error?.message, ", urlEncoded : ", urlEncoded);
-                        return that.treatSystemError("PUT", error, reject);
-                    });
-                    that._logger.log(that.DEBUG, LOG_ID + "(put) done.");
+                let response = await secondInstance.put(urlEncoded, getOptions).catch((error) => {
+                    that._logger.warn("internal", LOG_ID + "(put) sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " error.code : ", error?.code, ", error.message : ", error?.message, ", urlEncoded : ", urlEncoded);
+                    return that.treatSystemError("PUT", error, reject);
+                });
+                that._logger.log(that.DEBUG, LOG_ID + "(put) done.");
 
-                } catch (error) {
-                    //
-                    //An error to be thrown when the server response code is not 2xx nor 3xx if `options.followRedirect` is `true`, but always except for 304.
-                    //Includes a `response` property. Contains a `code` property with `ERR_NON_2XX_3XX_RESPONSE` or a more specific failure code.
-                    //
-                    that._logger.warn("warn", LOG_ID + "(put) HTTP error.");
-                    that._logger.warn("internal", LOG_ID + "(put) HTTP error statusCode : ", error?.statusCode);
-                }
-
-                return;
+            } catch (error) {
+                //
+                //An error to be thrown when the server response code is not 2xx nor 3xx if `options.followRedirect` is `true`, but always except for 304.
+                //Includes a `response` property. Contains a `code` property with `ERR_NON_2XX_3XX_RESPONSE` or a more specific failure code.
+                //
+                that._logger.warn("warn", LOG_ID + "(put) HTTP error.");
+                that._logger.warn("internal", LOG_ID + "(put) HTTP error statusCode : ", error?.statusCode);
             }
-// */
-
-
-            Request({
-                method: 'PUT',
-                preambleCRLF: true,
-                postambleCRLF: true,
-                url: urlEncoded,
-                headers: headers,
-                proxy: (that.proxy && that.proxy.isProxyConfigured) ? that.proxy.proxyURL:null,
-                agentOptions: {
-                    secureProtocol: that.proxy.secureProtocol
-                },
-                forever: true,
-                body: body
-            }, (error, response, body) => {
-                let xRainbowRequestId = response?.headers["x-rainbow-request-id"];
-                that._logger.log(that.HTTP, LOG_ID + "(put) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
-
-                if (error) {
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(put) put failed:", error, ', url : ', urlEncoded);
-                    return reject("put failed");
-                } else {
-                    if (response) {
-                        if (response.statusCode) {
-                            // that._logger.log(that.INFO, LOG_ID + "(put) HTTP statusCode", response.statusCode);
-                            if (response.statusCode >= 200 && response.statusCode <= 206) {
-                                if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
-                                    let json = {};
-                                    if (response.body && (response.headers["content-type"].indexOf("json") > -1)) {
-                                        json = JSON.parse(response.body);
-                                        resolve(json);
-                                    } else {
-                                        resolve(response.body);
-                                    }
-                                } else {
-                                    return reject({
-                                        code: -1,
-                                        url: urlEncoded,
-                                        msg: "Bad content, please check your host",
-                                        details: "",
-                                        headers: response ? response.headers:undefined
-                                    });
-                                }
-                            } else {
-                                let bodyjs: any = {};
-                                if (that.hasJsonStructure(response.body)) {
-                                    bodyjs = JSON.parse(response.body);
-                                } else {
-                                    bodyjs.errorMsg = response.body;
-                                }
-                                that._logger.warn("warn", LOG_ID + "(put) HTTP response.code != 200 ");
-                                that._logger.warn("internalerror", LOG_ID + "(put) HTTP response.code != 200 , body : ", bodyjs);
-                                let msg = response.statusMessage ? response.statusMessage:bodyjs ? bodyjs.errorMsg || "":"";
-                                let errorMsgDetail = bodyjs ? bodyjs.errorDetails + (bodyjs.errorDetailsCode ? ". error code : " + bodyjs.errorDetailsCode:""):"";
-                                errorMsgDetail = errorMsgDetail ? errorMsgDetail:bodyjs ? bodyjs.errorMsg || "":"";
-
-                                that.tokenExpirationControl(bodyjs);
-                                return reject({
-                                    code: response.statusCode,
-                                    url: urlEncoded,
-                                    msg: msg,
-                                    details: errorMsgDetail,
-                                    error: bodyjs,
-                                    headers: response ? response.headers:undefined
-                                });
-                            }
-                        } else {
-                            if (response.error && response.error.reason) {
-                                that._logger.log(that.ERROR, LOG_ID + "(put) HTTP security issue", response.error.reason);
-                                return reject({
-                                    code: -1,
-                                    url: urlEncoded,
-                                    msg: response.error.reason,
-                                    details: "",
-                                    headers: response ? response.headers:undefined
-                                });
-                            } else {
-                                that._logger.warn("warn", LOG_ID + "(put) HTTP other issue ");
-                                that._logger.warn("internalerror", LOG_ID + "(put) HTTP other issue , response : ", JSON.stringify(response), " response.message : ", response?.message);
-                                that._logger.log(that.INTERNAL, LOG_ID + "(put) HTTP other issue", response);
-                                return reject({
-                                    code: -1,
-                                    url: urlEncoded,
-                                    msg: "Unknown error",
-                                    details: response,
-                                    headers: response ? response.headers:undefined
-                                });
-                            }
-                        }
-                    } else {
-                        return reject({
-                            code: -1,
-                            url: urlEncoded,
-                            msg: "ErrorManager while requesting",
-                            details: "error"
-                        });
-                    }
-                }
-            });
         });
     }
 
@@ -4028,161 +3119,130 @@ safeJsonParse(str) {
             headers["Host"] = urlParse(urlEncoded).host;
 
             that._logger.log(that.INTERNAL, LOG_ID + "(_putBuffer) url : ", urlEncoded);
-            if (that._options.restOptions.useGotLibForHttp) {
-                let attemptCount = 0;
-                const newAliveAgent: any = () => {
-                    let req = {
-                        prefixUrl: "",
-/*                            agent: {
-                                http: undefined,
-                                https: undefined
-                                //http: agent,
-                                //https: agent
+            let attemptCount = 0;
+            const newAliveAgent: any = () => {
+                let req = {
+                    prefixUrl: "",
+                    /*                            agent: {
+                                                    http: undefined,
+                                                    https: undefined
+                                                    //http: agent,
+                                                    //https: agent
 
-                                //http: new HttpAgent(liveOption),
-                                //https: new HttpsAgent(liveOption)
-                                //
-                            },
-// */
-                        headers,
-                        body: buffer,
-                        //searchParams: params,
-                        hooks: {
-                            afterResponse: [
-                                (response, retryWithMergedOptions) => {
-                                    let body;
-                                    let xRainbowRequestId = response?.headers["x-rainbow-request-id"];
-                                    that._logger.log(that.HTTP, LOG_ID + "(_putBuffer) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                                                    //http: new HttpAgent(liveOption),
+                                                    //https: new HttpsAgent(liveOption)
+                                                    //
+                                                },
+                    // */
+                    headers,
+                    body: buffer,
+                    //searchParams: params,
+                    hooks: {
+                        afterResponse: [
+                            (response, retryWithMergedOptions) => {
+                                let body;
+                                let xRainbowRequestId = response?.headers["x-rainbow-request-id"];
+                                that._logger.log(that.HTTP, LOG_ID + "(_putBuffer) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
 
-                                    if (response) {
-                                        if (response?.statusCode) {
-                                            // that._logger.log(that.INFO, LOG_ID + "(_putBuffer) HTTP statusCode defined : ", response.statusCode);
-                                            if (response.statusCode >= 200 && response.statusCode <= 400) {
-                                                //if (response) {
-                                                //  response.body = body;
-                                                //}
-                                                resolve(response.body);
-                                            } else {
-                                                that._logger.warn("warn", LOG_ID + "(_putBuffer) HTTP response.code != 200");
-                                                that._logger.warn("internal", LOG_ID + "(_putBuffer) HTTP response.code != 200 , bodyjs : ", response?.body);
-                                                reject({
-                                                    code: -1,
-                                                    msg: "ErrorManager while requesting _putBuffer",
-                                                    details: response,
-                                                    headers: response ? response.headers:undefined
-                                                });
-                                            }
+                                if (response) {
+                                    if (response?.statusCode) {
+                                        // that._logger.log(that.INFO, LOG_ID + "(_putBuffer) HTTP statusCode defined : ", response.statusCode);
+                                        if (response.statusCode >= 200 && response.statusCode <= 400) {
+                                            //if (response) {
+                                            //  response.body = body;
+                                            //}
+                                            resolve(response.body);
                                         } else {
+                                            that._logger.warn("warn", LOG_ID + "(_putBuffer) HTTP response.code != 200");
+                                            that._logger.warn("internal", LOG_ID + "(_putBuffer) HTTP response.code != 200 , bodyjs : ", response?.body);
                                             reject({
                                                 code: -1,
-                                                msg: "ErrorManager while requesting _putBuffer no statusCode returned",
-                                                details: undefined,
-                                                headers: undefined
+                                                msg: "ErrorManager while requesting _putBuffer",
+                                                details: response,
+                                                headers: response ? response.headers:undefined
                                             });
                                         }
                                     } else {
                                         reject({
                                             code: -1,
-                                            msg: "ErrorManager while requesting _putBuffer no response returned",
+                                            msg: "ErrorManager while requesting _putBuffer no statusCode returned",
                                             details: undefined,
                                             headers: undefined
                                         });
                                     }
-                                    return response;
+                                } else {
+                                    reject({
+                                        code: -1,
+                                        msg: "ErrorManager while requesting _putBuffer no response returned",
+                                        details: undefined,
+                                        headers: undefined
+                                    });
                                 }
-                            ],
-                        },
-                    };
-
-                    return req;
+                                return response;
+                            }
+                        ],
+                    },
                 };
 
-                try {
+                return req;
+            };
 
-                    const secondInstance = that.mergedGot.extend({mutableDefaults: true});
+            try {
 
-                    let getOptions = newAliveAgent();
-                    let response = await secondInstance.put(urlEncoded, getOptions).catch((error) => {
-                        that._logger.warn("internal", LOG_ID + "(_putBuffer) sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " error.code : ", error?.code, ", error.message : ", error?.message, ", urlEncoded : ", urlEncoded);
-                        return that.treatSystemError("PUT Buffer", error, reject);
-                    });
-                    that._logger.log(that.DEBUG, LOG_ID + "(_putBuffer) done.");
+                const secondInstance = that.mergedGot.extend({mutableDefaults: true});
 
-                } catch (error) {
-                    //
-                    //An error to be thrown when the server response code is not 2xx nor 3xx if `options.followRedirect` is `true`, but always except for 304.
-                    //Includes a `response` property. Contains a `code` property with `ERR_NON_2XX_3XX_RESPONSE` or a more specific failure code.
-                    //
-                    that._logger.warn("warn", LOG_ID + "(_putBuffer) HTTP error.");
-                    that._logger.warn("internal", LOG_ID + "(_putBuffer) HTTP error statusCode : ", error?.statusCode);
-                }
-
-                return;
-            }
-// */
-
-            Request({
-                    method: 'PUT',
-                    preambleCRLF: true,
-                    postambleCRLF: true,
-                    url: urlEncoded,
-                    headers: headers,
-                    proxy: (that.proxy && that.proxy.isProxyConfigured) ? that.proxy.proxyURL:null,
-                    agentOptions: {
-                        secureProtocol: that.proxy.secureProtocol
-                    },
-                    forever: true,
-                    body: buffer
-                },
-                function (error, response, body) {
-                    let xRainbowRequestId = response?.headers["x-rainbow-request-id"];
-                    that._logger.log(that.HTTP, LOG_ID + "(putBuffer) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
-                    if (error) {
-                        that._logger.log(that.INTERNALERROR, LOG_ID + "(putBuffer) upload failed:", error);
-                        return reject("upload failed");
-                    }
-                    that._logger.log(that.INTERNAL, LOG_ID + "(putBuffer) Upload successful!  Server responded with:", body);
-                    resolve(body);
+                let getOptions = newAliveAgent();
+                let response = await secondInstance.put(urlEncoded, getOptions).catch((error) => {
+                    that._logger.warn("internal", LOG_ID + "(_putBuffer) sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " error.code : ", error?.code, ", error.message : ", error?.message, ", urlEncoded : ", urlEncoded);
+                    return that.treatSystemError("PUT Buffer", error, reject);
                 });
+                that._logger.log(that.DEBUG, LOG_ID + "(_putBuffer) done.");
+
+            } catch (error) {
+                //
+                //An error to be thrown when the server response code is not 2xx nor 3xx if `options.followRedirect` is `true`, but always except for 304.
+                //Includes a `response` property. Contains a `code` property with `ERR_NON_2XX_3XX_RESPONSE` or a more specific failure code.
+                //
+                that._logger.warn("warn", LOG_ID + "(_putBuffer) HTTP error.");
+                that._logger.warn("internal", LOG_ID + "(_putBuffer) HTTP error statusCode : ", error?.statusCode);
+            }
         });
     }
 
     putStream(url, headers: any = {}, stream): Promise<any> {
-        let that = this;
+            let that = this;
 
-        return new Promise(function (resolve, reject) {
-            //let urlEncoded = encodeURI(that.serverURL + url); // Can not be used because the data in url are allready encodeURIComponent
-            let urlEncoded = that.serverURL + url;
+            return new Promise(function (resolve, reject) {
+                //let urlEncoded = encodeURI(that.serverURL + url); // Can not be used because the data in url are allready encodeURIComponent
+                let urlEncoded = that.serverURL + url;
 
-            let httpConfig = {URL : urlEncoded, method : "PUT", headers : headers};
-            that.addAdditionalHeaders(httpConfig);
+                let httpConfig = {URL: urlEncoded, method: "PUT", headers: headers};
+                that.addAdditionalHeaders(httpConfig);
 
-            let xRainbowRequestNodeId = headers["x-rainbow-correlation-id"] ;
-            that._logger.log(that.HTTP, LOG_ID + "(putStream) url : ", ( urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-correlation-id : ", xRainbowRequestNodeId);
+                let xRainbowRequestNodeId = headers["x-rainbow-correlation-id"];
+                that._logger.log(that.HTTP, LOG_ID + "(putStream) url : ", (urlEncoded).match(/[a-z]+:\/\/[^:/]+(?::\d+)?(?:\/[^?]+)?(?:\?)?/g), ", x-rainbow-correlation-id : ", xRainbowRequestNodeId);
 
-            that._logger.log(that.INTERNAL, LOG_ID + "(putStream) url : ", urlEncoded, " stream path : ", stream?.path);
+                that._logger.log(that.INTERNAL, LOG_ID + "(putStream) url : ", urlEncoded, " stream path : ", stream?.path);
 
-            headers["user-agent"] = USER_AGENT;
-            headers["Host"] = urlParse(urlEncoded).host;
+                headers["user-agent"] = USER_AGENT;
+                headers["Host"] = urlParse(urlEncoded).host;
 
-            that._logger.log(that.INTERNAL, LOG_ID + "(putStream) url : ", urlEncoded, ", headers : ", headers);
-
-            if (that._options.restOptions.useGotLibForHttp) {
+                that._logger.log(that.INTERNAL, LOG_ID + "(putStream) url : ", urlEncoded, ", headers : ", headers);
                 let attemptCount = 0;
                 const newAliveAgent: any = () => {
                     let req = {
                         prefixUrl: "",
-/*                            agent: {
-                                http: undefined,
-                                https: undefined
-                                //http: agent,
-                                //https: agent
+                        /*                            agent: {
+                                                        http: undefined,
+                                                        https: undefined
+                                                        //http: agent,
+                                                        //https: agent
 
-                                //http: new HttpAgent(liveOption),
-                                //https: new HttpsAgent(liveOption)
-                                //
-                            },
-// */
+                                                        //http: new HttpAgent(liveOption),
+                                                        //https: new HttpsAgent(liveOption)
+                                                        //
+                                                    },
+                        // */
                         headers,
                         //body : stream,
                         //searchParams: params,
@@ -4246,15 +3306,15 @@ safeJsonParse(str) {
                             noise: 100
                         },
                         hooks: {
-                            beforeRequest: [function(options) {
+                            beforeRequest: [function (options) {
                                 that._logger.debug("internal", LOG_ID + "(putStream) beforeRequest.");
                                 // that._logger.debug("internal", LOG_ID + "(putStream) options : ", options);
                             }],
                             afterResponse: [
                                 (response, retryWithMergedOptions) => {
                                     let body;
-                                    let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
-                                    that._logger.log(that.HTTP, LOG_ID + "(putStream) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+                                    let xRainbowRequestId = response?.headers["x-rainbow-request-id"];
+                                    that._logger.log(that.HTTP, LOG_ID + "(putStream) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId, " received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
 
                                     if (response?.statusCode) {
                                         if (response?.statusCode >= 200 && response?.statusCode <= 206) {
@@ -4478,35 +3538,8 @@ safeJsonParse(str) {
                     return (error);
                 }
 
-                return;
-            }
-            // */
-
-
-
-
-            let request = Request.put({
-                url: urlEncoded,
-                headers: headers,
-                proxy: (that.proxy && that.proxy.isProxyConfigured) ? that.proxy.proxyURL : null,
-                agentOptions: {
-                    secureProtocol: that.proxy.secureProtocol
-                }
-            }).on("response", function (response) {
-                // that._logger.log(that.INFO, LOG_ID + "(putStream) status code:" + response?.statusCode); // 200
-                that._logger.log(that.DEBUG, LOG_ID + "(putStream) response headers: " + response?.headers["content-type"]); // 'image/png'
-                let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
-                that._logger.log(that.HTTP, LOG_ID + "(putStream) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
-            }).on("end", () => {
-                // that._logger.log(that.INFO, LOG_ID + "(putStream) successfull");
-                that._logger.log(that.INFO, LOG_ID + "(putStream) put file buffer in Url successfull");
-                resolve("done");
             });
-
-            stream.pipe(request);
-            return request;
-        });
-    }
+        }
 
     delete(url, headers: any = {}, data : any = undefined): Promise<any> {
         let that = this;
@@ -4546,266 +3579,204 @@ safeJsonParse(str) {
             headers["Host"] = urlParse(urlEncoded).host;
 
             that._logger.log(that.INTERNAL, LOG_ID + "(delete) url : ", urlEncoded, ", headers : ", headers, ", body : ", body);
+            let attemptCount = 0;
+            const newAliveAgent: any = () => {
+                let req: any = {
+                    prefixUrl: "",
+                    /*                            agent: {
+                                                    http: undefined,
+                                                    https: undefined
+                                                    //http: agent,
+                                                    //https: agent
 
-            if (that._options.restOptions.useGotLibForHttp) {
-                let attemptCount = 0;
-                const newAliveAgent: any = () => {
-                    let req: any = {
-                        prefixUrl: "",
-/*                            agent: {
-                                http: undefined,
-                                https: undefined
-                                //http: agent,
-                                //https: agent
+                                                    //http: new HttpAgent(liveOption),
+                                                    //https: new HttpsAgent(liveOption)
+                                                    //
+                                                },
+                                            // */
+                    headers,
+                    // body,
+                    //searchParams: params,
+                    retry: {
+                        limit: 1,
+                        //limit: 1,
+                        // calculateDelay: ({retryObject}) => {
+                        //     /* interface RetryObject {
+                        //         attemptCount: number;
+                        //         retryOptions: RetryOptions;
+                        //         error: RequestError;
+                        //         computedValue: number;
+                        //         retryAfter?: number;
+                        //     } of retryObject */
+                        //     that._logger.warn("internal", LOG_ID + "(delete) retry HTTP GET, retryObject : ", retryObject);
+                        //     //return retryObject;
+                        //     return 1000;
+                        // },
+                        calculateDelay: ({computedValue}) => computedValue,
+                        /* calculateDelay:  ({computedValue}) => {
+                            let noise = 100;
+                            //let computedValueCalculated = ((2 ** (attemptCount - 1)) * 1000) + noise;
+                            let shouldBeRun = (nbRetryBeforeFailed - attemptCount)> 1 ? 1 : 0;
+                            let computedValueCalculated = (shouldBeRun * (timeBetweenRetry + noise));
+                            attemptCount++;
+                            that._logger.warn("warn", LOG_ID + "(get) (calculateDelay) retry HTTP GET, nbRetryBeforeFailed : ", nbRetryBeforeFailed, ",attemptCount : ", attemptCount, ", timeBetweenRetry : ", timeBetweenRetry, "ms , computedValue : ", computedValue,", computedValueCalculated : ", computedValueCalculated);
+                            return computedValueCalculated;
+                        }, // */
+                        methods: [
+                            'GET',
+                            'PUT',
+                            'HEAD',
+                            'DELETE',
+                            'OPTIONS',
+                            'TRACE'
+                        ],
+                        statusCodes: [
+                            408,
+                            413,
+                            429,
+                            500,
+                            502,
+                            503,
+                            504,
+                            521,
+                            522,
+                            524
+                        ],
+                        errorCodes: [
+                            'ETIMEDOUT',
+                            'ECONNRESET',
+                            'EADDRINUSE',
+                            'ECONNREFUSED',
+                            'EPIPE',
+                            'ENOTFOUND',
+                            'ENETUNREACH',
+                            'EAI_AGAIN'
+                        ],
+                        maxRetryAfter: undefined,
+                        // backoffLimit: Number.POSITIVE_INFINITY,
+                        noise: 100
+                    },
+                    hooks: {
+                        afterResponse: [
+                            (response, retryWithMergedOptions) => {
+                                let body;
+                                let xRainbowRequestId = response?.headers["x-rainbow-request-id"];
+                                that._logger.log(that.HTTP, LOG_ID + "(delete) done statusCode : ", response?.statusCode, " for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId, " received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
 
-                                //http: new HttpAgent(liveOption),
-                                //https: new HttpsAgent(liveOption)
-                                //
-                            },
-                        // */
-                        headers,
-                        // body,
-                        //searchParams: params,
-                        retry: {
-                            limit: 1,
-                            //limit: 1,
-                            // calculateDelay: ({retryObject}) => {
-                            //     /* interface RetryObject {
-                            //         attemptCount: number;
-                            //         retryOptions: RetryOptions;
-                            //         error: RequestError;
-                            //         computedValue: number;
-                            //         retryAfter?: number;
-                            //     } of retryObject */
-                            //     that._logger.warn("internal", LOG_ID + "(delete) retry HTTP GET, retryObject : ", retryObject);
-                            //     //return retryObject;
-                            //     return 1000;
-                            // },
-                            calculateDelay: ({computedValue}) => computedValue,
-                            /* calculateDelay:  ({computedValue}) => {
-                                let noise = 100;
-                                //let computedValueCalculated = ((2 ** (attemptCount - 1)) * 1000) + noise;
-                                let shouldBeRun = (nbRetryBeforeFailed - attemptCount)> 1 ? 1 : 0;
-                                let computedValueCalculated = (shouldBeRun * (timeBetweenRetry + noise));
-                                attemptCount++;
-                                that._logger.warn("warn", LOG_ID + "(get) (calculateDelay) retry HTTP GET, nbRetryBeforeFailed : ", nbRetryBeforeFailed, ",attemptCount : ", attemptCount, ", timeBetweenRetry : ", timeBetweenRetry, "ms , computedValue : ", computedValue,", computedValueCalculated : ", computedValueCalculated);
-                                return computedValueCalculated;
-                            }, // */
-                            methods: [
-                                'GET',
-                                'PUT',
-                                'HEAD',
-                                'DELETE',
-                                'OPTIONS',
-                                'TRACE'
-                            ],
-                            statusCodes: [
-                                408,
-                                413,
-                                429,
-                                500,
-                                502,
-                                503,
-                                504,
-                                521,
-                                522,
-                                524
-                            ],
-                            errorCodes: [
-                                'ETIMEDOUT',
-                                'ECONNRESET',
-                                'EADDRINUSE',
-                                'ECONNREFUSED',
-                                'EPIPE',
-                                'ENOTFOUND',
-                                'ENETUNREACH',
-                                'EAI_AGAIN'
-                            ],
-                            maxRetryAfter: undefined,
-                            // backoffLimit: Number.POSITIVE_INFINITY,
-                            noise: 100
-                        },
-                        hooks: {
-                            afterResponse: [
-                                (response, retryWithMergedOptions) => {
-                                    let body;
-                                    let xRainbowRequestId = response?.headers["x-rainbow-request-id"];
-                                    that._logger.log(that.HTTP, LOG_ID + "(delete) done statusCode : ", response?.statusCode, " for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId, " received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
-
-                                    if (response?.statusCode) {
-                                        if (response?.statusCode >= 200 && response?.statusCode <= 206) {
-                                            if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
-                                                if (response?.body && response?.headers && (response?.headers["content-type"]).indexOf("application/json")===0) {
-                                                    resolve(JSON.parse(response?.body));
-                                                } else {
-                                                    resolve(response.body);
-                                                }
+                                if (response?.statusCode) {
+                                    if (response?.statusCode >= 200 && response?.statusCode <= 206) {
+                                        if (!response.headers["content-type"] || (response.headers["content-type"] && (response.headers["content-type"].indexOf("json") > -1 || response.headers["content-type"].indexOf("csv") > -1))) {
+                                            if (response?.body && response?.headers && (response?.headers["content-type"]).indexOf("application/json")===0) {
+                                                resolve(JSON.parse(response?.body));
                                             } else {
-                                                let responseRequest = {
-                                                    code: -1,
-                                                    url: urlEncoded,
-                                                    msg: "Bad content, please check your host",
-                                                    details: "",
-                                                    headers: response ? response.headers:undefined
-                                                };
-                                                reject(responseRequest);
+                                                resolve(response.body);
                                             }
                                         } else {
-                                            that._logger.warn("warn", LOG_ID + "(delete) afterResponseHTTP response.code != 200");
-                                            that._logger.warn("internal", LOG_ID + "(delete) afterResponse HTTP response.code != 200, url : ", urlEncoded, ", bodyjs : ", response.body);
-                                            that._logger.warn("internal", LOG_ID + "(delete) afterResponse HTTP response.code != 200, url : ", urlEncoded, ", response.headers : ", response.headers, ", response.statusMessage : ", response.statusMessage);
-                                            // that._logger.log(that.INFO, LOG_ID + "(delete) HTTP code", response.code);
-                                            if (response.statusCode >= 200 && response.statusCode <= 206) {
-                                                let bodyjs = {};
-                                                if (response.body) {
-                                                    bodyjs = JSON.parse(response.body);
-                                                }
-                                                resolve(bodyjs);
-                                            } else {
-                                                let bodyjs: any = {};
-                                                if (that.hasJsonStructure(response.body)) {
-                                                    bodyjs = JSON.parse(response.body);
-                                                } else {
-                                                    bodyjs.errorMsg = response.body;
-                                                }
-                                                that.tokenExpirationControl(bodyjs);
-                                                reject({
-                                                    code: response.statusCode,
-                                                    url: urlEncoded,
-                                                    msg: response.body ? response.body.errorMsg || "":"",
-                                                    details: response.body ? response.body.errorDetails || "":"",
-                                                    error: bodyjs,
-                                                    headers: response ? response.headers:undefined
-                                                });
-                                            }
-                                        }
-                                    } else {
-                                        if (response.error && response.error.reason) {
-                                            that._logger.log(that.ERROR, LOG_ID + "(delete) HTTP security issue", response.error.reason);
-                                            reject({
+                                            let responseRequest = {
                                                 code: -1,
                                                 url: urlEncoded,
-                                                msg: response.error.reason,
+                                                msg: "Bad content, please check your host",
                                                 details: "",
                                                 headers: response ? response.headers:undefined
-                                            });
+                                            };
+                                            reject(responseRequest);
+                                        }
+                                    } else {
+                                        that._logger.warn("warn", LOG_ID + "(delete) afterResponseHTTP response.code != 200");
+                                        that._logger.warn("internal", LOG_ID + "(delete) afterResponse HTTP response.code != 200, url : ", urlEncoded, ", bodyjs : ", response.body);
+                                        that._logger.warn("internal", LOG_ID + "(delete) afterResponse HTTP response.code != 200, url : ", urlEncoded, ", response.headers : ", response.headers, ", response.statusMessage : ", response.statusMessage);
+                                        // that._logger.log(that.INFO, LOG_ID + "(delete) HTTP code", response.code);
+                                        if (response.statusCode >= 200 && response.statusCode <= 206) {
+                                            let bodyjs = {};
+                                            if (response.body) {
+                                                bodyjs = JSON.parse(response.body);
+                                            }
+                                            resolve(bodyjs);
                                         } else {
-                                            that._logger.warn("error", LOG_ID + "(delete) HTTP other issue.");
-                                            that._logger.warn("internalerror", LOG_ID + "(delete) HTTP other issue , response : ", JSON.stringify(response) + " error : " + response.message);
-                                            that._logger.log(that.INTERNAL, LOG_ID + "(delete) HTTP other issue", response);
+                                            let bodyjs: any = {};
+                                            if (that.hasJsonStructure(response.body)) {
+                                                bodyjs = JSON.parse(response.body);
+                                            } else {
+                                                bodyjs.errorMsg = response.body;
+                                            }
+                                            that.tokenExpirationControl(bodyjs);
                                             reject({
-                                                code: -1,
+                                                code: response.statusCode,
                                                 url: urlEncoded,
-                                                msg: "Unknown error",
-                                                details: response,
+                                                msg: response.body ? response.body.errorMsg || "":"",
+                                                details: response.body ? response.body.errorDetails || "":"",
+                                                error: bodyjs,
                                                 headers: response ? response.headers:undefined
                                             });
                                         }
                                     }
-                                    // No changes otherwise
-                                    return response;
+                                } else {
+                                    if (response.error && response.error.reason) {
+                                        that._logger.log(that.ERROR, LOG_ID + "(delete) HTTP security issue", response.error.reason);
+                                        reject({
+                                            code: -1,
+                                            url: urlEncoded,
+                                            msg: response.error.reason,
+                                            details: "",
+                                            headers: response ? response.headers:undefined
+                                        });
+                                    } else {
+                                        that._logger.warn("error", LOG_ID + "(delete) HTTP other issue.");
+                                        that._logger.warn("internalerror", LOG_ID + "(delete) HTTP other issue , response : ", JSON.stringify(response) + " error : " + response.message);
+                                        that._logger.log(that.INTERNAL, LOG_ID + "(delete) HTTP other issue", response);
+                                        reject({
+                                            code: -1,
+                                            url: urlEncoded,
+                                            msg: "Unknown error",
+                                            details: response,
+                                            headers: response ? response.headers:undefined
+                                        });
+                                    }
                                 }
-                            ],
-                            beforeRetry: [
-                                error => {
-                                    // This will be called on `retryWithMergedOptions(...)`
-                                }
-                            ]
-                        },
-                    };
-
-                    if (body) {
-                        req.body = body;
-                    }
-
-                    return req;
+                                // No changes otherwise
+                                return response;
+                            }
+                        ],
+                        beforeRetry: [
+                            error => {
+                                // This will be called on `retryWithMergedOptions(...)`
+                            }
+                        ]
+                    },
                 };
 
-                try {
-
-                    const secondInstance = that.mergedGot.extend({mutableDefaults: true});
-                    /*secondInstance.defaults.options.hooks = defaults.hooks;
-                    secondInstance.defaults.options.retry = defaults.retry;
-                    secondInstance.defaults.options.pagination = defaults.pagination; // */
-
-
-                    let getOptions = newAliveAgent();
-                    let response = await secondInstance.delete(urlEncoded, getOptions).catch((error) => {
-                        that._logger.warn("internal", LOG_ID + "(delete) sent x-rainbow-request-node-id : ", xRainbowRequestNodeId, " error.code : ", error?.code, ", error.message : ", error?.message, ", urlEncoded : ", urlEncoded);
-                        return that.treatSystemError("DELETE", error, reject);
-                    });
-                    that._logger.log(that.DEBUG, LOG_ID + "(delete) done.");
-                    let xRainbowRequestId = response?.headers ? response?.headers["x-rainbow-request-id"]:"";
-                    that._logger.log(that.HTTP, LOG_ID + "(delete) done statusCode : ", response?.statusCode, " for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId, " received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
-
-                } catch (error) {
-                    //
-                    //An error to be thrown when the server response code is not 2xx nor 3xx if `options.followRedirect` is `true`, but always except for 304.
-                    //Includes a `response` property. Contains a `code` property with `ERR_NON_2XX_3XX_RESPONSE` or a more specific failure code.
-                    //
-                    that._logger.warn("warn", LOG_ID + "(delete) HTTP error.");
-                    that._logger.warn("internal", LOG_ID + "(delete) HTTP error statusCode : ", error?.statusCode, ", message : ", error?.message);
+                if (body) {
+                    req.body = body;
                 }
 
-                return;
-            }
-// */
-
-            let deleteOptions = {
-                url: urlEncoded,
-                headers: headers,
-                proxy: (that.proxy && that.proxy.isProxyConfigured) ? that.proxy.proxyURL:null,
-                agentOptions: {
-                    secureProtocol: that.proxy.secureProtocol
-                },
-                body: undefined
+                return req;
             };
 
-            if (body) {
-                deleteOptions.body = body;
+            try {
+
+                const secondInstance = that.mergedGot.extend({mutableDefaults: true});
+                /*secondInstance.defaults.options.hooks = defaults.hooks;
+                secondInstance.defaults.options.retry = defaults.retry;
+                secondInstance.defaults.options.pagination = defaults.pagination; // */
+
+
+                let getOptions = newAliveAgent();
+                let response = await secondInstance.delete(urlEncoded, getOptions).catch((error) => {
+                    that._logger.warn("internal", LOG_ID + "(delete) sent x-rainbow-request-node-id : ", xRainbowRequestNodeId, " error.code : ", error?.code, ", error.message : ", error?.message, ", urlEncoded : ", urlEncoded);
+                    return that.treatSystemError("DELETE", error, reject);
+                });
+                that._logger.log(that.DEBUG, LOG_ID + "(delete) done.");
+                let xRainbowRequestId = response?.headers ? response?.headers["x-rainbow-request-id"]:"";
+                that._logger.log(that.HTTP, LOG_ID + "(delete) done statusCode : ", response?.statusCode, " for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId, " received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
+
+            } catch (error) {
+                //
+                //An error to be thrown when the server response code is not 2xx nor 3xx if `options.followRedirect` is `true`, but always except for 304.
+                //Includes a `response` property. Contains a `code` property with `ERR_NON_2XX_3XX_RESPONSE` or a more specific failure code.
+                //
+                that._logger.warn("warn", LOG_ID + "(delete) HTTP error.");
+                that._logger.warn("internal", LOG_ID + "(delete) HTTP error statusCode : ", error?.statusCode, ", message : ", error?.message);
             }
-
-            let request = Request.delete(deleteOptions, (error, response, body) => {
-                if (error) {
-                    return reject({
-                        code: -1,
-                        url: urlEncoded,
-                        msg: "ErrorManager while requesting",
-                        details: error,
-                        headers: response ? response.headers:undefined
-                    });
-                } else {
-                    let xRainbowRequestId = response?.headers["x-rainbow-request-id"];
-                    that._logger.log(that.HTTP, LOG_ID + "(delete) done statusCode : ", response?.statusCode, " for sent x-rainbow-request-node-id : ", xRainbowRequestNodeId, " received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
-                    if (response) {
-                        // that._logger.log(that.INFO, LOG_ID + "(delete) HTTP code", response.code);
-                        if (response.statusCode >= 200 && response.statusCode <= 206) {
-                            let bodyjs = {};
-                            if (response.body) {
-                                bodyjs = JSON.parse(response.body);
-                            }
-                            resolve(bodyjs);
-                        } else {
-                            let bodyjs: any = {};
-                            if (that.hasJsonStructure(response.body)) {
-                                bodyjs = JSON.parse(response.body);
-                            } else {
-                                bodyjs.errorMsg = response.body;
-                            }
-                            that.tokenExpirationControl(bodyjs);
-                            return reject({
-                                code: response.statusCode,
-                                url: urlEncoded,
-                                msg: response.body ? response.body.errorMsg || "":"",
-                                details: response.body ? response.body.errorDetails || "":"",
-                                error: bodyjs,
-                                headers: response ? response.headers:undefined
-                            });
-                        }
-                    }
-                }
-            });
-
         });
     }
 }
