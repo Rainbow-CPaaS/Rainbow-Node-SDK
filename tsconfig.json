@@ -19,8 +19,8 @@
       "es6",
       "es2020"
     ],
-    "explainFiles": true,
-    "diagnostics": true
+    "explainFiles": false,
+    "diagnostics": false
   },
   "buildOnSave": true,
   "compileOnSave": true,
@@ -40,6 +40,7 @@
   },
   "exclude": [
     "build",
+    "lib", "dist", "out", "jsdoc", "doc",
     "typings",
     "**/*.spec.ts",
     "**/*.d.ts",
@@ -47,7 +48,5 @@
   ],
   "include": [
     "./src/**/*.ts",
-    "./node_modules/typescript/lib/typescript.d.ts",
-    "./node_modules/typescript/lib/typescript.ts"
   ]
 }

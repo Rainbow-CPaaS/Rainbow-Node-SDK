@@ -45,3 +45,5 @@ echo Waiting 3 seconds for file system sync...
 ping 127.0.0.1 -n 4 > nul
 echo Ready.
 echo Cleaning completed (mode: %MODE%).
+
+npm run build
