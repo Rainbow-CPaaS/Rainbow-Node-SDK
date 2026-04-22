@@ -38,7 +38,6 @@ class Colors {
     },
     rest: {
       useRestAtStartup: true,
-      useGotLibForHttp: false,
       gotOptions: [Object]
     },
     credentials: {
@@ -166,12 +165,10 @@ class S2SOptions {
 
 class RestOptions {
     public useRestAtStartup;
-    public useGotLibForHttp;
     public gotOptions;
 
-    constructor(useRestAtStartup, useGotLibForHttp, gotOptions) {
+    constructor(useRestAtStartup, gotOptions) {
         this.useRestAtStartup = useRestAtStartup;
-        this.useGotLibForHttp = useGotLibForHttp;
         this.gotOptions = gotOptions;
     }
 }
@@ -367,7 +364,6 @@ interface S2SOptions {
 
 interface RestOptions {
     useRestAtStartup: boolean;
-    useGotLibForHttp: boolean;
     gotOptions?: Record<string, any>;
 }
 

@@ -411,7 +411,6 @@ let expressEngine = undefined;
         },
         "rest": {
             "useRestAtStartup": true,
-            "useGotLibForHttp": true,
              "gotOptions": {
                  agentOptions: {
                      /**

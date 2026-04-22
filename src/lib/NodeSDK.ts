@@ -66,7 +66,6 @@ let LOG_ID = "NodeSDK/IDX";
  * @property {string} options.s2s.locallistenningport "4000", Local port where the events must be forwarded from S2S Callback Web server.
  * @property {string} options.s2s.expressEngine Local instance for S2S Callback Web server.
  * @property {string} options.rest.useRestAtStartup, enable the REST requests to the rainbow server at startup (used with startWSOnly method). Default value is true.
- * @property {string} options.rest.useGotLibForHttp, allows to enable the use of `got` lib for REST requests (esle the old Request lib is used). Default value is true.
  * @property {string} options.rest.gotOptions, allows to customize the `got` lib for REST requests options. Default value is :</BR>
  *  {</BR>
  *  agentOptions: { </BR>
@@ -424,7 +423,6 @@ class NodeSDK {
      * @param {string} options.s2s.locallistenningport "4000", Local port where the events must be forwarded from S2S Callback Web server.
      * @param {string} options.s2s.expressEngine Local instance for S2S Callback Web server.
      * @param {string} options.rest.useRestAtStartup enable the REST requests to the rainbow server at startup (used with startWSOnly method). default value is true.
-     * @param {string} options.rest.useGotLibForHttp allows to enable the use of `got` lib for REST requests (esle the old Request lib is used). Default value is true.
      * @param {string} options.rest.gotOptions, allows to customize the `got` lib for REST requests options. Default value is : </BR>
      *  {</BR>
      *  agentOptions: { </BR>

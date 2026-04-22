@@ -16,7 +16,6 @@ let options = {
     },
     "rest": {
         "useRestAtStartup": true,
-        "useGotLibForHttp": true,
         "gotOptions":  {
             agentOptions: {
                 /**

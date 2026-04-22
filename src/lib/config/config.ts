@@ -82,7 +82,6 @@ let conf =  {
         },
         "rest":{
             "useRestAtStartup" : true,
-            "useGotLibForHttp":true,
             "gotOptions": {
                 "agentOptions": {
                     /**
@@ -154,7 +153,6 @@ let conf =  {
         },
         "rest":{
             "useRestAtStartup" : true,
-            "useGotLibForHttp": true,
             "gotOptions": {
                 "agentOptions": {
                     /**
@@ -227,7 +225,6 @@ let conf =  {
         ,
         "rest":{
             "useRestAtStartup" : true,
-            "useGotLibForHttp": true,
             "gotOptions": {
                 "agentOptions": {
                     /**

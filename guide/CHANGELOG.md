@@ -8,7 +8,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 ### [2.43.2] - 2026-04-XX
 #### Removed
--   None
+-   Remove `useGotLibForHttp` option (all HTTP requests now use `got` library).
 
 #### Fixed
 -   Fix `Samples/index.ts` (SIGHUP/SIGTERM support).

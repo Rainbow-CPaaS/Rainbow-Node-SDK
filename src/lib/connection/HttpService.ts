@@ -2064,7 +2064,12 @@ safeJsonParse(str) {
                     that._logger.log(that.DEBUG, LOG_ID + "(get) end by GOT.");
 // */
                 } else {
-                    that._logger.log(that.ERROR, LOG_ID + "(get) for non JSON type is not supported yet. urlEncoded : ", urlEncoded);
+                    try {
+                        let result = await that._getUrlRaw(url, headers, params, nbRetryBeforeFailed, timeBetweenRetry);
+                        resolve(result.body);
+                    } catch (err) {
+                        reject(err);
+                    }
                 }
             } catch (err) {
                 that._logger.log(that.ERROR, LOG_ID + "(get) HTTP ErrorManager");
