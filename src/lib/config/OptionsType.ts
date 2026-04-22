@@ -231,7 +231,6 @@ class ImOptions {
     public sendReadReceipt;
     public sendMessageToConnectedUser;
     public conversationsRetrievedFormat;
-    public storeMessages;
     public copyMessage;
     public nbMaxConversations;
     public rateLimitPerHour;
@@ -251,11 +250,10 @@ class ImOptions {
     public storeMessagesInConversation;
     public maxMessagesStoredInConversation;
 
-    constructor(sendReadReceipt, sendMessageToConnectedUser, conversationsRetrievedFormat, storeMessages, copyMessage, nbMaxConversations, rateLimitPerHour, messagesDataStore, autoInitialGetBubbles, autoInitialBubblePresence, maxBubbleJoinInProgress, autoInitialBubbleFormat, autoInitialBubbleUnsubscribed, autoLoadConversations, autoLoadConversationHistory, autoLoadContacts, autoInitialLoadContactsInfoBulk, autoLoadCallLog, enableCarbon, enablesendurgentpushmessages, storeMessagesInConversation, maxMessagesStoredInConversation) {
+    constructor(sendReadReceipt, sendMessageToConnectedUser, conversationsRetrievedFormat, copyMessage, nbMaxConversations, rateLimitPerHour, messagesDataStore, autoInitialGetBubbles, autoInitialBubblePresence, maxBubbleJoinInProgress, autoInitialBubbleFormat, autoInitialBubbleUnsubscribed, autoLoadConversations, autoLoadConversationHistory, autoLoadContacts, autoInitialLoadContactsInfoBulk, autoLoadCallLog, enableCarbon, enablesendurgentpushmessages, storeMessagesInConversation, maxMessagesStoredInConversation) {
         this.sendReadReceipt = sendReadReceipt;
         this.sendMessageToConnectedUser = sendMessageToConnectedUser;
         this.conversationsRetrievedFormat = conversationsRetrievedFormat;
-        this.storeMessages = storeMessages;
         this.copyMessage = copyMessage;
         this.nbMaxConversations = nbMaxConversations;
         this.rateLimitPerHour = rateLimitPerHour;
@@ -411,7 +409,6 @@ interface IMOptions {
     sendReadReceipt: boolean;
     sendMessageToConnectedUser: boolean;
     conversationsRetrievedFormat: string;
-    storeMessages: boolean;
     copyMessage: boolean;
     nbMaxConversations: number;
     rateLimitPerHour: number;

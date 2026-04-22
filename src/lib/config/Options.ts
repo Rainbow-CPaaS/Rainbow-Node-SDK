@@ -545,11 +545,10 @@ class Options {
             "messageMaxLength" : 16384, // Max stanza size on server is 18432
             "sendMessageToConnectedUser": false,
             "conversationsRetrievedFormat": "small",
-            "storeMessages": false,
             "copyMessage": true,
             "nbMaxConversations": 15,
             "rateLimitPerHour": 10000,
-            "messagesDataStore": DataStoreType.UsestoreMessagesField,
+            "messagesDataStore": DataStoreType.NoStore,
             "autoInitialGetBubbles": true,
             "autoInitialBubblePresence": true,
             "maxBubbleJoinInProgress": 10,
@@ -572,7 +571,6 @@ class Options {
         optionsIM.messageMaxLength = isDefined(this._options.im.messageMaxLength) ? this._options.im.messageMaxLength : config.im.messageMaxLength;
         optionsIM.sendMessageToConnectedUser = isDefined(this._options.im.sendMessageToConnectedUser) ? toBoolean(this._options.im.sendMessageToConnectedUser) : config.im.sendMessageToConnectedUser;
         optionsIM.conversationsRetrievedFormat = isDefined(this._options.im.conversationsRetrievedFormat) ? this._options.im.conversationsRetrievedFormat : config.im.conversationsRetrievedFormat;
-        optionsIM.storeMessages = isDefined(this._options.im.storeMessages) ? toBoolean(this._options.im.storeMessages) : config.im.storeMessages;
         optionsIM.copyMessage = isDefined(this._options.im.copyMessage) ? toBoolean(this._options.im.copyMessage) : config.im.copyMessage;
         optionsIM.nbMaxConversations = isDefined(this._options.im.nbMaxConversations) ? this._options.im.nbMaxConversations : config.im.nbMaxConversations;
         optionsIM.rateLimitPerHour = isDefined(this._options.im.rateLimitPerHour) ? this._options.im.rateLimitPerHour : config.im.rateLimitPerHour;

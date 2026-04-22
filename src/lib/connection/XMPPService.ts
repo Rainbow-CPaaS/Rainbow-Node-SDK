@@ -728,7 +728,7 @@ class XMPPService extends GenericService {
 
         // */
 
-        await that.xmppClient.init(that._logger, that.eventEmitter, that.timeBetweenXmppRequests, that.storeMessages, that.rateLimitPerHour, that.messagesDataStore, that.copyMessage, that.enablesendurgentpushmessages, that.maxPendingAsyncLockXmppQueue);
+        await that.xmppClient.init(that._logger, that.eventEmitter, that.timeBetweenXmppRequests, that.rateLimitPerHour, that.messagesDataStore, that.copyMessage, that.enablesendurgentpushmessages, that.maxPendingAsyncLockXmppQueue);
 
         //that.reconnect = that.xmppClient.plugin(require("@xmpp/plugins/reconnect"));
         that.reconnect = that.xmppClient.reconnect;

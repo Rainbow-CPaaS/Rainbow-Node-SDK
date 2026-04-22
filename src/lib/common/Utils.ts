@@ -1453,40 +1453,18 @@ function findPackageJson(startDir: string): string | null {
     return null; // Return null if package.json not found
 }
 
-function getStoreStanzaValue(storeMessages:boolean, messagesDataStore : DataStoreType, p_messagesDataStore : DataStoreType) : string {
+function getStoreStanzaValue(messagesDataStore : DataStoreType, p_messagesDataStore : DataStoreType) : string {
     let storeStanzaValue :string = DataStoreType.Store;
     if (isDefined(p_messagesDataStore)) {
         if (p_messagesDataStore === DataStoreType.StoreTwinSide) {
             p_messagesDataStore = DataStoreType.Store;
         }
-        if (p_messagesDataStore != DataStoreType.UsestoreMessagesField) {
-            storeStanzaValue = p_messagesDataStore;
-        } else {
-            if (storeMessages) {
-                storeStanzaValue = DataStoreType.Store;
-            } else {
-                storeStanzaValue = DataStoreType.NoStore;
-            }
-        }
+        storeStanzaValue = p_messagesDataStore;
     } else if (isDefined(messagesDataStore)) {
-        if (messagesDataStore != DataStoreType.UsestoreMessagesField) {
-            if (messagesDataStore === DataStoreType.StoreTwinSide) {
-                messagesDataStore = DataStoreType.Store;
-            }
-            storeStanzaValue = messagesDataStore;
-        } else {
-            if (storeMessages) {
-                storeStanzaValue = DataStoreType.Store;
-            } else {
-                storeStanzaValue = DataStoreType.NoStore;
-            }
+        if (messagesDataStore === DataStoreType.StoreTwinSide) {
+            messagesDataStore = DataStoreType.Store;
         }
-    } else if (isDefined(storeMessages)) {
-        if (storeMessages) {
-           storeStanzaValue = DataStoreType.Store;
-        } else {
-            storeStanzaValue = DataStoreType.NoStore;
-        }
+        storeStanzaValue = messagesDataStore;
     } else {
         storeStanzaValue = DataStoreType.Store;
     }

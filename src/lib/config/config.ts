@@ -5,11 +5,10 @@
 import {LEVELSNAMES} from "../common/LevelLogs.js";
 
 /**
- *  used in SDK parameter "messagesDataStore": DataStoreType.NoStore, Parameter to override the storeMessages parameter of the SDK to define the behaviour of the storage of the messages (Enum DataStoreType in lib/config/config , default value "DataStoreType.UsestoreMessagesField" so it follows the storeMessages behaviour)
+ *  used in SDK parameter "messagesDataStore": DataStoreType.NoStore, Parameter to override the storeMessages parameter of the SDK to define the behaviour of the storage of the messages (Enum DataStoreType in lib/config/config , default value "DataStoreType.NoStore")
  *                          DataStoreType.NoStore Tell the server to NOT store the messages for delay distribution or for history of the bot and the contact.
  *                          DataStoreType.NoPermanentStore Tell the server to NOT store the messages for history of the bot and the contact. But being stored temporarily as a normal part of delivery (e.g. if the recipient is offline at the time of sending).
  *                          DataStoreType.StoreTwinSide The messages are fully stored.
- *                          DataStoreType.UsestoreMessagesField to follow the storeMessages SDK's parameter behaviour.
  *                          DataStoreType.Store Offline storage and Message Archive Management (XEP-0313) [4] can define their own rules on what messages to store and usually only store messages that contain a body element. However a sender may want to indicate that a message is worth storing even though it might not match those rules.
  * @public
  * @enum {string}
@@ -22,8 +21,6 @@ enum DataStoreType {
     NoPermanentStore = "no-permanent-store",
     /** The messages are fully stored. */
     StoreTwinSide = "storetwinside",
-    /** To follow the storeMessages SDK's parameter behaviour. */
-    UsestoreMessagesField = "OldstoreMessagesUsed",
     /**
      * Offline storage and Message Archive Management (XEP-0313) [4] can define their own rules on what messages to store and usually only store messages that contain a body element.
      * However a sender may want to indicate that a message is worth storing even though it might not match those rules
@@ -290,11 +287,6 @@ let conf =  {
         "messageMaxLength": 16384, // Max stanza size on server is 18432
         "sendMessageToConnectedUser": false,
         "conversationsRetrievedFormat": "small",
-        "storeMessages": true, /* https://xmpp.org/extensions/xep-0334.html#hints :
-         No store :
-            A message containing a <no-store/> hint should not be stored by a server either permanently (as above) or temporarily,
-            e.g. for later delivery to an offline client, or to users not currently present in a chatroom.
-         // */
         /* copyMessage: true, /* https://xmpp.org/extensions/xep-0334.html#hints :
         No copies :
             Messages with the <no-copy/> hint should not be copied to addresses other than the one to which it is addressed, for example through Message Carbons (XEP-0280) [3].
@@ -304,7 +296,7 @@ let conf =  {
         "copyMessage": true,
         "nbMaxConversations": 15,
         "rateLimitPerHour": 10000,
-        "messagesDataStore": DataStoreType.UsestoreMessagesField,
+        "messagesDataStore": DataStoreType.NoStore,
         "autoInitialGetBubbles": true,
         "autoInitialBubblePresence": true,
         "maxBubbleJoinInProgress": 10,

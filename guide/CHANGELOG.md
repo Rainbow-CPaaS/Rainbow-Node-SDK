@@ -9,6 +9,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 ### [2.43.2] - 2026-04-XX
 #### Removed
 -   **[BREAKING]** Remove `useGotLibForHttp` option (all HTTP requests now use `got` library).
+-   **[BREAKING]** Remove `storeMessages` option (The store message behaviour is managed with `messagesDataStore` option). Also removed the `DataStoreType.UsestoreMessagesField` value which allowed to follow the storeMessages SDK's parameter behaviour.
 
 #### Fixed
 -   Fix `Samples/index.ts` (SIGHUP/SIGTERM support).

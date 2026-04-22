@@ -57,7 +57,6 @@ class XmppClient {
     public username: any;
     public password: any;
     socketClosed: boolean = false;
-    storeMessages: any;
     enablesendurgentpushmessages: any;
     copyMessage: any = true;
     rateLimitPerHour: any;
@@ -98,7 +97,7 @@ class XmppClient {
         //console.log("Réponse pong reçue !");
     }
 
-    async init(_logger, _eventemitter, _timeBetweenXmppRequests, _storeMessages, _rateLimitPerHour, _messagesDataStore, _copyMessage, _enablesendurgentpushmessages, _maxPendingAsyncLockXmppQueue) {
+    async init(_logger, _eventemitter, _timeBetweenXmppRequests, _rateLimitPerHour, _messagesDataStore, _copyMessage, _enablesendurgentpushmessages, _maxPendingAsyncLockXmppQueue) {
         let that = this;
         that.client.getQuery('urn:xmpp:ping', 'ping', that.iqGetEventPing.bind(that));
         that.client.setQuery('jabber:iq:roster', 'query', that.iqSetEventRoster.bind(that));
@@ -111,7 +110,6 @@ class XmppClient {
         that.timeBetweenXmppRequests = _timeBetweenXmppRequests ? _timeBetweenXmppRequests:20;
         that.maxPendingAsyncLockXmppQueue = _maxPendingAsyncLockXmppQueue ? _maxPendingAsyncLockXmppQueue:20;
         that.xmppQueue = XmppQueue.getXmppQueue(_logger, that.timeBetweenXmppRequests, that.maxPendingAsyncLockXmppQueue);
-        that.storeMessages = _storeMessages;
         that.rateLimitPerHour = _rateLimitPerHour;
         that.messagesDataStore = _messagesDataStore;
         that.lastTimeReset = new Date();
@@ -409,7 +407,7 @@ class XmppClient {
                 //} 
             }
 
-            let storeStanzaValue = getStoreStanzaValue(that.storeMessages, that.messagesDataStore, p_messagesDataStore);
+            let storeStanzaValue = getStoreStanzaValue(that.messagesDataStore, p_messagesDataStore);
 
             if (stanza && typeof stanza==="object" && stanza.name=="message") {
             //if (storeStanzaValue!=DataStoreType.StoreTwinSide && stanza && typeof stanza==="object" && stanza.name=="message") {
