@@ -8,7 +8,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 ### [2.43.2] - 2026-04-XX
 #### Removed
--   Remove `useGotLibForHttp` option (all HTTP requests now use `got` library).
+-   **[BREAKING]** Remove `useGotLibForHttp` option (all HTTP requests now use `got` library).
 
 #### Fixed
 -   Fix `Samples/index.ts` (SIGHUP/SIGTERM support).
@@ -42,23 +42,23 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Added `waitEvent` method to `GenericService.ts` which takes an event name, a timeout (default 30s), a test method (predicate) to identify the last event and a validation method (returning a Promise) for the received data. It returns the data received in the event callback on success, or rejects with an error on timeout.
 
 #### Changed
--   Update `downloadFile` and `downloadFileInPath` in `FileStorageService` to include a security check that blocks infected files by default. A new optional parameter `acceptToDownloadInfectedFile` (default `false`) allows downloading these files if explicitly requested.
+-   **[BREAKING]** Update `downloadFile` and `downloadFileInPath` in `FileStorageService` to include a security check that blocks infected files by default. A new optional parameter `acceptToDownloadInfectedFile` (default `false`) allows downloading these files if explicitly requested.
 -   Update `HttpManager` and `HttpService` to support custom callbacks for mocked REST requests, ensuring they work both with and without the request rate limiter.
 -   Update `BubblesService::registerGuestForAPublicURL` with new parameters emails, phoneNumbers, country, state, language, timezone, visibility, customData, companyNameOfGuest, roomPassword.
 -   Update `BubblesService::joinBubbleByOpenInviteId` with new parameters roomPassword. The method's return also changed by an object instead of string.
--   Update `BubblesService::createPublicUrl` the method's return changed by an object instead of string.
+-   **[BREAKING]** Update `BubblesService::createPublicUrl` the method's return changed by an object instead of string.
 -   Update `HttpService.ts` typescript parameter type.
 -   Update to use `setInterval` instead of `timeOutManager.setTimeout` to avoid the accumulation of `setTimeout` contexts for XMPP idleTimer.
 -   Update `Events.ts` to use the custom Emitter to emit/receive events.
 -   Update JsDoc with optional parameters for service files in `src/lib/services/` (`ImsService.ts`, `AlertsService.ts`, `BubblesService.ts`, `FileServerService.ts`, `InvitationsService.ts`, `AdminService.ts`, `ContactsService.ts`, etc.).
--   Remove library `Request` from project. 
+-  **[BREAKING]**  Remove library `Request` from project (so `useGotLibForHttp` option removed (all HTTP requests now use `got` library)). 
 
 ### [2.43.1] - 2026-02-27
 #### Removed
 -   None
 
 #### Fixed
-- Fix informations about contacts in roster (Add the contacts information return by getRosters in the cache, because getContactsInformationByJIDs does not return all info any more (loginEmail : String 	DEPRECATED (will be removed in a future release). User email address (used for login) ))
+-   Fix informations about contacts in roster (Add the contacts information return by getRosters in the cache, because getContactsInformationByJIDs does not return all info any more (loginEmail : String 	DEPRECATED (will be removed in a future release). User email address (used for login) ))
  
 #### Added
 -   Add `token` parameter to startCLI API, to allow start in cli mode with token.
