@@ -2030,7 +2030,7 @@ class XMPPService extends GenericService {
         return Promise.resolve(null);
     }
 
-    async sendApplicationMessageAsync(jid, type, element :Element, p_messagesDataStore: DataStoreType) {
+    async sendApplicationMessageAsync(jid, type, element :any, p_messagesDataStore: DataStoreType) {
         let that = this;
         if (that.useXMPP) {
             let id = that.xmppUtils.getUniqueMessageId();

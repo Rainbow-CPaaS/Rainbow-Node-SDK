@@ -18,7 +18,8 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Fix `evt_internal_signinrequired` callback to avoid a call of a second `start()` from the application.
 -   Fix issue when a reconnection is already in progress.
 -   Fix the treatment of presence unvailable in bubble event to avoid to search the bubble on serveur side (because this event means bubble is deleted.)
-
+-   Fix `conversationEventHandler::onErrorMessageReceived` callback for add body, subject and text properties in received event.
+ 
 #### Added
 -   Add `testGetAllConferenceRecords` in `Samples/index.ts` to verify the conference records retrieval.
 -   Add `getAllConferenceRecords` method in `FileStorageService` to retrieve the list of all conference records. (Need to implement the other API and to treat the events.)

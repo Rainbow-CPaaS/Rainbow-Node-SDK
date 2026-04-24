@@ -6,6 +6,9 @@ import {Element} from "ltx";
 import {
     findAllPropInJSONByPropertyName,
     findAllPropInJSONByPropertyNameByXmlNS,
+    getTextFromJSONProperty,
+    getAllValuesFromPropInJSONByPropertyName,
+    addPropertyToObj,
     getJsonFromXML,
     logEntryExit
 } from "../../common/Utils";
@@ -3214,11 +3217,20 @@ class ConversationEventHandler extends GenericHandler {
             if (nostore.length > 0) {
                 that._logger.log(that.ERROR, LOG_ID + "(onErrorMessageReceived) The message could not be delivered.");
                 that._logger.log(that.ERROR, LOG_ID + "(onErrorMessageReceived) something goes wrong... : ", msg, "\n", prettyStanza);
-                let err = {
+                let err : any = {
                     "id": stanza.attrs.id,
-                    "body": findAllPropInJSONByPropertyName(jsonStanza,"body"),//stanza.getChild('body').text(),
-                    "subject": findAllPropInJSONByPropertyName(jsonStanza,"subject"), //stanza.getChild('subject').text()
                 };
+                /*let body = getAllValuesFromPropInJSONByPropertyName(jsonStanza,"body");
+                if (body) {
+                    err.body = body;
+                } // */
+                addPropertyToObj(err, "body", getAllValuesFromPropInJSONByPropertyName(jsonStanza, "body"), false);
+                addPropertyToObj(err, "subject",getAllValuesFromPropInJSONByPropertyName(jsonStanza,"subject"), false);
+                addPropertyToObj(err, "text",getAllValuesFromPropInJSONByPropertyName(jsonStanza,"text"), false);
+
+                if (findAllPropInJSONByPropertyName(jsonStanza,"service-unavailable").length > 0) {
+                    err.serviceunavaible = true;
+                }
                 //that._logger.log(that.ERROR, LOG_ID + "(onErrorMessageReceived) no-store message setted...");
                 that._logger.log(that.WARN, LOG_ID + "(onErrorMessageReceived) failed to send : ", err);
                 that.eventEmitter.emit("evt_internal_onsendmessagefailed", err);
