@@ -45,6 +45,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add `Contact::autoAcceptExternalApp`, `Contact::changeDNDFullScreen`, `Contact::ignoreVoipCallInDND`, `Contact::manageCustomizationFile`, `Contact::setDNDAppointment`, `Contact::usePersonalAccessTokens`
 -   Added `waitEvent` method to `GenericService.ts` which takes an event name, a timeout (default 30s), a test method (predicate) to identify the last event and a validation method (returning a Promise) for the received data. It returns the data received in the event callback on success, or rejects with an error on timeout.
 -   Add `.catch` blocks on `getBubbleByJid` method calls to improve error handling and logging.
+-   Add `.catch` blocks on `getBubbleById` method calls to improve error handling and logging.
 
 #### Changed
 -   **[BREAKING]** Update `downloadFile` and `downloadFileInPath` in `FileStorageService` to include a security check that blocks infected files by default. A new optional parameter `acceptToDownloadInfectedFile` (default `false`) allows downloading these files if explicitly requested.

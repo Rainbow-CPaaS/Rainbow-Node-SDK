@@ -21,6 +21,7 @@ import {BubblesService} from "../../services/BubblesService";
 import {Core} from "../../Core";
 import {PresenceRainbow} from "../../common/models/PresenceRainbow";
 import {LevelLogs} from "../../common/LevelLogs.js";
+import {ErrorManager} from "../../common/ErrorManager.js";
 
 const util = require('util');
 
@@ -650,38 +651,47 @@ class S2SServiceEventHandler extends LevelLogs{
                      */
                     //let contact: Bubble = await that._conversations.getConversationByBubbleId(peer);
                     let bubbleId = peer;
-                    let bubble = await that._bulles.getBubbleById(bubbleId) ;
-                    let conversation: Conversation = await that._conversations.getBubbleConversation(bubble.jid).catch((err) => { that._logger.log(that.WARN, LOG_ID + "(getBubbleConversation) raised error : ", err); });
-                    that._logger.log(that.DEBUG, LOG_ID + "(ParseConversationCallback) message - conversation conversation : ", conversation);
+                    let bubble : any = await that._bulles.getBubbleById(bubbleId).catch((err) => {
+                        that._logger.log(that.ERROR, LOG_ID + "(ParseConversationCallback) get bubble failed for bubbleId : ", bubbleId, ", : ", err);
+                    });
+                    if (bubble) {
+                        let conversation: Conversation = await that._conversations.getBubbleConversation(bubble.jid).catch((err) => {
+                            that._logger.log(that.WARN, LOG_ID + "(getBubbleConversation) raised error : ", err);
+                        });
+                        that._logger.log(that.DEBUG, LOG_ID + "(ParseConversationCallback) message - conversation conversation : ", conversation);
 
-                    switch (action) {
-                        case "create":
-                            conversation.dbId = conversationId;
-                            conversation.lastModification = conversationObj.lastMessageDate;
-                            conversation.missedCounter = parseInt(conversationObj.unreadMessageNumber, 10) || 0;
-                            conversation.isFavorite = (conversationObj.isFavorite === "true");
-                            //this._conversations.orderConversations();
-                            //$rootScope.$broadcast("ON_CONVERSATIONS_UPDATED_EVENT");
-                            // Send conversations update event
-                            that._eventEmitter.emit("evt_internal_conversationupdated", conversation);
-                            break;
-                        case "delete":
-                            if (! conversation) {
-                                that._logger.log(that.DEBUG, LOG_ID + "(ParseConversationCallback) message - conversation received for delete but unknown, conversationId : ", conversationId);
-                                conversation = new Conversation(conversationId, that._logger, that.maxMessagesStoredInConversation);
-                            }
-                            this._conversations.removeConversation(conversation);
-                            break;
-                        case "update":
-                            conversation.isFavorite = (conversationObj.isFavorite === "true");
-                            //this._conversations.orderConversations();
-                            // Send conversations update event
-                            that._eventEmitter.emit("evt_internal_conversationupdated", conversation);
-                            //$rootScope.$broadcast("ON_CONVERSATIONS_UPDATED_EVENT");
-                            break;
-                        default:
-                            that._logger.log(that.ERROR, LOG_ID + "(ParseAllReceiptCallback) error - unknown action type : ", action);
-                            break;
+                        switch (action) {
+                            case "create":
+                                conversation.dbId = conversationId;
+                                conversation.lastModification = conversationObj.lastMessageDate;
+                                conversation.missedCounter = parseInt(conversationObj.unreadMessageNumber, 10) || 0;
+                                conversation.isFavorite = (conversationObj.isFavorite==="true");
+                                //this._conversations.orderConversations();
+                                //$rootScope.$broadcast("ON_CONVERSATIONS_UPDATED_EVENT");
+                                // Send conversations update event
+                                that._eventEmitter.emit("evt_internal_conversationupdated", conversation);
+                                break;
+                            case "delete":
+                                if (!conversation) {
+                                    that._logger.log(that.DEBUG, LOG_ID + "(ParseConversationCallback) message - conversation received for delete but unknown, conversationId : ", conversationId);
+                                    conversation = new Conversation(conversationId, that._logger, that.maxMessagesStoredInConversation);
+                                }
+                                this._conversations.removeConversation(conversation);
+                                break;
+                            case "update":
+                                conversation.isFavorite = (conversationObj.isFavorite==="true");
+                                //this._conversations.orderConversations();
+                                // Send conversations update event
+                                that._eventEmitter.emit("evt_internal_conversationupdated", conversation);
+                                //$rootScope.$broadcast("ON_CONVERSATIONS_UPDATED_EVENT");
+                                break;
+                            default:
+                                that._logger.log(that.ERROR, LOG_ID + "(ParseAllReceiptCallback) error - unknown action type : ", action);
+                                break;
+                        }
+                    } else {
+                        that._logger.log(that.WARN, LOG_ID + "(ParseConversationCallback) bad or empty 'bubbleId' parameter, bubble not found. bubbleId : ", bubbleId);
+                        return Promise.reject(Object.assign( ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'bubbleId' parameter, bubble not found. bubbleId : " + bubbleId}));
                     }
                 }
                 that._logger.log(that.DEBUG, LOG_ID + "(ParseConversationCallback) message - conversation received");
@@ -826,9 +836,15 @@ class S2SServiceEventHandler extends LevelLogs{
             if (roomId) {
                 let date = content.timestamp;
                 let status = roomMember.status;
-                let bubble: Bubble = await that._bulles.getBubbleById(roomId);
+                let bubble: any |Bubble = await that._bulles.getBubbleById(roomId).catch((err) => {
+                    that._logger.log(that.ERROR, LOG_ID + "(ParseRoomMemberCallback) get bubble failed for roomId : ", roomId, ", : ", err);
+                });
                 // that._logger.log(that.INFO, LOG_ID + "(ParseRoomMemberCallback) message - room-member received");
                 // that._eventEmitter.emit("evt_internal_invitationdetailsreceived", bubble);
+
+                if (!bubble) {
+                    bubble = {"id" : roomId};
+                }
 
                 that._eventEmitter.emit("evt_internal_ownaffiliationchanged", {
                     "bubbleId": bubble.id,
@@ -836,8 +852,6 @@ class S2SServiceEventHandler extends LevelLogs{
                     "userJid": that.jid_im,
                     "status": status,
                 });
-
-
 
                 /*switch (status) {
                     case "accepted":
@@ -884,7 +898,13 @@ class S2SServiceEventHandler extends LevelLogs{
                 id: '0f3a674a-5884-11ea-889e-00505628611e' }
                                        */
                 //let conversation: Conversation = await that._conversations.getConversationByBubbleId(bubbleId);
-                let bubble = await that._bulles.getBubbleById(roomId);
+                let bubble: any|Bubble = await that._bulles.getBubbleById(roomId).catch((err) => {
+                    that._logger.log(that.ERROR, LOG_ID + "(ParseRoomStateCallback) get bubble failed for roomId : ", roomId, ", : ", err);
+                });
+
+                if (!bubble) {
+                    bubble = {"id" : roomId};
+                }
 
                 that._eventEmitter.emit("evt_internal_ownaffiliationchanged", {
                     "bubbleId": bubble.id,

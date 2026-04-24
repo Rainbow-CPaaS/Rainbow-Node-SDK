@@ -222,10 +222,12 @@ class ConversationEventHandler extends GenericHandler {
                 try {
                     
                     if (conferenceId !== newConferenceId) {
-                        let bubbleUpdated = await that._bubbleService.getBubbleById(conferenceId, true);
+                        let bubbleUpdated = await that._bubbleService.getBubbleById(conferenceId, true).catch((err) => {
+                            that._logger.log(that.ERROR, LOG_ID + "(parseConferenceV2UpdatedEvent) get bubble failed for conferenceId : ", conferenceId, ", : ", err);
+                        });
                         that._logger.log(that.DEBUG, LOG_ID + "(parseConferenceV2UpdatedEvent) id : ", id, ", conferenceInfo , with newConferenceId : ", newConferenceId, " in bubbleUpdated : ", bubbleUpdated);
 
-                        let newConference: ConferenceSession = await that._bubbleService.getConferenceByIdFromCache(newConferenceId);
+                        let newConference: ConferenceSession = that._bubbleService.getConferenceByIdFromCache(newConferenceId);
                         if (newConference==null) {
                             that._logger.log(that.DEBUG, LOG_ID + "(parseConferenceV2UpdatedEvent) id : ", id, ", " + " create new ConferenceSession. newConferenceId : ", newConferenceId);
                             newConference = new ConferenceSession(newConferenceId);

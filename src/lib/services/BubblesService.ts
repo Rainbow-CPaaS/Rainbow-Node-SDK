@@ -628,6 +628,8 @@ class Bubbles extends GenericService {
             };
             
             that._eventEmitter.emit(eventName, objPoll);
+        }).catch((err) => {
+            that._logger.log(that.ERROR, LOG_ID + "(_onBubblePollConfiguration) get bubble failed for data : ", data, ", : ", err);
         });
     }
 
@@ -698,9 +700,9 @@ class Bubbles extends GenericService {
             that._eventEmitter.emit("evt_internal_bubblepresencechanged", bubbleInfo);
         } else {
             // Find the bubble in service list, and else retrieve it from server.
-            let bubbleInMemory: Bubble;
+            let bubbleInMemory: any;
             bubbleInMemory = await that.getBubbleByJid(bubbleInfo.jid).catch((err) => {
-                that._logger.log(that.ERROR, LOG_ID + "(_onbubblepresencechanged) get bubble failed for bubblepresenceinfo : ", bubbleInfo, ", : ", err);
+                that._logger.log(that.ERROR, LOG_ID + "(_onbubblepresencechanged) get bubble failed for bubbleInfo : ", bubbleInfo, ", : ", err);
             });
 // that._bubbles.find((bubbleIter) => { return bubbleIter.jid === bubbleInfo.jid ; });
             if (bubbleInMemory) {
@@ -788,7 +790,7 @@ class Bubbles extends GenericService {
                         that._logger.log(that.INTERNAL, LOG_ID + "(_onBubblesContainerReceived) container received found bubble : ", bubbleUpdated?.id);
                         bubblesAdded.push(bubbleUpdated);
                     }).catch((err) => {
-                        that._logger.log(that.INTERNAL, LOG_ID + "(_onBubblesContainerReceived) get bubble failed for infos : ", infos, ", err : ", err);
+                        that._logger.log(that.ERROR, LOG_ID + "(_onBubblesContainerReceived) get bubble failed for infos : ", infos, ", : ", err);
                     });
                 }
             } else {
@@ -808,7 +810,7 @@ class Bubbles extends GenericService {
                     that._logger.log(that.INTERNAL, LOG_ID + "(_onBubblesContainerReceived) container received found bubble to add : ", bubbleUpdated?.id);
                     bubblesAdded.push(bubbleUpdated);
                 }).catch((err) => {
-                    that._logger.log(that.INTERNAL, LOG_ID + "(_onBubblesContainerReceived) get bubble failed for infos : ", infos, ", err : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(_onBubblesContainerReceived) get bubble failed for infos : ", infos, ", : ", err);
                 });
             }
         }
@@ -832,7 +834,7 @@ class Bubbles extends GenericService {
                         that._logger.log(that.INTERNAL, LOG_ID + "(_onBubblesContainerReceived) container received found bubble to remove : ", bubbleUpdated?.id);
                         bubblesAdded.push(bubbleUpdated);
                     }).catch((err) => {
-                        that._logger.log(that.INTERNAL, LOG_ID + "(_onBubblesContainerReceived) get bubble failed for infos : ", infos, ", err : ", err);
+                        that._logger.log(that.ERROR, LOG_ID + "(_onBubblesContainerReceived) get bubble failed for infos : ", infos, ", : ", err);
                     });
                 }
             } else {
@@ -851,7 +853,7 @@ class Bubbles extends GenericService {
                     that._logger.log(that.INTERNAL, LOG_ID + "(_onBubblesContainerReceived) container received found bubble : ", bubbleUpdated?.id);
                     bubblesRemoved.push(bubbleUpdated);
                 }).catch((err) => {
-                    that._logger.log(that.INTERNAL, LOG_ID + "(_onBubblesContainerReceived) get bubble failed for infos : ", infos, ", : ", err);
+                    that._logger.log(that.ERROR, LOG_ID + "(_onBubblesContainerReceived) get bubble failed for infos : ", infos, ", : ", err);
                 });
             }
         }
@@ -1175,8 +1177,10 @@ class Bubbles extends GenericService {
             // Does this conference is linked to a known bubble ?
             let linkedWithBubble: boolean;
 
-            let bubble = await that.getBubbleById(conference.id);
-            linkedWithBubble = bubble.id == conference.id;
+            let bubble :any = await that.getBubbleById(conference.id).catch((err) => {
+                that._logger.log(that.ERROR, LOG_ID + "(addOrUpdateConferenceToCache) get bubble failed for conference : ", conference, ", : ", err);
+            });
+            linkedWithBubble = bubble?.id == conference.id;
             conference.bubble = bubble;
 
             // Remove conference from cache
@@ -1922,13 +1926,15 @@ class Bubbles extends GenericService {
          * @param {object} bubble Bubble to be archived
          * @returns {Promise<boolean>} True if the Bubble is in archive state
          */
-        public async isBubbleArchived(bubble: Bubble): Promise<boolean> {
+        public async isBubbleArchived(bubble: any|Bubble): Promise<boolean> {
             let that = this;
             let isArchived = true;
             that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(isBubbleArchived) bubble.name : ",  that._logger.stripStringForLogs(bubble?.name), ", bubble.id : ",  bubble?.id);
 
             // update bubble with internal copy to avoid user/moderator/owner side effects
-            bubble = bubble && bubble.id ? await that.getBubbleById(bubble.id):null;
+            bubble = bubble && bubble.id ? await that.getBubbleById(bubble.id).catch((err) => {
+                that._logger.log(that.ERROR, LOG_ID + "(isBubbleArchived) get bubble failed for bubble : ", bubble, ", : ", err);
+            }):null;
     
             if (!bubble) {
                 isArchived = false;

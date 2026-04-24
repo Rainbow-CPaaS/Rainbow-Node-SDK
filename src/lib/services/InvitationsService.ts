@@ -202,7 +202,9 @@ class InvitationsService extends GenericService {
                                 invitationURL: openInvitation.invitationURL
                         };
                         invitation.publicUrl = that._bubbles.getPublicURLFromResponseContent(invitation);
-                        invitation.bubble = await that._bubbles.getBubbleById(openInvitation.roomid);
+                        invitation.bubble = await that._bubbles.getBubbleById(openInvitation.roomid).catch((err) => {
+                                that._logger.log(that.ERROR, LOG_ID + "(onOpenInvitationManagementUpdate) get bubble failed for roomid : ", openInvitation.roomid, ", : ", err);
+                        });
 
                         that._eventEmitter.emit("evt_internal_openinvitationUpdate", invitation);
                 } else {
