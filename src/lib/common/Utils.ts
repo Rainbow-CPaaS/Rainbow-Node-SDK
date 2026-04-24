@@ -957,6 +957,22 @@ function getObjectFromVariable(variable){
 
 type JsonObject = { [key: string]: any };
 
+function getAllValuesFromPropInJSONByPropertyName(obj: JsonObject, propertyName: string, maxDepth: number = 10, cond : (key, value, tabToSaveObjFound) => void = null): any[] | any {
+    let valuesObjs = findAllPropInJSONByPropertyName(obj, propertyName, maxDepth, cond );
+    let values= undefined;
+    if (Array.isArray(valuesObjs) === true) {
+        if (valuesObjs.length > 0) {
+            values = [];
+            for (let i = 0; i < valuesObjs.length; i++) {
+                values.push(getTextFromJSONProperty(valuesObjs[i]));
+            }
+        }
+    } else if (valuesObjs !== undefined) {
+        values = getTextFromJSONProperty(valuesObjs);
+    }
+    return values;
+}
+
 function findAllPropInJSONByPropertyName(obj: JsonObject, propertyName: string, maxDepth: number = 10, cond : (key, value, tabToSaveObjFound) => void = null): any[] | any {
     let results: any[] = [];
 
@@ -1334,6 +1350,7 @@ export let objToExport = {
     getAlternateMessageFromJSONObj,
     getValueFromVariable,
     getObjectFromVariable,
+    getAllValuesFromPropInJSONByPropertyName,
     findAllPropInJSONByPropertyName,
     findAllPropInJSONByPropertyNameByXmlNS,
     callerName,
@@ -1405,6 +1422,7 @@ export {
     getAlternateMessageFromJSONObj,
     getValueFromVariable,
     getObjectFromVariable,
+    getAllValuesFromPropInJSONByPropertyName,
     findAllPropInJSONByPropertyName,
     findAllPropInJSONByPropertyNameByXmlNS,
     callerName,
@@ -1475,6 +1493,7 @@ export default {
     getAlternateMessageFromJSONObj,
     getValueFromVariable,
     getObjectFromVariable,
+    getAllValuesFromPropInJSONByPropertyName,
     findAllPropInJSONByPropertyName,
     findAllPropInJSONByPropertyNameByXmlNS,
     callerName,

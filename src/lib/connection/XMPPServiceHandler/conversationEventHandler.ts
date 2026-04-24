@@ -3,7 +3,15 @@ import {xu} from "../../common/XMPPUtils";
 import {ConversationsService} from "../../services/ConversationsService";
 import {Conversation} from "../../common/models/Conversation";
 import {Element} from "ltx";
-import {getJsonFromXML, logEntryExit} from "../../common/Utils";
+import {
+    findAllPropInJSONByPropertyName,
+    findAllPropInJSONByPropertyNameByXmlNS,
+    getTextFromJSONProperty,
+    getAllValuesFromPropInJSONByPropertyName,
+    addPropertyToObj,
+    getJsonFromXML,
+    logEntryExit
+} from "../../common/Utils";
 import {FileStorageService} from "../../services/FileStorageService";
 import {FileServerService} from "../../services/FileServerService";
 import {BubblesService} from "../../services/BubblesService";
@@ -3130,20 +3138,31 @@ class ConversationEventHandler extends GenericHandler {
 
         try {
 
-            if (stanza.getChild('no-store')!=undefined) {
+            //if (stanza.getChild('no-store')!=undefined) {
+            let nostore = findAllPropInJSONByPropertyNameByXmlNS(jsonStanza, 'no-store', "urn:xmpp:hints");
+            if (nostore.length > 0) {
                 that._logger.log(that.ERROR, LOG_ID + "(onErrorMessageReceived) The message could not be delivered.");
                 that._logger.log(that.ERROR, LOG_ID + "(onErrorMessageReceived) something goes wrong... : ", msg, "\n", prettyStanza);
-                let err = {
+                let err : any = {
                     "id": stanza.attrs.id,
-                    "body": stanza.getChild('body').text(),
-                    "subject": stanza.getChild('subject').text()
                 };
+                /*let body = getAllValuesFromPropInJSONByPropertyName(jsonStanza,"body");
+                if (body) {
+                    err.body = body;
+                } // */
+                addPropertyToObj(err, "body", getAllValuesFromPropInJSONByPropertyName(jsonStanza, "body"), false);
+                addPropertyToObj(err, "subject",getAllValuesFromPropInJSONByPropertyName(jsonStanza,"subject"), false);
+                addPropertyToObj(err, "text",getAllValuesFromPropInJSONByPropertyName(jsonStanza,"text"), false);
+
+                if (findAllPropInJSONByPropertyName(jsonStanza,"service-unavailable").length > 0) {
+                    err.serviceunavaible = true;
+                }
                 //that._logger.log(that.ERROR, LOG_ID + "(onErrorMessageReceived) no-store message setted...");
-                that._logger.log(that.ERROR, LOG_ID + "(onErrorMessageReceived) failed to send : ", err);
+                that._logger.log(that.WARN, LOG_ID + "(onErrorMessageReceived) failed to send : ", err);
                 that.eventEmitter.emit("evt_internal_onsendmessagefailed", err);
             } else {
-                that._logger.log(that.ERROR, LOG_ID + "(onErrorMessageReceived) something goes wrong...");
-                that._logger.log(that.ERROR, LOG_ID + "(onErrorMessageReceived) something goes wrong... : ", msg, "\n", prettyStanza);
+                that._logger.log(that.WARN, LOG_ID + "(onErrorMessageReceived) something goes wrong...");
+                that._logger.log(that.WARN, LOG_ID + "(onErrorMessageReceived) something goes wrong... : ", msg, "\n", prettyStanza);
                 let errorObject = {
                     message: msg,
                     stanza: stanza.root ? prettydata.xml(stanza.root().toString()):stanza

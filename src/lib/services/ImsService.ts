@@ -1580,7 +1580,7 @@ class ImsService extends GenericService{
      * ```
      *
      */
-    async sendApplicationMessageContactJid(jid: any, xmlElements: Element, p_messagesDataStore: DataStoreType = undefined): Promise<boolean> {
+    async sendApplicationMessageContactJid(jid: any, xmlElements: any, p_messagesDataStore: DataStoreType = undefined): Promise<boolean> {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendApplicationMessageContactJid) is conversation defined : ", isDefined(jid), " is xmlElements defined : ", isDefined(xmlElements));
         return new Promise(async (resolve, reject) => {
@@ -1632,7 +1632,7 @@ class ImsService extends GenericService{
      *
      *
      */
-    async sendApplicationMessageBubbleJid(jid: any, xmlElements: Element, p_messagesDataStore: DataStoreType = undefined): Promise<boolean> {
+    async sendApplicationMessageBubbleJid(jid: any, xmlElements: any, p_messagesDataStore: DataStoreType = undefined): Promise<boolean> {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendApplicationMessageBubbleJid) is conversation defined : ", isDefined(jid), " is xmlElements defined : ", isDefined(xmlElements));
         return new Promise(async (resolve, reject) => {
