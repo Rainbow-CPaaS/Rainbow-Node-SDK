@@ -1754,7 +1754,8 @@ let expressEngine = undefined;
             rainbowSDK._core._xmpp.sendStanza(stanza);
         }
 
-        /*async testmockStanza(stanza : string = "<message type=\"management\" id=\"c07a1b5b-90b1-4d1f-a120-55f5bea4abaa_0\" to=\"fee2a3041f2f499e96ad493d14e3d304@openrainbow.com/web_win_1.67.2_P0EnyMvN\" xmlns=\"jabber:client\"><logs action=\"request\" xmlns='jabber:iq:configuration' contextid=\"5a1c2848bf33d1379ac5592f\"/></message>"){
+        /*async testmockStanza(stanzaStr : string = "<message type=\"management\" id=\"c07a1b5b-90b1-4d1f-a120-55f5bea4abaa_0\" to=\"fee2a3041f2f499e96ad493d14e3d304@openrainbow.com/web_win_1.67.2_P0EnyMvN\" xmlns=\"jabber:client\"><logs action=\"request\" xmlns='jabber:iq:configuration' contextid=\"5a1c2848bf33d1379ac5592f\"/></message>"){
+            let stanza = prettydata.xmlmin(stanzaStr);
             rainbowSDK._core._xmpp.mockStanza(stanza);
         } // */
 
@@ -2425,10 +2426,11 @@ let expressEngine = undefined;
         }
 
         async testmockuserPasswordChanged() {
-            let stanza = "<message xmlns=\"jabber:client\" xml:lang=\"en\" to=\"adcf613d42984a79a7bebccc80c2b65e@openrainbow.net\" from=\"pcloud_enduser_8@openrainbow.net/11279522985945659245966242\" type=\"management\" id=\"6b34fdc2-f4d3-4063-a986-c910b13a259d_7\">" +
+            let stanzaStr = "<message xmlns=\"jabber:client\" xml:lang=\"en\" to=\"adcf613d42984a79a7bebccc80c2b65e@openrainbow.net\" from=\"pcloud_enduser_8@openrainbow.net/11279522985945659245966242\" type=\"management\" id=\"6b34fdc2-f4d3-4063-a986-c910b13a259d_7\">" +
                 "<no-store xmlns=\"urn:xmpp:hints\"/>" +
                 "<userpassword xmlns=\"jabber:iq:configuration\" action=\"update\"/>" +
                 "</message>";
+            let stanza = prettydata.xmlmin(stanzaStr);
             await rainbowSDK._core._xmpp.mockStanza(stanza);
         }
 
@@ -6943,11 +6945,11 @@ let expressEngine = undefined;
             }
         }
 
-        async testLeaveBubble() {
+        async testLeaveBubble(bubbleNameFilter : string = "testBot_2024") {
             let bubbles = await rainbowSDK.bubbles.getAllBubbles();
             _logger.log("debug", "MAIN - testLeaveBubble bubbles : ", bubbles); //logger.colors.green(JSON.stringify(result)));
             for (const bubble of bubbles) {
-                if (bubble.name.indexOf("testBot")!= -1) {
+                if (bubble.name.indexOf(bubbleNameFilter)!= -1) {
                     _logger.log("debug", "MAIN - testLeaveBubble Found bubble.name : ", bubble.name, ", bubble.isActive : ", bubble.isActive); //logger.colors.green(JSON.stringify(result)));
                     if (bubble.ownerContact.id===rainbowSDK._core._rest.userId) {
                         // The bubble should be deleted instead of leaved
@@ -6966,6 +6968,30 @@ let expressEngine = undefined;
                 }
             }
         }
+
+        async testmockeventBubbleDeleted() {
+            let stanzaStr = "<presence \n" +
+                "  xmlns=\"jabber:client\" to=\"" + rainbowSDK._core._xmpp.jid + "\" from=\"room_ff7ef7b6163d4d0082bd31d7208ac292@muc.openrainbow.net/ccb128dd951d44b7b8a9bcdfdaa2afe7@openrainbow.net/node_J3SabGdp\" type=\"unavailable\">\n" +
+                "  <x \n" +
+                "    xmlns=\"http://jabber.org/protocol/muc#user\">\n" +
+                "    <destroy/>\n" +
+                "    <item role=\"none\" affiliation=\"none\"/>\n" +
+                "  </x>\n" +
+                "</presence>";
+            //"<iq from=\"eeae0a1dab324fd9b0a99aef22ccd902@openrainbow.net\" id=\"512c98e1-b911-49af-b4ff-13259180b609:sendIQ\" to=\"" + rainbowSDK._core._xmpp.jid + "\" type=\"set\" xmlns=\"jabber:client\">"";
+            let stanza = prettydata.xmlmin(stanzaStr);
+            _logger.log("debug", "MAIN - testiq_query_rpc_methodCall stanza : ", stanza);
+            await rainbowSDK._core._xmpp.mockStanza(stanza);
+        }
+
+        async testmockeventBubbleDeleted2() {
+            let stanzaStr = "<presence xmlns=\"jabber:client\" to=\"" + rainbowSDK._core._xmpp.jid + "\" from=\"room_d42d76ab31fa43b99a04a2b646180f2d@muc.openrainbow.net\" type=\"unavailable\" id=\"3733672146775336316\"/>";
+            //"<iq from=\"eeae0a1dab324fd9b0a99aef22ccd902@openrainbow.net\" id=\"512c98e1-b911-49af-b4ff-13259180b609:sendIQ\" to=\"" + rainbowSDK._core._xmpp.jid + "\" type=\"set\" xmlns=\"jabber:client\">"";
+            let stanza = prettydata.xmlmin(stanzaStr);
+            _logger.log("debug", "MAIN - testiq_query_rpc_methodCall stanza : ", stanza);
+            await rainbowSDK._core._xmpp.mockStanza(stanza);
+        }
+
 
         testCreateBubblesAndSetTags() {
             let utc = new Date().toJSON().replace(/-/g, "/");
@@ -7258,7 +7284,7 @@ let expressEngine = undefined;
             let domain = xmppUtils.getDomainFromFullJID(fullJid);
             let muc = "muc." + domain + "/" + fullJid;
 
-            let stanzamocked = "<presence xmlns='jabber:client' xml:lang='en' to='"+fullJid+"' from='" + muc + "' type='error'>" +
+            let stanzaStr = "<presence xmlns='jabber:client' xml:lang='en' to='"+fullJid+"' from='" + muc + "' type='error'>" +
                 "<x xmlns='http://jabber.org/protocol/muc'>" +
                 "<history maxchars='0'/>" +
                 "<options acknowledge='true' webinar='false'/>" +
@@ -7269,7 +7295,8 @@ let expressEngine = undefined;
                 "<text xml:lang='en' xmlns='urn:ietf:params:xml:ns:xmpp-stanzas'>Access denied by service policy</text>" +
                 "</error>" +
                 "</presence>";
-            await rainbowSDK._core._xmpp.mockStanza(stanzamocked);
+            let stanza = prettydata.xmlmin(stanzaStr);
+            await rainbowSDK._core._xmpp.mockStanza(stanza);
         }
 
 
@@ -11475,22 +11502,26 @@ let expressEngine = undefined;
         //region ldap
 
         // testmockStanza("<message type=\"management\" id=\"c07a1b5b-90b1-4d1f-a120-55f5bea4abaa_0\" to=\"fee2a3041f2f499e96ad493d14e3d304@openrainbow.com/web_win_1.67.2_P0EnyMvN\" xmlns=\"jabber:client\"><logs action=\"request\" xmlns='jabber:iq:configuration' contextid=\"5a1c2848bf33d1379ac5592f\"/></message>")
-        async testmockStanza(stanza: string = "<message type=\"management\" id=\"c07a1b5b-90b1-4d1f-a120-55f5bea4abaa_0\" to=\"fee2a3041f2f499e96ad493d14e3d304@openrainbow.com/web_win_1.67.2_P0EnyMvN\" xmlns=\"jabber:client\"><logs action=\"request\" xmlns='jabber:iq:configuration' contextid=\"5a1c2848bf33d1379ac5592f\"/></message>") {
+        async testmockStanza(stanzaStr: string = "<message type=\"management\" id=\"c07a1b5b-90b1-4d1f-a120-55f5bea4abaa_0\" to=\"fee2a3041f2f499e96ad493d14e3d304@openrainbow.com/web_win_1.67.2_P0EnyMvN\" xmlns=\"jabber:client\"><logs action=\"request\" xmlns='jabber:iq:configuration' contextid=\"5a1c2848bf33d1379ac5592f\"/></message>") {
+            let stanza = prettydata.xmlmin(stanzaStr);
             rainbowSDK._core._xmpp.mockStanza(stanza);
         }
 
         async testmockStanzaBubbleResume() {
-            let stanza: string = "<presence xmlns='jabber:client' to='37dc2adbdf3c456e99ccc639742f177c@openrainbow.net/node_vnagw' from='room_c6afe2d3d1e24cf19d532f90bd46a32d@muc.openrainbow.net'><x  xmlns='http://jabber.org/protocol/muc#user'><item><reason>Room resumed</reason></item><status code='339'/><status code='110'/></x></presence>"
+            let stanzaStr: string = "<presence xmlns='jabber:client' to='37dc2adbdf3c456e99ccc639742f177c@openrainbow.net/node_vnagw' from='room_c6afe2d3d1e24cf19d532f90bd46a32d@muc.openrainbow.net'><x  xmlns='http://jabber.org/protocol/muc#user'><item><reason>Room resumed</reason></item><status code='339'/><status code='110'/></x></presence>"
+            let stanza = prettydata.xmlmin(stanzaStr);
             await this.testmockStanza(stanza);
         }
 
         async testmockStanzaBubbleStatus110() {
-            let stanza: string = "<presence xmlns=\"jabber:client\" xml:lang=\"en\" to=\"37dc2adbdf3c456e99ccc639742f177c@openrainbow.net/node_vnagw\" from=\"room_b6e356567da848b8bf25814b9ba9e09d@muc.openrainbow.net/37dc2adbdf3c456e99ccc639742f177c@openrainbow.net/node_vnagw\" id=\"node_43496c0f-3401-4540-803f-159644b73db03\"><x xmlns=\"http://jabber.org/protocol/muc#user\"><item jid=\"37dc2adbdf3c456e99ccc639742f177c@openrainbow.net/node_vnagw\" role=\"participant\" affiliation=\"none\"/><status code=\"110\"/></x></presence>";
+            let stanzaStr: string = "<presence xmlns=\"jabber:client\" xml:lang=\"en\" to=\"37dc2adbdf3c456e99ccc639742f177c@openrainbow.net/node_vnagw\" from=\"room_b6e356567da848b8bf25814b9ba9e09d@muc.openrainbow.net/37dc2adbdf3c456e99ccc639742f177c@openrainbow.net/node_vnagw\" id=\"node_43496c0f-3401-4540-803f-159644b73db03\"><x xmlns=\"http://jabber.org/protocol/muc#user\"><item jid=\"37dc2adbdf3c456e99ccc639742f177c@openrainbow.net/node_vnagw\" role=\"participant\" affiliation=\"none\"/><status code=\"110\"/></x></presence>";
+            let stanza = prettydata.xmlmin(stanzaStr);
             await rainbowSDK._core._xmpp.mockStanza(stanza);
         }
 
         async testmockDiconnect() {
-            let stanza = "<iq to='openrainbow.com' type='set' id='122' xmlns='jabber:client'><disconnect xmlns='jabber:iq:configuration'><to>3ae059e2a91c40d9bdd7df0eedc911ca@openrainbow.com</to></disconnect></iq>";
+            let stanzaStr = "<iq to='openrainbow.com' type='set' id='122' xmlns='jabber:client'><disconnect xmlns='jabber:iq:configuration'><to>3ae059e2a91c40d9bdd7df0eedc911ca@openrainbow.com</to></disconnect></iq>";
+            let stanza = prettydata.xmlmin(stanzaStr);
             await rainbowSDK._core._xmpp.mockStanza(stanza);
         }
 
@@ -11550,7 +11581,8 @@ let expressEngine = undefined;
                 "</result>" +
                 "</message>";
          //   await rainbowSDK._core._xmpp.mockStanza(stanzaConversation);
-            await rainbowSDK._core._xmpp.mockStanza(stanzaMessageHistory);
+            let stanza = prettydata.xmlmin(stanzaMessageHistory);
+            await rainbowSDK._core._xmpp.mockStanza(stanza);
         }
 
         async testsynchronizeUsersAndDeviceswithCSV() {
@@ -12039,6 +12071,20 @@ example :
            _logger.log("error", "MAIN - (tesaskConferenceSnapshot) :: askConferenceSnapshot request not ok, err : ", err);
         }); // */
         }
+
+
+        // region conference recordings
+
+        async testGetAllConferenceRecords() {
+            _logger.log("debug", "MAIN - (testGetAllConferenceRecords). ");
+            rainbowSDK.fileStorage.getAllConferenceRecords().then(async (result: any) => {
+                _logger.log("debug", "MAIN - [testGetAllConferenceRecords] :: getAllConferenceRecords result : ", result);
+            }).catch(err => {
+                _logger.log("error", "MAIN - [testGetAllConferenceRecords] :: getAllConferenceRecords error : ", err);
+            });
+        }
+
+        // endregion conference recordings
 
 
         //endregion Conference V2
@@ -13207,8 +13253,9 @@ Recv: <presence xmlns='jabber:client' to='j_8170989110@openrainbow.net/web_win_2
         }
 
         async testsendVoicemailTranscriptionMessage_mock() {
-            let stanzamocked = "<message xmlns=\"jabber:client\" xml:lang=\"en\" to=\"adcf613d42984a79a7bebccc80c2b65e@openrainbow.net\" from=\"adcf613d42984a79a7bebccc80c2b65e@openrainbow.net/node_ciBHlrJd\" id=\"node_2cb9f697-f45b-42e4-beea-b819fb5c7fe86\"><voiceMail xmlns=\"jabber:iq:voicemailTranscription\" jid=\"adcf613d42984a79a7bebccc80c2b65e@openrainbow.net\" date=\"2025-05-06T08:54:19.218Z\" duration=\"145\" url=\"http://url\" transcript=\"Une chouette transcription de mon message\"/></message>";
-            await rainbowSDK._core._xmpp.mockStanza(stanzamocked);
+            let stanzaStr = "<message xmlns=\"jabber:client\" xml:lang=\"en\" to=\"adcf613d42984a79a7bebccc80c2b65e@openrainbow.net\" from=\"adcf613d42984a79a7bebccc80c2b65e@openrainbow.net/node_ciBHlrJd\" id=\"node_2cb9f697-f45b-42e4-beea-b819fb5c7fe86\"><voiceMail xmlns=\"jabber:iq:voicemailTranscription\" jid=\"adcf613d42984a79a7bebccc80c2b65e@openrainbow.net\" date=\"2025-05-06T08:54:19.218Z\" duration=\"145\" url=\"http://url\" transcript=\"Une chouette transcription de mon message\"/></message>";
+            let stanza = prettydata.xmlmin(stanzaStr);
+            await rainbowSDK._core._xmpp.mockStanza(stanza);
         }
 
         //endregion voicemail

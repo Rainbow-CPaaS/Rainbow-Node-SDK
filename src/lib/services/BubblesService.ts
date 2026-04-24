@@ -694,51 +694,54 @@ class Bubbles extends GenericService {
 
         that._logger.log(that.DEBUG, LOG_ID + "(_onbubblepresencechanged) bubble presence received for : ", bubbleInfo.jid);
         //that._logger.log(that.INTERNAL, LOG_ID + "(_onbubblepresencechanged) bubble presence : ", bubbleInfo );
-        // Find the bubble in service list, and else retrieve it from server.
-        let bubbleInMemory: Bubble;
-        bubbleInMemory = await that.getBubbleByJid(bubbleInfo.jid);
+        if (bubbleInfo.presence === 'unavailable') {
+            that._eventEmitter.emit("evt_internal_bubblepresencechanged", bubbleInfo);
+        } else {
+            // Find the bubble in service list, and else retrieve it from server.
+            let bubbleInMemory: Bubble;
+            bubbleInMemory = await that.getBubbleByJid(bubbleInfo.jid);
 // that._bubbles.find((bubbleIter) => { return bubbleIter.jid === bubbleInfo.jid ; });
-        if (bubbleInMemory) {
-            that._logger.log(that.INTERNAL, LOG_ID + "(_onbubblepresencechanged) bubble found in memory : ", bubbleInMemory.jid);
-            if (bubbleInfo.statusCode==="resumed") {
-                if (that._options._imOptions.autoInitialBubblePresence) {
-                    that._presence.sendInitialBubblePresenceSync(bubbleInfo).then(() => {
-                        bubbleInMemory.isActive = true;
+            if (bubbleInMemory) {
+                that._logger.log(that.INTERNAL, LOG_ID + "(_onbubblepresencechanged) bubble found in memory : ", bubbleInMemory.jid);
+                if (bubbleInfo.statusCode==="resumed") {
+                    if (that._options._imOptions.autoInitialBubblePresence) {
+                        that._presence.sendInitialBubblePresenceSync(bubbleInfo).then(() => {
+                            bubbleInMemory.isActive = true;
+                            that._eventEmitter.emit("evt_internal_bubblepresencechanged", bubbleInMemory);
+                        }).catch((errOfSent) => {
+                            that._logger.log(that.WARN, LOG_ID + "(_onbubblepresencechanged) Error while sendInitialBubblePresenceSync : ", errOfSent);
+                        });
+                    } else {
                         that._eventEmitter.emit("evt_internal_bubblepresencechanged", bubbleInMemory);
-                    }).catch((errOfSent) => {
-                        that._logger.log(that.WARN, LOG_ID + "(_onbubblepresencechanged) Error while sendInitialBubblePresenceSync : ", errOfSent);
-                    }); 
+                    }
+                } else if (bubbleInfo.statusCode==="deactivated") {
+                    bubbleInMemory.isActive = false;
+                    that._eventEmitter.emit("evt_internal_bubblepresencechanged", bubbleInMemory);
                 } else {
+                    bubbleInMemory.initialPresence.initPresenceAck = true;
+                    if (bubbleInMemory.initialPresence.initPresencePromise) {
+                        that._logger.log(that.INFO, LOG_ID + "(_onbubblepresencechanged) - initPresencePromise resolved");
+                        bubbleInMemory.initialPresence.initPresencePromiseResolve(bubbleInMemory);
+                        if (bubbleInMemory.initialPresence.initPresenceInterval) {
+                            bubbleInMemory.initialPresence.initPresenceInterval.unsubscribe();
+                            bubbleInMemory.initialPresence.initPresenceInterval = null;
+                        }
+                        /* do not reset the initPresencePromise to avoid any request of sendInitialBubblePresence to not receive the result
+                        bubbleInMemory.initialPresence.initPresencePromise = null;
+                        bubbleInMemory.initialPresence.initPresencePromiseResolve = null;
+                        // */
+                    }
+                    //this.eventService.publish(this.ROOM_UPDATE_EVENT, bubbleInMemory);
+                    //this.sendEvent(this.ROOM_UPDATE_EVENT, bubbleInMemory);
                     that._eventEmitter.emit("evt_internal_bubblepresencechanged", bubbleInMemory);
                 }
-            } else 
-            if (bubbleInfo.statusCode==="deactivated") {
-                bubbleInMemory.isActive = false;
-                that._eventEmitter.emit("evt_internal_bubblepresencechanged", bubbleInMemory);
             } else {
-                bubbleInMemory.initialPresence.initPresenceAck = true;
-                if (bubbleInMemory.initialPresence.initPresencePromise) {
-                    that._logger.log(that.INFO, LOG_ID + "(_onbubblepresencechanged) - initPresencePromise resolved");
-                    bubbleInMemory.initialPresence.initPresencePromiseResolve(bubbleInMemory);
-                    if (bubbleInMemory.initialPresence.initPresenceInterval) {
-                        bubbleInMemory.initialPresence.initPresenceInterval.unsubscribe();
-                        bubbleInMemory.initialPresence.initPresenceInterval = null;
-                    }
-                    /* do not reset the initPresencePromise to avoid any request of sendInitialBubblePresence to not receive the result
-                    bubbleInMemory.initialPresence.initPresencePromise = null;
-                    bubbleInMemory.initialPresence.initPresencePromiseResolve = null;
-                    // */
-                }
-                //this.eventService.publish(this.ROOM_UPDATE_EVENT, bubbleInMemory);
-                //this.sendEvent(this.ROOM_UPDATE_EVENT, bubbleInMemory);
-                that._eventEmitter.emit("evt_internal_bubblepresencechanged", bubbleInMemory);
+                that._logger.log(that.WARN, LOG_ID + "(_onbubblepresencechanged) bubble not found !");
+                //that._bubbles.push(Object.assign(new Bubble(), bubble));
             }
-        } else {
-            that._logger.log(that.WARN, LOG_ID + "(_onbubblepresencechanged) bubble not found !");
-            //that._bubbles.push(Object.assign(new Bubble(), bubble));
-        }
 
-        // that._eventEmitter.emit("evt_internal_bubblepresencechanged", bubbleInMemory);
+            // that._eventEmitter.emit("evt_internal_bubblepresencechanged", bubbleInMemory);
+        }
     }
 
     /**

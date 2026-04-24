@@ -44,7 +44,7 @@ class Emitter extends EventEmitter {
                 let iter = 0;
                 [...params] = args;
                 let data = "";
-                if (that._logger.logLevel == "debug" && params && Array.isArray(params) ){
+                if ((that._logger.logLevel === "internal" || that._logger.logLevel === "debug" ) && params && Array.isArray(params) ){
                     params.unshift("");
                     data = that._logger.argumentsToString(params, " ,\n");
                     params.shift();

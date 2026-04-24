@@ -418,14 +418,18 @@ class BubblesManager extends LevelLogs {
      */
     async _onbubblepresencechanged(bubblepresenceinfo : any) {
         let that = this;
-        let bubble : any = await that._bubblesservice.getBubbleByJid(bubblepresenceinfo.jid).catch((err) => {
-            that._logger.log(that.ERROR, LOG_ID + "(_onbubblepresencechanged) get bubble failed for bubblepresenceinfo : ", bubblepresenceinfo, ", : ", err);
-        });
-        //that._logger.log(that.INTERNAL, LOG_ID + "(_onbubblepresencechanged) bubble bubblepresenceinfo : ", bubblepresenceinfo, ", bubble : ", bubble);
-        that._logger.log(that.INTERNAL, LOG_ID + "(_onbubblepresencechanged) bubble bubblepresenceinfo.id : ", bubblepresenceinfo?.id, ", bubbleLogInfos : ", getBubbleLogInfos(bubble));
-        if (bubble) {
-            await that.removeBubbleToJoinInProgress(bubble);
-            await that.addBubbleAlreadyJoined(bubble);
+        if (bubblepresenceinfo.presence === 'unavailable') {
+            // Nothing to do for unavailable bubble.
+        } else {
+            let bubble: any = await that._bubblesservice.getBubbleByJid(bubblepresenceinfo.jid).catch((err) => {
+                that._logger.log(that.ERROR, LOG_ID + "(_onbubblepresencechanged) get bubble failed for bubblepresenceinfo : ", bubblepresenceinfo, ", : ", err);
+            });
+            //that._logger.log(that.INTERNAL, LOG_ID + "(_onbubblepresencechanged) bubble bubblepresenceinfo : ", bubblepresenceinfo, ", bubble : ", bubble);
+            that._logger.log(that.INTERNAL, LOG_ID + "(_onbubblepresencechanged) bubble bubblepresenceinfo.id : ", bubblepresenceinfo?.id, ", bubbleLogInfos : ", getBubbleLogInfos(bubble));
+            if (bubble) {
+                await that.removeBubbleToJoinInProgress(bubble);
+                await that.addBubbleAlreadyJoined(bubble);
+            }
         }
     }
 

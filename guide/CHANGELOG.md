@@ -17,6 +17,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Fix use of `timeOutManager.setTimeout` and `timeOutManager.clearTimeoutById`.
 -   Fix `evt_internal_signinrequired` callback to avoid a call of a second `start()` from the application.
 -   Fix issue when a reconnection is already in progress.
+-   Fix the treatment of presence unvailable in bubble event to avoid to search the bubble on serveur side (because this event means bubble is deleted.)
 
 #### Added
 -   Add missing fields to `FileDescriptor` and its factory to match server data: `expirationDate`, `language`, `backendType`, `isClean`, `transcription`, `transcriptionStatus`, `avScanStatus`, `avReport`, `cantBeScannedYet`, `original_w`, `original_h`, `available`, `_lockAddViewers`, `lastActivityDate`, `thumbnail500`, and `typeMIME` in `Thumbnail`.
