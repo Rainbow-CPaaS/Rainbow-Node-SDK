@@ -5,6 +5,7 @@
   "main": "index.js",
   "type": "commonjs",
   "scripts": {
+    "build": "grunt ts",
     "test": "mocha --reporter spec",
     "test-with-coverage": "nyc --reporter=text --reporter=html --reporter=cobertura mocha",
     "startafterbuildApiServer": "nodemon $NODE_DEBUG_OPTION  afterbuild/afterbuildApiServer.js",
@@ -52,6 +53,7 @@
     "@types/mime": "^4.0.0",
     "@types/node": "^24.3.0",
     "@xmpp/debug": "^0.13.5",
+    "baseline-browser-mapping": "^2.10.20",
     "chai": "^6.0.1",
     "commander": "^14.0.0",
     "dts-generator": "^3.0.0",
