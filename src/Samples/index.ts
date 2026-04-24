@@ -12372,7 +12372,33 @@ to='user1@pdevdv3os18f.corp.intuit.net/BANL07R9AME9X' type='get' id='e2e1'>
 
 
         //endregion XMPP
-        
+
+        //region XMPP Mock tests
+
+        async testmockUserSessionNotFound() {
+
+            let stanzaStr = `<message xmlns="jabber:client" xml:lang="en" to="${rainbowSDK._core._xmpp.jid}" from="C47C...334@openrainbow.com" type="error" id="node_aa172942-9811-4818-a6b2-2e5fdff2f2871408307">
+<request xmlns="urn:xmpp:receipts"/>
+<active xmlns="http://jabber.org/protocol/chatstates"/>
+<no-copy xmlns="urn:xmpp:hints"/>
+<retry-push xmlns="urn:xmpp:hints"/>
+<no-store xmlns="urn:xmpp:hints"/>
+<service-unavailable xmlns="urn:ietf:params:xml:ns:xmpp-stanzas"/>
+<text xml:lang="en" xmlns="urn:ietf:params:xml:ns:xmpp-stanzas">User session not found</text>
+</message>`;
+            let stanza = prettydata.xmlmin(stanzaStr);
+
+            rainbowSDK.events.on("rainbow_onsendmessagefailed", (data) => {
+                // do something when the SDK has been started
+                _logger.log("debug", "MAIN - (rainbow_onsendmessagefailed) - event's data : ", data);
+            });
+
+            _logger.log("debug", "MAIN - testmockUserSessionNotFound stanza : ", stanza);
+            await rainbowSDK._core._xmpp.mockStanza(stanza);
+        }
+
+        //endregion XMPP Mock tests
+
         // region TimeOutManager
 
         async testtimeOutManagersetTimeout() {
