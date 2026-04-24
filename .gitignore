@@ -288,3 +288,4 @@ fabric.properties
 /Samples/testStop.js
 /tasks/generateWhatsNew.js
 /runNodeCustomSet.bat
+/Samples/samplesTests.d.ts
