@@ -595,8 +595,15 @@ class PresenceService extends GenericService{
                         resolve(result);
                     }
                     if (that._useS2S) {
-                        let bubbleInfos = await that._bubbles.getBubbleByJid(bubble.jid);
-                        resolve(that._s2s.joinRoom(bubbleInfos.id, ROOMROLE.MEMBER));
+                        let bubbleInfos : void|Bubble = await that._bubbles.getBubbleByJid(bubble.jid).catch((err) => {
+                            that._logger.log(that.ERROR, LOG_ID + "(sendInitialBubblePresence) get bubble failed for bubble.jid : ", bubble.jid, ", : ", err);
+                        });
+                        if (bubbleInfos) {
+                            resolve(that._s2s.joinRoom(bubbleInfos.id, ROOMROLE.MEMBER));
+                        } else {
+                            that._logger.log(that.DEBUG, LOG_ID + "(sendMessageToBubbleJid) bad or empty 'bubble.jid' parameter", bubble.jid, ", bubble not found.");
+                            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'bubble.jid' parameter, bubble not found."}));
+                        }
                     }
                 }
             });

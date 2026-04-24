@@ -1200,13 +1200,23 @@ class ConversationEventHandler extends GenericHandler {
                     break;
                 case "conferenceAdd": {
                     that._logger.log(that.DEBUG, LOG_ID + "(onChatMessageReceived) id : ", id, ", conference start received");
-                    let bubble = await that._bubbleService.getBubbleByJid(conferencebubbleJid, true);
+                    let bubble : any = await that._bubbleService.getBubbleByJid(conferencebubbleJid, true).catch((err) => {
+                        that._logger.log(that.ERROR, LOG_ID + "(onChatMessageReceived) get bubble failed for conferenceAdd : ", conferencebubbleJid, ", : ", err);
+                    });
+                    if (!bubble) {
+                        bubble = {id:conferencebubbleJid};
+                    }
                     that.eventEmitter.emit("evt_internal_bubbleconferencestartedreceived", bubble);
                 }
                     break;
                 case "conferenceRemove": {
                     that._logger.log(that.DEBUG, LOG_ID + "(onChatMessageReceived) id : ", id, ", conference stop received");
-                    let bubble = await that._bubbleService.getBubbleByJid(conferencebubbleJid, true);
+                    let bubble: any = await that._bubbleService.getBubbleByJid(conferencebubbleJid, true).catch((err) => {
+                        that._logger.log(that.ERROR, LOG_ID + "(onChatMessageReceived) get bubble failed for conferenceRemove : ", conferencebubbleJid, ", : ", err);
+                    });
+                    if (!bubble) {
+                        bubble = {id:conferencebubbleJid};
+                    }
                     that.eventEmitter.emit("evt_internal_bubbleconferencestoppedreceived", bubble);
                 }
                     break;
@@ -1215,23 +1225,36 @@ class ConversationEventHandler extends GenericHandler {
                     if (!conferencebubbleJid) {
                         conferencebubbleJid = fromJid;
                     }
-                    let bubble = await that._bubbleService.getBubbleByJid(conferencebubbleJid, true).catch((error) => {
+                    let bubble : any = await that._bubbleService.getBubbleByJid(conferencebubbleJid, true).catch((error) => {
                         that._logger.log(that.WARN, LOG_ID + "(onChatMessageReceived) id : ", id, ", conference delegate received,issue getting bubble, conferencebubbleJid : ", conferencebubbleJid);
                     });
+                    if (!bubble) {
+                        bubble = {id:conferencebubbleJid};
+                    }
                     that.eventEmitter.emit("evt_internal_bubbleconferencedelegatereceived", bubble, userIdEvent);
                 }
                     break;
                 case "startConference": {
                     that._logger.log(that.DEBUG, LOG_ID + "(onChatMessageReceived) id : ", id, ", conference start received");
                     conferencebubbleJid = fromJid;
-                    let bubble = await that._bubbleService.getBubbleByJid(conferencebubbleJid, true);
+                    let bubble : any = await that._bubbleService.getBubbleByJid(conferencebubbleJid, true).catch((err) => {
+                        that._logger.log(that.ERROR, LOG_ID + "(onChatMessageReceived) get bubble failed for startConference : ", conferencebubbleJid, ", : ", err);
+                    });
+                    if (!bubble) {
+                        bubble = {id:conferencebubbleJid};
+                    }
                     that.eventEmitter.emit("evt_internal_bubbleconferencestartedreceived", bubble);
                 }
                     break;
                 case "stopConference": {
                     that._logger.log(that.DEBUG, LOG_ID + "(onChatMessageReceived) id : ", id, ", conference stop received");
                     conferencebubbleJid = fromJid;
-                    let bubble = await that._bubbleService.getBubbleByJid(conferencebubbleJid, true);
+                    let bubble : any = await that._bubbleService.getBubbleByJid(conferencebubbleJid, true).catch((err) => {
+                        that._logger.log(that.ERROR, LOG_ID + "(onChatMessageReceived) get bubble failed for stopConference : ", conferencebubbleJid, ", : ", err);
+                    });
+                    if (!bubble) {
+                        bubble = {id:conferencebubbleJid};
+                    }
                     that.eventEmitter.emit("evt_internal_bubbleconferencestoppedreceived", bubble);
                 }
                     break;
@@ -2243,7 +2266,9 @@ class ConversationEventHandler extends GenericHandler {
                 that._logger.log(that.INTERNAL, LOG_ID + "(_onMessageReceived) conversation found in cache by Id : ", conversationId, ", for new message : ", data);
                 if (data.event === "conferenceAdd") {
                     that._logger.log(that.INTERNAL, LOG_ID + "(_onMessageReceived) conversation found in cache by Id : ", conversationId, ", for new message : ", data, ", but needed to be updated because event conferenceAdd on bubble received.");
-                    conversation.bubble = await that._bubbleService.getBubbleByJid(conversationId, true);
+                    conversation.bubble = await that._bubbleService.getBubbleByJid(conversationId, true).catch((err) => {
+                        that._logger.log(that.ERROR, LOG_ID + "(_onMessageReceived) get bubble failed for conversationId : ", conversationId, ", : ", err);
+                    });
                 }
 
                 // data.conversation =  conversationId.startsWith("room_") ? await cs.getBubbleConversation(conversationId) : await cs.getOrCreateOneToOneConversation(conversationId);
@@ -3211,7 +3236,9 @@ class ConversationEventHandler extends GenericHandler {
                 if (text==="Only occupants are allowed to send messages to the conference") {
                     that._logger.log(that.ERROR, LOG_ID +"(onErrorMessageReceived) error -- missing presence in the bubble, resend it");
                     const fromJid = stanza.attrs.from;
-                    let bubble = await that._bubbleService.getBubbleByJid(fromJid);
+                    let bubble = await that._bubbleService.getBubbleByJid(fromJid).catch((err) => {
+                        that._logger.log(that.ERROR, LOG_ID + "(onErrorMessageReceived) get bubble failed for fromJid : ", fromJid, ", : ", err);
+                    });
                     if (bubble) {
                         await that._presenceService.sendInitialBubblePresenceSync(bubble);
                     }

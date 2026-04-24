@@ -699,7 +699,9 @@ class Bubbles extends GenericService {
         } else {
             // Find the bubble in service list, and else retrieve it from server.
             let bubbleInMemory: Bubble;
-            bubbleInMemory = await that.getBubbleByJid(bubbleInfo.jid);
+            bubbleInMemory = await that.getBubbleByJid(bubbleInfo.jid).catch((err) => {
+                that._logger.log(that.ERROR, LOG_ID + "(_onbubblepresencechanged) get bubble failed for bubblepresenceinfo : ", bubbleInfo, ", : ", err);
+            });
 // that._bubbles.find((bubbleIter) => { return bubbleIter.jid === bubbleInfo.jid ; });
             if (bubbleInMemory) {
                 that._logger.log(that.INTERNAL, LOG_ID + "(_onbubblepresencechanged) bubble found in memory : ", bubbleInMemory.jid);

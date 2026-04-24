@@ -987,28 +987,35 @@ class ImsService extends GenericService{
 
         jid = XMPPUTils.getXMPPUtils().getRoomJIDFromFullJID(jid);
 
-        let bubble = await that._bulles.getBubbleByJid(jid);
+        let bubble : void|Bubble = await that._bulles.getBubbleByJid(jid).catch((err) => {
+            that._logger.log(that.ERROR, LOG_ID + "(sendMessageToBubbleJid) get bubble failed for jid : ", jid, ", : ", err);
+        });
         that._logger.log(that.INTERNAL, LOG_ID + "(sendMessageToBubbleJid) getBubbleByJid ", bubble);
-        if (bubble.isActive ) {
-            let messageSent1 = that._xmpp.sendChatMessageToBubble(messageUnicode, jid, lang, content, subject, undefined, mentions, urgency, p_messagesDataStore);
-            return messageSent1;
-        } else {
-            try {
-                that._logger.log(that.DEBUG, LOG_ID + "(sendMessageToBubbleJid) bubble is not active, so resume it before send the message.");
-                that._logger.log(that.INTERNAL, LOG_ID + "(sendMessageToBubbleJid) bubble is not active, so resume it before send the message. bubble : ", bubble);
-                await that._presence.sendInitialBubblePresence(bubble);
-                //that._logger.log(that.DEBUG, LOG_ID + "(sendMessageToBubbleJid) sendInitialBubblePresence succeed ");
-                /*
-                await until(() => {
-                    return bubble.isActive === true;
-                }, "Wait for the Bubble " + bubble.jid + " to be active");
-                // */
-                //that._logger.log(that.DEBUG, LOG_ID + "(sendMessageToBubbleJid) until succeed, so the bubble is now active, send the message.");
-                let messageSent = that._xmpp.sendChatMessageToBubble(messageUnicode, jid, lang, content, subject, undefined, mentions, urgency, p_messagesDataStore);
-                return messageSent;
-            } catch (err) {
-                return Promise.reject({message: "The sending message process failed!", error: err});
+        if (bubble) {
+            if (bubble.isActive) {
+                let messageSent1 = that._xmpp.sendChatMessageToBubble(messageUnicode, jid, lang, content, subject, undefined, mentions, urgency, p_messagesDataStore);
+                return messageSent1;
+            } else {
+                try {
+                    that._logger.log(that.DEBUG, LOG_ID + "(sendMessageToBubbleJid) bubble is not active, so resume it before send the message.");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(sendMessageToBubbleJid) bubble is not active, so resume it before send the message. bubble : ", bubble);
+                    await that._presence.sendInitialBubblePresence(bubble);
+                    //that._logger.log(that.DEBUG, LOG_ID + "(sendMessageToBubbleJid) sendInitialBubblePresence succeed ");
+                    /*
+                    await until(() => {
+                        return bubble.isActive === true;
+                    }, "Wait for the Bubble " + bubble.jid + " to be active");
+                    // */
+                    //that._logger.log(that.DEBUG, LOG_ID + "(sendMessageToBubbleJid) until succeed, so the bubble is now active, send the message.");
+                    let messageSent = that._xmpp.sendChatMessageToBubble(messageUnicode, jid, lang, content, subject, undefined, mentions, urgency, p_messagesDataStore);
+                    return messageSent;
+                } catch (err) {
+                    return Promise.reject({message: "The sending message process failed!", error: err});
+                }
             }
+        } else {
+            that._logger.log(that.DEBUG, LOG_ID + "(sendMessageToBubbleJid) bad or empty 'jid' parameter", jid, ", bubble not found.");
+            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'jid' parameter, bubble not found."}));
         }
     }
 
@@ -1053,13 +1060,13 @@ class ImsService extends GenericService{
             that._logger.log(that.INTERNALERROR, LOG_ID + "(sendMessageToBubbleJidAnswer) bad or empty 'message' parameter : ", message);
             return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'message' parameter"}));
         }
-        let typofansweredMsg = answeredMsg instanceof Object ;
-        if (!typofansweredMsg && answeredMsg !== null ) {
+        let typofansweredMsg = answeredMsg instanceof Object;
+        if (!typofansweredMsg && answeredMsg!==null) {
             that._logger.log(that.WARN, LOG_ID + "(sendMessageToBubbleJidAnswer) bad  'answeredMsg' parameter.");
             that._logger.log(that.INTERNALERROR, LOG_ID + "(sendMessageToBubbleJidAnswer) bad  'answeredMsg' parameter : ", answeredMsg);
             return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad 'answeredMsg' parameter"}));
         } else {
-            if (answeredMsg?.datastoretypeOfMsg === DataStoreType.NoStore || answeredMsg?.datastoretypeOfMsg === DataStoreType.NoPermanentStore) {
+            if (answeredMsg?.datastoretypeOfMsg===DataStoreType.NoStore || answeredMsg?.datastoretypeOfMsg===DataStoreType.NoPermanentStore) {
                 that._logger.log(that.WARN, LOG_ID + "(sendMessageToBubbleJidAnswer) bad 'answeredMsg' parameter. Can not answer a message with a datastoretypeOfMsg set to not store message.");
                 that._logger.log(that.INTERNALERROR, LOG_ID + "(sendMessageToBubbleJidAnswer) bad 'answeredMsg' parameter : Can not answer a message with a datastoretypeOfMsg set to not store message.");
                 return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Can not answer a message with a datastoretypeOfMsg set to not store message : " + answeredMsg.datastoretypeOfMsg}));
@@ -1068,7 +1075,7 @@ class ImsService extends GenericService{
 
         // Check size of the message
         let messageSize = message.length;
-        if (content && content.message && typeof content.message === "string") {
+        if (content && content.message && typeof content.message==="string") {
             messageSize += content.message.length;
         }
         if (messageSize > that._imOptions.messageMaxLength) {
@@ -1082,32 +1089,39 @@ class ImsService extends GenericService{
         }
 
         //let messageUnicode = shortnameToUnicode(message);
-        let messageUnicode = message === "" ? "" : (message?shortnameToUnicode(message):undefined);
+        let messageUnicode = message==="" ? "":(message ? shortnameToUnicode(message):undefined);
 
         jid = XMPPUTils.getXMPPUtils().getRoomJIDFromFullJID(jid);
 
-        let bubble = await that._bulles.getBubbleByJid(jid);
+        let bubble : void|Bubble = await that._bulles.getBubbleByJid(jid).catch((err) => {
+            that._logger.log(that.ERROR, LOG_ID + "(sendMessageToBubbleJidAnswer) get bubble failed for jid : ", jid, ", : ", err);
+        });
         that._logger.log(that.INTERNAL, LOG_ID + "(sendMessageToBubbleJidAnswer) getBubbleByJid ", bubble);
-        if (bubble.isActive) {
-            let messageSent = that._xmpp.sendChatMessageToBubble(messageUnicode, jid, lang, content, subject, answeredMsg, mentions, urgency, p_messagesDataStore);
-            return messageSent;
-        } else {
-            try {
-                that._logger.log(that.DEBUG, LOG_ID + "(sendMessageToBubbleJidAnswer) bubble is not active, so resume it before send the message.");
-                that._logger.log(that.INTERNAL, LOG_ID + "(sendMessageToBubbleJidAnswer) bubble is not active, so resume it before send the message. bubble : ", bubble);
-                await that._presence.sendInitialBubblePresence(bubble);
-                //that._logger.log(that.DEBUG, LOG_ID + "(sendMessageToBubbleJidAnswer) sendInitialBubblePresence succeed ");
-                /*
-                await until(() => {
-                    return bubble.isActive === true;
-                }, "Wait for the Bubble " + bubble.jid + " to be active");
-                 */
-                //that._logger.log(that.DEBUG, LOG_ID + "(sendMessageToBubbleJidAnswer) until succeed, so the bubble is now active, send the message.");
+        if (bubble) {
+            if (bubble.isActive) {
                 let messageSent = that._xmpp.sendChatMessageToBubble(messageUnicode, jid, lang, content, subject, answeredMsg, mentions, urgency, p_messagesDataStore);
                 return messageSent;
-            } catch (err) {
-                return Promise.reject({message: "The sending message process failed!", error: err});
+            } else {
+                try {
+                    that._logger.log(that.DEBUG, LOG_ID + "(sendMessageToBubbleJidAnswer) bubble is not active, so resume it before send the message.");
+                    that._logger.log(that.INTERNAL, LOG_ID + "(sendMessageToBubbleJidAnswer) bubble is not active, so resume it before send the message. bubble : ", bubble);
+                    await that._presence.sendInitialBubblePresence(bubble);
+                    //that._logger.log(that.DEBUG, LOG_ID + "(sendMessageToBubbleJidAnswer) sendInitialBubblePresence succeed ");
+                    /*
+                    await until(() => {
+                        return bubble.isActive === true;
+                    }, "Wait for the Bubble " + bubble.jid + " to be active");
+                     */
+                    //that._logger.log(that.DEBUG, LOG_ID + "(sendMessageToBubbleJidAnswer) until succeed, so the bubble is now active, send the message.");
+                    let messageSent = that._xmpp.sendChatMessageToBubble(messageUnicode, jid, lang, content, subject, answeredMsg, mentions, urgency, p_messagesDataStore);
+                    return messageSent;
+                } catch (err) {
+                    return Promise.reject({message: "The sending message process failed!", error: err});
+                }
             }
+        } else {
+            that._logger.log(that.DEBUG, LOG_ID + "(sendMessageToBubbleJid) bad or empty 'jid' parameter", jid, ", bubble not found.");
+            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'jid' parameter, bubble not found."}));
         }
     }
 

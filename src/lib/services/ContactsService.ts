@@ -991,7 +991,9 @@ class ContactsService extends GenericService {
             } else {
                 const contact = await that.getContactByJid(peerJid).catch((err)=>{ that._logger.log(that.ERROR, LOG_ID + "(getPeerByJid)  getContactByJid failed : ", err); return undefined;});
                 if (! contact) {
-                    const bubble = await that._core._bubbles.getBubbleByJid(peerJid);
+                    const bubble = await that._core._bubbles.getBubbleByJid(peerJid).catch((err) => {
+                        that._logger.log(that.ERROR, LOG_ID + "(getPeerByJid) get bubble failed for peerJid : ", peerJid, ", : ", err);
+                    });
                     if (! bubble) {
                     } else {
                         resultPeer.peer = bubble;
