@@ -20,6 +20,8 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Fix the treatment of presence unvailable in bubble event to avoid to search the bubble on serveur side (because this event means bubble is deleted.)
 
 #### Added
+-   Add `testGetAllConferenceRecords` in `Samples/index.ts` to verify the conference records retrieval.
+-   Add `getAllConferenceRecords` method in `FileStorageService` to retrieve the list of all conference records. (Need to implement the other API and to treat the events.)
 -   Add missing fields to `FileDescriptor` and its factory to match server data: `expirationDate`, `language`, `backendType`, `isClean`, `transcription`, `transcriptionStatus`, `avScanStatus`, `avReport`, `cantBeScannedYet`, `original_w`, `original_h`, `available`, `_lockAddViewers`, `lastActivityDate`, `thumbnail500`, and `typeMIME` in `Thumbnail`.
 -   Add `setRoomPassword` and `deleteRoomPassword` methods in `BubblesService` to manage room passwords (RQRAINB-13820).
 -   Add `setRoomPassword` and `deleteRoomPassword` methods in `RESTService` to call room password management endpoints (RQRAINB-13820).

@@ -5614,6 +5614,63 @@ Request Method: PUT
         });
     }
 
+    // region conference recordings
+
+    getAllConferenceRecords(roomName?: string, recordingName?: string, status?: string, roomId?: string, purpose?: string, fetch: string = "mine", isEphemeral?: boolean, limit: number = 100, offset: number = 0, sortField: string = "recordingStartDate", sortOrder: number = 1, format: string = "small") {
+        // API https://api.openrainbow.org/filestorage/#api-conference_records-getAllConferenceRecords
+        // URL GET /api/rainbow/filestorage/v1.0/conferences-recordings
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that._logger.log(that.INTERNAL, LOG_ID + "(getAllConferenceRecords) REST limit : ", limit);
+
+            let url: string = "/api/rainbow/filestorage/v1.0/conferences-recordings";
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+
+            if (roomName != undefined) {
+                addParamToUrl(urlParamsTab, "roomName", roomName);
+            }
+            if (recordingName != undefined) {
+                addParamToUrl(urlParamsTab, "recordingName", recordingName);
+            }
+            if (status != undefined) {
+                addParamToUrl(urlParamsTab, "status", status);
+            }
+            if (roomId != undefined) {
+                addParamToUrl(urlParamsTab, "roomId", roomId);
+            }
+            if (purpose != undefined) {
+                addParamToUrl(urlParamsTab, "purpose", purpose);
+            }
+            if (fetch != undefined) {
+                addParamToUrl(urlParamsTab, "fetch", fetch);
+            }
+            if (isEphemeral != undefined) {
+                addParamToUrl(urlParamsTab, "isEphemeral", isEphemeral ? "true" : "false");
+            }
+            addParamToUrl(urlParamsTab, "limit", limit);
+            addParamToUrl(urlParamsTab, "offset", offset);
+            addParamToUrl(urlParamsTab, "sortField", sortField);
+            addParamToUrl(urlParamsTab, "sortOrder", sortOrder);
+            addParamToUrl(urlParamsTab, "format", format);
+            url = urlParamsTab[0];
+
+            that._logger.log(that.INTERNAL, LOG_ID + "(getAllConferenceRecords) REST url : ", url);
+            that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
+                that._logger.log(that.DEBUG, LOG_ID + "(getAllConferenceRecords) successfull");
+                that._logger.log(that.DEBUG, LOG_ID + "(getAllConferenceRecords) REST get conference records");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getAllConferenceRecords) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(getAllConferenceRecords) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getAllConferenceRecords) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    // endregion conference recordings
+
     retrieveFilesReceivedFromPeer(userId, peerId) {
         // API https://api.openrainbow.org/filestorage/#api-files-files_getAllViewerId
         // URL GET /api/rainbow/filestorage/v1.0/files/viewers/:viewerId

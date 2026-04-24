@@ -2193,6 +2193,48 @@ class FileStorage extends GenericService{
         return that.getReceivedDocuments();
     }
 
+    // region conference recordings
+
+    /**
+     * @public
+     * @nodered true
+     * @since 2.43.2
+     * @method getAllConferenceRecords
+     * @instance
+     * @category Files FILE MANAGEMENT / PROPERTIES
+     * @description
+     *    Get the list of all conference records. <br>
+     *    Return a promise <br>
+     * @param {string} [roomName] [optional] Allow to search conference hosted by a room which name includes a word beginning by ...
+     * @param {string} [recordingName] [optional] Allow to search conference which name includes a word beginning by ...
+     * @param {string} [status] [optional] A status among: initiated, in_progress, release_complete
+     * @param {string} [roomId] [optional] The room hosting the conference
+     * @param {string} [purpose] [optional] What the registration was requested for among meeting_recording, permanent_transcription
+     * @param {string} [fetch="mine"] [optional] Which conference recording to fetch: "mine", "shared", "all"
+     * @param {boolean} [isEphemeral] [optional] Define auto expiry of the recording
+     * @param {number} [limit=100] [optional] Allow to specify the maximum number of conference records to return in the response
+     * @param {number} [offset=0] [optional] Allow to specify the offset from which conference record list should be returned
+     * @param {string} [sortField="recordingStartDate"] [optional] Sort conference records list using the given field
+     * @param {number} [sortOrder=1] [optional] Specify the sort order: 1 for ascending, -1 for descending
+     * @param {string} [format="small"] [optional] Allow to specify the amount of information to return: "small", "medium" or "full"
+     * @return {Promise<any>} Return an object containing the list of conference records
+     */
+    getAllConferenceRecords(roomName?: string, recordingName?: string, status?: string, roomId?: string, purpose?: string, fetch: string = "mine", isEphemeral?: boolean, limit: number = 100, offset: number = 0, sortField: string = "recordingStartDate", sortOrder: number = 1, format: string = "small") {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getAllConferenceRecords) limit: " + limit);
+
+        return new Promise(function(resolve, reject) {
+            that._rest.getAllConferenceRecords(roomName, recordingName, status, roomId, purpose, fetch, isEphemeral, limit, offset, sortField, sortOrder, format).then(function(json: any) {
+                that._logger.log(that.INFO, LOG_ID + "(getAllConferenceRecords) success");
+                resolve(json);
+            }).catch(function(err) {
+                that._logger.log(that.ERROR, LOG_ID + "(getAllConferenceRecords) error");
+                return reject(err);
+            });
+        });
+    }
+
+    // endregion conference recordings
 
     /**
      * @private
