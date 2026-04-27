@@ -6,7 +6,7 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-### [2.43.2] - 2026-04-XX
+### [2.44.0] - 2026-04-27
 #### Removed
 -   **[BREAKING]** Remove `useGotLibForHttp` option (all HTTP requests now use `got` library).
 -   **[BREAKING]** Remove `storeMessages` option (The store message behaviour is managed with `messagesDataStore` option). Also removed the `DataStoreType.UsestoreMessagesField` value which allowed to follow the storeMessages SDK's parameter behaviour.
@@ -21,6 +21,17 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Fix `conversationEventHandler::onErrorMessageReceived` callback for add body, subject and text properties in received event.
  
 #### Added
+-   Add `rainbow_onbubbleconferencerecordingupdated` event in `Events.ts` to expose conference recording status updates to the SDK users.
+-   Add `getOneConferenceRecordExternalRef` method in `RESTService` and `FileStorageService` to retrieve a conference record from an external reference.
+-   Add `testGetOneConferenceRecordExternalRef` in `src/Samples/index.ts` to verify the conference record retrieval by external reference.
+-   Add `deleteOneDocumentConferenceRecord` method in `RESTService` and `FileStorageService` to delete a document related to a conference recording.
+-   Add `testDeleteOneDocumentConferenceRecord` in `src/Samples/index.ts` to verify the conference recording document deletion.
+-   Add `deleteOneConferenceRecord` method in `RESTService` and `FileStorageService` to delete a conference record.
+-   Add `testDeleteOneConferenceRecord` in `src/Samples/index.ts` to verify the conference record deletion.
+-   Add `getOneConferenceRecord` method in `RESTService` and `FileStorageService` to retrieve a conference record data structure.
+-   Add `testGetOneConferenceRecord` in `Samples/index.ts` to verify the conference record retrieval.
+-   Add `updateOneConferenceRecordName` method in `RESTService` and `FileStorageService` to update a conference record name.
+-   Add `testUpdateOneConferenceRecordName` in `Samples/index.ts` to verify the conference record name update.
 -   Add `testGetAllConferenceRecords` in `Samples/index.ts` to verify the conference records retrieval.
 -   Add `getAllConferenceRecords` method in `FileStorageService` to retrieve the list of all conference records. (Need to implement the other API and to treat the events.)
 -   Add missing fields to `FileDescriptor` and its factory to match server data: `expirationDate`, `language`, `backendType`, `isClean`, `transcription`, `transcriptionStatus`, `avScanStatus`, `avReport`, `cantBeScannedYet`, `original_w`, `original_h`, `available`, `_lockAddViewers`, `lastActivityDate`, `thumbnail500`, and `typeMIME` in `Thumbnail`.
@@ -49,6 +60,8 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add `.catch` blocks on `getBubbleById` method calls to improve error handling and logging.
 
 #### Changed
+-   Update `onManagementMessageReceived` in all Handlers (`channelEventHandler`, `favoriteEventHandler`, `presenceEventHandler`, `alertEventHandler`, `RBVoiceEventHandler`, `webinarEventHandler`, `invitationEventHandler`, `TasksEventHandler`) to harmonize the list of handled nodes with `conversationEventHandler` (adding `logs`, `conferencerecordingstatus`, `userpassword`, `no-store`, `customStatus`, etc.) and avoid "unmanaged management message node" error logs.
+-   Update `onConferenceRecordingStatusMessageReceived` to simplify the emitted event object by flattening the structure and removing XMPP-specific attributes.
 -   **[BREAKING]** Update `downloadFile` and `downloadFileInPath` in `FileStorageService` to include a security check that blocks infected files by default. A new optional parameter `acceptToDownloadInfectedFile` (default `false`) allows downloading these files if explicitly requested.
 -   Update `HttpManager` and `HttpService` to support custom callbacks for mocked REST requests, ensuring they work both with and without the request rate limiter.
 -   Update `BubblesService::registerGuestForAPublicURL` with new parameters emails, phoneNumbers, country, state, language, timezone, visibility, customData, companyNameOfGuest, roomPassword.

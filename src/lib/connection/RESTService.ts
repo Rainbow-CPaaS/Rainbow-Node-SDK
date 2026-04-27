@@ -5669,6 +5669,117 @@ Request Method: PUT
         });
     }
 
+    updateOneConferenceRecordName(confrecid: string, recordingName: string) {
+        // API https://api.openrainbow.org/filestorage/#api-conference_records-updateOneConferenceRecord
+        // URL PUT /api/rainbow/filestorage/v1.0/conferences-recordings/:confrecid
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that._logger.log(that.INTERNAL, LOG_ID + "(updateOneConferenceRecordName) REST confrecid : ", confrecid);
+
+            let url: string = "/api/rainbow/filestorage/v1.0/conferences-recordings/" + confrecid;
+            let body = {
+                "recordingName": recordingName
+            };
+
+            that.http.put(url, that.getRequestHeader(), body).then(function (json) {
+                that._logger.log(that.DEBUG, LOG_ID + "(updateOneConferenceRecordName) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(updateOneConferenceRecordName) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(updateOneConferenceRecordName) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateOneConferenceRecordName) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    getOneConferenceRecord(confrecid: string) {
+        // API https://api.openrainbow.org/filestorage/#api-conference_records-getOneConferenceRecord
+        // URL GET /api/rainbow/filestorage/v1.0/conferences-recordings/:confrecid
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that._logger.log(that.INTERNAL, LOG_ID + "(getOneConferenceRecord) REST confrecid : ", confrecid);
+
+            let url: string = "/api/rainbow/filestorage/v1.0/conferences-recordings/" + confrecid;
+
+            that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
+                that._logger.log(that.DEBUG, LOG_ID + "(getOneConferenceRecord) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getOneConferenceRecord) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(getOneConferenceRecord) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getOneConferenceRecord) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    deleteOneConferenceRecord(confrecid: string) {
+        // API https://api.openrainbow.org/filestorage/#api-conference_records-DeleteOneConferenceRecord
+        // URL DELETE /api/rainbow/filestorage/v1.0/conferences-recordings/:confrecid
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that._logger.log(that.INTERNAL, LOG_ID + "(deleteOneConferenceRecord) REST confrecid : ", confrecid);
+
+            let url: string = "/api/rainbow/filestorage/v1.0/conferences-recordings/" + confrecid;
+
+            that.http.delete(url, that.getRequestHeader(), undefined).then(function (json) {
+                that._logger.log(that.DEBUG, LOG_ID + "(deleteOneConferenceRecord) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(deleteOneConferenceRecord) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(deleteOneConferenceRecord) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteOneConferenceRecord) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    deleteOneDocumentConferenceRecord(confrecid: string, fileId: string) {
+        // API https://api.openrainbow.org/filestorage/#api-conference_records-DeleteOneDocumentConferenceRecord
+        // URL DELETE /api/rainbow/filestorage/v1.0/conferences-recordings/:confrecid/files/:fileId
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that._logger.log(that.INTERNAL, LOG_ID + "(deleteOneDocumentConferenceRecord) REST confrecid : ", confrecid + ", fileId: " + fileId);
+
+            let url: string = "/api/rainbow/filestorage/v1.0/conferences-recordings/" + confrecid + "/files/" + fileId;
+
+            that.http.delete(url, that.getRequestHeader(), undefined).then(function (json) {
+                that._logger.log(that.DEBUG, LOG_ID + "(deleteOneDocumentConferenceRecord) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(deleteOneDocumentConferenceRecord) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(deleteOneDocumentConferenceRecord) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteOneDocumentConferenceRecord) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
+    getOneConferenceRecordExternalRef(registrationUuid: string) {
+        // API https://api.openrainbow.org/filestorage/#api-conference_records-getOneConferenceRecordExternalRef
+        // URL POST /api/rainbow/filestorage/v1.0/conferences-recordings/external-reference
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that._logger.log(that.INTERNAL, LOG_ID + "(getOneConferenceRecordExternalRef) REST registrationUuid : ", registrationUuid);
+
+            let url: string = "/api/rainbow/filestorage/v1.0/conferences-recordings/external-reference";
+            let body = {
+                "registrationUuid": registrationUuid
+            };
+
+            that.http.post(url, that.getRequestHeader(), body).then(function (json) {
+                that._logger.log(that.DEBUG, LOG_ID + "(getOneConferenceRecordExternalRef) successfull");
+                that._logger.log(that.INTERNAL, LOG_ID + "(getOneConferenceRecordExternalRef) REST result : ", json);
+                resolve(json);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, "(getOneConferenceRecordExternalRef) error");
+                that._logger.log(that.INTERNALERROR, LOG_ID, "(getOneConferenceRecordExternalRef) error : ", err);
+                return reject(err);
+            });
+        });
+    }
+
     // endregion conference recordings
 
     retrieveFilesReceivedFromPeer(userId, peerId) {

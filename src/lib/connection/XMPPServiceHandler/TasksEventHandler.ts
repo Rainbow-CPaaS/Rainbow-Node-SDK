@@ -125,7 +125,7 @@ class TasksEventHandler extends GenericHandler {
         return true;
     }
 
-    async onManagementMessageReceived(msg, stanzaTab) {
+    async onManagementMessageReceived (msg, stanzaTab) {
         let that = this;
         let stanza = stanzaTab[0];
         let prettyStanza = stanzaTab[1];
@@ -221,6 +221,9 @@ class TasksEventHandler extends GenericHandler {
                         // treated in conversationEventHandler
                         break;
                     case "userpassword":
+                        // treated in conversationEventHandler
+                        break;
+                    case "conferencerecordingstatus":
                         // treated in conversationEventHandler
                         break;
                     case "customStatus":

@@ -450,6 +450,9 @@ class PresenceEventHandler extends GenericHandler {
                     case "customStatus":
                         that.onCustomSatusManagementMessageReceived(node, nodeJson);
                         break;
+                    case "conferencerecordingstatus":
+                        // treated in conversationEventHandler
+                        break;
                     default:
                         that._logger.log(that.ERROR, LOG_ID + "(onManagementMessageReceived) unmanaged management message node " + node.getName());
                         break;

@@ -111,6 +111,7 @@ class Emitter extends EventEmitterClass{
  * @fires Events#rainbow_onbubbleconferencestartedreceived
  * @fires Events#rainbow_onbubbleconferencestoppedreceived
  * @fires Events#rainbow_onbubbleconferencedelegatereceived
+ * @fires Events#rainbow_onbubbleconferencerecordingupdated
  * @fires Events#rainbow_onbubbleconferenceupdated
  * @fires Events#rainbow_onbubblecustomdatachanged
  * @fires Events#rainbow_onbubblecontactchanged
@@ -245,6 +246,7 @@ class Events {
         "rainbow_onbubbleconferencestartedreceived",
         "rainbow_onbubbleconferencestoppedreceived",
         "rainbow_onbubbleconferencedelegatereceived",
+        "rainbow_onbubbleconferencerecordingupdated",
         "rainbow_onbubbleconferenceupdated",
         "rainbow_onbubblecustomdatachanged",
         "rainbow_onbubblecontactchanged",
@@ -850,6 +852,17 @@ class Events {
              *      Fired when an event conference delegate in a bubble is received
              */
             that.publishEvent("bubbleconferencedelegatereceived", bubble);
+        });
+
+        this._evReceiver.on("evt_internal_bubbleconferencerecordingupdated", function(data) {
+            /**
+             * @event Events#rainbow_onbubbleconferencerecordingupdated
+             * @public
+             * @param { Object } data The recording status data received.
+             * @description
+             *      Fired when a bubble conference recording status event is received
+             */
+            that.publishEvent("bubbleconferencerecordingupdated", data);
         });
 
         

@@ -12,7 +12,7 @@ import {
     getBinaryData, isDefined, isNotDefined,
     isStarted,
     logEntryExit,
-    resizeImage,
+    resizeImage, toBoolean,
     traceExecutionTime,
     until
 } from "../common/Utils";

@@ -2234,6 +2234,143 @@ class FileStorage extends GenericService{
         });
     }
 
+    /**
+     * @public
+     * @nodered true
+     * @method updateOneConferenceRecordName
+     * @instance
+     * @category Files FILE MANAGEMENT / PROPERTIES
+     * @description
+     *    Update one conference recording name. <br>
+     *    Return a promise <br>
+     * @param {string} confrecid [required] Id of the data structure gathering all documents related to a conference recording
+     * @param {string} recordingName [required] Name of the record
+     * @return {Promise<any>} Return an object containing the conference record updated
+     */
+    updateOneConferenceRecordName(confrecid: string, recordingName: string) {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateOneConferenceRecordName) confrecid: " + confrecid);
+
+        return new Promise(function(resolve, reject) {
+            that._rest.updateOneConferenceRecordName(confrecid, recordingName).then(function(json: any) {
+                that._logger.log(that.INFO, LOG_ID + "(updateOneConferenceRecordName) success");
+                resolve(json);
+            }).catch(function(err) {
+                that._logger.log(that.ERROR, LOG_ID + "(updateOneConferenceRecordName) error");
+                return reject(err);
+            });
+        });
+    }
+
+    /**
+     * @public
+     * @nodered true
+     * @method getOneConferenceRecord
+     * @instance
+     * @category Files FILE MANAGEMENT / PROPERTIES
+     * @description
+     *    Give one conference recording data structure. <br>
+     *    Return a promise <br>
+     * @param {string} confrecid [required] Id of the data structure gathering all documents related to a conference recording
+     * @return {Promise<any>} Return an object containing the conference record data structure
+     */
+    getOneConferenceRecord(confrecid: string) {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getOneConferenceRecord) confrecid: " + confrecid);
+
+        return new Promise(function(resolve, reject) {
+            that._rest.getOneConferenceRecord(confrecid).then(function(json: any) {
+                that._logger.log(that.INFO, LOG_ID + "(getOneConferenceRecord) success");
+                resolve(json);
+            }).catch(function(err) {
+                that._logger.log(that.ERROR, LOG_ID + "(getOneConferenceRecord) error");
+                return reject(err);
+            });
+        });
+    }
+
+    /**
+     * @public
+     * @nodered true
+     * @method deleteOneConferenceRecord
+     * @instance
+     * @category Files FILE MANAGEMENT / PROPERTIES
+     * @description
+     *    Delete one conference recording data structure. <br>
+     *    Return a promise <br>
+     * @param {string} confrecid [required] Id of the data structure gathering all documents related to a conference recording
+     * @return {Promise<any>} Return an object containing the conference record deleted
+     */
+    deleteOneConferenceRecord(confrecid: string) {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteOneConferenceRecord) confrecid: " + confrecid);
+
+        return new Promise(function(resolve, reject) {
+            that._rest.deleteOneConferenceRecord(confrecid).then(function(json: any) {
+                that._logger.log(that.INFO, LOG_ID + "(deleteOneConferenceRecord) success");
+                resolve(json);
+            }).catch(function(err) {
+                that._logger.log(that.ERROR, LOG_ID + "(deleteOneConferenceRecord) error");
+                return reject(err);
+            });
+        });
+    }
+
+    /**
+     * @public
+     * @nodered true
+     * @method deleteOneDocumentConferenceRecord
+     * @instance
+     * @category Files FILE MANAGEMENT / PROPERTIES
+     * @description
+     *    Delete one document related to a conference recording. <br>
+     *    Return a promise <br>
+     * @param {string} confrecid [required] Id of the data structure gathering all documents related to a conference recording
+     * @param {string} fileId [required] File unique identifier
+     * @return {Promise<any>} Return an object containing the conference record updated
+     */
+    deleteOneDocumentConferenceRecord(confrecid: string, fileId: string) {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteOneDocumentConferenceRecord) confrecid: " + confrecid + ", fileId: " + fileId);
+
+        return new Promise(function(resolve, reject) {
+            that._rest.deleteOneDocumentConferenceRecord(confrecid, fileId).then(function(json: any) {
+                that._logger.log(that.INFO, LOG_ID + "(deleteOneDocumentConferenceRecord) success");
+                resolve(json);
+            }).catch(function(err) {
+                that._logger.log(that.ERROR, LOG_ID + "(deleteOneDocumentConferenceRecord) error");
+                return reject(err);
+            });
+        });
+    }
+
+    /**
+     * @public
+     * @nodered true
+     * @method getOneConferenceRecordExternalRef
+     * @instance
+     * @category Files FILE MANAGEMENT / PROPERTIES
+     * @description
+     *    Return one conference recording data structure from a public reference. <br>
+     *    Return a promise <br>
+     * @param {string} registrationUuid [required] Public Id for this recording (UUID)
+     * @return {Promise<any>} Return an object containing the conference record
+     */
+    getOneConferenceRecordExternalRef(registrationUuid: string) {
+        let that = this;
+        that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getOneConferenceRecordExternalRef) registrationUuid: " + registrationUuid);
+
+        return new Promise(function(resolve, reject) {
+            that._rest.getOneConferenceRecordExternalRef(registrationUuid).then(function(json: any) {
+                that._logger.log(that.INFO, LOG_ID + "(getOneConferenceRecordExternalRef) success");
+                resolve(json);
+            }).catch(function(err) {
+                that._logger.log(that.ERROR, LOG_ID + "(getOneConferenceRecordExternalRef) error");
+                return reject(err);
+            });
+        });
+    }
+
     // endregion conference recordings
 
     /**

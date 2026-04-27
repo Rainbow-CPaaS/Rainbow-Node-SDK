@@ -2422,6 +2422,9 @@ class ConversationEventHandler extends GenericHandler {
                     case "logs":
                         that.onLogsMessageReceived(node);
                         break;
+                    case "conferencerecordingstatus":
+                        that.onConferenceRecordingStatusMessageReceived(nodeJson);
+                        break;
                     case "todo":
                         // treated in tasksEventHandler
                         break;
@@ -2433,6 +2436,7 @@ class ConversationEventHandler extends GenericHandler {
                         break;
                     case "customStatus":
                     // treated in presentationEventHandler
+                        break;
                     default:
                         that._logger.log(that.ERROR, LOG_ID + "(onManagementMessageReceived) unmanaged management message node " + node.getName());
                         break;
@@ -3198,6 +3202,58 @@ class ConversationEventHandler extends GenericHandler {
         } catch (err) {
             // that._logger.log(that.ERROR, LOG_ID + "(onLogsMessageReceived) CATCH Error !!! ");
             that._logger.log(that.ERROR, LOG_ID + "(onLogsMessageReceived) CATCH Error !!! : ", err);
+        }
+    };
+
+    onConferenceRecordingStatusMessageReceived (nodeJson) {
+        /*
+ {
+  '$attrs': { xmlns: 'jabber:iq:configuration', action: 'update' },
+  recordid: '69eb8ba2202132ac892ca400',
+  roomid: '69eb896370e35cbe4296b4e0',
+  userid: '601052d4e4543238722293e9',
+  isephemeral: undefined,
+  viewers: undefined,
+  payload: {
+    '$attrs': {
+      xmlns: 'urn:xmpp:json-msg:0',
+      datatype: 'urn:rainbow:json:recording'
+    },
+    json: {
+      _: { recordingName: 'New name of record' },
+      '$attrs': { xmlns: 'urn:xmpp:json:0' }
+    }
+  }
+}
+ // */
+        let that = this;
+        try {
+            that._logger.log(that.INTERNAL, LOG_ID + "(onConferenceRecordingStatusMessageReceived) _entering_ : ", nodeJson);
+
+            if (nodeJson) {
+                let eventObj: any = {};
+                let action = nodeJson["$attrs"] ? nodeJson["$attrs"].action : undefined;
+                if (action === "update") {
+                    eventObj = {
+                        action: action,
+                        recordid: nodeJson.recordid,
+                        roomid: nodeJson.roomid,
+                        userid: nodeJson.userid,
+                        isephemeral: nodeJson.isephemeral,
+                        viewers: nodeJson.viewers
+                    };
+
+                    if (nodeJson.payload && nodeJson.payload.json && nodeJson.payload.json._) {
+                        Object.assign(eventObj, nodeJson.payload.json._);
+                    }
+
+                    // Remove undefined properties
+                    Object.keys(eventObj).forEach(key => eventObj[key]===undefined && delete eventObj[key]);
+                }
+                that.eventEmitter.emit("evt_internal_bubbleconferencerecordingupdated", eventObj);
+            }
+        } catch (err) {
+            that._logger.log(that.ERROR, LOG_ID + "(onConferenceRecordingStatusMessageReceived) CATCH Error !!! : ", err);
         }
     };
 

@@ -146,7 +146,7 @@ class RBVoiceEventHandler extends GenericHandler {
         return true;
     }
 
-    async onManagementMessageReceived(msg, stanzaTab) {
+    async onManagementMessageReceived (msg, stanzaTab) {
         let that = this;
         let stanza = stanzaTab[0];
         let prettyStanza = stanzaTab[1];
@@ -157,9 +157,10 @@ class RBVoiceEventHandler extends GenericHandler {
             let stanzaElem = stanza;
             //let that = this;
 
-            let xmlNodeStr = stanza ? stanza.toString():"<xml></xml>";
+            /*let xmlNodeStr = stanza ? stanza.toString():"<xml></xml>";
             let reqObj = await getJsonFromXML(xmlNodeStr);
             that._logger.log(that.DEBUG, LOG_ID + "(onManagementMessageReceived) reqObj : ", reqObj);
+            // */
 
             // Ignore "Offline" message
             let delay = stanzaElem.getChild("delay");
@@ -170,6 +171,97 @@ class RBVoiceEventHandler extends GenericHandler {
             let from = stanza.attrs.from;
             let to = stanza.attrs.to;
 
+            let children = stanza.children;
+            children.forEach(function (node) {
+                switch (node.getName()) {
+                    case "room":
+                        break;
+                    case "usersettings":
+                        break;
+                    case "userinvite":
+                        // treated also in conversationEventHandler
+                        // treated also in invitationEventHandler
+                        break;
+                    case "group":
+                        break;
+                    case "conversation":
+                        break;
+                    case "mute":
+                        break;
+                    case "unmute":
+                        break;
+                    case "vscan":
+                        //treated in conversationEventHandler::onVscanManagementMessageReceived(node);
+                        break;
+                    case "roompassword":
+                        //treated in conversationEventHandler::onRoomPasswordManagementMessageReceived(node);
+                        break;
+                    case "file":
+                        break;
+                    case "thumbnail":
+                        break;
+                    case "channel-subscription":
+                    case "channel":
+                        break;
+                    case "openinvite":
+                        // treated in invitationEventHandler
+                        break;
+                    case "favorite":
+                        // treated in favoriteEventHandler
+                        break;
+                    case "notification":
+                        // treated in alertEventHandler
+                        break;
+                    case "roomscontainer":
+                        // treated in conversationEventHandler
+                        break;
+                    case "webinar":
+                        // treated in webinarEventHandler
+                        break;
+                    case "poll":
+                        // treated in conversationEventHandler
+                        break;
+                    case "connectorcommand":
+                        // treated in conversationEventHandler
+                        break;
+                    case "connectorconfig":
+                        // treated in conversationEventHandler
+                        break;
+                    case "command_ended":
+                        // treated in conversationEventHandler
+                        break;
+                    case "import_status":
+                        // treated in conversationEventHandler
+                        break;
+                    case "joincompanyinvite":
+                        // treated in invitationEventHandler
+                        break;
+                    case "joincompanyrequest":
+                        // treated in invitationEventHandler
+                        break;
+                    case "todo":
+                        // treated in tasksEventHandler
+                        break;
+                    case "no-store":
+                        // treated in conversationEventHandler
+                        break;
+                    case "userpassword":
+                        // treated in conversationEventHandler
+                        break;
+                    case "conferencerecordingstatus":
+                        // treated in conversationEventHandler
+                        break;
+                    case "logs":
+                        // treated in conversationEventHandler
+                        break;
+                    case "customStatus":
+                        // treated in presentationEventHandler
+                        break;
+                    default:
+                        that._logger.log(that.ERROR, LOG_ID + "(onManagementMessageReceived) unmanaged management message node " + node.getName());
+                        break;
+                }
+            });
         } catch (error) {
             // that._logger.log(that.ERROR, LOG_ID + "(onManagementMessageReceived) CATCH Error !!! -- failure -- ");
             that._logger.log(that.ERROR, LOG_ID + "(onManagementMessageReceived) CATCH Error !!! -- failure -- : ", error);

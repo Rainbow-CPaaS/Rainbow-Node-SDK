@@ -12076,6 +12076,27 @@ example :
         // region conference recordings
 
         async testGetAllConferenceRecords() {
+            /*
+{
+  data: [
+    {
+      roomId: '69eb896370e35cbe4296b4e0',
+      roomName: 'BulleDeTests',
+      recordingStartDate: '2026-04-24T15:26:11.563Z',
+      status: 'release_complete',
+      purposes: [ 'meeting_recording' ],
+      isEphemeral: false,
+      timeToLiveDate: '2026-04-24T15:26:25.298Z',
+      avatarURL: 'https://openrainbow.net/api/rainbow/filestorage/v1.0/conferences-recordings/avatar/69eb8ba3285b07236e928de9',
+      recordingName: 'BulleDeTests',
+      id: '69eb8ba2202132ac892ca400'
+    }
+  ],
+  limit: 100,
+  offset: 0,
+  total: 1
+}
+             // */
             _logger.log("debug", "MAIN - (testGetAllConferenceRecords). ");
             rainbowSDK.fileStorage.getAllConferenceRecords().then(async (result: any) => {
                 _logger.log("debug", "MAIN - [testGetAllConferenceRecords] :: getAllConferenceRecords result : ", result);
@@ -12083,6 +12104,489 @@ example :
                 _logger.log("error", "MAIN - [testGetAllConferenceRecords] :: getAllConferenceRecords error : ", err);
             });
         }
+
+        async testUpdateOneConferenceRecordName() {
+            /*
+            <message
+  xmlns="jabber:client" xml:lang="en" to="ccb128dd951d44b7b8a9bcdfdaa2afe7@openrainbow.net" from="pcloud_filestorage_3@openrainbow.net/98627408196532889984435589" type="management" id="0eed51ef-13b2-447b-848d-ee65c8772b3b_1053">
+  <conferencerecordingstatus
+    xmlns="jabber:iq:configuration" action="update">
+    <recordid>69eb8ba2202132ac892ca400</recordid>
+    <roomid>69eb896370e35cbe4296b4e0</roomid>
+    <userid>601052d4e4543238722293e9</userid>
+    <isephemeral/>
+    <viewers/>
+    <payload
+      xmlns="urn:xmpp:json-msg:0" datatype="urn:rainbow:json:recording">
+      <json
+        xmlns="urn:xmpp:json:0">{"recordingName":"New name of record"}
+      </json>
+    </payload>
+  </conferencerecordingstatus>
+</message>
+27/04/2026 11:
+             */
+            let confrecid = "";
+            let recordingName = "New name of record";
+
+            _logger.log("debug", "MAIN - (testUpdateOneConferenceRecordName). ");
+            rainbowSDK.fileStorage.getAllConferenceRecords().then(async (resultRecords: any) => {
+                _logger.log("debug", "MAIN - [testUpdateOneConferenceRecordName] :: getAllConferenceRecords resultRecords : ", resultRecords);
+                if (resultRecords && Array.isArray(resultRecords.data) && resultRecords.data.length >0) {
+                    rainbowSDK.events.once("rainbow_onbubbleconferencerecordingupdated", (data) => {
+                        _logger.log("debug", "MAIN - [testUpdateOneConferenceRecordName] :: EVENT (rainbow_onbubbleconferencerecordingupdated) received : ", data);
+                    });
+
+                    let recordToUpdate = resultRecords.data[0];
+                    _logger.log("debug", "MAIN - (testUpdateOneConferenceRecordName). ");
+                    rainbowSDK.fileStorage.updateOneConferenceRecordName(recordToUpdate.id, recordingName).then(async (result: any) => {
+                        _logger.log("debug", "MAIN - [testUpdateOneConferenceRecordName] :: updateOneConferenceRecordName result : ", result);
+                    }).catch(err => {
+                        _logger.log("error", "MAIN - [testUpdateOneConferenceRecordName] :: updateOneConferenceRecordName error : ", err);
+                    });
+                }
+            }).catch(err => {
+                _logger.log("error", "MAIN - [testUpdateOneConferenceRecordName] :: getAllConferenceRecords error : ", err);
+            });
+
+        }
+
+        async testGetOneConferenceRecord() {
+            let confrecid = "";
+
+            _logger.log("debug", "MAIN - (testGetOneConferenceRecord). ");
+            rainbowSDK.fileStorage.getAllConferenceRecords().then(async (resultRecords: any) => {
+                _logger.log("debug", "MAIN - [testGetOneConferenceRecord] :: getAllConferenceRecords resultRecords : ", resultRecords);
+                if (resultRecords && Array.isArray(resultRecords.data) && resultRecords.data.length > 0) {
+                    let recordToGet = resultRecords.data[0];
+                    _logger.log("debug", "MAIN - (testGetOneConferenceRecord). ");
+                    rainbowSDK.fileStorage.getOneConferenceRecord(recordToGet.id).then(async (result: any) => {
+                        _logger.log("debug", "MAIN - [testGetOneConferenceRecord] :: getOneConferenceRecord result : ", result);
+                    }).catch(err => {
+                        _logger.log("error", "MAIN - [testGetOneConferenceRecord] :: getOneConferenceRecord error : ", err);
+                    });
+                }
+            }).catch(err => {
+                _logger.log("error", "MAIN - [testUpdateOneConferenceRecordName] :: getAllConferenceRecords error : ", err);
+            });
+        }
+
+        async testDeleteOneConferenceRecord() {
+            let confrecid = ""; // TODO: Fill with a valid confrecid
+            _logger.log("debug", "MAIN - (testDeleteOneConferenceRecord). ");
+            rainbowSDK.fileStorage.deleteOneConferenceRecord(confrecid).then(async (result: any) => {
+                _logger.log("debug", "MAIN - [testDeleteOneConferenceRecord] :: deleteOneConferenceRecord result : ", result);
+            }).catch(err => {
+                _logger.log("error", "MAIN - [testDeleteOneConferenceRecord] :: deleteOneConferenceRecord error : ", err);
+            });
+        }
+
+        async testDeleteOneDocumentConferenceRecord() {
+            let confrecid = ""; // TODO: Fill with a valid confrecid
+            let fileId = ""; // TODO: Fill with a valid fileId
+            _logger.log("debug", "MAIN - (testDeleteOneDocumentConferenceRecord). ");
+            rainbowSDK.fileStorage.deleteOneDocumentConferenceRecord(confrecid, fileId).then(async (result: any) => {
+                _logger.log("debug", "MAIN - [testDeleteOneDocumentConferenceRecord] :: deleteOneDocumentConferenceRecord result : ", result);
+            }).catch(err => {
+                _logger.log("error", "MAIN - [testDeleteOneDocumentConferenceRecord] :: deleteOneDocumentConferenceRecord error : ", err);
+            });
+        }
+
+        async testGetOneConferenceRecordExternalRef() {
+            let registrationUuid = ""; // TODO: Fill with a valid registrationUuid
+            _logger.log("debug", "MAIN - (testGetOneConferenceRecordExternalRef). ");
+            rainbowSDK.fileStorage.getOneConferenceRecordExternalRef(registrationUuid).then(async (result: any) => {
+                _logger.log("debug", "MAIN - [testGetOneConferenceRecordExternalRef] :: getOneConferenceRecordExternalRef result : ", result);
+            }).catch(err => {
+                _logger.log("error", "MAIN - [testGetOneConferenceRecordExternalRef] :: getOneConferenceRecordExternalRef error : ", err);
+            });
+        }
+
+        // region conference recordings events
+
+        /*
+        <message xmlns='jabber:client'
+         xml:lang='en'
+         to='adcf613d42984a79a7bebccc80c2b65e@openrainbow.net'
+         from='pcloud_filetranscodingworker_3@openrainbow.net/1054645250944251060525157'
+         type='management'
+         id='5171dbd0-7fb5-421e-b8e9-fb75b60d8ca4_1322'>
+	<conferencerecordings xmlns='jabber:iq:configuration'
+	                      id='69d76c4dae46779b6c9983f9'
+	                      action='create'>
+		<status>in_progress</status>
+		<purpose>
+			<meetingrecording status='in_progress'/>
+			<transcription status='none'/>
+			<transcriptionreason transcription='false'
+			                     summary='false'
+			                     error='none'/>
+		</purpose>
+		<isephemeral/>
+		<timetolivedate>2026-04-09T09:07:24.555Z</timetolivedate>
+		<roomid>6405b0c10d26276a69ec3d11</roomid>
+		<roomname>bulleDeTest</roomname>
+		<roomtopic/>
+		<recordingstartdate>2026-04-09T09:07:04.720Z</recordingstartdate>
+		<recordingstopdate>2026-04-09T09:07:24.555Z</recordingstopdate>
+		<overallarchivesize>45056</overallarchivesize>
+		<avatarurl>https://openrainbow.net/api/rainbow/filestorage/v1.0/conferences-recordings/avatar/69d76c4e66d1e09edc1edca9</avatarurl>
+		<userid>5c3df93776f3518978c1d08a</userid>
+		<records>
+			<recordingfile>
+				<url>https://openrainbow.net/api/rainbow/fileserver/v1.0/files/69d76c4e66d1e09edc1edca9</url>
+				<typemime>image/png</typemime>
+				<filename>Recording_banner_bulleDeTest.png</filename>
+				<size>45056</size>
+				<md5sum>0f4571059c771fa531618c004faa9687</md5sum>
+				<fileid>69d76c4e66d1e09edc1edca9</fileid>
+			</recordingfile>
+		</records>
+		<viewers/>
+		<participants>
+			<participant userid='5c3df93776f3518978c1d08a'
+			             displayname='vincent00 berder00'/>
+		</participants>
+		<addedrecord>69d76c4e66d1e09edc1edca9</addedrecord>
+		<payload xmlns='urn:xmpp:json-msg:0'
+		         datatype='urn:rainbow:json:recording'>
+			<json xmlns='urn:xmpp:json:0'>{&quot;recordingName&quot;:&quot;bulleDeTest&quot;}</json>
+		</payload>
+	</conferencerecordings>
+</message>
+<message xmlns='jabber:client'
+         xml:lang='en'
+         to='adcf613d42984a79a7bebccc80c2b65e@openrainbow.net'
+         from='pcloud_filetranscodingworker_5@openrainbow.net/273923732435004175727044'
+         type='management'
+         id='5171dbd0-7fb5-421e-b8e9-fb75b60d8ca4_1324'>
+	<conferencerecordings xmlns='jabber:iq:configuration'
+	                      id='69d76c4dae46779b6c9983f9'
+	                      action='update'>
+		<status>in_progress</status>
+		<purpose>
+			<meetingrecording status='in_progress'/>
+			<transcription status='none'/>
+			<transcriptionreason transcription='false'
+			                     summary='false'
+			                     error='none'/>
+		</purpose>
+		<isephemeral/>
+		<timetolivedate>2026-04-09T09:07:24.555Z</timetolivedate>
+		<roomid>6405b0c10d26276a69ec3d11</roomid>
+		<roomname>bulleDeTest</roomname>
+		<roomtopic/>
+		<recordingstartdate>2026-04-09T09:07:04.720Z</recordingstartdate>
+		<recordingstopdate>2026-04-09T09:07:24.555Z</recordingstopdate>
+		<overallarchivesize>45069</overallarchivesize>
+		<avatarurl>https://openrainbow.net/api/rainbow/filestorage/v1.0/conferences-recordings/avatar/69d76c4e66d1e09edc1edca9</avatarurl>
+		<userid>5c3df93776f3518978c1d08a</userid>
+		<records>
+			<recordingfile>
+				<url>https://openrainbow.net/api/rainbow/fileserver/v1.0/files/69d76c4e66d1e09edc1edca9</url>
+				<typemime>image/png</typemime>
+				<filename>Recording_banner_bulleDeTest.png</filename>
+				<size>45056</size>
+				<md5sum>0f4571059c771fa531618c004faa9687</md5sum>
+				<fileid>69d76c4e66d1e09edc1edca9</fileid>
+			</recordingfile>
+			<recordingfile>
+				<url>https://openrainbow.net/api/rainbow/fileserver/v1.0/files/69d76c4f66d1e09edc1edcaa</url>
+				<typemime>text/plain</typemime>
+				<filename>bulleDeTest-chat.txt</filename>
+				<size>13</size>
+				<md5sum>e4930bb42ec06ec990c28f1d937e09b2</md5sum>
+				<fileid>69d76c4f66d1e09edc1edcaa</fileid>
+			</recordingfile>
+		</records>
+		<viewers/>
+		<participants>
+			<participant userid='5c3df93776f3518978c1d08a'
+			             displayname='vincent00 berder00'/>
+		</participants>
+		<addedrecord>69d76c4f66d1e09edc1edcaa</addedrecord>
+		<payload xmlns='urn:xmpp:json-msg:0'
+		         datatype='urn:rainbow:json:recording'>
+			<json xmlns='urn:xmpp:json:0'>{&quot;recordingName&quot;:&quot;bulleDeTest&quot;}</json>
+		</payload>
+	</conferencerecordings>
+</message>
+<message xmlns='jabber:client'
+         xml:lang='en'
+         to='adcf613d42984a79a7bebccc80c2b65e@openrainbow.net'
+         from='pcloud_filetranscodingworker_6@openrainbow.net/982644846931467524140259'
+         type='management'
+         id='5171dbd0-7fb5-421e-b8e9-fb75b60d8ca4_1325'>
+	<conferencerecordings xmlns='jabber:iq:configuration'
+	                      id='69d76c4dae46779b6c9983f9'
+	                      action='update'>
+		<status>in_progress</status>
+		<purpose>
+			<meetingrecording status='in_progress'/>
+			<transcription status='none'/>
+			<transcriptionreason transcription='false'
+			                     summary='false'
+			                     error='none'/>
+		</purpose>
+		<isephemeral/>
+		<timetolivedate>2026-04-09T09:07:24.555Z</timetolivedate>
+		<roomid>6405b0c10d26276a69ec3d11</roomid>
+		<roomname>bulleDeTest</roomname>
+		<roomtopic/>
+		<recordingstartdate>2026-04-09T09:07:04.720Z</recordingstartdate>
+		<recordingstopdate>2026-04-09T09:07:24.555Z</recordingstopdate>
+		<overallarchivesize>146116</overallarchivesize>
+		<avatarurl>https://openrainbow.net/api/rainbow/filestorage/v1.0/conferences-recordings/avatar/69d76c4e66d1e09edc1edca9</avatarurl>
+		<userid>5c3df93776f3518978c1d08a</userid>
+		<records>
+			<recordingfile>
+				<url>https://openrainbow.net/api/rainbow/fileserver/v1.0/files/69d76c4e66d1e09edc1edca9</url>
+				<typemime>image/png</typemime>
+				<filename>Recording_banner_bulleDeTest.png</filename>
+				<size>45056</size>
+				<md5sum>0f4571059c771fa531618c004faa9687</md5sum>
+				<fileid>69d76c4e66d1e09edc1edca9</fileid>
+			</recordingfile>
+			<recordingfile>
+				<url>https://openrainbow.net/api/rainbow/fileserver/v1.0/files/69d76c4f66d1e09edc1edcaa</url>
+				<typemime>text/plain</typemime>
+				<filename>bulleDeTest-chat.txt</filename>
+				<size>13</size>
+				<md5sum>e4930bb42ec06ec990c28f1d937e09b2</md5sum>
+				<fileid>69d76c4f66d1e09edc1edcaa</fileid>
+			</recordingfile>
+			<recordingfile>
+				<url>https://openrainbow.net/api/rainbow/fileserver/v1.0/files/69d76c4f66d1e09edc1edcab</url>
+				<typemime>audio/m4a</typemime>
+				<filename>bulleDeTest-audio.m4a</filename>
+				<size>101047</size>
+				<md5sum>82739dcb4e01b75a9b0e60727c485a34</md5sum>
+				<fileid>69d76c4f66d1e09edc1edcab</fileid>
+			</recordingfile>
+		</records>
+		<viewers/>
+		<participants>
+			<participant userid='5c3df93776f3518978c1d08a'
+			             displayname='vincent00 berder00'/>
+		</participants>
+		<addedrecord>69d76c4f66d1e09edc1edcab</addedrecord>
+		<payload xmlns='urn:xmpp:json-msg:0'
+		         datatype='urn:rainbow:json:recording'>
+			<json xmlns='urn:xmpp:json:0'>{&quot;recordingName&quot;:&quot;bulleDeTest&quot;}</json>
+		</payload>
+	</conferencerecordings>
+</message>
+<message xmlns='jabber:client'
+         xml:lang='en'
+         to='adcf613d42984a79a7bebccc80c2b65e@openrainbow.net'
+         from='pcloud_filetranscodingworker_7@openrainbow.net/1101971390904961415428386'
+         type='management'
+         id='5171dbd0-7fb5-421e-b8e9-fb75b60d8ca4_1326'>
+	<conferencerecordings xmlns='jabber:iq:configuration'
+	                      id='69d76c4dae46779b6c9983f9'
+	                      action='update'>
+		<status>in_progress</status>
+		<purpose>
+			<meetingrecording status='in_progress'/>
+			<transcription status='none'/>
+			<transcriptionreason transcription='false'
+			                     summary='false'
+			                     error='none'/>
+		</purpose>
+		<isephemeral/>
+		<timetolivedate>2026-04-09T09:07:24.555Z</timetolivedate>
+		<roomid>6405b0c10d26276a69ec3d11</roomid>
+		<roomname>bulleDeTest</roomname>
+		<roomtopic/>
+		<recordingstartdate>2026-04-09T09:07:04.720Z</recordingstartdate>
+		<recordingstopdate>2026-04-09T09:07:24.555Z</recordingstopdate>
+		<overallarchivesize>309624</overallarchivesize>
+		<avatarurl>https://openrainbow.net/api/rainbow/filestorage/v1.0/conferences-recordings/avatar/69d76c4e66d1e09edc1edca9</avatarurl>
+		<userid>5c3df93776f3518978c1d08a</userid>
+		<records>
+			<recordingfile>
+				<url>https://openrainbow.net/api/rainbow/fileserver/v1.0/files/69d76c4e66d1e09edc1edca9</url>
+				<typemime>image/png</typemime>
+				<filename>Recording_banner_bulleDeTest.png</filename>
+				<size>45056</size>
+				<md5sum>0f4571059c771fa531618c004faa9687</md5sum>
+				<fileid>69d76c4e66d1e09edc1edca9</fileid>
+			</recordingfile>
+			<recordingfile>
+				<url>https://openrainbow.net/api/rainbow/fileserver/v1.0/files/69d76c4f66d1e09edc1edcaa</url>
+				<typemime>text/plain</typemime>
+				<filename>bulleDeTest-chat.txt</filename>
+				<size>13</size>
+				<md5sum>e4930bb42ec06ec990c28f1d937e09b2</md5sum>
+				<fileid>69d76c4f66d1e09edc1edcaa</fileid>
+			</recordingfile>
+			<recordingfile>
+				<url>https://openrainbow.net/api/rainbow/fileserver/v1.0/files/69d76c4f66d1e09edc1edcab</url>
+				<typemime>audio/m4a</typemime>
+				<filename>bulleDeTest-audio.m4a</filename>
+				<size>101047</size>
+				<md5sum>82739dcb4e01b75a9b0e60727c485a34</md5sum>
+				<fileid>69d76c4f66d1e09edc1edcab</fileid>
+			</recordingfile>
+			<recordingfile>
+				<url>https://openrainbow.net/api/rainbow/fileserver/v1.0/files/69d76c5066d1e09edc1edcac</url>
+				<typemime>video/mp4</typemime>
+				<filename>bulleDeTest-sharing.mp4</filename>
+				<size>163508</size>
+				<md5sum>a61b3c725fd5f22feadc91b3ba79731b</md5sum>
+				<fileid>69d76c5066d1e09edc1edcac</fileid>
+			</recordingfile>
+		</records>
+		<viewers/>
+		<participants>
+			<participant userid='5c3df93776f3518978c1d08a'
+			             displayname='vincent00 berder00'/>
+		</participants>
+		<addedrecord>69d76c5066d1e09edc1edcac</addedrecord>
+		<payload xmlns='urn:xmpp:json-msg:0'
+		         datatype='urn:rainbow:json:recording'>
+			<json xmlns='urn:xmpp:json:0'>{&quot;recordingName&quot;:&quot;bulleDeTest&quot;}</json>
+		</payload>
+	</conferencerecordings>
+</message>
+<message xmlns='jabber:client'
+         xml:lang='en'
+         to='adcf613d42984a79a7bebccc80c2b65e@openrainbow.net'
+         from='pcloud_filetranscodingworker_8@openrainbow.net/291967620366323812849412'
+         type='management'
+         id='5171dbd0-7fb5-421e-b8e9-fb75b60d8ca4_1327'>
+	<conferencerecordings xmlns='jabber:iq:configuration'
+	                      id='69d76c4dae46779b6c9983f9'
+	                      action='update'>
+		<status>release_complete</status>
+		<purpose>
+			<meetingrecording status='release_complete'/>
+			<transcription status='none'/>
+			<transcriptionreason transcription='false'
+			                     summary='false'
+			                     error='none'/>
+		</purpose>
+		<isephemeral/>
+		<timetolivedate>2026-04-09T09:07:24.555Z</timetolivedate>
+		<roomid>6405b0c10d26276a69ec3d11</roomid>
+		<roomname>bulleDeTest</roomname>
+		<roomtopic/>
+		<recordingstartdate>2026-04-09T09:07:04.720Z</recordingstartdate>
+		<recordingstopdate>2026-04-09T09:07:24.555Z</recordingstopdate>
+		<overallarchivesize>309624</overallarchivesize>
+		<avatarurl>https://openrainbow.net/api/rainbow/filestorage/v1.0/conferences-recordings/avatar/69d76c4e66d1e09edc1edca9</avatarurl>
+		<userid>5c3df93776f3518978c1d08a</userid>
+		<records>
+			<recordingfile>
+				<url>https://openrainbow.net/api/rainbow/fileserver/v1.0/files/69d76c4e66d1e09edc1edca9</url>
+				<typemime>image/png</typemime>
+				<filename>Recording_banner_bulleDeTest.png</filename>
+				<size>45056</size>
+				<md5sum>0f4571059c771fa531618c004faa9687</md5sum>
+				<fileid>69d76c4e66d1e09edc1edca9</fileid>
+			</recordingfile>
+			<recordingfile>
+				<url>https://openrainbow.net/api/rainbow/fileserver/v1.0/files/69d76c4f66d1e09edc1edcaa</url>
+				<typemime>text/plain</typemime>
+				<filename>bulleDeTest-chat.txt</filename>
+				<size>13</size>
+				<md5sum>e4930bb42ec06ec990c28f1d937e09b2</md5sum>
+				<fileid>69d76c4f66d1e09edc1edcaa</fileid>
+			</recordingfile>
+			<recordingfile>
+				<url>https://openrainbow.net/api/rainbow/fileserver/v1.0/files/69d76c4f66d1e09edc1edcab</url>
+				<typemime>audio/m4a</typemime>
+				<filename>bulleDeTest-audio.m4a</filename>
+				<size>101047</size>
+				<md5sum>82739dcb4e01b75a9b0e60727c485a34</md5sum>
+				<fileid>69d76c4f66d1e09edc1edcab</fileid>
+			</recordingfile>
+			<recordingfile>
+				<url>https://openrainbow.net/api/rainbow/fileserver/v1.0/files/69d76c5066d1e09edc1edcac</url>
+				<typemime>video/mp4</typemime>
+				<filename>bulleDeTest-sharing.mp4</filename>
+				<size>163508</size>
+				<md5sum>a61b3c725fd5f22feadc91b3ba79731b</md5sum>
+				<fileid>69d76c5066d1e09edc1edcac</fileid>
+			</recordingfile>
+		</records>
+		<viewers/>
+		<participants>
+			<participant userid='5c3df93776f3518978c1d08a'
+			             displayname='vincent00 berder00'/>
+		</participants>
+		<payload xmlns='urn:xmpp:json-msg:0'
+		         datatype='urn:rainbow:json:recording'>
+			<json xmlns='urn:xmpp:json:0'>{&quot;recordingName&quot;:&quot;bulleDeTest&quot;}</json>
+		</payload>
+	</conferencerecordings>
+</message>
+<message xmlns='jabber:client'
+         xml:lang='en'
+         to='adcf613d42984a79a7bebccc80c2b65e@openrainbow.net'
+         from='pcloud_filestorage_4@openrainbow.net/4928555777170211458286658'
+         type='management'
+         id='72edcb91-4ab3-4da6-85cb-1919202f3703_133'>
+	<conferencerecordingstatus xmlns='jabber:iq:configuration'
+	                           action='update'>
+		<recordid>69d76c4dae46779b6c9983f9</recordid>
+		<roomid>6405b0c10d26276a69ec3d11</roomid>
+		<userid>5c3df93776f3518978c1d08a</userid>
+		<isephemeral/>
+		<viewers>
+			<viewer type='room'>6405b0c10d26276a69ec3d11</viewer>
+		</viewers>
+		<payload xmlns='urn:xmpp:json-msg:0'
+		         datatype='urn:rainbow:json:recording'>
+			<json xmlns='urn:xmpp:json:0'>{&quot;recordingName&quot;:&quot;bulleDeTest&quot;}</json>
+		</payload>
+	</conferencerecordingstatus>
+</message>
+<message xmlns='jabber:client'
+         xml:lang='en'
+         to='adcf613d42984a79a7bebccc80c2b65e@openrainbow.net'
+         from='pcloud_previewworker_9@openrainbow.net/31410561958258060285922'
+         type='management'
+         id='fbe34653-133e-4c93-8828-edd537d8c5d7_118'>
+	<thumbnail xmlns='jabber:iq:configuration'
+	           action='create'
+	           receivedAs='owner'
+	           reason='previewed_availability'
+	           reasonDetail='conference_record'>
+		<url>https://openrainbow.net/api/rainbow/fileserver/v1.0/files/69d76c5066d1e09edc1edcac?thumbnail=true</url>
+		<typemime>application/octet-stream</typemime>
+		<filename>bulleDeTest-sharing.mp4</filename>
+		<size>3643</size>
+		<md5sum>3dee46955f51d90dfdbb959c7abfcfdd</md5sum>
+		<fileid>69d76c5066d1e09edc1edcac</fileid>
+		<originalwidth>1920</originalwidth>
+		<originalheight>1080</originalheight>
+	</thumbnail>
+</message>
+<message xmlns='jabber:client'
+         xml:lang='en'
+         to='adcf613d42984a79a7bebccc80c2b65e@openrainbow.net'
+         from='pcloud_previewworker_10@openrainbow.net/962276016102798271528100'
+         type='management'
+         id='fbe34653-133e-4c93-8828-edd537d8c5d7_119'>
+	<thumbnail xmlns='jabber:iq:configuration'
+	           action='create'
+	           receivedAs='owner'
+	           reason='previewed_availability'
+	           reasonDetail='conference_record'>
+		<url>https://openrainbow.net/api/rainbow/fileserver/v1.0/files/69d76c5066d1e09edc1edcac?thumbnail500=true</url>
+		<typemime>application/octet-stream</typemime>
+		<filename>bulleDeTest-sharing.mp4</filename>
+		<size>11901</size>
+		<md5sum>cb37b64f2b8b20534c2c0a641b46fb53</md5sum>
+		<fileid>69d76c5066d1e09edc1edcac</fileid>
+		<originalwidth>1920</originalwidth>
+		<originalheight>1080</originalheight>
+	</thumbnail>
+</message>
+// */
+
+        // endregion conference recordings events
 
         // endregion conference recordings
 
