@@ -2111,7 +2111,7 @@ class Events {
 
         let eventName= "rainbow_on" + event;
 
-        that._logger.log("debug", LOG_ID + "(publishEvent) event " + that._logger.colors.events(eventName));
+        that._logger.log("debug", LOG_ID + "(publishEvent) event " + that._logger.colors.events(eventName), " params : ", that._logger.colors.data(params));
         let iter = 0;
         let data = "";
         if (that._logger.logLevel == "debug" && params && Array.isArray(params) ){

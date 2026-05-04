@@ -380,7 +380,7 @@ class RESTConferenceV2 extends GenericRESTService {
             that._logger.log(that.INTERNAL, LOG_ID + "(startConferenceOrWebinarInARoom) services : ", services );
             that.http.post(url, that.getRequestHeader(), services, undefined).then(function (json) {
                 that._logger.log(that.DEBUG, LOG_ID + "(startConferenceOrWebinarInARoom) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(startConferenceOrWebinarInARoom) REST leave bubble : ", json.data);
+                that._logger.log(that.INTERNAL, LOG_ID + "(startConferenceOrWebinarInARoom) REST start bubble : ", json.data);
                 resolve(json);
             }).catch(function (err) {
                 that._logger.log(that.ERROR, LOG_ID, "(startConferenceOrWebinarInARoom) error.");
