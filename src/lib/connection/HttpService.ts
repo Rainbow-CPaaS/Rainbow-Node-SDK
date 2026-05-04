@@ -38,6 +38,7 @@ const humanize = require("humanize-number");
 import chalk from 'chalk';
 import {HTTPoverXMPP} from "../services/HTTPoverXMPPService.js";
 import {LevelLogs} from "../common/LevelLogs";
+import {constants} from "node:os";
 
 //import HttpAgent, { HttpsAgent } from "agentkeepalive";
 //const HttpAgent = require('agentkeepalive');
@@ -1741,88 +1742,98 @@ safeJsonParse(str) {
     
     treatSystemError(verb: string, error : any, rejectCallback : any) {
         let that = this;
-        if (error.response) {
-            // Requête envoyée, réponse reçue avec code d’erreur
-            that._logger.warn("internal", LOG_ID + "(treatSystemError) " + verb + ", ", `Erreur HTTP ${error.response.status}: ${error.response.statusText}`);
-        } else if (error.code) {
-            // Erreur réseau
+        const responseParts = [
+            error?.response?.status != null ? `response.status : ${error.response.status}` : null,
+            error?.response?.statusText != null ? `response.statusText : ${error.response.statusText}` : null,
+        ].filter(Boolean).join(", ");
+        const responseSummary = responseParts ? `, ${responseParts}` : "";
+        const errSummary = (error?.message != null
+            ? `error.code : ${error?.code}, error.message : ${error?.message}`
+            : `error.code : ${error?.code}, error : ${JSON.stringify(error, (_k, v) => typeof v === "function" ? undefined : v)}`)
+            + responseSummary;
+        if (error.code) {
+            // Network error
             switch (error.code) {
-                case 'ECONNRESET':
-                    // ECONNRESET	Connexion réinitialisée par le serveur	Connection reset (Connection forcibly closed by the remote host)
-                    that._logger.warn("internal", LOG_ID + "(treatSystemError) " + verb + ", Connection reset (Connection forcibly closed by the remote host).");
+                case "ERR_NON_2XX_3XX_RESPONSE":
+                    // ERR_NON_2XX_3XX_RESPONSE: returned error is a non-2XX/3XX HTTP status code.
+                    that._logger.warn("warn", LOG_ID + "(treatSystemError) " + verb + ", returned error is a no 2XX or 3XX http code error, " + errSummary);
                     break;
-                case 'ETIMEDOUT':
-                    // ETIMEDOUT	Délai d’attente dépassé	Timeout exceeded (The request took too long to complete)
-                    that._logger.warn("internal", LOG_ID + "(treatSystemError) " + verb + ", Timeout exceeded (The request took too long to complete).");
+                case "ECONNRESET":
+                    // ECONNRESET: Connection reset (Connection forcibly closed by the remote host)
+                    that._logger.warn("warn", LOG_ID + "(treatSystemError) " + verb + ", Connection reset (Connection forcibly closed by the remote host), " + errSummary);
                     break;
-                case 'ECONNREFUSED':
-                    // ECONNREFUSED	Connexion refusée (aucun serveur à l’adresse)	Connection refused (No server is accepting connections at the target address)
-                    that._logger.warn("internal", LOG_ID + "(treatSystemError) " + verb + ", Connection refused (No server is accepting connections at the target address).");
+                case "ETIMEDOUT":
+                    // ETIMEDOUT: Timeout exceeded (The request took too long to complete)
+                    that._logger.warn("warn", LOG_ID + "(treatSystemError) " + verb + ", Timeout exceeded (The request took too long to complete), " + errSummary);
                     break;
-                case 'ENOTFOUND':
-                    // ENOTFOUND	Hôte introuvable (erreur DNS)	Host not found (DNS lookup failed for the requested domain)
-                    that._logger.warn("internal", LOG_ID + "(treatSystemError) " + verb + ", Host not found (DNS lookup failed for the requested domain).");
+                case "ECONNREFUSED":
+                    // ECONNREFUSED: Connection refused (No server is accepting connections at the target address)
+                    that._logger.warn("warn", LOG_ID + "(treatSystemError) " + verb + ", Connection refused (No server is accepting connections at the target address), " + errSummary);
                     break;
-                case 'EAI_AGAIN':
-                    // EAI_AGAIN	DNS temporairement indisponible	Temporary DNS failure (Try again later — DNS server didn’t respond)
-                    that._logger.warn("internal", LOG_ID + "(treatSystemError) " + verb + ", Temporary DNS failure (Try again later — DNS server didn’t respond).");
+                case "ENOTFOUND":
+                    // ENOTFOUND: Host not found (DNS lookup failed for the requested domain)
+                    that._logger.warn("warn", LOG_ID + "(treatSystemError) " + verb + ", Host not found (DNS lookup failed for the requested domain), " + errSummary);
                     break;
-                case 'EPROTO':
-                    // EPROTO	Erreur protocolaire (souvent SSL/TLS)	Protocol error (Usually SSL/TLS negotiation failure)
-                    that._logger.warn("internal", LOG_ID + "(treatSystemError) " + verb + ", Protocol error (Usually SSL/TLS negotiation failure).");
+                case "EAI_AGAIN":
+                    // EAI_AGAIN: Temporary DNS failure (Try again later — DNS server didn’t respond)
+                    that._logger.warn("warn", LOG_ID + "(treatSystemError) " + verb + ", Temporary DNS failure (Try again later — DNS server didn’t respond), " + errSummary);
                     break;
-                case 'ECANCELED':
-                    // ECANCELED	Requête annulée manuellement ou par un timeout	Request canceled (Manually aborted or auto-timeout triggered)
-                    that._logger.warn("internal", LOG_ID + "(treatSystemError) " + verb + ", Request canceled (Manually aborted or auto-timeout triggered).");
+                case "EPROTO":
+                    // EPROTO: Protocol error (Usually SSL/TLS negotiation failure)
+                    that._logger.warn("warn", LOG_ID + "(treatSystemError) " + verb + ", Protocol error (Usually SSL/TLS negotiation failure), " + errSummary);
                     break;
-                case 'EHOSTUNREACH':
-                    // EHOSTUNREACH	Hôte injoignable (pas de route réseau)	Host unreachable (No route to the target host)
-                    that._logger.warn("internal", LOG_ID + "(treatSystemError) " + verb + ", Host unreachable (No route to the target host).");
+                case "ECANCELED":
+                    // ECANCELED: Request canceled (Manually aborted or auto-timeout triggered)
+                    that._logger.warn("warn", LOG_ID + "(treatSystemError) " + verb + ", Request canceled (Manually aborted or auto-timeout triggered), " + errSummary);
                     break;
-                case 'EPIPE':
-                    // EPIPE	Canal brisé (écriture sur un socket fermé)	Broken pipe (Writing to a closed connection/socket)
-                    that._logger.warn("internal", LOG_ID + "(treatSystemError) " + verb + ",Broken pipe (Writing to a closed connection/socket).");
+                case "EHOSTUNREACH":
+                    // EHOSTUNREACH: Host unreachable (No route to the target host)
+                    that._logger.warn("warn", LOG_ID + "(treatSystemError) " + verb + ", Host unreachable (No route to the target host), " + errSummary);
                     break;
-                case 'ENETUNREACH':
-                    // ENETUNREACH	Réseau injoignable	Network unreachable (No network route to the destination)
-                    that._logger.warn("internal", LOG_ID + "(treatSystemError) " + verb + ",Network unreachable (No network route to the destination).");
+                case "EPIPE":
+                    // EPIPE: Broken pipe (Writing to a closed connection/socket)
+                    that._logger.warn("warn", LOG_ID + "(treatSystemError) " + verb + ", Broken pipe (Writing to a closed connection/socket), " + errSummary);
                     break;
-                case 'CERT_HAS_EXPIRED':
-                    // CERT_HAS_EXPIRED	Certificat SSL expiré	SSL certificate has expired
-                    that._logger.warn("internal", LOG_ID + "(treatSystemError) " + verb + ",SSL certificate has expired.");
+                case "ENETUNREACH":
+                    // ENETUNREACH: Network unreachable (No network route to the destination)
+                    that._logger.warn("warn", LOG_ID + "(treatSystemError) " + verb + ", Network unreachable (No network route to the destination), " + errSummary);
                     break;
-                case 'DEPTH_ZERO_SELF_SIGNED_CERT':
-                    // DEPTH_ZERO_SELF_SIGNED_CERT	Certificat auto-signé non approuvé	Self-signed certificate not trusted
-                    that._logger.warn("internal", LOG_ID + "(treatSystemError) " + verb + ",Self-signed certificate not trusted.");
+                case "CERT_HAS_EXPIRED":
+                    // CERT_HAS_EXPIRED: SSL certificate has expired
+                    that._logger.warn("warn", LOG_ID + "(treatSystemError) " + verb + ", SSL certificate has expired, " + errSummary);
                     break;
-                case 'UNABLE_TO_VERIFY_LEAF_SIGNATURE':
-                    // UNABLE_TO_VERIFY_LEAF_SIGNATURE	Signature de certificat non vérifiée	Unable to verify leaf certificate signature
-                    that._logger.warn("internal", LOG_ID + "(treatSystemError) " + verb + ",Unable to verify leaf certificate signature.");
+                case "DEPTH_ZERO_SELF_SIGNED_CERT":
+                    // DEPTH_ZERO_SELF_SIGNED_CERT: Self-signed certificate not trusted
+                    that._logger.warn("warn", LOG_ID + "(treatSystemError) " + verb + ", Self-signed certificate not trusted, " + errSummary);
                     break;
-                case 'ERR_TLS_CERT_ALTNAME_INVALID':
-                    // ERR_TLS_CERT_ALTNAME_INVALID	Nom de certificat non valide	Certificate's Subject Alternative Name does not match the hostname
-                    that._logger.warn("internal", LOG_ID + "(treatSystemError) " + verb + ",Certificate's Subject Alternative Name does not match the hostname.");
+                case "UNABLE_TO_VERIFY_LEAF_SIGNATURE":
+                    // UNABLE_TO_VERIFY_LEAF_SIGNATURE: Unable to verify leaf certificate signature
+                    that._logger.warn("warn", LOG_ID + "(treatSystemError) " + verb + ", Unable to verify leaf certificate signature, " + errSummary);
+                    break;
+                case "ERR_TLS_CERT_ALTNAME_INVALID":
+                    // ERR_TLS_CERT_ALTNAME_INVALID: Certificate’s Subject Alternative Name does not match the hostname
+                    that._logger.warn("warn", LOG_ID + "(treatSystemError) " + verb + ", Certificate’s Subject Alternative Name does not match the hostname, " + errSummary);
                     break;
                 default:
-                    that._logger.warn("internal", LOG_ID + "(treatSystemError) " + verb + ",Erreur réseau: ${error.code}");
+                    that._logger.warn("warn", LOG_ID + "(treatSystemError) " + verb + ", Unhandled error code, " + errSummary);
             }
 
             /*
              // Common errors of all verbs
-             ECONNREFUSED	Connexion refusée (aucun serveur à l'adresse)
-             ECONNRESET	Connexion réinitialisée (souvent côté serveur)
-             ETIMEDOUT	Timeout d’attente dépassé
-             ENOTFOUND	Hôte introuvable (DNS)
-             EAI_AGAIN	DNS temporairement indisponible
-             EPROTO	Erreur protocolaire (souvent SSL/TLS)
-             CERT_HAS_EXPIRED	Certificat SSL expiré
-             UNABLE_TO_VERIFY_LEAF_SIGNATURE	Certificat non vérifié
+             ECONNREFUSED: Connection refused (no server at the address)
+             ECONNRESET:   Connection reset (usually server-side)
+             ETIMEDOUT:    Request timeout exceeded
+             ENOTFOUND:    Host not found (DNS)
+             EAI_AGAIN:    Temporary DNS failure
+             EPROTO:       Protocol error (usually SSL/TLS)
+             CERT_HAS_EXPIRED:              SSL certificate expired
+             UNABLE_TO_VERIFY_LEAF_SIGNATURE: Certificate not verified
              // */
 
             return rejectCallback (error);
         } else {
-            // Autres erreurs
-            that._logger.warn("internal", LOG_ID + "(treatSystemError) " + verb + ",Erreur inconnue :", error.message);
+            // Other errors
+            that._logger.warn("warn", LOG_ID + "(treatSystemError) " + verb + ", Unknown error, " + errSummary);
             return rejectCallback (error);
         }
     }
