@@ -769,6 +769,8 @@ pipeline {
                                     mkdir -p Documentation
                                     mkdir -p Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides
                                     cp -R doc debian Documentation/
+                                    mkdir -p Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/imgs
+                                    cp -r build/resources/. Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/imgs/
 
                                     echo "update files with doc/sdk/node path which should be doc/sdk/node/${RELEASENAMELOWERNAME} into the folder Documentation ."
                                     sed "s/otlite-sdk-node-doc/otlite-sdk-node-doc-${RELEASENAMELOWERNAME}/" debian/control |tee "Documentation/debian/control"

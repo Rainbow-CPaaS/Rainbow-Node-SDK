@@ -4,7 +4,7 @@ The Rainbow token (JWT) is the core authentication mechanism in the NodeSDK. It 
 
 #### Flowchart (Token Lifecycle)
 
-<!-- img src="/doc/sdk/node/imgs/tokenLifeCycle.mmd.png" -->
+<!-- img src="/doc/sdk/node/guides/imgs/tokenLifeCycle.mmd.png" -->
 
 #### Key Components
 
