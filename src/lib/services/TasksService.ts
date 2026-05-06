@@ -41,7 +41,7 @@ interface TaskInput {
 }
 
 
-@logEntryExit(LOG_ID)
+@logEntryExit(LOG_ID, true)
 @isStarted([])
     /**
      * @module

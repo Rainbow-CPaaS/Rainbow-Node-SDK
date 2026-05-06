@@ -10,6 +10,7 @@ import {Jimp, JimpMime} from "jimp";
 import {dirname, join} from 'path';
 import {existsSync} from 'fs';
 import {DataStoreType} from "../config/config.js";
+import {runWithCorrelation, generateCorrelationId, getCurrentCorrelationId, getCorrelationDepth, escapeContext} from './CorrelationContext.js';
 
 const config = require ("../config/config");
 const dns = require('dns');
@@ -772,7 +773,7 @@ function isStarted(_methodsToIgnoreStartedState: Array<string> = []) : any{
     }
 }
 
-function logEntryExit(LOG_ID) : any {
+function logEntryExit(LOG_ID, generateCorrelId: boolean = false) : any {
     return function (target, key, descriptor): any {
         let keys = Object.getOwnPropertyNames(target.prototype);
         keys.forEach((propertyName) => {
@@ -809,35 +810,55 @@ function logEntryExit(LOG_ID) : any {
                     returnValue = originalMethod.apply(this, args);
                 } else {
                     let logger = this.logger ? this.logger:this._logger ? this._logger:{log : function l () {console.log( arguments);}, colors:{data : function (param) {return param} }};
-                    try {
+                    // CRRAINB VBR: depth=0 and generateCorrelId=true means first entry from user code; generate a fresh ID and escape context on resolution so callers don't inherit the SDK's async context
+                    const _isRoot = generateCorrelId && getCorrelationDepth() === 0;
+                    const _corrId = _isRoot ? generateCorrelationId() : getCurrentCorrelationId();
+                    const _doWork = () => {
+                        try {
 
-                        /* if (!this.getClassName) {
-                             this.getClassName = function getClassName () { return "UNKNOWNCLASS"; };
-                         } // */
-                        let logParameters = this.startConfig?this.startConfig.logEntryParameters: false;
-                        if (logParameters) {
-                            logger.log("internal", LOG_ID + logger.colors.data("Method " + this.getClassName() + "::" + propertyName + "(...) _entering_ with : " + util.inspect(arguments, false, 4, true)));
-                            
-                        } else {
-                            logger.log("internal", LOG_ID + logger.colors.data("Method " + this.getClassName() + "::" + propertyName + "(...) _entering_"));
-                        }
-                        /*if (propertyName==="getBubbleByJid" || propertyName==="getBubbleById") {
-                            //logger.log("internal", LOG_ID + logger.colors.data("Method " + propertyName) + ", args ", args? "is defined" : "is not defined", ", this ", this ? "is defined" : "is NOT defined");
-                            logger.log("internal", LOG_ID + logger.colors.data("Method "  + this.getClassName() + "::" + propertyName) + ", args : ", args );
-                            //logger.log("internal", LOG_ID + logger.colors.data("Method "  + this.getClassName() + "::" + propertyName) + ", args : ", args, ", this ", this.constructor.name );
-                        } // */
+                            /* if (!this.getClassName) {
+                                 this.getClassName = function getClassName () { return "UNKNOWNCLASS"; };
+                             } // */
+                            let logParameters = this.startConfig?this.startConfig.logEntryParameters: false;
+                            if (logParameters) {
+                                logger.log("internal", LOG_ID + logger.colors.data("Method " + this.getClassName() + "::" + propertyName + "(...) _entering_ with : " + util.inspect(arguments, false, 4, true)));
 
-                        returnValue = originalMethod.apply(this, args);
-                        let stopDate = new Date();
-                        // @ts-ignore
-                        let startDuration = Math.round(stopDate - startDate);
-                        logger.log("internal", LOG_ID + logger.colors.data("Method " + this.getClassName() + "::" + propertyName + "(...) _exiting_ execution time : " + startDuration + " ms."));
-                    } catch (err) {
-                        logger.log("error", LOG_ID + "(logEntryExit) CATCH Error !!! for ", logger.colors.data("Method " + this.getClassName() + "::" + propertyName), " error : ", err);
-                        // let error = {msg: "The service of the Object " + target.name + " is not started!!! Can not call method : " + propertyName};
-                        if (err.code == 400) {
-                            returnValue = Promise.reject(err);
+                            } else {
+                                logger.log("internal", LOG_ID + logger.colors.data("Method " + this.getClassName() + "::" + propertyName + "(...) _entering_"));
+                            }
+                            /*if (propertyName==="getBubbleByJid" || propertyName==="getBubbleById") {
+                                //logger.log("internal", LOG_ID + logger.colors.data("Method " + propertyName) + ", args ", args? "is defined" : "is not defined", ", this ", this ? "is defined" : "is NOT defined");
+                                logger.log("internal", LOG_ID + logger.colors.data("Method "  + this.getClassName() + "::" + propertyName) + ", args : ", args );
+                                //logger.log("internal", LOG_ID + logger.colors.data("Method "  + this.getClassName() + "::" + propertyName) + ", args : ", args, ", this ", this.constructor.name );
+                            } // */
+
+                            const rawResult = originalMethod.apply(this, args);
+                            let stopDate = new Date();
+                            // @ts-ignore
+                            let startDuration = Math.round(stopDate - startDate);
+                            logger.log("internal", LOG_ID + logger.colors.data("Method " + this.getClassName() + "::" + propertyName + "(...) _exiting_ execution time : " + startDuration + " ms."));
+                            if (_isRoot && rawResult != null && typeof (rawResult as any).then === 'function') {
+                                returnValue = new Promise<any>((resolve, reject) => {
+                                    (rawResult as Promise<any>).then(
+                                        result => escapeContext(() => resolve(result)),
+                                        (err: any) => escapeContext(() => reject(err))
+                                    );
+                                });
+                            } else {
+                                returnValue = rawResult;
+                            }
+                        } catch (err) {
+                            logger.log("error", LOG_ID + "(logEntryExit) CATCH Error !!! for ", logger.colors.data("Method " + this.getClassName() + "::" + propertyName), " error : ", err);
+                            // let error = {msg: "The service of the Object " + target.name + " is not started!!! Can not call method : " + propertyName};
+                            if (err.code == 400) {
+                                returnValue = Promise.reject(err);
+                            }
                         }
+                    };
+                    if (_corrId) {
+                        runWithCorrelation(_corrId, _doWork);
+                    } else {
+                        _doWork();
                     }
                 }
                 // Return back the value to the execution stack

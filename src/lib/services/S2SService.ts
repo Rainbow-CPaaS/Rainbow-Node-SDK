@@ -21,7 +21,7 @@ const express = require( "express" );
 const LOG_ID = "S2S - ";
 const API_ID = "API_CALL - ";
 
-@logEntryExit(LOG_ID)
+@logEntryExit(LOG_ID, true)
 @isStarted([])
     /**
      * @module

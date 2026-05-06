@@ -30,7 +30,7 @@ const ONE_KILOBYTE = 1024;
 const ONE_MEGABYTE = 1024 * 1024;
 const ONE_GIGABYTE = 1024 * 1024 * 1024;
 
-@logEntryExit(LOG_ID)
+@logEntryExit(LOG_ID, true)
 @isStarted([])
 /**
 * @module

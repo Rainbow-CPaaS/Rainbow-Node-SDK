@@ -47,7 +47,7 @@ function CallLogsBean() : ICallLogsBean {
     };
 }
 
-@logEntryExit(LOG_ID)
+@logEntryExit(LOG_ID, true)
 @isStarted([])
 /**
 * @module

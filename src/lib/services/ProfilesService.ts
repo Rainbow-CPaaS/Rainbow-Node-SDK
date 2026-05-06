@@ -91,7 +91,7 @@ const FeaturesEnum = {
     WEBRTC_P2P_RECORDING: "WEBRTC_P2P_RECORDING" // */
 };
 
-@logEntryExit(LOG_ID)
+@logEntryExit(LOG_ID, true)
 @isStarted([])
 /**
  * @module

@@ -25,6 +25,7 @@ import {config as defaultConfig} from "../config/config";
 import {from} from "rxjs";
 import {findPackageJson, isDefined, isInstanceOfClass, isJsonObject, isPlainObject, stackTrace} from "./Utils.js";
 import {LEVELS, LEVELSCOLORS, LEVELSNAMES, LogLevelAreas} from './LevelLogs.js';
+import {getCurrentCorrelationId} from './CorrelationContext.js';
 import path from "path";
 import {fileURLToPath} from "node:url";
 
@@ -465,6 +466,9 @@ class Logger {
                     return;
                 }
 
+                const _corrId = getCurrentCorrelationId();
+                const _label = _corrId ? `[${_corrId}] ${that._logger.customLabel}` : that._logger.customLabel;
+
                 if (levelOfLog==="internal" || levelOfLog==="internalerror") {
                     if (logInternals===true) {
                         //level = (level === "internal") ? "debug" : "error";
@@ -474,13 +478,13 @@ class Logger {
                         if (levelOfLog==="internal") {
                             levelOfLog = LEVELSNAMES.DEBUG;
                             datatolog = that.colors.italic(that.colors.red("PROD HIDDEN : ")) + that.argumentsToString(arguments);
-                            that._winston.log.apply(that._winston, [levelOfLog, that._logger.customLabel + datatolog]);
-                            that.emit(levelOfLog, that._logger.customLabel + datatolog);
+                            that._winston.log.apply(that._winston, [levelOfLog, _label + datatolog]);
+                            that.emit(levelOfLog, _label + datatolog);
                         } else if (levelOfLog==="internalerror") {
                             levelOfLog = LEVELSNAMES.ERROR;
                             datatolog = that.colors.italic(that.colors.red("PROD HIDDEN : ")) + that.argumentsToStringFull(arguments);
-                            that._winston.log.apply(that._winston, [levelOfLog, that._logger.customLabel + datatolog]);
-                            that.emit(levelOfLog, that._logger.customLabel + datatolog);
+                            that._winston.log.apply(that._winston, [levelOfLog, _label + datatolog]);
+                            that.emit(levelOfLog, _label + datatolog);
                         }
                         /* */
                         // end-dev-code-internal //
@@ -501,11 +505,11 @@ class Logger {
                 } else {
                     let datatolog = that.argumentsToString(arguments);
                     if (logInternals) {
-                        that._winston.log.apply(that._winston, [levelOfLog, that._logger.customLabel + datatolog]);
-                        that.emit(levelOfLog, that._logger.customLabel + datatolog);
+                        that._winston.log.apply(that._winston, [levelOfLog, _label + datatolog]);
+                        that.emit(levelOfLog, _label + datatolog);
                     } else {
-                        that._winston.log.apply(that._winston, [levelOfLog, that._logger.customLabel + that.hideId(that.hideUuid(datatolog))]);
-                        that.emit(levelOfLog, that._logger.customLabel + that.hideId(that.hideUuid(datatolog)));
+                        that._winston.log.apply(that._winston, [levelOfLog, _label + that.hideId(that.hideUuid(datatolog))]);
+                        that.emit(levelOfLog, _label + that.hideId(that.hideUuid(datatolog)));
                     }
                 }
             } catch (err) {

@@ -33,7 +33,7 @@ const API_ID = "API_CALL - ";
  *      This services manages the invitations received/ sent from/to server. <br>
  *
  */
-@logEntryExit(LOG_ID)
+@logEntryExit(LOG_ID, true)
 @isStarted([])
 class InvitationsService extends GenericService {
         receivedInvitations: {};

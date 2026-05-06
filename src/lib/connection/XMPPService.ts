@@ -29,6 +29,7 @@ import {CallLogEventHandler} from "./XMPPServiceHandler/calllogEventHandler.js";
 import {ErrorManager} from "../common/ErrorManager.js";
 import {CalendarEvent, CalendarManager} from "../common/CalendarManager.js";
 import {AutoReplyManager} from "../common/AutoReplyManager.js";
+import {runWithCorrelation, generateCorrelationId} from '../common/CorrelationContext.js';
 
 const packageVersion = require("../../package");
 const url = require('url');
@@ -564,6 +565,7 @@ class XMPPService extends GenericService {
     }
 
     async fn_STANZA_EVENT (stanza) {
+        return runWithCorrelation(generateCorrelationId('xmpp'), async () => {
         let that =this;
         that._logger.log(that.INTERNAL, LOG_ID + "(handleXMPPConnection) event - STANZA_EVENT : " + STANZA_EVENT + " | ", stanza.toString());
 
@@ -646,6 +648,7 @@ class XMPPService extends GenericService {
                 that._logger.log(that.WARN, LOG_ID + "(handleXMPPConnection) not managed - 'stanza' : ", stanza.getName());
                 break;
         }
+        });
     }
 
     async handleXMPPConnection (headers) {

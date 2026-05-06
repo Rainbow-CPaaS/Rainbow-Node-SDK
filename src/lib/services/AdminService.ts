@@ -50,7 +50,7 @@ enum CLOUDPBXCLIOPTIONPOLICY {
     "USER_DDI_NUMBER" = "user_ddi_number"
 };
 
-@logEntryExit(LOG_ID)
+@logEntryExit(LOG_ID, true)
 @isStarted([ "registerUserByEmailFirstStep", "registerUserByEmailSecondStepWithToken"])
 /**
  * @module

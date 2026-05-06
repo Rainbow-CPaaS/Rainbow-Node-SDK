@@ -26,7 +26,7 @@ export {};
 const LOG_ID = "RPCoverXMPP/SVCE - ";
 const API_ID = "API_CALL - ";
 
-@logEntryExit(LOG_ID)
+@logEntryExit(LOG_ID, true)
 @isStarted([])
     /**
      * @module
