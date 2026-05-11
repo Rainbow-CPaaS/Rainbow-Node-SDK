@@ -5148,6 +5148,85 @@ Request Method: PUT
         });
     }
 
+    //region rooms lobbies management
+
+    setRoomLobby(roomId: string, hasLobby: boolean) {
+        // API PUT /api/rainbow/enduser/v1.0/rooms/:roomId/lobbies
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let data = {
+                hasLobby: hasLobby
+            };
+            that.http.put("/api/rainbow/enduser/v1.0/rooms/" + roomId + "/lobbies", that.getRequestHeader(), data, undefined).then(function (json) {
+                that._logger.log(that.DEBUG, `${LOG_ID}(setRoomLobby) successfull`);
+                that._logger.log(that.INTERNAL, `${LOG_ID}(setRoomLobby) REST result : `, json);
+                resolve(json?.data);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, `(setRoomLobby) error`);
+                that._logger.log(that.INTERNALERROR, LOG_ID, `(setRoomLobby) error : `, err);
+                return reject(err);
+            });
+        });
+    }
+
+    getRoomLobby(roomId: string) {
+        // API GET /api/rainbow/enduser/v1.0/rooms/:roomId/lobbies/pending
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            that.http.get("/api/rainbow/enduser/v1.0/rooms/" + roomId + "/lobbies/pending", that.getRequestHeader(), undefined).then(function (json) {
+                that._logger.log(that.DEBUG, `${LOG_ID}(getRoomLobby) successfull`);
+                that._logger.log(that.INTERNAL, `${LOG_ID}(getRoomLobby) REST result : `, json);
+                resolve(json?.data);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, `(getRoomLobby) error`);
+                that._logger.log(that.INTERNALERROR, LOG_ID, `(getRoomLobby) error : `, err);
+                return reject(err);
+            });
+        });
+    }
+
+    acceptRoomLobby(roomId: string, scope: string, users: string[] = undefined) {
+        // API PUT /api/rainbow/enduser/v1.0/rooms/:roomId/lobbies/accept
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let data: any = { scope };
+            if (users !== undefined) {
+                data.users = users;
+            }
+            that.http.put("/api/rainbow/enduser/v1.0/rooms/" + roomId + "/lobbies/accept", that.getRequestHeader(), data, undefined).then(function (json) {
+                that._logger.log(that.DEBUG, `${LOG_ID}(acceptRoomLobby) successfull`);
+                that._logger.log(that.INTERNAL, `${LOG_ID}(acceptRoomLobby) REST result : `, json);
+                resolve(json?.data);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, `(acceptRoomLobby) error`);
+                that._logger.log(that.INTERNALERROR, LOG_ID, `(acceptRoomLobby) error : `, err);
+                return reject(err);
+            });
+        });
+    }
+
+    denyRoomLobby(roomId: string, scope: string, users: string[] = undefined) {
+        // API PUT /api/rainbow/enduser/v1.0/rooms/:roomId/lobbies/deny
+        let that = this;
+        return new Promise(function (resolve, reject) {
+            let data: any = { scope };
+            if (users !== undefined) {
+                data.users = users;
+            }
+            that.http.put("/api/rainbow/enduser/v1.0/rooms/" + roomId + "/lobbies/deny", that.getRequestHeader(), data, undefined).then(function (json) {
+                that._logger.log(that.DEBUG, `${LOG_ID}(denyRoomLobby) successfull`);
+                that._logger.log(that.INTERNAL, `${LOG_ID}(denyRoomLobby) REST result : `, json);
+                resolve(json?.data);
+            }).catch(function (err) {
+                that._logger.log(that.ERROR, LOG_ID, `(denyRoomLobby) error`);
+                that._logger.log(that.INTERNALERROR, LOG_ID, `(denyRoomLobby) error : `, err);
+                return reject(err);
+            });
+        });
+    }
+
+    //endregion rooms lobbies management
+
     removeInvitationOfContactToBubble(contactId, bubbleId) {
         let that = this;
         return new Promise(function (resolve, reject) {

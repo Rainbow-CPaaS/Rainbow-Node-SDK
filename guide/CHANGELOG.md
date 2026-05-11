@@ -6,6 +6,27 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+### [2.44.1] - 2026-04-XX
+#### Removed
+-   None.
+
+#### Fixed
+-   None.
+ 
+#### Added
+-   Add `setRoomLobby` method in `RESTService` to call `PUT /api/rainbow/enduser/v1.0/rooms/:roomId/lobbies` for activating or deactivating the room lobby.
+-   Add `setRoomLobby` method in `BubblesService` to activate or deactivate the lobby of a room (requires BUBBLE_WAITING_ROOM feature key).
+-   Add `getRoomLobby` method in `RESTService` to call `GET /api/rainbow/enduser/v1.0/rooms/:roomId/lobbies/pending` to retrieve users waiting in the lobby.
+-   Add `getRoomLobby` method in `BubblesService` to get the list of users waiting in the room lobby.
+-   Add `acceptRoomLobby` method in `RESTService` to call `PUT /api/rainbow/enduser/v1.0/rooms/:roomId/lobbies/accept` to accept waiting users.
+-   Add `acceptRoomLobby` method in `BubblesService` to accept some or all users waiting in the room lobby.
+-   Add `denyRoomLobby` method in `RESTService` to call `PUT /api/rainbow/enduser/v1.0/rooms/:roomId/lobbies/deny` to deny waiting users.
+-   Add `denyRoomLobby` method in `BubblesService` to deny some or all users waiting in the room lobby.
+-   Add `testRoomLobbyManagement` in `Samples/index.ts` to verify the full lobby management flow (activate, get pending, accept, deny, deactivate).
+
+#### Changed
+-   None.
+
 ### [2.44.0] - 2026-04-27
 #### Removed
 -   **[BREAKING]** Remove `useGotLibForHttp` option (all HTTP requests now use `got` library).

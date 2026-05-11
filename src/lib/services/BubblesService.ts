@@ -6940,6 +6940,174 @@ class Bubbles extends GenericService {
 
     //endregion Bubbles - password
 
+    //region rooms lobbies management
+
+    /**
+     * @public
+     * @nodered true
+     * @method setRoomLobby
+     * @instance
+     * @since 2.44.1
+     * @category rooms lobbies management
+     * @param {string} roomId The id of the room.
+     * @param {boolean} hasLobby Set to true to activate the lobby for this room, false to deactivate it. When set to false all waiting users are automatically accepted.
+     * @async
+     * @description
+     *    This API allows to activate and deactivate the room's lobby. <br>
+     *    Only the owner of the room can use this API. <br>
+     *    The user must have the feature key BUBBLE_WAITING_ROOM in his service plan. <br>
+     * @return {Promise<any>} the result of the operation.
+     */
+    setRoomLobby(roomId: string, hasLobby: boolean = false) {
+        let that = this;
+        that._logger.log(that.INFOAPI, `${LOG_ID}${API_ID}(setRoomLobby) roomId : `, roomId);
+
+        return new Promise((resolve, reject) => {
+            if (!roomId) {
+                that._logger.log(that.DEBUG, `${LOG_ID}(setRoomLobby) bad or empty 'roomId' parameter : `, roomId);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            if (isNotDefined(hasLobby)) {
+                that._logger.log(that.DEBUG, `${LOG_ID}(setRoomLobby) bad or empty 'hasLobby' parameter : `, hasLobby);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            that._rest.setRoomLobby(roomId, hasLobby).then(async (result) => {
+                that._logger.log(that.INTERNAL, `${LOG_ID}(setRoomLobby) result from server : `, result);
+                resolve(result);
+            }).catch((err) => {
+                return reject(err);
+            });
+        });
+    }
+
+    /**
+     * @public
+     * @nodered true
+     * @method getRoomLobby
+     * @instance
+     * @since 2.44.1
+     * @category rooms lobbies management
+     * @param {string} roomId The id of the room.
+     * @async
+     * @description
+     *    This API allows to get the list of users waiting in the lobby. <br>
+     *    Any organizer of the room (users having the privilege moderator) can get this list. <br>
+     * @return {Promise<any>} An object containing room info and lobby array of pending users.
+     */
+    getRoomLobby(roomId: string) {
+        let that = this;
+        that._logger.log(that.INFOAPI, `${LOG_ID}${API_ID}(getRoomLobby) roomId : `, roomId);
+
+        return new Promise((resolve, reject) => {
+            if (!roomId) {
+                that._logger.log(that.DEBUG, `${LOG_ID}(getRoomLobby) bad or empty 'roomId' parameter : `, roomId);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            that._rest.getRoomLobby(roomId).then(async (result) => {
+                that._logger.log(that.INTERNAL, `${LOG_ID}(getRoomLobby) result from server : `, result);
+                resolve(result);
+            }).catch((err) => {
+                return reject(err);
+            });
+        });
+    }
+
+    /**
+     * @public
+     * @nodered true
+     * @method acceptRoomLobby
+     * @instance
+     * @since 2.44.1
+     * @category rooms lobbies management
+     * @param {string} roomId The id of the room.
+     * @param {string} scope Accept scope: `all` to accept all waiting users, `some` to accept specific users.
+     * @param {string[]} [users] List of user ids to accept. Required when scope is `some`.
+     * @async
+     * @description
+     *    This API allows to accept some or all users waiting in the lobby. <br>
+     *    Any organizer of the room (users having the privilege moderator) can accept users. <br>
+     * @return {Promise<any>} An object containing room info, updated lobby array, and a report of accepted/invalid users.
+     */
+    acceptRoomLobby(roomId: string, scope: string, users: string[] = undefined) {
+        let that = this;
+        that._logger.log(that.INFOAPI, `${LOG_ID}${API_ID}(acceptRoomLobby) roomId : `, roomId);
+
+        return new Promise((resolve, reject) => {
+            if (!roomId) {
+                that._logger.log(that.DEBUG, `${LOG_ID}(acceptRoomLobby) bad or empty 'roomId' parameter : `, roomId);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            if (!scope || !["all", "some"].includes(scope)) {
+                that._logger.log(that.DEBUG, `${LOG_ID}(acceptRoomLobby) bad or empty 'scope' parameter : `, scope);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            if (scope === "some" && (!users || users.length === 0)) {
+                that._logger.log(that.DEBUG, `${LOG_ID}(acceptRoomLobby) 'users' parameter required when scope is 'some'`);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            that._rest.acceptRoomLobby(roomId, scope, users).then(async (result) => {
+                that._logger.log(that.INTERNAL, `${LOG_ID}(acceptRoomLobby) result from server : `, result);
+                resolve(result);
+            }).catch((err) => {
+                return reject(err);
+            });
+        });
+    }
+
+    /**
+     * @public
+     * @nodered true
+     * @method denyRoomLobby
+     * @instance
+     * @since 2.44.1
+     * @category rooms lobbies management
+     * @param {string} roomId The id of the room.
+     * @param {string} scope Deny scope: `all` to deny all waiting users, `some` to deny specific users.
+     * @param {string[]} [users] List of user ids to deny. Required when scope is `some`.
+     * @async
+     * @description
+     *    This API allows to deny some or all users waiting in the lobby. <br>
+     *    Any organizer of the room (users having the privilege moderator) can deny users. <br>
+     *    Each denied user receives an event notification. <br>
+     * @return {Promise<any>} An object containing room info, updated lobby array, and a report of denied/invalid users.
+     */
+    denyRoomLobby(roomId: string, scope: string, users: string[] = undefined) {
+        let that = this;
+        that._logger.log(that.INFOAPI, `${LOG_ID}${API_ID}(denyRoomLobby) roomId : `, roomId);
+
+        return new Promise((resolve, reject) => {
+            if (!roomId) {
+                that._logger.log(that.DEBUG, `${LOG_ID}(denyRoomLobby) bad or empty 'roomId' parameter : `, roomId);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            if (!scope || !["all", "some"].includes(scope)) {
+                that._logger.log(that.DEBUG, `${LOG_ID}(denyRoomLobby) bad or empty 'scope' parameter : `, scope);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            if (scope === "some" && (!users || users.length === 0)) {
+                that._logger.log(that.DEBUG, `${LOG_ID}(denyRoomLobby) 'users' parameter required when scope is 'some'`);
+                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            }
+
+            that._rest.denyRoomLobby(roomId, scope, users).then(async (result) => {
+                that._logger.log(that.INTERNAL, `${LOG_ID}(denyRoomLobby) result from server : `, result);
+                resolve(result);
+            }).catch((err) => {
+                return reject(err);
+            });
+        });
+    }
+
+    //endregion rooms lobbies management
+
 
 }
 
