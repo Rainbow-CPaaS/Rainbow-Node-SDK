@@ -519,7 +519,7 @@ let expressEngine = undefined;
         // Logs options
         "logs": {
             "enableConsoleLogs": true,
-            "enableFileLogs": false,
+            "enableFileLogs": true,
             "enableEventsLogs": false,
             "enableEncryptedLogs": false,
             "color": true,
@@ -3942,8 +3942,8 @@ let expressEngine = undefined;
             // vincent00 on .net use bubble : testBotDescription_2024/02/07T15:18:39.669Z
             let bubbles = rainbowSDK.bubbles.getAllActiveBubbles();
             _logger.log("debug", "MAIN - testupdateAvatarForBubble - getAllActiveBubbles bubble.length : ", bubbles ? bubbles.length:0);
-            let bubble = bubbles.find(element => element.name==="testBotName_2024/02/07T15:18:39.669ZGuestUser");
-            _logger.log("debug", "MAIN - testupdateAvatarForBubble -  bubble \"testBotName_2024/02/07T15:18:39.669ZGuestUser\" : ", bubble);
+            let bubble = bubbles.find(element => element.name==="bulleDeTest");
+            _logger.log("debug", "MAIN - testupdateAvatarForBubble -  bubble \"bulleDeTest\" : ", bubble);
             let conversation = await rainbowSDK.conversations.openConversationForBubble(bubble);
 
             // Send message
@@ -12169,6 +12169,115 @@ example :
             }).catch(err => {
                 _logger.log("error", "MAIN - [testUpdateOneConferenceRecordName] :: getAllConferenceRecords error : ", err);
             });
+        }
+
+        async testGetOneConferenceRecordFromBubble() {
+            // Unfortunatly the usecase does not work, because there is no media link, so the record fail.
+            _logger.log("debug", "MAIN - (testGetOneConferenceRecordFromBubble). ");
+            const bubbleName = "Bulle Record Test " + makeId(5);
+            const vincent02Email = "vincent02@vbe.test.openrainbow.net";
+
+            try {
+                let eventName="rainbow_onbubbleownaffiliationchanged";
+                let eventWaitPromise: Promise<any> = listenForAnEvent(rainbowSDK, eventName, undefined, undefined, 1);
+                // 1. Créer une bulle auto acceptée
+                _logger.log("debug", "MAIN - [testGetOneConferenceRecordFromBubble] :: Creating bubble : " + bubbleName);
+                let bubble : any = await rainbowSDK.bubbles.createBubble(bubbleName, "Description", "all", 0, "private", false, 'unlock', true);
+                _logger.log("debug", "MAIN - [testGetOneConferenceRecordFromBubble] :: Bubble created : ", bubble.id);
+
+                await eventWaitPromise.then((result) => {
+                    let data = result.data;
+                    let count = result.count;
+                    _logger.log("debug", `MAIN - [testGetOneConferenceRecordFromBubble] ${eventName} result : `, result);
+                    expectingIsDefined(data, eventName + " - data should be defined in event's data.");
+                    switch (count) {
+                        case 1:
+                            expectingEqual(data?.status, "accepted", eventName + " - action should be waiting.");
+                            break;
+                        default:
+                            assert.fail(new TypeError(eventName + ' - count should not be ' + count));
+                            break;
+                    }
+                }).catch((err) => {
+                    _logger.log("error", "MAIN - [testUploadFileBufferToStorage] while waiting event " + eventName + ", error : ", err);
+                    expectingIsNotDefined(err, " while waiting event " + eventName + " for set - error.");
+                });
+
+                // 2. Inviter vincent02 par email
+                _logger.log("debug", "MAIN - [testGetOneConferenceRecordFromBubble] :: Inviting " + vincent02Email);
+                await rainbowSDK.bubbles.inviteContactsByEmailsToBubble([vincent02Email], bubble);
+
+                // 3. Démarrer la conférence
+                let eventConferenceStartedName="rainbow_onbubbleconferencestartedreceived";
+                _logger.log("debug", "MAIN - [testGetOneConferenceRecordFromBubble] :: Starting conference");
+                let eventConferenceStartedWaitPromise: Promise<any> = listenForAnEvent(rainbowSDK, eventConferenceStartedName, undefined, undefined, 1);
+                await rainbowSDK.bubbles.startConferenceOrWebinarInARoom(bubble.id);
+
+                await eventConferenceStartedWaitPromise.then((result) => {
+                    _logger.log("debug", `MAIN - [testGetOneConferenceRecordFromBubble] ${eventConferenceStartedName} result : `, result);
+                    expectingIsDefined(result.data, eventConferenceStartedName + " - data should be defined in event's data.");
+                }).catch((err) => {
+                    _logger.log("error", "MAIN - [testGetOneConferenceRecordFromBubble] while waiting event " + eventConferenceStartedName + ", error : ", err);
+                    expectingIsNotDefined(err, " while waiting event " + eventConferenceStartedName + " - error.");
+                });
+
+                // 5. Attendre 5 secondes
+                _logger.log("debug", "MAIN - [testGetOneConferenceRecordFromBubble] :: Waiting 5 seconds...");
+                await setTimeoutPromised(5000);
+
+                _logger.log("debug", "MAIN - (testjoinConferenceV2_CreateBubble_WithStart) :: startConferenceOrWebinarInARoom request ok, bubble.id : ", bubble.id);
+                await rainbowSDK.bubbles.joinConferenceV2(bubble.id, undefined, undefined, false, ["rdeu"], false, false, ["video"], undefined).then(async (result) => {
+                //await rainbowSDK.bubbles.joinConferenceV2(bubble.id, undefined, undefined, false, ["rdeu"], false, false, ["video"], undefined).then(async (result) => {
+                    _logger.log("debug", "MAIN - (testjoinConferenceV2_CreateBubble_WithStart) :: joinConferenceV2 request ok, result : ", result);
+                    return rainbowSDK.bubbles.snapshotConference(bubble.id).then(async (result) => {
+                        _logger.log("debug", "MAIN - (testjoinConferenceV2_CreateBubble_WithStart) :: snapshotConference request ok, result : ", result);
+                    }).catch(err => {
+                        _logger.log("error", "MAIN - (testjoinConferenceV2_CreateBubble_WithStart) :: snapshotConference request not ok, err : ", err);
+                    });
+                }).catch(err => {
+                    _logger.log("error", "MAIN - (testjoinConferenceV2_CreateBubble_WithStart) :: joinConferenceV2 request not ok, err : ", err);
+                });
+
+                // 4. Démarrer l'enregistrement
+                _logger.log("debug", "MAIN - [testGetOneConferenceRecordFromBubble] :: Starting recording");
+                await rainbowSDK.bubbles.startRecording(bubble.id);
+
+                // 5. Attendre 20 secondes
+                _logger.log("debug", "MAIN - [testGetOneConferenceRecordFromBubble] :: Waiting 20 seconds...");
+                await setTimeoutPromised(20000);
+
+                // 6. Arrêter l'enregistrement
+                _logger.log("debug", "MAIN - [testGetOneConferenceRecordFromBubble] :: Stopping recording");
+                await rainbowSDK.bubbles.stopRecording(bubble.id);
+
+                // Attendre un peu que le record soit traité par le serveur
+                _logger.log("debug", "MAIN - [testGetOneConferenceRecordFromBubble] :: Waiting for record to be processed...");
+                await setTimeoutPromised(5000);
+
+                // 7. Faire un getOneConferenceRecord de cet enregistrement
+                _logger.log("debug", "MAIN - [testGetOneConferenceRecordFromBubble] :: Fetching all records to find the new one");
+                let resultRecords :any = await rainbowSDK.fileStorage.getAllConferenceRecords();
+                
+                if (resultRecords && Array.isArray(resultRecords.data) && resultRecords.data.length > 0) {
+                    // On cherche le record qui correspond à notre bulle (le plus récent normalement)
+                    let recordToGet = resultRecords.data.find((r: any) => r.roomId === bubble.id);
+                    if (recordToGet) {
+                        _logger.log("debug", "MAIN - [testGetOneConferenceRecordFromBubble] :: Found record, fetching details for : ", recordToGet.id);
+                        let recordDetails = await rainbowSDK.fileStorage.getOneConferenceRecord(recordToGet.id);
+                        _logger.log("debug", "MAIN - [testGetOneConferenceRecordFromBubble] :: getOneConferenceRecord result : ", recordDetails);
+                    } else {
+                        _logger.log("warn", "MAIN - [testGetOneConferenceRecordFromBubble] :: Record not found for bubble " + bubble.id);
+                    }
+                } else {
+                    _logger.log("warn", "MAIN - [testGetOneConferenceRecordFromBubble] :: No records found at all");
+                }
+
+                // Optionnel : Arrêter la conférence
+                await rainbowSDK.bubbles.stopConferenceOrWebinar(bubble.id);
+
+            } catch (err) {
+                _logger.log("error", "MAIN - [testGetOneConferenceRecordFromBubble] :: Error : ", err);
+            }
         }
 
         async testDeleteOneConferenceRecord() {
