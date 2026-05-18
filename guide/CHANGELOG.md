@@ -6,11 +6,25 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+### [2.42.0-lts.5] - 2025-05-18
+#### Removed
+-   None
+
+#### Fixed
+-   None
+ 
+#### Added
+-   None.
+
+#### Changed
+-   Add an optional `companyId` parameter to `ActivateALdapConnectorUser` in `AdminService` and `RESTService` to allow activating a connector for a specific company. (RQRAINB-13916 Nodes - [AD/LDAP Connector] — Multi-Company Registration for BP and Admin Roles)
+ 
 ### [2.42.0-lts.4] - 2025-04-24
 #### Removed
 -   None
 
 #### Fixed
+
 -   Fix `conversationEventHandler::onErrorMessageReceived` callback for add body, subject and text properties in received event.
  
 #### Added
