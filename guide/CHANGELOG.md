@@ -25,7 +25,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add `testRoomLobbyManagement` in `Samples/index.ts` to verify the full lobby management flow (activate, get pending, accept, deny, deactivate).
 
 #### Changed
--   None.
+-   Add an optional `companyId` parameter to `ActivateALdapConnectorUser` in `AdminService` and `RESTService` to allow activating a connector for a specific company.
 
 ### [2.44.0] - 2026-04-27
 #### Removed

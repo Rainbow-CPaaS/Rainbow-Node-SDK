@@ -9351,6 +9351,7 @@ class AdminService extends GenericService {
      * @method ActivateALdapConnectorUser
      * @since 1.86.0
      * @instance
+     * @param {string} [companyId] optionnel Allows to specify for which company the connector should be created. Provided companyId should correspond to companies manageable by logged in user.
      * @async
      * @category AD/LDAP - LDAP APIs to use
      * @description
@@ -9372,13 +9373,13 @@ class AdminService extends GenericService {
      * | password | string | Generated Ldap connector user password. |
      *
      */
-    ActivateALdapConnectorUser() : Promise<{ id : string, companyId : string, loginEmail : string, password : string  }> {
+    ActivateALdapConnectorUser(companyId : string = null) : Promise<{ id : string, companyId : string, loginEmail : string, password : string  }> {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(ActivateALdapConnectorUser) .");
 
         return new Promise(async (resolve, reject) => {
             try {
-                let result = await that._rest.ActivateALdapConnectorUser();
+                let result = await that._rest.ActivateALdapConnectorUser(companyId);
                 that._logger.log(that.DEBUG, "(ActivateALdapConnectorUser) - sent.");
                 that._logger.log(that.INTERNAL, "(ActivateALdapConnectorUser) - result : ", result);
 

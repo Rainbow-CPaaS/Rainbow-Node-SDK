@@ -12484,13 +12484,17 @@ addPropertyToObj(param, "peerId", body.peerId, false);
 
     //region LDAP APIs to use:
 
-    ActivateALdapConnectorUser(): Promise<{ id: string, companyId: string, loginEmail: string, password: string }> {
+    ActivateALdapConnectorUser(companyId : string = null): Promise<{ id: string, companyId: string, loginEmail: string, password: string }> {
         // API https://api.openrainbow.org/admin/#api-connectors-PostLdapActivate
         // POST /api/rainbow/admin/v1.0/connectors/ldaps/activate
 
         let that = this;
         return new Promise(function (resolve, reject) {
             let url: string = "/api/rainbow/admin/v1.0/connectors/ldaps/activate";
+            let urlParamsTab: string[] = [];
+            urlParamsTab.push(url);
+            addParamToUrl(urlParamsTab, "companyId", companyId);
+            url = urlParamsTab[0];
             that._logger.log(that.INTERNAL, LOG_ID + "(ActivateALdapConnectorUser) REST url : ", url);
             let CSVTxt = undefined;
 
