@@ -2362,6 +2362,10 @@ class ConversationEventHandler extends GenericHandler {
                         //treated in conversationEventHandler::onRoomPasswordManagementMessageReceived(node);
                         that.onRoomPasswordManagementMessageReceived(nodeJson);
                         break;
+                    case "roomlobby":
+                        //treated in conversationEventHandler::onRoomLobbyMessageReceived(node);
+                        that.onRoomLobbyMessageReceived(nodeJson);
+                        break;
                     case "file":
                         that.onFileManagementMessageReceived(node);
                         break;
@@ -2955,6 +2959,20 @@ class ConversationEventHandler extends GenericHandler {
             }
         } catch (err) {
             that._logger.log(that.ERROR, LOG_ID + "(onRoomPasswordManagementMessageReceived) CATCH Error !!! : ", err);
+        }
+    };
+
+    onRoomLobbyMessageReceived (nodeJson) {
+        let that = this;
+        try {
+            that._logger.log(that.INTERNAL, LOG_ID + "(onRoomLobbyMessageReceived) _entering_ : ", nodeJson);
+            if (nodeJson && nodeJson["$attrs"]) {
+                let nodeAttrs = Object.assign({}, nodeJson["$attrs"]);
+                delete nodeAttrs.xmlns;
+                that.eventEmitter.emit("evt_internal_bubble_roomlobby_received", nodeAttrs);
+            }
+        } catch (err) {
+            that._logger.log(that.ERROR, LOG_ID + "(onRoomLobbyMessageReceived) CATCH Error !!! : ", err);
         }
     };
 

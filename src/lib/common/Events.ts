@@ -174,6 +174,7 @@ class Emitter extends EventEmitterClass{
  * @fires Events#rainbow_onbubblepollupdated
  * @fires Events#rainbow_onbubblepollvoted
  * @fires Events#rainbow_onbubbleroompasswordreceived
+ * @fires Events#rainbow_onbubbleroomlobbyreceived
  * @fires Events#rainbow_onconnectorcommand
  * @fires Events#rainbow_onconnectorconfig
  * @fires Events#rainbow_onconnectorcommandended
@@ -309,6 +310,7 @@ class Events {
         "rainbow_onbubblepollupdated",
         "rainbow_onbubblepollvoted",
         "rainbow_onbubbleroompasswordreceived",
+        "rainbow_onbubbleroomlobbyreceived",
         "rainbow_onconnectorcommand",
         "rainbow_onconnectorconfig",
         "rainbow_onconnectorcommandended",
@@ -1556,6 +1558,17 @@ class Events {
              *      This event is fired when a password is setted for public links in a bubble.
              */
             that.publishEvent("bubbleroompasswordreceived", data);
+        });
+
+        this._evReceiver.on("evt_internal_bubble_roomlobby_received", function (data) {
+            /**
+             * @event Events#rainbow_onbubbleroomlobbyreceived
+             * @public
+             * @param { Object } data lobby state data: action, roomid, roomjid, haslobby, roomname, waitingusers
+             * @description
+             *      This event is fired when the lobby state of a bubble changes (activated, deactivated, or waiting users count updated).
+             */
+            that.publishEvent("bubbleroomlobbyreceived", data);
         });
 
         this._evReceiver.on("evt_internal_connectorcommand", function (data) {

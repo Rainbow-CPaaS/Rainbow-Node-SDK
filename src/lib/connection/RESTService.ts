@@ -5150,42 +5150,42 @@ Request Method: PUT
 
     //region rooms lobbies management
 
-    setRoomLobby(roomId: string, hasLobby: boolean) {
+    setBubbleLobby(bubbleId: string, hasLobby: boolean) {
         // API PUT /api/rainbow/enduser/v1.0/rooms/:roomId/lobbies
         let that = this;
         return new Promise(function (resolve, reject) {
             let data = {
                 hasLobby: hasLobby
             };
-            that.http.put("/api/rainbow/enduser/v1.0/rooms/" + roomId + "/lobbies", that.getRequestHeader(), data, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, `${LOG_ID}(setRoomLobby) successfull`);
-                that._logger.log(that.INTERNAL, `${LOG_ID}(setRoomLobby) REST result : `, json);
+            that.http.put("/api/rainbow/enduser/v1.0/rooms/" + bubbleId + "/lobbies", that.getRequestHeader(), data, undefined).then(function (json) {
+                that._logger.log(that.DEBUG, `${LOG_ID}(setBubbleLobby) successfull`);
+                that._logger.log(that.INTERNAL, `${LOG_ID}(setBubbleLobby) REST result : `, json);
                 resolve(json?.data);
             }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, `(setRoomLobby) error`);
-                that._logger.log(that.INTERNALERROR, LOG_ID, `(setRoomLobby) error : `, err);
+                that._logger.log(that.ERROR, LOG_ID, `(setBubbleLobby) error`);
+                that._logger.log(that.INTERNALERROR, LOG_ID, `(setBubbleLobby) error : `, err);
                 return reject(err);
             });
         });
     }
 
-    getRoomLobby(roomId: string) {
+    getBubbleLobby(bubbleId: string) {
         // API GET /api/rainbow/enduser/v1.0/rooms/:roomId/lobbies/pending
         let that = this;
         return new Promise(function (resolve, reject) {
-            that.http.get("/api/rainbow/enduser/v1.0/rooms/" + roomId + "/lobbies/pending", that.getRequestHeader(), undefined).then(function (json) {
-                that._logger.log(that.DEBUG, `${LOG_ID}(getRoomLobby) successfull`);
-                that._logger.log(that.INTERNAL, `${LOG_ID}(getRoomLobby) REST result : `, json);
+            that.http.get("/api/rainbow/enduser/v1.0/rooms/" + bubbleId + "/lobbies/pending", that.getRequestHeader(), undefined).then(function (json) {
+                that._logger.log(that.DEBUG, `${LOG_ID}(getBubbleLobby) successfull`);
+                that._logger.log(that.INTERNAL, `${LOG_ID}(getBubbleLobby) REST result : `, json);
                 resolve(json?.data);
             }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, `(getRoomLobby) error`);
-                that._logger.log(that.INTERNALERROR, LOG_ID, `(getRoomLobby) error : `, err);
+                that._logger.log(that.ERROR, LOG_ID, `(getBubbleLobby) error`);
+                that._logger.log(that.INTERNALERROR, LOG_ID, `(getBubbleLobby) error : `, err);
                 return reject(err);
             });
         });
     }
 
-    acceptRoomLobby(roomId: string, scope: string, users: string[] = undefined) {
+    acceptBubbleLobby(bubbleId: string, scope: string, users: string[] = undefined) {
         // API PUT /api/rainbow/enduser/v1.0/rooms/:roomId/lobbies/accept
         let that = this;
         return new Promise(function (resolve, reject) {
@@ -5193,19 +5193,19 @@ Request Method: PUT
             if (users !== undefined) {
                 data.users = users;
             }
-            that.http.put("/api/rainbow/enduser/v1.0/rooms/" + roomId + "/lobbies/accept", that.getRequestHeader(), data, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, `${LOG_ID}(acceptRoomLobby) successfull`);
-                that._logger.log(that.INTERNAL, `${LOG_ID}(acceptRoomLobby) REST result : `, json);
+            that.http.put("/api/rainbow/enduser/v1.0/rooms/" + bubbleId + "/lobbies/accept", that.getRequestHeader(), data, undefined).then(function (json) {
+                that._logger.log(that.DEBUG, `${LOG_ID}(acceptBubbleLobby) successfull`);
+                that._logger.log(that.INTERNAL, `${LOG_ID}(acceptBubbleLobby) REST result : `, json);
                 resolve(json?.data);
             }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, `(acceptRoomLobby) error`);
-                that._logger.log(that.INTERNALERROR, LOG_ID, `(acceptRoomLobby) error : `, err);
+                that._logger.log(that.ERROR, LOG_ID, `(acceptBubbleLobby) error`);
+                that._logger.log(that.INTERNALERROR, LOG_ID, `(acceptBubbleLobby) error : `, err);
                 return reject(err);
             });
         });
     }
 
-    denyRoomLobby(roomId: string, scope: string, users: string[] = undefined) {
+    denyBubbleLobby(bubbleId: string, scope: string, users: string[] = undefined) {
         // API PUT /api/rainbow/enduser/v1.0/rooms/:roomId/lobbies/deny
         let that = this;
         return new Promise(function (resolve, reject) {
@@ -5213,13 +5213,13 @@ Request Method: PUT
             if (users !== undefined) {
                 data.users = users;
             }
-            that.http.put("/api/rainbow/enduser/v1.0/rooms/" + roomId + "/lobbies/deny", that.getRequestHeader(), data, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, `${LOG_ID}(denyRoomLobby) successfull`);
-                that._logger.log(that.INTERNAL, `${LOG_ID}(denyRoomLobby) REST result : `, json);
+            that.http.put("/api/rainbow/enduser/v1.0/rooms/" + bubbleId + "/lobbies/deny", that.getRequestHeader(), data, undefined).then(function (json) {
+                that._logger.log(that.DEBUG, `${LOG_ID}(denyBubbleLobby) successfull`);
+                that._logger.log(that.INTERNAL, `${LOG_ID}(denyBubbleLobby) REST result : `, json);
                 resolve(json?.data);
             }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, `(denyRoomLobby) error`);
-                that._logger.log(that.INTERNALERROR, LOG_ID, `(denyRoomLobby) error : `, err);
+                that._logger.log(that.ERROR, LOG_ID, `(denyBubbleLobby) error`);
+                that._logger.log(that.INTERNALERROR, LOG_ID, `(denyBubbleLobby) error : `, err);
                 return reject(err);
             });
         });

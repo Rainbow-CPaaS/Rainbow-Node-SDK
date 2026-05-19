@@ -6947,95 +6947,96 @@ let expressEngine = undefined;
 
         /**
          * @public
-         * @method testRoomLobbyManagement
+         * @method testBubbleLobbyManagement
          * @instance
          * @async
          * @description
          *      Scenario: activate lobby, read pending users, accept all, deny all, deactivate lobby. <br>
-         *      Searches for a bubble named 'testRoomLobby_1', creates it if not found. <br>
+         *      Searches for a bubble named 'testBubbleLobby_1', creates it if not found. <br>
          *      A public URL is created so that external users can reach the lobby. <br>
          * @return {Promise<void>}
          */
-        async testRoomLobbyManagement() {
+        async testBubbleLobbyManagement() {
             try {
-                let bubbleName = "testRoomLobby_1";
+                // To be used with vincent04 .Net
+                let bubbleName = "testBubbleLobby_1";
                 let bubble: Bubble;
 
-                _logger.log("debug", "MAIN - [testRoomLobbyManagement] :: Searching for bubble : ", bubbleName);
+                _logger.log("debug", "MAIN - [testBubbleLobbyManagement] :: Searching for bubble : ", bubbleName);
                 let bubbles = await rainbowSDK.bubbles.getAllBubbles();
                 bubble = bubbles.find(b => b.name === bubbleName);
 
                 if (bubble) {
-                    _logger.log("debug", "MAIN - [testRoomLobbyManagement] :: Bubble found : ", bubble.id);
+                    _logger.log("debug", "MAIN - [testBubbleLobbyManagement] :: Bubble found : ", bubble.id);
                 } else {
-                    _logger.log("debug", "MAIN - [testRoomLobbyManagement] :: Bubble not found, creating it...");
+                    _logger.log("debug", "MAIN - [testBubbleLobbyManagement] :: Bubble not found, creating it...");
                     bubble = await rainbowSDK.bubbles.createBubble(bubbleName, "Test lobby management");
-                    _logger.log("debug", "MAIN - [testRoomLobbyManagement] :: Bubble created : ", bubble.id);
+                    _logger.log("debug", "MAIN - [testBubbleLobbyManagement] :: Bubble created : ", bubble.id);
                     let pauseTime = 5000;
-                    _logger.log("debug", "MAIN - [testRoomLobbyManagement] :: pause : ", pauseTime);
+                    _logger.log("debug", "MAIN - [testBubbleLobbyManagement] :: pause : ", pauseTime);
                     await pause(pauseTime);
                 }
 
                 // Public URL required so external users can reach the lobby
                 let publicUrl: any = await rainbowSDK.bubbles.createPublicUrl(bubble);
-                _logger.log("debug", "MAIN - [testRoomLobbyManagement] :: createPublicUrl result : ", publicUrl);
+                _logger.log("debug", "MAIN - [testBubbleLobbyManagement] :: createPublicUrl result : ", publicUrl);
                 expectingIsDefined(publicUrl, "createPublicUrl - publicUrl should be defined.");
 
                 // Step 1 — activate lobby
-                _logger.log("debug", "MAIN - [testRoomLobbyManagement] :: Activating lobby...");
-                let resultActivate: any = await rainbowSDK.bubbles.setRoomLobby(bubble.id, true);
-                _logger.log("debug", "MAIN - [testRoomLobbyManagement] :: setRoomLobby (activate) result : ", resultActivate);
-                expectingIsDefined(resultActivate, "setRoomLobby (activate) - result should be defined.");
+                _logger.log("debug", "MAIN - [testBubbleLobbyManagement] :: Activating lobby...");
+                let resultActivate: any = await rainbowSDK.bubbles.setBubbleLobby(bubble.id, true);
+                _logger.log("debug", "MAIN - [testBubbleLobbyManagement] :: setBubbleLobby (activate) result : ", resultActivate);
+                expectingIsDefined(resultActivate, "setBubbleLobby (activate) - result should be defined.");
 
                 // Step 2 — get pending users (list likely empty in automated test context)
-                _logger.log("debug", "MAIN - [testRoomLobbyManagement] :: Getting lobby pending users...");
-                let lobbyResult: any = await rainbowSDK.bubbles.getRoomLobby(bubble.id);
-                _logger.log("debug", "MAIN - [testRoomLobbyManagement] :: getRoomLobby result : ", lobbyResult);
-                expectingIsDefined(lobbyResult, "getRoomLobby - result should be defined.");
-                expectingIsDefined(lobbyResult?.room, "getRoomLobby - result.room should be defined.");
-                expectingIsDefined(lobbyResult?.lobby, "getRoomLobby - result.lobby should be defined.");
+                _logger.log("debug", "MAIN - [testBubbleLobbyManagement] :: Getting lobby pending users...");
+                let lobbyResult: any = await rainbowSDK.bubbles.getBubbleLobby(bubble.id);
+                _logger.log("debug", "MAIN - [testBubbleLobbyManagement] :: getBubbleLobby result : ", lobbyResult);
+                expectingIsDefined(lobbyResult, "getBubbleLobby - result should be defined.");
+                expectingIsDefined(lobbyResult?.room, "getBubbleLobby - result.room should be defined.");
+                expectingIsDefined(lobbyResult?.lobby, "getBubbleLobby - result.lobby should be defined.");
 
                 if (lobbyResult?.lobby?.length > 0) {
                     // Step 3 — accept all pending users
-                    _logger.log("debug", "MAIN - [testRoomLobbyManagement] :: Accepting all pending users...");
-                    let resultAccept: any = await rainbowSDK.bubbles.acceptRoomLobby(bubble.id, "all");
-                    _logger.log("debug", "MAIN - [testRoomLobbyManagement] :: acceptRoomLobby result : ", resultAccept);
-                    expectingIsDefined(resultAccept, "acceptRoomLobby - result should be defined.");
-                    expectingIsDefined(resultAccept?.report?.acceptedUsers, "acceptRoomLobby - result.report.acceptedUsers should be defined.");
+                    _logger.log("debug", "MAIN - [testBubbleLobbyManagement] :: Accepting all pending users...");
+                    let resultAccept: any = await rainbowSDK.bubbles.acceptBubbleLobby(bubble.id, "all");
+                    _logger.log("debug", "MAIN - [testBubbleLobbyManagement] :: acceptBubbleLobby result : ", resultAccept);
+                    expectingIsDefined(resultAccept, "acceptBubbleLobby - result should be defined.");
+                    expectingIsDefined(resultAccept?.report?.acceptedUsers, "acceptBubbleLobby - result.report.acceptedUsers should be defined.");
 
                     // Step 4 — re-read lobby after accept to confirm it shrank
-                    lobbyResult = await rainbowSDK.bubbles.getRoomLobby(bubble.id);
-                    _logger.log("debug", "MAIN - [testRoomLobbyManagement] :: getRoomLobby after accept : ", lobbyResult);
+                    lobbyResult = await rainbowSDK.bubbles.getBubbleLobby(bubble.id);
+                    _logger.log("debug", "MAIN - [testBubbleLobbyManagement] :: getBubbleLobby after accept : ", lobbyResult);
 
                     // Step 5 — deny remaining users if any
                     if (lobbyResult?.lobby?.length > 0) {
-                        _logger.log("debug", "MAIN - [testRoomLobbyManagement] :: Denying remaining pending users...");
-                        let resultDeny: any = await rainbowSDK.bubbles.denyRoomLobby(bubble.id, "all");
-                        _logger.log("debug", "MAIN - [testRoomLobbyManagement] :: denyRoomLobby result : ", resultDeny);
-                        expectingIsDefined(resultDeny, "denyRoomLobby - result should be defined.");
+                        _logger.log("debug", "MAIN - [testBubbleLobbyManagement] :: Denying remaining pending users...");
+                        let resultDeny: any = await rainbowSDK.bubbles.denyBubbleLobby(bubble.id, "all");
+                        _logger.log("debug", "MAIN - [testBubbleLobbyManagement] :: denyBubbleLobby result : ", resultDeny);
+                        expectingIsDefined(resultDeny, "denyBubbleLobby - result should be defined.");
                     }
                 } else {
-                    _logger.log("debug", "MAIN - [testRoomLobbyManagement] :: No users in lobby — testing denyRoomLobby(all) on empty lobby...");
-                    let resultDeny: any = await rainbowSDK.bubbles.denyRoomLobby(bubble.id, "all");
-                    _logger.log("debug", "MAIN - [testRoomLobbyManagement] :: denyRoomLobby (empty lobby) result : ", resultDeny);
-                    expectingIsDefined(resultDeny, "denyRoomLobby (empty lobby) - result should be defined.");
+                    _logger.log("debug", "MAIN - [testBubbleLobbyManagement] :: No users in lobby — testing denyBubbleLobby(all) on empty lobby...");
+                    let resultDeny: any = await rainbowSDK.bubbles.denyBubbleLobby(bubble.id, "all");
+                    _logger.log("debug", "MAIN - [testBubbleLobbyManagement] :: denyBubbleLobby (empty lobby) result : ", resultDeny);
+                    expectingIsDefined(resultDeny, "denyBubbleLobby (empty lobby) - result should be defined.");
                 }
 
                 // Step 6 — deactivate lobby
-                _logger.log("debug", "MAIN - [testRoomLobbyManagement] :: Deactivating lobby...");
-                let resultDeactivate: any = await rainbowSDK.bubbles.setRoomLobby(bubble.id, false);
-                _logger.log("debug", "MAIN - [testRoomLobbyManagement] :: setRoomLobby (deactivate) result : ", resultDeactivate);
-                expectingIsDefined(resultDeactivate, "setRoomLobby (deactivate) - result should be defined.");
+                _logger.log("debug", "MAIN - [testBubbleLobbyManagement] :: Deactivating lobby...");
+                let resultDeactivate: any = await rainbowSDK.bubbles.setBubbleLobby(bubble.id, false);
+                _logger.log("debug", "MAIN - [testBubbleLobbyManagement] :: setBubbleLobby (deactivate) result : ", resultDeactivate);
+                expectingIsDefined(resultDeactivate, "setBubbleLobby (deactivate) - result should be defined.");
 
-                _logger.log("debug", "MAIN - [testRoomLobbyManagement] :: Test completed successfully.");
+                _logger.log("debug", "MAIN - [testBubbleLobbyManagement] :: Test completed successfully.");
 
                 /*
-                _logger.log("debug", "MAIN - [testRoomLobbyManagement] :: Cleaning up, deleting bubble...");
+                _logger.log("debug", "MAIN - [testBubbleLobbyManagement] :: Cleaning up, deleting bubble...");
                 await rainbowSDK.bubbles.deleteBubble(bubble);
-                _logger.log("debug", "MAIN - [testRoomLobbyManagement] :: Deleted bubble : ", bubbleName);
+                _logger.log("debug", "MAIN - [testBubbleLobbyManagement] :: Deleted bubble : ", bubbleName);
                 // */
             } catch (err) {
-                _logger.log("error", "MAIN - [testRoomLobbyManagement] :: Error : ", err);
+                _logger.log("error", "MAIN - [testBubbleLobbyManagement] :: Error : ", err);
             }
         }
 

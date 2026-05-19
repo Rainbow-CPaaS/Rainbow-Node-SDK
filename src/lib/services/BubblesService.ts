@@ -6945,36 +6945,36 @@ class Bubbles extends GenericService {
     /**
      * @public
      * @nodered true
-     * @method setRoomLobby
+     * @method setBubbleLobby
      * @instance
      * @since 2.44.1
      * @category rooms lobbies management
-     * @param {string} roomId The id of the room.
-     * @param {boolean} hasLobby Set to true to activate the lobby for this room, false to deactivate it. When set to false all waiting users are automatically accepted.
+     * @param {string} bubbleId The id of the bubble.
+     * @param {boolean} hasLobby Set to true to activate the lobby for this bubble, false to deactivate it. When set to false all waiting users are automatically accepted.
      * @async
      * @description
-     *    This API allows to activate and deactivate the room's lobby. <br>
-     *    Only the owner of the room can use this API. <br>
+     *    This API allows to activate and deactivate the bubble's lobby. <br>
+     *    Only the owner of the bubble can use this API. <br>
      *    The user must have the feature key BUBBLE_WAITING_ROOM in his service plan. <br>
      * @return {Promise<any>} the result of the operation.
      */
-    setRoomLobby(roomId: string, hasLobby: boolean = false) {
+    setBubbleLobby(bubbleId: string, hasLobby: boolean = false) {
         let that = this;
-        that._logger.log(that.INFOAPI, `${LOG_ID}${API_ID}(setRoomLobby) roomId : `, roomId);
+        that._logger.log(that.INFOAPI, `${LOG_ID}${API_ID}(setBubbleLobby) bubbleId : `, bubbleId);
 
         return new Promise((resolve, reject) => {
-            if (!roomId) {
-                that._logger.log(that.DEBUG, `${LOG_ID}(setRoomLobby) bad or empty 'roomId' parameter : `, roomId);
+            if (!bubbleId) {
+                that._logger.log(that.DEBUG, `${LOG_ID}(setBubbleLobby) bad or empty 'bubbleId' parameter : `, bubbleId);
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
 
             if (isNotDefined(hasLobby)) {
-                that._logger.log(that.DEBUG, `${LOG_ID}(setRoomLobby) bad or empty 'hasLobby' parameter : `, hasLobby);
+                that._logger.log(that.DEBUG, `${LOG_ID}(setBubbleLobby) bad or empty 'hasLobby' parameter : `, hasLobby);
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
 
-            that._rest.setRoomLobby(roomId, hasLobby).then(async (result) => {
-                that._logger.log(that.INTERNAL, `${LOG_ID}(setRoomLobby) result from server : `, result);
+            that._rest.setBubbleLobby(bubbleId, hasLobby).then(async (result) => {
+                that._logger.log(that.INTERNAL, `${LOG_ID}(setBubbleLobby) result from server : `, result);
                 resolve(result);
             }).catch((err) => {
                 return reject(err);
@@ -6985,29 +6985,29 @@ class Bubbles extends GenericService {
     /**
      * @public
      * @nodered true
-     * @method getRoomLobby
+     * @method getBubbleLobby
      * @instance
      * @since 2.44.1
      * @category rooms lobbies management
-     * @param {string} roomId The id of the room.
+     * @param {string} bubbleId The id of the bubble.
      * @async
      * @description
      *    This API allows to get the list of users waiting in the lobby. <br>
-     *    Any organizer of the room (users having the privilege moderator) can get this list. <br>
-     * @return {Promise<any>} An object containing room info and lobby array of pending users.
+     *    Any organizer of the bubble (users having the privilege moderator) can get this list. <br>
+     * @return {Promise<any>} An object containing bubble info and lobby array of pending users.
      */
-    getRoomLobby(roomId: string) {
+    getBubbleLobby(bubbleId: string) {
         let that = this;
-        that._logger.log(that.INFOAPI, `${LOG_ID}${API_ID}(getRoomLobby) roomId : `, roomId);
+        that._logger.log(that.INFOAPI, `${LOG_ID}${API_ID}(getBubbleLobby) bubbleId : `, bubbleId);
 
         return new Promise((resolve, reject) => {
-            if (!roomId) {
-                that._logger.log(that.DEBUG, `${LOG_ID}(getRoomLobby) bad or empty 'roomId' parameter : `, roomId);
+            if (!bubbleId) {
+                that._logger.log(that.DEBUG, `${LOG_ID}(getBubbleLobby) bad or empty 'bubbleId' parameter : `, bubbleId);
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
 
-            that._rest.getRoomLobby(roomId).then(async (result) => {
-                that._logger.log(that.INTERNAL, `${LOG_ID}(getRoomLobby) result from server : `, result);
+            that._rest.getBubbleLobby(bubbleId).then(async (result) => {
+                that._logger.log(that.INTERNAL, `${LOG_ID}(getBubbleLobby) result from server : `, result);
                 resolve(result);
             }).catch((err) => {
                 return reject(err);
@@ -7018,41 +7018,41 @@ class Bubbles extends GenericService {
     /**
      * @public
      * @nodered true
-     * @method acceptRoomLobby
+     * @method acceptBubbleLobby
      * @instance
      * @since 2.44.1
      * @category rooms lobbies management
-     * @param {string} roomId The id of the room.
+     * @param {string} bubbleId The id of the bubble.
      * @param {string} scope Accept scope: `all` to accept all waiting users, `some` to accept specific users.
      * @param {string[]} [users] List of user ids to accept. Required when scope is `some`.
      * @async
      * @description
      *    This API allows to accept some or all users waiting in the lobby. <br>
-     *    Any organizer of the room (users having the privilege moderator) can accept users. <br>
-     * @return {Promise<any>} An object containing room info, updated lobby array, and a report of accepted/invalid users.
+     *    Any organizer of the bubble (users having the privilege moderator) can accept users. <br>
+     * @return {Promise<any>} An object containing bubble info, updated lobby array, and a report of accepted/invalid users.
      */
-    acceptRoomLobby(roomId: string, scope: string, users: string[] = undefined) {
+    acceptBubbleLobby(bubbleId: string, scope: string, users: string[] = undefined) {
         let that = this;
-        that._logger.log(that.INFOAPI, `${LOG_ID}${API_ID}(acceptRoomLobby) roomId : `, roomId);
+        that._logger.log(that.INFOAPI, `${LOG_ID}${API_ID}(acceptBubbleLobby) bubbleId : `, bubbleId);
 
         return new Promise((resolve, reject) => {
-            if (!roomId) {
-                that._logger.log(that.DEBUG, `${LOG_ID}(acceptRoomLobby) bad or empty 'roomId' parameter : `, roomId);
+            if (!bubbleId) {
+                that._logger.log(that.DEBUG, `${LOG_ID}(acceptBubbleLobby) bad or empty 'bubbleId' parameter : `, bubbleId);
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
 
             if (!scope || !["all", "some"].includes(scope)) {
-                that._logger.log(that.DEBUG, `${LOG_ID}(acceptRoomLobby) bad or empty 'scope' parameter : `, scope);
+                that._logger.log(that.DEBUG, `${LOG_ID}(acceptBubbleLobby) bad or empty 'scope' parameter : `, scope);
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
 
             if (scope === "some" && (!users || users.length === 0)) {
-                that._logger.log(that.DEBUG, `${LOG_ID}(acceptRoomLobby) 'users' parameter required when scope is 'some'`);
+                that._logger.log(that.DEBUG, `${LOG_ID}(acceptBubbleLobby) 'users' parameter required when scope is 'some'`);
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
 
-            that._rest.acceptRoomLobby(roomId, scope, users).then(async (result) => {
-                that._logger.log(that.INTERNAL, `${LOG_ID}(acceptRoomLobby) result from server : `, result);
+            that._rest.acceptBubbleLobby(bubbleId, scope, users).then(async (result) => {
+                that._logger.log(that.INTERNAL, `${LOG_ID}(acceptBubbleLobby) result from server : `, result);
                 resolve(result);
             }).catch((err) => {
                 return reject(err);
@@ -7063,42 +7063,42 @@ class Bubbles extends GenericService {
     /**
      * @public
      * @nodered true
-     * @method denyRoomLobby
+     * @method denyBubbleLobby
      * @instance
      * @since 2.44.1
      * @category rooms lobbies management
-     * @param {string} roomId The id of the room.
+     * @param {string} bubbleId The id of the bubble.
      * @param {string} scope Deny scope: `all` to deny all waiting users, `some` to deny specific users.
      * @param {string[]} [users] List of user ids to deny. Required when scope is `some`.
      * @async
      * @description
      *    This API allows to deny some or all users waiting in the lobby. <br>
-     *    Any organizer of the room (users having the privilege moderator) can deny users. <br>
+     *    Any organizer of the bubble (users having the privilege moderator) can deny users. <br>
      *    Each denied user receives an event notification. <br>
-     * @return {Promise<any>} An object containing room info, updated lobby array, and a report of denied/invalid users.
+     * @return {Promise<any>} An object containing bubble info, updated lobby array, and a report of denied/invalid users.
      */
-    denyRoomLobby(roomId: string, scope: string, users: string[] = undefined) {
+    denyBubbleLobby(bubbleId: string, scope: string, users: string[] = undefined) {
         let that = this;
-        that._logger.log(that.INFOAPI, `${LOG_ID}${API_ID}(denyRoomLobby) roomId : `, roomId);
+        that._logger.log(that.INFOAPI, `${LOG_ID}${API_ID}(denyBubbleLobby) bubbleId : `, bubbleId);
 
         return new Promise((resolve, reject) => {
-            if (!roomId) {
-                that._logger.log(that.DEBUG, `${LOG_ID}(denyRoomLobby) bad or empty 'roomId' parameter : `, roomId);
+            if (!bubbleId) {
+                that._logger.log(that.DEBUG, `${LOG_ID}(denyBubbleLobby) bad or empty 'bubbleId' parameter : `, bubbleId);
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
 
             if (!scope || !["all", "some"].includes(scope)) {
-                that._logger.log(that.DEBUG, `${LOG_ID}(denyRoomLobby) bad or empty 'scope' parameter : `, scope);
+                that._logger.log(that.DEBUG, `${LOG_ID}(denyBubbleLobby) bad or empty 'scope' parameter : `, scope);
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
 
             if (scope === "some" && (!users || users.length === 0)) {
-                that._logger.log(that.DEBUG, `${LOG_ID}(denyRoomLobby) 'users' parameter required when scope is 'some'`);
+                that._logger.log(that.DEBUG, `${LOG_ID}(denyBubbleLobby) 'users' parameter required when scope is 'some'`);
                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
             }
 
-            that._rest.denyRoomLobby(roomId, scope, users).then(async (result) => {
-                that._logger.log(that.INTERNAL, `${LOG_ID}(denyRoomLobby) result from server : `, result);
+            that._rest.denyBubbleLobby(bubbleId, scope, users).then(async (result) => {
+                that._logger.log(that.INTERNAL, `${LOG_ID}(denyBubbleLobby) result from server : `, result);
                 resolve(result);
             }).catch((err) => {
                 return reject(err);

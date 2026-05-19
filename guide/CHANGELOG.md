@@ -14,15 +14,18 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   None.
  
 #### Added
--   Add `setRoomLobby` method in `RESTService` to call `PUT /api/rainbow/enduser/v1.0/rooms/:roomId/lobbies` for activating or deactivating the room lobby.
--   Add `setRoomLobby` method in `BubblesService` to activate or deactivate the lobby of a room (requires BUBBLE_WAITING_ROOM feature key).
--   Add `getRoomLobby` method in `RESTService` to call `GET /api/rainbow/enduser/v1.0/rooms/:roomId/lobbies/pending` to retrieve users waiting in the lobby.
--   Add `getRoomLobby` method in `BubblesService` to get the list of users waiting in the room lobby.
--   Add `acceptRoomLobby` method in `RESTService` to call `PUT /api/rainbow/enduser/v1.0/rooms/:roomId/lobbies/accept` to accept waiting users.
--   Add `acceptRoomLobby` method in `BubblesService` to accept some or all users waiting in the room lobby.
--   Add `denyRoomLobby` method in `RESTService` to call `PUT /api/rainbow/enduser/v1.0/rooms/:roomId/lobbies/deny` to deny waiting users.
--   Add `denyRoomLobby` method in `BubblesService` to deny some or all users waiting in the room lobby.
--   Add `testRoomLobbyManagement` in `Samples/index.ts` to verify the full lobby management flow (activate, get pending, accept, deny, deactivate).
+-   Add `setBubbleLobby` method in `RESTService` to call `PUT /api/rainbow/enduser/v1.0/rooms/:roomId/lobbies` for activating or deactivating the bubble lobby.
+-   Add `setBubbleLobby` method in `BubblesService` to activate or deactivate the lobby of a bubble (requires BUBBLE_WAITING_ROOM feature key).
+-   Add `getBubbleLobby` method in `RESTService` to call `GET /api/rainbow/enduser/v1.0/rooms/:roomId/lobbies/pending` to retrieve users waiting in the lobby.
+-   Add `getBubbleLobby` method in `BubblesService` to get the list of users waiting in the bubble lobby.
+-   Add `acceptBubbleLobby` method in `RESTService` to call `PUT /api/rainbow/enduser/v1.0/rooms/:roomId/lobbies/accept` to accept waiting users.
+-   Add `acceptBubbleLobby` method in `BubblesService` to accept some or all users waiting in the bubble lobby.
+-   Add `denyBubbleLobby` method in `RESTService` to call `PUT /api/rainbow/enduser/v1.0/rooms/:roomId/lobbies/deny` to deny waiting users.
+-   Add `denyBubbleLobby` method in `BubblesService` to deny some or all users waiting in the bubble lobby.
+-   Add `testBubbleLobbyManagement` in `Samples/index.ts` to verify the full lobby management flow (activate, get pending, accept, deny, deactivate).
+-   Add `roomlobby` stanza handling in `conversationEventHandler.ts` (`onRoomLobbyMessageReceived`) emitting `evt_internal_bubble_roomlobby_received`.
+-   Add bypass for `roomlobby` stanza in `alertEventHandler`, `channelEventHandler`, `TasksEventHandler`, `RBVoiceEventHandler`, `favoriteEventHandler`, `presenceEventHandler`, `webinarEventHandler`, `invitationEventHandler`.
+-   Add `rainbow_onbubbleroomlobbyreceived` public event in `Events.ts`, fired when the lobby state of a bubble changes (attributes: `action`, `roomid`, `roomjid`, `haslobby`, `roomname`, `waitingusers`).
 
 #### Changed
 -   Add an optional `companyId` parameter to `ActivateALdapConnectorUser` in `AdminService` and `RESTService` to allow activating a connector for a specific company.

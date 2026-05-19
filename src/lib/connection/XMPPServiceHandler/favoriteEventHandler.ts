@@ -136,6 +136,9 @@ class FavoriteEventHandler extends GenericHandler {
                     case "roompassword":
                         //treated in conversationEventHandler::onRoomPasswordManagementMessageReceived(node);
                         break;
+                    case "roomlobby":
+                        //treated in conversationEventHandler::onRoomLobbyMessageReceived(node);
+                        break;
                     case "file":
                         break;
                     case "thumbnail":
