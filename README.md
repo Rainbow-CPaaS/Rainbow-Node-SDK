@@ -110,6 +110,19 @@ let options = {
             }
     },
     "testOutdatedVersion": true, // Parameter to verify at startup if the current SDK Version is the lastest published on npmjs.com.
+        // HTTP keep-alive agent options (optional)
+    "rest": {
+        "gotOptions": {
+            "agentOptions": {
+                "keepAlive": true,
+                "freeSocketTimeout": 5000,  // Destroy idle sockets in pool after 5s — prevents ECONNRESET on stale connections. For bots with bursty HTTP triggered by XMPP events, 5s preserves burst reuse while avoiding stale sockets during long idle periods.
+                "timeout": 55000,           // Socket inactivity timeout
+                "maxSockets": Infinity,
+                "maxFreeSockets": 1002,
+                "rejectUnauthorized": true
+            }
+        }
+    },
         // IM options
     "im": {
             "sendReadReceipt": true, // Allow to automatically send back a 'read' status of the received message. Usefull for Bots.

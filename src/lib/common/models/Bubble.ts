@@ -575,7 +575,7 @@ class Bubble {
                         // end-dev-code-console //
                 }
                 );
-                that.owner = (that.ownerContact.jid === contactsService.userContact.jid);
+                that.owner = (that.ownerContact?.jid === contactsService.userContact.jid);
             }
 
             if (data.users) {

@@ -2101,7 +2101,7 @@ class RESTService extends GenericRESTService {
                 that._logger.log(that.DEBUG, LOG_ID + "(getContactInformationByID) No id provided");
                 resolve(null);
             } else {
-                that.http.get("/api/rainbow/enduser/v1.0/users/" + encodeURIComponent(id) + "?format=full", that.getRequestHeader(), undefined).then(function (json) {
+                that.http.get("/api/rainbow/enduser/v1.0/users/" + encodeURIComponent(id) + "?format=full", that.getRequestHeader(), undefined, undefined, 1).then(function (json) {
                     that._logger.log(that.DEBUG, LOG_ID + "(getContactInformationByID) successfull");
                     that._logger.log(that.INTERNAL, LOG_ID + "(getContactInformationByID) REST result : ", json);
                     resolve(json?.data);

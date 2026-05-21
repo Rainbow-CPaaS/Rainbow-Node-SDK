@@ -3951,7 +3951,7 @@ class Bubbles extends GenericService {
 
             for (const user of bubble.users) {
                 //bubble.users.forEach(function (user) {
-                if (user.status===Bubble.RoomUserStatus.ACCEPTED || user.status===Bubble.RoomUserStatus.INVITED || user.jid_im===bubble.ownerContact.jid) {
+                if (user.status===Bubble.RoomUserStatus.ACCEPTED || user.status===Bubble.RoomUserStatus.INVITED || user.jid_im===bubble.ownerContact?.jid) {
                     if (user.privilege===Bubble.Privilege.MODERATOR) {
                         bubble.organizers.push(user);
                     } else {

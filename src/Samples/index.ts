@@ -437,7 +437,7 @@ let expressEngine = undefined;
                      /**
                       * Socket timeout in milliseconds. This will set the timeout after the socket is connected.
                       */
-                     timeout: 120002, // ?: number | undefined;
+                     timeout: 55000, // ?: number | undefined; // VBR CRRAINB below server keep-alive idle timeout (~60s) to avoid ECONNRESET on stale sockets
                      /**
                       * If not false, the server certificate is verified against the list of supplied CAs. Default: true.
                       */
@@ -448,7 +448,7 @@ let expressEngine = undefined;
                          lookup: 5252, // lookup: 100, Starts when a socket is assigned.  Ends when the hostname has been resolved.
                          connect: 10252, // connect: 50, Starts when lookup completes.  Ends when the socket is fully connected.
                          secureConnect: 10252, // secureConnect: 50, Starts when connect completes. Ends when the handshake process completes.
-                         socket: 120002, // socket: 1000, Starts when the socket is connected. Resets when new data is transferred.
+                         socket: 55000, // socket: 1000, Starts when the socket is connected. Resets when new data is transferred.
                          send: 120002, // send: 10000, // Starts when the socket is connected. Ends when all data have been written to the socket.
                          response: 120002 // response: 1000 // Starts when request has been flushed. Ends when the headers are received.
                      }

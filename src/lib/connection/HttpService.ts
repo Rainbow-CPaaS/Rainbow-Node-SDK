@@ -40,9 +40,8 @@ import {HTTPoverXMPP} from "../services/HTTPoverXMPPService.js";
 import {LevelLogs} from "../common/LevelLogs";
 import {constants} from "node:os";
 
-//import HttpAgent, { HttpsAgent } from "agentkeepalive";
-//const HttpAgent = require('agentkeepalive');
-//const HttpsAgent = require('agentkeepalive').HttpsAgent;
+const HttpAgent = require('agentkeepalive');
+const HttpsAgent = require('agentkeepalive').HttpsAgent;
 
 let KeepAliveProxyAgent = require('keepalive-proxy-agent');
 //let KeepAliveProxyAgent = require('agentkeepalive');
@@ -177,6 +176,10 @@ class HTTPService extends LevelLogs{
              */
             timeout: customLiveOption?.agentOptions?.timeout!==undefined ? customLiveOption.agentOptions.timeout:60000, // ?: number | undefined;
             /**
+             * Destroy idle free sockets after this timeout (ms). Prevents reusing sockets closed by the server. Default: 50000.
+             */
+            freeSocketTimeout: customLiveOption?.agentOptions?.freeSocketTimeout!==undefined ? customLiveOption.agentOptions.freeSocketTimeout:5000, // ?: number | undefined; // VBR CRRAINB must stay below server keep-alive idle timeout
+            /**
              * If not false, the server certificate is verified against the list of supplied CAs. Default: true.
              */
             rejectUnauthorized: customLiveOption?.agentOptions?.rejectUnauthorized!==undefined ? customLiveOption.agentOptions.rejectUnauthorized:true
@@ -213,8 +216,8 @@ class HTTPService extends LevelLogs{
             this.reqAgentHttps = new HttpsProxyAgent( liveOption);
         } else {
             that._logger.log(that.INTERNAL, LOG_ID + "(constructor) build direct agent. liveOption : ", liveOption);
-            this.reqAgentHttp = new http.Agent(liveOption);
-            this.reqAgentHttps = new https.Agent(liveOption);
+            this.reqAgentHttp = new HttpAgent(liveOption);
+            this.reqAgentHttps = new HttpsAgent(liveOption);
         }
 
         // ***** End lib 'keepalive-proxy-agent' *****
@@ -524,6 +527,8 @@ safeJsonParse(str) {
         let that = this;
         return new Promise((resolve) => {
             that.httpManager.stop();
+            that.reqAgentHttp?.destroy();
+            that.reqAgentHttps?.destroy();
             that._logger.log(that.INFO, LOG_ID + "(stop) Successfully stopped");
             resolve(undefined);
         });
@@ -635,7 +640,7 @@ safeJsonParse(str) {
                             calculateDelay: ({computedValue}) => {
                                 let noise = 100;
                                 //let computedValueCalculated = ((2 ** (attemptCount - 1)) * 1000) + noise;
-                                let shouldBeRun = (nbRetryBeforeFailed - attemptCount) > 1 ? 1:0;
+                                let shouldBeRun = (nbRetryBeforeFailed - attemptCount) > 0 ? 1:0;
                                 let computedValueCalculated = (shouldBeRun * (timeBetweenRetry + noise));
                                 attemptCount++;
                                 that._logger.warn("warn", LOG_ID + "(get) (calculateDelay) retry HTTP GET, nbRetryBeforeFailed : ", nbRetryBeforeFailed, ",attemptCount : ", attemptCount, ", timeBetweenRetry : ", timeBetweenRetry, "ms , computedValue : ", computedValue, ", computedValueCalculated : ", computedValueCalculated);
@@ -850,7 +855,7 @@ safeJsonParse(str) {
                             calculateDelay: ({computedValue}) => {
                                 let noise = 100;
                                 //let computedValueCalculated = ((2 ** (attemptCount - 1)) * 1000) + noise;
-                                let shouldBeRun = (nbRetryBeforeFailed - attemptCount) > 1 ? 1:0;
+                                let shouldBeRun = (nbRetryBeforeFailed - attemptCount) > 0 ? 1:0;
                                 let computedValueCalculated = (shouldBeRun * (timeBetweenRetry + noise));
                                 attemptCount++;
                                 that._logger.warn("warn", LOG_ID + "(get) (calculateDelay) retry HTTP GET, nbRetryBeforeFailed : ", nbRetryBeforeFailed, ",attemptCount : ", attemptCount, ", timeBetweenRetry : ", timeBetweenRetry, "ms , computedValue : ", computedValue, ", computedValueCalculated : ", computedValueCalculated);
@@ -1351,7 +1356,7 @@ safeJsonParse(str) {
                             calculateDelay: ({computedValue}) => {
                                 let noise = 100;
                                 //let computedValueCalculated = ((2 ** (attemptCount - 1)) * 1000) + noise;
-                                let shouldBeRun = (nbRetryBeforeFailed - attemptCount) > 1 ? 1:0;
+                                let shouldBeRun = (nbRetryBeforeFailed - attemptCount) > 0 ? 1:0;
                                 let computedValueCalculated = (shouldBeRun * (timeBetweenRetry + noise));
                                 attemptCount++;
                                 that._logger.warn("warn", LOG_ID + "(get) (calculateDelay) retry HTTP GET, nbRetryBeforeFailed : ", nbRetryBeforeFailed, ",attemptCount : ", attemptCount, ", timeBetweenRetry : ", timeBetweenRetry, "ms , computedValue : ", computedValue, ", computedValueCalculated : ", computedValueCalculated);
@@ -1574,7 +1579,7 @@ safeJsonParse(str) {
                             calculateDelay: ({computedValue}) => {
                                 let noise = 100;
                                 //let computedValueCalculated = ((2 ** (attemptCount - 1)) * 1000) + noise;
-                                let shouldBeRun = (nbRetryBeforeFailed - attemptCount) > 1 ? 1:0;
+                                let shouldBeRun = (nbRetryBeforeFailed - attemptCount) > 0 ? 1:0;
                                 let computedValueCalculated = (shouldBeRun * (timeBetweenRetry + noise));
                                 attemptCount++;
                                 that._logger.warn("warn", LOG_ID + "(get) (calculateDelay) retry HTTP GET, nbRetryBeforeFailed : ", nbRetryBeforeFailed, ",attemptCount : ", attemptCount, ", timeBetweenRetry : ", timeBetweenRetry, "ms , computedValue : ", computedValue, ", computedValueCalculated : ", computedValueCalculated);
@@ -1914,7 +1919,7 @@ safeJsonParse(str) {
                                 calculateDelay: ({computedValue}) => {
                                     let noise = 100;
                                     //let computedValueCalculated = ((2 ** (attemptCount - 1)) * 1000) + noise;
-                                    let shouldBeRun = (nbRetryBeforeFailed - attemptCount) > 1 ? 1:0;
+                                    let shouldBeRun = (nbRetryBeforeFailed - attemptCount) > 0 ? 1:0;
                                     let computedValueCalculated = (shouldBeRun * (timeBetweenRetry + noise));
                                     attemptCount++;
                                     that._logger.warn("warn", LOG_ID + "(get) (calculateDelay) retry HTTP GET, nbRetryBeforeFailed : ", nbRetryBeforeFailed, ",attemptCount : ", attemptCount, ", timeBetweenRetry : ", timeBetweenRetry, "ms , computedValue : ", computedValue, ", computedValueCalculated : ", computedValueCalculated);
@@ -2181,7 +2186,7 @@ safeJsonParse(str) {
                         calculateDelay: ({computedValue}) => {
                             let noise = 100;
                             //let computedValueCalculated = ((2 ** (attemptCount - 1)) * 1000) + noise;
-                            let shouldBeRun = (nbRetryBeforeFailed - attemptCount) > 1 ? 1:0;
+                            let shouldBeRun = (nbRetryBeforeFailed - attemptCount) > 0 ? 1:0;
                             let computedValueCalculated = (shouldBeRun * (timeBetweenRetry + noise));
                             attemptCount++;
                             that._logger.warn("warn", LOG_ID + "(get) (calculateDelay) retry HTTP GET, nbRetryBeforeFailed : ", nbRetryBeforeFailed, ",attemptCount : ", attemptCount, ", timeBetweenRetry : ", timeBetweenRetry, "ms , computedValue : ", computedValue, ", computedValueCalculated : ", computedValueCalculated);
@@ -2420,7 +2425,7 @@ safeJsonParse(str) {
                         calculateDelay: ({computedValue}) => {
                             let noise = 100;
                             //let computedValueCalculated = ((2 ** (attemptCount - 1)) * 1000) + noise;
-                            let shouldBeRun = (nbRetryBeforeFailed - attemptCount) > 1 ? 1:0;
+                            let shouldBeRun = (nbRetryBeforeFailed - attemptCount) > 0 ? 1:0;
                             let computedValueCalculated = (shouldBeRun * (timeBetweenRetry + noise));
                             attemptCount++;
                             that._logger.warn("warn", LOG_ID + "(get) (calculateDelay) retry HTTP GET, nbRetryBeforeFailed : ", nbRetryBeforeFailed, ",attemptCount : ", attemptCount, ", timeBetweenRetry : ", timeBetweenRetry, "ms , computedValue : ", computedValue, ", computedValueCalculated : ", computedValueCalculated);
@@ -2675,7 +2680,7 @@ safeJsonParse(str) {
                         calculateDelay: ({computedValue}) => {
                             let noise = 100;
                             //let computedValueCalculated = ((2 ** (attemptCount - 1)) * 1000) + noise;
-                            let shouldBeRun = (nbRetryBeforeFailed - attemptCount) > 1 ? 1:0;
+                            let shouldBeRun = (nbRetryBeforeFailed - attemptCount) > 0 ? 1:0;
                             let computedValueCalculated = (shouldBeRun * (timeBetweenRetry + noise));
                             attemptCount++;
                             that._logger.warn("warn", LOG_ID + "(get) (calculateDelay) retry HTTP GET, nbRetryBeforeFailed : ", nbRetryBeforeFailed, ",attemptCount : ", attemptCount, ", timeBetweenRetry : ", timeBetweenRetry, "ms , computedValue : ", computedValue, ", computedValueCalculated : ", computedValueCalculated);
@@ -2927,7 +2932,7 @@ safeJsonParse(str) {
                         calculateDelay: ({computedValue}) => {
                             let noise = 100;
                             //let computedValueCalculated = ((2 ** (attemptCount - 1)) * 1000) + noise;
-                            let shouldBeRun = (nbRetryBeforeFailed - attemptCount) > 1 ? 1:0;
+                            let shouldBeRun = (nbRetryBeforeFailed - attemptCount) > 0 ? 1:0;
                             let computedValueCalculated = (shouldBeRun * (timeBetweenRetry + noise));
                             attemptCount++;
                             that._logger.warn("warn", LOG_ID + "(put) (calculateDelay) retry HTTP PUT, nbRetryBeforeFailed : ", nbRetryBeforeFailed, ",attemptCount : ", attemptCount, ", timeBetweenRetry : ", timeBetweenRetry, "ms , computedValue : ", computedValue, ", computedValueCalculated : ", computedValueCalculated);

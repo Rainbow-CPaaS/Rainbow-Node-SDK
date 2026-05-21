@@ -114,6 +114,7 @@
     "@xmpp/xml": "^0.14.0",
     "adaptive-expressions": "^4.23.3",
     "adaptivecards-templating": "^2.3.1",
+    "agentkeepalive": "^4.6.0",
     "async-lock": "^1.4.1",
     "atob": "^2.1.2",
     "backoff": "^2.5.0",
