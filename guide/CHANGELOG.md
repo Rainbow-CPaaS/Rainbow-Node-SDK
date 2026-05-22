@@ -11,9 +11,17 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   None.
 
 #### Fixed
--   None.
- 
+-   Fix crash `TypeError: Cannot read properties of undefined (reading 'jid')` in `Bubble.ts` / `updateBubble` when `getContactById` fails during bubble update (`ownerContact` could be `undefined` on network error). Fixed with optional chaining (`ownerContact?.jid`).
+-   Fix same crash in `BubblesService.ts` / `refreshMemberAndOrganizerLists` when `bubble.ownerContact` is `undefined` after a failed contact fetch. Fixed with optional chaining (`bubble.ownerContact?.jid`).
+-   Fix retry off-by-one in `HttpService.ts` / `calculateDelay`: condition `(nbRetryBeforeFailed - attemptCount) > 1` meant `nbRetryBeforeFailed = 1` yielded 0 retries. Fixed to `> 0`. Affects all HTTP methods (GET, PUT, DELETE…).
+-   Fix `RESTService.ts` / `getContactInformationByID` called with default `nbRetryBeforeFailed = 0` so transient `ECONNRESET` errors were never retried. Now passes `nbRetryBeforeFailed = 1`.
+
 #### Added
+-   Add `agentkeepalive` npm dependency — provides `freeSocketTimeout` option to proactively remove stale keep-alive sockets from the pool before the server closes them.
+-   Add `agentOptions.freeSocketTimeout` configuration key — controls how long idle free sockets are kept in the pool (default 5 000 ms). Configurable via `rest.gotOptions.agentOptions.freeSocketTimeout`.
+-   Add `agentOptions.staleThresholdMs` configuration key — controls the idle duration after which a fresh one-shot socket is forced instead of reusing a pool socket (default 3 000 ms; sample set to 5 000 ms). Configurable via `rest.gotOptions.agentOptions.staleThresholdMs`.
+-   Add `HttpService.ts` / `_pickAgent()` — new private method that selects the HTTP agent per request based on idle time since last request: returns the keep-alive pool agent within threshold, otherwise returns a disposable agent to guarantee a fresh socket. Injected via `got.extend()` to ensure `got` v14 honours the override.
+-   Add `HttpService.ts` / `stop()` now calls `reqAgentHttp.destroy()` and `reqAgentHttps.destroy()` to release all open sockets on shutdown; required because `agentkeepalive` held sockets alive and prevented process exit.
 -   Add `setBubbleLobby` method in `RESTService` to call `PUT /api/rainbow/enduser/v1.0/rooms/:roomId/lobbies` for activating or deactivating the bubble lobby.
 -   Add `setBubbleLobby` method in `BubblesService` to activate or deactivate the lobby of a bubble (requires BUBBLE_WAITING_ROOM feature key).
 -   Add `getBubbleLobby` method in `RESTService` to call `GET /api/rainbow/enduser/v1.0/rooms/:roomId/lobbies/pending` to retrieve users waiting in the lobby.
@@ -28,6 +36,9 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add `rainbow_onbubbleroomlobbyreceived` public event in `Events.ts`, fired when the lobby state of a bubble changes (attributes: `action`, `roomid`, `roomjid`, `haslobby`, `roomname`, `waitingusers`).
 
 #### Changed
+-   Change `HttpService.ts` direct HTTP/HTTPS agents (non-proxy) now use `agentkeepalive` (`HttpAgent` / `HttpsAgent`) instead of Node.js built-in `http.Agent` / `https.Agent`. Actively destroys idle free sockets after `freeSocketTimeout` (default 5 000 ms) to prevent `ECONNRESET` from stale connections.
+-   Change `config.ts` / `agentOptions.timeout` — reduced from 120 002 ms to 55 000 ms (below server keep-alive idle timeout of ~60 s).
+-   Change `index.ts` / `agentOptions.timeout` — reduced from 120 002 ms to 55 000 ms.
 -   Add an optional `companyId` parameter to `ActivateALdapConnectorUser` in `AdminService` and `RESTService` to allow activating a connector for a specific company.
 
 ### [2.44.0] - 2026-04-27
