@@ -441,7 +441,8 @@ let expressEngine = undefined;
                      /**
                       * If not false, the server certificate is verified against the list of supplied CAs. Default: true.
                       */
-                     rejectUnauthorized: false
+                     rejectUnauthorized: false,
+                     staleThresholdMs: 5000
                  },
                  gotRequestOptions: {
                      timeout: { // This object describes the maximum allowed time for particular events.

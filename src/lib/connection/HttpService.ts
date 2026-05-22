@@ -97,6 +97,8 @@ class HTTPService extends LevelLogs{
     private reqAgent: any;
     private reqAgentHttp: any;
     private reqAgentHttps: any;
+    private _lastRequestTime = 0;
+    private _staleThresholdMs = 3000;
     public useRequestRateLimiter: boolean;
     public apiHeadersConfiguration: any[];
     public mockRestUrl : Array<{verb:string, url : string, callback : any }> = [];
@@ -149,6 +151,8 @@ class HTTPService extends LevelLogs{
         // ***** Start lib 'keepalive-proxy-agent' *****
 
         const customLiveOption = _options._getRESTOptions()?.gotOptions;
+        this._staleThresholdMs = customLiveOption?.agentOptions?.staleThresholdMs !== undefined
+            ? customLiveOption.agentOptions.staleThresholdMs : 3000;
         let liveOption: any = {
             /**
              * Keep sockets around in a pool to be used by other requests in the future. Default = false
@@ -587,6 +591,19 @@ safeJsonParse(str) {
         }
     }
 
+    // VBR CRRAINB returns a fresh one-shot agent after long idle to avoid ECONNRESET on stale keep-alive socket; otherwise reuses the pool agent
+    private _pickAgent(): { http: any; https: any } {
+        const now = Date.now();
+        const idleMs = now - this._lastRequestTime;
+        const stale = this._lastRequestTime > 0 && idleMs > this._staleThresholdMs;
+        this._lastRequestTime = now;
+        if (stale) {
+            this._logger.log(this.DEBUG, LOG_ID + `(_pickAgent) idle ${idleMs}ms > threshold ${this._staleThresholdMs}ms — using fresh socket`);
+            return { http: new http.Agent(), https: new https.Agent() };
+        }
+        return { http: this.reqAgentHttp, https: this.reqAgentHttps };
+    }
+
     _getUrlRaw(url, headers: any = {}, params, nbRetryBeforeFailed : number = 0, timeBetweenRetry = 1000): Promise<any> {
 
         let that = this;
@@ -609,17 +626,7 @@ safeJsonParse(str) {
                 const newAliveAgent: any = () => {
                     let req = {
                         prefixUrl: "",
-/*                            agent: {
-                            http: undefined,
-                            https: undefined
-                            //http: agent,
-                            //https: agent
 
-                            //http: new HttpAgent(liveOption),
-                            //https: new HttpsAgent(liveOption)
-                            //
-                        },
-// */
                         headers,
                         searchParams: params,
                         retry: {
@@ -742,7 +749,7 @@ safeJsonParse(str) {
 
                 try {
 
-                    const secondInstance = that.mergedGot.extend({mutableDefaults: true});
+                    const secondInstance = that.mergedGot.extend({mutableDefaults: true, agent: that._pickAgent()});
                     /*secondInstance.defaults.options.hooks = defaults.hooks;
                     secondInstance.defaults.options.retry = defaults.retry;
                     secondInstance.defaults.options.pagination = defaults.pagination; // */
@@ -824,17 +831,8 @@ safeJsonParse(str) {
                 const newAliveAgent: any = () => {
                     let req = {
                         prefixUrl: "",
-/*                            agent: {
-                            http: undefined,
-                            https: undefined
-                            //http: agent,
-                            //https: agent
 
-                            //http: new HttpAgent(liveOption),
-                            //https: new HttpsAgent(liveOption)
-                            //
-                        },
-// */                            headers,
+                        headers,
                         //body,
                         //searchParams: params,
                         retry: {
@@ -952,7 +950,7 @@ safeJsonParse(str) {
 
                 try {
 
-                    const secondInstance = that.mergedGot.extend({mutableDefaults: true});
+                    const secondInstance = that.mergedGot.extend({mutableDefaults: true, agent: that._pickAgent()});
                     /*secondInstance.defaults.options.hooks = defaults.hooks;
                     secondInstance.defaults.options.retry = defaults.retry;
                     secondInstance.defaults.options.pagination = defaults.pagination; // */
@@ -1039,17 +1037,7 @@ safeJsonParse(str) {
                 const newAliveAgent: any = () => {
                     let req = {
                         prefixUrl: "",
-/*                            agent: {
-                            http: undefined,
-                            https: undefined
-                            //http: agent,
-                            //https: agent
 
-                            //http: new HttpAgent(liveOption),
-                            //https: new HttpsAgent(liveOption)
-                            //
-                        },
-// */
                         headers,
                         body,
                         //searchParams: params,
@@ -1105,7 +1093,7 @@ safeJsonParse(str) {
 
                 try {
 
-                    const secondInstance = that.mergedGot.extend({mutableDefaults: true});
+                    const secondInstance = that.mergedGot.extend({mutableDefaults: true, agent: that._pickAgent()});
                     /*secondInstance.defaults.options.hooks = defaults.hooks;
                     secondInstance.defaults.options.retry = defaults.retry;
                     secondInstance.defaults.options.pagination = defaults.pagination; // */
@@ -1182,17 +1170,7 @@ safeJsonParse(str) {
                 const newAliveAgent: any = () => {
                     let req = {
                         prefixUrl: "",
-/*                            agent: {
-                            http: undefined,
-                            https: undefined
-                            //http: agent,
-                            //https: agent
 
-                            //http: new HttpAgent(liveOption),
-                            //https: new HttpsAgent(liveOption)
-                            //
-                        },
-// */
                         headers,
                         body,
                         //searchParams: params,
@@ -1248,7 +1226,7 @@ safeJsonParse(str) {
 
                 try {
 
-                    const secondInstance = that.mergedGot.extend({mutableDefaults: true});
+                    const secondInstance = that.mergedGot.extend({mutableDefaults: true, agent: that._pickAgent()});
 
                     let getOptions = newAliveAgent();
                     let response = await secondInstance.put(urlEncoded, getOptions).catch((error) => {
@@ -1324,17 +1302,7 @@ safeJsonParse(str) {
                 const newAliveAgent: any = () => {
                     let req: any = {
                         prefixUrl: "",
-                        /*                            agent: {
-                                                        http: undefined,
-                                                        https: undefined
-                                                        //http: agent,
-                                                        //https: agent
 
-                                                        //http: new HttpAgent(liveOption),
-                                                        //https: new HttpsAgent(liveOption)
-                                                        //
-                                                    },
-                        // */
                         headers,
                         // body,
                         //searchParams: params,
@@ -1471,7 +1439,7 @@ safeJsonParse(str) {
 
                 try {
 
-                    const secondInstance = that.mergedGot.extend({mutableDefaults: true});
+                    const secondInstance = that.mergedGot.extend({mutableDefaults: true, agent: that._pickAgent()});
                     /*secondInstance.defaults.options.hooks = defaults.hooks;
                     secondInstance.defaults.options.retry = defaults.retry;
                     secondInstance.defaults.options.pagination = defaults.pagination; // */
@@ -1705,7 +1673,7 @@ safeJsonParse(str) {
 
                 try {
 
-                    const secondInstance = that.mergedGot.extend({mutableDefaults: true});
+                    const secondInstance = that.mergedGot.extend({mutableDefaults: true, agent: that._pickAgent()});
                     /*secondInstance.defaults.options.hooks = defaults.hooks;
                     secondInstance.defaults.options.retry = defaults.retry;
                     secondInstance.defaults.options.pagination = defaults.pagination; // */
@@ -2049,7 +2017,7 @@ safeJsonParse(str) {
 
                     try {
 
-                        const secondInstance = that.mergedGot.extend({mutableDefaults: true});
+                        const secondInstance = that.mergedGot.extend({mutableDefaults: true, agent: that._pickAgent()});
                         /*secondInstance.defaults.options.hooks = defaults.hooks;
                         secondInstance.defaults.options.retry = defaults.retry;
                         secondInstance.defaults.options.pagination = defaults.pagination; // */
@@ -2326,7 +2294,7 @@ safeJsonParse(str) {
 
             try {
 
-                const secondInstance = that.mergedGot.extend({mutableDefaults: true});
+                const secondInstance = that.mergedGot.extend({mutableDefaults: true, agent: that._pickAgent()});
                 /*secondInstance.defaults.options.hooks = defaults.hooks;
                 secondInstance.defaults.options.retry = defaults.retry;
                 secondInstance.defaults.options.pagination = defaults.pagination; // */
@@ -2567,7 +2535,7 @@ safeJsonParse(str) {
 
             try {
 
-                const secondInstance = that.mergedGot.extend({mutableDefaults: true});
+                const secondInstance = that.mergedGot.extend({mutableDefaults: true, agent: that._pickAgent()});
                 /*secondInstance.defaults.options.hooks = defaults.hooks;
                 secondInstance.defaults.options.retry = defaults.retry;
                 secondInstance.defaults.options.pagination = defaults.pagination; // */
@@ -2814,7 +2782,7 @@ safeJsonParse(str) {
 
             try {
 
-                const secondInstance = that.mergedGot.extend({mutableDefaults: true});
+                const secondInstance = that.mergedGot.extend({mutableDefaults: true, agent: that._pickAgent()});
                 /*secondInstance.defaults.options.hooks = defaults.hooks;
                 secondInstance.defaults.options.retry = defaults.retry;
                 secondInstance.defaults.options.pagination = defaults.pagination; // */
@@ -3077,7 +3045,7 @@ safeJsonParse(str) {
 
             try {
 
-                const secondInstance = that.mergedGot.extend({mutableDefaults: true});
+                const secondInstance = that.mergedGot.extend({mutableDefaults: true, agent: that._pickAgent()});
                 /*secondInstance.defaults.options.hooks = defaults.hooks;
                 secondInstance.defaults.options.retry = defaults.retry;
                 secondInstance.defaults.options.pagination = defaults.pagination; // */
@@ -3210,7 +3178,7 @@ safeJsonParse(str) {
 
             try {
 
-                const secondInstance = that.mergedGot.extend({mutableDefaults: true});
+                const secondInstance = that.mergedGot.extend({mutableDefaults: true, agent: that._pickAgent()});
 
                 let getOptions = newAliveAgent();
                 let response = await secondInstance.put(urlEncoded, getOptions).catch((error) => {
@@ -3432,7 +3400,7 @@ safeJsonParse(str) {
 
                 try {
 
-                    const secondInstance = that.mergedGot.extend({mutableDefaults: true});
+                    const secondInstance = that.mergedGot.extend({mutableDefaults: true, agent: that._pickAgent()});
 
 
                     // store error and result
@@ -3775,7 +3743,7 @@ safeJsonParse(str) {
 
             try {
 
-                const secondInstance = that.mergedGot.extend({mutableDefaults: true});
+                const secondInstance = that.mergedGot.extend({mutableDefaults: true, agent: that._pickAgent()});
                 /*secondInstance.defaults.options.hooks = defaults.hooks;
                 secondInstance.defaults.options.retry = defaults.retry;
                 secondInstance.defaults.options.pagination = defaults.pagination; // */
