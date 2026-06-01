@@ -220,6 +220,7 @@ class Core extends LevelLogs{
                     self._logger.log(self.INFO, LOG_ID + " (rainbow_xmppreconnected) transition to connected succeed.");
                     self._logger.log(self.INTERNAL, LOG_ID + " (rainbow_xmppreconnected) transition to connected succeed : ", data2);
                     await that._bubbles.reset() ;
+                    await self._restartServicesIfNeeded();
                     return self._retrieveInformation();
                 });
             }).then((data3) => {
@@ -481,6 +482,46 @@ class Core extends LevelLogs{
             }
         });
     };
+
+    private async _restartServicesIfNeeded(): Promise<void> {
+        let that = this;
+        try {
+            const services: Array<{name: string, svc: {_started: boolean, start: (...a: any[]) => any}, extra?: any[]}> = [
+                {name: `S2SService`,           svc: that._s2s},
+                {name: `SettingsService`,      svc: that._settings},
+                {name: `PresenceService`,      svc: that._presence},
+                {name: `ContactsService`,      svc: that._contacts},
+                {name: `BubblesService`,       svc: that._bubbles},
+                {name: `ConversationsService`, svc: that._conversations},
+                {name: `ProfilesService`,      svc: that._profiles,    extra: []},
+                {name: `TelephonyService`,     svc: that._telephony},
+                {name: `ImsService`,           svc: that._im},
+                {name: `ChannelsService`,      svc: that._channels},
+                {name: `GroupsService`,        svc: that._groups},
+                {name: `AdminService`,         svc: that._admin},
+                {name: `FileServerService`,    svc: that._fileServer},
+                {name: `FileStorageService`,   svc: that._fileStorage},
+                {name: `CallLogService`,       svc: that._calllog},
+                {name: `FavoritesService`,     svc: that._favorites},
+                {name: `AlertsService`,        svc: that._alerts},
+                {name: `RBVoiceService`,       svc: that._rbvoice},
+                {name: `WebinarsService`,      svc: that._webinars},
+                {name: `HTTPoverXMPP`,         svc: that._httpoverxmpp},
+                {name: `RPCoverXMPP`,          svc: that._rpcoverxmpp},
+                {name: `InvitationsService`,   svc: that._invitations, extra: []},
+                {name: `TasksService`,         svc: that._tasks},
+            ];
+            for (const {name, svc, extra} of services) {
+                if (!svc._started) {
+                    that._logger.log(that.WARN, LOG_ID + `(_restartServicesIfNeeded) ${name} not started, restarting`);
+                    await svc.start(that.options, ...(extra ?? []));
+                }
+            }
+        } catch (err) {
+            that._logger.log(that.ERROR, LOG_ID + `(_restartServicesIfNeeded) CATCH Error : `, err);
+            throw err;
+        }
+    }
 
     _retrieveInformation () {
         let that = this;
