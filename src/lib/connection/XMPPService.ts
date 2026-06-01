@@ -475,7 +475,7 @@ class XMPPService extends GenericService {
                             that._logger.log(that.DEBUG, LOG_ID + "(startOrResetIdleTimer) first pingTimer elapsed after that.maxPingAnswerTimer (", that.maxPingAnswerTimer, " seconds). retry a ping iq request before decide it is a fatal error!");
                             that.pingTimer = that.timeOutManager.setTimeout(async () => {
                                 that._logger.log(that.ERROR, LOG_ID + "(startOrResetIdleTimer) second pingTimer elapsed after that.maxPingAnswerTimer (", that.maxPingAnswerTimer, " seconds). close the socket. : ");
-                                if (null != that.xmppClient.socket) {
+                                if (that.xmppClient != null && that.xmppClient.socket != null) {
                                     that.xmppClient.socket.end();
                                 }
                                 if (that.reconnect) {

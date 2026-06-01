@@ -11,6 +11,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   None.
 
 #### Fixed
+-   Fix crash `TypeError: Cannot read property 'socket' of null` in `XMPPService.ts` / `startOrResetIdleTimer` second ping timeout: guard was testing `xmppClient.socket != null` without first checking `xmppClient != null`, crashing when XMPP client had already been torn down. Fixed to `xmppClient != null && xmppClient.socket != null`.
 -   Fix infinite reconnect loop in `Core.ts` when a service has `_started = false` during the `rainbow_xmppreconnected` reconnect path: `_retrieveInformation()` called `_sendPresenceFromConfiguration` before `PresenceService` was started, throwing a `{code: 400}` error that the catch handler mistook for a connection error and re-emitted `rainbow_xmppreconnected`, causing the loop. Fixed by adding `Core._restartServicesIfNeeded()` — called between `_bubbles.reset()` and `_retrieveInformation()` — which restarts any service where `_started = false`, in startup order.
 -   Fix crash `TypeError: Cannot read properties of undefined (reading 'jid')` in `Bubble.ts` / `updateBubble` when `getContactById` fails during bubble update (`ownerContact` could be `undefined` on network error). Fixed with optional chaining (`ownerContact?.jid`).
 -   Fix same crash in `BubblesService.ts` / `refreshMemberAndOrganizerLists` when `bubble.ownerContact` is `undefined` after a failed contact fetch. Fixed with optional chaining (`bubble.ownerContact?.jid`).
