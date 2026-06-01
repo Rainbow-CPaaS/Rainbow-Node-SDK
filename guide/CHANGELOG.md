@@ -6,6 +6,19 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+### [2.42.0-lts.6] - 2025-XX-XX
+#### Removed
+-   None
+
+#### Fixed
+-   Fix infinite reconnect loop in `Core.ts` when a service has `_started = false` during the `rainbow_xmppreconnected` reconnect path: `_retrieveInformation()` called `_sendPresenceFromConfiguration` before `PresenceService` was started, throwing a `{code: 400}` error that the catch handler mistook for a connection error and re-emitted `rainbow_xmppreconnected`, causing the loop. Fixed by adding `Core._restartServicesIfNeeded()` — called between `_bubbles.reset()` and `_retrieveInformation()` — which restarts any service where `_started = false`, in startup order.
+ 
+#### Added
+-   None
+
+#### Changed
+-   None
+ 
 ### [2.42.0-lts.5] - 2025-05-18
 #### Removed
 -   None
