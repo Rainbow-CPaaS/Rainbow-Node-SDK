@@ -11,6 +11,8 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   None
 
 #### Fixed
+-   Fix crash in `iqEventHandler.ts` / `_onIqGetPingReceived`: `xmppClient.send()` called without null guard, throwing when XMPP client is torn down during reconnection. Now skips send and logs a warning if `xmppClient` is null.
+-   Fix crash `TypeError: Cannot read property 'socket' of null` in `XMPPService.ts` / `startOrResetIdleTimer` second ping timeout: guard was testing `xmppClient.socket != null` without first checking `xmppClient != null`, crashing when XMPP client had already been torn down. Fixed to `xmppClient != null && xmppClient.socket != null`.
 -   Fix infinite reconnect loop in `Core.ts` when a service has `_started = false` during the `rainbow_xmppreconnected` reconnect path: `_retrieveInformation()` called `_sendPresenceFromConfiguration` before `PresenceService` was started, throwing a `{code: 400}` error that the catch handler mistook for a connection error and re-emitted `rainbow_xmppreconnected`, causing the loop. Fixed by adding `Core._restartServicesIfNeeded()` — called between `_bubbles.reset()` and `_retrieveInformation()` — which restarts any service where `_started = false`, in startup order.
  
 #### Added

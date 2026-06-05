@@ -179,7 +179,11 @@ class IQEventHandler extends GenericHandler {
             });
             that._logger.log(that.DEBUG, LOG_ID + "(_onIqGetPingReceived) (handleXMPPConnection) send ping answer - 'stanza' for Rainbow Node SDK version : ", that._logger.colors.magenta(packageVersion.version));
 //        .log("info", LOG_ID + "(handleXMPPConnection) answered - 'stanza'", stanzaResponse.toString(), " for Rainbow Node SDK version : ", packageVersion.version);
-            that.xmppClient.send(stanzaResponse);
+            if (that.xmppClient) {
+                that.xmppClient.send(stanzaResponse);
+            } else {
+                that._logger.log(that.WARN, LOG_ID + `(_onIqGetPingReceived) xmppClient is null, cannot send ping response`);
+            }
         } catch (err) {
             // that._logger.log(that.ERROR, LOG_ID + "(_onIqGetPingReceived) (handleXMPPConnection) CATCH ErrorManager !!! ");
             that._logger.log(that.ERROR, LOG_ID + "(_onIqGetPingReceived) (handleXMPPConnection) CATCH ErrorManager !!! : ", err);

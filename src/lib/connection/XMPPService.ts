@@ -460,7 +460,7 @@ class XMPPService extends GenericService {
                         that._logger.log(that.ERROR, LOG_ID + "(startOrResetIdleTimer) second pingTimer elapsed after that.maxPingAnswerTimer (", that.maxPingAnswerTimer, " seconds). forceClose not setted, FATAL no reconnection for condition : ", err.condition, ", error : ", err);
                         // */
                         that._logger.log(that.ERROR, LOG_ID + "(startOrResetIdleTimer) second pingTimer elapsed after that.maxPingAnswerTimer (", that.maxPingAnswerTimer, " seconds). close the socket. : ");
-                        if (that.xmppClient.socket != null) {
+                        if (that.xmppClient != null && that.xmppClient.socket != null) {
                             that.xmppClient.socket.end();
                         }
                         if (that.reconnect) {
