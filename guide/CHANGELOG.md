@@ -6,7 +6,7 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-### [2.44.1] - 2026-04-XX
+### [2.45.0] - 2026-06-08
 #### Removed
 -   None.
 
@@ -18,6 +18,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Fix same crash in `BubblesService.ts` / `refreshMemberAndOrganizerLists` when `bubble.ownerContact` is `undefined` after a failed contact fetch. Fixed with optional chaining (`bubble.ownerContact?.jid`).
 -   Fix retry off-by-one in `HttpService.ts` / `calculateDelay`: condition `(nbRetryBeforeFailed - attemptCount) > 1` meant `nbRetryBeforeFailed = 1` yielded 0 retries. Fixed to `> 0`. Affects all HTTP methods (GET, PUT, DELETE…).
 -   Fix `RESTService.ts` / `getContactInformationByID` called with default `nbRetryBeforeFailed = 0` so transient `ECONNRESET` errors were never retried. Now passes `nbRetryBeforeFailed = 1`.
+-   Fix `Samples/index.ts` registerGuestForAPublicURL.
 
 #### Added
 -   Add `agentkeepalive` npm dependency — provides `freeSocketTimeout` option to proactively remove stale keep-alive sockets from the pool before the server closes them.
