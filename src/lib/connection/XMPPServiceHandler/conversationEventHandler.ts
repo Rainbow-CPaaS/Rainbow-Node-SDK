@@ -2366,6 +2366,9 @@ class ConversationEventHandler extends GenericHandler {
                         //treated in conversationEventHandler::onRoomLobbyMessageReceived(node);
                         that.onRoomLobbyMessageReceived(nodeJson);
                         break;
+                    case "newIncoming":
+                        that.onNewIncomingMessageReceived(nodeJson);
+                        break;
                     case "file":
                         that.onFileManagementMessageReceived(node);
                         break;
@@ -2969,10 +2972,27 @@ class ConversationEventHandler extends GenericHandler {
             if (nodeJson && nodeJson["$attrs"]) {
                 let nodeAttrs = Object.assign({}, nodeJson["$attrs"]);
                 delete nodeAttrs.xmlns;
+                if (nodeJson["user"] && nodeJson["user"]["$attrs"]) {
+                    nodeAttrs.user = Object.assign({}, nodeJson["user"]["$attrs"]);
+                }
                 that.eventEmitter.emit("evt_internal_bubble_roomlobby_received", nodeAttrs);
             }
         } catch (err) {
             that._logger.log(that.ERROR, LOG_ID + "(onRoomLobbyMessageReceived) CATCH Error !!! : ", err);
+        }
+    };
+
+    onNewIncomingMessageReceived (nodeJson) {
+        let that = this;
+        try {
+            that._logger.log(that.INTERNAL, LOG_ID + "(onNewIncomingMessageReceived) _entering_ : ", nodeJson);
+            if (nodeJson && nodeJson["$attrs"]) {
+                let nodeAttrs = Object.assign({}, nodeJson["$attrs"]);
+                delete nodeAttrs.xmlns;
+                that.eventEmitter.emit("evt_internal_bubble_newincoming_received", nodeAttrs);
+            }
+        } catch (err) {
+            that._logger.log(that.ERROR, LOG_ID + "(onNewIncomingMessageReceived) CATCH Error !!! : ", err);
         }
     };
 

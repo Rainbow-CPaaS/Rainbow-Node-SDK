@@ -6,6 +6,24 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+### [2.45.1] - 2026-06-XX
+#### Removed
+-   None.
+
+#### Fixed
+-   None.
+
+#### Added
+-   Add `newIncoming` management stanza handling in `conversationEventHandler.ts` (`onNewIncomingMessageReceived`) emitting `evt_internal_bubble_newincoming_received` with the waiting user's attributes (`roomid`, `roomjid`, `roomname`, `userid`, `firstname`, `lastname`, `companyname`, `additionDate`, `status`).
+-   Add bypass for `newIncoming` stanza in `alertEventHandler`, `channelEventHandler`, `TasksEventHandler`, `RBVoiceEventHandler`, `favoriteEventHandler`, `presenceEventHandler`, `webinarEventHandler`, `invitationEventHandler`.
+-   Add `rainbow_onbubbleroomlobbynewincoming` public event in `Events.ts`, fired when a new user is waiting in the lobby of a bubble.
+-   Add `user` child data (pending user attributes) to the payload emitted by `onRoomLobbyMessageReceived` for `rainbow_onbubbleroomlobbyreceived`.
+-   Add full lobby guest flow in `testCreateAGuestAndAddItToACreatedBubble` (`Samples/index.ts`): instantiates a guest SDK with the credentials received from `registerGuestForAPublicURL` and calls `start()`; listens for `rainbow_onbubbleroomlobbyreceived` and `rainbow_onbubbleroomlobbynewincoming`; accepts the waiting guest via `acceptBubbleLobby` on `newIncoming`.
+-   Add `rainbow_onbubbleroomlobbyreceived` and `rainbow_onbubbleroomlobbynewincoming` event listeners in `testRoomPasswordManagement` (`Samples/index.ts`); accepts the waiting guest via `acceptBubbleLobby` on `newIncoming`.
+
+#### Changed
+-   None.
+
 ### [2.45.0] - 2026-06-08
 #### Removed
 -   None.

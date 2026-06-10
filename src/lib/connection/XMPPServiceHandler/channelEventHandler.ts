@@ -156,6 +156,9 @@ class ChannelEventHandler extends GenericHandler {
                     case "roomlobby":
                         //treated in conversationEventHandler::onRoomLobbyMessageReceived(node);
                         break;
+                    case "newIncoming":
+                        //treated in conversationEventHandler::onNewIncomingMessageReceived(node);
+                        break;
                     case "file":
                         // treated in conversationEventHandler
                         break;

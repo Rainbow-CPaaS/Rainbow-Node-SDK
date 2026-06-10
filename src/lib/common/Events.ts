@@ -311,6 +311,7 @@ class Events {
         "rainbow_onbubblepollvoted",
         "rainbow_onbubbleroompasswordreceived",
         "rainbow_onbubbleroomlobbyreceived",
+        "rainbow_onbubbleroomlobbynewincoming",
         "rainbow_onconnectorcommand",
         "rainbow_onconnectorconfig",
         "rainbow_onconnectorcommandended",
@@ -1564,11 +1565,22 @@ class Events {
             /**
              * @event Events#rainbow_onbubbleroomlobbyreceived
              * @public
-             * @param { Object } data lobby state data: action, roomid, roomjid, haslobby, roomname, waitingusers
+             * @param { Object } data lobby state data: action, roomid, roomjid, haslobby, roomname, waitingusers, user
              * @description
              *      This event is fired when the lobby state of a bubble changes (activated, deactivated, or waiting users count updated).
              */
             that.publishEvent("bubbleroomlobbyreceived", data);
+        });
+
+        this._evReceiver.on("evt_internal_bubble_newincoming_received", function (data) {
+            /**
+             * @event Events#rainbow_onbubbleroomlobbynewincoming
+             * @public
+             * @param { Object } data new incoming user data: roomid, roomjid, roomname, userid, firstname, lastname, companyname, additionDate, status
+             * @description
+             *      This event is fired when a new user is waiting in the lobby of a bubble.
+             */
+            that.publishEvent("bubbleroomlobbynewincoming", data);
         });
 
         this._evReceiver.on("evt_internal_connectorcommand", function (data) {

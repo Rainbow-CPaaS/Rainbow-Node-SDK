@@ -6922,6 +6922,20 @@ let expressEngine = undefined;
                         roomPassword = data.password;
 
                         _logger.log("debug", "MAIN - [testRoomPasswordManagement] :: publicUrl : ", publicUrl);
+
+                        rainbowSDK.events.once("rainbow_onbubbleroomlobbyreceived", (data) => {
+                            _logger.log("debug", `MAIN - [testRoomPasswordManagement] :: rainbow_onbubbleroomlobbyreceived data : `, data);
+                        });
+                        rainbowSDK.events.once("rainbow_onbubbleroomlobbynewincoming", async (data) => {
+                            _logger.log("debug", `MAIN - [testRoomPasswordManagement] :: rainbow_onbubbleroomlobbynewincoming data : `, data);
+                            try {
+                                const acceptResult = await rainbowSDK.bubbles.acceptBubbleLobby(data.roomid, "some", [data.userid]);
+                                _logger.log("debug", `MAIN - [testRoomPasswordManagement] :: acceptBubbleLobby result : `, acceptResult);
+                            } catch (err) {
+                                _logger.log("error", `MAIN - [testRoomPasswordManagement] :: acceptBubbleLobby failed, err : `, err);
+                            }
+                        });
+
                         rainbowSDK.bubbles.registerGuestForAPublicURL(publicUrl?.invitationURL, loginEmail, password, "VincentGuest", "berderGuest", "VBGuest", "Mr.", "DevGuest", "ITGuest", null,null,null,null,null,null,null,null, null, roomPassword).then(async (result) => {
                             _logger.log("debug", "MAIN - [testRoomPasswordManagement] :: registerGuestForAPublicURL result : ", result);
                             expectingIsDefined(result, "registerGuestForAPublicURL - result should be defined.");
@@ -7578,8 +7592,54 @@ let expressEngine = undefined;
                 _logger.log("debug", "MAIN - [testCreateAGuestAndAddItToACreatedBubble    ] :: createBubble request ok : ", bubble);
                 rainbowSDK.bubbles.createPublicUrl(bubble).then(async (publicUrl) => {
                     _logger.log("debug", "MAIN - [testCreateAGuestAndAddItToACreatedBubble    ] :: createPublicUrl publicUrl : ", publicUrl);
+
+                    rainbowSDK.events.once("rainbow_onbubbleroomlobbyreceived", (data) => {
+                        _logger.log("debug", `MAIN - [testCreateAGuestAndAddItToACreatedBubble    ] :: rainbow_onbubbleroomlobbyreceived data : `, data);
+                    });
+                    rainbowSDK.events.once("rainbow_onbubbleroomlobbynewincoming", async (data) => {
+                        _logger.log("debug", `MAIN - [testCreateAGuestAndAddItToACreatedBubble    ] :: rainbow_onbubbleroomlobbynewincoming data : `, data);
+                        try {
+                            const acceptResult = await rainbowSDK.bubbles.acceptBubbleLobby(data.roomid, "some", [data.userid]);
+                            _logger.log("debug", `MAIN - [testCreateAGuestAndAddItToACreatedBubble    ] :: acceptBubbleLobby result : `, acceptResult);
+                        } catch (err) {
+                            _logger.log("error", `MAIN - [testCreateAGuestAndAddItToACreatedBubble    ] :: acceptBubbleLobby failed, err : `, err);
+                        }
+                    });
+
                     rainbowSDK.bubbles.registerGuestForAPublicURL(publicUrl.invitationURL, loginEmail, password, "VincentGuest", "berderGuest", "VBGuest", "Mr.", "DevGuest", "ITGuest").then(async (result) => {
                         _logger.log("debug", "MAIN - [testCreateAGuestAndAddItToACreatedBubble    ] :: registerGuestForAPublicURL result : ", result);
+
+                     /*   const mainOptions: any = rainbowSDK.option;
+                        const guestOptions = {
+                            "rainbow": {
+                                "host": mainOptions.rainbow.host,
+                                "mode": "xmpp"
+                            },
+                            "credentials": {
+                                "login": loginEmail,
+                                "password": password
+                            },
+                            "application": {
+                                "appID": mainOptions.application.appID,
+                                "appSecret": mainOptions.application.appSecret
+                            },
+                            "logs": {
+                                "enableConsoleLogs": true,
+                                "enableFileLogs": false,
+                                "level": "debug",
+                                "customLabel": `GuestSDK_${loginEmail}`
+                            }
+                        };
+
+                        const guestSDK = new RainbowSDK(guestOptions);
+                        _logger.log("debug", `MAIN - [testCreateAGuestAndAddItToACreatedBubble    ] :: guestSDK created, will start.`);
+                        try {
+                            await guestSDK.start();
+                            _logger.log("debug", `MAIN - [testCreateAGuestAndAddItToACreatedBubble    ] :: guestSDK started.`);
+                        } catch (err) {
+                            _logger.log("error", `MAIN - [testCreateAGuestAndAddItToACreatedBubble    ] :: guestSDK start failed, err : `, err);
+                        }
+                        // */
                     });
                 });
             });
