@@ -4913,7 +4913,8 @@ class Bubbles extends GenericService {
             that._logger.log(that.INTERNAL, LOG_ID + "(registerGuestForAPublicURL) decode openInviteId.");
             let openInviteId = publicUrl.split("/").pop();
             that._logger.log(that.INTERNAL, LOG_ID + "(registerGuestForAPublicURL) openInviteId found : ", openInviteId);
-            let guestParam = new GuestParams(loginEmail, password, null, null, null, null, openInviteId, null, firstName, lastName, nickName, title, jobTitle, department,
+            // isInitialized=true: guest must be marked initialized or the server rejects the first login
+            let guestParam = new GuestParams(loginEmail, password, null, null, null, null, openInviteId, true, firstName, lastName, nickName, title, jobTitle, department,
                     emails, phoneNumbers, country, state, language, timezone, visibility, customData, companyNameOfGuest, roomPassword);
             that._rest.registerGuest(guestParam).then(function (joinResult: any) {
                 resolve(joinResult);
