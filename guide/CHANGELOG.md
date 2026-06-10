@@ -11,7 +11,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   None.
 
 #### Fixed
--   None.
+-   Fix `BubblesService.ts` / `registerGuestForAPublicURL`: `GuestParams` was constructed with `isInitialized=null`, causing the server to create the guest account in a non-initialized state and rejecting the first login. Fixed by passing `isInitialized=true`.
 
 #### Added
 -   Add `newIncoming` management stanza handling in `conversationEventHandler.ts` (`onNewIncomingMessageReceived`) emitting `evt_internal_bubble_newincoming_received` with the waiting user's attributes (`roomid`, `roomjid`, `roomname`, `userid`, `firstname`, `lastname`, `companyname`, `additionDate`, `status`).
