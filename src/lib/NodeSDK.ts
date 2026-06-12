@@ -120,7 +120,9 @@ let LOG_ID = "NodeSDK/IDX";
  * @property {string} options.logs.customLabel "MyRBProject", A label inserted in every lines of the logs. It is usefull if you use multiple SDK instances at a same time. It allows to separate logs in console.
  * @property {string} options.logs.file.path "c:/temp/", Path to the log file.
  * @property {string} options.logs.file.customFileName "R-SDK-Node-MyRBProject", A label inserted in the name of the log file.
- * @property {boolean} options.logs.file.zippedArchive false Can activate a zip of file. It needs CPU process, so avoid it.
+ * @property {boolean} options.logs.file.zippedArchive false, Compress rotated log files with gzip. Reduces disk usage but adds CPU overhead — avoid on resource-constrained environments.
+ * @property {string} options.logs.file.maxSize "10m", Maximum size of a single log file before rotation. Accepts a number (bytes) or a string with suffix: "10m" (megabytes), "1g" (gigabytes), "100k" (kilobytes). Default: "10m".
+ * @property {number|string|null} options.logs.file.maxFiles null, Retention policy for rotated log files. Accepts a number (e.g. 14 = keep last 14 files) or a duration string (e.g. "14d" = delete files older than 14 days). Default: null (no limit — files accumulate indefinitely). Recommended: "30d" or 30 for production.
  * @property {boolean} options.testOutdatedVersion true, Parameter to verify at startup if the current SDK Version is the lastest published on npmjs.com.
  * @property {boolean} options.testDNSentry true, Parameter to verify at startup/reconnection that the rainbow server DNS entry name is available.
  * @property {boolean} options.httpoverxmppserver false, Activate the treatment of Http over Xmpp requests (xep0332).
@@ -250,10 +252,9 @@ type OptionsType = {
         "file": {
             "path": string,
             "customFileName": string,
-            //"level": 'info',                    // Default log level used
-            "zippedArchive": boolean 
-            //"maxSize" : '10m',
-            //"maxFiles" : 10 
+            "zippedArchive": boolean,
+            "maxSize": string | number,
+            "maxFiles": number | string | null
         }
     },
     "testOutdatedVersion": boolean,
@@ -474,7 +475,9 @@ class NodeSDK {
      * @param {string} options.logs.customLabel "MyRBProject", A label inserted in every lines of the logs. It is usefull if you use multiple SDK instances at a same time. It allows to separate logs in console.
      * @param {string} options.logs.file.path "c:/temp/", Path to the log file.
      * @param {string} options.logs.file.customFileName "R-SDK-Node-MyRBProject", A label inserted in the name of the log file.
-     * @param {string} options.logs.file.zippedArchive false Can activate a zip of file. It needs CPU process, so avoid it.
+     * @param {boolean} options.logs.file.zippedArchive false, Compress rotated log files with gzip. Reduces disk usage but adds CPU overhead — avoid on resource-constrained environments.
+     * @param {string} options.logs.file.maxSize "10m", Maximum size of a single log file before rotation. Accepts a number (bytes) or a string with suffix: "10m" (megabytes), "1g" (gigabytes), "100k" (kilobytes). Default: "10m".
+     * @param {number|string|null} options.logs.file.maxFiles null, Retention policy for rotated log files. Accepts a number (e.g. 14 = keep last 14 files) or a duration string (e.g. "14d" = delete files older than 14 days). Default: null (no limit — files accumulate indefinitely). Recommended: "30d" or 30 for production.
      * @param {boolean} options.testOutdatedVersion true, Parameter to verify at startup if the current SDK Version is the lastest published on npmjs.com.
      * @param {boolean} options.testDNSentry true, Parameter to verify at startup/reconnection that the rainbow server DNS entry name is available.
      * @param {boolean} options.httpoverxmppserver false, Activate the treatment of Http over Xmpp requests (xep0332).
