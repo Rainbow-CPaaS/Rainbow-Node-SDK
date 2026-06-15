@@ -333,7 +333,8 @@ class ChannelEventHandler extends GenericHandler {
                           //  "title": entry.getChild("title") ? entry.getChild("title").getText() || "" : "",
                           //  "url": entry.getChild("url") ? entry.getChild("url").getText() || "" : "",
                             "date": new Date(entry.attrs.timestamp),
-                            "images": new Array()
+                            "images": new Array(),
+                            "attachments": new Array()
                         };
 
                         for (const child of entry.children) {
@@ -370,6 +371,19 @@ class ChannelEventHandler extends GenericHandler {
                                     that._logger.log(that.ERROR, LOG_ID + "(onHeadlineMessageReceived) channel image entry received, but image id empty. So ignored.");
                                 } else {
                                     message.images.push(id);
+                                }
+                            });
+                        }
+
+                        // Parse <attachments><id>fileId</id>...</attachments> — one container, N ids
+                        let attachmentsEl = entry.getChild("attachments");
+                        if (attachmentsEl) {
+                            attachmentsEl.getChildren("id").forEach((idEl) => {
+                                let id = idEl.getText() || null;
+                                if (id === null) {
+                                    that._logger.log(that.ERROR, LOG_ID + "(onHeadlineMessageReceived) channel attachment entry received, but id empty. So ignored.");
+                                } else {
+                                    message.attachments.push({ id });
                                 }
                             });
                         }

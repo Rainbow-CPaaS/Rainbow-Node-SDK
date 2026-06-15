@@ -236,6 +236,7 @@ function testAsyncLock() {
     lock.acquire(LOCK_KEY, fn);
 }
 
+
 let logger = {log : console.log};
 function commandLineInteraction() {
     let questions = [

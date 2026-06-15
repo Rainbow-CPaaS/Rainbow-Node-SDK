@@ -4610,6 +4610,36 @@ let expressEngine = undefined;
             }
         }
 
+        /**
+         * Test: create a channel, upload a file to Rainbow storage, then publish a message with the file attached.
+         * @param {string} filePath - Local path of the file to upload (e.g. "c:\\temp\\testfile.txt").
+         * @returns {Promise<any>} The publish result.
+         */
+        async testPublishMessageWithAttachment(filePath: string = "C:\\Temp\\test2.txt") {
+            _logger.log("info", `MAIN [testPublishMessageWithAttachment] start`);
+            try {
+                // 1. Create a public channel
+                let utc = new Date().toJSON().replace(/-/g, "_");
+                let channel = await rainbowSDK.channels.createPublicChannel(`testchannel_attach_${utc}`, "test attachment", "");
+                _logger.log("debug", `MAIN [testPublishMessageWithAttachment] channel created : `, channel);
+
+                // 2. Upload a file to Rainbow file storage — fileDesc.id is used as attachment id
+                let fileDesc :any = await rainbowSDK.fileStorage.uploadFileToStorage(filePath);
+                _logger.log("debug", `MAIN [testPublishMessageWithAttachment] file uploaded, fileDesc.id : `, fileDesc.id);
+
+                // 3. Publish a message to the channel with the uploaded file attached
+                let attachments = [{ id: fileDesc.id }];
+                let result = await rainbowSDK.channels.publishMessageToChannel(channel, "message with attachment", "title_attachment", null, null, "basic", {}, attachments);
+                _logger.log("debug", `MAIN [testPublishMessageWithAttachment] publishMessageToChannel result : `, result);
+
+                _logger.log("info", `MAIN [testPublishMessageWithAttachment] end`);
+                return result;
+            } catch (err) {
+                _logger.log("error", `MAIN [testPublishMessageWithAttachment] error : `, err);
+                throw err;
+            }
+        }
+
         async testgetDetailedAppreciationsChannel() {
             //let mychannel = await rainbowSDK.channels.getChannel("5dea7c6294e80144c1776fe1");
             let mychannels = rainbowSDK.channels.getAllOwnedChannels();

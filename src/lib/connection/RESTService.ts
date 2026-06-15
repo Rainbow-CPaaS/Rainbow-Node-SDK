@@ -8354,25 +8354,44 @@ kamEmailList?: string[], businessSpecific?: string, adminServiceNotificationsLev
         });
     }
 
-    // Publish a message to a channel
-    publishMessage(channelId, message, title, url, imagesIds, type, customDatas : any = {}) {
+    /**
+     * Publish a message to a channel.
+     * @param {string} channelId - The channel id.
+     * @param {string} message - Message content.
+     * @param {string} title - Message title.
+     * @param {string} url - Optional URL.
+     * @param {Array<{id: string}>} imagesIds - Array of image file ids stored in Rainbow.
+     * @param {string} type - Message type (urn:xmpp:channels:*).
+     * @param {any} customDatas - Extra fields merged into payload.
+     * @param {Array<{id: string}>} attachments - File attachments by Rainbow file id.
+     * @returns {Promise<any>}
+     */
+    publishMessage(channelId :string, message :string, title :string, url : string, imagesIds : Array<{id: string}> = undefined, type : string, customDatas : any = {}, attachments : Array<{id: string}> = undefined) {
         let that = this;
+        /* {"type":"urn:xmpp:channels:html","title":"","message":"<p>test channels</p>","images":[],"attachments":[{"id":"6a2fc535b1def7a912d52ccd"}]} // */
+        that._logger.log(that.INFO, LOG_ID + `(publishMessage) channelId : ${channelId}`);
         return new Promise((resolve, reject) => {
             let payload = Object.assign({
                 type,
                 message: message,
                 title: title || "",
                 url: url || "",
-                images: null
+                images: null,
+                attachments: null
             }, customDatas);
 
             if (imagesIds) {
                 payload.images = imagesIds || null;
             }
 
+            if (attachments && attachments.length > 0) {
+                payload.attachments = attachments;
+            }
+
             that.http.post("/api/rainbow/channels/v1.0/channels/" + channelId + "/publish", that.getRequestHeader(), payload, undefined).then((json) => {
                 that._logger.log(that.DEBUG, LOG_ID + "(publishMessage) successfull");
                 that._logger.log(that.INTERNAL, LOG_ID + "(publishMessage) REST result : ", json);
+                that._logger.log(that.INFO, LOG_ID + `(publishMessage) done, channelId : ${channelId}`);
                 resolve(json);
             }).catch(function (err) {
                 that._logger.log(that.ERROR, LOG_ID, "(publishMessage) error");
