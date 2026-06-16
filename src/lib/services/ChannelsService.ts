@@ -350,9 +350,13 @@ class ChannelsService extends GenericService {
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(findChannelsByName) is name defined : ", isDefined(name));
 
         if (!name) {
-            that._logger.log(that.WARN, LOG_ID + "(findChannelsByName) bad or empty 'name' parameter ");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(findChannelsByName) bad or empty 'name' parameter : ", name);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'name' parameter ";
+            error.label += "bad or empty 'name' parameter ";
+            error.cause = name;
+            that._logger.log(that.WARN, LOG_ID + "(findChannelsByName) BAD_REQUEST.");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(findChannelsByName) bad or empty 'name' parameter : ", error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         return that._findChannels(name, null);
@@ -375,9 +379,13 @@ class ChannelsService extends GenericService {
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(findChannelsByTopic) is topic defined : ", isDefined(topic));
 
         if (!topic) {
-            that._logger.log(that.WARN, LOG_ID + "(findChannelsByTopic) bad or empty 'topic' parameter ");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(findChannelsByTopic) bad or empty 'topic' parameter : ", topic);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'topic' parameter ";
+            error.label += "bad or empty 'topic' parameter ";
+            error.cause = topic;
+            that._logger.log(that.WARN, LOG_ID + "(findChannelsByTopic) BAD_REQUEST.");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(findChannelsByTopic) bad or empty 'topic' parameter : ", error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         return that._findChannels(null, topic);
@@ -511,9 +519,13 @@ class ChannelsService extends GenericService {
         };
 
         if (!filter) {
-            that._logger.log(that.DEBUG, LOG_ID + "(fetchChannelsByFilter) bad or empty 'channel' parameter ");
-            that._logger.log(that.INTERNAL, LOG_ID + "(fetchChannelsByFilter) bad or empty 'channel' parameter : ", filter);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'filter' parameter ";
+            error.label += "bad or empty 'filter' parameter ";
+            error.cause = filter;
+            that._logger.log(that.WARN, LOG_ID + "(fetchChannelsByFilter) BAD_REQUEST.");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(fetchChannelsByFilter) bad or empty 'filter' parameter : ", error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         return new Promise((resolve, reject) => {
@@ -710,21 +722,33 @@ class ChannelsService extends GenericService {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateChannelDescription) is channel defined : ", isDefined(channel));
         if (!channel || !channel.id) {
-            that._logger.log(that.WARN, LOG_ID + "(updateChannelDescription) bad or empty 'channel' parameter ");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(updateChannelDescription) bad or empty 'channel' parameter : ", channel);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'channel' parameter ";
+            error.label += "bad or empty 'channel' parameter ";
+            error.cause = channel;
+            that._logger.log(that.WARN, LOG_ID + "(updateChannelDescription) BAD_REQUEST.");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(updateChannelDescription) bad or empty 'channel' parameter : ", error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         if (!channel.id) {
-            that._logger.log(that.WARN, LOG_ID + "(updateChannelDescription) bad or empty 'channel.id' parameter ");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(updateChannelDescription) bad or empty 'channel.id' parameter : ", channel.id);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'channel.id' parameter ";
+            error.label += "bad or empty 'channel.id' parameter ";
+            error.cause = channel.id;
+            that._logger.log(that.WARN, LOG_ID + "(updateChannelDescription) BAD_REQUEST.");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(updateChannelDescription) bad or empty 'channel.id' parameter : ", error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         if (!description) {
-            that._logger.log(that.WARN, LOG_ID + "(updateChannelDescription) bad or empty 'description' parameter ");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(updateChannelDescription) bad or empty 'description' parameter : ", description);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'description' parameter ";
+            error.label += "bad or empty 'description' parameter ";
+            error.cause = description;
+            that._logger.log(that.WARN, LOG_ID + "(updateChannelDescription) BAD_REQUEST.");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(updateChannelDescription) bad or empty 'description' parameter : ", error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         return new Promise((resolve, reject) => {
@@ -764,21 +788,33 @@ class ChannelsService extends GenericService {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateChannelName) is channel defined : ", isDefined(channel));
         if (!channel || !channel.id) {
-            that._logger.log(that.WARN, LOG_ID + "(updateChannelName) bad or empty 'channel' parameter ");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(updateChannelName) bad or empty 'channel' parameter : ", channel);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'channel' parameter ";
+            error.label += "bad or empty 'channel' parameter ";
+            error.cause = channel;
+            that._logger.log(that.WARN, LOG_ID + "(updateChannelName) BAD_REQUEST.");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(updateChannelName) bad or empty 'channel' parameter : ", error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         if (!channel.id) {
-            that._logger.log(that.WARN, LOG_ID + "(updateChannelName) bad or empty 'channel.id' parameter ");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(updateChannelName) bad or empty 'channel.id' parameter : ", channel.id);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'channel.id' parameter ";
+            error.label += "bad or empty 'channel.id' parameter ";
+            error.cause = channel.id;
+            that._logger.log(that.WARN, LOG_ID + "(updateChannelName) BAD_REQUEST.");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(updateChannelName) bad or empty 'channel.id' parameter : ", error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         if (!channelName) {
-            that._logger.log(that.WARN, LOG_ID + "(updateChannelName) bad or empty 'channelName' parameter ");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(updateChannelName) bad or empty 'channelName' parameter : ", channelName);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'channelName' parameter ";
+            error.label += "bad or empty 'channelName' parameter ";
+            error.cause = channelName;
+            that._logger.log(that.WARN, LOG_ID + "(updateChannelName) BAD_REQUEST.");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(updateChannelName) bad or empty 'channelName' parameter : ", error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         return new Promise((resolve, reject) => {
@@ -828,9 +864,13 @@ class ChannelsService extends GenericService {
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateChannel) is id defined : ", isDefined(id));
 
         if (!id) {
-            that._logger.log(that.WARN, LOG_ID + "(updateChannel) bad or empty 'id' parameter ");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(updateChannel) bad or empty 'id' parameter : ", id);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'id' parameter ";
+            error.label += "bad or empty 'id' parameter ";
+            error.cause = id;
+            that._logger.log(that.WARN, LOG_ID + "(updateChannel) BAD_REQUEST.");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(updateChannel) bad or empty 'id' parameter : ", error.cause, ", error : ", error);
+            return Promise.reject(error);
         } else {
             let options : any = {};
             if (channelTopic != null) {
@@ -888,21 +928,33 @@ class ChannelsService extends GenericService {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateChannelVisibility) is channel defined : ", isDefined(channel));
         if (!channel || !channel.id) {
-            that._logger.log(that.WARN, LOG_ID + "(updateChannelVisibility) bad or empty 'channel' parameter ");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(updateChannelVisibility) bad or empty 'channel' parameter : ", channel);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'channel' parameter ";
+            error.label += "bad or empty 'channel' parameter ";
+            error.cause = channel;
+            that._logger.log(that.WARN, LOG_ID + "(updateChannelVisibility) BAD_REQUEST.");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(updateChannelVisibility) bad or empty 'channel' parameter : ", error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         if (!channel.id) {
-            that._logger.log(that.WARN, LOG_ID + "(updateChannelVisibility) bad or empty 'channel.id' parameter ");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(updateChannelVisibility) bad or empty 'channel.id' parameter : ", channel.id);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'channel.id' parameter ";
+            error.label += "bad or empty 'channel.id' parameter ";
+            error.cause = channel.id;
+            that._logger.log(that.WARN, LOG_ID + "(updateChannelVisibility) BAD_REQUEST.");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(updateChannelVisibility) bad or empty 'channel.id' parameter : ", error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         if (!visibility) {
-            that._logger.log(that.WARN, LOG_ID + "(updateChannelVisibility) bad or empty 'visibility' parameter ");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(updateChannelVisibility) bad or empty 'visibility' parameter : ", visibility);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'visibility' parameter ";
+            error.label += "bad or empty 'visibility' parameter ";
+            error.cause = visibility;
+            that._logger.log(that.WARN, LOG_ID + "(updateChannelVisibility) BAD_REQUEST.");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(updateChannelVisibility) bad or empty 'visibility' parameter : ", error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         let mode = visibility === "company" ? "company_public" : "company_closed";
@@ -987,13 +1039,21 @@ class ChannelsService extends GenericService {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateChannelAvatar) is channel defined : ", isDefined(channel));
         if (!channel || !channel.id) {
-            that._logger.log(that.WARN, LOG_ID + "(updateChannelAvatar) bad or empty 'channel' parameter ");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(updateChannelAvatar) bad or empty 'channel' parameter : ", channel);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'channel' parameter ";
+            error.label += "bad or empty 'channel' parameter ";
+            error.cause = channel;
+            that._logger.log(that.WARN, LOG_ID + "(updateChannelAvatar) BAD_REQUEST.");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(updateChannelAvatar) bad or empty 'channel' parameter : ", error.cause, ", error : ", error);
+            return Promise.reject(error);
         } else if (!urlAvatar) {
-            that._logger.log(that.WARN, LOG_ID + "(updateChannelAvatar) bad or empty 'urlAvatar' parameter ");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(updateChannelAvatar) bad or empty 'urlAvatar' parameter : ", urlAvatar);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'urlAvatar' parameter ";
+            error.label += "bad or empty 'urlAvatar' parameter ";
+            error.cause = urlAvatar;
+            that._logger.log(that.WARN, LOG_ID + "(updateChannelAvatar) BAD_REQUEST.");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(updateChannelAvatar) bad or empty 'urlAvatar' parameter : ", error.cause, ", error : ", error);
+            return Promise.reject(error);
         } else {
             return new Promise((resolve, reject) => {
                 try {
@@ -1046,9 +1106,13 @@ class ChannelsService extends GenericService {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteChannelAvatar) is channel defined : ", isDefined(channel));
         if (!channel || !channel.id) {
-            that._logger.log(that.WARN, LOG_ID + "(updateChannelAvatar) bad or empty 'channel' parameter ");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(updateChannelAvatar) bad or empty 'channel' parameter : ", channel);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'channel' parameter ";
+            error.label += "bad or empty 'channel' parameter ";
+            error.cause = channel;
+            that._logger.log(that.WARN, LOG_ID + "(deleteChannelAvatar) BAD_REQUEST.");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteChannelAvatar) bad or empty 'channel' parameter : ", error.cause, ", error : ", error);
+            return Promise.reject(error);
         } else {
             return new Promise((resolve, reject) => {
                 let id = channel.id;
@@ -1231,26 +1295,42 @@ class ChannelsService extends GenericService {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(createItem) is channel defined : ", isDefined(channel));
         if (!channel || !channel.id) {
-            that._logger.log(that.WARN, LOG_ID + "(createItem) bad or empty 'channel' parameter ");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(createItem) bad or empty 'channel' parameter : ", channel);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'channel' parameter ";
+            error.label += "bad or empty 'channel' parameter ";
+            error.cause = channel;
+            that._logger.log(that.WARN, LOG_ID + "(createItem) BAD_REQUEST.");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(createItem) bad or empty 'channel' parameter : ", error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
         if (!message) {
-            that._logger.log(that.WARN, LOG_ID + "(createItem) bad or empty 'title' parameter ");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(createItem) bad or empty 'title' parameter : ", title);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'title' parameter ";
+            error.label += "bad or empty 'title' parameter ";
+            error.cause = title;
+            that._logger.log(that.WARN, LOG_ID + "(createItem) BAD_REQUEST.");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(createItem) bad or empty 'title' parameter : ", error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         if (imagesIds && typeof imagesIds === "object" && Array.isArray(imagesIds) && imagesIds.length < 1) {
-            that._logger.log(that.WARN, LOG_ID + "(createItem) bad or empty 'imagesIds' parameter ");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(createItem) bad or empty 'imagesIds' parameter : ", imagesIds);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'imagesIds' parameter ";
+            error.label += "bad or empty 'imagesIds' parameter ";
+            error.cause = imagesIds;
+            that._logger.log(that.WARN, LOG_ID + "(createItem) BAD_REQUEST.");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(createItem) bad or empty 'imagesIds' parameter : ", error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         if (attachments && typeof attachments === "object" && Array.isArray(attachments) && attachments.length < 1) {
-            that._logger.log(that.WARN, LOG_ID + "(createItem) bad or empty 'attachments' parameter ");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(createItem) bad or empty 'attachments' parameter : ", attachments);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'attachments' parameter ";
+            error.label += "bad or empty 'attachments' parameter ";
+            error.cause = attachments;
+            that._logger.log(that.WARN, LOG_ID + "(createItem) BAD_REQUEST.");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(createItem) bad or empty 'attachments' parameter : ", error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         if (type && ["basic", "markdown", "html", "data"].indexOf(type) === -1) {
@@ -1294,9 +1374,13 @@ class ChannelsService extends GenericService {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(fetchChannelItems) is channel defined : ", isDefined(channel));
         if (!channel || !channel.id) {
-            that._logger.log(that.WARN, LOG_ID + "(fetchChannelItems) bad or empty 'channel' parameter");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(fetchChannelItems) bad or empty 'channel' parameter : ", channel);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'channel' parameter ";
+            error.label += "bad or empty 'channel' parameter ";
+            error.cause = channel;
+            that._logger.log(that.WARN, LOG_ID + "(fetchChannelItems) BAD_REQUEST.");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(fetchChannelItems) bad or empty 'channel' parameter : ", error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         return new Promise( (resolve, reject) => {
@@ -1364,15 +1448,23 @@ class ChannelsService extends GenericService {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteItemFromChannel) is channelId defined : ", isDefined(channelId));
         if (!channelId ) {
-            that._logger.log(that.ERROR, LOG_ID + "(deleteItemFromChannel) bad or empty 'channelId' parameter");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteItemFromChannel) bad or empty 'channelId' parameter : ", channelId);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'channelId' parameter ";
+            error.label += "bad or empty 'channelId' parameter ";
+            error.cause = channelId;
+            that._logger.log(that.WARN, LOG_ID + "(deleteItemFromChannel) BAD_REQUEST.");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteItemFromChannel) bad or empty 'channelId' parameter : ", error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         if (!itemId) {
-            that._logger.log(that.ERROR, LOG_ID + "(deleteItemFromChannel) bad or empty 'itemId' parameter");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteItemFromChannel) bad or empty 'itemId' parameter : ", itemId);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'itemId' parameter ";
+            error.label += "bad or empty 'itemId' parameter ";
+            error.cause = itemId;
+            that._logger.log(that.WARN, LOG_ID + "(deleteItemFromChannel) BAD_REQUEST.");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteItemFromChannel) bad or empty 'itemId' parameter : ", error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         return new Promise( (resolve, reject) => {
@@ -1421,21 +1513,33 @@ class ChannelsService extends GenericService {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(likeItem) is channel defined : ", isDefined(channel));
         if (!channel || !channel.id) {
-            that._logger.log(that.WARN, LOG_ID + "(likeItem) bad or empty 'channel' parameter ");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(likeItem) bad or empty 'channel' parameter : ", channel);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'channel' parameter ";
+            error.label += "bad or empty 'channel' parameter ";
+            error.cause = channel;
+            that._logger.log(that.WARN, LOG_ID + "(likeItem) BAD_REQUEST.");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(likeItem) bad or empty 'channel' parameter : ", error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         if (!itemId) {
-            that._logger.log(that.ERROR, LOG_ID + "(likeItem) bad or empty 'itemId' parameter");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(likeItem) bad or empty 'itemId' parameter : ", itemId);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'itemId' parameter ";
+            error.label += "bad or empty 'itemId' parameter ";
+            error.cause = itemId;
+            that._logger.log(that.WARN, LOG_ID + "(likeItem) BAD_REQUEST.");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(likeItem) bad or empty 'itemId' parameter : ", error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         if (!appreciation) {
-            that._logger.log(that.ERROR, LOG_ID + "(likeItem) bad or empty 'appreciation' parameter");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(likeItem) bad or empty 'appreciation' parameter : ", appreciation);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'appreciation' parameter ";
+            error.label += "bad or empty 'appreciation' parameter ";
+            error.cause = appreciation;
+            that._logger.log(that.WARN, LOG_ID + "(likeItem) BAD_REQUEST.");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(likeItem) bad or empty 'appreciation' parameter : ", error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         return new Promise((resolve, reject) => {
@@ -1470,15 +1574,23 @@ class ChannelsService extends GenericService {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getDetailedAppreciations) is channel defined : ", isDefined(channel));
         if (!channel || !channel.id) {
-            that._logger.log(that.WARN, LOG_ID + "(getDetailedAppreciations) bad or empty 'channel' parameter ");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(getDetailedAppreciations) bad or empty 'channel' parameter : ", channel);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'channel' parameter ";
+            error.label += "bad or empty 'channel' parameter ";
+            error.cause = channel;
+            that._logger.log(that.WARN, LOG_ID + "(getDetailedAppreciations) BAD_REQUEST.");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(getDetailedAppreciations) bad or empty 'channel' parameter : ", error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         if (!itemId) {
-            that._logger.log(that.ERROR, LOG_ID + "(getDetailedAppreciations) bad or empty 'itemId' parameter");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(getDetailedAppreciations) bad or empty 'itemId' parameter : ", itemId);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'itemId' parameter ";
+            error.label += "bad or empty 'itemId' parameter ";
+            error.cause = itemId;
+            that._logger.log(that.WARN, LOG_ID + "(getDetailedAppreciations) BAD_REQUEST.");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(getDetailedAppreciations) bad or empty 'itemId' parameter : ", error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         return new Promise((resolve, reject) => {
@@ -1543,9 +1655,13 @@ class ChannelsService extends GenericService {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(subscribeToChannel) is channel defined : ", isDefined(channel));
         if (!channel || !channel.id) {
-            that._logger.log(that.WARN, LOG_ID + "(subscribeToChannel) bad or empty 'channel' parameter ");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(subscribeToChannel) bad or empty 'channel' parameter : ", channel);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'channel' parameter ";
+            error.label += "bad or empty 'channel' parameter ";
+            error.cause = channel;
+            that._logger.log(that.WARN, LOG_ID + "(subscribeToChannel) BAD_REQUEST.");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(subscribeToChannel) bad or empty 'channel' parameter : ", error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         return new Promise((resolve, reject) => {
@@ -1581,9 +1697,13 @@ class ChannelsService extends GenericService {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(subscribeToChannelById) is id defined : ", isDefined(id));
         if (!id) {
-            that._logger.log(that.WARN, LOG_ID + "(subscribeToChannel) bad or empty 'id' parameter ");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(subscribeToChannel) bad or empty 'id' parameter : ", id);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'id' parameter ";
+            error.label += "bad or empty 'id' parameter ";
+            error.cause = id;
+            that._logger.log(that.WARN, LOG_ID + "(subscribeToChannelById) BAD_REQUEST.");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(subscribeToChannelById) bad or empty 'id' parameter : ", error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         return new Promise( (resolve, reject) => {
@@ -1642,9 +1762,13 @@ class ChannelsService extends GenericService {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(unsubscribeFromChannel) is channel defined : ", isDefined(channel));
         if (!channel || !channel.id) {
-            that._logger.log(that.WARN, LOG_ID + "(unsubscribeFromChannel) bad or empty 'channel' parameter ");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(unsubscribeFromChannel) bad or empty 'channel' parameter : ", channel);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'channel' parameter ";
+            error.label += "bad or empty 'channel' parameter ";
+            error.cause = channel;
+            that._logger.log(that.WARN, LOG_ID + "(unsubscribeFromChannel) BAD_REQUEST.");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(unsubscribeFromChannel) bad or empty 'channel' parameter : ", error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         return new Promise((resolve, reject) => {
@@ -1686,9 +1810,13 @@ class ChannelsService extends GenericService {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(fetchChannelUsers) is channel defined : ", isDefined(channel));
         if (!channel || !channel.id) {
-            that._logger.log(that.WARN, LOG_ID + "(fetchChannelUsers) bad or empty 'channel' parameter");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(fetchChannelUsers) bad or empty 'channel' parameter : ", channel);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'channel' parameter ";
+            error.label += "bad or empty 'channel' parameter ";
+            error.cause = channel;
+            that._logger.log(that.WARN, LOG_ID + "(fetchChannelUsers) BAD_REQUEST.");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(fetchChannelUsers) bad or empty 'channel' parameter : ", error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         let json = {
@@ -1746,9 +1874,13 @@ class ChannelsService extends GenericService {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteAllUsersFromChannel) is channel defined : ", isDefined(channel));
         if (!channel || !channel.id) {
-            that._logger.log(that.WARN, LOG_ID + "(deleteAllUsersFromChannel) bad or empty 'channel' parameter");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteAllUsersFromChannel) bad or empty 'channel' parameter : ", channel);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'channel' parameter ";
+            error.label += "bad or empty 'channel' parameter ";
+            error.cause = channel;
+            that._logger.log(that.WARN, LOG_ID + "(deleteAllUsersFromChannel) BAD_REQUEST.");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteAllUsersFromChannel) bad or empty 'channel' parameter : ", error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         return new Promise((resolve, reject) => {
@@ -1800,9 +1932,13 @@ class ChannelsService extends GenericService {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateChannelUsers) is channel defined : ", isDefined(channel));
         if (!channel || !channel.id) {
-            that._logger.log(that.WARN, LOG_ID + "(updateChannelUsers) bad or empty 'channel' parameter");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(updateChannelUsers) bad or empty 'channel' parameter : ", channel);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'channel' parameter ";
+            error.label += "bad or empty 'channel' parameter ";
+            error.cause = channel;
+            that._logger.log(that.WARN, LOG_ID + "(updateChannelUsers) BAD_REQUEST.");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(updateChannelUsers) bad or empty 'channel' parameter : ", error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         let channelId = channel.id;
@@ -1858,9 +1994,13 @@ class ChannelsService extends GenericService {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateChannelUsersByLoginEmails) is channel defined : ", isDefined(channel));
         if (!channel || !channel.id) {
-            that._logger.log(that.WARN, LOG_ID + "(updateChannelUsersByLoginEmails) bad or empty 'channel' parameter");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(updateChannelUsersByLoginEmails) bad or empty 'channel' parameter : ", channel);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'channel' parameter ";
+            error.label += "bad or empty 'channel' parameter ";
+            error.cause = channel;
+            that._logger.log(that.WARN, LOG_ID + "(updateChannelUsersByLoginEmails) BAD_REQUEST.");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(updateChannelUsersByLoginEmails) bad or empty 'channel' parameter : ", error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         let channelId = channel.id;
@@ -1921,15 +2061,23 @@ class ChannelsService extends GenericService {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(addOwnersToChannel) is channel defined : ", isDefined(channel));
         if (!channel || !channel.id) {
-            that._logger.log(that.WARN, LOG_ID + "(addOwnersToChannel) bad or empty 'channel' parameter");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(addOwnersToChannel) bad or empty 'channel' parameter : ", channel);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'channel' parameter ";
+            error.label += "bad or empty 'channel' parameter ";
+            error.cause = channel;
+            that._logger.log(that.WARN, LOG_ID + "(addOwnersToChannel) BAD_REQUEST.");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(addOwnersToChannel) bad or empty 'channel' parameter : ", error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         if (!owners) {
-            that._logger.log(that.WARN, LOG_ID + "(addOwnersToChannel) bad or empty 'owners' parameter");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(addOwnersToChannel) bad or empty 'owners' parameter : ", owners);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'owners' parameter ";
+            error.label += "bad or empty 'owners' parameter ";
+            error.cause = owners;
+            that._logger.log(that.WARN, LOG_ID + "(addOwnersToChannel) BAD_REQUEST.");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(addOwnersToChannel) bad or empty 'owners' parameter : ", error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         let usersId = [];
@@ -1966,15 +2114,23 @@ class ChannelsService extends GenericService {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(addOwnersToChannelByLoginEmails) is channel defined : ", isDefined(channel));
         if (!channel || !channel.id) {
-            that._logger.log(that.WARN, LOG_ID + "(addOwnersToChannelByLoginEmails) bad or empty 'channel' parameter");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(addOwnersToChannelByLoginEmails) bad or empty 'channel' parameter : ", channel);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'channel' parameter ";
+            error.label += "bad or empty 'channel' parameter ";
+            error.cause = channel;
+            that._logger.log(that.WARN, LOG_ID + "(addOwnersToChannelByLoginEmails) BAD_REQUEST.");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(addOwnersToChannelByLoginEmails) bad or empty 'channel' parameter : ", error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         if (!owners) {
-            that._logger.log(that.WARN, LOG_ID + "(addOwnersToChannelByLoginEmails) bad or empty 'owners' parameter");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(addOwnersToChannelByLoginEmails) bad or empty 'owners' parameter : ", owners);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'owners' parameter ";
+            error.label += "bad or empty 'owners' parameter ";
+            error.cause = owners;
+            that._logger.log(that.WARN, LOG_ID + "(addOwnersToChannelByLoginEmails) BAD_REQUEST.");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(addOwnersToChannelByLoginEmails) bad or empty 'owners' parameter : ", error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         /*
@@ -2019,15 +2175,23 @@ class ChannelsService extends GenericService {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(addPublishersToChannel) is channel defined : ", isDefined(channel));
         if (!channel || !channel.id ) {
-            that._logger.log(that.WARN, LOG_ID + "(addPublishersToChannel) bad or empty 'channel' parameter");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(addPublishersToChannel) bad or empty 'channel' parameter : ", channel);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'channel' parameter ";
+            error.label += "bad or empty 'channel' parameter ";
+            error.cause = channel;
+            that._logger.log(that.WARN, LOG_ID + "(addPublishersToChannel) BAD_REQUEST.");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(addPublishersToChannel) bad or empty 'channel' parameter : ", error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         if (!publishers || !(publishers.length > 0)) {
-            that._logger.log(that.WARN, LOG_ID + "(addPublishersToChannel) bad or empty 'publishers' parameter");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(addPublishersToChannel) bad or empty 'publishers' parameter : ", publishers);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'publishers' parameter ";
+            error.label += "bad or empty 'publishers' parameter ";
+            error.cause = publishers;
+            that._logger.log(that.WARN, LOG_ID + "(addPublishersToChannel) BAD_REQUEST.");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(addPublishersToChannel) bad or empty 'publishers' parameter : ", error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         let usersId = [];
@@ -2064,15 +2228,23 @@ class ChannelsService extends GenericService {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(addPublishersToChannelByLoginEmails) is channel defined : ", isDefined(channel));
         if (!channel || !channel.id ) {
-            that._logger.log(that.WARN, LOG_ID + "(addPublishersToChannelByLoginEmails) bad or empty 'channel' parameter");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(addPublishersToChannelByLoginEmails) bad or empty 'channel' parameter : ", channel);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'channel' parameter ";
+            error.label += "bad or empty 'channel' parameter ";
+            error.cause = channel;
+            that._logger.log(that.WARN, LOG_ID + "(addPublishersToChannelByLoginEmails) BAD_REQUEST.");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(addPublishersToChannelByLoginEmails) bad or empty 'channel' parameter : ", error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         if (!publishers || !(publishers.length > 0)) {
-            that._logger.log(that.WARN, LOG_ID + "(addPublishersToChannelByLoginEmails) bad or empty 'publishers' parameter");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(addPublishersToChannelByLoginEmails) bad or empty 'publishers' parameter : ", publishers);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'publishers' parameter ";
+            error.label += "bad or empty 'publishers' parameter ";
+            error.cause = publishers;
+            that._logger.log(that.WARN, LOG_ID + "(addPublishersToChannelByLoginEmails) BAD_REQUEST.");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(addPublishersToChannelByLoginEmails) bad or empty 'publishers' parameter : ", error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         /*let usersId = [];
@@ -2116,15 +2288,23 @@ class ChannelsService extends GenericService {
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(addMembersToChannel) is channel defined : ", isDefined(channel));
         //that._logger.log(that.INTERNAL, LOG_ID + "(addMembersToChannel) that._channels : ", that._channels);
         if (!channel || !channel.id) {
-            that._logger.log(that.WARN, LOG_ID + "(addMembersToChannel) bad or empty 'channel' parameter");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(addMembersToChannel) bad or empty 'channel' parameter : ", channel);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'channel' parameter ";
+            error.label += "bad or empty 'channel' parameter ";
+            error.cause = channel;
+            that._logger.log(that.WARN, LOG_ID + "(addMembersToChannel) BAD_REQUEST.");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(addMembersToChannel) bad or empty 'channel' parameter : ", error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         if (!members) {
-            that._logger.log(that.WARN, LOG_ID + "(addMembersToChannel) bad or empty 'members' parameter");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(addMembersToChannel) bad or empty 'members' parameter : ", members);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'members' parameter ";
+            error.label += "bad or empty 'members' parameter ";
+            error.cause = members;
+            that._logger.log(that.WARN, LOG_ID + "(addMembersToChannel) BAD_REQUEST.");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(addMembersToChannel) bad or empty 'members' parameter : ", error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         let usersId: Array<any> = [];
@@ -2136,9 +2316,13 @@ class ChannelsService extends GenericService {
         });
 
         if (!(usersId.length > 0)) {
-            that._logger.log(that.WARN, LOG_ID + "(addMembersToChannel) bad or empty 'members' parameter");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(addMembersToChannel) bad or empty 'members' parameter : ", members);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'members' parameter (resolved empty) ";
+            error.label += "bad or empty 'members' parameter (resolved empty) ";
+            error.cause = usersId;
+            that._logger.log(that.WARN, LOG_ID + "(addMembersToChannel) BAD_REQUEST.");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(addMembersToChannel) bad or empty 'members' parameter : ", error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         return that.updateChannelUsers(channel, usersId);
@@ -2170,15 +2354,23 @@ class ChannelsService extends GenericService {
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(addMembersToChannelByLoginEmails) is channel defined : ", isDefined(channel));
         //that._logger.log(that.INTERNAL, LOG_ID + "(addMembersToChannel) that._channels : ", that._channels);
         if (!channel || !channel.id) {
-            that._logger.log(that.WARN, LOG_ID + "(addMembersToChannelByLoginEmails) bad or empty 'channel' parameter");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(addMembersToChannelByLoginEmails) bad or empty 'channel' parameter : ", channel);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'channel' parameter ";
+            error.label += "bad or empty 'channel' parameter ";
+            error.cause = channel;
+            that._logger.log(that.WARN, LOG_ID + "(addMembersToChannelByLoginEmails) BAD_REQUEST.");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(addMembersToChannelByLoginEmails) bad or empty 'channel' parameter : ", error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         if (!members) {
-            that._logger.log(that.WARN, LOG_ID + "(addMembersToChannelByLoginEmails) bad or empty 'members' parameter");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(addMembersToChannelByLoginEmails) bad or empty 'members' parameter : ", members);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'members' parameter ";
+            error.label += "bad or empty 'members' parameter ";
+            error.cause = members;
+            that._logger.log(that.WARN, LOG_ID + "(addMembersToChannelByLoginEmails) BAD_REQUEST.");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(addMembersToChannelByLoginEmails) bad or empty 'members' parameter : ", error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         /*
@@ -2205,9 +2397,13 @@ class ChannelsService extends GenericService {
         }
         
         if (!(usersId.length > 0)) {
-            that._logger.log(that.WARN, LOG_ID + "(addMembersToChannelByLoginEmails) bad or empty 'members' parameter");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(addMembersToChannelByLoginEmails) bad or empty 'members' parameter : ", members);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'members' parameter (resolved empty) ";
+            error.label += "bad or empty 'members' parameter (resolved empty) ";
+            error.cause = usersId;
+            that._logger.log(that.WARN, LOG_ID + "(addMembersToChannelByLoginEmails) BAD_REQUEST.");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(addMembersToChannelByLoginEmails) bad or empty 'members' parameter : ", error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         return that.updateChannelUsers(channel, usersId);
@@ -2231,15 +2427,23 @@ class ChannelsService extends GenericService {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteUsersFromChannel) is channel defined : ", isDefined(channel));
         if (!channel || !channel.id) {
-            that._logger.log(that.WARN, LOG_ID + "(deleteUsersFromChannel) bad or empty 'channel' parameter");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteUsersFromChannel) bad or empty 'channel' parameter : ", channel);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'channel' parameter ";
+            error.label += "bad or empty 'channel' parameter ";
+            error.cause = channel;
+            that._logger.log(that.WARN, LOG_ID + "(deleteUsersFromChannel) BAD_REQUEST.");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteUsersFromChannel) bad or empty 'channel' parameter : ", error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         if (!users) {
-            that._logger.log(that.WARN, LOG_ID + "(deleteUsersFromChannel) bad or empty 'publishers' parameter");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteUsersFromChannel) bad or empty 'publishers' parameter : ", users);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'users' parameter ";
+            error.label += "bad or empty 'users' parameter ";
+            error.cause = users;
+            that._logger.log(that.WARN, LOG_ID + "(deleteUsersFromChannel) BAD_REQUEST.");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteUsersFromChannel) bad or empty 'users' parameter : ", error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         let usersId = [];
@@ -2277,15 +2481,23 @@ class ChannelsService extends GenericService {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteUsersFromChannelByLoginEmails) is channel defined : ", isDefined(channel));
         if (!channel || !channel.id) {
-            that._logger.log(that.WARN, LOG_ID + "(deleteUsersFromChannelByLoginEmails) bad or empty 'channel' parameter");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteUsersFromChannelByLoginEmails) bad or empty 'channel' parameter : ", channel);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'channel' parameter ";
+            error.label += "bad or empty 'channel' parameter ";
+            error.cause = channel;
+            that._logger.log(that.WARN, LOG_ID + "(deleteUsersFromChannelByLoginEmails) BAD_REQUEST.");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteUsersFromChannelByLoginEmails) bad or empty 'channel' parameter : ", error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         if (!users) {
-            that._logger.log(that.WARN, LOG_ID + "(deleteUsersFromChannelByLoginEmails) bad or empty 'publishers' parameter");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteUsersFromChannelByLoginEmails) bad or empty 'publishers' parameter : ", users);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'users' parameter ";
+            error.label += "bad or empty 'users' parameter ";
+            error.cause = users;
+            that._logger.log(that.WARN, LOG_ID + "(deleteUsersFromChannelByLoginEmails) BAD_REQUEST.");
+            that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteUsersFromChannelByLoginEmails) bad or empty 'users' parameter : ", error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
         
         /*

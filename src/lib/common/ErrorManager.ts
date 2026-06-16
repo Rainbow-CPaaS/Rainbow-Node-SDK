@@ -29,12 +29,21 @@ const code = {
     "OTHERERROR": -256
 };
 
-/*
-* @typedef Err
-* @property {ErrorCode} code
-* @property {string} label ErrorManager label
-* @property {string} msg ErrorManager message
-*/
+/**
+ * @interface Err
+ * @property {number} code ErrorManager error code
+ * @property {string} label ErrorManager label
+ * @property {string} msg ErrorManager message
+ * @property {unknown} [cause] Original error that caused this one
+ */
+interface Err {
+    code: number;
+    label: string;
+    msg: string;
+    details?: string;
+    error?: any;
+    cause?: unknown;
+}
 
 /**
  * @class
@@ -60,11 +69,11 @@ class ErrorManager {
      * @memberof ErrorManager
      * @return {Err}
      */
-    get BAD_REQUEST() : any{
+    get BAD_REQUEST() : Err {
         return {
             code: code.ERRORBADREQUEST,
             label: "BADREQUEST",
-            msg: "One or several parameters are not valid for that request."
+            msg: "One or several parameters are not valid for that request.",
         };
     }
 
@@ -73,7 +82,7 @@ class ErrorManager {
      * @memberof ErrorManager
      * @return {Err}
      */
-    get FORBIDDEN() {
+    get FORBIDDEN() : Err {
         return {
             code: code.ERRORFORBIDDEN,
             label: "FORBIDDEN",
@@ -86,7 +95,7 @@ class ErrorManager {
      * @memberof ErrorManager
      * @return {Err}
      */
-    get OK() {
+    get OK() : Err {
         return {
             code: code.OK,
             label: "SUCCESSFULL",
@@ -99,7 +108,7 @@ class ErrorManager {
      * @memberof ErrorManager
      * @return {Err}
      */
-    get XMPP() {
+    get XMPP() : Err {
         return {
             code: code.ERRORXMPP,
             label: "XMPPERROR",
@@ -112,7 +121,7 @@ class ErrorManager {
      * @memberof ErrorManager
      * @return {Err}
      */
-    get ERROR() {
+    get ERROR() : Err {
         return {
             code: code.ERROR,
             label: "INTERNALERROR",
@@ -126,7 +135,7 @@ class ErrorManager {
      * @memberof ErrorManager
      * @return {Err}
      */
-    get UNAUTHORIZED() {
+    get UNAUTHORIZED() : Err {
         return {
             code: code.ERRORUNAUTHORIZED,
             label: "UNAUTHORIZED",
@@ -135,7 +144,7 @@ class ErrorManager {
         };
     }
 
-    OTHERERROR(_label:string, _msg: string) {
+    OTHERERROR(_label: string, _msg: string) : Err {
         return {
             code: code.ERROR,
             label: _label,
@@ -143,7 +152,7 @@ class ErrorManager {
         };
     }
 
-    CUSTOMERROR(codeERROR, label: string = "", msg:string = "", error : any = undefined) {
+    CUSTOMERROR(codeERROR, label: string = "", msg: string = "", error: any = undefined) : Err {
         return {
             code: codeERROR,
             label,
@@ -155,4 +164,5 @@ class ErrorManager {
 }
 
 export {ErrorManager, code};
+export type {Err};
 module.exports.ErrorManager = ErrorManager;
