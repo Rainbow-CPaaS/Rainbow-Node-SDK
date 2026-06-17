@@ -1303,8 +1303,13 @@ class Bubbles extends GenericService {
                 // that._logger.log(that.DEBUG, LOG_ID + "(getBubbleById) bubble id  " + id);
     
                 if (!id) {
-                    that._logger.log(that.DEBUG, LOG_ID + "(getBubbleById) bad or empty 'id' parameter : ", id);
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'id' parameter";
+                    error.label += "bad or empty 'id' parameter";
+                    error.cause = id;
+                    that._logger.log(that.WARN, LOG_ID + `(getBubbleById) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(getBubbleById) bad or empty 'id' parameter : `, error.cause, ", error : ", error);
+                    return reject(error);
                 }
     
                 let bubbleFound = that._bubbles.find((bubble) => {
@@ -1386,8 +1391,13 @@ class Bubbles extends GenericService {
                 // that._logger.log(that.DEBUG, LOG_ID + "(getBubbleByJid) bubble jid  ", jid);
     
                 if (!jid) {
-                    that._logger.log(that.DEBUG, LOG_ID + "(getBubbleByJid) bad or empty 'jid' parameter : ", jid);
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'jid' parameter";
+                    error.label += "bad or empty 'jid' parameter";
+                    error.cause = jid;
+                    that._logger.log(that.WARN, LOG_ID + `(getBubbleByJid) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(getBubbleByJid) bad or empty 'jid' parameter : `, error.cause, ", error : ", error);
+                    return reject(error);
                 }
     
                 let bubbleFound: any = that._bubbles.find((bubble) => {
@@ -1840,14 +1850,22 @@ class Bubbles extends GenericService {
                 }
     
                 if (!name) {
-                    that._logger.log(that.WARN, LOG_ID + "(createBubble) bad or empty 'name' parameter.");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(createBubble) bad or empty 'name' parameter : ", name);
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'name' parameter";
+                    error.label += "bad or empty 'name' parameter";
+                    error.cause = name;
+                    that._logger.log(that.WARN, LOG_ID + `(createBubble) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(createBubble) bad or empty 'name' parameter : `, error.cause, ", error : ", error);
+                    reject(error);
                     return;
                 } else if (!description) {
-                    that._logger.log(that.WARN, LOG_ID + "(createBubble) bad or empty 'description' parameter.");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(createBubble) bad or empty 'description' parameter : ", description);
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'description' parameter";
+                    error.label += "bad or empty 'description' parameter";
+                    error.cause = description;
+                    that._logger.log(that.WARN, LOG_ID + `(createBubble) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(createBubble) bad or empty 'description' parameter : `, error.cause, ", error : ", error);
+                    reject(error);
                     return;
                 }
 
@@ -2108,12 +2126,16 @@ class Bubbles extends GenericService {
             return new Promise(async function (resolve, reject) {
     
                 if (!bubble) {
-                    that._logger.log(that.WARN, LOG_ID + "(deleteBubble) bad or empty 'bubble' parameter.");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteBubble) bad or empty 'bubble' parameter : ", bubble);
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'bubble' parameter";
+                    error.label += "bad or empty 'bubble' parameter";
+                    error.cause = bubble;
+                    that._logger.log(that.WARN, LOG_ID + `(deleteBubble) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(deleteBubble) bad or empty 'bubble' parameter : `, error.cause, ", error : ", error);
+                    reject(error);
                     return;
                 }
-    
+
                 let amIModerator = false;
                 let userStatus = "none";
     
@@ -2183,9 +2205,13 @@ class Bubbles extends GenericService {
 
             return new Promise(async function (resolve, reject) {
                 if (!bubble) {
-                    that._logger.log(that.WARN, LOG_ID + "(closeAndDeleteBubble) bad or empty 'bubble' parameter ");
-                    that._logger.log(that.WARN, LOG_ID + "(closeAndDeleteBubble) bad or empty 'bubble' parameter : ", bubble);
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'bubble' parameter";
+                    error.label += "bad or empty 'bubble' parameter";
+                    error.cause = bubble;
+                    that._logger.log(that.WARN, LOG_ID + `(closeAndDeleteBubble) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(closeAndDeleteBubble) bad or empty 'bubble' parameter : `, error.cause, ", error : ", error);
+                    reject(error);
                     return;
                 }
 
@@ -2264,9 +2290,13 @@ class Bubbles extends GenericService {
     
             return new Promise(async function (resolve, reject) {
                 if (!bubble) {
-                    that._logger.log(that.WARN, LOG_ID + "(closeBubble) bad or empty 'bubble' parameter.");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(closeBubble) bad or empty 'bubble' parameter : ", bubble);
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'bubble' parameter";
+                    error.label += "bad or empty 'bubble' parameter";
+                    error.cause = bubble;
+                    that._logger.log(that.WARN, LOG_ID + `(closeBubble) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(closeBubble) bad or empty 'bubble' parameter : `, error.cause, ", error : ", error);
+                    reject(error);
                     return;
                 } else if (that.isBubbleClosed(bubble)) {
                     that._logger.log(that.INTERNAL, LOG_ID + "(closeBubble) bubble is already closed : ", bubble?.id);
@@ -2349,9 +2379,13 @@ class Bubbles extends GenericService {
             return new Promise(async function (resolve, reject) {
     
                 if (!bubble) {
-                    that._logger.log(that.WARN, LOG_ID + "(archiveBubble) bad or empty 'bubble' parameter.");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(archiveBubble) bad or empty 'bubble' parameter : ", bubble);
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'bubble' parameter";
+                    error.label += "bad or empty 'bubble' parameter";
+                    error.cause = bubble;
+                    that._logger.log(that.WARN, LOG_ID + `(archiveBubble) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(archiveBubble) bad or empty 'bubble' parameter : `, error.cause, ", error : ", error);
+                    reject(error);
                     return;
                 }
 
@@ -2407,13 +2441,22 @@ class Bubbles extends GenericService {
                 }
     
                 if (!bubble) {
-                    that._logger.log(that.WARN, LOG_ID + "(leaveBubble) bad or empty 'bubble' parameter.");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(leaveBubble) bad or empty 'bubble' parameter : ", bubble);
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'bubble' parameter";
+                    error.label += "bad or empty 'bubble' parameter";
+                    error.cause = bubble;
+                    that._logger.log(that.WARN, LOG_ID + `(leaveBubble) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(leaveBubble) bad or empty 'bubble' parameter : `, error.cause, ", error : ", error);
+                    reject(error);
                     return;
                 } else if (!otherModerator) {
-                    that._logger.log(that.WARN, LOG_ID + "(leaveBubble) can't leave a bubble if no other active moderator");
-                    reject(ErrorManager.getErrorManager().FORBIDDEN);
+                    let error = ErrorManager.getErrorManager().FORBIDDEN;
+                    error.msg += "can't leave a bubble if no other active moderator";
+                    error.label += "can't leave a bubble if no other active moderator";
+                    error.cause = otherModerator;
+                    that._logger.log(that.WARN, LOG_ID + `(leaveBubble) FORBIDDEN.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(leaveBubble) can't leave a bubble if no other active moderator : `, error.cause, ", error : ", error);
+                    reject(error);
                     return;
                 }
 
@@ -2751,14 +2794,22 @@ class Bubbles extends GenericService {
             return new Promise(function (resolve, reject) {
     
                 if (!contact) {
-                    that._logger.log(that.WARN, LOG_ID + "(promoteContactInBubble) bad or empty 'contact' parameter.");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(promoteContactInBubble) bad or empty 'contact' parameter : ", contact?.id);
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'contact' parameter.";
+                    error.label += "bad or empty 'contact' parameter.";
+                    error.cause = contact?.id;
+                    that._logger.log(that.WARN, LOG_ID + `(promoteContactInBubble) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(promoteContactInBubble) bad or empty 'contact' parameter : `, error.cause, ", error : ", error);
+                    reject(error);
                     return;
                 } else if (!bubble) {
-                    that._logger.log(that.WARN, LOG_ID + "(promoteContactInBubble) bad or empty 'bubble' parameter.");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(promoteContactInBubble) bad or empty 'bubble' parameter : ", bubble);
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'bubble' parameter.";
+                    error.label += "bad or empty 'bubble' parameter.";
+                    error.cause = bubble;
+                    that._logger.log(that.WARN, LOG_ID + `(promoteContactInBubble) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(promoteContactInBubble) bad or empty 'bubble' parameter : `, error.cause, ", error : ", error);
+                    reject(error);
                     return;
                 }
                 let isActive = false;
@@ -2781,8 +2832,13 @@ class Bubbles extends GenericService {
                 }
     
                 if (!isActive && !isInvited) {
-                    that._logger.log(that.WARN, LOG_ID + "(promoteContactInBubble) Contact is not invited or is not already a member of the bubble");
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "Contact is not invited or is not already a member of the bubble";
+                    error.label += "Contact is not invited or is not already a member of the bubble";
+                    error.cause = {isActive, isInvited};
+                    that._logger.log(that.WARN, LOG_ID + `(promoteContactInBubble) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(promoteContactInBubble) Contact is not invited or is not already a member of the bubble : `, error.cause, ", error : ", error);
+                    reject(error);
                     return;
                 }
     
@@ -2834,13 +2890,21 @@ class Bubbles extends GenericService {
             let that = this;
             that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(promoteContactToModerator) contact.id : ", that._logger.stripStringForLogs(contact?.id), ", contact.name : ", that._logger.stripStringForLogs(contact?.name?.value), ", bubble.id : ", that._logger.stripStringForLogs(bubble?.id), ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
             if (!contact) {
-                that._logger.log(that.WARN, LOG_ID + "(promoteContactToModerator) bad or empty 'contact' parameter.");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(promoteContactToModerator) bad or empty 'contact' parameter : ", contact);
-                return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'contact' parameter.";
+                error.label += "bad or empty 'contact' parameter.";
+                error.cause = contact;
+                that._logger.log(that.WARN, LOG_ID + `(promoteContactToModerator) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(promoteContactToModerator) bad or empty 'contact' parameter. : `, error.cause, ", error : ", error);
+                return Promise.reject(error);
             } else if (!bubble) {
-                that._logger.log(that.WARN, LOG_ID + "(promoteContactToModerator) bad or empty 'bubble' parameter.");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(promoteContactToModerator) bad or empty 'bubble' parameter : ", bubble);
-                return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'bubble' parameter.";
+                error.label += "bad or empty 'bubble' parameter.";
+                error.cause = bubble;
+                that._logger.log(that.WARN, LOG_ID + `(promoteContactToModerator) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(promoteContactToModerator) bad or empty 'bubble' parameter. : `, error.cause, ", error : ", error);
+                return Promise.reject(error);
             }
             return this.promoteContactInBubble(contact, bubble, true);
         }
@@ -2863,13 +2927,21 @@ class Bubbles extends GenericService {
             let that = this;
             that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(demoteContactFromModerator) contact.id : ", that._logger.stripStringForLogs(contact?.id), ", contact.name : ", that._logger.stripStringForLogs(contact?.name?.value), ", bubble.id : ", that._logger.stripStringForLogs(bubble?.id), ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
             if (!contact) {
-                that._logger.log(that.WARN, LOG_ID + "(demoteContactFromModerator) bad or empty 'contact' parameter.");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(demoteContactFromModerator) bad or empty 'contact' parameter : ", contact);
-                return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'contact' parameter.";
+                error.label += "bad or empty 'contact' parameter.";
+                error.cause = contact;
+                that._logger.log(that.WARN, LOG_ID + `(demoteContactFromModerator) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(demoteContactFromModerator) bad or empty 'contact' parameter. : `, error.cause, ", error : ", error);
+                return Promise.reject(error);
             } else if (!bubble) {
-                that._logger.log(that.WARN, LOG_ID + "(demoteContactFromModerator) bad or empty 'bubble' parameter.");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(demoteContactFromModerator) bad or empty 'bubble' parameter : ", bubble);
-                return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'bubble' parameter.";
+                error.label += "bad or empty 'bubble' parameter.";
+                error.cause = bubble;
+                that._logger.log(that.WARN, LOG_ID + `(demoteContactFromModerator) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(demoteContactFromModerator) bad or empty 'bubble' parameter. : `, error.cause, ", error : ", error);
+                return Promise.reject(error);
             }
             return this.promoteContactInBubble(contact, bubble, false);
         }
@@ -2897,13 +2969,17 @@ class Bubbles extends GenericService {
             that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(acceptInvitationToJoinBubble) bubble.id : ", that._logger.stripStringForLogs(bubble?.id), ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
 
             if (!bubble) {
-                that._logger.log(that.WARN, LOG_ID + "(acceptInvitationToJoinBubble) bad or empty 'bubble' parameter.");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(acceptInvitationToJoinBubble) bad or empty 'bubble' parameter : ", bubble);
-                return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'bubble' parameter.";
+                error.label += "bad or empty 'bubble' parameter.";
+                error.cause = bubble;
+                that._logger.log(that.WARN, LOG_ID + `(acceptInvitationToJoinBubble) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(acceptInvitationToJoinBubble) bad or empty 'bubble' parameter. : `, error.cause, ", error : ", error);
+                return Promise.reject(error);
             }
-    
+
             return new Promise((resolve, reject) => {
-    
+
                 that._rest.acceptInvitationToJoinBubble(bubble.id).then((invitationStatus) => {
                     that._logger.log(that.INFO, LOG_ID + "(acceptInvitationToJoinBubble) invitation accepted", invitationStatus);
     
@@ -2951,13 +3027,17 @@ class Bubbles extends GenericService {
             that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(declineInvitationToJoinBubble) bubble.id : ", that._logger.stripStringForLogs(bubble?.id), ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
 
             if (!bubble) {
-                that._logger.log(that.WARN, LOG_ID + "(declineInvitationToJoinBubble) bad or empty 'bubble' parameter.");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(declineInvitationToJoinBubble) bad or empty 'bubble' parameter : ", bubble);
-                return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'bubble' parameter.";
+                error.label += "bad or empty 'bubble' parameter.";
+                error.cause = bubble;
+                that._logger.log(that.WARN, LOG_ID + `(declineInvitationToJoinBubble) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(declineInvitationToJoinBubble) bad or empty 'bubble' parameter. : `, error.cause, ", error : ", error);
+                return Promise.reject(error);
             }
-    
+
             return new Promise((resolve, reject) => {
-    
+
                 that._rest.declineInvitationToJoinBubble(bubble.id).then((invitationStatus) => {
                     that._logger.log(that.INFO, LOG_ID + "(declineInvitationToJoinBubble) invitation declined : ", invitationStatus);
     
@@ -3012,14 +3092,22 @@ class Bubbles extends GenericService {
                 that._logger.log(that.INTERNAL, LOG_ID + "(inviteContactToBubble) arguments : ", ...arguments);
     
                 if (!contact) {
-                    that._logger.log(that.WARN, LOG_ID + "(inviteContactToBubble) bad or empty 'contact' parameter.");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(inviteContactToBubble) bad or empty 'contact' parameter : ", contact);
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'contact' parameter.";
+                    error.label += "bad or empty 'contact' parameter.";
+                    error.cause = contact;
+                    that._logger.log(that.WARN, LOG_ID + `(inviteContactToBubble) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(inviteContactToBubble) bad or empty 'contact' parameter : `, error.cause, ", error : ", error);
+                    reject(error);
                     return;
                 } else if (!bubble) {
-                    that._logger.log(that.WARN, LOG_ID + "(inviteContactToBubble) bad or empty 'bubble' parameter.");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(inviteContactToBubble) bad or empty 'bubble' parameter : ", bubble);
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'bubble' parameter.";
+                    error.label += "bad or empty 'bubble' parameter.";
+                    error.cause = bubble;
+                    that._logger.log(that.WARN, LOG_ID + `(inviteContactToBubble) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(inviteContactToBubble) bad or empty 'bubble' parameter : `, error.cause, ", error : ", error);
+                    reject(error);
                     return;
                 }
     
@@ -3046,8 +3134,13 @@ class Bubbles extends GenericService {
 //                });
     
                 if (isActive || isInvited) {
-                    that._logger.log(that.WARN, LOG_ID + "(inviteContactToBubble) Contact has been already invited or is already a member of the bubble");
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "Contact has been already invited or is already a member of the bubble";
+                    error.label += "Contact has been already invited or is already a member of the bubble";
+                    error.cause = {isActive, isInvited};
+                    that._logger.log(that.WARN, LOG_ID + `(inviteContactToBubble) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(inviteContactToBubble) Contact has been already invited or is already a member of the bubble : `, error.cause, ", error : ", error);
+                    reject(error);
                     return;
                 }
     
@@ -3105,14 +3198,22 @@ class Bubbles extends GenericService {
                 that._logger.log(that.INTERNAL, LOG_ID + "(inviteContactsByEmailToBubble) arguments : ", ...arguments);
     
                 if (!contactsEmails || !Array.isArray(contactsEmails)) {
-                    that._logger.log(that.WARN, LOG_ID + "(inviteContactsByEmailToBubble) bad or empty 'contact' parameter.");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(inviteContactsByEmailToBubble) bad or empty 'contact' parameter : ", contactsEmails);
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'contact' parameter.";
+                    error.label += "bad or empty 'contact' parameter.";
+                    error.cause = contactsEmails;
+                    that._logger.log(that.WARN, LOG_ID + `(inviteContactsByEmailToBubble) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(inviteContactsByEmailToBubble) bad or empty 'contact' parameter : `, error.cause, ", error : ", error);
+                    reject(error);
                     return;
                 } else if (!bubble) {
-                    that._logger.log(that.WARN, LOG_ID + "(inviteContactsByEmailToBubble) bad or empty 'bubble' parameter.");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(inviteContactsByEmailToBubble) bad or empty 'bubble' parameter : ", bubble);
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'bubble' parameter.";
+                    error.label += "bad or empty 'bubble' parameter.";
+                    error.cause = bubble;
+                    that._logger.log(that.WARN, LOG_ID + `(inviteContactsByEmailToBubble) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(inviteContactsByEmailToBubble) bad or empty 'bubble' parameter : `, error.cause, ", error : ", error);
+                    reject(error);
                     return;
                 }
                 return that._rest.inviteContactsByEmailsToBubble(contactsEmails, bubble.id).then(function () {
@@ -3182,9 +3283,13 @@ class Bubbles extends GenericService {
             that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateBubbleData) bubbleId : ", that._logger.stripStringForLogs(bubbleId));
 
             if (!bubbleId) {
-                that._logger.log(that.WARN, LOG_ID + "(updateBubbleData) bad or empty 'bubbleId' parameter.");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(updateBubbleData) bad or empty 'bubbleId' parameter : ", bubbleId);
-                return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'bubbleId' parameter.";
+                error.label += "bad or empty 'bubbleId' parameter.";
+                error.cause = bubbleId;
+                that._logger.log(that.WARN, LOG_ID + `(updateBubbleData) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(updateBubbleData) bad or empty 'bubbleId' parameter. : `, error.cause, ", error : ", error);
+                return Promise.reject(error);
             }
     
             let data : { visibility ? : string, topic ? : string, name ? : string, owner ? : string, autoRegister ? : string, autoAcceptInvitation? : boolean,
@@ -3258,9 +3363,13 @@ class Bubbles extends GenericService {
             that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(setBubbleCustomData) bubble.id : ", that._logger.stripStringForLogs(bubble?.id), ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
 
             if (!bubble) {
-                that._logger.log(that.WARN, LOG_ID + "(setBubbleCustomData) bad or empty 'bubble' parameter.");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(setBubbleCustomData) bad or empty 'bubble' parameter : ", bubble);
-                return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'bubble' parameter.";
+                error.label += "bad or empty 'bubble' parameter.";
+                error.cause = bubble;
+                that._logger.log(that.WARN, LOG_ID + `(setBubbleCustomData) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(setBubbleCustomData) bad or empty 'bubble' parameter. : `, error.cause, ", error : ", error);
+                return Promise.reject(error);
             }
     
             let bubbleId = bubble.id;
@@ -3342,9 +3451,13 @@ class Bubbles extends GenericService {
             that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(setBubbleVisibilityStatus) bubble.id : ", that._logger.stripStringForLogs(bubble?.id), ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
 
             if (!bubble) {
-                that._logger.log(that.WARN, LOG_ID + "(setBubbleVisibilityStatus) bad or empty 'bubble' parameter.");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(setBubbleVisibilityStatus) bad or empty 'bubble' parameter : ", bubble);
-                return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'bubble' parameter.";
+                error.label += "bad or empty 'bubble' parameter.";
+                error.cause = bubble;
+                that._logger.log(that.WARN, LOG_ID + `(setBubbleVisibilityStatus) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(setBubbleVisibilityStatus) bad or empty 'bubble' parameter. : `, error.cause, ", error : ", error);
+                return Promise.reject(error);
             }
     
             return new Promise((resolve, reject) => {
@@ -3382,9 +3495,13 @@ class Bubbles extends GenericService {
             that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(setBubbleTopic) bubble.id : ", that._logger.stripStringForLogs(bubble?.id), ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
 
             if (!bubble) {
-                that._logger.log(that.WARN, LOG_ID + "(setBubbleTopic) bad or empty 'bubble' parameter.");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(setBubbleTopic) bad or empty 'bubble' parameter : ", bubble);
-                return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'bubble' parameter.";
+                error.label += "bad or empty 'bubble' parameter.";
+                error.cause = bubble;
+                that._logger.log(that.WARN, LOG_ID + `(setBubbleTopic) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(setBubbleTopic) bad or empty 'bubble' parameter. : `, error.cause, ", error : ", error);
+                return Promise.reject(error);
             }
     
             return new Promise((resolve, reject) => {
@@ -3421,9 +3538,13 @@ class Bubbles extends GenericService {
             that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(setBubbleName) bubble.id : ", that._logger.stripStringForLogs(bubble?.id), ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
 
             if (!bubble) {
-                that._logger.log(that.WARN, LOG_ID + "(setBubbleName) bad or empty 'bubble' parameter.");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(setBubbleName) bad or empty 'bubble' parameter : ", bubble);
-                return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'bubble' parameter.";
+                error.label += "bad or empty 'bubble' parameter.";
+                error.cause = bubble;
+                that._logger.log(that.WARN, LOG_ID + `(setBubbleName) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(setBubbleName) bad or empty 'bubble' parameter. : `, error.cause, ", error : ", error);
+                return Promise.reject(error);
             }
     
             return new Promise((resolve, reject) => {
@@ -3496,15 +3617,23 @@ class Bubbles extends GenericService {
             that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(setAvatarBubble) bubble.id : ", that._logger.stripStringForLogs(bubble?.id), ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
 
             if (!bubble) {
-                that._logger.log(that.WARN, LOG_ID + "(setAvatarBubble) bad or empty 'bubble' parameter.");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(setAvatarBubble) bad or empty 'bubble' parameter : ", bubble);
-                return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'bubble' parameter.";
+                error.label += "bad or empty 'bubble' parameter.";
+                error.cause = bubble;
+                that._logger.log(that.WARN, LOG_ID + `(setAvatarBubble) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(setAvatarBubble) bad or empty 'bubble' parameter. : `, error.cause, ", error : ", error);
+                return Promise.reject(error);
             }
-    
+
             if (!roomAvatarPath) {
-                that._logger.log(that.WARN, LOG_ID + "(setAvatarBubble) bad or empty 'roomAvatarPath' parameter.");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(setAvatarBubble) bad or empty 'roomAvatarPath' parameter : ", roomAvatarPath);
-                return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'roomAvatarPath' parameter.";
+                error.label += "bad or empty 'roomAvatarPath' parameter.";
+                error.cause = roomAvatarPath;
+                that._logger.log(that.WARN, LOG_ID + `(setAvatarBubble) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(setAvatarBubble) bad or empty 'roomAvatarPath' parameter. : `, error.cause, ", error : ", error);
+                return Promise.reject(error);
             }
     
             return new Promise((resolve, reject) => {
@@ -3550,11 +3679,15 @@ class Bubbles extends GenericService {
             let that = this;
             that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteAvatarFromBubble) bubble.id : ", that._logger.stripStringForLogs(bubble?.id), ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
             if (!bubble) {
-                that._logger.log(that.WARN, LOG_ID + "(setAvatarBubble) bad or empty 'bubble' parameter.");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(setAvatarBubble) bad or empty 'bubble' parameter : ", bubble);
-                return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'bubble' parameter.";
+                error.label += "bad or empty 'bubble' parameter.";
+                error.cause = bubble;
+                that._logger.log(that.WARN, LOG_ID + `(setAvatarBubble) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(setAvatarBubble) bad or empty 'bubble' parameter. : `, error.cause, ", error : ", error);
+                return Promise.reject(error);
             }
-    
+
             return this.deleteAvatarBubble(bubble.id);
         }
     
@@ -3568,9 +3701,13 @@ class Bubbles extends GenericService {
         deleteAvatarBubble(bubbleId) {
             let that = this;
             if (!bubbleId) {
-                that._logger.log(that.WARN, LOG_ID + "(setAvatarBubble) bad or empty 'bubble' parameter.");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(setAvatarBubble) bad or empty 'bubble' parameter : ", bubbleId);
-                return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'bubble' parameter.";
+                error.label += "bad or empty 'bubble' parameter.";
+                error.cause = bubbleId;
+                that._logger.log(that.WARN, LOG_ID + `(setAvatarBubble) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(setAvatarBubble) bad or empty 'bubble' parameter. : `, error.cause, ", error : ", error);
+                return Promise.reject(error);
             }
     
             return new Promise((resolve, reject) => {
@@ -3625,13 +3762,21 @@ class Bubbles extends GenericService {
              let bubblefound : any = bubble && bubble.id ? await that.getBubbleById(bubble.id) : null;
     
              if (!customData) {
-                 that._logger.log(that.WARN, LOG_ID + "(setAvatarBubble) bad or empty 'customData' parameter.");
-                 that._logger.log(that.INTERNALERROR, LOG_ID + "(setAvatarBubble) bad or empty 'customData' parameter : ", customData);
-                 return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                 let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                 error.msg += "bad or empty 'customData' parameter.";
+                 error.label += "bad or empty 'customData' parameter.";
+                 error.cause = customData;
+                 that._logger.log(that.WARN, LOG_ID + `(setAvatarBubble) BAD_REQUEST.`);
+                 that._logger.log(that.INTERNALERROR, LOG_ID + `(setAvatarBubble) bad or empty 'customData' parameter. : `, error.cause, ", error : ", error);
+                 return Promise.reject(error);
              } else if (!bubblefound) {
-                 that._logger.log(that.WARN, LOG_ID + "(setAvatarBubble) bad or empty 'bubble' parameter.");
-                 that._logger.log(that.INTERNALERROR, LOG_ID + "(setAvatarBubble) bad or empty 'bubble' parameter : ", bubble);
-                 return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                 let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                 error.msg += "bad or empty 'bubble' parameter.";
+                 error.label += "bad or empty 'bubble' parameter.";
+                 error.cause = bubble;
+                 that._logger.log(that.WARN, LOG_ID + `(setAvatarBubble) BAD_REQUEST.`);
+                 that._logger.log(that.INTERNALERROR, LOG_ID + `(setAvatarBubble) bad or empty 'bubble' parameter. : `, error.cause, ", error : ", error);
+                 return Promise.reject(error);
              } else {
                  return new Promise((resolve, reject) => {
                      bubblefound.customData = customData;
@@ -3689,13 +3834,21 @@ class Bubbles extends GenericService {
             let bubblefound : any = bubble && bubble.id ? await that.getBubbleById(bubble.id) : null;
     
             if (!strDescription) {
-                that._logger.log(that.WARN, LOG_ID + "(updateDescriptionForBubble) bad or empty 'strDescription' parameter.");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(updateDescriptionForBubble) bad or empty 'strDescription' parameter : ", strDescription);
-                return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'strDescription' parameter";
+                error.label += "bad or empty 'strDescription' parameter";
+                error.cause = strDescription;
+                that._logger.log(that.WARN, LOG_ID + `(updateDescriptionForBubble) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(updateDescriptionForBubble) bad or empty 'strDescription' parameter : `, error.cause, ", error : ", error);
+                return Promise.reject(error);
             } else if (!bubblefound) {
-                that._logger.log(that.WARN, LOG_ID + "(updateDescriptionForBubble) bad or empty 'bubble' parameter.");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(updateDescriptionForBubble) bad or empty 'bubble' parameter : ", bubble);
-                return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'bubble' parameter";
+                error.label += "bad or empty 'bubble' parameter";
+                error.cause = bubble;
+                that._logger.log(that.WARN, LOG_ID + `(updateDescriptionForBubble) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(updateDescriptionForBubble) bad or empty 'bubble' parameter : `, error.cause, ", error : ", error);
+                return Promise.reject(error);
             } else {
                 return new Promise((resolve, reject) => {
                     bubblefound.desc = strDescription;
@@ -3728,13 +3881,21 @@ class Bubbles extends GenericService {
             that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(changeBubbleOwner) bubble.id : ", that._logger.stripStringForLogs(bubble?.id), ", bubble.name : ", that._logger.stripStringForLogs(bubble?.name));
     
             if (!contact) {
-                that._logger.log(that.WARN, LOG_ID + "(changeBubbleOwner) bad or empty 'contact' parameter ");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(changeBubbleOwner) bad or empty 'contact' parameter : ", contact);
-                return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'contact' parameter ";
+                error.label += "bad or empty 'contact' parameter ";
+                error.cause = contact;
+                that._logger.log(that.WARN, LOG_ID + `(changeBubbleOwner) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(changeBubbleOwner) bad or empty 'contact' parameter  : `, error.cause, ", error : ", error);
+                return Promise.reject(error);
             } else if (!bubble) {
-                that._logger.log(that.WARN, LOG_ID + "(changeBubbleOwner) bad or empty 'bubble' parameter ");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(changeBubbleOwner) bad or empty 'bubble' parameter : ", bubble);
-                return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'bubble' parameter ";
+                error.label += "bad or empty 'bubble' parameter ";
+                error.cause = bubble;
+                that._logger.log(that.WARN, LOG_ID + `(changeBubbleOwner) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(changeBubbleOwner) bad or empty 'bubble' parameter  : `, error.cause, ", error : ", error);
+                return Promise.reject(error);
             }
     
             return new Promise((resolve, reject) => {
@@ -3774,14 +3935,22 @@ class Bubbles extends GenericService {
             return new Promise(function (resolve, reject) {
     
                 if (!contact) {
-                    that._logger.log(that.WARN, LOG_ID + "(removeContactFromBubble) bad or empty 'contact' parameter.");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(removeContactFromBubble) bad or empty 'contact' parameter : ", contact);
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'contact' parameter";
+                    error.label += "bad or empty 'contact' parameter";
+                    error.cause = contact;
+                    that._logger.log(that.WARN, LOG_ID + "(removeContactFromBubble) BAD_REQUEST.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(removeContactFromBubble) bad or empty 'contact' parameter : ", error.cause, ", error : ", error);
+                    reject(error);
                     return;
                 } else if (!bubble) {
-                    that._logger.log(that.WARN, LOG_ID + "(removeContactFromBubble) bad or empty 'bubble' parameter.");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(removeContactFromBubble) bad or empty 'bubble' parameter : ", bubble);
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'bubble' parameter";
+                    error.label += "bad or empty 'bubble' parameter";
+                    error.cause = bubble;
+                    that._logger.log(that.WARN, LOG_ID + "(removeContactFromBubble) BAD_REQUEST.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(removeContactFromBubble) bad or empty 'bubble' parameter : ", error.cause, ", error : ", error);
+                    reject(error);
                     return;
                 }
     
@@ -3892,15 +4061,23 @@ class Bubbles extends GenericService {
                 that._logger.log(that.INTERNAL, LOG_ID + "(getBubbleById) bubble : ", bubble);
     
                 if (!bubble) {
-                    that._logger.log(that.DEBUG, LOG_ID + "(getAvatarFromBubble) bad or empty 'bubble' parameter.");
-                    that._logger.log(that.INTERNAL, LOG_ID + "(getAvatarFromBubble) bad or empty 'bubble' parameter : ", bubble);
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'bubble' parameter";
+                    error.label += "bad or empty 'bubble' parameter";
+                    error.cause = bubble;
+                    that._logger.log(that.WARN, LOG_ID + "(getAvatarFromBubble) BAD_REQUEST.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getAvatarFromBubble) bad or empty 'bubble' parameter : ", error.cause, ", error : ", error);
+                    return reject(error);
                 }
-    
+
                 if (!bubble.avatar) {
-                    that._logger.log(that.DEBUG, LOG_ID + "(getAvatarFromBubble) bad or empty avatar of 'bubble' parameter.");
-                    that._logger.log(that.DEBUG, LOG_ID + "(getAvatarFromBubble) bad or empty avatar of 'bubble' parameter : ", bubble);
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty avatar of 'bubble' parameter";
+                    error.label += "bad or empty avatar of 'bubble' parameter";
+                    error.cause = bubble;
+                    that._logger.log(that.WARN, LOG_ID + "(getAvatarFromBubble) BAD_REQUEST.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getAvatarFromBubble) bad or empty avatar of 'bubble' parameter : ", error.cause, ", error : ", error);
+                    return reject(error);
                 }
     
                 return that._rest.getBlobFromUrl(bubble.avatar).then((avatarBuffer: any) => {
@@ -4090,8 +4267,13 @@ class Bubbles extends GenericService {
             that._logger.log(that.DEBUG, LOG_ID + "(retrieveAllBubblesByTags) bubble tags  " + tags);
 
             if (!tags) {
-                that._logger.log(that.DEBUG, LOG_ID + "(retrieveAllBubblesByTags) bad or empty 'tags' parameter : ", tags);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'tags' parameter";
+                error.label += "bad or empty 'tags' parameter";
+                error.cause = tags;
+                that._logger.log(that.WARN, LOG_ID + "(retrieveAllBubblesByTags) BAD_REQUEST.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(retrieveAllBubblesByTags) bad or empty 'tags' parameter : ", error.cause, ", error : ", error);
+                return reject(error);
             }
 
             return that._rest.retrieveAllBubblesByTags(tags, format, nbUsersToKeep).then(async (result) => {
@@ -4136,13 +4318,23 @@ class Bubbles extends GenericService {
                 that._logger.log(that.DEBUG, LOG_ID + "(setTagsOnABubble) bubble tags  " + tags);
     
                 if (!bubble || !bubble.id) {
-                    that._logger.log(that.DEBUG, LOG_ID + "(setTagsOnABubble) bad or empty 'bubble' parameter : ", bubble);
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'bubble' parameter";
+                    error.label += "bad or empty 'bubble' parameter";
+                    error.cause = bubble;
+                    that._logger.log(that.WARN, LOG_ID + "(setTagsOnABubble) BAD_REQUEST.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(setTagsOnABubble) bad or empty 'bubble' parameter : ", error.cause, ", error : ", error);
+                    return reject(error);
                 }
-    
+
                 if (!tags) {
-                    that._logger.log(that.DEBUG, LOG_ID + "(setTagsOnABubble) bad or empty 'tags' parameter : ", tags);
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'tags' parameter";
+                    error.label += "bad or empty 'tags' parameter";
+                    error.cause = tags;
+                    that._logger.log(that.WARN, LOG_ID + "(setTagsOnABubble) BAD_REQUEST.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(setTagsOnABubble) bad or empty 'tags' parameter : ", error.cause, ", error : ", error);
+                    return reject(error);
                 }
     
                 return that._rest.setTagsOnABubble(bubble.id, tags).then(async (result) => {
@@ -4182,13 +4374,23 @@ class Bubbles extends GenericService {
                 that._logger.log(that.INTERNAL, LOG_ID + "(deleteTagOnABubble) bubble tag  ", tag, " on bubble : ", bubbles);
     
                 if (!bubbles) {
-                    that._logger.log(that.DEBUG, LOG_ID + "(deleteTagOnABubble) bad or empty 'bubbles' parameter : ", bubbles);
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'bubbles' parameter";
+                    error.label += "bad or empty 'bubbles' parameter";
+                    error.cause = bubbles;
+                    that._logger.log(that.WARN, LOG_ID + "(deleteTagOnABubble) BAD_REQUEST.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteTagOnABubble) bad or empty 'bubbles' parameter : ", error.cause, ", error : ", error);
+                    return reject(error);
                 }
-    
+
                 if (!tag) {
-                    that._logger.log(that.DEBUG, LOG_ID + "(deleteTagOnABubble) bad or empty 'tags' parameter : ", tag);
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'tags' parameter";
+                    error.label += "bad or empty 'tags' parameter";
+                    error.cause = tag;
+                    that._logger.log(that.WARN, LOG_ID + "(deleteTagOnABubble) BAD_REQUEST.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteTagOnABubble) bad or empty 'tags' parameter : ", error.cause, ", error : ", error);
+                    return reject(error);
                 }
     
                 let roomIds = [];
@@ -4312,13 +4514,23 @@ class Bubbles extends GenericService {
             that._logger.log(that.DEBUG, LOG_ID + "(addBubblesToContainerById) containers containerId : " + containerId, ", bubbleIds : ", bubbleIds);
 
             if (!containerId) {
-                that._logger.log(that.DEBUG, LOG_ID + "(addBubblesToContainerById) bad or empty 'containerId' parameter : ", containerId);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'containerId' parameter";
+                error.label += "bad or empty 'containerId' parameter";
+                error.cause = containerId;
+                that._logger.log(that.WARN, LOG_ID + "(addBubblesToContainerById) BAD_REQUEST.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(addBubblesToContainerById) bad or empty 'containerId' parameter : ", error.cause, ", error : ", error);
+                return reject(error);
             }
 
             if (!bubbleIds) {
-                that._logger.log(that.DEBUG, LOG_ID + "(addBubblesToContainerById) bad or empty 'bubbleIds' parameter : ", bubbleIds);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'bubbleIds' parameter";
+                error.label += "bad or empty 'bubbleIds' parameter";
+                error.cause = bubbleIds;
+                that._logger.log(that.WARN, LOG_ID + "(addBubblesToContainerById) BAD_REQUEST.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(addBubblesToContainerById) bad or empty 'bubbleIds' parameter : ", error.cause, ", error : ", error);
+                return reject(error);
             }
 
             return that._rest.addBubblesToContainerById(containerId, bubbleIds).then(async (result) => {
@@ -4359,13 +4571,23 @@ class Bubbles extends GenericService {
             that._logger.log(that.DEBUG, LOG_ID + "(updateBubbleContainerNameAndDescriptionById) containers containerId : " + containerId, ", name : ", name);
 
             if (!containerId) {
-                that._logger.log(that.DEBUG, LOG_ID + "(updateBubbleContainerNameAndDescriptionById) bad or empty 'containerId' parameter : ", containerId);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'containerId' parameter";
+                error.label += "bad or empty 'containerId' parameter";
+                error.cause = containerId;
+                that._logger.log(that.WARN, LOG_ID + "(updateBubbleContainerNameAndDescriptionById) BAD_REQUEST.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(updateBubbleContainerNameAndDescriptionById) bad or empty 'containerId' parameter : ", error.cause, ", error : ", error);
+                return reject(error);
             }
 
             if (!name) {
-                that._logger.log(that.DEBUG, LOG_ID + "(updateBubbleContainerNameAndDescriptionById) bad or empty 'name' parameter : ", name);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'name' parameter";
+                error.label += "bad or empty 'name' parameter";
+                error.cause = name;
+                that._logger.log(that.WARN, LOG_ID + "(updateBubbleContainerNameAndDescriptionById) BAD_REQUEST.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(updateBubbleContainerNameAndDescriptionById) bad or empty 'name' parameter : ", error.cause, ", error : ", error);
+                return reject(error);
             }
 
             return that._rest.updateBubbleContainerNameAndDescriptionById(containerId, name, description).then(async (result) => {
@@ -4407,8 +4629,13 @@ class Bubbles extends GenericService {
             that._logger.log(that.DEBUG, LOG_ID + "(createBubbleContainer) containers bubbleIds : " + bubbleIds, ", name : ", name);
 
             if (!name) {
-                that._logger.log(that.DEBUG, LOG_ID + "(createBubbleContainer) bad or empty 'name' parameter : ", name);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'name' parameter";
+                error.label += "bad or empty 'name' parameter";
+                error.cause = name;
+                that._logger.log(that.WARN, LOG_ID + "(createBubbleContainer) BAD_REQUEST.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(createBubbleContainer) bad or empty 'name' parameter : ", error.cause, ", error : ", error);
+                return reject(error);
             }
 
             return that._rest.createBubbleContainer(name, description, bubbleIds).then(async (result) => {
@@ -4447,8 +4674,13 @@ class Bubbles extends GenericService {
             that._logger.log(that.DEBUG, LOG_ID + "(deleteBubbleContainer) containerId : " + containerId);
 
             if (!containerId) {
-                that._logger.log(that.DEBUG, LOG_ID + "(deleteBubbleContainer) bad or empty 'name' parameter : ", containerId);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'name' parameter";
+                error.label += "bad or empty 'name' parameter";
+                error.cause = containerId;
+                that._logger.log(that.WARN, LOG_ID + "(deleteBubbleContainer) BAD_REQUEST.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteBubbleContainer) bad or empty 'name' parameter : ", error.cause, ", error : ", error);
+                return reject(error);
             }
 
             return that._rest.deleteBubbleContainer(containerId).then(async (result) => {
@@ -4488,13 +4720,23 @@ class Bubbles extends GenericService {
             that._logger.log(that.DEBUG, LOG_ID + "(removeBubblesFromContainer) bubbleIds : " + bubbleIds, ", containerId : ", containerId);
 
             if (!containerId) {
-                that._logger.log(that.DEBUG, LOG_ID + "(removeBubblesFromContainer) bad or empty 'containerId' parameter : ", containerId);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'containerId' parameter";
+                error.label += "bad or empty 'containerId' parameter";
+                error.cause = containerId;
+                that._logger.log(that.WARN, LOG_ID + "(removeBubblesFromContainer) BAD_REQUEST.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(removeBubblesFromContainer) bad or empty 'containerId' parameter : ", error.cause, ", error : ", error);
+                return reject(error);
             }
 
             if (!bubbleIds) {
-                that._logger.log(that.DEBUG, LOG_ID + "(removeBubblesFromContainer) bad or empty 'bubbleIds' parameter : ", bubbleIds);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'bubbleIds' parameter";
+                error.label += "bad or empty 'bubbleIds' parameter";
+                error.cause = bubbleIds;
+                that._logger.log(that.WARN, LOG_ID + "(removeBubblesFromContainer) BAD_REQUEST.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(removeBubblesFromContainer) bad or empty 'bubbleIds' parameter : ", error.cause, ", error : ", error);
+                return reject(error);
             }
 
             return that._rest.removeBubblesFromContainer(containerId, bubbleIds).then(async (result) => {
@@ -4535,9 +4777,13 @@ class Bubbles extends GenericService {
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getABubblePublicLinkAsModerator) .");
 
         if (!bubbleId) {
-            that._logger.log(that.WARN, LOG_ID + "(getABubblePublicLinkAsModerator) bad or empty 'bubbleId' parameter.");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(getABubblePublicLinkAsModerator) bad or empty 'bubbleId' parameter : ", bubbleId);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'bubbleId' parameter.";
+            error.label += "bad or empty 'bubbleId' parameter.";
+            error.cause = bubbleId;
+            that._logger.log(that.WARN, LOG_ID + `(getABubblePublicLinkAsModerator) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(getABubblePublicLinkAsModerator) bad or empty 'bubbleId' parameter. : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
         return that._rest.getABubblePublicLinkAsModerator(bubbleId, emailContent, language);
     }
@@ -4638,9 +4884,13 @@ class Bubbles extends GenericService {
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getAllPublicUrlOfABubble) .");
 
         if (!bubble) {
-            that._logger.log(that.WARN, LOG_ID + "(getAllOpenInviteIdOfABubble) bad or empty 'bubble' parameter.");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(getAllOpenInviteIdOfABubble) bad or empty 'bubble' parameter : ", bubble);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'bubble' parameter.";
+            error.label += "bad or empty 'bubble' parameter.";
+            error.cause = bubble;
+            that._logger.log(that.WARN, LOG_ID + `(getAllOpenInviteIdOfABubble) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(getAllOpenInviteIdOfABubble) bad or empty 'bubble' parameter. : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
         let allOpenInviteObj = await that._rest.getAllOpenInviteIdPerRoomOfAUser(undefined, undefined, bubble.id);
         let allPublicUrl = [];
@@ -4670,14 +4920,22 @@ class Bubbles extends GenericService {
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getAllPublicUrlOfABubbleOfAUser) .");
 
         if (!contact) {
-            that._logger.log(that.WARN, LOG_ID + "(getAllOpenInviteIdOfABubbleOfAUser) bad or empty 'contact' parameter.");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(getAllOpenInviteIdOfABubbleOfAUser) bad or empty 'contact' parameter : ", contact);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'contact' parameter.";
+            error.label += "bad or empty 'contact' parameter.";
+            error.cause = contact;
+            that._logger.log(that.WARN, LOG_ID + `(getAllOpenInviteIdOfABubbleOfAUser) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(getAllOpenInviteIdOfABubbleOfAUser) bad or empty 'contact' parameter. : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
         if (!bubble) {
-            that._logger.log(that.WARN, LOG_ID + "(getAllOpenInviteIdOfABubbleOfAUser) bad or empty 'bubble' parameter.");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(getAllOpenInviteIdOfABubbleOfAUser) bad or empty 'bubble' parameter : ", bubble);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'bubble' parameter.";
+            error.label += "bad or empty 'bubble' parameter.";
+            error.cause = bubble;
+            that._logger.log(that.WARN, LOG_ID + `(getAllOpenInviteIdOfABubbleOfAUser) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(getAllOpenInviteIdOfABubbleOfAUser) bad or empty 'bubble' parameter. : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
         let allOpenInviteObj = await that._rest.getAllOpenInviteIdPerRoomOfAUser(contact.id, undefined, bubble.id);
         let allPublicUrl = [];
@@ -4705,9 +4963,13 @@ class Bubbles extends GenericService {
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(createPublicUrl) .");
 
         if (!bubble || !bubble.id) {
-            that._logger.log(that.WARN, LOG_ID + "(createPublicUrl) bad or empty 'bubble' parameter.");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(createPublicUrl) bad or empty 'bubble' parameter : ", bubble);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'bubble' parameter.";
+            error.label += "bad or empty 'bubble' parameter.";
+            error.cause = bubble;
+            that._logger.log(that.WARN, LOG_ID + `(createPublicUrl) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(createPublicUrl) bad or empty 'bubble' parameter. : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
         that._logger.log(that.INTERNAL, LOG_ID + "(createPublicUrl) bubble parameter : ", bubble?.id);
 
@@ -4735,9 +4997,13 @@ class Bubbles extends GenericService {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(generateNewPublicUrl) .");
         if (!bubble) {
-            that._logger.log(that.WARN, LOG_ID + "(generateNewPublicUrl) bad or empty 'bubble' parameter.");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(generateNewPublicUrl) bad or empty 'bubble' parameter : ", bubble);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'bubble' parameter.";
+            error.label += "bad or empty 'bubble' parameter.";
+            error.cause = bubble;
+            that._logger.log(that.WARN, LOG_ID + `(generateNewPublicUrl) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(generateNewPublicUrl) bad or empty 'bubble' parameter. : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
         let bubbleId: string = bubble.id;
         //return that.getPublicURLFromResponseContent(await that._rest.generateNewPublicUrl(bubbleId));
@@ -4787,9 +5053,13 @@ class Bubbles extends GenericService {
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(setBubbleAutoRegister) .");
 
         if (!bubble) {
-            that._logger.log(that.WARN, LOG_ID + "(setBubbleAutoRegister) bad or empty 'bubble' parameter.");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(setBubbleAutoRegister) bad or empty 'bubble' parameter : ", bubble);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'bubble' parameter.";
+            error.label += "bad or empty 'bubble' parameter.";
+            error.cause = bubble;
+            that._logger.log(that.WARN, LOG_ID + `(setBubbleAutoRegister) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(setBubbleAutoRegister) bad or empty 'bubble' parameter. : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         return new Promise((resolve, reject) => {
@@ -4895,19 +5165,31 @@ class Bubbles extends GenericService {
         //that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(registerGuestForAPublicURL) arguments : ", ...arguments);
 
         if (!publicUrl) {
-            that._logger.log(that.WARN, LOG_ID + "(registerGuestForAPublicURL) bad or empty 'publicUrl' parameter ");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(registerGuestForAPublicURL) bad or empty 'publicUrl' parameter : ", publicUrl);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'publicUrl' parameter ";
+            error.label += "bad or empty 'publicUrl' parameter ";
+            error.cause = publicUrl;
+            that._logger.log(that.WARN, LOG_ID + `(registerGuestForAPublicURL) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(registerGuestForAPublicURL) bad or empty 'publicUrl' parameter  : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
         if (!loginEmail) {
-            that._logger.log(that.WARN, LOG_ID + "(registerGuestForAPublicURL) bad or empty 'loginEmail' parameter ");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(registerGuestForAPublicURL) bad or empty 'loginEmail' parameter : ", loginEmail);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'loginEmail' parameter ";
+            error.label += "bad or empty 'loginEmail' parameter ";
+            error.cause = loginEmail;
+            that._logger.log(that.WARN, LOG_ID + `(registerGuestForAPublicURL) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(registerGuestForAPublicURL) bad or empty 'loginEmail' parameter  : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
         if (!password) {
-            that._logger.log(that.WARN, LOG_ID + "(registerGuestForAPublicURL) bad or empty 'password' parameter ");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(registerGuestForAPublicURL) bad or empty 'password' parameter : ", password);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'password' parameter ";
+            error.label += "bad or empty 'password' parameter ";
+            error.cause = password;
+            that._logger.log(that.WARN, LOG_ID + `(registerGuestForAPublicURL) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(registerGuestForAPublicURL) bad or empty 'password' parameter  : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
         return new Promise(async function (resolve, reject) {
             that._logger.log(that.INTERNAL, LOG_ID + "(registerGuestForAPublicURL) decode openInviteId.");
@@ -4959,11 +5241,15 @@ class Bubbles extends GenericService {
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(checkOpenInviteIdValidity) .");
 
         if (!openInviteId) {
-            that._logger.log(that.WARN, LOG_ID + "(checkOpenInviteIdValidity) bad or empty 'openInviteId' parameter ");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(checkOpenInviteIdValidity) bad or empty 'openInviteId' parameter : ", openInviteId);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'openInviteId' parameter ";
+            error.label += "bad or empty 'openInviteId' parameter ";
+            error.cause = openInviteId;
+            that._logger.log(that.WARN, LOG_ID + `(checkOpenInviteIdValidity) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(checkOpenInviteIdValidity) bad or empty 'openInviteId' parameter  : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
-       
+
         return new Promise(async function (resolve, reject) {
             that._logger.log(that.INTERNAL, LOG_ID + "(checkOpenInviteIdValidity) openInviteId found : ", openInviteId);
             that._rest.checkOpenInviteIdValidity(openInviteId).then(function (result: any) {
@@ -5002,9 +5288,13 @@ class Bubbles extends GenericService {
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(joinBubbleByOpenInviteId) .");
 
         if (!openInviteId) {
-            that._logger.log(that.WARN, LOG_ID + "(joinBubbleByOpenInviteId) bad or empty 'openInviteId' parameter ");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(joinBubbleByOpenInviteId) bad or empty 'openInviteId' parameter : ", openInviteId);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'openInviteId' parameter ";
+            error.label += "bad or empty 'openInviteId' parameter ";
+            error.cause = openInviteId;
+            that._logger.log(that.WARN, LOG_ID + `(joinBubbleByOpenInviteId) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(joinBubbleByOpenInviteId) bad or empty 'openInviteId' parameter  : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         return new Promise(async function (resolve, reject) {
@@ -5054,19 +5344,31 @@ class Bubbles extends GenericService {
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(createBubblePoll) .");
 
         if (!bubbleId) {
-            that._logger.log(that.WARN, LOG_ID + "(createBubblePoll) bad or empty 'bubbleId' parameter ");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(createBubblePoll) bad or empty 'bubbleId' parameter : ", bubbleId);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'bubbleId' parameter ";
+            error.label += "bad or empty 'bubbleId' parameter ";
+            error.cause = bubbleId;
+            that._logger.log(that.WARN, LOG_ID + `(createBubblePoll) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(createBubblePoll) bad or empty 'bubbleId' parameter  : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
         if (!title) {
-            that._logger.log(that.WARN, LOG_ID + "(createBubblePoll) bad or empty 'title' parameter ");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(createBubblePoll) bad or empty 'title' parameter : ", title);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'title' parameter ";
+            error.label += "bad or empty 'title' parameter ";
+            error.cause = title;
+            that._logger.log(that.WARN, LOG_ID + `(createBubblePoll) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(createBubblePoll) bad or empty 'title' parameter  : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
         if (!questions) {
-            that._logger.log(that.WARN, LOG_ID + "(createBubblePoll) bad or empty 'questions' parameter ");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(createBubblePoll) bad or empty 'questions' parameter : ", questions);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'questions' parameter ";
+            error.label += "bad or empty 'questions' parameter ";
+            error.cause = questions;
+            that._logger.log(that.WARN, LOG_ID + `(createBubblePoll) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(createBubblePoll) bad or empty 'questions' parameter  : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
         
         return new Promise(async function (resolve, reject) {
@@ -5099,9 +5401,13 @@ class Bubbles extends GenericService {
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteBubblePoll) .");
 
         if (!pollId) {
-            that._logger.log(that.WARN, LOG_ID + "(deleteBubblePoll) bad or empty 'pollId' parameter ");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteBubblePoll) bad or empty 'pollId' parameter : ", pollId);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'pollId' parameter ";
+            error.label += "bad or empty 'pollId' parameter ";
+            error.cause = pollId;
+            that._logger.log(that.WARN, LOG_ID + `(deleteBubblePoll) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(deleteBubblePoll) bad or empty 'pollId' parameter  : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         return new Promise(async function (resolve, reject) {
@@ -5135,9 +5441,13 @@ class Bubbles extends GenericService {
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getBubblePoll) .");
 
         if (!pollId) {
-            that._logger.log(that.WARN, LOG_ID + "(getBubblePoll) bad or empty 'pollId' parameter ");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(getBubblePoll) bad or empty 'pollId' parameter : ", pollId);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'pollId' parameter ";
+            error.label += "bad or empty 'pollId' parameter ";
+            error.cause = pollId;
+            that._logger.log(that.WARN, LOG_ID + `(getBubblePoll) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(getBubblePoll) bad or empty 'pollId' parameter  : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         return new Promise(async function (resolve, reject) {
@@ -5202,9 +5512,13 @@ class Bubbles extends GenericService {
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getBubblePollsByBubble) .");
 
         if (!bubbleId) {
-            that._logger.log(that.WARN, LOG_ID + "(getBubblePollsByBubble) bad or empty 'bubbleId' parameter ");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(getBubblePollsByBubble) bad or empty 'bubbleId' parameter : ", bubbleId);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'bubbleId' parameter ";
+            error.label += "bad or empty 'bubbleId' parameter ";
+            error.cause = bubbleId;
+            that._logger.log(that.WARN, LOG_ID + `(getBubblePollsByBubble) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(getBubblePollsByBubble) bad or empty 'bubbleId' parameter  : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         return new Promise(async function (resolve, reject) {
@@ -5238,9 +5552,13 @@ class Bubbles extends GenericService {
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(publishBubblePoll) .");
 
         if (!pollId) {
-            that._logger.log(that.WARN, LOG_ID + "(publishBubblePoll) bad or empty 'pollId' parameter ");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(publishBubblePoll) bad or empty 'pollId' parameter : ", pollId);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'pollId' parameter ";
+            error.label += "bad or empty 'pollId' parameter ";
+            error.cause = pollId;
+            that._logger.log(that.WARN, LOG_ID + `(publishBubblePoll) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(publishBubblePoll) bad or empty 'pollId' parameter  : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         return new Promise(async function (resolve, reject) {
@@ -5274,9 +5592,13 @@ class Bubbles extends GenericService {
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(terminateBubblePoll) .");
 
         if (!pollId) {
-            that._logger.log(that.WARN, LOG_ID + "(terminateBubblePoll) bad or empty 'pollId' parameter ");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(terminateBubblePoll) bad or empty 'pollId' parameter : ", pollId);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'pollId' parameter ";
+            error.label += "bad or empty 'pollId' parameter ";
+            error.cause = pollId;
+            that._logger.log(that.WARN, LOG_ID + `(terminateBubblePoll) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(terminateBubblePoll) bad or empty 'pollId' parameter  : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         return new Promise(async function (resolve, reject) {
@@ -5310,9 +5632,13 @@ class Bubbles extends GenericService {
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(unpublishBubblePoll) .");
 
         if (!pollId) {
-            that._logger.log(that.WARN, LOG_ID + "(unpublishBubblePoll) bad or empty 'pollId' parameter ");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(unpublishBubblePoll) bad or empty 'pollId' parameter : ", pollId);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'pollId' parameter ";
+            error.label += "bad or empty 'pollId' parameter ";
+            error.cause = pollId;
+            that._logger.log(that.WARN, LOG_ID + `(unpublishBubblePoll) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(unpublishBubblePoll) bad or empty 'pollId' parameter  : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         return new Promise(async function (resolve, reject) {
@@ -5358,24 +5684,40 @@ class Bubbles extends GenericService {
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateBubblePoll) .");
 
         if (!pollId) {
-            that._logger.log(that.WARN, LOG_ID + "(updateBubblePoll) bad or empty 'pollId' parameter ");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(updateBubblePoll) bad or empty 'pollId' parameter : ", pollId);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'pollId' parameter ";
+            error.label += "bad or empty 'pollId' parameter ";
+            error.cause = pollId;
+            that._logger.log(that.WARN, LOG_ID + `(updateBubblePoll) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(updateBubblePoll) bad or empty 'pollId' parameter  : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
         if (!bubbleId) {
-            that._logger.log(that.WARN, LOG_ID + "(updateBubblePoll) bad or empty 'bubbleId' parameter ");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(updateBubblePoll) bad or empty 'bubbleId' parameter : ", bubbleId);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'bubbleId' parameter ";
+            error.label += "bad or empty 'bubbleId' parameter ";
+            error.cause = bubbleId;
+            that._logger.log(that.WARN, LOG_ID + `(updateBubblePoll) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(updateBubblePoll) bad or empty 'bubbleId' parameter  : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
         if (!title) {
-            that._logger.log(that.WARN, LOG_ID + "(updateBubblePoll) bad or empty 'title' parameter ");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(updateBubblePoll) bad or empty 'title' parameter : ", title);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'title' parameter ";
+            error.label += "bad or empty 'title' parameter ";
+            error.cause = title;
+            that._logger.log(that.WARN, LOG_ID + `(updateBubblePoll) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(updateBubblePoll) bad or empty 'title' parameter  : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
         if (!questions) {
-            that._logger.log(that.WARN, LOG_ID + "(updateBubblePoll) bad or empty 'questions' parameter ");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(updateBubblePoll) bad or empty 'questions' parameter : ", questions);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'questions' parameter ";
+            error.label += "bad or empty 'questions' parameter ";
+            error.cause = questions;
+            that._logger.log(that.WARN, LOG_ID + `(updateBubblePoll) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(updateBubblePoll) bad or empty 'questions' parameter  : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         return new Promise(async function (resolve, reject) {
@@ -5412,15 +5754,23 @@ class Bubbles extends GenericService {
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(votesForBubblePoll) .");
 
         if (!pollId) {
-            that._logger.log(that.WARN, LOG_ID + "(votesForBubblePoll) bad or empty 'pollId' parameter ");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(votesForBubblePoll) bad or empty 'pollId' parameter : ", pollId);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'pollId' parameter ";
+            error.label += "bad or empty 'pollId' parameter ";
+            error.cause = pollId;
+            that._logger.log(that.WARN, LOG_ID + `(votesForBubblePoll) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(votesForBubblePoll) bad or empty 'pollId' parameter  : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         if (!votes) {
-            that._logger.log(that.WARN, LOG_ID + "(votesForBubblePoll) bad or empty 'votes' parameter ");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(votesForBubblePoll) bad or empty 'votes' parameter : ", votes);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'votes' parameter ";
+            error.label += "bad or empty 'votes' parameter ";
+            error.cause = votes;
+            that._logger.log(that.WARN, LOG_ID + `(votesForBubblePoll) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(votesForBubblePoll) bad or empty 'votes' parameter  : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         return new Promise(async function (resolve, reject) {
@@ -5461,18 +5811,26 @@ class Bubbles extends GenericService {
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteAllMessagesInBubble) .");
 
         if (!bubble) {
-            that._logger.log(that.ERROR, LOG_ID + "(deleteAllMessagesInBubble) bad or empty 'bubble' parameter.");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteAllMessagesInBubble) bad or empty 'bubble' parameter : ", bubble);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'bubble' parameter.";
+            error.label += "bad or empty 'bubble' parameter.";
+            error.cause = bubble;
+            that._logger.log(that.WARN, LOG_ID + `(deleteAllMessagesInBubble) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(deleteAllMessagesInBubble) bad or empty 'bubble' parameter. : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         // new to openconversation to send presence and activate the bubble if needed.
         let conversationObj = await that._conversations.openConversationForBubble(bubble);
 
         if (conversationObj.type!==Conversation.Type.ROOM) {
-            that._logger.log(that.ERROR, LOG_ID + "(deleteAllMessagesInBubble) bad or empty 'conversation.type' parameter.");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteAllMessagesInBubble) bad or empty 'conversation.type' parameter : ", conversationObj);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'conversation.type' parameter.";
+            error.label += "bad or empty 'conversation.type' parameter.";
+            error.cause = conversationObj;
+            that._logger.log(that.WARN, LOG_ID + `(deleteAllMessagesInBubble) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(deleteAllMessagesInBubble) bad or empty 'conversation.type' parameter. : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         return that._xmpp.deleteAllMessagesInRoomConversation(bubble.jid, forContactJid);
@@ -5506,13 +5864,23 @@ class Bubbles extends GenericService {
             that._logger.log(that.DEBUG, LOG_ID + "(addPSTNParticipantToConference) roomId : " + roomId);
 
             if (!roomId) {
-                that._logger.log(that.DEBUG, LOG_ID + "(addPSTNParticipantToConference) bad or empty 'roomId' parameter : ", roomId);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'roomId' parameter";
+                error.label += "bad or empty 'roomId' parameter";
+                error.cause = roomId;
+                that._logger.log(that.WARN, LOG_ID + `(addPSTNParticipantToConference) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(addPSTNParticipantToConference) bad or empty 'roomId' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             if (!participantPhoneNumber) {
-                that._logger.log(that.DEBUG, LOG_ID + "(addPSTNParticipantToConference) bad or empty 'participantPhoneNumber' parameter : ", participantPhoneNumber);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'participantPhoneNumber' parameter";
+                error.label += "bad or empty 'participantPhoneNumber' parameter";
+                error.cause = participantPhoneNumber;
+                that._logger.log(that.WARN, LOG_ID + `(addPSTNParticipantToConference) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(addPSTNParticipantToConference) bad or empty 'participantPhoneNumber' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             that._rest.addPSTNParticipantToConference(roomId, participantPhoneNumber, country).then(async (result) => {
@@ -5557,8 +5925,13 @@ class Bubbles extends GenericService {
             that._logger.log(that.DEBUG, LOG_ID + "(snapshotConference) roomId : " + roomId);
 
             if (!roomId) {
-                that._logger.log(that.DEBUG, LOG_ID + "(snapshotConference) bad or empty 'roomId' parameter : ", roomId);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'roomId' parameter";
+                error.label += "bad or empty 'roomId' parameter";
+                error.cause = roomId;
+                that._logger.log(that.WARN, LOG_ID + `(snapshotConference) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(snapshotConference) bad or empty 'roomId' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             that._rest.snapshotConference(roomId, limit, offset).then(async (confSnapshop) => {
@@ -5719,13 +6092,23 @@ class Bubbles extends GenericService {
             that._logger.log(that.DEBUG, LOG_ID + "(delegateConference) roomId : " + roomId);
 
             if (!roomId) {
-                that._logger.log(that.DEBUG, LOG_ID + "(delegateConference) bad or empty 'roomId' parameter : ", roomId);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'roomId' parameter";
+                error.label += "bad or empty 'roomId' parameter";
+                error.cause = roomId;
+                that._logger.log(that.WARN, LOG_ID + `(delegateConference) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(delegateConference) bad or empty 'roomId' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             if (!userId) {
-                that._logger.log(that.DEBUG, LOG_ID + "(delegateConference) bad or empty 'userId' parameter : ", userId);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'userId' parameter";
+                error.label += "bad or empty 'userId' parameter";
+                error.cause = userId;
+                that._logger.log(that.WARN, LOG_ID + `(delegateConference) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(delegateConference) bad or empty 'userId' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             that._rest.delegateConference(roomId, userId).then(async (result) => {
@@ -5768,8 +6151,13 @@ class Bubbles extends GenericService {
             that._logger.log(that.DEBUG, LOG_ID + "(disconnectPSTNParticipantFromConference) roomId : " + roomId);
 
             if (!roomId) {
-                that._logger.log(that.DEBUG, LOG_ID + "(disconnectPSTNParticipantFromConference) bad or empty 'roomId' parameter : ", roomId);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'roomId' parameter";
+                error.label += "bad or empty 'roomId' parameter";
+                error.cause = roomId;
+                that._logger.log(that.WARN, LOG_ID + `(disconnectPSTNParticipantFromConference) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(disconnectPSTNParticipantFromConference) bad or empty 'roomId' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             that._rest.disconnectPSTNParticipantFromConference(roomId).then(async (result) => {
@@ -5813,13 +6201,23 @@ class Bubbles extends GenericService {
             that._logger.log(that.DEBUG, LOG_ID + "(disconnectParticipantFromConference) bubbleId : " + bubbleId);
 
             if (!bubbleId) {
-                that._logger.log(that.DEBUG, LOG_ID + "(disconnectParticipantFromConference) bad or empty 'bubbleId' parameter : ", bubbleId);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'bubbleId' parameter";
+                error.label += "bad or empty 'bubbleId' parameter";
+                error.cause = bubbleId;
+                that._logger.log(that.WARN, LOG_ID + `(disconnectParticipantFromConference) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(disconnectParticipantFromConference) bad or empty 'bubbleId' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             if (!userId) {
-                that._logger.log(that.DEBUG, LOG_ID + "(disconnectParticipantFromConference) bad or empty 'userId' parameter : ", userId);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'userId' parameter";
+                error.label += "bad or empty 'userId' parameter";
+                error.cause = userId;
+                that._logger.log(that.WARN, LOG_ID + `(disconnectParticipantFromConference) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(disconnectParticipantFromConference) bad or empty 'userId' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             that._rest.disconnectParticipantFromConference(bubbleId, userId).then(async (result) => {
@@ -5864,8 +6262,13 @@ class Bubbles extends GenericService {
             that._logger.log(that.DEBUG, LOG_ID + "(getTalkingTimeForAllPparticipantsInConference) roomId : " + roomId);
 
             if (!roomId) {
-                that._logger.log(that.DEBUG, LOG_ID + "(getTalkingTimeForAllPparticipantsInConference) bad or empty 'roomId' parameter : ", roomId);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'roomId' parameter";
+                error.label += "bad or empty 'roomId' parameter";
+                error.cause = roomId;
+                that._logger.log(that.WARN, LOG_ID + `(getTalkingTimeForAllPparticipantsInConference) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(getTalkingTimeForAllPparticipantsInConference) bad or empty 'roomId' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             that._rest.getTalkingTimeForAllPparticipantsInConference(roomId, limit, offset).then(async (result) => {
@@ -5923,8 +6326,13 @@ class Bubbles extends GenericService {
             that._logger.log(that.DEBUG, LOG_ID + "(joinConferenceV2) bubbleId : " + bubbleId);
 
             if (!bubbleId) {
-                that._logger.log(that.DEBUG, LOG_ID + "(joinConferenceV2) bad or empty 'bubbleId' parameter : ", bubbleId);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'bubbleId' parameter";
+                error.label += "bad or empty 'bubbleId' parameter";
+                error.cause = bubbleId;
+                that._logger.log(that.WARN, LOG_ID + `(joinConferenceV2) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(joinConferenceV2) bad or empty 'bubbleId' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
             
             if (!resourceId) {
@@ -5975,8 +6383,13 @@ class Bubbles extends GenericService {
             that._logger.log(that.DEBUG, LOG_ID + "(pauseRecording) roomId : " + roomId);
 
             if (!roomId) {
-                that._logger.log(that.DEBUG, LOG_ID + "(pauseRecording) bad or empty 'roomId' parameter : ", roomId);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'roomId' parameter";
+                error.label += "bad or empty 'roomId' parameter";
+                error.cause = roomId;
+                that._logger.log(that.WARN, LOG_ID + `(pauseRecording) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(pauseRecording) bad or empty 'roomId' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             that._rest.pauseRecording(roomId).then(async (result) => {
@@ -6015,8 +6428,13 @@ class Bubbles extends GenericService {
             that._logger.log(that.DEBUG, LOG_ID + "(resumeRecording) roomId : " + roomId);
 
             if (!roomId) {
-                that._logger.log(that.DEBUG, LOG_ID + "(resumeRecording) bad or empty 'roomId' parameter : ", roomId);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'roomId' parameter";
+                error.label += "bad or empty 'roomId' parameter";
+                error.cause = roomId;
+                that._logger.log(that.WARN, LOG_ID + `(resumeRecording) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(resumeRecording) bad or empty 'roomId' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             that._rest.pauseRecording(roomId).then(async (result) => {
@@ -6055,8 +6473,13 @@ class Bubbles extends GenericService {
             that._logger.log(that.DEBUG, LOG_ID + "(startRecording) roomId : " + roomId);
 
             if (!roomId) {
-                that._logger.log(that.DEBUG, LOG_ID + "(startRecording) bad or empty 'roomId' parameter : ", roomId);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'roomId' parameter";
+                error.label += "bad or empty 'roomId' parameter";
+                error.cause = roomId;
+                that._logger.log(that.WARN, LOG_ID + `(startRecording) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(startRecording) bad or empty 'roomId' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             that._rest.startRecording(roomId).then(async (result) => {
@@ -6095,8 +6518,13 @@ class Bubbles extends GenericService {
             that._logger.log(that.DEBUG, LOG_ID + "(stopRecording) roomId : " + roomId);
 
             if (!roomId) {
-                that._logger.log(that.DEBUG, LOG_ID + "(stopRecording) bad or empty 'roomId' parameter : ", roomId);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'roomId' parameter";
+                error.label += "bad or empty 'roomId' parameter";
+                error.cause = roomId;
+                that._logger.log(that.WARN, LOG_ID + `(stopRecording) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(stopRecording) bad or empty 'roomId' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             that._rest.pauseRecording(roomId).then(async (result) => {
@@ -6136,8 +6564,13 @@ class Bubbles extends GenericService {
             that._logger.log(that.DEBUG, LOG_ID + "(rejectAVideoConference) roomId : " + roomId);
 
             if (!roomId) {
-                that._logger.log(that.DEBUG, LOG_ID + "(rejectAVideoConference) bad or empty 'roomId' parameter : ", roomId);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'roomId' parameter";
+                error.label += "bad or empty 'roomId' parameter";
+                error.cause = roomId;
+                that._logger.log(that.WARN, LOG_ID + `(rejectAVideoConference) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(rejectAVideoConference) bad or empty 'roomId' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             that._rest.rejectAVideoConference(roomId).then(async (result) => {
@@ -6177,8 +6610,13 @@ class Bubbles extends GenericService {
             that._logger.log(that.DEBUG, LOG_ID + "(startConferenceOrWebinarInARoom) bubbleId : " + bubbleId);
 
             if (!bubbleId) {
-                that._logger.log(that.DEBUG, LOG_ID + "(startConferenceOrWebinarInARoom) bad or empty 'bubbleId' parameter : ", bubbleId);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'bubbleId' parameter";
+                error.label += "bad or empty 'bubbleId' parameter";
+                error.cause = bubbleId;
+                that._logger.log(that.WARN, LOG_ID + `(startConferenceOrWebinarInARoom) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(startConferenceOrWebinarInARoom) bad or empty 'bubbleId' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             that._rest.startConferenceOrWebinarInARoom(bubbleId, services ).then(async (result) => {
@@ -6221,8 +6659,13 @@ class Bubbles extends GenericService {
             that._logger.log(that.DEBUG, LOG_ID + "(stopConferenceOrWebinar) roomId : " + roomId);
 
             if (!roomId) {
-                that._logger.log(that.DEBUG, LOG_ID + "(stopConferenceOrWebinar) bad or empty 'roomId' parameter : ", roomId);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'roomId' parameter";
+                error.label += "bad or empty 'roomId' parameter";
+                error.cause = roomId;
+                that._logger.log(that.WARN, LOG_ID + `(stopConferenceOrWebinar) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(stopConferenceOrWebinar) bad or empty 'roomId' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             that._rest.stopConferenceOrWebinar(roomId).then(async (result) => {
@@ -6269,13 +6712,23 @@ class Bubbles extends GenericService {
             that._logger.log(that.DEBUG, LOG_ID + "(subscribeForParticipantVideoStream) roomId : " + roomId);
 
             if (!roomId) {
-                that._logger.log(that.DEBUG, LOG_ID + "(subscribeForParticipantVideoStream) bad or empty 'roomId' parameter : ", roomId);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'roomId' parameter";
+                error.label += "bad or empty 'roomId' parameter";
+                error.cause = roomId;
+                that._logger.log(that.WARN, LOG_ID + `(subscribeForParticipantVideoStream) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(subscribeForParticipantVideoStream) bad or empty 'roomId' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             if (!userId) {
-                that._logger.log(that.DEBUG, LOG_ID + "(subscribeForParticipantVideoStream) bad or empty 'userId' parameter : ", userId);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'userId' parameter";
+                error.label += "bad or empty 'userId' parameter";
+                error.cause = userId;
+                that._logger.log(that.WARN, LOG_ID + `(subscribeForParticipantVideoStream) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(subscribeForParticipantVideoStream) bad or empty 'userId' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             that._rest.subscribeForParticipantVideoStream(roomId, userId).then(async (result) => {
@@ -6317,13 +6770,23 @@ class Bubbles extends GenericService {
             that._logger.log(that.DEBUG, LOG_ID + "(updatePSTNParticipantParameters) roomId : " + roomId);
 
             if (!roomId) {
-                that._logger.log(that.DEBUG, LOG_ID + "(updatePSTNParticipantParameters) bad or empty 'roomId' parameter : ", roomId);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'roomId' parameter";
+                error.label += "bad or empty 'roomId' parameter";
+                error.cause = roomId;
+                that._logger.log(that.WARN, LOG_ID + `(updatePSTNParticipantParameters) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(updatePSTNParticipantParameters) bad or empty 'roomId' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             if (!phoneNumber) {
-                that._logger.log(that.DEBUG, LOG_ID + "(updatePSTNParticipantParameters) bad or empty 'phoneNumber' parameter : ", phoneNumber);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'phoneNumber' parameter";
+                error.label += "bad or empty 'phoneNumber' parameter";
+                error.cause = phoneNumber;
+                that._logger.log(that.WARN, LOG_ID + `(updatePSTNParticipantParameters) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(updatePSTNParticipantParameters) bad or empty 'phoneNumber' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             that._rest.updatePSTNParticipantParameters(roomId, phoneNumber, option).then(async (result) => {
@@ -6369,13 +6832,23 @@ class Bubbles extends GenericService {
             that._logger.log(that.DEBUG, LOG_ID + "(updateConferenceParameters) roomId : " + roomId);
 
             if (!roomId) {
-                that._logger.log(that.DEBUG, LOG_ID + "(updateConferenceParameters) bad or empty 'roomId' parameter : ", roomId);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'roomId' parameter";
+                error.label += "bad or empty 'roomId' parameter";
+                error.cause = roomId;
+                that._logger.log(that.WARN, LOG_ID + `(updateConferenceParameters) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(updateConferenceParameters) bad or empty 'roomId' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             if (!option) {
-                that._logger.log(that.DEBUG, LOG_ID + "(updateConferenceParameters) bad or empty 'option' parameter : ", option);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'option' parameter";
+                error.label += "bad or empty 'option' parameter";
+                error.cause = option;
+                that._logger.log(that.WARN, LOG_ID + `(updateConferenceParameters) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(updateConferenceParameters) bad or empty 'option' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             that._rest.updateConferenceParameters(roomId, option).then(async (result) => {
@@ -6428,13 +6901,23 @@ class Bubbles extends GenericService {
             that._logger.log(that.DEBUG, LOG_ID + "(updateParticipantParameters) roomId : " + roomId);
 
             if (!roomId) {
-                that._logger.log(that.DEBUG, LOG_ID + "(updateParticipantParameters) bad or empty 'roomId' parameter : ", roomId);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'roomId' parameter";
+                error.label += "bad or empty 'roomId' parameter";
+                error.cause = roomId;
+                that._logger.log(that.WARN, LOG_ID + `(updateParticipantParameters) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(updateParticipantParameters) bad or empty 'roomId' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             if (!option) {
-                that._logger.log(that.DEBUG, LOG_ID + "(updateParticipantParameters) bad or empty 'option' parameter : ", option);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'option' parameter";
+                error.label += "bad or empty 'option' parameter";
+                error.cause = option;
+                that._logger.log(that.WARN, LOG_ID + `(updateParticipantParameters) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(updateParticipantParameters) bad or empty 'option' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             that._rest.updateParticipantParameters(roomId, userId, option, media, bitRate, subStreamLevel, publisherId).then(async (result) => {
@@ -6474,13 +6957,23 @@ class Bubbles extends GenericService {
             that._logger.log(that.DEBUG, LOG_ID + "(allowTalkWebinar) roomId : " + roomId);
 
             if (!roomId) {
-                that._logger.log(that.DEBUG, LOG_ID + "(allowTalkWebinar) bad or empty 'roomId' parameter : ", roomId);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'roomId' parameter";
+                error.label += "bad or empty 'roomId' parameter";
+                error.cause = roomId;
+                that._logger.log(that.WARN, LOG_ID + `(allowTalkWebinar) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(allowTalkWebinar) bad or empty 'roomId' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             if (!userId) {
-                that._logger.log(that.DEBUG, LOG_ID + "(allowTalkWebinar) bad or empty 'userId' parameter : ", userId);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'userId' parameter";
+                error.label += "bad or empty 'userId' parameter";
+                error.cause = userId;
+                that._logger.log(that.WARN, LOG_ID + `(allowTalkWebinar) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(allowTalkWebinar) bad or empty 'userId' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             that._rest.allowTalkWebinar(roomId, userId).then(async (result) => {
@@ -6520,13 +7013,23 @@ class Bubbles extends GenericService {
             that._logger.log(that.DEBUG, LOG_ID + "(disableTalkWebinar) roomId : " + roomId);
 
             if (!roomId) {
-                that._logger.log(that.DEBUG, LOG_ID + "(disableTalkWebinar) bad or empty 'roomId' parameter : ", roomId);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'roomId' parameter";
+                error.label += "bad or empty 'roomId' parameter";
+                error.cause = roomId;
+                that._logger.log(that.WARN, LOG_ID + `(disableTalkWebinar) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(disableTalkWebinar) bad or empty 'roomId' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             if (!userId) {
-                that._logger.log(that.DEBUG, LOG_ID + "(disableTalkWebinar) bad or empty 'userId' parameter : ", userId);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'userId' parameter";
+                error.label += "bad or empty 'userId' parameter";
+                error.cause = userId;
+                that._logger.log(that.WARN, LOG_ID + `(disableTalkWebinar) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(disableTalkWebinar) bad or empty 'userId' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             that._rest.disableTalkWebinar(roomId, userId).then(async (result) => {
@@ -6565,8 +7068,13 @@ class Bubbles extends GenericService {
             that._logger.log(that.DEBUG, LOG_ID + "(lowerHandWebinar) roomId : " + roomId);
 
             if (!roomId) {
-                that._logger.log(that.DEBUG, LOG_ID + "(lowerHandWebinar) bad or empty 'roomId' parameter : ", roomId);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'roomId' parameter";
+                error.label += "bad or empty 'roomId' parameter";
+                error.cause = roomId;
+                that._logger.log(that.WARN, LOG_ID + `(lowerHandWebinar) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(lowerHandWebinar) bad or empty 'roomId' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             that._rest.lowerHandWebinar(roomId).then(async (result) => {
@@ -6605,8 +7113,13 @@ class Bubbles extends GenericService {
             that._logger.log(that.DEBUG, LOG_ID + "(raiseHandWebinar) roomId : " + roomId);
 
             if (!roomId) {
-                that._logger.log(that.DEBUG, LOG_ID + "(raiseHandWebinar) bad or empty 'roomId' parameter : ", roomId);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'roomId' parameter";
+                error.label += "bad or empty 'roomId' parameter";
+                error.cause = roomId;
+                that._logger.log(that.WARN, LOG_ID + `(raiseHandWebinar) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(raiseHandWebinar) bad or empty 'roomId' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             that._rest.raiseHandWebinar(roomId).then(async (result) => {
@@ -6649,23 +7162,43 @@ class Bubbles extends GenericService {
             that._logger.log(that.DEBUG, LOG_ID + "(stageDescriptionWebinar) roomId : " + roomId);
 
             if (!roomId) {
-                that._logger.log(that.DEBUG, LOG_ID + "(stageDescriptionWebinar) bad or empty 'roomId' parameter : ", roomId);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'roomId' parameter";
+                error.label += "bad or empty 'roomId' parameter";
+                error.cause = roomId;
+                that._logger.log(that.WARN, LOG_ID + `(stageDescriptionWebinar) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(stageDescriptionWebinar) bad or empty 'roomId' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             if (!userId) {
-                that._logger.log(that.DEBUG, LOG_ID + "(stageDescriptionWebinar) bad or empty 'userId' parameter : ", userId);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'userId' parameter";
+                error.label += "bad or empty 'userId' parameter";
+                error.cause = userId;
+                that._logger.log(that.WARN, LOG_ID + `(stageDescriptionWebinar) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(stageDescriptionWebinar) bad or empty 'userId' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             if (!type) {
-                that._logger.log(that.DEBUG, LOG_ID + "(stageDescriptionWebinar) bad or empty 'type' parameter : ", type);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'type' parameter";
+                error.label += "bad or empty 'type' parameter";
+                error.cause = type;
+                that._logger.log(that.WARN, LOG_ID + `(stageDescriptionWebinar) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(stageDescriptionWebinar) bad or empty 'type' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             if (!properties) {
-                that._logger.log(that.DEBUG, LOG_ID + "(stageDescriptionWebinar) bad or empty 'properties' parameter : ", properties);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'properties' parameter";
+                error.label += "bad or empty 'properties' parameter";
+                error.cause = properties;
+                that._logger.log(that.WARN, LOG_ID + `(stageDescriptionWebinar) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(stageDescriptionWebinar) bad or empty 'properties' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             that._rest.stageDescriptionWebinar(roomId, userId, type, properties).then(async (result) => {
@@ -6713,8 +7246,13 @@ class Bubbles extends GenericService {
             that._logger.log(that.DEBUG, LOG_ID + "(disableDialInForABubble) bubbleId : " + bubbleId);
 
             if (!bubbleId) {
-                that._logger.log(that.DEBUG, LOG_ID + "(disableDialInForABubble) bad or empty 'bubbleId' parameter : ", bubbleId);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'bubbleId' parameter";
+                error.label += "bad or empty 'bubbleId' parameter";
+                error.cause = bubbleId;
+                that._logger.log(that.WARN, LOG_ID + `(disableDialInForABubble) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(disableDialInForABubble) bad or empty 'bubbleId' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             that._rest.disableDialInForARoom(bubbleId).then(async (result) => {
@@ -6753,8 +7291,13 @@ class Bubbles extends GenericService {
             that._logger.log(that.DEBUG, LOG_ID + "(enableDialInForABubble) bubbleId : " + bubbleId);
 
             if (!bubbleId) {
-                that._logger.log(that.DEBUG, LOG_ID + "(enableDialInForABubble) bad or empty 'bubbleId' parameter : ", bubbleId);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'bubbleId' parameter";
+                error.label += "bad or empty 'bubbleId' parameter";
+                error.cause = bubbleId;
+                that._logger.log(that.WARN, LOG_ID + `(enableDialInForABubble) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(enableDialInForABubble) bad or empty 'bubbleId' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             that._rest.enableDialInForARoom(bubbleId).then(async (result) => {
@@ -6793,8 +7336,13 @@ class Bubbles extends GenericService {
             that._logger.log(that.DEBUG, LOG_ID + "(resetDialInCodeForABubble) bubbleId : " + bubbleId);
 
             if (!bubbleId) {
-                that._logger.log(that.DEBUG, LOG_ID + "(resetDialInCodeForABubble) bad or empty 'bubbleId' parameter : ", bubbleId);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'bubbleId' parameter";
+                error.label += "bad or empty 'bubbleId' parameter";
+                error.cause = bubbleId;
+                that._logger.log(that.WARN, LOG_ID + `(resetDialInCodeForABubble) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(resetDialInCodeForABubble) bad or empty 'bubbleId' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             that._rest.resetDialInCodeForARoom(bubbleId).then(async (result) => {
@@ -6846,8 +7394,13 @@ class Bubbles extends GenericService {
             that._logger.log(that.DEBUG, LOG_ID + "(getDialInPhoneNumbersList) shortList : " + shortList);
 
             if (!shortList) {
-                that._logger.log(that.DEBUG, LOG_ID + "(getDialInPhoneNumbersList) bad or empty 'shortList' parameter : ", shortList);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'shortList' parameter";
+                error.label += "bad or empty 'shortList' parameter";
+                error.cause = shortList;
+                that._logger.log(that.WARN, LOG_ID + `(getDialInPhoneNumbersList) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(getDialInPhoneNumbersList) bad or empty 'shortList' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             that._rest.getDialInPhoneNumbersList(shortList).then(async (result) => {
@@ -6886,13 +7439,23 @@ class Bubbles extends GenericService {
             that._logger.log(that.DEBUG, LOG_ID + "(setRoomHasPassword) roomId : " + roomId);
 
             if (!roomId) {
-                that._logger.log(that.DEBUG, LOG_ID + "(setRoomHasPassword) bad or empty 'roomId' parameter : ", roomId);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'roomId' parameter";
+                error.label += "bad or empty 'roomId' parameter";
+                error.cause = roomId;
+                that._logger.log(that.WARN, LOG_ID + `(setRoomHasPassword) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(setRoomHasPassword) bad or empty 'roomId' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             if (isNotDefined(hasPassword)) {
-                that._logger.log(that.DEBUG, LOG_ID + "(setRoomHasPassword) bad or empty 'hasPassword' parameter : ", hasPassword);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'hasPassword' parameter";
+                error.label += "bad or empty 'hasPassword' parameter";
+                error.cause = hasPassword;
+                that._logger.log(that.WARN, LOG_ID + `(setRoomHasPassword) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(setRoomHasPassword) bad or empty 'hasPassword' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             that._rest.setRoomHasPassword(roomId, hasPassword).then(async (result) => {
@@ -6926,8 +7489,13 @@ class Bubbles extends GenericService {
             that._logger.log(that.DEBUG, LOG_ID + "(renewRoomPassword) roomId : " + roomId);
 
             if (!roomId) {
-                that._logger.log(that.DEBUG, LOG_ID + "(renewRoomPassword) bad or empty 'roomId' parameter : ", roomId);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'roomId' parameter";
+                error.label += "bad or empty 'roomId' parameter";
+                error.cause = roomId;
+                that._logger.log(that.WARN, LOG_ID + `(renewRoomPassword) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(renewRoomPassword) bad or empty 'roomId' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             that._rest.renewRoomPassword(roomId).then(async (result) => {
@@ -6965,13 +7533,23 @@ class Bubbles extends GenericService {
 
         return new Promise((resolve, reject) => {
             if (!bubbleId) {
-                that._logger.log(that.DEBUG, `${LOG_ID}(setBubbleLobby) bad or empty 'bubbleId' parameter : `, bubbleId);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'bubbleId' parameter";
+                error.label += "bad or empty 'bubbleId' parameter";
+                error.cause = bubbleId;
+                that._logger.log(that.WARN, LOG_ID + `(setBubbleLobby) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(setBubbleLobby) bad or empty 'bubbleId' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             if (isNotDefined(hasLobby)) {
-                that._logger.log(that.DEBUG, `${LOG_ID}(setBubbleLobby) bad or empty 'hasLobby' parameter : `, hasLobby);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'hasLobby' parameter";
+                error.label += "bad or empty 'hasLobby' parameter";
+                error.cause = hasLobby;
+                that._logger.log(that.WARN, LOG_ID + `(setBubbleLobby) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(setBubbleLobby) bad or empty 'hasLobby' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             that._rest.setBubbleLobby(bubbleId, hasLobby).then(async (result) => {
@@ -7003,8 +7581,13 @@ class Bubbles extends GenericService {
 
         return new Promise((resolve, reject) => {
             if (!bubbleId) {
-                that._logger.log(that.DEBUG, `${LOG_ID}(getBubbleLobby) bad or empty 'bubbleId' parameter : `, bubbleId);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'bubbleId' parameter";
+                error.label += "bad or empty 'bubbleId' parameter";
+                error.cause = bubbleId;
+                that._logger.log(that.WARN, LOG_ID + `(getBubbleLobby) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(getBubbleLobby) bad or empty 'bubbleId' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             that._rest.getBubbleLobby(bubbleId).then(async (result) => {
@@ -7038,18 +7621,33 @@ class Bubbles extends GenericService {
 
         return new Promise((resolve, reject) => {
             if (!bubbleId) {
-                that._logger.log(that.DEBUG, `${LOG_ID}(acceptBubbleLobby) bad or empty 'bubbleId' parameter : `, bubbleId);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'bubbleId' parameter";
+                error.label += "bad or empty 'bubbleId' parameter";
+                error.cause = bubbleId;
+                that._logger.log(that.WARN, LOG_ID + `(acceptBubbleLobby) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(acceptBubbleLobby) bad or empty 'bubbleId' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             if (!scope || !["all", "some"].includes(scope)) {
-                that._logger.log(that.DEBUG, `${LOG_ID}(acceptBubbleLobby) bad or empty 'scope' parameter : `, scope);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'scope' parameter";
+                error.label += "bad or empty 'scope' parameter";
+                error.cause = scope;
+                that._logger.log(that.WARN, LOG_ID + `(acceptBubbleLobby) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(acceptBubbleLobby) bad or empty 'scope' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             if (scope === "some" && (!users || users.length === 0)) {
-                that._logger.log(that.DEBUG, `${LOG_ID}(acceptBubbleLobby) 'users' parameter required when scope is 'some'`);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "'users' parameter required when scope is 'some'";
+                error.label += "'users' parameter required when scope is 'some'";
+                error.cause = users;
+                that._logger.log(that.WARN, LOG_ID + `(acceptBubbleLobby) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(acceptBubbleLobby) 'users' parameter required when scope is 'some' : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             that._rest.acceptBubbleLobby(bubbleId, scope, users).then(async (result) => {
@@ -7084,18 +7682,33 @@ class Bubbles extends GenericService {
 
         return new Promise((resolve, reject) => {
             if (!bubbleId) {
-                that._logger.log(that.DEBUG, `${LOG_ID}(denyBubbleLobby) bad or empty 'bubbleId' parameter : `, bubbleId);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'bubbleId' parameter";
+                error.label += "bad or empty 'bubbleId' parameter";
+                error.cause = bubbleId;
+                that._logger.log(that.WARN, `${LOG_ID}(denyBubbleLobby) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, `${LOG_ID}(denyBubbleLobby) bad or empty 'bubbleId' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             if (!scope || !["all", "some"].includes(scope)) {
-                that._logger.log(that.DEBUG, `${LOG_ID}(denyBubbleLobby) bad or empty 'scope' parameter : `, scope);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'scope' parameter";
+                error.label += "bad or empty 'scope' parameter";
+                error.cause = scope;
+                that._logger.log(that.WARN, `${LOG_ID}(denyBubbleLobby) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, `${LOG_ID}(denyBubbleLobby) bad or empty 'scope' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             if (scope === "some" && (!users || users.length === 0)) {
-                that._logger.log(that.DEBUG, `${LOG_ID}(denyBubbleLobby) 'users' parameter required when scope is 'some'`);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "'users' parameter required when scope is 'some'";
+                error.label += "'users' parameter required when scope is 'some'";
+                error.cause = users;
+                that._logger.log(that.WARN, `${LOG_ID}(denyBubbleLobby) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, `${LOG_ID}(denyBubbleLobby) 'users' parameter required when scope is 'some' : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             that._rest.denyBubbleLobby(bubbleId, scope, users).then(async (result) => {

@@ -137,4 +137,4 @@ To consult the exact limits concerning the Rainbow Bubbles, visit [this link](/d
 
 ---
 
-_Last updated december, 08th 2022_
+_Last updated September 08, 2023_

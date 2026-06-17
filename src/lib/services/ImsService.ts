@@ -393,9 +393,13 @@ class ImsService extends GenericService{
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendMessageToConversation) is conversation defined : ", isDefined(conversation), " is message defined : ", isDefined(message));
         if (!conversation) {
-            that._logger.log(that.WARN, LOG_ID + "(sendMessageToConversation) bad or empty 'conversation' parameter.");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(sendMessageToConversation) bad or empty 'conversation' parameter : ", conversation);
-            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'conversation' is missing or null"}));
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'conversation' parameter.";
+            error.label += "bad or empty 'conversation' parameter.";
+            error.cause = conversation;
+            that._logger.log(that.WARN, LOG_ID + `(sendMessageToConversation) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(sendMessageToConversation) bad or empty 'conversation' parameter. : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         /*if (!message) {
@@ -417,8 +421,13 @@ class ImsService extends GenericService{
         }
 
         if (messageSize > that._imOptions.messageMaxLength) {
-            that._logger.log(that.WARN, LOG_ID + "(sendMessageToConversation) message not sent. The is too long (" + messageSize + ")");
-            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'message + content string size' should be lower than " + that._imOptions.messageMaxLength + " characters"}));
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "message not sent. The is too long (" + messageSize + ")";
+            error.label += "message not sent. The is too long (" + messageSize + ")";
+            error.cause = messageSize;
+            that._logger.log(that.WARN, LOG_ID + `(sendMessageToConversation) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(sendMessageToConversation) message not sent. The is too long (${messageSize}) : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         } // */
 
         let msgSent : any = undefined; //Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: " sent message failed."}));
@@ -511,9 +520,13 @@ class ImsService extends GenericService{
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendMessageToContact) is contact defined : ", isDefined(contact), " is message defined : ", isDefined(message));
         if (!contact || !contact.jid_im) {
-            that._logger.log(that.WARN, LOG_ID + "(sendMessageToContact) bad or empty 'contact' parameter.");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(sendMessageToContact) bad or empty 'contact' parameter : ", contact);
-            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'contact' is missing or null"}));
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'contact' parameter.";
+            error.label += "bad or empty 'contact' parameter.";
+            error.cause = contact;
+            that._logger.log(that.WARN, LOG_ID + `(sendMessageToContact) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(sendMessageToContact) bad or empty 'contact' parameter. : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         //return this.sendMessageToJid(message, contact.jid_im, lang, content, subject, urgency);
@@ -596,14 +609,24 @@ class ImsService extends GenericService{
         }
         
         if (messageSize > that._imOptions.messageMaxLength) {
-            that._logger.log(that.WARN, LOG_ID + "(sendMessageToJid) message not sent. The content is too long (" + messageSize + ")", jid);
-            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'strMessage' should be lower than " + that._imOptions.messageMaxLength + " characters"}));
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "message not sent. The content is too long (" + messageSize + ")";
+            error.label += "message not sent. The content is too long (" + messageSize + ")";
+            error.cause = messageSize;
+            that._logger.log(that.WARN, LOG_ID + `(sendMessageToJid) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(sendMessageToJid) message not sent. The content is too long (${messageSize}) : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
         // */
 
         if (!jid) {
-            that._logger.log(that.WARN, LOG_ID + "(sendMessageToJid) bad or empty 'jid' parameter", jid);
-            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'jid' parameter"}));
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'jid' parameter";
+            error.label += "bad or empty 'jid' parameter";
+            error.cause = jid;
+            that._logger.log(that.WARN, LOG_ID + `(sendMessageToJid) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(sendMessageToJid) bad or empty 'jid' parameter : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         let messageUnicode = message === "" ? "" : (message?shortnameToUnicode(message):undefined);
@@ -675,13 +698,23 @@ class ImsService extends GenericService{
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendForwardMessageToJid) is jid defined : ", isDefined(jid), " is previousMessage defined : ", isDefined(previousMessage));
 
         if (!jid) {
-            that._logger.log(that.WARN, LOG_ID + "(sendForwardMessageToJid) bad or empty 'jid' parameter", jid);
-            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'jid' parameter"}));
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'jid' parameter";
+            error.label += "bad or empty 'jid' parameter";
+            error.cause = jid;
+            that._logger.log(that.WARN, LOG_ID + `(sendForwardMessageToJid) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(sendForwardMessageToJid) bad or empty 'jid' parameter : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         if (!previousMessage) {
-            that._logger.log(that.WARN, LOG_ID + "(sendForwardMessageToJid) bad or empty 'previousMessage' parameter", previousMessage);
-            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'previousMessage' parameter"}));
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'previousMessage' parameter";
+            error.label += "bad or empty 'previousMessage' parameter";
+            error.cause = previousMessage;
+            that._logger.log(that.WARN, LOG_ID + `(sendForwardMessageToJid) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(sendForwardMessageToJid) bad or empty 'previousMessage' parameter : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         jid = XMPPUTils.getXMPPUtils().getBareJIDFromFullJID(jid);
@@ -754,21 +787,33 @@ class ImsService extends GenericService{
         }
 
         if (!message) {
-            that._logger.log(that.WARN, LOG_ID + "(sendMessageToJidAnswer) bad or empty 'message' parameter.");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(sendMessageToJidAnswer) bad or empty 'message' parameter : ", message);
-            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'message' parameter"}));
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'message' parameter.";
+            error.label += "bad or empty 'message' parameter.";
+            error.cause = message;
+            that._logger.log(that.WARN, LOG_ID + `(sendMessageToJidAnswer) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(sendMessageToJidAnswer) bad or empty 'message' parameter. : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         let typofansweredMsg = answeredMsg instanceof Object ;
         if (!typofansweredMsg && answeredMsg !== null ) {
-            that._logger.log(that.WARN, LOG_ID + "(sendMessageToJidAnswer) bad 'answeredMsg' parameter.");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(sendMessageToJidAnswer) bad 'answeredMsg' parameter : ", answeredMsg);
-            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad 'answeredMsg' parameter"}));
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad 'answeredMsg' parameter.";
+            error.label += "bad 'answeredMsg' parameter.";
+            error.cause = answeredMsg;
+            that._logger.log(that.WARN, LOG_ID + `(sendMessageToJidAnswer) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(sendMessageToJidAnswer) bad 'answeredMsg' parameter. : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         } else {
             if (answeredMsg?.datastoretypeOfMsg === DataStoreType.NoStore || answeredMsg?.datastoretypeOfMsg === DataStoreType.NoPermanentStore) {
-                that._logger.log(that.WARN, LOG_ID + "(sendMessageToJidAnswer) bad 'answeredMsg' parameter. Can not answer a message with a datastoretypeOfMsg set to not store message.");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(sendMessageToJidAnswer) bad 'answeredMsg' parameter : Can not answer a message with a datastoretypeOfMsg set to not store message.");
-                return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Can not answer a message with a datastoretypeOfMsg set to not store message : " + answeredMsg.datastoretypeOfMsg}));
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad 'answeredMsg' parameter. Can not answer a message with a datastoretypeOfMsg set to not store message.";
+                error.label += "bad 'answeredMsg' parameter. Can not answer a message with a datastoretypeOfMsg set to not store message.";
+                error.cause = answeredMsg;
+                that._logger.log(that.WARN, LOG_ID + `(sendMessageToJidAnswer) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(sendMessageToJidAnswer) bad 'answeredMsg' parameter. Can not answer a message with a datastoretypeOfMsg set to not store message. : `, error.cause, ", error : ", error);
+                return Promise.reject(error);
             }
         }
 
@@ -778,13 +823,23 @@ class ImsService extends GenericService{
             messageSize += content.message.length;
         }
         if (messageSize > that._imOptions.messageMaxLength) {
-            that._logger.log(that.WARN, LOG_ID + "(sendMessageToJidAnswer) message not sent. The content is too long (" + messageSize + ")", jid);
-            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'strMessage' should be lower than " + that._imOptions.messageMaxLength + " characters"}));
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "message not sent. The content is too long (" + messageSize + ")";
+            error.label += "message not sent. The content is too long (" + messageSize + ")";
+            error.cause = messageSize;
+            that._logger.log(that.WARN, LOG_ID + `(sendMessageToJidAnswer) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(sendMessageToJidAnswer) message not sent. The content is too long (${messageSize}) : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         if (!jid) {
-            that._logger.log(that.WARN, LOG_ID + "(sendMessageToJidAnswer) bad or empty 'jid' parameter", jid);
-            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'jid' parameter"}));
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'jid' parameter";
+            error.label += "bad or empty 'jid' parameter";
+            error.cause = jid;
+            that._logger.log(that.WARN, LOG_ID + `(sendMessageToJidAnswer) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(sendMessageToJidAnswer) bad or empty 'jid' parameter : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         //let messageUnicode = shortnameToUnicode(message);
@@ -962,9 +1017,13 @@ class ImsService extends GenericService{
             lang = "en";
         }
         if (!message) {
-            that._logger.log(that.WARN, LOG_ID + "(sendMessageToBubbleJid) bad or empty 'message' parameter.");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(sendMessageToBubbleJid) bad or empty 'message' parameter : ", message);
-            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'message' parameter"}));
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'message' parameter";
+            error.label += "bad or empty 'message' parameter";
+            error.cause = message;
+            that._logger.log(that.WARN, LOG_ID + `(sendMessageToBubbleJid) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(sendMessageToBubbleJid) bad or empty 'message' parameter : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         // Check size of the message
@@ -973,13 +1032,23 @@ class ImsService extends GenericService{
             messageSize += content.message.length;
         }
         if (messageSize > that._imOptions.messageMaxLength) {
-            that._logger.log(that.WARN, LOG_ID + "(sendMessageToBubbleJid) message not sent. The content is too long (" + messageSize + ")", jid);
-            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'strMessage' should be lower than " + that._imOptions.messageMaxLength + " characters"}));
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "message not sent. The content is too long (" + messageSize + ")";
+            error.label += "message not sent. The content is too long (" + messageSize + ")";
+            error.cause = messageSize;
+            that._logger.log(that.WARN, LOG_ID + `(sendMessageToBubbleJid) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(sendMessageToBubbleJid) message not sent. The content is too long (${messageSize}) : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         if (!jid) {
-            that._logger.log(that.DEBUG, LOG_ID + "(sendMessageToBubbleJid) bad or empty 'jid' parameter", jid);
-            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'jid' parameter"}));
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'jid' parameter";
+            error.label += "bad or empty 'jid' parameter";
+            error.cause = jid;
+            that._logger.log(that.WARN, LOG_ID + `(sendMessageToBubbleJid) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(sendMessageToBubbleJid) bad or empty 'jid' parameter : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         //let messageUnicode = shortnameToUnicode(message);
@@ -1014,8 +1083,13 @@ class ImsService extends GenericService{
                 }
             }
         } else {
-            that._logger.log(that.DEBUG, LOG_ID + "(sendMessageToBubbleJid) bad or empty 'jid' parameter", jid, ", bubble not found.");
-            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'jid' parameter, bubble not found."}));
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'jid' parameter";
+            error.label += "bad or empty 'jid' parameter";
+            error.cause = jid;
+            that._logger.log(that.WARN, LOG_ID + `(sendMessageToBubbleJid) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(sendMessageToBubbleJid) bad or empty 'jid' parameter : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
     }
 
@@ -1056,20 +1130,32 @@ class ImsService extends GenericService{
             lang = "en";
         }
         if (!message) {
-            that._logger.log(that.WARN, LOG_ID + "(sendMessageToBubbleJidAnswer) bad or empty 'message' parameter.");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(sendMessageToBubbleJidAnswer) bad or empty 'message' parameter : ", message);
-            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'message' parameter"}));
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'message' parameter";
+            error.label += "bad or empty 'message' parameter";
+            error.cause = message;
+            that._logger.log(that.WARN, LOG_ID + `(sendMessageToBubbleJidAnswer) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(sendMessageToBubbleJidAnswer) bad or empty 'message' parameter : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
         let typofansweredMsg = answeredMsg instanceof Object;
         if (!typofansweredMsg && answeredMsg!==null) {
-            that._logger.log(that.WARN, LOG_ID + "(sendMessageToBubbleJidAnswer) bad  'answeredMsg' parameter.");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(sendMessageToBubbleJidAnswer) bad  'answeredMsg' parameter : ", answeredMsg);
-            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad 'answeredMsg' parameter"}));
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad  'answeredMsg' parameter";
+            error.label += "bad  'answeredMsg' parameter";
+            error.cause = answeredMsg;
+            that._logger.log(that.WARN, LOG_ID + `(sendMessageToBubbleJidAnswer) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(sendMessageToBubbleJidAnswer) bad  'answeredMsg' parameter : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         } else {
             if (answeredMsg?.datastoretypeOfMsg===DataStoreType.NoStore || answeredMsg?.datastoretypeOfMsg===DataStoreType.NoPermanentStore) {
-                that._logger.log(that.WARN, LOG_ID + "(sendMessageToBubbleJidAnswer) bad 'answeredMsg' parameter. Can not answer a message with a datastoretypeOfMsg set to not store message.");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(sendMessageToBubbleJidAnswer) bad 'answeredMsg' parameter : Can not answer a message with a datastoretypeOfMsg set to not store message.");
-                return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Can not answer a message with a datastoretypeOfMsg set to not store message : " + answeredMsg.datastoretypeOfMsg}));
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad 'answeredMsg' parameter. Can not answer a message with a datastoretypeOfMsg set to not store message.";
+                error.label += "bad 'answeredMsg' parameter. Can not answer a message with a datastoretypeOfMsg set to not store message.";
+                error.cause = answeredMsg;
+                that._logger.log(that.WARN, LOG_ID + `(sendMessageToBubbleJidAnswer) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(sendMessageToBubbleJidAnswer) bad 'answeredMsg' parameter. Can not answer a message with a datastoretypeOfMsg set to not store message. : `, error.cause, ", error : ", error);
+                return Promise.reject(error);
             }
         }
 
@@ -1079,13 +1165,23 @@ class ImsService extends GenericService{
             messageSize += content.message.length;
         }
         if (messageSize > that._imOptions.messageMaxLength) {
-            that._logger.log(that.WARN, LOG_ID + "(sendMessageToBubbleJidAnswer) message not sent. The content is too long (" + messageSize + ")", jid);
-            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Parameter 'strMessage' should be lower than " + that._imOptions.messageMaxLength + " characters"}));
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "message not sent. The content is too long (" + messageSize + ")";
+            error.label += "message not sent. The content is too long (" + messageSize + ")";
+            error.cause = messageSize;
+            that._logger.log(that.WARN, LOG_ID + `(sendMessageToBubbleJidAnswer) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(sendMessageToBubbleJidAnswer) message not sent. The content is too long (${messageSize}) : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         if (!jid) {
-            that._logger.log(that.DEBUG, LOG_ID + "(sendMessageToBubbleJidAnswer) bad or empty 'jid' parameter", jid);
-            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'jid' parameter"}));
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'jid' parameter";
+            error.label += "bad or empty 'jid' parameter";
+            error.cause = jid;
+            that._logger.log(that.WARN, LOG_ID + `(sendMessageToBubbleJidAnswer) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(sendMessageToBubbleJidAnswer) bad or empty 'jid' parameter : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         //let messageUnicode = shortnameToUnicode(message);
@@ -1120,8 +1216,13 @@ class ImsService extends GenericService{
                 }
             }
         } else {
-            that._logger.log(that.DEBUG, LOG_ID + "(sendMessageToBubbleJid) bad or empty 'jid' parameter", jid, ", bubble not found.");
-            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'jid' parameter, bubble not found."}));
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'jid' parameter";
+            error.label += "bad or empty 'jid' parameter";
+            error.cause = jid;
+            that._logger.log(that.WARN, LOG_ID + `(sendMessageToBubbleJidAnswer) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(sendMessageToBubbleJidAnswer) bad or empty 'jid' parameter : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
     }
 
@@ -1168,8 +1269,13 @@ class ImsService extends GenericService{
             that._logger.log(that.INTERNAL, LOG_ID + "(retrieveXMPPMessagesByListOfMessageIds) ims : ", ims);
 
             if (!ims) {
-                that._logger.log(that.DEBUG, LOG_ID + "(retrieveXMPPMessagesByListOfMessageIds) bad or empty 'ims' parameter : ", ims);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'ims' parameter";
+                error.label += "bad or empty 'ims' parameter";
+                error.cause = ims;
+                that._logger.log(that.WARN, LOG_ID + "(retrieveXMPPMessagesByListOfMessageIds) BAD_REQUEST.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(retrieveXMPPMessagesByListOfMessageIds) bad or empty 'ims' parameter : ", error.cause, ", error : ", error);
+                return reject(error);
             }
 
             that._rest.retrieveXMPPMessagesByListOfMessageIds(ims).then(async (result) => {
@@ -1222,18 +1328,33 @@ class ImsService extends GenericService{
             that._logger.log(that.INTERNAL, LOG_ID + "(addPinWithPeerId) peerId : ", peerId);
 
             if (!peerId) {
-                that._logger.log(that.DEBUG, LOG_ID + "(addPinWithPeerId) bad or empty 'peerId' parameter : ", peerId);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'peerId' parameter";
+                error.label += "bad or empty 'peerId' parameter";
+                error.cause = peerId;
+                that._logger.log(that.WARN, LOG_ID + "(addPinWithPeerId) BAD_REQUEST.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(addPinWithPeerId) bad or empty 'peerId' parameter : ", error.cause, ", error : ", error);
+                return reject(error);
             }
 
             if (!types) {
-                that._logger.log(that.DEBUG, LOG_ID + "(addPinWithPeerId) bad or empty 'types' parameter : ", types);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'types' parameter";
+                error.label += "bad or empty 'types' parameter";
+                error.cause = types;
+                that._logger.log(that.WARN, LOG_ID + "(addPinWithPeerId) BAD_REQUEST.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(addPinWithPeerId) bad or empty 'types' parameter : ", error.cause, ", error : ", error);
+                return reject(error);
             }
 
             if (!body) {
-                that._logger.log(that.DEBUG, LOG_ID + "(addPinWithPeerId) bad or empty 'body' parameter : ", body);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'body' parameter";
+                error.label += "bad or empty 'body' parameter";
+                error.cause = body;
+                that._logger.log(that.WARN, LOG_ID + "(addPinWithPeerId) BAD_REQUEST.");
+                that._logger.log(that.INTERNALERROR, LOG_ID + "(addPinWithPeerId) bad or empty 'body' parameter : ", error.cause, ", error : ", error);
+                return reject(error);
             }
 
             that._rest.addPinWithPeerId(peerId, types, body ).then(async (result) => {
@@ -1284,18 +1405,33 @@ class ImsService extends GenericService{
                 that._logger.log(that.INTERNAL, LOG_ID + "(getPinWithPeerIdById) peerId : ", peerId);
 
                 if (!peerId) {
-                    that._logger.log(that.DEBUG, LOG_ID + "(getPinWithPeerIdById) bad or empty 'peerId' parameter : ", peerId);
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'peerId' parameter";
+                    error.label += "bad or empty 'peerId' parameter";
+                    error.cause = peerId;
+                    that._logger.log(that.WARN, LOG_ID + "(getPinWithPeerIdById) BAD_REQUEST.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getPinWithPeerIdById) bad or empty 'peerId' parameter : ", error.cause, ", error : ", error);
+                    return reject(error);
                 }
 
                 if (!types) {
-                    that._logger.log(that.DEBUG, LOG_ID + "(getPinWithPeerIdById) bad or empty 'types' parameter : ", types);
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'types' parameter";
+                    error.label += "bad or empty 'types' parameter";
+                    error.cause = types;
+                    that._logger.log(that.WARN, LOG_ID + "(getPinWithPeerIdById) BAD_REQUEST.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getPinWithPeerIdById) bad or empty 'types' parameter : ", error.cause, ", error : ", error);
+                    return reject(error);
                 }
 
                 if (!pinId) {
-                    that._logger.log(that.DEBUG, LOG_ID + "(getPinWithPeerIdById) bad or empty 'pinId' parameter : ", pinId);
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'pinId' parameter";
+                    error.label += "bad or empty 'pinId' parameter";
+                    error.cause = pinId;
+                    that._logger.log(that.WARN, LOG_ID + "(getPinWithPeerIdById) BAD_REQUEST.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getPinWithPeerIdById) bad or empty 'pinId' parameter : ", error.cause, ", error : ", error);
+                    return reject(error);
                 }
 
                 that._rest.getPinWithPeerIdById(types, peerId, pinId ).then(async (result) => {
@@ -1346,13 +1482,23 @@ class ImsService extends GenericService{
             that._logger.log(that.INTERNAL, LOG_ID + "(getAllPinsWithPeerId) peerId : ", peerId);
 
             if (!peerId) {
-                that._logger.log(that.DEBUG, LOG_ID + "(getAllPinsWithPeerId) bad or empty 'peerId' parameter : ", peerId);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'peerId' parameter";
+                error.label += "bad or empty 'peerId' parameter";
+                error.cause = peerId;
+                that._logger.log(that.WARN, LOG_ID + `(getAllPinsWithPeerId) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(getAllPinsWithPeerId) bad or empty 'peerId' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             if (!types) {
-                that._logger.log(that.DEBUG, LOG_ID + "(getAllPinsWithPeerId) bad or empty 'types' parameter : ", types);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'types' parameter";
+                error.label += "bad or empty 'types' parameter";
+                error.cause = types;
+                that._logger.log(that.WARN, LOG_ID + `(getAllPinsWithPeerId) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(getAllPinsWithPeerId) bad or empty 'types' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             that._rest.getAllPinsWithPeerId(types, peerId ).then(async (result) => {
@@ -1396,13 +1542,23 @@ class ImsService extends GenericService{
             that._logger.log(that.INTERNAL, LOG_ID + "(removefromWithPeerIdAndPinId) peerId : ", peerId);
 
             if (!peerId) {
-                that._logger.log(that.DEBUG, LOG_ID + "(removefromWithPeerIdAndPinId) bad or empty 'peerId' parameter : ", peerId);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'peerId' parameter";
+                error.label += "bad or empty 'peerId' parameter";
+                error.cause = peerId;
+                that._logger.log(that.WARN, LOG_ID + `(removefromWithPeerIdAndPinId) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(removefromWithPeerIdAndPinId) bad or empty 'peerId' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             if (!types) {
-                that._logger.log(that.DEBUG, LOG_ID + "(removefromWithPeerIdAndPinId) bad or empty 'types' parameter : ", types);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'types' parameter";
+                error.label += "bad or empty 'types' parameter";
+                error.cause = types;
+                that._logger.log(that.WARN, LOG_ID + `(removefromWithPeerIdAndPinId) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(removefromWithPeerIdAndPinId) bad or empty 'types' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             that._rest.removefromWithPeerIdAndPinId(types, peerId, pinId ).then(async (result) => {
@@ -1454,18 +1610,33 @@ class ImsService extends GenericService{
             that._logger.log(that.INTERNAL, LOG_ID + "(updatePinWithPeerId) peerId : ", peerId);
 
             if (!peerId) {
-                that._logger.log(that.DEBUG, LOG_ID + "(updatePinWithPeerId) bad or empty 'peerId' parameter : ", peerId);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'peerId' parameter";
+                error.label += "bad or empty 'peerId' parameter";
+                error.cause = peerId;
+                that._logger.log(that.WARN, LOG_ID + `(updatePinWithPeerId) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(updatePinWithPeerId) bad or empty 'peerId' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             if (!types) {
-                that._logger.log(that.DEBUG, LOG_ID + "(updatePinWithPeerId) bad or empty 'types' parameter : ", types);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'types' parameter";
+                error.label += "bad or empty 'types' parameter";
+                error.cause = types;
+                that._logger.log(that.WARN, LOG_ID + `(updatePinWithPeerId) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(updatePinWithPeerId) bad or empty 'types' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             if (!body) {
-                that._logger.log(that.DEBUG, LOG_ID + "(updatePinWithPeerId) bad or empty 'body' parameter : ", body);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'body' parameter";
+                error.label += "bad or empty 'body' parameter";
+                error.cause = body;
+                that._logger.log(that.WARN, LOG_ID + `(updatePinWithPeerId) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(updatePinWithPeerId) bad or empty 'body' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             that._rest.updatePinWithPeerId(peerId, types, pinId, body ).then(async (result) => {

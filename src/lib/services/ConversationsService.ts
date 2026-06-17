@@ -868,8 +868,13 @@ class ConversationsService extends GenericService {
                 let meId = userId ? userId : that._rest.account.id;
 
                 if (!substring) {
-                    that._logger.log(that.ERROR, LOG_ID + "(getTheNumberOfHitsOfASubstringInAllUsersconversations) bad or empty 'substring' parameter");
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'substring' parameter";
+                    error.label += "bad or empty 'substring' parameter";
+                    error.cause = substring;
+                    that._logger.log(that.WARN, LOG_ID + `(getTheNumberOfHitsOfASubstringInAllUsersconversations) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(getTheNumberOfHitsOfASubstringInAllUsersconversations) bad or empty 'substring' parameter : `, error.cause, ", error : ", error);
+                    reject(error);
                     return;
                 }
                 that._rest.getTheNumberOfHitsOfASubstringInAllUsersconversations(meId, substring, limit, webinar).then((result : any) => {
@@ -1042,8 +1047,11 @@ class ConversationsService extends GenericService {
                                                         that._logger.log(that.DEBUG, LOG_ID + "The file " + vscanAttrs.fileId + " is clean!");
                                                         resolve(vscanAttrs);
                                                     } else {
-                                                        that._logger.log(that.ERROR, LOG_ID + "The file " + vscanAttrs.fileId + " is not clean!");
-                                                        reject(ErrorManager.getErrorManager().CUSTOMERROR("-1", "evt_internal_vscanreceived The file " + vscanAttrs.fileId + " is not clean!"));
+                                                        let error = ErrorManager.getErrorManager().CUSTOMERROR("-1", "evt_internal_vscanreceived The file " + vscanAttrs.fileId + " is not clean!");
+                                                        error.cause = vscanAttrs;
+                                                        that._logger.log(that.WARN, LOG_ID + `(sendFSBufferMessage) CUSTOMERROR.`);
+                                                        that._logger.log(that.INTERNALERROR, LOG_ID + `(sendFSBufferMessage) evt_internal_vscanreceived The file is not clean! : `, error.cause, ", error : ", error);
+                                                        reject(error);
                                                     }
                                                 }
                                             }
@@ -1165,8 +1173,11 @@ class ConversationsService extends GenericService {
                                                 that._logger.log(that.DEBUG, LOG_ID + "The file " + vscanAttrs.fileId + " is clean!");
                                                 resolve(vscanAttrs);
                                             } else {
-                                                that._logger.log(that.ERROR, LOG_ID + "The file " + vscanAttrs.fileId + " is not clean!");
-                                                reject(ErrorManager.getErrorManager().CUSTOMERROR("-1", "evt_internal_vscanreceived The file " + vscanAttrs.fileId + " is not clean!"));
+                                                let error = ErrorManager.getErrorManager().CUSTOMERROR("-1", "evt_internal_vscanreceived The file " + vscanAttrs.fileId + " is not clean!");
+                                                error.cause = vscanAttrs;
+                                                that._logger.log(that.WARN, LOG_ID + `(sendFSMessage) CUSTOMERROR.`);
+                                                that._logger.log(that.INTERNALERROR, LOG_ID + `(sendFSMessage) evt_internal_vscanreceived The file is not clean! : `, error.cause, ", error : ", error);
+                                                reject(error);
                                             }
                                         }
                                     }
@@ -1353,9 +1364,13 @@ class ConversationsService extends GenericService {
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendCorrectedChatMessage) conversation.id : ", conversation?.id);
 
         if (!conversation) {
-            that._logger.log(that.ERROR, LOG_ID + "(sendCorrectedChatMessage) bad or empty 'conversation' parameter");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(sendCorrectedChatMessage) bad or empty 'conversation' parameter : ", conversation);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'conversation' parameter";
+            error.label += "bad or empty 'conversation' parameter";
+            error.cause = conversation;
+            that._logger.log(that.WARN, LOG_ID + `(sendCorrectedChatMessage) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(sendCorrectedChatMessage) bad or empty 'conversation' parameter : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
         /*
         if (data==undefined) {
@@ -1364,9 +1379,13 @@ class ConversationsService extends GenericService {
             return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
         }//*/
         if (!origMsgId) {
-            that._logger.log(that.ERROR, LOG_ID + "(sendCorrectedChatMessage) bad or empty 'origMsgId' parameter");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(sendCorrectedChatMessage) bad or empty 'origMsgId' parameter : ", origMsgId);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'origMsgId' parameter";
+            error.label += "bad or empty 'origMsgId' parameter";
+            error.cause = origMsgId;
+            that._logger.log(that.WARN, LOG_ID + `(sendCorrectedChatMessage) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(sendCorrectedChatMessage) bad or empty 'origMsgId' parameter : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         that._logger.log(that.INTERNAL, LOG_ID + "(sendCorrectedChatMessage) _entering_ conversation.id : ", conversation.id, ", data : \'", data,  "\', origMsgId : ", origMsgId, " content : ", content);
@@ -1376,8 +1395,11 @@ class ConversationsService extends GenericService {
         if (originalMessage) {
             let originalMessageFrom = originalMessage.fromJid || originalMessage.from;
             if (originalMessageFrom!==that._rest.loggedInUser.jid_im) {
-                that._logger.log(that.ERROR, LOG_ID + "(sendCorrectedChatMessage) forbidden Action - only sent messages can be modified");
-                throw ErrorManager.getErrorManager().OTHERERROR("(sendCorrectedChatMessage) forbidden Action - only sent messages can be modified", "(sendCorrectedChatMessage) forbidden Action - only sent messages can be modified");
+                let error = ErrorManager.getErrorManager().OTHERERROR("forbidden Action - only sent messages can be modified", "forbidden Action - only sent messages can be modified");
+                error.cause = originalMessageFrom;
+                that._logger.log(that.WARN, LOG_ID + `(sendCorrectedChatMessage) OTHERERROR.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(sendCorrectedChatMessage) forbidden Action - only sent messages can be modified : `, error.cause, ", error : ", error);
+                throw error;
             }
 
             /* 
@@ -1484,13 +1506,23 @@ class ConversationsService extends GenericService {
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteMessage) conversation.id : ", conversation?.id, ", messageId : ", messageId);
 
         if (!conversation) {
-            that._logger.log(that.ERROR, LOG_ID + "(deleteMessage) Parameter 'conversation' is missing or null");
-            throw ErrorManager.getErrorManager().BAD_REQUEST();
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "Parameter 'conversation' is missing or null";
+            error.label += "Parameter 'conversation' is missing or null";
+            error.cause = conversation;
+            that._logger.log(that.WARN, LOG_ID + `(deleteMessage) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(deleteMessage) Parameter 'conversation' is missing or null : `, error.cause, ", error : ", error);
+            throw error;
         }
 
         if (!messageId) {
-            that._logger.log(that.ERROR, LOG_ID + "(deleteMessage) Parameter 'messageId' is missing or empty");
-            throw ErrorManager.getErrorManager().BAD_REQUEST();
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "Parameter 'messageId' is missing or empty";
+            error.label += "Parameter 'messageId' is missing or empty";
+            error.cause = messageId;
+            that._logger.log(that.WARN, LOG_ID + `(deleteMessage) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(deleteMessage) Parameter 'messageId' is missing or empty : `, error.cause, ", error : ", error);
+            throw error;
         }
 
         let urgency = "std";
@@ -1518,17 +1550,25 @@ class ConversationsService extends GenericService {
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteAllMessageInOneToOneConversation) conversation.id : ", conversation?.id);
 
         if (!conversation) {
-            that._logger.log(that.ERROR, LOG_ID + "(deleteAllMessageInOne2OneConversation) bad or empty 'conversation' parameter.");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteAllMessageInOne2OneConversation) bad or empty 'conversation' parameter : ", conversation);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'conversation' parameter.";
+            error.label += "bad or empty 'conversation' parameter.";
+            error.cause = conversation;
+            that._logger.log(that.WARN, LOG_ID + `(deleteAllMessageInOne2OneConversation) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(deleteAllMessageInOne2OneConversation) bad or empty 'conversation' parameter : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         let conversationObj = that.getConversationById(conversation.id);
 
         if (conversationObj.type !== Conversation.Type.ONE_TO_ONE) {
-            that._logger.log(that.ERROR, LOG_ID + "(deleteAllMessageInOne2OneConversation) bad or empty 'conversation.type' parameter.");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteAllMessageInOne2OneConversation) bad or empty 'conversation.type' parameter : ", conversationObj);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'conversation.type' parameter.";
+            error.label += "bad or empty 'conversation.type' parameter.";
+            error.cause = conversationObj;
+            that._logger.log(that.WARN, LOG_ID + `(deleteAllMessageInOne2OneConversation) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(deleteAllMessageInOne2OneConversation) bad or empty 'conversation.type' parameter : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         return that._xmpp.deleteAllMessageInOneToOneConversation(conversationObj.id);
@@ -1586,9 +1626,13 @@ class ConversationsService extends GenericService {
 
         return new Promise((resolve) => {
             if (!conversation) {
-                that._logger.log(that.ERROR, LOG_ID + "(removeAllMessages) bad or empty 'conversation' parameter.");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(removeAllMessages) bad or empty 'conversation' parameter : ", conversation);
-                return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'conversation' parameter.";
+                error.label += "bad or empty 'conversation' parameter.";
+                error.cause = conversation;
+                that._logger.log(that.WARN, LOG_ID + `(removeAllMessages) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(removeAllMessages) bad or empty 'conversation' parameter : `, error.cause, ", error : ", error);
+                return Promise.reject(error);
             }
             that._logger.log(that.INFO, LOG_ID + "(removeAllMessage) _entering_ " + conversation.id);
 
@@ -1752,14 +1796,24 @@ class ConversationsService extends GenericService {
                 let meId = userId ? userId : that._rest.account.id;
 
                 if (!conversationId) {
-                    that._logger.log(that.ERROR, LOG_ID + "(updateConversationBookmark) bad or empty 'conversationId' parameter");
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'conversationId' parameter";
+                    error.label += "bad or empty 'conversationId' parameter";
+                    error.cause = conversationId;
+                    that._logger.log(that.WARN, LOG_ID + `(updateConversationBookmark) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(updateConversationBookmark) bad or empty 'conversationId' parameter : `, error.cause, ", error : ", error);
+                    reject(error);
                     return;
                 }
 
                 if (!messageId) {
-                    that._logger.log(that.ERROR, LOG_ID + "(updateConversationBookmark) bad or empty 'messageId' parameter");
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'messageId' parameter";
+                    error.label += "bad or empty 'messageId' parameter";
+                    error.cause = messageId;
+                    that._logger.log(that.WARN, LOG_ID + `(updateConversationBookmark) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(updateConversationBookmark) bad or empty 'messageId' parameter : `, error.cause, ", error : ", error);
+                    reject(error);
                     return;
                 }
 
@@ -1809,8 +1863,13 @@ class ConversationsService extends GenericService {
                 let meId = userId ? userId : that._rest.account.id;
 
                 if (!conversationId) {
-                    that._logger.log(that.ERROR, LOG_ID + "(deleteConversationBookmark) bad or empty 'conversationId' parameter");
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'conversationId' parameter";
+                    error.label += "bad or empty 'conversationId' parameter";
+                    error.cause = conversationId;
+                    that._logger.log(that.WARN, LOG_ID + `(deleteConversationBookmark) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(deleteConversationBookmark) bad or empty 'conversationId' parameter : `, error.cause, ", error : ", error);
+                    reject(error);
                     return;
                 }
 
@@ -1863,14 +1922,24 @@ class ConversationsService extends GenericService {
                 let meId = userId ? userId : that._rest.account.id;
 
                 if (!substring) {
-                    that._logger.log(that.ERROR, LOG_ID + "(showAllMatchingMessagesForAPeer) bad or empty 'substring' parameter");
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'substring' parameter";
+                    error.label += "bad or empty 'substring' parameter";
+                    error.cause = substring;
+                    that._logger.log(that.WARN, LOG_ID + `(showAllMatchingMessagesForAPeer) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(showAllMatchingMessagesForAPeer) bad or empty 'substring' parameter : `, error.cause, ", error : ", error);
+                    reject(error);
                     return;
                 }
 
                 if (!peer) {
-                    that._logger.log(that.ERROR, LOG_ID + "(showAllMatchingMessagesForAPeer) bad or empty 'peer' parameter");
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'peer' parameter";
+                    error.label += "bad or empty 'peer' parameter";
+                    error.cause = peer;
+                    that._logger.log(that.WARN, LOG_ID + `(showAllMatchingMessagesForAPeer) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(showAllMatchingMessagesForAPeer) bad or empty 'peer' parameter : `, error.cause, ", error : ", error);
+                    reject(error);
                     return;
                 }
 

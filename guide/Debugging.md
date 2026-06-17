@@ -327,4 +327,4 @@ When contacting the support, don't forget to add all these information. Copy/Pas
 
 ---
 
-_Last updated July, 12th 2018_
+_Last updated November 21, 2025_

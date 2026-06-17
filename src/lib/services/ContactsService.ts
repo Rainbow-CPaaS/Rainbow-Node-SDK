@@ -600,8 +600,13 @@ class ContactsService extends GenericService {
 
         return new Promise((resolve, reject) => {
             if (!jid) {
-                that._logger.log(that.WARN, LOG_ID + "(getContactByJid) bad or empty 'jid' parameter", jid);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'jid' parameter";
+                error.label += "bad or empty 'jid' parameter";
+                error.cause = jid;
+                that._logger.log(that.WARN, LOG_ID + `(getContactByJid) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(getContactByJid) bad or empty 'jid' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             } else {
                 let contactFound = null;
                 let connectedUserJid = that._rest.account.jid_im;
@@ -677,8 +682,13 @@ class ContactsService extends GenericService {
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getContactById) id : ", that._logger.stripStringForLogs(id), ", forceServerSearch : ", forceServerSearch);
         return new Promise((resolve, reject) => {
             if (!id) {
-                that._logger.log(that.WARN, LOG_ID + "(getContactById) bad or empty 'id' parameter", id);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'id' parameter";
+                error.label += "bad or empty 'id' parameter";
+                error.cause = id;
+                that._logger.log(that.WARN, LOG_ID + `(getContactById) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(getContactById) bad or empty 'id' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             } else {
 
                 let contactFound = null;
@@ -759,9 +769,13 @@ class ContactsService extends GenericService {
 
         return new Promise((resolve, reject) => {
             if (!loginEmail) {
-                that._logger.log(that.WARN, LOG_ID + "(getContactByLoginEmail) bad or empty 'loginEmail' parameter");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(getContactByLoginEmail) bad or empty 'loginEmail' parameter : ", loginEmail);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'loginEmail' parameter";
+                error.label += "bad or empty 'loginEmail' parameter";
+                error.cause = loginEmail;
+                that._logger.log(that.WARN, LOG_ID + `(getContactByLoginEmail) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(getContactByLoginEmail) bad or empty 'loginEmail' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             } else {
 
                 let contactFound: Contact = null;
@@ -852,9 +866,13 @@ class ContactsService extends GenericService {
 
         return new Promise((resolve, reject) => {
             if (!loginEmail) {
-                that._logger.log(that.WARN, LOG_ID + "(getContactByLoginEmail) bad or empty 'loginEmail' parameter");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(getContactByLoginEmail) bad or empty 'loginEmail' parameter : ", loginEmail);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'loginEmail' parameter";
+                error.label += "bad or empty 'loginEmail' parameter";
+                error.cause = loginEmail;
+                that._logger.log(that.WARN, LOG_ID + `(getContactIdByLoginEmail) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(getContactIdByLoginEmail) bad or empty 'loginEmail' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             } else {
 
                 let contactFound: Contact = null;
@@ -1033,9 +1051,13 @@ class ContactsService extends GenericService {
 
         return new Promise((resolve, reject) => {
             if (!iDs) {
-                that._logger.log(that.WARN, LOG_ID + "(getContactsInformationByIds) bad or empty 'iDs' parameter.");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(getContactsInformationByIds) bad or empty 'iDs' parameter : ", iDs);
-                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'iDs' parameter.";
+                error.label += "bad or empty 'iDs' parameter.";
+                error.cause = iDs;
+                that._logger.log(that.WARN, LOG_ID + `(getContactsInformationByIds) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(getContactsInformationByIds) bad or empty 'iDs' parameter : `, error.cause, ", error : ", error);
+                reject(error);
                 return;
             }
             let result = [];
@@ -1119,9 +1141,13 @@ class ContactsService extends GenericService {
 
         return new Promise((resolve, reject) => {
             if (!JIDs) {
-                that._logger.log(that.WARN, LOG_ID + "(getContactsInformationByJIDs) bad or empty 'JIDs' parameter.");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(getContactsInformationByJIDs) bad or empty 'JIDs' parameter : ", JIDs);
-                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'JIDs' parameter.";
+                error.label += "bad or empty 'JIDs' parameter.";
+                error.cause = JIDs;
+                that._logger.log(that.WARN, LOG_ID + `(getContactsInformationByJIDs) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(getContactsInformationByJIDs) bad or empty 'JIDs' parameter : `, error.cause, ", error : ", error);
+                reject(error);
                 return;
             }
             let result = [];
@@ -1482,8 +1508,13 @@ class ContactsService extends GenericService {
         return new Promise(function (resolve, reject) {
             try {
                 if (!dataToUpdate) {
-                    that._logger.log(that.ERROR, LOG_ID + "(updateMyInformations) bad or empty 'dataToUpdate' parameter");
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'dataToUpdate' parameter";
+                    error.label += "bad or empty 'dataToUpdate' parameter";
+                    error.cause = dataToUpdate;
+                    that._logger.log(that.WARN, LOG_ID + `(updateMyInformations) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(updateMyInformations) bad or empty 'dataToUpdate' parameter : `, error.cause, ", error : ", error);
+                    reject(error);
                     return;
                 }
 
@@ -1602,8 +1633,13 @@ class ContactsService extends GenericService {
         return new Promise(function (resolve, reject) {
             try {
                 if (!themeId) {
-                    that._logger.log(that.ERROR, LOG_ID + "(setMyTheme) bad or empty 'themeId' parameter");
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'themeId' parameter";
+                    error.label += "bad or empty 'themeId' parameter";
+                    error.cause = themeId;
+                    that._logger.log(that.WARN, LOG_ID + `(setMyTheme) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(setMyTheme) bad or empty 'themeId' parameter : `, error.cause, ", error : ", error);
+                    reject(error);
                     return;
                 }
                 let meId = that._rest.account.id;
@@ -1699,14 +1735,24 @@ class ContactsService extends GenericService {
                 let meId = userId ? userId : that._rest.account.id;
 
                 if (!sourceId) {
-                    that._logger.log(that.ERROR, LOG_ID + "(createSource) bad or empty 'sourceId' parameter");
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'sourceId' parameter";
+                    error.label += "bad or empty 'sourceId' parameter";
+                    error.cause = sourceId;
+                    that._logger.log(that.WARN, LOG_ID + `(createSource) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(createSource) bad or empty 'sourceId' parameter : `, error.cause, ", error : ", error);
+                    reject(error);
                     return;
                 }
 
                 if (!os) {
-                    that._logger.log(that.ERROR, LOG_ID + "(createSource) bad or empty 'os' parameter");
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'os' parameter";
+                    error.label += "bad or empty 'os' parameter";
+                    error.cause = os;
+                    that._logger.log(that.WARN, LOG_ID + `(createSource) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(createSource) bad or empty 'os' parameter : `, error.cause, ", error : ", error);
+                    reject(error);
                     return;
                 }
 
@@ -1757,8 +1803,13 @@ class ContactsService extends GenericService {
                 let meId = userId ? userId : that._rest.account.id;
 
                 if (!sourceId) {
-                    that._logger.log(that.ERROR, LOG_ID + "(deleteSource) bad or empty 'sourceId' parameter");
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'sourceId' parameter";
+                    error.label += "bad or empty 'sourceId' parameter";
+                    error.cause = sourceId;
+                    that._logger.log(that.WARN, LOG_ID + `(deleteSource) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(deleteSource) bad or empty 'sourceId' parameter : `, error.cause, ", error : ", error);
+                    reject(error);
                     return;
                 }
 
@@ -1810,8 +1861,13 @@ class ContactsService extends GenericService {
                 let meId = userId ? userId : that._rest.account.id;
 
                 if (!sourceId) {
-                    that._logger.log(that.ERROR, LOG_ID + "(getSourceData) bad or empty 'sourceId' parameter");
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'sourceId' parameter";
+                    error.label += "bad or empty 'sourceId' parameter";
+                    error.cause = sourceId;
+                    that._logger.log(that.WARN, LOG_ID + `(getSourceData) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(getSourceData) bad or empty 'sourceId' parameter : `, error.cause, ", error : ", error);
+                    reject(error);
                     return;
                 }
 
@@ -1923,14 +1979,24 @@ class ContactsService extends GenericService {
                 let meId = userId ? userId : that._rest.account.id;
 
                 if (!sourceId) {
-                    that._logger.log(that.ERROR, LOG_ID + "(updateSourceData) bad or empty 'sourceId' parameter");
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'sourceId' parameter";
+                    error.label += "bad or empty 'sourceId' parameter";
+                    error.cause = sourceId;
+                    that._logger.log(that.WARN, LOG_ID + `(updateSourceData) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(updateSourceData) bad or empty 'sourceId' parameter : `, error.cause, ", error : ", error);
+                    reject(error);
                     return;
                 }
 
                 if (!os) {
-                    that._logger.log(that.ERROR, LOG_ID + "(updateSourceData) bad or empty 'os' parameter");
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'os' parameter";
+                    error.label += "bad or empty 'os' parameter";
+                    error.cause = os;
+                    that._logger.log(that.WARN, LOG_ID + `(updateSourceData) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(updateSourceData) bad or empty 'os' parameter : `, error.cause, ", error : ", error);
+                    reject(error);
                     return;
                 }
 
@@ -2029,14 +2095,24 @@ class ContactsService extends GenericService {
                 let meId = userId ? userId : that._rest.account.id;
 
                 if (!sourceId) {
-                    that._logger.log(that.ERROR, LOG_ID + "(updateContactData) bad or empty 'sourceId' parameter");
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'sourceId' parameter";
+                    error.label += "bad or empty 'sourceId' parameter";
+                    error.cause = sourceId;
+                    that._logger.log(that.WARN, LOG_ID + `(updateContactData) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(updateContactData) bad or empty 'sourceId' parameter : `, error.cause, ", error : ", error);
+                    reject(error);
                     return;
                 }
 
                 if (!contactIddb) {
-                    that._logger.log(that.ERROR, LOG_ID + "(updateContactData) bad or empty 'contactIddb' parameter");
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'contactIddb' parameter";
+                    error.label += "bad or empty 'contactIddb' parameter";
+                    error.cause = contactIddb;
+                    that._logger.log(that.WARN, LOG_ID + `(updateContactData) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(updateContactData) bad or empty 'contactIddb' parameter : `, error.cause, ", error : ", error);
+                    reject(error);
                     return;
                 }
 
@@ -2130,63 +2206,123 @@ class ContactsService extends GenericService {
                 let meId = userId ? userId : that._rest.account.id;
 
                 if (!sourceId) {
-                    that._logger.log(that.ERROR, LOG_ID + "(createContact) bad or empty 'sourceId' parameter");
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'sourceId' parameter";
+                    error.label += "bad or empty 'sourceId' parameter";
+                    error.cause = sourceId;
+                    that._logger.log(that.WARN, LOG_ID + "(createContact) BAD_REQUEST.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(createContact) bad or empty 'sourceId' parameter : ", error.cause, ", error : ", error);
+                    reject(error);
                     return;
                 }
                 if (!contactId) {
-                    that._logger.log(that.ERROR, LOG_ID + "(createContact) bad or empty 'contactId' parameter");
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'contactId' parameter";
+                    error.label += "bad or empty 'contactId' parameter";
+                    error.cause = contactId;
+                    that._logger.log(that.WARN, LOG_ID + "(createContact) BAD_REQUEST.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(createContact) bad or empty 'contactId' parameter : ", error.cause, ", error : ", error);
+                    reject(error);
                     return;
                 }
                 if (!firstName) {
-                    that._logger.log(that.ERROR, LOG_ID + "(createContact) bad or empty 'firstName' parameter");
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'firstName' parameter";
+                    error.label += "bad or empty 'firstName' parameter";
+                    error.cause = firstName;
+                    that._logger.log(that.WARN, LOG_ID + "(createContact) BAD_REQUEST.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(createContact) bad or empty 'firstName' parameter : ", error.cause, ", error : ", error);
+                    reject(error);
                     return;
                 }
                 if (!lastName) {
-                    that._logger.log(that.ERROR, LOG_ID + "(createContact) bad or empty 'lastName' parameter");
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'lastName' parameter";
+                    error.label += "bad or empty 'lastName' parameter";
+                    error.cause = lastName;
+                    that._logger.log(that.WARN, LOG_ID + "(createContact) BAD_REQUEST.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(createContact) bad or empty 'lastName' parameter : ", error.cause, ", error : ", error);
+                    reject(error);
                     return;
                 }
                 if (!displayName) {
-                    that._logger.log(that.ERROR, LOG_ID + "(createContact) bad or empty 'displayName' parameter");
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'displayName' parameter";
+                    error.label += "bad or empty 'displayName' parameter";
+                    error.cause = displayName;
+                    that._logger.log(that.WARN, LOG_ID + "(createContact) BAD_REQUEST.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(createContact) bad or empty 'displayName' parameter : ", error.cause, ", error : ", error);
+                    reject(error);
                     return;
                 }
                 if (!company) {
-                    that._logger.log(that.ERROR, LOG_ID + "(createContact) bad or empty 'company' parameter");
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'company' parameter";
+                    error.label += "bad or empty 'company' parameter";
+                    error.cause = company;
+                    that._logger.log(that.WARN, LOG_ID + "(createContact) BAD_REQUEST.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(createContact) bad or empty 'company' parameter : ", error.cause, ", error : ", error);
+                    reject(error);
                     return;
                 }
                 if (!jobTitle) {
-                    that._logger.log(that.ERROR, LOG_ID + "(createContact) bad or empty 'jobTitle' parameter");
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'jobTitle' parameter";
+                    error.label += "bad or empty 'jobTitle' parameter";
+                    error.cause = jobTitle;
+                    that._logger.log(that.WARN, LOG_ID + "(createContact) BAD_REQUEST.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(createContact) bad or empty 'jobTitle' parameter : ", error.cause, ", error : ", error);
+                    reject(error);
                     return;
                 }
                 if (!phoneNumbers) {
-                    that._logger.log(that.ERROR, LOG_ID + "(createContact) bad or empty 'phoneNumbers' parameter");
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'phoneNumbers' parameter";
+                    error.label += "bad or empty 'phoneNumbers' parameter";
+                    error.cause = phoneNumbers;
+                    that._logger.log(that.WARN, LOG_ID + "(createContact) BAD_REQUEST.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(createContact) bad or empty 'phoneNumbers' parameter : ", error.cause, ", error : ", error);
+                    reject(error);
                     return;
                 }
                 if (!emails) {
-                    that._logger.log(that.ERROR, LOG_ID + "(createContact) bad or empty 'emails' parameter");
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'emails' parameter";
+                    error.label += "bad or empty 'emails' parameter";
+                    error.cause = emails;
+                    that._logger.log(that.WARN, LOG_ID + "(createContact) BAD_REQUEST.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(createContact) bad or empty 'emails' parameter : `, error.cause, ", error : ", error);
+                    reject(error);
                     return;
                 }
                 if (!addresses) {
-                    that._logger.log(that.ERROR, LOG_ID + "(createContact) bad or empty 'addresses' parameter");
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'addresses' parameter";
+                    error.label += "bad or empty 'addresses' parameter";
+                    error.cause = addresses;
+                    that._logger.log(that.WARN, LOG_ID + "(createContact) BAD_REQUEST.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(createContact) bad or empty 'addresses' parameter : `, error.cause, ", error : ", error);
+                    reject(error);
                     return;
                 }
                 if (!groups) {
-                    that._logger.log(that.ERROR, LOG_ID + "(createContact) bad or empty 'groups' parameter");
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'groups' parameter";
+                    error.label += "bad or empty 'groups' parameter";
+                    error.cause = groups;
+                    that._logger.log(that.WARN, LOG_ID + "(createContact) BAD_REQUEST.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(createContact) bad or empty 'groups' parameter : `, error.cause, ", error : ", error);
+                    reject(error);
                     return;
                 }
                 if (!otherData) {
-                    that._logger.log(that.ERROR, LOG_ID + "(createContact) bad or empty 'otherData' parameter");
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'otherData' parameter";
+                    error.label += "bad or empty 'otherData' parameter";
+                    error.cause = otherData;
+                    that._logger.log(that.WARN, LOG_ID + "(createContact) BAD_REQUEST.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(createContact) bad or empty 'otherData' parameter : `, error.cause, ", error : ", error);
+                    reject(error);
                     return;
                 }
 
@@ -2261,14 +2397,24 @@ class ContactsService extends GenericService {
                 let meId = userId ? userId : that._rest.account.id;
 
                 if (!sourceId) {
-                    that._logger.log(that.ERROR, LOG_ID + "(getContactData) bad or empty 'sourceId' parameter");
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'sourceId' parameter";
+                    error.label += "bad or empty 'sourceId' parameter";
+                    error.cause = sourceId;
+                    that._logger.log(that.WARN, LOG_ID + "(getContactData) BAD_REQUEST.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(getContactData) bad or empty 'sourceId' parameter : `, error.cause, ", error : ", error);
+                    reject(error);
                     return;
                 }
 
                 if (!contactId) {
-                    that._logger.log(that.ERROR, LOG_ID + "(getContactData) bad or empty 'contactId' parameter");
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'contactId' parameter";
+                    error.label += "bad or empty 'contactId' parameter";
+                    error.cause = contactId;
+                    that._logger.log(that.WARN, LOG_ID + "(getContactData) BAD_REQUEST.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(getContactData) bad or empty 'contactId' parameter : `, error.cause, ", error : ", error);
+                    reject(error);
                     return;
                 }
 
@@ -2348,8 +2494,13 @@ class ContactsService extends GenericService {
                 let meId = userId ? userId : that._rest.account.id;
 
                 if (!sourceId) {
-                    that._logger.log(that.ERROR, LOG_ID + "(getContactsList) bad or empty 'sourceId' parameter");
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'sourceId' parameter";
+                    error.label += "bad or empty 'sourceId' parameter";
+                    error.cause = sourceId;
+                    that._logger.log(that.WARN, LOG_ID + "(getContactsList) BAD_REQUEST.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(getContactsList) bad or empty 'sourceId' parameter : `, error.cause, ", error : ", error);
+                    reject(error);
                     return;
                 }
 
@@ -2401,14 +2552,24 @@ class ContactsService extends GenericService {
                 let meId = userId ? userId : that._rest.account.id;
 
                 if (!sourceId) {
-                    that._logger.log(that.ERROR, LOG_ID + "(deleteContact) bad or empty 'sourceId' parameter");
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'sourceId' parameter";
+                    error.label += "bad or empty 'sourceId' parameter";
+                    error.cause = sourceId;
+                    that._logger.log(that.WARN, LOG_ID + "(deleteContact) BAD_REQUEST.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(deleteContact) bad or empty 'sourceId' parameter : `, error.cause, ", error : ", error);
+                    reject(error);
                     return;
                 }
 
                 if (!contactId) {
-                    that._logger.log(that.ERROR, LOG_ID + "(deleteContact) bad or empty 'contactId' parameter");
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'contactId' parameter";
+                    error.label += "bad or empty 'contactId' parameter";
+                    error.cause = contactId;
+                    that._logger.log(that.WARN, LOG_ID + `(deleteContact) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(deleteContact) bad or empty 'contactId' parameter : `, error.cause, ", error : ", error);
+                    reject(error);
                     return;
                 }
 
@@ -2714,9 +2875,13 @@ class ContactsService extends GenericService {
 
         return new Promise((resolve, reject) => {
             if (!contact) {
-                that._logger.log(that.WARN, LOG_ID + "(addToContactsList) bad or empty 'contact' parameter");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(addToContactsList) bad or empty 'contact' parameter : ", contact);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'contact' parameter";
+                error.label += "bad or empty 'contact' parameter";
+                error.cause = contact;
+                that._logger.log(that.WARN, LOG_ID + `(addToContactsList) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(addToContactsList) bad or empty 'contact' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             } else {
 
                 that._logger.log(that.INTERNAL, LOG_ID + "(addToContactsList) contact invitation to server... : ", contact);
@@ -2759,9 +2924,13 @@ class ContactsService extends GenericService {
 
         return new Promise((resolve, reject) => {
             if (!contact) {
-                that._logger.log(that.WARN, LOG_ID + "(removeFromNetwork) bad or empty 'contact' parameter");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(removeFromNetwork) bad or empty 'contact' parameter : ", contact);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'contact' parameter";
+                error.label += "bad or empty 'contact' parameter";
+                error.cause = contact;
+                that._logger.log(that.WARN, LOG_ID + `(removeFromNetwork) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(removeFromNetwork) bad or empty 'contact' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             that._rest.removeContactFromRoster(contact.id).then(function () {
@@ -2796,11 +2965,13 @@ class ContactsService extends GenericService {
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getInvitationById) strInvitationId : ", that._logger.stripStringForLogs(strInvitationId));
 
         if (!strInvitationId) {
-            that._logger.log(that.WARN, LOG_ID + "(getInvitationById) bad or empty 'strInvitationId' parameter");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(getInvitationById) bad or empty 'strInvitationId' parameter : ", strInvitationId);
             let error = ErrorManager.getErrorManager().BAD_REQUEST;
-            error.msg += ", invitation not defined, can not getInvitationById";
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            error.msg += "bad or empty 'strInvitationId' parameter";
+            error.label += "bad or empty 'strInvitationId' parameter";
+            error.cause = strInvitationId;
+            that._logger.log(that.WARN, LOG_ID + `(getInvitationById) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(getInvitationById) bad or empty 'strInvitationId' parameter : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         return this._invitationsService.getInvitation(strInvitationId);
@@ -2887,9 +3058,13 @@ class ContactsService extends GenericService {
 
         return new Promise((resolve, reject) => {
             if (!contact) {
-                that._logger.log(that.WARN, LOG_ID + "(joinContacts) bad or empty 'contact' parameter");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(joinContacts) bad or empty 'contact' parameter : ", contact);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'contact' parameter";
+                error.label += "bad or empty 'contact' parameter";
+                error.cause = contact;
+                that._logger.log(that.WARN, LOG_ID + `(joinContacts) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(joinContacts) bad or empty 'contact' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             } else {
                 that._logger.log(that.DEBUG, LOG_ID + "(joinContacts) contact join to server...");
                 let promises = [];
@@ -3364,9 +3539,13 @@ class ContactsService extends GenericService {
         return new Promise(function (resolve, reject) {
             try {
                 if (!entryId) {
-                    that._logger.log(that.WARN, LOG_ID + "(getDirectoryEntryData) bad or empty 'entryId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getDirectoryEntryData) bad or empty 'entryId' parameter : ", entryId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'entryId' parameter";
+                    error.label += "bad or empty 'entryId' parameter";
+                    error.cause = entryId;
+                    that._logger.log(that.WARN, LOG_ID + `(getDirectoryEntryData) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(getDirectoryEntryData) bad or empty 'entryId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 that._rest.getDirectoryEntryData (entryId, format ).then((result) => {
@@ -3560,9 +3739,13 @@ class ContactsService extends GenericService {
         return new Promise(function (resolve, reject) {
             try {
                 if (!entryId) {
-                    that._logger.log(that.WARN, LOG_ID + "(updatePersonalDirectoryEntry) bad or empty 'entryId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(updatePersonalDirectoryEntry) bad or empty 'entryId' parameter : ", entryId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'entryId' parameter";
+                    error.label += "bad or empty 'entryId' parameter";
+                    error.cause = entryId;
+                    that._logger.log(that.WARN, LOG_ID + `(updatePersonalDirectoryEntry) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(updatePersonalDirectoryEntry) bad or empty 'entryId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 that._rest.updateDirectoryEntry(entryId,
@@ -3618,9 +3801,13 @@ class ContactsService extends GenericService {
         return new Promise(function (resolve, reject) {
             try {
                 if (!entryId) {
-                    that._logger.log(that.WARN, LOG_ID + "(deletePersonalDirectoryEntry) bad or empty 'entryId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(deletePersonalDirectoryEntry) bad or empty 'entryId' parameter : ", entryId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'entryId' parameter";
+                    error.label += "bad or empty 'entryId' parameter";
+                    error.cause = entryId;
+                    that._logger.log(that.WARN, LOG_ID + `(deletePersonalDirectoryEntry) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(deletePersonalDirectoryEntry) bad or empty 'entryId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 that._rest.deleteDirectoryEntry (entryId ).then((result) => {

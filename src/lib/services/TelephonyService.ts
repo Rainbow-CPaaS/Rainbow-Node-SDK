@@ -526,8 +526,13 @@ class TelephonyService extends GenericService {
 
             if (!that._profiles.isFeatureEnabled(that._profiles.getFeaturesEnum().TELEPHONY_WEBRTC_PSTN_CALLING))
             {
-                that._logger.log(that.ERROR, LOG_ID + "(getMediaPillarInfo) MediaPillar is NOT allowed");
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST) ;
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "MediaPillar is NOT allowed";
+                error.label += "MediaPillar is NOT allowed";
+                error.cause = undefined;
+                that._logger.log(that.WARN, LOG_ID + `(getMediaPillarInfo) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(getMediaPillarInfo) MediaPillar is NOT allowed : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             that._logger.log(that.DEBUG, LOG_ID + "(getMediaPillarInfo) MediaPillar is allowed");
@@ -916,9 +921,13 @@ class TelephonyService extends GenericService {
     async makeCall(contact, phoneNumber, correlatorData) {
         let that = this;
         if (!isDefined(contact)) {
-            that._logger.log(that.WARN, LOG_ID + "(makeCall) bad or empty 'contact' parameter");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(makeCall) bad or empty 'contact' parameter : ", contact);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'contact' parameter";
+            error.label += "bad or empty 'contact' parameter";
+            error.cause = contact;
+            that._logger.log(that.WARN, LOG_ID + `(makeCall) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(makeCall) bad or empty 'contact' parameter : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(makeCall) is contact defined : ", isDefined(contact));
         let activeCall = that.getActiveCall();
@@ -957,9 +966,13 @@ class TelephonyService extends GenericService {
     private async makeSimpleCall(contact, phoneNumber, correlatorData) : Promise<any> {
         let that = this;
         if (!isDefined(contact) || !isObjectNotArray(contact)) {
-            that._logger.log(that.WARN, LOG_ID + "(makeSimpleCall) bad or empty 'contact' parameter");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(makeSimpleCall) bad or empty 'contact' parameter : ", contact);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'contact' parameter";
+            error.label += "bad or empty 'contact' parameter";
+            error.cause = contact;
+            that._logger.log(that.WARN, LOG_ID + `(makeSimpleCall) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(makeSimpleCall) bad or empty 'contact' parameter : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
         return new Promise((resolve, reject) => {
             that._logger.log(that.INTERNAL, LOG_ID + "(makeSimpleCall) to " + (contact ? contact.displayName : phoneNumber));
@@ -1072,14 +1085,22 @@ class TelephonyService extends GenericService {
     private async makeConsultationCall(contact, phoneNumber, callId, correlatorData ) {
         let that = this;
         if (!isDefined(contact) || !isObjectNotArray(contact)) {
-            that._logger.log(that.WARN, LOG_ID + "(makeConsultationCall) bad or empty 'contact' parameter");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(makeConsultationCall) bad or empty 'contact' parameter : ", contact);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'contact' parameter";
+            error.label += "bad or empty 'contact' parameter";
+            error.cause = contact;
+            that._logger.log(that.WARN, LOG_ID + `(makeConsultationCall) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(makeConsultationCall) bad or empty 'contact' parameter : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
         if (!isDefined(callId)) {
-            that._logger.log(that.WARN, LOG_ID + "(makeConsultationCall) bad or empty 'callId' parameter");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(makeConsultationCall) bad or empty 'callId' parameter : ", callId);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'callId' parameter";
+            error.label += "bad or empty 'callId' parameter";
+            error.cause = callId;
+            that._logger.log(that.WARN, LOG_ID + `(makeConsultationCall) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(makeConsultationCall) bad or empty 'callId' parameter : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
         return new Promise((resolve, reject) => {
 
@@ -1191,9 +1212,13 @@ class TelephonyService extends GenericService {
     async makeCallByPhoneNumber(phoneNumber, correlatorData) {
         let that = this;
         if (!isDefined(phoneNumber)) {
-            that._logger.log(that.WARN, LOG_ID + "(makeCallByPhoneNumber) bad or empty 'phoneNumber' parameter");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(makeCallByPhoneNumber) bad or empty 'phoneNumber' parameter : ", phoneNumber);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'phoneNumber' parameter";
+            error.label += "bad or empty 'phoneNumber' parameter";
+            error.cause = phoneNumber;
+            that._logger.log(that.WARN, LOG_ID + `(makeCallByPhoneNumber) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(makeCallByPhoneNumber) bad or empty 'phoneNumber' parameter : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(makeCallByPhoneNumber) is phoneNumber defined : ", isDefined(phoneNumber));
         return new Promise((resolve, reject) => {
@@ -1361,9 +1386,13 @@ class TelephonyService extends GenericService {
     async releaseCall(call) {
         let that = this;
         if (!isDefined(call) || !isObjectNotArray(call)) {
-            that._logger.log(that.WARN, LOG_ID + "(releaseCall) bad or empty 'call' parameter");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(releaseCall) bad or empty 'call' parameter : ", call);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'call' parameter";
+            error.label += "bad or empty 'call' parameter";
+            error.cause = call;
+            that._logger.log(that.WARN, LOG_ID + `(releaseCall) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(releaseCall) bad or empty 'call' parameter : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(releaseCall) is call defined : ", isDefined(call));
         return new Promise(function (resolve, reject) {
@@ -1436,9 +1465,13 @@ class TelephonyService extends GenericService {
      async answerCall(call) {
         let that = this;
         if (!isDefined(call) || !isObjectNotArray(call)) {
-            that._logger.log(that.WARN, LOG_ID + "(answerCall) bad or empty 'call' parameter");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(answerCall) bad or empty 'call' parameter : ", call);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'call' parameter";
+            error.label += "bad or empty 'call' parameter";
+            error.cause = call;
+            that._logger.log(that.WARN, LOG_ID + `(answerCall) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(answerCall) bad or empty 'call' parameter : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(answerCall) is call defined : ", isDefined(call));
         return new Promise((resolve, reject) => {
@@ -1528,9 +1561,13 @@ class TelephonyService extends GenericService {
     async holdCall(call) {
         let that = this;
         if (!isDefined(call) || !isObjectNotArray(call)) {
-            that._logger.log(that.WARN, LOG_ID + "(holdCall) bad or empty 'call' parameter");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(holdCall) bad or empty 'call' parameter : ", call);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'call' parameter";
+            error.label += "bad or empty 'call' parameter";
+            error.cause = call;
+            that._logger.log(that.WARN, LOG_ID + `(holdCall) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(holdCall) bad or empty 'call' parameter : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(holdCall) is call defined : ", isDefined(call));
         return new Promise(function (resolve, reject) {
@@ -1606,9 +1643,13 @@ class TelephonyService extends GenericService {
     async retrieveCall(call) {
         let that = this;
         if (!isDefined(call) || !isObjectNotArray(call)) {
-            that._logger.log(that.WARN, LOG_ID + "(retrieveCall) bad or empty 'call' parameter");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(retrieveCall) bad or empty 'call' parameter : ", call);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'call' parameter";
+            error.label += "bad or empty 'call' parameter";
+            error.cause = call;
+            that._logger.log(that.WARN, LOG_ID + `(retrieveCall) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(retrieveCall) bad or empty 'call' parameter : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(retrieveCall) is call defined : ", isDefined(call));
         return new Promise(function (resolve, reject) {
@@ -1701,9 +1742,13 @@ class TelephonyService extends GenericService {
     async deflectCallToVM(call) {
         let that = this;
         if (!isDefined(call) || !isObjectNotArray(call)) {
-            that._logger.log(that.WARN, LOG_ID + "(deflectCallToVM) bad or empty 'call' parameter");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(deflectCallToVM) bad or empty 'call' parameter : ", call);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'call' parameter";
+            error.label += "bad or empty 'call' parameter";
+            error.cause = call;
+            that._logger.log(that.WARN, LOG_ID + `(deflectCallToVM) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(deflectCallToVM) bad or empty 'call' parameter : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deflectCallToVM) is call defined : ", isDefined(call));
         return new Promise((resolve, reject) => {
@@ -1787,14 +1832,22 @@ class TelephonyService extends GenericService {
     async deflectCall(call, callee) {
         let that = this;
         if (!isDefined(call) || !isObjectNotArray(call)) {
-            that._logger.log(that.WARN, LOG_ID + "(deflectCall) bad or empty 'call' parameter");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(deflectCall) bad or empty 'call' parameter : ", call);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'call' parameter";
+            error.label += "bad or empty 'call' parameter";
+            error.cause = call;
+            that._logger.log(that.WARN, LOG_ID + `(deflectCall) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(deflectCall) bad or empty 'call' parameter : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
         if (!isDefined(callee) || !isObjectNotArray(callee)) {
-            that._logger.log(that.WARN, LOG_ID + "(deflectCall) bad or empty 'callee' parameter");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(deflectCall) bad or empty 'callee' parameter : ", callee);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'callee' parameter";
+            error.label += "bad or empty 'callee' parameter";
+            error.cause = callee;
+            that._logger.log(that.WARN, LOG_ID + `(deflectCall) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(deflectCall) bad or empty 'callee' parameter : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deflectCall) is call defined : ", isDefined(call));
         return new Promise((resolve, reject) => {
@@ -1850,14 +1903,22 @@ class TelephonyService extends GenericService {
     async transfertCall(activeCall, heldCall) {
         let that = this;
         if (!isDefined(activeCall) || !isObjectNotArray(activeCall)) {
-            that._logger.log(that.WARN, LOG_ID + "(transfertCall) bad or empty 'activeCall' parameter");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(transfertCall) bad or empty 'activeCall' parameter : ", activeCall);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'activeCall' parameter";
+            error.label += "bad or empty 'activeCall' parameter";
+            error.cause = activeCall;
+            that._logger.log(that.WARN, LOG_ID + `(transfertCall) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(transfertCall) bad or empty 'activeCall' parameter : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
         if (!isDefined(heldCall) || !isObjectNotArray(heldCall)) {
-            that._logger.log(that.WARN, LOG_ID + "(transfertCall) bad or empty 'heldCall' parameter");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(transfertCall) bad or empty 'heldCall' parameter : ", heldCall);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'heldCall' parameter";
+            error.label += "bad or empty 'heldCall' parameter";
+            error.cause = heldCall;
+            that._logger.log(that.WARN, LOG_ID + `(transfertCall) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(transfertCall) bad or empty 'heldCall' parameter : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(transfertCall) is activeCall defined : ", isDefined(activeCall));
         return new Promise((resolve, reject) => {
@@ -1924,14 +1985,22 @@ class TelephonyService extends GenericService {
     async conferenceCall(activeCall, heldCall) {
         let that = this;
         if (!isDefined(activeCall) || !isObjectNotArray(activeCall)) {
-            that._logger.log(that.WARN, LOG_ID + "(conferenceCall) bad or empty 'activeCall' parameter");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(conferenceCall) bad or empty 'activeCall' parameter : ", activeCall);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'activeCall' parameter";
+            error.label += "bad or empty 'activeCall' parameter";
+            error.cause = activeCall;
+            that._logger.log(that.WARN, LOG_ID + `(conferenceCall) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(conferenceCall) bad or empty 'activeCall' parameter : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
         if (!isDefined(heldCall) || !isObjectNotArray(heldCall)) {
-            that._logger.log(that.WARN, LOG_ID + "(conferenceCall) bad or empty 'heldCall' parameter");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(conferenceCall) bad or empty 'heldCall' parameter : ", heldCall);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'heldCall' parameter";
+            error.label += "bad or empty 'heldCall' parameter";
+            error.cause = heldCall;
+            that._logger.log(that.WARN, LOG_ID + `(conferenceCall) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(conferenceCall) bad or empty 'heldCall' parameter : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(conferenceCall) is activeCall defined : ", isDefined(activeCall));
 
@@ -1996,9 +2065,13 @@ class TelephonyService extends GenericService {
     async forwardToDevice(phoneNumber) {
         let that = this;
         if (!isDefined(phoneNumber)) {
-            that._logger.log(that.WARN, LOG_ID + "(forwardToDevice) bad or empty 'phoneNumber' parameter");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(forwardToDevice) bad or empty 'phoneNumber' parameter : ", phoneNumber);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'phoneNumber' parameter";
+            error.label += "bad or empty 'phoneNumber' parameter";
+            error.cause = phoneNumber;
+            that._logger.log(that.WARN, LOG_ID + `(forwardToDevice) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(forwardToDevice) bad or empty 'phoneNumber' parameter : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(forwardToDevice) is phoneNumber defined : ", isDefined(phoneNumber));
         return new Promise(function (resolve, reject) {
@@ -2194,14 +2267,22 @@ class TelephonyService extends GenericService {
     sendDtmf(connectionId, dtmf) {
         let that = this;
         if (!isDefined(connectionId)) {
-            that._logger.log(that.WARN, LOG_ID + "(sendDtmf) bad or empty 'connectionId' parameter");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(sendDtmf) bad or empty 'connectionId' parameter : ", connectionId);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'connectionId' parameter";
+            error.label += "bad or empty 'connectionId' parameter";
+            error.cause = connectionId;
+            that._logger.log(that.WARN, LOG_ID + `(sendDtmf) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(sendDtmf) bad or empty 'connectionId' parameter : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
         if (!isDefined(dtmf)) {
-            that._logger.log(that.WARN, LOG_ID + "(sendDtmf) bad or empty 'dtmf' parameter");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(sendDtmf) bad or empty 'dtmf' parameter : ", dtmf);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'dtmf' parameter";
+            error.label += "bad or empty 'dtmf' parameter";
+            error.cause = dtmf;
+            that._logger.log(that.WARN, LOG_ID + `(sendDtmf) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(sendDtmf) bad or empty 'dtmf' parameter : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendDtmf) is connectionId defined : ", isDefined(connectionId));
         return new Promise((resolve, reject) => {
@@ -2424,9 +2505,13 @@ that._eventEmitter.emit("evt_internal_callupdated", call);
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(logon) is agentId defined : ", isDefined(agentId));
         return new Promise((resolve, reject) => {
             if (!endpointTel) {
-                that._logger.log(that.WARN, LOG_ID + "(logon) bad or empty 'endpointTel' parameter");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(logon) bad or empty 'endpointTel' parameter", endpointTel);
-                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'endpointTel' parameter";
+                error.label += "bad or empty 'endpointTel' parameter";
+                error.cause = endpointTel;
+                that._logger.log(that.WARN, LOG_ID + `(logon) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(logon) bad or empty 'endpointTel' parameter : `, error.cause, ", error : ", error);
+                reject(error);
                 return;
             }
             that._rest.logon(endpointTel, agentId, password, groupId).then(
@@ -2462,9 +2547,13 @@ that._eventEmitter.emit("evt_internal_callupdated", call);
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(logoff) is agentId defined : ", isDefined(agentId));
         return new Promise((resolve, reject) => {
             if (!endpointTel) {
-                that._logger.log(that.WARN, LOG_ID + "(logoff) bad or empty 'endpointTel' parameter");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(logoff) bad or empty 'endpointTel' parameter", endpointTel);
-                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'endpointTel' parameter";
+                error.label += "bad or empty 'endpointTel' parameter";
+                error.cause = endpointTel;
+                that._logger.log(that.WARN, LOG_ID + `(logoff) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(logoff) bad or empty 'endpointTel' parameter : `, error.cause, ", error : ", error);
+                reject(error);
                 return;
             }
             that._rest.logoff(endpointTel, agentId, password, groupId).then(
@@ -2499,15 +2588,23 @@ that._eventEmitter.emit("evt_internal_callupdated", call);
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(withdrawal) is agentId defined : ", isDefined(agentId));
         return new Promise((resolve, reject) => {
             if (!agentId) {
-                that._logger.log(that.WARN, LOG_ID + "(withdrawal) bad or empty 'agentId' parameter");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(withdrawal) bad or empty 'agentId' parameter", agentId);
-                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'agentId' parameter";
+                error.label += "bad or empty 'agentId' parameter";
+                error.cause = agentId;
+                that._logger.log(that.WARN, LOG_ID + `(withdrawal) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(withdrawal) bad or empty 'agentId' parameter : `, error.cause, ", error : ", error);
+                reject(error);
                 return;
             }
             if (!groupId) {
-                that._logger.log(that.WARN, LOG_ID + "(withdrawal) bad or empty 'groupId' parameter");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(withdrawal) bad or empty 'groupId' parameter", groupId);
-                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'groupId' parameter";
+                error.label += "bad or empty 'groupId' parameter";
+                error.cause = groupId;
+                that._logger.log(that.WARN, LOG_ID + `(withdrawal) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(withdrawal) bad or empty 'groupId' parameter : `, error.cause, ", error : ", error);
+                reject(error);
                 return;
             }
             that._rest.withdrawal(agentId, groupId, status).then(
@@ -2543,15 +2640,23 @@ that._eventEmitter.emit("evt_internal_callupdated", call);
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(wrapup) is agentId defined : ", isDefined(agentId));
         return new Promise((resolve, reject) => {
             if (!agentId) {
-                that._logger.log(that.WARN, LOG_ID + "(wrapup) bad or empty 'agentId' parameter");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(wrapup) bad or empty 'agentId' parameter", agentId);
-                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'agentId' parameter";
+                error.label += "bad or empty 'agentId' parameter";
+                error.cause = agentId;
+                that._logger.log(that.WARN, LOG_ID + `(wrapup) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(wrapup) bad or empty 'agentId' parameter : `, error.cause, ", error : ", error);
+                reject(error);
                 return;
             }
             if (!agentId) {
-                that._logger.log(that.WARN, LOG_ID + "(wrapup) bad or empty 'agentId' parameter");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(wrapup) bad or empty 'agentId' parameter", agentId);
-                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'agentId' parameter";
+                error.label += "bad or empty 'agentId' parameter";
+                error.cause = agentId;
+                that._logger.log(that.WARN, LOG_ID + `(wrapup) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(wrapup) bad or empty 'agentId' parameter : `, error.cause, ", error : ", error);
+                reject(error);
                 return;
             }
             that._rest.wrapup(agentId, groupId, password, status).then(
@@ -2603,9 +2708,13 @@ that._eventEmitter.emit("evt_internal_callupdated", call);
     async nomadicLogin (phoneNumber, NotTakeIntoAccount?) {
         let that = this;
         if (!isDefined(phoneNumber)) {
-            that._logger.log(that.WARN, LOG_ID + "(nomadicLogin) bad or empty 'phoneNumber' parameter");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(nomadicLogin) bad or empty 'phoneNumber' parameter : ", phoneNumber);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'phoneNumber' parameter";
+            error.label += "bad or empty 'phoneNumber' parameter";
+            error.cause = phoneNumber;
+            that._logger.log(that.WARN, LOG_ID + `(nomadicLogin) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(nomadicLogin) bad or empty 'phoneNumber' parameter : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(nomadicLogin) is phoneNumber defined : ", isDefined(phoneNumber));
         return new Promise(function(resolve, reject) {
@@ -2917,9 +3026,13 @@ that._eventEmitter.emit("evt_internal_callupdated", call);
         // API https://api.openrainbow.org/telephony/#api-telephony-Voice_message_delete
         let that = this;
         if (!isDefined(messageId)) {
-            that._logger.log(that.WARN, LOG_ID + "(deleteAVoiceMessageFromPbx) bad or empty 'messageId' parameter");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteAVoiceMessageFromPbx) bad or empty 'messageId' parameter : ", messageId);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'messageId' parameter";
+            error.label += "bad or empty 'messageId' parameter";
+            error.cause = messageId;
+            that._logger.log(that.WARN, LOG_ID + `(deleteAVoiceMessageFromPbx) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(deleteAVoiceMessageFromPbx) bad or empty 'messageId' parameter : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(deleteAVoiceMessageFromPbx) is messageId defined : ", isDefined(messageId));
         return that._rest.deleteAVoiceMessageFromPbx(messageId);
@@ -2959,14 +3072,22 @@ that._eventEmitter.emit("evt_internal_callupdated", call);
         // GET /api/rainbow/telephony/v1.0/voicemessages/:messageId
         let that = this;
         if (!isDefined(messageId)) {
-            that._logger.log(that.WARN, LOG_ID + "(getAVoiceMessageFromPbx) bad or empty 'messageId' parameter");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(getAVoiceMessageFromPbx) bad or empty 'messageId' parameter : ", messageId);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'messageId' parameter";
+            error.label += "bad or empty 'messageId' parameter";
+            error.cause = messageId;
+            that._logger.log(that.WARN, LOG_ID + `(getAVoiceMessageFromPbx) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(getAVoiceMessageFromPbx) bad or empty 'messageId' parameter : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
         if (!isDefined(messageDate)) {
-            that._logger.log(that.WARN, LOG_ID + "(getAVoiceMessageFromPbx) bad or empty 'messageDate' parameter");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(getAVoiceMessageFromPbx) bad or empty 'messageDate' parameter : ", messageDate);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'messageDate' parameter";
+            error.label += "bad or empty 'messageDate' parameter";
+            error.cause = messageDate;
+            that._logger.log(that.WARN, LOG_ID + `(getAVoiceMessageFromPbx) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(getAVoiceMessageFromPbx) bad or empty 'messageDate' parameter : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getAVoiceMessageFromPbx) is messageId defined : ", isDefined(messageId));
         return that._rest.getAVoiceMessageFromPbx( messageId , messageDate, messageFrom);

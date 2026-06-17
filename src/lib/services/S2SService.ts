@@ -338,9 +338,13 @@ class S2SService extends GenericService{
         that._logger.log(that.DEBUG, LOG_ID + "(deleteConnectionsS2S) will del cnx S2S.");
         that._logger.log(that.INFO, LOG_ID + "(deleteConnectionsS2S) will del cnx S2S : ", connexions);
         if (!connexions && !Array.isArray(connexions)) {
-            that._logger.log(that.WARN, LOG_ID + "(deleteConnectionsS2S) bad or empty 'connexions' parameter");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteConnectionsS2S) bad or empty 'connexions' parameter : ", connexions);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'connexions' parameter";
+            error.label += "bad or empty 'connexions' parameter";
+            error.cause = connexions;
+            that._logger.log(that.WARN, LOG_ID + `(deleteConnectionsS2S) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(deleteConnectionsS2S) bad or empty 'connexions' parameter : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         const requests = [];

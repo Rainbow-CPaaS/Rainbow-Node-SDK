@@ -338,18 +338,33 @@ class FavoritesService extends GenericService{
         return new Promise((resolve, reject) => {
 
             if (!id) {
-                that._logger.log(that.DEBUG, LOG_ID + "[createFavorite] :: Error: parameter 'id' is missing or null");
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "Error: parameter 'id' is missing or null";
+                error.label += "Error: parameter 'id' is missing or null";
+                error.cause = id;
+                that._logger.log(that.WARN, LOG_ID + `[createFavorite] BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `[createFavorite] Error: parameter 'id' is missing or null : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             if (!type) {
-                that._logger.log(that.DEBUG, LOG_ID + "[createFavorite] :: Error: parameter 'type' is missing or null");
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "Error: parameter 'type' is missing or null";
+                error.label += "Error: parameter 'type' is missing or null";
+                error.cause = type;
+                that._logger.log(that.WARN, LOG_ID + `[createFavorite] BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `[createFavorite] Error: parameter 'type' is missing or null : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             if (type !== "bubble" && type !== "user") {
-                that._logger.log(that.DEBUG, LOG_ID + "[createFavorite] :: Error: type should be set to \"user\" or \"bubble\"");
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "Error: type should be set to \"user\" or \"bubble\"";
+                error.label += "Error: type should be set to \"user\" or \"bubble\"";
+                error.cause = type;
+                that._logger.log(that.WARN, LOG_ID + `[createFavorite] BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `[createFavorite] Error: type should be set to "user" or "bubble" : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             if (type === "bubble") {
@@ -482,8 +497,13 @@ class FavoritesService extends GenericService{
             that._logger.log(that.DEBUG, LOG_ID + "(checkIsPeerSettedAsFavorite) peerId : ", peerId);
 
             if (!peerId) {
-                that._logger.log(that.DEBUG, LOG_ID + "(checkIsPeerSettedAsFavorite) bad or empty 'peerId' parameter : ", peerId);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'peerId' parameter";
+                error.label += "bad or empty 'peerId' parameter";
+                error.cause = peerId;
+                that._logger.log(that.WARN, LOG_ID + `(checkIsPeerSettedAsFavorite) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(checkIsPeerSettedAsFavorite) bad or empty 'peerId' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             that._rest.checkIsPeerSettedAsFavorite(peerId).then(async (result) => {
@@ -524,8 +544,13 @@ class FavoritesService extends GenericService{
             that._logger.log(that.DEBUG, LOG_ID + "(getFavoriteById) favoriteId : ", favoriteId);
 
             if (!favoriteId) {
-                that._logger.log(that.DEBUG, LOG_ID + "(getFavoriteById) bad or empty 'favoriteId' parameter : ", favoriteId);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'favoriteId' parameter";
+                error.label += "bad or empty 'favoriteId' parameter";
+                error.cause = favoriteId;
+                that._logger.log(that.WARN, LOG_ID + `(getFavoriteById) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(getFavoriteById) bad or empty 'favoriteId' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             that._rest.getFavoriteById(favoriteId).then(async (result) => {
@@ -568,8 +593,13 @@ class FavoritesService extends GenericService{
             that._logger.log(that.DEBUG, LOG_ID + "(getAllUserFavoriteList) peerId : ", peerId);
 
             if (!peerId) {
-                that._logger.log(that.DEBUG, LOG_ID + "(getAllUserFavoriteList) bad or empty 'peerId' parameter : ", peerId);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'peerId' parameter";
+                error.label += "bad or empty 'peerId' parameter";
+                error.cause = peerId;
+                that._logger.log(that.WARN, LOG_ID + `(getAllUserFavoriteList) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(getAllUserFavoriteList) bad or empty 'peerId' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             that._rest.getAllUserFavoriteList(peerId).then(async (result) => {
@@ -611,8 +641,13 @@ class FavoritesService extends GenericService{
             that._logger.log(that.DEBUG, LOG_ID + "(moveFavoriteToPosition) favoriteId : ", favoriteId);
 
             if (!favoriteId) {
-                that._logger.log(that.DEBUG, LOG_ID + "(moveFavoriteToPosition) bad or empty 'favoriteId' parameter : ", favoriteId);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'favoriteId' parameter";
+                error.label += "bad or empty 'favoriteId' parameter";
+                error.cause = favoriteId;
+                that._logger.log(that.WARN, LOG_ID + `(moveFavoriteToPosition) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(moveFavoriteToPosition) bad or empty 'favoriteId' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             that._rest.moveFavoriteToPosition(favoriteId, position).then(async (result) => {

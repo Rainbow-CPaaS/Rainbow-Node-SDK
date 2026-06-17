@@ -102,4 +102,4 @@ rainbowSDK.events.on("rainbow_onready", async () => {
 
 ---
 
-_Last updated January, 26th 2018_
+_Last updated September 08, 2023_

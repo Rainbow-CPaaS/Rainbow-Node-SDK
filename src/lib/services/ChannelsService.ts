@@ -1267,9 +1267,15 @@ class ChannelsService extends GenericService {
      * @description
      *  Publish to a channel <br>
      */
-    publishMessageToChannel(channel : Channel, message : string, title : string = undefined, url : string=undefined, imagesIds : any=null, type : string="basic", customDatas : any = {}, attachments : Array<{id: string}> = undefined) : Promise<{}> {
+    publishMessageToChannel(channel : Channel, message : string, title : string = undefined, url : string=undefined, imagesIds  : Array<{id: string}> = undefined, type : string="basic", customDatas : any = {}, attachments : Array<{id: string}> = undefined) : Promise<{}> {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(publishMessageToChannel) is channel defined : ", isDefined(channel));
+        if (imagesIds === null || (Array.isArray(imagesIds) && imagesIds.length === 0)) {
+            imagesIds = undefined;
+        }
+        if (attachments === null || (Array.isArray(attachments) && attachments.length === 0)) {
+            attachments = undefined;
+        }
         return that.createItem(channel, message, title, url, imagesIds, type, customDatas, attachments);
     }
 

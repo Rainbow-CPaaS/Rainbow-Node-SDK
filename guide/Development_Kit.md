@@ -44,4 +44,4 @@ Rainbow Node SDK APIs cheat sheet | [Download](./doc/sdk/node/cheatsheets/nodeSh
 
 ---
 
-_Last updated May, 12th 2018_
+_Last updated September 08, 2023_

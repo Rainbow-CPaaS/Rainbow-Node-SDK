@@ -277,22 +277,34 @@ class FileStorage extends GenericService{
         return new Promise(function(resolve, reject) {
             if (!conversation) {
                 let errorMessage = "Parameter 'conversation' is missing or null";
-                that._logger.log(that.ERROR, LOG_ID + "(uploadFileBufferToConversation) " + errorMessage);
-                reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
+                let error = ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage);
+                error.cause = conversation;
+                that._logger.log(that.WARN, LOG_ID + `(uploadFileBufferToConversation) OTHERERROR.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(uploadFileBufferToConversation) Parameter 'conversation' is missing or null : `, error.cause, ", error : ", error);
+                reject(error);
             } else if (!fileData || !fileData.fileName || fileData.content === undefined) {
                 let errorMessage = "Parameter 'fileData' is missing or incomplete (fileName and content are required)";
-                that._logger.log(that.ERROR, LOG_ID + "(uploadFileBufferToConversation) " + errorMessage);
-                reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
+                let error = ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage);
+                error.cause = fileData;
+                that._logger.log(that.WARN, LOG_ID + `(uploadFileBufferToConversation) OTHERERROR.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(uploadFileBufferToConversation) Parameter 'fileData' is missing or incomplete (fileName and content are required) : `, error.cause, ", error : ", error);
+                reject(error);
             } else if (conversation.type !== Conversation.Type.ONE_TO_ONE) {
                 let errorMessage = "Parameter 'conversation' is not a one-to-one conversation";
-                that._logger.log(that.ERROR, LOG_ID + "(uploadFileBufferToConversation) " + errorMessage);
-                reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
+                let error = ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage);
+                error.cause = conversation;
+                that._logger.log(that.WARN, LOG_ID + `(uploadFileBufferToConversation) OTHERERROR.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(uploadFileBufferToConversation) Parameter 'conversation' is not a one-to-one conversation : `, error.cause, ", error : ", error);
+                reject(error);
             } else {
                 let buffer = Buffer.from(fileData.content, 'utf-8');
                 if (buffer.length > 100000000) {
                     let errorMessage = "The file content is too large (limited to 100MB)";
-                    that._logger.log(that.ERROR, LOG_ID + "(uploadFileBufferToConversation) " + errorMessage);
-                    reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
+                    let error = ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage);
+                    error.cause = buffer;
+                    that._logger.log(that.WARN, LOG_ID + `(uploadFileBufferToConversation) OTHERERROR.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(uploadFileBufferToConversation) The file content is too large (limited to 100MB) : `, error.cause, ", error : ", error);
+                    reject(error);
                 } else {
                     if (!strMessage || strMessage.length === 0) {
                         strMessage = fileData.fileName;
@@ -337,24 +349,33 @@ class FileStorage extends GenericService{
         return new Promise(function(resolve, reject) {
             if (!conversation) {
                 let errorMessage = "Parameter 'conversation' is missing or null";
-                that._logger.log(that.ERROR, LOG_ID + "(uploadFileToConversation) " + errorMessage);
-                reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
+                let error = ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage);
+                error.cause = conversation;
+                that._logger.log(that.WARN, LOG_ID + `(uploadFileToConversation) OTHERERROR.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(uploadFileToConversation) Parameter 'conversation' is missing or null : `, error.cause, ", error : ", error);
+                reject(error);
                 /*reject({
                     code: SDK.ERRORBADREQUEST,
                     label: "Parameter 'conversation' is missing or null"
                 }); // */
             } else if (!file) {
                 let errorMessage = "Parameter 'file' is missing or null";
-                that._logger.log(that.ERROR, LOG_ID + "(uploadFileToConversation) " + errorMessage);
-                reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
+                let error = ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage);
+                error.cause = file;
+                that._logger.log(that.WARN, LOG_ID + `(uploadFileToConversation) OTHERERROR.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(uploadFileToConversation) Parameter 'file' is missing or null : `, error.cause, ", error : ", error);
+                reject(error);
                 /*reject({
                     code: SDK.ERRORBADREQUEST,
                     label: "Parameter 'file' is missing or null"
                 }); // */
             } else if (conversation.type !== Conversation.Type.ONE_TO_ONE) {
                 let errorMessage = "Parameter 'conversation' is not a one-to-one conversation";
-                that._logger.log(that.ERROR, LOG_ID + "(uploadFileToConversation) " + errorMessage);
-                reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
+                let error = ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage);
+                error.cause = errorMessage;
+                that._logger.log(that.WARN, LOG_ID + `(uploadFileToConversation) OTHERERROR.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(uploadFileToConversation) Parameter 'conversation' is not a one-to-one conversation : `, error.cause, ", error : ", error);
+                reject(error);
                 /* reject({
                     code: SDK.ERRORBADREQUEST,
                     label: "Parameter 'conversation' is not a one-to-one conversation"
@@ -402,16 +423,22 @@ class FileStorage extends GenericService{
 
             if (!bubble) {
                 let errorMessage = "Parameter 'bubble' is missing or null";
-                that._logger.log(that.ERROR, LOG_ID + "(uploadFileToBubble) " + errorMessage);
-                reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
+                let error = ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage);
+                error.cause = errorMessage;
+                that._logger.log(that.WARN, LOG_ID + `(uploadFileToBubble) OTHERERROR.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(uploadFileToBubble) Parameter 'bubble' is missing or null : `, error.cause, ", error : ", error);
+                reject(error);
                 /* reject({
                     code: SDK.ERRORBADREQUEST,
                     label: "Parameter 'bubble' is missing or null"
                 }); // */
             } else if (!file) {
                 let errorMessage = "Parameter 'file' is missing or null";
-                that._logger.log(that.ERROR, LOG_ID + "(uploadFileToBubble) " + errorMessage);
-                reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
+                let error = ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage);
+                error.cause = errorMessage;
+                that._logger.log(that.WARN, LOG_ID + `(uploadFileToBubble) OTHERERROR.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(uploadFileToBubble) Parameter 'file' is missing or null : `, error.cause, ", error : ", error);
+                reject(error);
                 /*reject({
                     code: SDK.ERRORBADREQUEST,
                     label: "Parameter 'file' is missing or null"
@@ -430,9 +457,11 @@ class FileStorage extends GenericService{
 
                 if (!conversation) {
                         let errorMessage = "Parameter 'bubble' don't have a conversation";
-                        that._logger.log(that.ERROR, LOG_ID + "(uploadFileToBubble) " + errorMessage);
-
-                        reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
+                        let error = ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage);
+                        error.cause = errorMessage;
+                        that._logger.log(that.WARN, LOG_ID + `(uploadFileToBubble) OTHERERROR.`);
+                        that._logger.log(that.INTERNALERROR, LOG_ID + `(uploadFileToBubble) Parameter 'bubble' don't have a conversation : `, error.cause, ", error : ", error);
+                        reject(error);
                     /*reject({
                         code: SDK.ERRORBADREQUEST,
                         label: "Parameter 'bubble' don't have a conversation"
@@ -440,8 +469,11 @@ class FileStorage extends GenericService{
                 } else if (conversation.type !== Conversation.Type.ROOM) {
                     that._logger.log(that.INTERNAL, LOG_ID + "(uploadFileToBubble) ::  conversation.type : ", conversation.type, " vs Conversation.Type.ROOM ", Conversation.Type.ROOM);
                     let errorMessage = "Parameter 'conversation' is not a bubble conversation";
-                    that._logger.log(that.ERROR, LOG_ID + "(uploadFileToBubble) " + errorMessage);
-                    reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
+                    let error = ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage);
+                    error.cause = errorMessage;
+                    that._logger.log(that.WARN, LOG_ID + `(uploadFileToBubble) OTHERERROR.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(uploadFileToBubble) Parameter 'conversation' is not a bubble conversation : `, error.cause, ", error : ", error);
+                    reject(error);
                     /* reject({
                         code: SDK.ERRORBADREQUEST,
                         label: "Parameter 'conversation' is not a bubble conversation"
@@ -485,14 +517,20 @@ class FileStorage extends GenericService{
         return new Promise(function(resolve, reject) {
             if (!fileData || !fileData.fileName || fileData.content === undefined) {
                 let errorMessage = "Parameter 'fileData' is missing or incomplete (fileName and content are required)";
-                that._logger.log(that.ERROR, LOG_ID + "(uploadFileBufferToStorage) " + errorMessage);
-                reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage, errorMessage));
+                let error = ErrorManager.getErrorManager().OTHERERROR(errorMessage, errorMessage);
+                error.cause = errorMessage;
+                that._logger.log(that.WARN, LOG_ID + `(uploadFileBufferToStorage) OTHERERROR.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(uploadFileBufferToStorage) Parameter 'fileData' is missing or incomplete (fileName and content are required) : `, error.cause, ", error : ", error);
+                reject(error);
             } else {
                 let buffer = Buffer.from(fileData.content, 'utf-8');
                 if (buffer.length > 100000000) {
                     let errorMessage = "The file content is too large (limited to 100MB)";
-                    that._logger.log(that.ERROR, LOG_ID + "(uploadFileBufferToStorage) " + errorMessage);
-                    reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage, errorMessage));
+                    let error = ErrorManager.getErrorManager().OTHERERROR(errorMessage, errorMessage);
+                    error.cause = errorMessage;
+                    that._logger.log(that.WARN, LOG_ID + `(uploadFileBufferToStorage) OTHERERROR.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(uploadFileBufferToStorage) The file content is too large (limited to 100MB) : `, error.cause, ", error : ", error);
+                    reject(error);
                 } else {
                     let fileExtension = fileData.fileName.split(".").pop();
                     let viewers = [];
@@ -518,8 +556,11 @@ class FileStorage extends GenericService{
                                             that._logger.log(that.DEBUG, LOG_ID + "The file " + vscanAttrs.fileId + " is clean!");
                                             resolve(vscanAttrs);
                                         } else {
-                                            that._logger.log(that.ERROR, LOG_ID + "The file " + vscanAttrs.fileId + " is not clean!");
-                                            reject(ErrorManager.getErrorManager().CUSTOMERROR("-1", "evt_internal_vscanreceived The file " + vscanAttrs.fileId + " is not clean!"));
+                                            let error = ErrorManager.getErrorManager().CUSTOMERROR("-1", "evt_internal_vscanreceived The file " + vscanAttrs.fileId + " is not clean!");
+                                            error.cause = vscanAttrs;
+                                            that._logger.log(that.WARN, LOG_ID + `(uploadFileBufferToStorage) CUSTOMERROR.`);
+                                            that._logger.log(that.INTERNALERROR, LOG_ID + `(uploadFileBufferToStorage) evt_internal_vscanreceived The file is not clean! : `, error.cause, ", error : ", error);
+                                            reject(error);
                                         }
                                     }
                                 });
@@ -654,8 +695,11 @@ class FileStorage extends GenericService{
                                             that._logger.log(that.DEBUG, LOG_ID + "The file " + vscanAttrs.fileId + " is clean!");
                                             resolve(vscanAttrs);
                                         } else {
-                                            that._logger.log(that.ERROR, LOG_ID + "The file " + vscanAttrs.fileId + " is not clean!");
-                                            reject(ErrorManager.getErrorManager().CUSTOMERROR("-1", "evt_internal_vscanreceived The file " + vscanAttrs.fileId + " is not clean!"));
+                                            let error = ErrorManager.getErrorManager().CUSTOMERROR("-1", "evt_internal_vscanreceived The file " + vscanAttrs.fileId + " is not clean!");
+                                            error.cause = vscanAttrs;
+                                            that._logger.log(that.WARN, LOG_ID + `(uploadFileToStorage) CUSTOMERROR.`);
+                                            that._logger.log(that.INTERNALERROR, LOG_ID + `(uploadFileToStorage) evt_internal_vscanreceived The file is not clean! : `, error.cause, ", error : ", error);
+                                            reject(error);
                                         }
                                     }
                                 });
@@ -735,18 +779,20 @@ class FileStorage extends GenericService{
 
             if (!fileDescriptor) {
                 let errorMessage = "Parameter 'fileDescriptor' is missing or null";
-                that._logger.log(that.ERROR, LOG_ID + "(downloadFile) " + errorMessage);
-                reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
-                /*reject({
-                    code: SDK.ERRORBADREQUEST,
-                    label: "Parameter 'fileDescriptor' is missing or null"
-                }); // */
+                let error = ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage);
+                error.cause = errorMessage;
+                that._logger.log(that.WARN, LOG_ID + `(downloadFile) OTHERERROR.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(downloadFile) Parameter 'fileDescriptor' is missing or null : `, error.cause, ", error : ", error);
+                reject(error);
             } else {
 
                 if (!acceptToDownloadInfectedFile && fileDescriptor.isClean === false && fileDescriptor.avScanStatus === "done") {
                     let errorMessage = "The file " + fileDescriptor.fileName + " is infected and cannot be downloaded without an explicte accept with acceptToDownloadInfectedFile setted to true.";
-                    that._logger.log(that.ERROR, LOG_ID + "(downloadFile) " + errorMessage);
-                    return reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage, errorMessage));
+                    let error = ErrorManager.getErrorManager().OTHERERROR(errorMessage, errorMessage);
+                    error.cause = errorMessage;
+                    that._logger.log(that.WARN, LOG_ID + `(downloadFile) OTHERERROR.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(downloadFile) The file is infected and cannot be downloaded without an explicte accept with acceptToDownloadInfectedFile setted to true. : `, error.cause, ", error : ", error);
+                    return reject(error);
                 }
 
                 that._logger.log(that.INTERNAL, LOG_ID + "(downloadFile) Try to get a file " + fileDescriptor.filename + "/" + fileDescriptor.fileName );
@@ -806,15 +852,21 @@ class FileStorage extends GenericService{
 
         if (!fileDescriptor) {
             let errorMessage = "Parameter 'fileDescriptor' is missing or null";
-            that._logger.log(that.ERROR, LOG_ID + "(downloadFileInPath) " + errorMessage);
             // return(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
-            return (Promise.reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage, errorMessage)));
+            let error = ErrorManager.getErrorManager().OTHERERROR(errorMessage, errorMessage);
+            error.cause = fileDescriptor;
+            that._logger.log(that.WARN, LOG_ID + `(downloadFileInPath) OTHERERROR.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(downloadFileInPath) Parameter 'fileDescriptor' is missing or null : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         } else {
 
             if (!acceptToDownloadInfectedFile && fileDescriptor.isClean === false && fileDescriptor.avScanStatus === "done") {
                 let errorMessage = "The file " + fileDescriptor.fileName + " is infected and cannot be downloaded without an explicte accept with acceptToDownloadInfectedFile setted to true.";
-                that._logger.log(that.ERROR, LOG_ID + "(downloadFileInPath) " + errorMessage);
-                return (Promise.reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage, errorMessage)));
+                let error = ErrorManager.getErrorManager().OTHERERROR(errorMessage, errorMessage);
+                error.cause = fileDescriptor;
+                that._logger.log(that.WARN, LOG_ID + `(downloadFileInPath) OTHERERROR.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(downloadFileInPath) The file is infected and cannot be downloaded without an explicte accept with acceptToDownloadInfectedFile setted to true : `, error.cause, ", error : ", error);
+                return Promise.reject(error);
             }
 
             that._logger.log(that.INTERNAL, LOG_ID + "(downloadFileInPath) Try to get a file name : " + fileDescriptor.filename + " or " + fileDescriptor.fileName);
@@ -928,12 +980,11 @@ class FileStorage extends GenericService{
 
             if (!fileId) {
                 let errorMessage = "Parameter 'fileDescriptor' is missing or null";
-                that._logger.log(that.ERROR, LOG_ID + "(getFilesTemporaryURL) " + errorMessage);
-                return reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage, errorMessage));
-                /*reject({
-                    code: SDK.ERRORBADREQUEST,
-                    label: "Parameter 'fileDescriptor' is missing or null"
-                }); // */
+                let error = ErrorManager.getErrorManager().OTHERERROR(errorMessage, errorMessage);
+                error.cause = errorMessage;
+                that._logger.log(that.WARN, LOG_ID + `(getFilesTemporaryURL) OTHERERROR.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(getFilesTemporaryURL) Parameter 'fileDescriptor' is missing or null : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             that._rest.getFilesTemporaryURL(fileId).then(function (urlFileData) {
@@ -968,21 +1019,19 @@ class FileStorage extends GenericService{
 
             if (!fileDescriptor) {
                 let errorMessage = "Parameter 'fileDescriptor' is missing or null";
-                that._logger.log(that.ERROR, LOG_ID + "(removeFile) " + errorMessage);
-                return reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
-                /*reject({
-                    code: SDK.ERRORBADREQUEST,
-                    label: "Parameter 'fileDescriptor' is missing or null"
-                }); // */
+                let error = ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage);
+                error.cause = errorMessage;
+                that._logger.log(that.WARN, LOG_ID + `(removeFile) OTHERERROR.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(removeFile) Parameter 'fileDescriptor' is missing or null : `, error.cause, ", error : ", error);
+                return reject(error);
             }
             if(!fileDescriptor.id && !fileDescriptor.url) {
                 let errorMessage = "Parameter 'fileDescriptor' is missing or null";
-                that._logger.log(that.ERROR, LOG_ID + "(removeFile) " + errorMessage);
-                return reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
-                /*reject({
-                    code: SDK.ERRORBADREQUEST,
-                    label: "Parameter 'fileDescriptor' don't contain information to remove the file"
-                }); // */
+                let error = ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage);
+                error.cause = errorMessage;
+                that._logger.log(that.WARN, LOG_ID + `(removeFile) OTHERERROR.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(removeFile) Parameter 'fileDescriptor' is missing or null : `, error.cause, ", error : ", error);
+                return reject(error);
             }
             else {
 
@@ -1068,9 +1117,11 @@ class FileStorage extends GenericService{
 
                 if (_file.size > 100000000) {
                     let errorMessage = "The file is to large (limited to 100MB)";
-                    that._logger.log(that.ERROR, LOG_ID + "(_addFileToConversation) Error." );
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(_addFileToConversation) Error : ", errorMessage);
-                    reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage,errorMessage));
+                    let error = ErrorManager.getErrorManager().OTHERERROR(errorMessage, errorMessage);
+                    error.cause = errorMessage;
+                    that._logger.log(that.WARN, LOG_ID + `(_addFileToConversation) OTHERERROR.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(_addFileToConversation) The file is to large (limited to 100MB) : `, error.cause, ", error : ", error);
+                    reject(error);
 
                     /* reject({
                         code: SDK.ERRORBADREQUEST,

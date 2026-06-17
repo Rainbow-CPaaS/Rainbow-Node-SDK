@@ -338,4 +338,4 @@ rainbowSDK.contacts.getContactByLoginEmail("rdoe@acompany.com").then((contact) =
 
 ---
 
-_Last updated January, 26th 2018_
+_Last updated September 08, 2023_

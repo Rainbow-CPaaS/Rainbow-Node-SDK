@@ -326,9 +326,13 @@ class WebinarsService extends GenericService {
         return new Promise((resolve, reject) => {
 
             if (!name) {
-                that._logger.log(that.WARN, LOG_ID + "(createWebinar) bad or empty 'name' parameter.");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(createWebinar) bad or empty 'name' parameter : ", name);
-                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'name' parameter";
+                error.label += "bad or empty 'name' parameter";
+                error.cause = name;
+                that._logger.log(that.WARN, LOG_ID + `(createWebinar) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(createWebinar) bad or empty 'name' parameter : `, error.cause, ", error : ", error);
+                reject(error);
                 return;
             }
 
@@ -418,9 +422,13 @@ class WebinarsService extends GenericService {
         return new Promise((resolve, reject) => {
 
             if (!webinarId) {
-                that._logger.log(that.WARN, LOG_ID + "(updateWebinar) bad or empty 'webinarId' parameter.");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(updateWebinar) bad or empty 'webinarId' parameter : ", webinarId);
-                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'webinarId' parameter";
+                error.label += "bad or empty 'webinarId' parameter";
+                error.cause = webinarId;
+                that._logger.log(that.WARN, LOG_ID + `(updateWebinar) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(updateWebinar) bad or empty 'webinarId' parameter : `, error.cause, ", error : ", error);
+                reject(error);
                 return;
             }
 
@@ -471,9 +479,13 @@ class WebinarsService extends GenericService {
 
         return new Promise((resolve, reject) => {
             if (!webinarId) {
-                that._logger.log(that.WARN, LOG_ID + "(getWebinarsData) bad or empty 'webinarId' parameter.");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(getWebinarsData) bad or empty 'webinarId' parameter : ", webinarId);
-                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'webinarId' parameter";
+                error.label += "bad or empty 'webinarId' parameter";
+                error.cause = webinarId;
+                that._logger.log(that.WARN, LOG_ID + `(getWebinarsData) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(getWebinarsData) bad or empty 'webinarId' parameter : `, error.cause, ", error : ", error);
+                reject(error);
                 return;
             }
 
@@ -607,9 +619,13 @@ class WebinarsService extends GenericService {
 
         return new Promise((resolve, reject) => {
             if (!webinarId) {
-                that._logger.log(that.WARN, LOG_ID + "(warnWebinarModerators) bad or empty 'webinarId' parameter.");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(warnWebinarModerators) bad or empty 'webinarId' parameter : ", webinarId);
-                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'webinarId' parameter";
+                error.label += "bad or empty 'webinarId' parameter";
+                error.cause = webinarId;
+                that._logger.log(that.WARN, LOG_ID + `(warnWebinarModerators) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(warnWebinarModerators) bad or empty 'webinarId' parameter : `, error.cause, ", error : ", error);
+                reject(error);
                 return;
             }
 
@@ -650,9 +666,13 @@ class WebinarsService extends GenericService {
 
         return new Promise((resolve, reject) => {
             if (!webinarId) {
-                that._logger.log(that.WARN, LOG_ID + "(publishAWebinarEvent) bad or empty 'webinarId' parameter.");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(publishAWebinarEvent) bad or empty 'webinarId' parameter : ", webinarId);
-                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'webinarId' parameter";
+                error.label += "bad or empty 'webinarId' parameter";
+                error.cause = webinarId;
+                that._logger.log(that.WARN, LOG_ID + `(publishAWebinarEvent) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(publishAWebinarEvent) bad or empty 'webinarId' parameter : `, error.cause, ", error : ", error);
+                reject(error);
                 return;
             }
 
@@ -688,9 +708,13 @@ class WebinarsService extends GenericService {
 
         return new Promise((resolve, reject) => {
             if (!webinarId) {
-                that._logger.log(that.WARN, LOG_ID + "(deleteWebinar) bad or empty 'webinarId' parameter.");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteWebinar) bad or empty 'webinarId' parameter : ", webinarId);
-                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'webinarId' parameter";
+                error.label += "bad or empty 'webinarId' parameter";
+                error.cause = webinarId;
+                that._logger.log(that.WARN, LOG_ID + `(deleteWebinar) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(deleteWebinar) bad or empty 'webinarId' parameter : `, error.cause, ", error : ", error);
+                reject(error);
                 return;
             }
 

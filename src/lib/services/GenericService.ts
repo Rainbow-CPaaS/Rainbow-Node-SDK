@@ -167,9 +167,12 @@ class GenericService extends LevelLogs{
         let that = this;
         return new Promise((resolve, reject) => {
             let timeout = setTimeout(() => {
-                that._logger.log(that.WARN, that._logId + "(waitEvent) timeout reached for event: " + eventName );
+                let error = ErrorManager.getErrorManager().CUSTOMERROR("-1", "Timeout reached for event: " + eventName, "Timeout reached for event: " + eventName);
+                error.cause = eventName;
+                that._logger.log(that.WARN, that._logId + `(waitEvent) CUSTOMERROR.`);
+                that._logger.log(that.INTERNALERROR, that._logId + `(waitEvent) timeout reached for event : `, error.cause, ", error : ", error);
                 that._eventEmitter.removeListener(eventName, onEventReceived);
-                reject(ErrorManager.getErrorManager().CUSTOMERROR("-1", "Timeout reached for event: " + eventName, "Timeout reached for event: " + eventName));
+                reject(error);
             }, timeoutMs);
 
             let onEventReceived = (data) => {

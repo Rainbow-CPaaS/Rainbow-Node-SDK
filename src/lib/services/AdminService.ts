@@ -689,8 +689,13 @@ class AdminService extends GenericService {
                 companyId = companyId ? companyId : that._rest.account.companyId;
 
                 if (!joinCompanyLinkId) {
-                    that._logger.log(that.ERROR, LOG_ID + "(deleteAJoinCompanyLink) bad or empty 'joinCompanyLinkId' parameter");
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'joinCompanyLinkId' parameter";
+                    error.label += "bad or empty 'joinCompanyLinkId' parameter";
+                    error.cause = joinCompanyLinkId;
+                    that._logger.log(that.WARN, LOG_ID + `(deleteAJoinCompanyLink) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(deleteAJoinCompanyLink) bad or empty 'joinCompanyLinkId' parameter : `, error.cause, ", error : ", error);
+                    return reject(error);
                 }
 
                 that._rest.deleteAJoinCompanyLink(companyId, joinCompanyLinkId).then((company) => {
@@ -751,8 +756,13 @@ class AdminService extends GenericService {
                 that._logger.log(that.INTERNAL, LOG_ID + "(getAJoinCompanyLink) parameters : companyId : ", companyId,", joinCompanyLinkId : ", joinCompanyLinkId);
 
                 if (!joinCompanyLinkId) {
-                    that._logger.log(that.ERROR, LOG_ID + "(getAJoinCompanyLink) bad or empty 'joinCompanyLinkId' parameter");
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'joinCompanyLinkId' parameter";
+                    error.label += "bad or empty 'joinCompanyLinkId' parameter";
+                    error.cause = joinCompanyLinkId;
+                    that._logger.log(that.WARN, LOG_ID + `(getAJoinCompanyLink) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(getAJoinCompanyLink) bad or empty 'joinCompanyLinkId' parameter : `, error.cause, ", error : ", error);
+                    return reject(error);
                 }
 
                 that._rest.getAJoinCompanyLink(companyId, joinCompanyLinkId).then((company) => {
@@ -1080,8 +1090,13 @@ class AdminService extends GenericService {
         return new Promise(function (resolve, reject) {
             try {
                 if (!name) {
-                    that._logger.log(that.ERROR, LOG_ID + "(createCompanyFromDefault) bad or empty 'name' parameter");
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'name' parameter";
+                    error.label += "bad or empty 'name' parameter";
+                    error.cause = name;
+                    that._logger.log(that.WARN, LOG_ID + `(createCompanyFromDefault) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(createCompanyFromDefault) bad or empty 'name' parameter : `, error.cause, ", error : ", error);
+                    return reject(error);
                 }
 
                 that._rest.createCompanyFromDefault(name, visibility, country, state, slogan, description, size, economicActivityClassification , website, avatarShape, giphyEnabled).then((company) => {
@@ -1313,8 +1328,13 @@ class AdminService extends GenericService {
         return new Promise(function (resolve, reject) {
             try {
                 if (!strName) {
-                    that._logger.log(that.ERROR, LOG_ID + "(createCompany) bad or empty 'strName' parameter");
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'strName' parameter";
+                    error.label += "bad or empty 'strName' parameter";
+                    error.cause = strName;
+                    that._logger.log(that.WARN, LOG_ID + `(createCompany) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(createCompany) bad or empty 'strName' parameter : `, error.cause, ", error : ", error);
+                    return reject(error);
                 }
 
                 that._rest.createCompany(strName, country, state, offerType).then((company) => {
@@ -1358,12 +1378,22 @@ class AdminService extends GenericService {
         return new Promise(function (resolve, reject) {
             try {
                 if (!company) {
-                    that._logger.log(that.ERROR, LOG_ID + "(setVisibilityForCompany) bad or empty 'company' parameter");
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'company' parameter";
+                    error.label += "bad or empty 'company' parameter";
+                    error.cause = company;
+                    that._logger.log(that.WARN, LOG_ID + `(setVisibilityForCompany) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(setVisibilityForCompany) bad or empty 'company' parameter : `, error.cause, ", error : ", error);
+                    return reject(error);
                 }
                 if (!visibleByCompany) {
-                    that._logger.log(that.ERROR, LOG_ID + "(setVisibilityForCompany) bad or empty 'visibleByCompany' parameter");
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'visibleByCompany' parameter";
+                    error.label += "bad or empty 'visibleByCompany' parameter";
+                    error.cause = visibleByCompany;
+                    that._logger.log(that.WARN, LOG_ID + `(setVisibilityForCompany) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(setVisibilityForCompany) bad or empty 'visibleByCompany' parameter : `, error.cause, ", error : ", error);
+                    return reject(error);
                 }
 
                 that._rest.setVisibilityForCompany(company.id, visibleByCompany.id).then((user) => {
@@ -1416,23 +1446,43 @@ class AdminService extends GenericService {
                 let isAdmin = isCompanyAdmin || false;
 
                 if (!email) {
-                    that._logger.log(that.ERROR, LOG_ID + "(createUserInCompany) bad or empty 'email' parameter");
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'email' parameter";
+                    error.label += "bad or empty 'email' parameter";
+                    error.cause = email;
+                    that._logger.log(that.WARN, LOG_ID + `(createUserInCompany) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(createUserInCompany) bad or empty 'email' parameter : `, error.cause, ", error : ", error);
+                    return reject(error);
                 }
 
                 if (!password) {
-                    that._logger.log(that.ERROR, LOG_ID + "(createUserInCompany) bad or empty 'password' parameter");
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'password' parameter";
+                    error.label += "bad or empty 'password' parameter";
+                    error.cause = password;
+                    that._logger.log(that.WARN, LOG_ID + `(createUserInCompany) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(createUserInCompany) bad or empty 'password' parameter : `, error.cause, ", error : ", error);
+                    return reject(error);
                 }
 
                 if (!firstname) {
-                    that._logger.log(that.ERROR, LOG_ID + "(createUserInCompany) bad or empty 'firstname' parameter");
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'firstname' parameter";
+                    error.label += "bad or empty 'firstname' parameter";
+                    error.cause = firstname;
+                    that._logger.log(that.WARN, LOG_ID + `(createUserInCompany) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(createUserInCompany) bad or empty 'firstname' parameter : `, error.cause, ", error : ", error);
+                    return reject(error);
                 }
 
                 if (!lastname) {
-                    that._logger.log(that.ERROR, LOG_ID + "(createUserInCompany) bad or empty 'lastname' parameter");
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'lastname' parameter";
+                    error.label += "bad or empty 'lastname' parameter";
+                    error.cause = lastname;
+                    that._logger.log(that.WARN, LOG_ID + `(createUserInCompany) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(createUserInCompany) bad or empty 'lastname' parameter : `, error.cause, ", error : ", error);
+                    return reject(error);
                 }
 
                 //that._rest.createUser(email, password, firstname, lastname, companyId, language, isAdmin, roles).then((user : any) => {
@@ -1786,18 +1836,33 @@ class AdminService extends GenericService {
                 language = language || "en-US";
 
                 if (!firstname) {
-                    that._logger.log(that.ERROR, LOG_ID + "(createGuestUser) bad or empty 'firstname' parameter");
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'firstname' parameter";
+                    error.label += "bad or empty 'firstname' parameter";
+                    error.cause = firstname;
+                    that._logger.log(that.WARN, LOG_ID + "(createGuestUser) BAD_REQUEST.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(createGuestUser) bad or empty 'firstname' parameter : ", error.cause, ", error : ", error);
+                    return reject(error);
                 }
 
                 if (!lastname) {
-                    that._logger.log(that.ERROR, LOG_ID + "(createGuestUser) bad or empty 'lastname' parameter");
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'lastname' parameter";
+                    error.label += "bad or empty 'lastname' parameter";
+                    error.cause = lastname;
+                    that._logger.log(that.WARN, LOG_ID + "(createGuestUser) BAD_REQUEST.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(createGuestUser) bad or empty 'lastname' parameter : ", error.cause, ", error : ", error);
+                    return reject(error);
                 }
 
                 if (timeToLive && isNaN(timeToLive)) {
-                    that._logger.log(that.ERROR, LOG_ID + "(createGuestUser) bad or empty 'timeToLive' parameter");
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'timeToLive' parameter";
+                    error.label += "bad or empty 'timeToLive' parameter";
+                    error.cause = timeToLive;
+                    that._logger.log(that.WARN, LOG_ID + "(createGuestUser) BAD_REQUEST.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(createGuestUser) bad or empty 'timeToLive' parameter : ", error.cause, ", error : ", error);
+                    return reject(error);
                 }
 
                 that._rest.createGuestUser(firstname, lastname, language, timeToLive).then((user : any) => {
@@ -1841,8 +1906,13 @@ class AdminService extends GenericService {
             try {
 
                 if (timeToLive && isNaN(timeToLive)) {
-                    that._logger.log(that.ERROR, LOG_ID + "(createAnonymousGuestUser) bad or empty 'timeToLive' parameter");
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'timeToLive' parameter";
+                    error.label += "bad or empty 'timeToLive' parameter";
+                    error.cause = timeToLive;
+                    that._logger.log(that.WARN, LOG_ID + "(createAnonymousGuestUser) BAD_REQUEST.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(createAnonymousGuestUser) bad or empty 'timeToLive' parameter : ", error.cause, ", error : ", error);
+                    return reject(error);
                 }
 
                 that._rest.createGuestUser(null, null, null, timeToLive).then((user : any) => {
@@ -1889,13 +1959,23 @@ class AdminService extends GenericService {
                 message = message || null;
 
                 if (!email) {
-                    that._logger.log(that.ERROR, LOG_ID + "(inviteUserInCompany) bad or empty 'email' parameter");
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'email' parameter";
+                    error.label += "bad or empty 'email' parameter";
+                    error.cause = email;
+                    that._logger.log(that.WARN, LOG_ID + "(inviteUserInCompany) BAD_REQUEST.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(inviteUserInCompany) bad or empty 'email' parameter : ", error.cause, ", error : ", error);
+                    return reject(error);
                 }
 
                 if (!companyId) {
-                    that._logger.log(that.ERROR, LOG_ID + "(inviteUserInCompany) bad or empty 'companyId' parameter");
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'companyId' parameter";
+                    error.label += "bad or empty 'companyId' parameter";
+                    error.cause = companyId;
+                    that._logger.log(that.WARN, LOG_ID + "(inviteUserInCompany) BAD_REQUEST.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(inviteUserInCompany) bad or empty 'companyId' parameter : ", error.cause, ", error : ", error);
+                    return reject(error);
                 }
 
                 that._rest.inviteUser(email, companyId, language, message).then((user) => {
@@ -1937,13 +2017,23 @@ class AdminService extends GenericService {
             try {
 
                 if (!password) {
-                    that._logger.log(that.ERROR, LOG_ID + "(changePasswordToUser) bad or empty 'password' parameter");
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'password' parameter";
+                    error.label += "bad or empty 'password' parameter";
+                    error.cause = password;
+                    that._logger.log(that.WARN, LOG_ID + "(changePasswordToUser) BAD_REQUEST.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(changePasswordToUser) bad or empty 'password' parameter : ", error.cause, ", error : ", error);
+                    return reject(error);
                 }
 
                 if (!userId) {
-                    that._logger.log(that.ERROR, LOG_ID + "(changePasswordToUser) bad or empty 'userId' parameter");
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'userId' parameter";
+                    error.label += "bad or empty 'userId' parameter";
+                    error.cause = userId;
+                    that._logger.log(that.WARN, LOG_ID + "(changePasswordToUser) BAD_REQUEST.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(changePasswordToUser) bad or empty 'userId' parameter : ", error.cause, ", error : ", error);
+                    return reject(error);
                 }
 
                 that._rest.changePassword(password, userId).then((user) => {
@@ -1985,18 +2075,33 @@ class AdminService extends GenericService {
             try {
 
                 if (!objData) {
-                    that._logger.log(that.ERROR, LOG_ID + "(updateInformationForUser) bad or empty 'objData' parameter");
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'objData' parameter";
+                    error.label += "bad or empty 'objData' parameter";
+                    error.cause = objData;
+                    that._logger.log(that.WARN, LOG_ID + "(updateInformationForUser) BAD_REQUEST.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(updateInformationForUser) bad or empty 'objData' parameter : ", error.cause, ", error : ", error);
+                    return reject(error);
                 }
 
                 if ("loginEmail" in objData) {
-                    that._logger.log(that.ERROR, LOG_ID + "(updateInformationForUser) can't change the loginEmail with that API");
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "can't change the loginEmail with that API";
+                    error.label += "can't change the loginEmail with that API";
+                    error.cause = objData;
+                    that._logger.log(that.WARN, LOG_ID + "(updateInformationForUser) BAD_REQUEST.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(updateInformationForUser) can't change the loginEmail with that API : ", error.cause, ", error : ", error);
+                    return reject(error);
                 }
 
                 if ("password" in objData) {
-                    that._logger.log(that.ERROR, LOG_ID + "(updateInformationForUser) can't change the password with that API");
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "can't change the password with that API";
+                    error.label += "can't change the password with that API";
+                    error.cause = objData;
+                    that._logger.log(that.WARN, LOG_ID + "(updateInformationForUser) BAD_REQUEST.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(updateInformationForUser) can't change the password with that API : ", error.cause, ", error : ", error);
+                    return reject(error);
                 }
 
                 that._rest.updateInformation(objData, userId).then((user) => {
@@ -2037,8 +2142,13 @@ class AdminService extends GenericService {
             try {
 
                 if (!userId) {
-                    that._logger.log(that.ERROR, LOG_ID + "(deleteUser) bad or empty 'userId' parameter");
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'userId' parameter";
+                    error.label += "bad or empty 'userId' parameter";
+                    error.cause = userId;
+                    that._logger.log(that.WARN, LOG_ID + "(deleteUser) BAD_REQUEST.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteUser) bad or empty 'userId' parameter : ", error.cause, ", error : ", error);
+                    return reject(error);
                 }
 
                 that._rest.deleteUser(userId).then((user) => {
@@ -2106,8 +2216,13 @@ class AdminService extends GenericService {
             try {
 
                 if (!userInfo) {
-                    that._logger.log(that.ERROR, LOG_ID + "(registerUserByEmailFirstStep) bad or empty 'userId' parameter");
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'userId' parameter";
+                    error.label += "bad or empty 'userId' parameter";
+                    error.cause = userInfo;
+                    that._logger.log(that.WARN, LOG_ID + `(registerUserByEmailFirstStep) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(registerUserByEmailFirstStep) bad or empty 'userId' parameter : `, error.cause, ", error : ", error);
+                    reject(error);
                     return;
                 }
 
@@ -2470,9 +2585,13 @@ class AdminService extends GenericService {
         return new Promise((resolve, reject) => {
             try {
                 if (!companyId) {
-                    that._logger.log(that.WARN, LOG_ID + "(getCompanyById) bad or empty 'companyId' parameter.");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getCompanyById) bad or empty 'companyId' parameter : ", companyId);
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'companyId' parameter.";
+                    error.label += "bad or empty 'companyId' parameter.";
+                    error.cause = companyId;
+                    that._logger.log(that.WARN, LOG_ID + "(getCompanyById) BAD_REQUEST.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getCompanyById) bad or empty 'companyId' parameter : ", error.cause, ", error : ", error);
+                    return reject(error);
                 }
 
                 that._rest.getCompany(companyId).then((company : any) => {
@@ -2503,15 +2622,23 @@ class AdminService extends GenericService {
         return new Promise(function (resolve, reject) {
             try {
                 if (!company) {
-                    that._logger.log(that.WARN, LOG_ID + "(removeCompany) bad or empty 'company' parameter.");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(removeCompany) bad or empty 'company' parameter : ", company);
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'company' parameter.";
+                    error.label += "bad or empty 'company' parameter.";
+                    error.cause = company;
+                    that._logger.log(that.WARN, LOG_ID + "(removeCompany) BAD_REQUEST.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(removeCompany) bad or empty 'company' parameter : ", error.cause, ", error : ", error);
+                    return reject(error);
                 }
 
                 if (!company.id) {
-                    that._logger.log(that.WARN, LOG_ID + "(removeCompany) bad or empty 'company.id' parameter.");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(removeCompany) bad or empty 'company.id' parameter : ", company.id);
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'company.id' parameter.";
+                    error.label += "bad or empty 'company.id' parameter.";
+                    error.cause = company.id;
+                    that._logger.log(that.WARN, LOG_ID + "(removeCompany) BAD_REQUEST.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(removeCompany) bad or empty 'company.id' parameter : ", error.cause, ", error : ", error);
+                    return reject(error);
                 }
 
                 that._rest.deleteCompany(company.id).then((companies : any) => {
@@ -2648,9 +2775,13 @@ class AdminService extends GenericService {
         return new Promise((resolve, reject) => {
             try {
                 if (!companyId) {
-                    that._logger.log(that.WARN, LOG_ID + "(getCompanyAppFeatureCustomisation) bad or empty 'companyId' parameter.");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getCompanyAppFeatureCustomisation) bad or empty 'companyId' parameter : ", companyId);
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'companyId' parameter.";
+                    error.label += "bad or empty 'companyId' parameter.";
+                    error.cause = companyId;
+                    that._logger.log(that.WARN, LOG_ID + "(getCompanyAppFeatureCustomisation) BAD_REQUEST.");
+                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getCompanyAppFeatureCustomisation) bad or empty 'companyId' parameter : ", error.cause, ", error : ", error);
+                    return reject(error);
                 }
 
                 that._rest.getCompanyAppFeatureCustomisation(companyId).then((result : any) => {
@@ -2696,9 +2827,13 @@ class AdminService extends GenericService {
         return new Promise(function (resolve, reject) {
             try {
                 if (!companyId) {
-                    that._logger.log(that.WARN, LOG_ID + "(getCompanyServiceDescriptionFile) bad or empty 'companyId' parameter.");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getCompanyServiceDescriptionFile) bad or empty 'companyId' parameter : ", companyId);
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'companyId' parameter.";
+                    error.label += "bad or empty 'companyId' parameter.";
+                    error.cause = companyId;
+                    that._logger.log(that.WARN, LOG_ID + `(getCompanyServiceDescriptionFile) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(getCompanyServiceDescriptionFile) bad or empty 'companyId' parameter. : `, error.cause, ", error : ", error);
+                    return reject(error);
                 }
 
                 that._rest.getCompanyServiceDescriptionFile(companyId).then((result : any) => {
@@ -3063,9 +3198,13 @@ class AdminService extends GenericService {
         return new Promise(function (resolve, reject) {
             try {
                 if (!companyId) {
-                    that._logger.log(that.WARN, LOG_ID + "(getCompanyThemes) bad or empty 'companyId' parameter.");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getCompanyThemes) bad or empty 'companyId' parameter : ", companyId);
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'companyId' parameter.";
+                    error.label += "bad or empty 'companyId' parameter.";
+                    error.cause = companyId;
+                    that._logger.log(that.WARN, LOG_ID + `(getCompanyThemes) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(getCompanyThemes) bad or empty 'companyId' parameter. : `, error.cause, ", error : ", error);
+                    return reject(error);
                 }
                 that._rest.getCompanyThemes(companyId, selectedThemeObj, variant).then((result) => {
                     that._logger.log(that.INTERNAL, LOG_ID + "(getCompanyThemes) Successfully result : ", result);
@@ -3107,14 +3246,22 @@ class AdminService extends GenericService {
         return new Promise(function (resolve, reject) {
             try {
                 if (!companyId) {
-                    that._logger.log(that.WARN, LOG_ID + "(createCompanyTheme) bad or empty 'companyId' parameter.");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(createCompanyTheme) bad or empty 'companyId' parameter : ", companyId);
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'companyId' parameter.";
+                    error.label += "bad or empty 'companyId' parameter.";
+                    error.cause = companyId;
+                    that._logger.log(that.WARN, LOG_ID + `(createCompanyTheme) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(createCompanyTheme) bad or empty 'companyId' parameter. : `, error.cause, ", error : ", error);
+                    return reject(error);
                 }
                 if (!name) {
-                    that._logger.log(that.WARN, LOG_ID + "(createCompanyTheme) bad or empty 'name' parameter.");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(createCompanyTheme) bad or empty 'name' parameter : ", name);
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'name' parameter.";
+                    error.label += "bad or empty 'name' parameter.";
+                    error.cause = name;
+                    that._logger.log(that.WARN, LOG_ID + `(createCompanyTheme) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(createCompanyTheme) bad or empty 'name' parameter. : `, error.cause, ", error : ", error);
+                    return reject(error);
                 }
                 that._rest.createCompanyTheme(companyId, name, variant, description, isPublic, visibleBy, data).then((result) => {
                     that._logger.log(that.INTERNAL, LOG_ID + "(createCompanyTheme) Successfully result : ", result);
@@ -3157,14 +3304,22 @@ class AdminService extends GenericService {
         return new Promise(function (resolve, reject) {
             try {
                 if (!companyId) {
-                    that._logger.log(that.WARN, LOG_ID + "(updateCompanyTheme) bad or empty 'companyId' parameter.");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(updateCompanyTheme) bad or empty 'companyId' parameter : ", companyId);
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'companyId' parameter.";
+                    error.label += "bad or empty 'companyId' parameter.";
+                    error.cause = companyId;
+                    that._logger.log(that.WARN, LOG_ID + `(updateCompanyTheme) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(updateCompanyTheme) bad or empty 'companyId' parameter. : `, error.cause, ", error : ", error);
+                    return reject(error);
                 }
                 if (!themeId) {
-                    that._logger.log(that.WARN, LOG_ID + "(updateCompanyTheme) bad or empty 'themeId' parameter.");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(updateCompanyTheme) bad or empty 'themeId' parameter : ", themeId);
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'themeId' parameter.";
+                    error.label += "bad or empty 'themeId' parameter.";
+                    error.cause = themeId;
+                    that._logger.log(that.WARN, LOG_ID + `(updateCompanyTheme) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(updateCompanyTheme) bad or empty 'themeId' parameter. : `, error.cause, ", error : ", error);
+                    return reject(error);
                 }
                 that._rest.updateCompanyTheme(companyId, themeId, name, variant, description, isPublic, visibleBy, data).then((result) => {
                     that._logger.log(that.INTERNAL, LOG_ID + "(updateCompanyTheme) Successfully result : ", result);
@@ -3201,14 +3356,22 @@ class AdminService extends GenericService {
         return new Promise(function (resolve, reject) {
             try {
                 if (!companyId) {
-                    that._logger.log(that.WARN, LOG_ID + "(deleteCompanyTheme) bad or empty 'companyId' parameter.");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteCompanyTheme) bad or empty 'companyId' parameter : ", companyId);
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'companyId' parameter.";
+                    error.label += "bad or empty 'companyId' parameter.";
+                    error.cause = companyId;
+                    that._logger.log(that.WARN, LOG_ID + `(deleteCompanyTheme) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(deleteCompanyTheme) bad or empty 'companyId' parameter. : `, error.cause, ", error : ", error);
+                    return reject(error);
                 }
                 if (!themeId) {
-                    that._logger.log(that.WARN, LOG_ID + "(deleteCompanyTheme) bad or empty 'themeId' parameter.");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteCompanyTheme) bad or empty 'themeId' parameter : ", themeId);
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'themeId' parameter.";
+                    error.label += "bad or empty 'themeId' parameter.";
+                    error.cause = themeId;
+                    that._logger.log(that.WARN, LOG_ID + `(deleteCompanyTheme) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(deleteCompanyTheme) bad or empty 'themeId' parameter. : `, error.cause, ", error : ", error);
+                    return reject(error);
                 }
                 that._rest.deleteCompanyTheme(companyId, themeId).then((result) => {
                     that._logger.log(that.INTERNAL, LOG_ID + "(deleteCompanyTheme) Successfully result : ", result);
@@ -3271,9 +3434,13 @@ class AdminService extends GenericService {
         return new Promise(function (resolve, reject) {
             try {
                 if (!companyId) {
-                    that._logger.log(that.WARN, LOG_ID + "(setCompanyAppFeatureCustomisation) bad or empty 'companyId' parameter.");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(setCompanyAppFeatureCustomisation) bad or empty 'companyId' parameter : ", companyId);
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'companyId' parameter.";
+                    error.label += "bad or empty 'companyId' parameter.";
+                    error.cause = companyId;
+                    that._logger.log(that.WARN, LOG_ID + `(setCompanyAppFeatureCustomisation) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(setCompanyAppFeatureCustomisation) bad or empty 'companyId' parameter. : `, error.cause, ", error : ", error);
+                    return reject(error);
                 }
 
                 that._rest.setCompanyAppFeatureCustomisation(companyId, appFeaturesCustomisation).then((result : any) => {
@@ -3830,9 +3997,13 @@ class AdminService extends GenericService {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateCompany) companyId : ", companyId, ", name : ", name);
         if (!companyId) {
-            that._logger.log(that.WARN, LOG_ID + "(updateCompany) bad or empty 'companyId' parameter.");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(updateCompany) bad or empty 'companyId' parameter : ", companyId);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'companyId' parameter.";
+            error.label += "bad or empty 'companyId' parameter.";
+            error.cause = companyId;
+            that._logger.log(that.WARN, LOG_ID + `(updateCompany) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(updateCompany) bad or empty 'companyId' parameter. : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
         return that.callRestMethod("updateCompany", arguments);
     /*    return new Promise(function (resolve, reject) {
@@ -4407,9 +4578,13 @@ class AdminService extends GenericService {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(updateCompanyByObj) companyId : ", companyId, ", selectedThemeObj : ", selectedThemeObj, ", companyInfoToUpdate : ", companyInfoToUpdate);
         if (!companyId) {
-            that._logger.log(that.WARN, LOG_ID + "(updateCompanyByObj) bad or empty 'companyId' parameter.");
-            that._logger.log(that.INTERNALERROR, LOG_ID + "(updateCompanyByObj) bad or empty 'companyId' parameter : ", companyId);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'companyId' parameter.";
+            error.label += "bad or empty 'companyId' parameter.";
+            error.cause = companyId;
+            that._logger.log(that.WARN, LOG_ID + `(updateCompanyByObj) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(updateCompanyByObj) bad or empty 'companyId' parameter. : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
 
         return that.callRestMethod("updateCompanyByObj", arguments);
@@ -4616,9 +4791,13 @@ class AdminService extends GenericService {
         return new Promise(function (resolve, reject) {
             try {
                 if (!companyId) {
-                    that._logger.log(that.WARN, LOG_ID + "(getAllUsersByCompanyId) bad or empty 'companyId' parameter.");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getAllUsersByCompanyId) bad or empty 'companyId' parameter : ", companyId);
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'companyId' parameter.";
+                    error.label += "bad or empty 'companyId' parameter.";
+                    error.cause = companyId;
+                    that._logger.log(that.WARN, LOG_ID + `(getAllUsersByCompanyId) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(getAllUsersByCompanyId) bad or empty 'companyId' parameter. : `, error.cause, ", error : ", error);
+                    return reject(error);
                 }
 
                 that._rest.getAllUsers(format, offset, limit, sortField, companyId).then((users : any) => {
@@ -4666,15 +4845,23 @@ class AdminService extends GenericService {
         return new Promise(function (resolve, reject) {
             try {
                 if (!companyId) {
-                    that._logger.log(that.WARN, LOG_ID + "(getAllUsersBySearchEmailByCompanyId) bad or empty 'companyId' parameter.");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getAllUsersBySearchEmailByCompanyId) bad or empty 'companyId' parameter : ", companyId);
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'companyId' parameter.";
+                    error.label += "bad or empty 'companyId' parameter.";
+                    error.cause = companyId;
+                    that._logger.log(that.WARN, LOG_ID + `(getAllUsersBySearchEmailByCompanyId) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(getAllUsersBySearchEmailByCompanyId) bad or empty 'companyId' parameter. : `, error.cause, ", error : ", error);
+                    return reject(error);
                 }
 
                 if (!searchEmail) {
-                    that._logger.log(that.WARN, LOG_ID + "(getAllUsersBySearchEmailByCompanyId) bad or empty 'searchEmail' parameter.");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getAllUsersBySearchEmailByCompanyId) bad or empty 'searchEmail' parameter : ", searchEmail);
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'searchEmail' parameter.";
+                    error.label += "bad or empty 'searchEmail' parameter.";
+                    error.cause = searchEmail;
+                    that._logger.log(that.WARN, LOG_ID + `(getAllUsersBySearchEmailByCompanyId) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(getAllUsersBySearchEmailByCompanyId) bad or empty 'searchEmail' parameter. : `, error.cause, ", error : ", error);
+                    return reject(error);
                 }
 
                 that._rest.getAllUsers(format, offset, limit, sortField, companyId, searchEmail).then((users : any) => {
@@ -4714,9 +4901,13 @@ class AdminService extends GenericService {
         return new Promise(function (resolve, reject) {
             try {
                 if (!userId) {
-                    that._logger.log(that.WARN, LOG_ID + "(getContactInfos) bad or empty 'userId' parameter.");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getContactInfos) bad or empty 'userId' parameter : ", userId);
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'userId' parameter.";
+                    error.label += "bad or empty 'userId' parameter.";
+                    error.cause = userId;
+                    that._logger.log(that.WARN, LOG_ID + `(getContactInfos) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(getContactInfos) bad or empty 'userId' parameter. : `, error.cause, ", error : ", error);
+                    return reject(error);
                 }
 
                 that._rest.getContactInfos(userId).then((result : any) => {
@@ -4926,9 +5117,13 @@ class AdminService extends GenericService {
                 let infosProperties = Object.keys(infos);
 
                 if (!userId) {
-                    that._logger.log(that.WARN, LOG_ID + "(updateContactInfos) bad or empty 'userId' parameter.");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(updateContactInfos) bad or empty 'userId' parameter : ", userId);
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'userId' parameter.";
+                    error.label += "bad or empty 'userId' parameter.";
+                    error.cause = userId;
+                    that._logger.log(that.WARN, LOG_ID + `(updateContactInfos) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(updateContactInfos) bad or empty 'userId' parameter. : `, error.cause, ", error : ", error);
+                    return reject(error);
                 }
 
                 propertiesToSave.forEach((propname) => {
@@ -5033,8 +5228,13 @@ class AdminService extends GenericService {
           //  that._logger.log(that.DEBUG, LOG_ID + "(acceptJoinCompanyInvitation) invitationId : " + invitationId);
 
             if (!invitationId) {
-                that._logger.log(that.DEBUG, LOG_ID + "(acceptJoinCompanyInvitation) bad or empty 'invitationId' parameter : ", invitationId);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'invitationId' parameter.";
+                error.label += "bad or empty 'invitationId' parameter.";
+                error.cause = invitationId;
+                that._logger.log(that.WARN, LOG_ID + `(acceptJoinCompanyInvitation) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(acceptJoinCompanyInvitation) bad or empty 'invitationId' parameter. : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             that._rest.acceptJoinCompanyInvitation(invitationId).then(async (result) => {
@@ -5086,8 +5286,13 @@ class AdminService extends GenericService {
           //  that._logger.log(that.DEBUG, LOG_ID + "(declineJoinCompanyInvitation) invitationId : " + invitationId);
 
             if (!invitationId) {
-                that._logger.log(that.DEBUG, LOG_ID + "(declineJoinCompanyInvitation) bad or empty 'invitationId' parameter : ", invitationId);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'invitationId' parameter.";
+                error.label += "bad or empty 'invitationId' parameter.";
+                error.cause = invitationId;
+                that._logger.log(that.WARN, LOG_ID + `(declineJoinCompanyInvitation) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(declineJoinCompanyInvitation) bad or empty 'invitationId' parameter. : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             that._rest.declineJoinCompanyInvitation(invitationId).then(async (result) => {
@@ -5138,8 +5343,13 @@ class AdminService extends GenericService {
             // that._logger.log(that.DEBUG, LOG_ID + "(getJoinCompanyInvitation) invitationId : " + invitationId);
 
             if (!invitationId) {
-                that._logger.log(that.DEBUG, LOG_ID + "(getJoinCompanyInvitation) bad or empty 'invitationId' parameter : ", invitationId);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'invitationId' parameter";
+                error.label += "bad or empty 'invitationId' parameter";
+                error.cause = invitationId;
+                that._logger.log(that.WARN, LOG_ID + `(getJoinCompanyInvitation) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(getJoinCompanyInvitation) bad or empty 'invitationId' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             that._rest.getJoinCompanyInvitation(invitationId).then(async (result) => {
@@ -5255,9 +5465,13 @@ class AdminService extends GenericService {
         return new Promise(function (resolve, reject) {
             try {
                 if (!joinCompanyRequestId) {
-                    that._logger.log(that.WARN, LOG_ID + "(cancelJoinCompanyRequest) bad or empty 'joinCompanyRequestId' parameter.");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(cancelJoinCompanyRequest) bad or empty 'joinCompanyRequestId' parameter : ", joinCompanyRequestId);
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'joinCompanyRequestId' parameter";
+                    error.label += "bad or empty 'joinCompanyRequestId' parameter";
+                    error.cause = joinCompanyRequestId;
+                    that._logger.log(that.WARN, LOG_ID + `(cancelJoinCompanyRequest) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(cancelJoinCompanyRequest) bad or empty 'joinCompanyRequestId' parameter : `, error.cause, ", error : ", error);
+                    return reject(error);
                 }
 
                 that._rest.cancelJoinCompanyRequest(joinCompanyRequestId).then((result : any) => {
@@ -5318,9 +5532,13 @@ class AdminService extends GenericService {
         return new Promise(function (resolve, reject) {
             try {
                 if (!joinCompanyRequestId) {
-                    that._logger.log(that.WARN, LOG_ID + "(getJoinCompanyRequest) bad or empty 'joinCompanyRequestId' parameter.");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getJoinCompanyRequest) bad or empty 'joinCompanyRequestId' parameter : ", joinCompanyRequestId);
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'joinCompanyRequestId' parameter";
+                    error.label += "bad or empty 'joinCompanyRequestId' parameter";
+                    error.cause = joinCompanyRequestId;
+                    that._logger.log(that.WARN, LOG_ID + `(getJoinCompanyRequest) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(getJoinCompanyRequest) bad or empty 'joinCompanyRequestId' parameter : `, error.cause, ", error : ", error);
+                    return reject(error);
                 }
 
                 that._rest.getJoinCompanyRequest(joinCompanyRequestId).then((result : any) => {
@@ -5449,9 +5667,13 @@ class AdminService extends GenericService {
         return new Promise(function (resolve, reject) {
             try {
                 if (!joinCompanyRequestId) {
-                    that._logger.log(that.WARN, LOG_ID + "(resendJoinCompanyRequest) bad or empty 'joinCompanyRequestId' parameter.");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(resendJoinCompanyRequest) bad or empty 'joinCompanyRequestId' parameter : ", joinCompanyRequestId);
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'joinCompanyRequestId' parameter";
+                    error.label += "bad or empty 'joinCompanyRequestId' parameter";
+                    error.cause = joinCompanyRequestId;
+                    that._logger.log(that.WARN, LOG_ID + `(resendJoinCompanyRequest) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(resendJoinCompanyRequest) bad or empty 'joinCompanyRequestId' parameter : `, error.cause, ", error : ", error);
+                    return reject(error);
                 }
 
                 that._rest.resendJoinCompanyRequest(joinCompanyRequestId).then((result : any) => {
@@ -5695,9 +5917,13 @@ class AdminService extends GenericService {
         return new Promise(function (resolve, reject) {
             try {
                 if (!templateName) {
-                    that._logger.log(that.WARN, LOG_ID + "(initiateEmailTemplate) bad or empty 'templateName' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(initiateEmailTemplate) bad or empty 'templateName' parameter : ", templateName);
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'templateName' parameter";
+                    error.label += "bad or empty 'templateName' parameter";
+                    error.cause = templateName;
+                    that._logger.log(that.WARN, LOG_ID + `(initiateEmailTemplate) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(initiateEmailTemplate) bad or empty 'templateName' parameter : `, error.cause, ", error : ", error);
+                    return reject(error);
                 }
                 // */
 
@@ -5773,14 +5999,22 @@ class AdminService extends GenericService {
         return new Promise(function (resolve, reject) {
             try {
                 if (!templateName) {
-                    that._logger.log(that.WARN, LOG_ID + "(updateSubjectPartTemplate) bad or empty 'templateName' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(updateSubjectPartTemplate) bad or empty 'templateName' parameter : ", templateName);
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'templateName' parameter";
+                    error.label += "bad or empty 'templateName' parameter";
+                    error.cause = templateName;
+                    that._logger.log(that.WARN, LOG_ID + `(updateSubjectPartTemplate) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(updateSubjectPartTemplate) bad or empty 'templateName' parameter : `, error.cause, ", error : ", error);
+                    return reject(error);
                 }
                 if (!body) {
-                    that._logger.log(that.WARN, LOG_ID + "(updateSubjectPartTemplate) bad or empty 'body' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(updateSubjectPartTemplate) bad or empty 'body' parameter : ", body);
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'body' parameter";
+                    error.label += "bad or empty 'body' parameter";
+                    error.cause = body;
+                    that._logger.log(that.WARN, LOG_ID + `(updateSubjectPartTemplate) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(updateSubjectPartTemplate) bad or empty 'body' parameter : `, error.cause, ", error : ", error);
+                    return reject(error);
                 }
                 // */
 
@@ -5868,14 +6102,22 @@ class AdminService extends GenericService {
         return new Promise(function (resolve, reject) {
             try {
                 if (!templateName) {
-                    that._logger.log(that.WARN, LOG_ID + "(updateMjmlFormatPartTemplate) bad or empty 'templateName' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(updateMjmlFormatPartTemplate) bad or empty 'templateName' parameter : ", templateName);
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'templateName' parameter";
+                    error.label += "bad or empty 'templateName' parameter";
+                    error.cause = templateName;
+                    that._logger.log(that.WARN, LOG_ID + `(updateMjmlFormatPartTemplate) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(updateMjmlFormatPartTemplate) bad or empty 'templateName' parameter : `, error.cause, ", error : ", error);
+                    return reject(error);
                 }
                 if (!body) {
-                    that._logger.log(that.WARN, LOG_ID + "(updateMjmlFormatPartTemplate) bad or empty 'body' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(updateMjmlFormatPartTemplate) bad or empty 'body' parameter : ", body);
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'body' parameter";
+                    error.label += "bad or empty 'body' parameter";
+                    error.cause = body;
+                    that._logger.log(that.WARN, LOG_ID + `(updateMjmlFormatPartTemplate) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(updateMjmlFormatPartTemplate) bad or empty 'body' parameter : `, error.cause, ", error : ", error);
+                    return reject(error);
                 }
                 // */
 
@@ -5961,9 +6203,13 @@ class AdminService extends GenericService {
         return new Promise(function (resolve, reject) {
             try {
                 if (!templateName) {
-                    that._logger.log(that.WARN, LOG_ID + "(updateTextFormatFormatPartTemplate) bad or empty 'templateName' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(updateTextFormatFormatPartTemplate) bad or empty 'templateName' parameter : ", templateName);
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'templateName' parameter";
+                    error.label += "bad or empty 'templateName' parameter";
+                    error.cause = templateName;
+                    that._logger.log(that.WARN, LOG_ID + `(updateTextFormatFormatPartTemplate) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(updateTextFormatFormatPartTemplate) bad or empty 'templateName' parameter : `, error.cause, ", error : ", error);
+                    return reject(error);
                 }
                 // */
 
@@ -6042,9 +6288,13 @@ class AdminService extends GenericService {
         return new Promise(function (resolve, reject) {
             try {
                 if (!templateName) {
-                    that._logger.log(that.WARN, LOG_ID + "(getEmailTemplatesByCompanyId) bad or empty 'templateName' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getEmailTemplatesByCompanyId) bad or empty 'templateName' parameter : ", templateName);
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'templateName' parameter";
+                    error.label += "bad or empty 'templateName' parameter";
+                    error.cause = templateName;
+                    that._logger.log(that.WARN, LOG_ID + `(getEmailTemplatesByCompanyId) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(getEmailTemplatesByCompanyId) bad or empty 'templateName' parameter : `, error.cause, ", error : ", error);
+                    return reject(error);
                 }
                 // */
 
@@ -6115,9 +6365,13 @@ class AdminService extends GenericService {
         return new Promise(function (resolve, reject) {
             try {
                 if (!templateName) {
-                    that._logger.log(that.WARN, LOG_ID + "(deleteEmailTemplate) bad or empty 'templateName' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteEmailTemplate) bad or empty 'templateName' parameter : ", templateName);
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'templateName' parameter";
+                    error.label += "bad or empty 'templateName' parameter";
+                    error.cause = templateName;
+                    that._logger.log(that.WARN, LOG_ID + `(deleteEmailTemplate) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(deleteEmailTemplate) bad or empty 'templateName' parameter : `, error.cause, ", error : ", error);
+                    return reject(error);
                 }
                 // */
 
@@ -6188,9 +6442,13 @@ class AdminService extends GenericService {
         return new Promise(function (resolve, reject) {
             try {
                 if (!templateName) {
-                    that._logger.log(that.WARN, LOG_ID + "(deleteAvailableEmailTemplatesBycompanyId) bad or empty 'templateName' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteAvailableEmailTemplatesBycompanyId) bad or empty 'templateName' parameter : ", templateName);
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'templateName' parameter";
+                    error.label += "bad or empty 'templateName' parameter";
+                    error.cause = templateName;
+                    that._logger.log(that.WARN, LOG_ID + `(deleteAvailableEmailTemplatesBycompanyId) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(deleteAvailableEmailTemplatesBycompanyId) bad or empty 'templateName' parameter : `, error.cause, ", error : ", error);
+                    return reject(error);
                 }
                 // */
 
@@ -6304,9 +6562,13 @@ class AdminService extends GenericService {
         return new Promise(function (resolve, reject) {
             try {
                 if (!body) {
-                    that._logger.log(that.WARN, LOG_ID + "(testEmailTemplateRendering) bad or empty 'body' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(testEmailTemplateRendering) bad or empty 'body' parameter : ", body);
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'body' parameter";
+                    error.label += "bad or empty 'body' parameter";
+                    error.cause = body;
+                    that._logger.log(that.WARN, LOG_ID + `(testEmailTemplateRendering) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(testEmailTemplateRendering) bad or empty 'body' parameter : `, error.cause, ", error : ", error);
+                    return reject(error);
                 }
                 // */
 
@@ -6387,9 +6649,13 @@ class AdminService extends GenericService {
         return new Promise(function (resolve, reject) {
             try {
                 if (!templateName) {
-                    that._logger.log(that.WARN, LOG_ID + "(activateEmailTemplate) bad or empty 'templateName' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(activateEmailTemplate) bad or empty 'templateName' parameter : ", templateName);
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'templateName' parameter";
+                    error.label += "bad or empty 'templateName' parameter";
+                    error.cause = templateName;
+                    that._logger.log(that.WARN, LOG_ID + `(activateEmailTemplate) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(activateEmailTemplate) bad or empty 'templateName' parameter : `, error.cause, ", error : ", error);
+                    return reject(error);
                 }
                 // */
 
@@ -6471,9 +6737,13 @@ class AdminService extends GenericService {
         return new Promise(function (resolve, reject) {
             try {
                 if (!templateName) {
-                    that._logger.log(that.WARN, LOG_ID + "(deactivateEmailTemplate) bad or empty 'templateName' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(deactivateEmailTemplate) bad or empty 'templateName' parameter : ", templateName);
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'templateName' parameter";
+                    error.label += "bad or empty 'templateName' parameter";
+                    error.cause = templateName;
+                    that._logger.log(that.WARN, LOG_ID + `(deactivateEmailTemplate) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(deactivateEmailTemplate) bad or empty 'templateName' parameter : `, error.cause, ", error : ", error);
+                    return reject(error);
                 }
                 // */
 
@@ -7444,9 +7714,13 @@ class AdminService extends GenericService {
         return new Promise(function (resolve, reject) {
             try {
                 if (!offerId) {
-                    that._logger.log(that.WARN, LOG_ID + "(subscribeCompanyToOfferById) bad or empty 'offerId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(subscribeCompanyToOfferById) bad or empty 'offerId' parameter : ", offerId);
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'offerId' parameter";
+                    error.label += "bad or empty 'offerId' parameter";
+                    error.cause = offerId;
+                    that._logger.log(that.WARN, LOG_ID + `(subscribeCompanyToOfferById) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(subscribeCompanyToOfferById) bad or empty 'offerId' parameter : `, error.cause, ", error : ", error);
+                    reject(error);
                     return;
                 }
 
@@ -7713,9 +7987,13 @@ class AdminService extends GenericService {
         return new Promise(async (resolve, reject) => {
             try {
                 if (!offerId) {
-                    that._logger.log(that.WARN, LOG_ID + "(unSubscribeCompanyToOfferById) bad or empty 'offerId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(unSubscribeCompanyToOfferById) bad or empty 'offerId' parameter : ", offerId);
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'offerId' parameter";
+                    error.label += "bad or empty 'offerId' parameter";
+                    error.cause = offerId;
+                    that._logger.log(that.WARN, LOG_ID + `(unSubscribeCompanyToOfferById) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(unSubscribeCompanyToOfferById) bad or empty 'offerId' parameter : `, error.cause, ", error : ", error);
+                    reject(error);
                     return;
                 }
 
@@ -7761,9 +8039,13 @@ class AdminService extends GenericService {
         return new Promise(async (resolve, reject) => {
             try {
                 if (!subscriptionId) {
-                    that._logger.log(that.WARN, LOG_ID + "(unSubscribeCompanyToSubscription) bad or empty 'subscriptionId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(unSubscribeCompanyToSubscription) bad or empty 'subscriptionId' parameter : ", subscriptionId);
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'subscriptionId' parameter";
+                    error.label += "bad or empty 'subscriptionId' parameter";
+                    error.cause = subscriptionId;
+                    that._logger.log(that.WARN, LOG_ID + `(unSubscribeCompanyToSubscription) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(unSubscribeCompanyToSubscription) bad or empty 'subscriptionId' parameter : `, error.cause, ", error : ", error);
+                    reject(error);
                     return;
                 }
 
@@ -9103,9 +9385,13 @@ class AdminService extends GenericService {
         return new Promise(async (resolve, reject) => {
             try {
                 if (!csvData) {
-                    that._logger.log(that.WARN, LOG_ID + "(checkCSVdataForSynchronizeDirectory) bad or empty 'csvData' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(checkCSVdataForSynchronizeDirectory) bad or empty 'csvData' parameter : ", csvData);
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'csvData' parameter";
+                    error.label += "bad or empty 'csvData' parameter";
+                    error.cause = csvData;
+                    that._logger.log(that.WARN, LOG_ID + `(checkCSVdataForSynchronizeDirectory) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(checkCSVdataForSynchronizeDirectory) bad or empty 'csvData' parameter : `, error.cause, ", error : ", error);
+                    reject(error);
                     return;
                 }
 
@@ -9177,9 +9463,13 @@ class AdminService extends GenericService {
         return new Promise(async (resolve, reject) => {
             try {
                 if (!csvData) {
-                    that._logger.log(that.WARN, LOG_ID + "(importCSVdataForSynchronizeDirectory) bad or empty 'csvData' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(importCSVdataForSynchronizeDirectory) bad or empty 'csvData' parameter : ", csvData);
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'csvData' parameter";
+                    error.label += "bad or empty 'csvData' parameter";
+                    error.cause = csvData;
+                    that._logger.log(that.WARN, LOG_ID + `(importCSVdataForSynchronizeDirectory) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(importCSVdataForSynchronizeDirectory) bad or empty 'csvData' parameter : `, error.cause, ", error : ", error);
+                    reject(error);
                     return;
                 }
 
@@ -9232,9 +9522,13 @@ class AdminService extends GenericService {
         return new Promise(async (resolve, reject) => {
             try {
                 if (!commandId) {
-                    that._logger.log(that.WARN, LOG_ID + "(getCSVReportByCommandId) bad or empty 'commandId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getCSVReportByCommandId) bad or empty 'commandId' parameter : ", commandId);
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'commandId' parameter";
+                    error.label += "bad or empty 'commandId' parameter";
+                    error.cause = commandId;
+                    that._logger.log(that.WARN, LOG_ID + `(getCSVReportByCommandId) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(getCSVReportByCommandId) bad or empty 'commandId' parameter : `, error.cause, ", error : ", error);
+                    reject(error);
                     return;
                 }
 
@@ -9282,9 +9576,13 @@ class AdminService extends GenericService {
         return new Promise(async (resolve, reject) => {
             try {
                 if (!commandId) {
-                    that._logger.log(that.WARN, LOG_ID + "(createCSVReportByCommandId) bad or empty 'commandId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(createCSVReportByCommandId) bad or empty 'commandId' parameter : ", commandId);
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'commandId' parameter";
+                    error.label += "bad or empty 'commandId' parameter";
+                    error.cause = commandId;
+                    that._logger.log(that.WARN, LOG_ID + `(createCSVReportByCommandId) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(createCSVReportByCommandId) bad or empty 'commandId' parameter : `, error.cause, ", error : ", error);
+                    reject(error);
                     return;
                 }
 
@@ -9697,15 +9995,23 @@ class AdminService extends GenericService {
 
         return new Promise(async (resolve, reject) => {
             if (!ldapId) {
-                that._logger.log(that.WARN, LOG_ID + "(sendCommandToLdapConnectorUser) bad or empty 'ldapId' parameter");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(sendCommandToLdapConnectorUser) bad or empty 'ldapId' parameter : ", ldapId);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'ldapId' parameter";
+                error.label += "bad or empty 'ldapId' parameter";
+                error.cause = ldapId;
+                that._logger.log(that.WARN, LOG_ID + `(sendCommandToLdapConnectorUser) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(sendCommandToLdapConnectorUser) bad or empty 'ldapId' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             if (!command) {
-                that._logger.log(that.WARN, LOG_ID + "(sendCommandToLdapConnectorUser) bad or empty 'command' parameter");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(sendCommandToLdapConnectorUser) bad or empty 'command' parameter : ", command);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'command' parameter";
+                error.label += "bad or empty 'command' parameter";
+                error.cause = command;
+                that._logger.log(that.WARN, LOG_ID + `(sendCommandToLdapConnectorUser) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(sendCommandToLdapConnectorUser) bad or empty 'command' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             try {
@@ -9790,9 +10096,13 @@ class AdminService extends GenericService {
                 companyId = companyId ? companyId : that._rest.account.companyId;
 
                 if (!settings) {
-                    that._logger.log(that.WARN, LOG_ID + "(setBubbleAutoRegister) bad or empty 'settings' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(setBubbleAutoRegister) bad or empty 'settings' parameter : ", settings);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'settings' parameter";
+                    error.label += "bad or empty 'settings' parameter";
+                    error.cause = settings;
+                    that._logger.log(that.WARN, LOG_ID + `(setBubbleAutoRegister) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(setBubbleAutoRegister) bad or empty 'settings' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 let result = await that._rest.createConfigurationForLdapConnector(companyId, settings, name, type);
@@ -9883,9 +10193,13 @@ class AdminService extends GenericService {
                 companyId = companyId ? companyId : that._rest.account.companyId;
 
                 if (!companyId) {
-                    that._logger.log(that.WARN, LOG_ID + "(retrieveLdapConnectorConfig) bad or empty 'companyId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(retrieveLdapConnectorConfig) bad or empty 'companyId' parameter : ", companyId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'companyId' parameter";
+                    error.label += "bad or empty 'companyId' parameter";
+                    error.cause = companyId;
+                    that._logger.log(that.WARN, LOG_ID + `(retrieveLdapConnectorConfig) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(retrieveLdapConnectorConfig) bad or empty 'companyId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 let result = await that._rest.retrieveLdapConnectorConfig(companyId, p_type);
@@ -10038,9 +10352,13 @@ class AdminService extends GenericService {
                 companyId = companyId ? companyId : that._rest.account.companyId;
 
                 if (!companyId) {
-                    that._logger.log(that.WARN, LOG_ID + "(retrieveLdapConnectorAllConfigs) bad or empty 'companyId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(retrieveLdapConnectorAllConfigs) bad or empty 'companyId' parameter : ", companyId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'companyId' parameter";
+                    error.label += "bad or empty 'companyId' parameter";
+                    error.cause = companyId;
+                    that._logger.log(that.WARN, LOG_ID + `(retrieveLdapConnectorAllConfigs) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(retrieveLdapConnectorAllConfigs) bad or empty 'companyId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 let result = await that._rest.retrieveLdapConnectorAllConfigs(companyId, supportMultiDomain);
@@ -10101,9 +10419,13 @@ class AdminService extends GenericService {
         return new Promise(async (resolve, reject) => {
             try {
                 if (!ldapConfigId) {
-                    that._logger.log(that.WARN, LOG_ID + "(retrieveLdapConnectorAllConfigs) bad or empty 'ldapConfigId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(retrieveLdapConnectorAllConfigs) bad or empty 'ldapConfigId' parameter : ", ldapConfigId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'ldapConfigId' parameter";
+                    error.label += "bad or empty 'ldapConfigId' parameter";
+                    error.cause = ldapConfigId;
+                    that._logger.log(that.WARN, LOG_ID + `(retrieveLdapConnectorAllConfigs) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(retrieveLdapConnectorAllConfigs) bad or empty 'ldapConfigId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 let result = await that._rest.retrieveLDAPConnectorConfigByLdapConfigId(ldapConfigId);
@@ -10206,15 +10528,23 @@ class AdminService extends GenericService {
         return new Promise(async (resolve, reject) => {
             try {
                 if (!ldapConfigId) {
-                    that._logger.log(that.WARN, LOG_ID + "(updateConfigurationForLdapConnector) bad or empty 'ldapConfigId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(updateConfigurationForLdapConnector) bad or empty 'ldapConfigId' parameter : ", settings);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'ldapConfigId' parameter";
+                    error.label += "bad or empty 'ldapConfigId' parameter";
+                    error.cause = ldapConfigId;
+                    that._logger.log(that.WARN, LOG_ID + `(updateConfigurationForLdapConnector) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(updateConfigurationForLdapConnector) bad or empty 'ldapConfigId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 if (!settings) {
-                    that._logger.log(that.WARN, LOG_ID + "(updateConfigurationForLdapConnector) bad or empty 'settings' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(updateConfigurationForLdapConnector) bad or empty 'settings' parameter : ", settings);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'settings' parameter";
+                    error.label += "bad or empty 'settings' parameter";
+                    error.cause = settings;
+                    that._logger.log(that.WARN, LOG_ID + `(updateConfigurationForLdapConnector) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(updateConfigurationForLdapConnector) bad or empty 'settings' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 let result = await that._rest.updateConfigurationForLdapConnector(ldapConfigId, settings, strict, name);
@@ -10285,15 +10615,23 @@ class AdminService extends GenericService {
         return new Promise(async (resolve, reject) => {
             try {
                 if (!binaryImgFile) {
-                    that._logger.log(that.WARN, LOG_ID + "(uploadLdapAvatar) bad or empty 'binaryImgFile' parameter.");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(uploadLdapAvatar) bad or empty 'binaryImgFile' parameter.");
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'binaryImgFile' parameter.";
+                    error.label += "bad or empty 'binaryImgFile' parameter.";
+                    error.cause = binaryImgFile;
+                    that._logger.log(that.WARN, LOG_ID + `(uploadLdapAvatar) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(uploadLdapAvatar) bad or empty 'binaryImgFile' parameter. : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 if (!contentType) {
-                    that._logger.log(that.WARN, LOG_ID + "(updateConfigurationForLdapConnector) bad or empty 'contentType' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(updateConfigurationForLdapConnector) bad or empty 'contentType' parameter : ", contentType);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'contentType' parameter";
+                    error.label += "bad or empty 'contentType' parameter";
+                    error.cause = contentType;
+                    that._logger.log(that.WARN, LOG_ID + `(updateConfigurationForLdapConnector) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(updateConfigurationForLdapConnector) bad or empty 'contentType' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 let result = await that._rest.uploadLdapAvatar(binaryImgFile, contentType, ldapId);
@@ -10407,9 +10745,13 @@ class AdminService extends GenericService {
         return new Promise(async (resolve, reject) => {
             try {
                 if (!events) {
-                    that._logger.log(that.WARN, LOG_ID + "(createListOfEventsForConnector) bad or empty 'events' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(createListOfEventsForConnector) bad or empty 'events' parameter : ", events);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'events' parameter";
+                    error.label += "bad or empty 'events' parameter";
+                    error.cause = events;
+                    that._logger.log(that.WARN, LOG_ID + `(createListOfEventsForConnector) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(createListOfEventsForConnector) bad or empty 'events' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 let result = await that._rest.createListOfEventsForConnector(events);
@@ -10454,9 +10796,13 @@ class AdminService extends GenericService {
                 //companyId = companyId ? companyId : that._rest.account.companyId;
 
                 if (!systemId) {
-                    that._logger.log(that.WARN, LOG_ID + "(getCloudPbxById) bad or empty 'systemId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getCloudPbxById) bad or empty 'systemId' parameter : ", systemId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'systemId' parameter";
+                    error.label += "bad or empty 'systemId' parameter";
+                    error.cause = systemId;
+                    that._logger.log(that.WARN, LOG_ID + `(getCloudPbxById) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(getCloudPbxById) bad or empty 'systemId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 let result = await that._rest.getCloudPbxById(systemId);
@@ -10509,9 +10855,13 @@ class AdminService extends GenericService {
                 //companyId = companyId ? companyId : that._rest.account.companyId;
 
                 if (!systemId) {
-                    that._logger.log(that.WARN, LOG_ID + "(updateCloudPBX) bad or empty 'systemId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(updateCloudPBX) bad or empty 'systemId' parameter : ", systemId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'systemId' parameter";
+                    error.label += "bad or empty 'systemId' parameter";
+                    error.cause = systemId;
+                    that._logger.log(that.WARN, LOG_ID + `(updateCloudPBX) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(updateCloudPBX) bad or empty 'systemId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 let result = await that._rest.updateCloudPBX(systemId, barringOptions_permissions , barringOptions_restrictions , callForwardOptions_externalCallForward , customSipHeader_1 , customSipHeader_2 , emergencyOptions_callAuthorizationWithSoftPhone , emergencyOptions_emergencyGroupActivated , externalTrunkId , language , name , numberingDigits , numberingPrefix , outgoingPrefix ,routeInternalCallsToPeer);
@@ -10547,9 +10897,13 @@ class AdminService extends GenericService {
         return new Promise(async (resolve, reject) => {
             try {
                 if (!systemId) {
-                    that._logger.log(that.WARN, LOG_ID + "(deleteCloudPBX) bad or empty 'systemId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteCloudPBX) bad or empty 'systemId' parameter : ", systemId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'systemId' parameter";
+                    error.label += "bad or empty 'systemId' parameter";
+                    error.cause = systemId;
+                    that._logger.log(that.WARN, LOG_ID + `(deleteCloudPBX) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(deleteCloudPBX) bad or empty 'systemId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 let result = await that._rest.deleteCloudPBX(systemId);
@@ -10670,9 +11024,13 @@ class AdminService extends GenericService {
             try {
 
                 if (!systemId) {
-                    that._logger.log(that.WARN, LOG_ID + "(getCloudPBXCLIPolicyForOutboundCalls) bad or empty 'systemId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getCloudPBXCLIPolicyForOutboundCalls) bad or empty 'systemId' parameter : ", systemId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'systemId' parameter";
+                    error.label += "bad or empty 'systemId' parameter";
+                    error.cause = systemId;
+                    that._logger.log(that.WARN, LOG_ID + `(getCloudPBXCLIPolicyForOutboundCalls) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(getCloudPBXCLIPolicyForOutboundCalls) bad or empty 'systemId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 let result = await that._rest.getCloudPBXCLIPolicyForOutboundCalls(systemId);
@@ -10710,15 +11068,23 @@ class AdminService extends GenericService {
             try {
 
                 if (!systemId) {
-                    that._logger.log(that.WARN, LOG_ID + "(updateCloudPBXCLIOptionsConfiguration) bad or empty 'systemId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(updateCloudPBXCLIOptionsConfiguration) bad or empty 'systemId' parameter : ", systemId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'systemId' parameter";
+                    error.label += "bad or empty 'systemId' parameter";
+                    error.cause = systemId;
+                    that._logger.log(that.WARN, LOG_ID + `(updateCloudPBXCLIOptionsConfiguration) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(updateCloudPBXCLIOptionsConfiguration) bad or empty 'systemId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 if (!policy) {
-                    that._logger.log(that.WARN, LOG_ID + "(updateCloudPBXCLIOptionsConfiguration) bad or empty 'policy' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(updateCloudPBXCLIOptionsConfiguration) bad or empty 'policy' parameter : ", policy);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'policy' parameter";
+                    error.label += "bad or empty 'policy' parameter";
+                    error.cause = policy;
+                    that._logger.log(that.WARN, LOG_ID + `(updateCloudPBXCLIOptionsConfiguration) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(updateCloudPBXCLIOptionsConfiguration) bad or empty 'policy' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 let result = await that._rest.updateCloudPBXCLIOptionsConfiguration(systemId, policy);
@@ -10754,9 +11120,13 @@ class AdminService extends GenericService {
         return new Promise(async (resolve, reject) => {
             try {
                 if (!systemId) {
-                    that._logger.log(that.WARN, LOG_ID + "(getCloudPBXlanguages) bad or empty 'systemId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getCloudPBXlanguages) bad or empty 'systemId' parameter : ", systemId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'systemId' parameter";
+                    error.label += "bad or empty 'systemId' parameter";
+                    error.cause = systemId;
+                    that._logger.log(that.WARN, LOG_ID + `(getCloudPBXlanguages) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(getCloudPBXlanguages) bad or empty 'systemId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 let result = await that._rest.getCloudPBXlanguages(systemId);
@@ -10792,9 +11162,13 @@ class AdminService extends GenericService {
         return new Promise(async (resolve, reject) => {
             try {
                 if (!systemId) {
-                    that._logger.log(that.WARN, LOG_ID + "(getCloudPBXlanguages) bad or empty 'systemId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getCloudPBXlanguages) bad or empty 'systemId' parameter : ", systemId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'systemId' parameter";
+                    error.label += "bad or empty 'systemId' parameter";
+                    error.cause = systemId;
+                    that._logger.log(that.WARN, LOG_ID + `(getCloudPBXDeviceModels) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(getCloudPBXDeviceModels) bad or empty 'systemId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 let result = await that._rest.getCloudPBXDeviceModels(systemId);
@@ -10830,9 +11204,13 @@ class AdminService extends GenericService {
         return new Promise(async (resolve, reject) => {
             try {
                 if (!systemId) {
-                    that._logger.log(that.WARN, LOG_ID + "(getCloudPBXTrafficBarringOptions) bad or empty 'systemId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getCloudPBXTrafficBarringOptions) bad or empty 'systemId' parameter : ", systemId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'systemId' parameter";
+                    error.label += "bad or empty 'systemId' parameter";
+                    error.cause = systemId;
+                    that._logger.log(that.WARN, LOG_ID + `(getCloudPBXTrafficBarringOptions) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(getCloudPBXTrafficBarringOptions) bad or empty 'systemId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 let result = await that._rest.getCloudPBXTrafficBarringOptions(systemId);
@@ -10868,9 +11246,13 @@ class AdminService extends GenericService {
         return new Promise(async (resolve, reject) => {
             try {
                 if (!systemId) {
-                    that._logger.log(that.WARN, LOG_ID + "(getCloudPBXEmergencyNumbersAndEmergencyOptions) bad or empty 'systemId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getCloudPBXEmergencyNumbersAndEmergencyOptions) bad or empty 'systemId' parameter : ", systemId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'systemId' parameter";
+                    error.label += "bad or empty 'systemId' parameter";
+                    error.cause = systemId;
+                    that._logger.log(that.WARN, LOG_ID + `(getCloudPBXEmergencyNumbersAndEmergencyOptions) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(getCloudPBXEmergencyNumbersAndEmergencyOptions) bad or empty 'systemId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 let result = await that._rest.getCloudPBXEmergencyNumbersAndEmergencyOptions(systemId);
@@ -10913,21 +11295,33 @@ class AdminService extends GenericService {
             try {
 
                 if (!systemId) {
-                    that._logger.log(that.WARN, LOG_ID + "(CreateCloudPBXSIPDevice) bad or empty 'systemId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(CreateCloudPBXSIPDevice) bad or empty 'systemId' parameter : ", systemId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'systemId' parameter";
+                    error.label += "bad or empty 'systemId' parameter";
+                    error.cause = systemId;
+                    that._logger.log(that.WARN, LOG_ID + `(CreateCloudPBXSIPDevice) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(CreateCloudPBXSIPDevice) bad or empty 'systemId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 if (!description) {
-                    that._logger.log(that.WARN, LOG_ID + "(CreateCloudPBXSIPDevice) bad or empty 'description' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(CreateCloudPBXSIPDevice) bad or empty 'description' parameter : ", description);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'description' parameter";
+                    error.label += "bad or empty 'description' parameter";
+                    error.cause = description;
+                    that._logger.log(that.WARN, LOG_ID + `(CreateCloudPBXSIPDevice) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(CreateCloudPBXSIPDevice) bad or empty 'description' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 if (! deviceTypeId ) {
-                    that._logger.log(that.WARN, LOG_ID + "(CreateCloudPBXSIPDevice) bad or empty 'deviceTypeId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(CreateCloudPBXSIPDevice) bad or empty 'deviceTypeId' parameter : ", description);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'deviceTypeId' parameter";
+                    error.label += "bad or empty 'deviceTypeId' parameter";
+                    error.cause = deviceTypeId;
+                    that._logger.log(that.WARN, LOG_ID + `(CreateCloudPBXSIPDevice) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(CreateCloudPBXSIPDevice) bad or empty 'deviceTypeId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 let result = await that._rest.CreateCloudPBXSIPDevice(systemId, description, deviceTypeId,  macAddress);
@@ -10966,15 +11360,23 @@ class AdminService extends GenericService {
             try {
 
                 if (!systemId) {
-                    that._logger.log(that.WARN, LOG_ID + "(factoryResetCloudPBXSIPDevice) bad or empty 'systemId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(factoryResetCloudPBXSIPDevice) bad or empty 'systemId' parameter : ", systemId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'systemId' parameter";
+                    error.label += "bad or empty 'systemId' parameter";
+                    error.cause = systemId;
+                    that._logger.log(that.WARN, LOG_ID + `(factoryResetCloudPBXSIPDevice) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(factoryResetCloudPBXSIPDevice) bad or empty 'systemId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 if (!deviceId) {
-                    that._logger.log(that.WARN, LOG_ID + "(factoryResetCloudPBXSIPDevice) bad or empty 'deviceId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(factoryResetCloudPBXSIPDevice) bad or empty 'deviceId' parameter : ", deviceId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'deviceId' parameter";
+                    error.label += "bad or empty 'deviceId' parameter";
+                    error.cause = deviceId;
+                    that._logger.log(that.WARN, LOG_ID + `(factoryResetCloudPBXSIPDevice) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(factoryResetCloudPBXSIPDevice) bad or empty 'deviceId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 let result = await that._rest.factoryResetCloudPBXSIPDevice(systemId, deviceId);
@@ -11012,15 +11414,23 @@ class AdminService extends GenericService {
             try {
 
                 if (!systemId) {
-                    that._logger.log(that.WARN, LOG_ID + "(getCloudPBXSIPDeviceById) bad or empty 'systemId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getCloudPBXSIPDeviceById) bad or empty 'systemId' parameter : ", systemId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'systemId' parameter";
+                    error.label += "bad or empty 'systemId' parameter";
+                    error.cause = systemId;
+                    that._logger.log(that.WARN, LOG_ID + `(getCloudPBXSIPDeviceById) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(getCloudPBXSIPDeviceById) bad or empty 'systemId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 if (!deviceId) {
-                    that._logger.log(that.WARN, LOG_ID + "(getCloudPBXSIPDeviceById) bad or empty 'deviceId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getCloudPBXSIPDeviceById) bad or empty 'deviceId' parameter : ", deviceId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'deviceId' parameter";
+                    error.label += "bad or empty 'deviceId' parameter";
+                    error.cause = deviceId;
+                    that._logger.log(that.WARN, LOG_ID + `(getCloudPBXSIPDeviceById) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(getCloudPBXSIPDeviceById) bad or empty 'deviceId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 let result = await that._rest.getCloudPBXSIPDeviceById(systemId, deviceId);
@@ -11058,15 +11468,23 @@ class AdminService extends GenericService {
             try {
 
                 if (!systemId) {
-                    that._logger.log(that.WARN, LOG_ID + "(deleteCloudPBXSIPDevice) bad or empty 'systemId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteCloudPBXSIPDevice) bad or empty 'systemId' parameter : ", systemId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'systemId' parameter";
+                    error.label += "bad or empty 'systemId' parameter";
+                    error.cause = systemId;
+                    that._logger.log(that.WARN, LOG_ID + `(deleteCloudPBXSIPDevice) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(deleteCloudPBXSIPDevice) bad or empty 'systemId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 if (!deviceId) {
-                    that._logger.log(that.WARN, LOG_ID + "(deleteCloudPBXSIPDevice) bad or empty 'deviceId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteCloudPBXSIPDevice) bad or empty 'deviceId' parameter : ", deviceId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'deviceId' parameter";
+                    error.label += "bad or empty 'deviceId' parameter";
+                    error.cause = deviceId;
+                    that._logger.log(that.WARN, LOG_ID + `(deleteCloudPBXSIPDevice) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(deleteCloudPBXSIPDevice) bad or empty 'deviceId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 that._rest.deleteCloudPBXSIPDevice(systemId, deviceId).then((result) => {
@@ -11110,15 +11528,23 @@ class AdminService extends GenericService {
             try {
 
                 if (!systemId) {
-                    that._logger.log(that.WARN, LOG_ID + "(updateCloudPBXSIPDevice) bad or empty 'systemId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(updateCloudPBXSIPDevice) bad or empty 'systemId' parameter : ", systemId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'systemId' parameter";
+                    error.label += "bad or empty 'systemId' parameter";
+                    error.cause = systemId;
+                    that._logger.log(that.WARN, LOG_ID + `(updateCloudPBXSIPDevice) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(updateCloudPBXSIPDevice) bad or empty 'systemId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 if (! deviceId ) {
-                    that._logger.log(that.WARN, LOG_ID + "(updateCloudPBXSIPDevice) bad or empty 'deviceId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(updateCloudPBXSIPDevice) bad or empty 'deviceId' parameter : ", deviceId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'deviceId' parameter";
+                    error.label += "bad or empty 'deviceId' parameter";
+                    error.cause = deviceId;
+                    that._logger.log(that.WARN, LOG_ID + `(updateCloudPBXSIPDevice) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(updateCloudPBXSIPDevice) bad or empty 'deviceId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 let result = await that._rest.updateCloudPBXSIPDevice(systemId, description, deviceId,  macAddress);
@@ -11164,9 +11590,13 @@ class AdminService extends GenericService {
         return new Promise(async (resolve, reject) => {
             try {
                 if (!systemId) {
-                    that._logger.log(that.WARN, LOG_ID + "(getAllCloudPBXSIPDevice) bad or empty 'systemId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getAllCloudPBXSIPDevice) bad or empty 'systemId' parameter : ", systemId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'systemId' parameter";
+                    error.label += "bad or empty 'systemId' parameter";
+                    error.cause = systemId;
+                    that._logger.log(that.WARN, LOG_ID + `(getAllCloudPBXSIPDevice) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(getAllCloudPBXSIPDevice) bad or empty 'systemId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 let result = await that._rest.getAllCloudPBXSIPDevice(systemId,  limit, offset, sortField, sortOrder, assigned, phoneNumberId );
@@ -11204,15 +11634,23 @@ class AdminService extends GenericService {
             try {
 
                 if (!systemId) {
-                    that._logger.log(that.WARN, LOG_ID + "(getCloudPBXSIPRegistrationsInformationDevice) bad or empty 'systemId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getCloudPBXSIPRegistrationsInformationDevice) bad or empty 'systemId' parameter : ", systemId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'systemId' parameter";
+                    error.label += "bad or empty 'systemId' parameter";
+                    error.cause = systemId;
+                    that._logger.log(that.WARN, LOG_ID + `(getCloudPBXSIPRegistrationsInformationDevice) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(getCloudPBXSIPRegistrationsInformationDevice) bad or empty 'systemId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 if (!deviceId) {
-                    that._logger.log(that.WARN, LOG_ID + "(getCloudPBXSIPRegistrationsInformationDevice) bad or empty 'deviceId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getCloudPBXSIPRegistrationsInformationDevice) bad or empty 'deviceId' parameter : ", deviceId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'deviceId' parameter";
+                    error.label += "bad or empty 'deviceId' parameter";
+                    error.cause = deviceId;
+                    that._logger.log(that.WARN, LOG_ID + `(getCloudPBXSIPRegistrationsInformationDevice) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(getCloudPBXSIPRegistrationsInformationDevice) bad or empty 'deviceId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 that._rest.getCloudPBXSIPRegistrationsInformationDevice(systemId, deviceId).then((result) => {
@@ -11262,15 +11700,23 @@ class AdminService extends GenericService {
             try {
 
                 if (!systemId) {
-                    that._logger.log(that.WARN, LOG_ID + "(grantCloudPBXAccessToDebugSession) bad or empty 'systemId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(grantCloudPBXAccessToDebugSession) bad or empty 'systemId' parameter : ", systemId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'systemId' parameter";
+                    error.label += "bad or empty 'systemId' parameter";
+                    error.cause = systemId;
+                    that._logger.log(that.WARN, LOG_ID + `(grantCloudPBXAccessToDebugSession) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(grantCloudPBXAccessToDebugSession) bad or empty 'systemId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 if (!deviceId) {
-                    that._logger.log(that.WARN, LOG_ID + "(grantCloudPBXAccessToDebugSession) bad or empty 'deviceId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(grantCloudPBXAccessToDebugSession) bad or empty 'deviceId' parameter : ", deviceId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'deviceId' parameter";
+                    error.label += "bad or empty 'deviceId' parameter";
+                    error.cause = deviceId;
+                    that._logger.log(that.WARN, LOG_ID + `(grantCloudPBXAccessToDebugSession) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(grantCloudPBXAccessToDebugSession) bad or empty 'deviceId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 that._rest.grantCloudPBXAccessToDebugSession(systemId, deviceId, duration).then((result) => {
@@ -11313,15 +11759,23 @@ class AdminService extends GenericService {
             try {
 
                 if (!systemId) {
-                    that._logger.log(that.WARN, LOG_ID + "(revokeCloudPBXAccessFromDebugSession) bad or empty 'systemId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(revokeCloudPBXAccessFromDebugSession) bad or empty 'systemId' parameter : ", systemId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'systemId' parameter";
+                    error.label += "bad or empty 'systemId' parameter";
+                    error.cause = systemId;
+                    that._logger.log(that.WARN, LOG_ID + `(revokeCloudPBXAccessFromDebugSession) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(revokeCloudPBXAccessFromDebugSession) bad or empty 'systemId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 if (!deviceId) {
-                    that._logger.log(that.WARN, LOG_ID + "(revokeCloudPBXAccessFromDebugSession) bad or empty 'deviceId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(revokeCloudPBXAccessFromDebugSession) bad or empty 'deviceId' parameter : ", deviceId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'deviceId' parameter";
+                    error.label += "bad or empty 'deviceId' parameter";
+                    error.cause = deviceId;
+                    that._logger.log(that.WARN, LOG_ID + `(revokeCloudPBXAccessFromDebugSession) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(revokeCloudPBXAccessFromDebugSession) bad or empty 'deviceId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 that._rest.revokeCloudPBXAccessFromDebugSession(systemId, deviceId).then((result) => {
@@ -11362,15 +11816,23 @@ class AdminService extends GenericService {
             try {
 
                 if (!systemId) {
-                    that._logger.log(that.WARN, LOG_ID + "(rebootCloudPBXSIPDevice) bad or empty 'systemId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(rebootCloudPBXSIPDevice) bad or empty 'systemId' parameter : ", systemId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'systemId' parameter";
+                    error.label += "bad or empty 'systemId' parameter";
+                    error.cause = systemId;
+                    that._logger.log(that.WARN, LOG_ID + `(rebootCloudPBXSIPDevice) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(rebootCloudPBXSIPDevice) bad or empty 'systemId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 if (!deviceId) {
-                    that._logger.log(that.WARN, LOG_ID + "(rebootCloudPBXSIPDevice) bad or empty 'deviceId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(rebootCloudPBXSIPDevice) bad or empty 'deviceId' parameter : ", deviceId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'deviceId' parameter";
+                    error.label += "bad or empty 'deviceId' parameter";
+                    error.cause = deviceId;
+                    that._logger.log(that.WARN, LOG_ID + `(rebootCloudPBXSIPDevice) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(rebootCloudPBXSIPDevice) bad or empty 'deviceId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 that._rest.rebootCloudPBXSIPDevice(systemId, deviceId).then((result) => {
@@ -11417,15 +11879,23 @@ class AdminService extends GenericService {
             try {
 
                 if (!systemId) {
-                    that._logger.log(that.WARN, LOG_ID + "(getCloudPBXSubscriber) bad or empty 'systemId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getCloudPBXSubscriber) bad or empty 'systemId' parameter : ", systemId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'systemId' parameter";
+                    error.label += "bad or empty 'systemId' parameter";
+                    error.cause = systemId;
+                    that._logger.log(that.WARN, LOG_ID + `(getCloudPBXSubscriber) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(getCloudPBXSubscriber) bad or empty 'systemId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 if (!phoneNumberId) {
-                    that._logger.log(that.WARN, LOG_ID + "(getCloudPBXSubscriber) bad or empty 'phoneNumberId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getCloudPBXSubscriber) bad or empty 'phoneNumberId' parameter : ", phoneNumberId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'phoneNumberId' parameter";
+                    error.label += "bad or empty 'phoneNumberId' parameter";
+                    error.cause = phoneNumberId;
+                    that._logger.log(that.WARN, LOG_ID + `(getCloudPBXSubscriber) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(getCloudPBXSubscriber) bad or empty 'phoneNumberId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 that._rest.getCloudPBXSubscriber(systemId, phoneNumberId).then((result) => {
@@ -11466,15 +11936,23 @@ class AdminService extends GenericService {
             try {
 
                 if (!systemId) {
-                    that._logger.log(that.WARN, LOG_ID + "(deleteCloudPBXSubscriber) bad or empty 'systemId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteCloudPBXSubscriber) bad or empty 'systemId' parameter : ", systemId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'systemId' parameter";
+                    error.label += "bad or empty 'systemId' parameter";
+                    error.cause = systemId;
+                    that._logger.log(that.WARN, LOG_ID + `(deleteCloudPBXSubscriber) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(deleteCloudPBXSubscriber) bad or empty 'systemId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 if (!phoneNumberId) {
-                    that._logger.log(that.WARN, LOG_ID + "(deleteCloudPBXSubscriber) bad or empty 'phoneNumberId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteCloudPBXSubscriber) bad or empty 'phoneNumberId' parameter : ", phoneNumberId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'phoneNumberId' parameter";
+                    error.label += "bad or empty 'phoneNumberId' parameter";
+                    error.cause = phoneNumberId;
+                    that._logger.log(that.WARN, LOG_ID + `(deleteCloudPBXSubscriber) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(deleteCloudPBXSubscriber) bad or empty 'phoneNumberId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 that._rest.deleteCloudPBXSubscriber(systemId, phoneNumberId).then((result) => {
@@ -11520,21 +11998,33 @@ class AdminService extends GenericService {
             try {
 
                 if (!systemId) {
-                    that._logger.log(that.WARN, LOG_ID + "(createCloudPBXSubscriberRainbowUser) bad or empty 'systemId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(createCloudPBXSubscriberRainbowUser) bad or empty 'systemId' parameter : ", systemId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'systemId' parameter";
+                    error.label += "bad or empty 'systemId' parameter";
+                    error.cause = systemId;
+                    that._logger.log(that.WARN, LOG_ID + `(createCloudPBXSubscriberRainbowUser) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(createCloudPBXSubscriberRainbowUser) bad or empty 'systemId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 if (!shortNumber) {
-                    that._logger.log(that.WARN, LOG_ID + "(createCloudPBXSubscriberRainbowUser) bad or empty 'shortNumber' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(createCloudPBXSubscriberRainbowUser) bad or empty 'shortNumber' parameter : ", shortNumber);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'shortNumber' parameter";
+                    error.label += "bad or empty 'shortNumber' parameter";
+                    error.cause = shortNumber;
+                    that._logger.log(that.WARN, LOG_ID + `(createCloudPBXSubscriberRainbowUser) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(createCloudPBXSubscriberRainbowUser) bad or empty 'shortNumber' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 if (!userId) {
-                    that._logger.log(that.WARN, LOG_ID + "(createCloudPBXSubscriberRainbowUser) bad or empty 'userId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(createCloudPBXSubscriberRainbowUser) bad or empty 'userId' parameter : ", userId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'userId' parameter";
+                    error.label += "bad or empty 'userId' parameter";
+                    error.cause = userId;
+                    that._logger.log(that.WARN, LOG_ID + `(createCloudPBXSubscriberRainbowUser) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(createCloudPBXSubscriberRainbowUser) bad or empty 'userId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 that._rest.createCloudPBXSubscriberRainbowUser(systemId, login, password, shortNumber, userId).then((result) => {
@@ -11576,21 +12066,33 @@ class AdminService extends GenericService {
             try {
 
                 if (!systemId) {
-                    that._logger.log(that.WARN, LOG_ID + "(getCloudPBXSIPdeviceAssignedSubscriber) bad or empty 'systemId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getCloudPBXSIPdeviceAssignedSubscriber) bad or empty 'systemId' parameter : ", systemId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'systemId' parameter";
+                    error.label += "bad or empty 'systemId' parameter";
+                    error.cause = systemId;
+                    that._logger.log(that.WARN, LOG_ID + `(getCloudPBXSIPdeviceAssignedSubscriber) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(getCloudPBXSIPdeviceAssignedSubscriber) bad or empty 'systemId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 if (!phoneNumberId) {
-                    that._logger.log(that.WARN, LOG_ID + "(getCloudPBXSIPdeviceAssignedSubscriber) bad or empty 'phoneNumberId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getCloudPBXSIPdeviceAssignedSubscriber) bad or empty 'phoneNumberId' parameter : ", phoneNumberId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'phoneNumberId' parameter";
+                    error.label += "bad or empty 'phoneNumberId' parameter";
+                    error.cause = phoneNumberId;
+                    that._logger.log(that.WARN, LOG_ID + `(getCloudPBXSIPdeviceAssignedSubscriber) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(getCloudPBXSIPdeviceAssignedSubscriber) bad or empty 'phoneNumberId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 if (!deviceId) {
-                    that._logger.log(that.WARN, LOG_ID + "(getCloudPBXSIPdeviceAssignedSubscriber) bad or empty 'deviceId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getCloudPBXSIPdeviceAssignedSubscriber) bad or empty 'deviceId' parameter : ", deviceId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'deviceId' parameter";
+                    error.label += "bad or empty 'deviceId' parameter";
+                    error.cause = deviceId;
+                    that._logger.log(that.WARN, LOG_ID + `(getCloudPBXSIPdeviceAssignedSubscriber) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(getCloudPBXSIPdeviceAssignedSubscriber) bad or empty 'deviceId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 that._rest.getCloudPBXSIPdeviceAssignedSubscriber(systemId, phoneNumberId, deviceId).then((result) => {
@@ -11633,21 +12135,33 @@ class AdminService extends GenericService {
             try {
 
                 if (!systemId) {
-                    that._logger.log(that.WARN, LOG_ID + "(removeCloudPBXAssociationSubscriberAndSIPdevice) bad or empty 'systemId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(removeCloudPBXAssociationSubscriberAndSIPdevice) bad or empty 'systemId' parameter : ", systemId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'systemId' parameter";
+                    error.label += "bad or empty 'systemId' parameter";
+                    error.cause = systemId;
+                    that._logger.log(that.WARN, LOG_ID + `(removeCloudPBXAssociationSubscriberAndSIPdevice) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(removeCloudPBXAssociationSubscriberAndSIPdevice) bad or empty 'systemId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 if (!phoneNumberId) {
-                    that._logger.log(that.WARN, LOG_ID + "(removeCloudPBXAssociationSubscriberAndSIPdevice) bad or empty 'phoneNumberId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(removeCloudPBXAssociationSubscriberAndSIPdevice) bad or empty 'phoneNumberId' parameter : ", phoneNumberId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'phoneNumberId' parameter";
+                    error.label += "bad or empty 'phoneNumberId' parameter";
+                    error.cause = phoneNumberId;
+                    that._logger.log(that.WARN, LOG_ID + `(removeCloudPBXAssociationSubscriberAndSIPdevice) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(removeCloudPBXAssociationSubscriberAndSIPdevice) bad or empty 'phoneNumberId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 if (!deviceId) {
-                    that._logger.log(that.WARN, LOG_ID + "(removeCloudPBXAssociationSubscriberAndSIPdevice) bad or empty 'deviceId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(removeCloudPBXAssociationSubscriberAndSIPdevice) bad or empty 'deviceId' parameter : ", deviceId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'deviceId' parameter";
+                    error.label += "bad or empty 'deviceId' parameter";
+                    error.cause = deviceId;
+                    that._logger.log(that.WARN, LOG_ID + `(removeCloudPBXAssociationSubscriberAndSIPdevice) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(removeCloudPBXAssociationSubscriberAndSIPdevice) bad or empty 'deviceId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 that._rest.removeCloudPBXAssociationSubscriberAndSIPdevice(systemId, phoneNumberId, deviceId).then((result) => {
@@ -11691,9 +12205,13 @@ class AdminService extends GenericService {
         return new Promise(async (resolve, reject) => {
             try {
                 if (!systemId) {
-                    that._logger.log(that.WARN, LOG_ID + "(getCloudPBXAllSIPdevicesAssignedSubscriber) bad or empty 'systemId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getCloudPBXAllSIPdevicesAssignedSubscriber) bad or empty 'systemId' parameter : ", systemId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'systemId' parameter";
+                    error.label += "bad or empty 'systemId' parameter";
+                    error.cause = systemId;
+                    that._logger.log(that.WARN, LOG_ID + `(getCloudPBXAllSIPdevicesAssignedSubscriber) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(getCloudPBXAllSIPdevicesAssignedSubscriber) bad or empty 'systemId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 let result = await that._rest.getCloudPBXAllSIPdevicesAssignedSubscriber(systemId,  limit, offset, sortField, sortOrder, phoneNumberId );
@@ -11731,15 +12249,23 @@ class AdminService extends GenericService {
             try {
 
                 if (!systemId) {
-                    that._logger.log(that.WARN, LOG_ID + "(getCloudPBXInfoAllRegisteredSIPdevicesSubscriber) bad or empty 'systemId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getCloudPBXInfoAllRegisteredSIPdevicesSubscriber) bad or empty 'systemId' parameter : ", systemId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'systemId' parameter";
+                    error.label += "bad or empty 'systemId' parameter";
+                    error.cause = systemId;
+                    that._logger.log(that.WARN, LOG_ID + `(getCloudPBXInfoAllRegisteredSIPdevicesSubscriber) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(getCloudPBXInfoAllRegisteredSIPdevicesSubscriber) bad or empty 'systemId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 if (!phoneNumberId) {
-                    that._logger.log(that.WARN, LOG_ID + "(getCloudPBXInfoAllRegisteredSIPdevicesSubscriber) bad or empty 'phoneNumberId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getCloudPBXInfoAllRegisteredSIPdevicesSubscriber) bad or empty 'phoneNumberId' parameter : ", phoneNumberId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'phoneNumberId' parameter";
+                    error.label += "bad or empty 'phoneNumberId' parameter";
+                    error.cause = phoneNumberId;
+                    that._logger.log(that.WARN, LOG_ID + `(getCloudPBXInfoAllRegisteredSIPdevicesSubscriber) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(getCloudPBXInfoAllRegisteredSIPdevicesSubscriber) bad or empty 'phoneNumberId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 that._rest.getCloudPBXInfoAllRegisteredSIPdevicesSubscriber(systemId, phoneNumberId).then((result) => {
@@ -11785,15 +12311,23 @@ class AdminService extends GenericService {
             try {
 
                 if (!systemId) {
-                    that._logger.log(that.WARN, LOG_ID + "(assignCloudPBXSIPDeviceToSubscriber) bad or empty 'systemId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(assignCloudPBXSIPDeviceToSubscriber) bad or empty 'systemId' parameter : ", systemId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'systemId' parameter";
+                    error.label += "bad or empty 'systemId' parameter";
+                    error.cause = systemId;
+                    that._logger.log(that.WARN, LOG_ID + `(assignCloudPBXSIPDeviceToSubscriber) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(assignCloudPBXSIPDeviceToSubscriber) bad or empty 'systemId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 if (! phoneNumberId ) {
-                    that._logger.log(that.WARN, LOG_ID + "(assignCloudPBXSIPDeviceToSubscriber) bad or empty 'phoneNumberId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(assignCloudPBXSIPDeviceToSubscriber) bad or empty 'phoneNumberId' parameter : ", phoneNumberId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'phoneNumberId' parameter";
+                    error.label += "bad or empty 'phoneNumberId' parameter";
+                    error.cause = phoneNumberId;
+                    that._logger.log(that.WARN, LOG_ID + `(assignCloudPBXSIPDeviceToSubscriber) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(assignCloudPBXSIPDeviceToSubscriber) bad or empty 'phoneNumberId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 let result = await that._rest.assignCloudPBXSIPDeviceToSubscriber(systemId, phoneNumberId, deviceId,  macAddress);
@@ -11831,15 +12365,23 @@ class AdminService extends GenericService {
             try {
 
                 if (!systemId) {
-                    that._logger.log(that.WARN, LOG_ID + "(getCloudPBXSubscriberCLIOptions) bad or empty 'systemId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getCloudPBXSubscriberCLIOptions) bad or empty 'systemId' parameter : ", systemId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'systemId' parameter";
+                    error.label += "bad or empty 'systemId' parameter";
+                    error.cause = systemId;
+                    that._logger.log(that.WARN, LOG_ID + `(getCloudPBXSubscriberCLIOptions) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(getCloudPBXSubscriberCLIOptions) bad or empty 'systemId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 if (!phoneNumberId) {
-                    that._logger.log(that.WARN, LOG_ID + "(getCloudPBXSubscriberCLIOptions) bad or empty 'phoneNumberId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getCloudPBXSubscriberCLIOptions) bad or empty 'phoneNumberId' parameter : ", phoneNumberId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'phoneNumberId' parameter";
+                    error.label += "bad or empty 'phoneNumberId' parameter";
+                    error.cause = phoneNumberId;
+                    that._logger.log(that.WARN, LOG_ID + `(getCloudPBXSubscriberCLIOptions) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(getCloudPBXSubscriberCLIOptions) bad or empty 'phoneNumberId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 that._rest.getCloudPBXSubscriberCLIOptions(systemId, phoneNumberId).then((result) => {
@@ -11883,9 +12425,13 @@ class AdminService extends GenericService {
             try {
 
                 if (!systemId) {
-                    that._logger.log(that.WARN, LOG_ID + "(getCloudPBXUnassignedInternalPhonenumbers) bad or empty 'systemId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getCloudPBXUnassignedInternalPhonenumbers) bad or empty 'systemId' parameter : ", systemId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'systemId' parameter";
+                    error.label += "bad or empty 'systemId' parameter";
+                    error.cause = systemId;
+                    that._logger.log(that.WARN, LOG_ID + `(getCloudPBXUnassignedInternalPhonenumbers) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(getCloudPBXUnassignedInternalPhonenumbers) bad or empty 'systemId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 that._rest.getCloudPBXUnassignedInternalPhonenumbers(systemId).then((result) => {
@@ -11935,9 +12481,13 @@ class AdminService extends GenericService {
             try {
 
                 if (!systemId) {
-                    that._logger.log(that.WARN, LOG_ID + "(getCloudPBXUnassignedInternalPhonenumbers) bad or empty 'systemId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getCloudPBXUnassignedInternalPhonenumbers) bad or empty 'systemId' parameter : ", systemId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'systemId' parameter";
+                    error.label += "bad or empty 'systemId' parameter";
+                    error.cause = systemId;
+                    that._logger.log(that.WARN, LOG_ID + `(listCloudPBXDDINumbersAssociated) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(listCloudPBXDDINumbersAssociated) bad or empty 'systemId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 that._rest.listCloudPBXDDINumbersAssociated(systemId, limit, offset, sortField, sortOrder, isAssignedToUser, isAssignedToGroup, isAssignedToIVR, isAssignedToAutoAttendant, isAssigned).then((result) => {
@@ -11978,15 +12528,23 @@ class AdminService extends GenericService {
             try {
 
                 if (!systemId) {
-                    that._logger.log(that.WARN, LOG_ID + "(createCloudPBXDDINumber) bad or empty 'systemId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(createCloudPBXDDINumber) bad or empty 'systemId' parameter : ", systemId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'systemId' parameter";
+                    error.label += "bad or empty 'systemId' parameter";
+                    error.cause = systemId;
+                    that._logger.log(that.WARN, LOG_ID + `(createCloudPBXDDINumber) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(createCloudPBXDDINumber) bad or empty 'systemId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 if (!number) {
-                    that._logger.log(that.WARN, LOG_ID + "(createCloudPBXDDINumber) bad or empty 'number' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(createCloudPBXDDINumber) bad or empty 'number' parameter : ", number);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'number' parameter";
+                    error.label += "bad or empty 'number' parameter";
+                    error.cause = number;
+                    that._logger.log(that.WARN, LOG_ID + `(createCloudPBXDDINumber) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(createCloudPBXDDINumber) bad or empty 'number' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 that._rest.createCloudPBXDDINumber(systemId, number).then((result) => {
@@ -12028,15 +12586,23 @@ class AdminService extends GenericService {
             try {
 
                 if (!systemId) {
-                    that._logger.log(that.WARN, LOG_ID + "(deleteCloudPBXDDINumber) bad or empty 'systemId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteCloudPBXDDINumber) bad or empty 'systemId' parameter : ", systemId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'systemId' parameter";
+                    error.label += "bad or empty 'systemId' parameter";
+                    error.cause = systemId;
+                    that._logger.log(that.WARN, LOG_ID + `(deleteCloudPBXDDINumber) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(deleteCloudPBXDDINumber) bad or empty 'systemId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 if (!phoneNumberId) {
-                    that._logger.log(that.WARN, LOG_ID + "(deleteCloudPBXDDINumber) bad or empty 'phoneNumberId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteCloudPBXDDINumber) bad or empty 'phoneNumberId' parameter : ", phoneNumberId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'phoneNumberId' parameter";
+                    error.label += "bad or empty 'phoneNumberId' parameter";
+                    error.cause = phoneNumberId;
+                    that._logger.log(that.WARN, LOG_ID + `(deleteCloudPBXDDINumber) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(deleteCloudPBXDDINumber) bad or empty 'phoneNumberId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 that._rest.deleteCloudPBXDDINumber(systemId, phoneNumberId).then((result) => {
@@ -12078,21 +12644,33 @@ class AdminService extends GenericService {
             try {
 
                 if (!systemId) {
-                    that._logger.log(that.WARN, LOG_ID + "(associateCloudPBXDDINumber) bad or empty 'systemId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(associateCloudPBXDDINumber) bad or empty 'systemId' parameter : ", systemId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'systemId' parameter";
+                    error.label += "bad or empty 'systemId' parameter";
+                    error.cause = systemId;
+                    that._logger.log(that.WARN, LOG_ID + `(associateCloudPBXDDINumber) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(associateCloudPBXDDINumber) bad or empty 'systemId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 if (!phoneNumberId) {
-                    that._logger.log(that.WARN, LOG_ID + "(associateCloudPBXDDINumber) bad or empty 'phoneNumberId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(associateCloudPBXDDINumber) bad or empty 'phoneNumberId' parameter : ", phoneNumberId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'phoneNumberId' parameter";
+                    error.label += "bad or empty 'phoneNumberId' parameter";
+                    error.cause = phoneNumberId;
+                    that._logger.log(that.WARN, LOG_ID + `(associateCloudPBXDDINumber) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(associateCloudPBXDDINumber) bad or empty 'phoneNumberId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 if (!userId) {
-                    that._logger.log(that.WARN, LOG_ID + "(associateCloudPBXDDINumber) bad or empty 'userId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(associateCloudPBXDDINumber) bad or empty 'userId' parameter : ", userId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'userId' parameter";
+                    error.label += "bad or empty 'userId' parameter";
+                    error.cause = userId;
+                    that._logger.log(that.WARN, LOG_ID + `(associateCloudPBXDDINumber) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(associateCloudPBXDDINumber) bad or empty 'userId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 that._rest.associateCloudPBXDDINumber(systemId, phoneNumberId, userId).then((result) => {
@@ -12135,21 +12713,33 @@ class AdminService extends GenericService {
             try {
 
                 if (!systemId) {
-                    that._logger.log(that.WARN, LOG_ID + "(disassociateCloudPBXDDINumber) bad or empty 'systemId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(disassociateCloudPBXDDINumber) bad or empty 'systemId' parameter : ", systemId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'systemId' parameter";
+                    error.label += "bad or empty 'systemId' parameter";
+                    error.cause = systemId;
+                    that._logger.log(that.WARN, LOG_ID + `(disassociateCloudPBXDDINumber) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(disassociateCloudPBXDDINumber) bad or empty 'systemId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 if (!phoneNumberId) {
-                    that._logger.log(that.WARN, LOG_ID + "(disassociateCloudPBXDDINumber) bad or empty 'phoneNumberId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(disassociateCloudPBXDDINumber) bad or empty 'phoneNumberId' parameter : ", phoneNumberId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'phoneNumberId' parameter";
+                    error.label += "bad or empty 'phoneNumberId' parameter";
+                    error.cause = phoneNumberId;
+                    that._logger.log(that.WARN, LOG_ID + `(disassociateCloudPBXDDINumber) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(disassociateCloudPBXDDINumber) bad or empty 'phoneNumberId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 if (!userId) {
-                    that._logger.log(that.WARN, LOG_ID + "(disassociateCloudPBXDDINumber) bad or empty 'userId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(disassociateCloudPBXDDINumber) bad or empty 'userId' parameter : ", userId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'userId' parameter";
+                    error.label += "bad or empty 'userId' parameter";
+                    error.cause = userId;
+                    that._logger.log(that.WARN, LOG_ID + `(disassociateCloudPBXDDINumber) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(disassociateCloudPBXDDINumber) bad or empty 'userId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 that._rest.disassociateCloudPBXDDINumber(systemId, phoneNumberId, userId).then((result) => {
@@ -12190,15 +12780,23 @@ class AdminService extends GenericService {
             try {
 
                 if (!systemId) {
-                    that._logger.log(that.WARN, LOG_ID + "(setCloudPBXDDIAsdefault) bad or empty 'systemId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(setCloudPBXDDIAsdefault) bad or empty 'systemId' parameter : ", systemId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'systemId' parameter";
+                    error.label += "bad or empty 'systemId' parameter";
+                    error.cause = systemId;
+                    that._logger.log(that.WARN, LOG_ID + `(setCloudPBXDDIAsdefault) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(setCloudPBXDDIAsdefault) bad or empty 'systemId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 if (!phoneNumberId) {
-                    that._logger.log(that.WARN, LOG_ID + "(setCloudPBXDDIAsdefault) bad or empty 'phoneNumberId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(setCloudPBXDDIAsdefault) bad or empty 'phoneNumberId' parameter : ", phoneNumberId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'phoneNumberId' parameter";
+                    error.label += "bad or empty 'phoneNumberId' parameter";
+                    error.cause = phoneNumberId;
+                    that._logger.log(that.WARN, LOG_ID + `(setCloudPBXDDIAsdefault) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(setCloudPBXDDIAsdefault) bad or empty 'phoneNumberId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 that._rest.setCloudPBXDDIAsdefault(systemId, phoneNumberId).then((result) => {
@@ -12242,9 +12840,13 @@ class AdminService extends GenericService {
             try {
 
                 if (!externalTrunkId) {
-                    that._logger.log(that.WARN, LOG_ID + "(retrieveExternalSIPTrunkById) bad or empty 'externalTrunkId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(retrieveExternalSIPTrunkById) bad or empty 'externalTrunkId' parameter : ", externalTrunkId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'externalTrunkId' parameter";
+                    error.label += "bad or empty 'externalTrunkId' parameter";
+                    error.cause = externalTrunkId;
+                    that._logger.log(that.WARN, LOG_ID + `(retrieveExternalSIPTrunkById) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(retrieveExternalSIPTrunkById) bad or empty 'externalTrunkId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 that._rest.retrieveExternalSIPTrunkById(externalTrunkId).then((result) => {
@@ -12336,15 +12938,23 @@ class AdminService extends GenericService {
             try {
 
                 if (!name) {
-                    that._logger.log(that.WARN, LOG_ID + "(createASite) bad or empty 'name' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(createASite) bad or empty 'name' parameter : ", name);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'name' parameter";
+                    error.label += "bad or empty 'name' parameter";
+                    error.cause = name;
+                    that._logger.log(that.WARN, LOG_ID + `(createASite) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(createASite) bad or empty 'name' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 if (!companyId) {
-                    that._logger.log(that.WARN, LOG_ID + "(createASite) bad or empty 'companyId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(createASite) bad or empty 'companyId' parameter : ", companyId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'companyId' parameter";
+                    error.label += "bad or empty 'companyId' parameter";
+                    error.cause = companyId;
+                    that._logger.log(that.WARN, LOG_ID + `(createASite) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(createASite) bad or empty 'companyId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 that._rest.createASite (name, status, companyId).then((result) => {
@@ -12383,9 +12993,13 @@ class AdminService extends GenericService {
         return new Promise(function (resolve, reject) {
             try {
                 if (!siteId) {
-                    that._logger.log(that.WARN, LOG_ID + "(deleteSite) bad or empty 'siteId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteSite) bad or empty 'siteId' parameter : ", siteId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'siteId' parameter";
+                    error.label += "bad or empty 'siteId' parameter";
+                    error.cause = siteId;
+                    that._logger.log(that.WARN, LOG_ID + `(deleteSite) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(deleteSite) bad or empty 'siteId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 that._rest.deleteSite (siteId).then((result) => {
@@ -12424,9 +13038,13 @@ class AdminService extends GenericService {
         return new Promise(function (resolve, reject) {
             try {
                 if (!siteId) {
-                    that._logger.log(that.WARN, LOG_ID + "(getSiteData) bad or empty 'siteId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getSiteData) bad or empty 'siteId' parameter : ", siteId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'siteId' parameter";
+                    error.label += "bad or empty 'siteId' parameter";
+                    error.cause = siteId;
+                    that._logger.log(that.WARN, LOG_ID + `(getSiteData) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(getSiteData) bad or empty 'siteId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 that._rest.getSiteData (siteId).then((result) => {
@@ -12517,9 +13135,13 @@ class AdminService extends GenericService {
         return new Promise(function (resolve, reject) {
             try {
                 if (!siteId) {
-                    that._logger.log(that.WARN, LOG_ID + "(updateSite) bad or empty 'siteId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(updateSite) bad or empty 'siteId' parameter : ", siteId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'siteId' parameter";
+                    error.label += "bad or empty 'siteId' parameter";
+                    error.cause = siteId;
+                    that._logger.log(that.WARN, LOG_ID + `(updateSite) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(updateSite) bad or empty 'siteId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 that._rest.updateSite (siteId, name, status, companyId ).then((result) => {
@@ -12651,9 +13273,13 @@ class AdminService extends GenericService {
         return new Promise(function (resolve, reject) {
             try {
                 if (!name) {
-                    that._logger.log(that.WARN, LOG_ID + "(createSystem) bad or empty 'name' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(createSystem) bad or empty 'name' parameter : ", name);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'name' parameter";
+                    error.label += "bad or empty 'name' parameter";
+                    error.cause = name;
+                    that._logger.log(that.WARN, LOG_ID + `(createSystem) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(createSystem) bad or empty 'name' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 that._rest.createSystem (name, pbxId, pbxLdapId, siteId, type, country, version,
@@ -12712,9 +13338,13 @@ class AdminService extends GenericService {
         return new Promise(function (resolve, reject) {
             try {
                 if (!systemId) {
-                    that._logger.log(that.WARN, LOG_ID + "(deleteSystem) bad or empty 'systemId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteSystem) bad or empty 'systemId' parameter : ", systemId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'systemId' parameter";
+                    error.label += "bad or empty 'systemId' parameter";
+                    error.cause = systemId;
+                    that._logger.log(that.WARN, LOG_ID + `(deleteSystem) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(deleteSystem) bad or empty 'systemId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 that._rest.deleteSystem(systemId).then((result) => {
@@ -12782,9 +13412,13 @@ class AdminService extends GenericService {
         return new Promise(function (resolve, reject) {
             try {
                 if (!systemId) {
-                    that._logger.log(that.WARN, LOG_ID + "(getSystemConnectionState) bad or empty 'systemId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getSystemConnectionState) bad or empty 'systemId' parameter : ", systemId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'systemId' parameter";
+                    error.label += "bad or empty 'systemId' parameter";
+                    error.cause = systemId;
+                    that._logger.log(that.WARN, LOG_ID + `(getSystemConnectionState) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(getSystemConnectionState) bad or empty 'systemId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 that._rest.getSystemConnectionState(systemId, format, connectionHistory).then((result) => {
@@ -12870,9 +13504,13 @@ class AdminService extends GenericService {
         return new Promise(function (resolve, reject) {
             try {
                 if (!pbxId) {
-                    that._logger.log(that.WARN, LOG_ID + "(getSystemDataByPbxId) bad or empty 'pbxId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getSystemDataByPbxId) bad or empty 'pbxId' parameter : ", pbxId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'pbxId' parameter";
+                    error.label += "bad or empty 'pbxId' parameter";
+                    error.cause = pbxId;
+                    that._logger.log(that.WARN, LOG_ID + `(getSystemDataByPbxId) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(getSystemDataByPbxId) bad or empty 'pbxId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 that._rest.getSystemDataByPbxId (pbxId, connectionHistory ).then((result) => {
@@ -12958,9 +13596,13 @@ class AdminService extends GenericService {
         return new Promise(function (resolve, reject) {
             try {
                 if (!systemId) {
-                    that._logger.log(that.WARN, LOG_ID + "(getSystemData) bad or empty 'systemId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getSystemData) bad or empty 'systemId' parameter : ", systemId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'systemId' parameter";
+                    error.label += "bad or empty 'systemId' parameter";
+                    error.cause = systemId;
+                    that._logger.log(that.WARN, LOG_ID + `(getSystemData) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(getSystemData) bad or empty 'systemId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 that._rest.getSystemData (systemId, connectionHistory ).then((result) => {
@@ -13478,14 +14120,22 @@ class AdminService extends GenericService {
         return new Promise(function (resolve, reject) {
             try {
                 if (!systemId) {
-                    that._logger.log(that.WARN, LOG_ID + "(getASystemPhoneNumber) bad or empty 'systemId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getASystemPhoneNumber) bad or empty 'systemId' parameter : ", systemId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'systemId' parameter";
+                    error.label += "bad or empty 'systemId' parameter";
+                    error.cause = systemId;
+                    that._logger.log(that.WARN, LOG_ID + `(getASystemPhoneNumber) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(getASystemPhoneNumber) bad or empty 'systemId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
                 if (!phoneNumberId) {
-                    that._logger.log(that.WARN, LOG_ID + "(getASystemPhoneNumber) bad or empty 'phoneNumberId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getASystemPhoneNumber) bad or empty 'phoneNumberId' parameter : ", phoneNumberId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'phoneNumberId' parameter";
+                    error.label += "bad or empty 'phoneNumberId' parameter";
+                    error.cause = phoneNumberId;
+                    that._logger.log(that.WARN, LOG_ID + `(getASystemPhoneNumber) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(getASystemPhoneNumber) bad or empty 'phoneNumberId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 that._rest.getASystemPhoneNumber ( systemId, phoneNumberId).then((result) => {
@@ -13571,9 +14221,13 @@ class AdminService extends GenericService {
         return new Promise(function (resolve, reject) {
             try {
                 if (!systemId) {
-                    that._logger.log(that.WARN, LOG_ID + "(getASystemPhoneNumber) bad or empty 'systemId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getASystemPhoneNumber) bad or empty 'systemId' parameter : ", systemId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'systemId' parameter";
+                    error.label += "bad or empty 'systemId' parameter";
+                    error.cause = systemId;
+                    that._logger.log(that.WARN, LOG_ID + `(getASystemPhoneNumber) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(getASystemPhoneNumber) bad or empty 'systemId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 that._rest.getAllSystemPhoneNumbers ( systemId, shortNumber , internalNumber , pbxUserId , companyPrefix, isMonitored , name , deviceName , isAssignedToUser , format , limit , offset , sortField , sortOrder ).then((result) => {
@@ -13663,15 +14317,23 @@ class AdminService extends GenericService {
         return new Promise(function (resolve, reject) {
             try {
                 if (!systemId) {
-                    that._logger.log(that.WARN, LOG_ID + "(updateASystemPhoneNumber) bad or empty 'systemId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(updateASystemPhoneNumber) bad or empty 'systemId' parameter : ", systemId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'systemId' parameter";
+                    error.label += "bad or empty 'systemId' parameter";
+                    error.cause = systemId;
+                    that._logger.log(that.WARN, LOG_ID + `(updateASystemPhoneNumber) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(updateASystemPhoneNumber) bad or empty 'systemId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 if (!phoneNumberId) {
-                    that._logger.log(that.WARN, LOG_ID + "(updateASystemPhoneNumber) bad or empty 'phoneNumberId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(updateASystemPhoneNumber) bad or empty 'phoneNumberId' parameter : ", phoneNumberId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'phoneNumberId' parameter";
+                    error.label += "bad or empty 'phoneNumberId' parameter";
+                    error.cause = phoneNumberId;
+                    that._logger.log(that.WARN, LOG_ID + `(updateASystemPhoneNumber) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(updateASystemPhoneNumber) bad or empty 'phoneNumberId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 that._rest.updateASystemPhoneNumber ( systemId,  phoneNumberId , isMonitored , userId , internalNumber ,
@@ -13754,9 +14416,13 @@ class AdminService extends GenericService {
         return new Promise(function (resolve, reject) {
             try {
                 if (!companyId) {
-                    that._logger.log(that.WARN, LOG_ID + "(createDirectoryEntry) bad or empty 'companyId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(createDirectoryEntry) bad or empty 'companyId' parameter : ", companyId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'companyId' parameter";
+                    error.label += "bad or empty 'companyId' parameter";
+                    error.cause = companyId;
+                    that._logger.log(that.WARN, LOG_ID + `(createDirectoryEntry) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(createDirectoryEntry) bad or empty 'companyId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 that._rest.createDirectoryEntry ( companyId,
@@ -13812,9 +14478,13 @@ class AdminService extends GenericService {
         return new Promise(function (resolve, reject) {
             try {
                 if (!companyId) {
-                    that._logger.log(that.WARN, LOG_ID + "(deleteCompanyDirectoryAllEntry) bad or empty 'companyId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteCompanyDirectoryAllEntry) bad or empty 'companyId' parameter : ", companyId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'companyId' parameter";
+                    error.label += "bad or empty 'companyId' parameter";
+                    error.cause = companyId;
+                    that._logger.log(that.WARN, LOG_ID + `(deleteCompanyDirectoryAllEntry) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(deleteCompanyDirectoryAllEntry) bad or empty 'companyId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 that._rest.deleteCompanyDirectoryAllEntry (companyId ).then((result) => {
@@ -13853,9 +14523,13 @@ class AdminService extends GenericService {
         return new Promise(function (resolve, reject) {
             try {
                 if (!entryId) {
-                    that._logger.log(that.WARN, LOG_ID + "(deleteDirectoryEntry) bad or empty 'entryId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteDirectoryEntry) bad or empty 'entryId' parameter : ", entryId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'entryId' parameter";
+                    error.label += "bad or empty 'entryId' parameter";
+                    error.cause = entryId;
+                    that._logger.log(that.WARN, LOG_ID + `(deleteDirectoryEntry) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(deleteDirectoryEntry) bad or empty 'entryId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 that._rest.deleteDirectoryEntry (entryId ).then((result) => {
@@ -13900,9 +14574,13 @@ class AdminService extends GenericService {
         return new Promise(function (resolve, reject) {
             try {
                 if (!entryId) {
-                    that._logger.log(that.WARN, LOG_ID + "(getDirectoryEntryData) bad or empty 'entryId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getDirectoryEntryData) bad or empty 'entryId' parameter : ", entryId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'entryId' parameter";
+                    error.label += "bad or empty 'entryId' parameter";
+                    error.cause = entryId;
+                    that._logger.log(that.WARN, LOG_ID + `(getDirectoryEntryData) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(getDirectoryEntryData) bad or empty 'entryId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 that._rest.getDirectoryEntryData (entryId, format ).then((result) => {
@@ -14103,9 +14781,13 @@ class AdminService extends GenericService {
         return new Promise(function (resolve, reject) {
             try {
                 if (!entryId) {
-                    that._logger.log(that.WARN, LOG_ID + "(updateDirectoryEntry) bad or empty 'entryId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(updateDirectoryEntry) bad or empty 'entryId' parameter : ", entryId);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'entryId' parameter";
+                    error.label += "bad or empty 'entryId' parameter";
+                    error.cause = entryId;
+                    that._logger.log(that.WARN, LOG_ID + `(updateDirectoryEntry) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(updateDirectoryEntry) bad or empty 'entryId' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 that._rest.updateDirectoryEntry(entryId,
@@ -14514,9 +15196,13 @@ class AdminService extends GenericService {
         return new Promise(function (resolve, reject) {
             try {
                 if (!tag) {
-                    that._logger.log(that.WARN, LOG_ID + "(updateDirectoryEntry) bad or empty 'tag' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(updateDirectoryEntry) bad or empty 'tag' parameter : ", tag);
-                    return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'tag' parameter";
+                    error.label += "bad or empty 'tag' parameter";
+                    error.cause = tag;
+                    that._logger.log(that.WARN, LOG_ID + `(renameTagForAllAssignedDirectoryEntries) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(renameTagForAllAssignedDirectoryEntries) bad or empty 'tag' parameter : `, error.cause, ", error : ", error);
+                    return Promise.reject(error);
                 }
 
                 that._rest.renameTagForAllAssignedDirectoryEntries (tag, companyId, newTagName).then((result) => {
@@ -14603,9 +15289,13 @@ class AdminService extends GenericService {
             try {
 
                 if (version == null) {
-                    that._logger.log(that.WARN, LOG_ID + "(createAClientVersion) bad or empty 'version' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(createAClientVersion) bad or empty 'version' parameter : ", version);
-                    reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'version' parameter";
+                    error.label += "bad or empty 'version' parameter";
+                    error.cause = version;
+                    that._logger.log(that.WARN, LOG_ID + `(createAClientVersion) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(createAClientVersion) bad or empty 'version' parameter : `, error.cause, ", error : ", error);
+                    reject(error);
                     return;
                 }
 
@@ -16561,7 +17251,11 @@ class AdminService extends GenericService {
                             return reject(ErrorManager.getErrorManager().CUSTOMERROR(-2, "Error in initiateLogsContext", "Error in initiateLogsContext", err));
                         })
                     } else {
-                        return reject(ErrorManager.getErrorManager().CUSTOMERROR(-1, "Error in sending files.", "Error in sending files.", fileFailed));
+                        let error = ErrorManager.getErrorManager().CUSTOMERROR(-1, "Error in sending files.", "Error in sending files.", fileFailed);
+                        error.cause = fileFailed;
+                        that._logger.log(that.WARN, LOG_ID + `(sendCustomerCareReport) CUSTOMERROR.`);
+                        that._logger.log(that.INTERNALERROR, LOG_ID + `(sendCustomerCareReport) Error in sending files. : `, error.cause, ", error : ", error);
+                        return reject(error);
                     }
 
                     /*switch (success) {
@@ -16578,9 +17272,11 @@ class AdminService extends GenericService {
                     return reject(ErrorManager.getErrorManager().CUSTOMERROR(-1, "Error in waiting all proms.", "Error in waiting all proms.", err));
                 });
             } catch (err) {
-                that._logger.log(that.ERROR, LOG_ID + "(sendCustomerCareReport) CATCH error.");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(sendCustomerCareReport) CATCH error !!! : ", err);
-                return reject(ErrorManager.getErrorManager().CUSTOMERROR(-1, "Error in sending files.", "Error in sending files.", err));
+                let error = ErrorManager.getErrorManager().CUSTOMERROR(-1, "Error in sending files.", "Error in sending files.", err);
+                error.cause = err;
+                that._logger.log(that.WARN, LOG_ID + `(sendCustomerCareReport) CUSTOMERROR.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(sendCustomerCareReport) Error in sending files. : `, error.cause, ", error : ", error);
+                return reject(error);
             }
         });
     }
@@ -17153,9 +17849,13 @@ class AdminService extends GenericService {
         return new Promise(function (resolve, reject) {
             try {
                 if (!huntingGroup) {
-                    that._logger.log(that.WARN, LOG_ID + "(createCloudPBXGroup) bad or empty 'huntingGroup' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(createCloudPBXGroup) bad or empty 'huntingGroup' parameter : ", huntingGroup);
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'huntingGroup' parameter";
+                    error.label += "bad or empty 'huntingGroup' parameter";
+                    error.cause = huntingGroup;
+                    that._logger.log(that.WARN, LOG_ID + `(createCloudPBXGroup) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(createCloudPBXGroup) bad or empty 'huntingGroup' parameter : `, error.cause, ", error : ", error);
+                    return reject(error);
                 }
 
                 that._rest.createCloudPBXGroup(companyId, huntingGroup).then((result) => {
@@ -17207,9 +17907,13 @@ class AdminService extends GenericService {
         return new Promise(function (resolve, reject) {
             try {
                 if (!groupId) {
-                    that._logger.log(that.WARN, LOG_ID + "(deleteCloudPBXGroup) bad or empty 'groupId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteCloudPBXGroup) bad or empty 'groupId' parameter : ", groupId);
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'groupId' parameter";
+                    error.label += "bad or empty 'groupId' parameter";
+                    error.cause = groupId;
+                    that._logger.log(that.WARN, LOG_ID + `(deleteCloudPBXGroup) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(deleteCloudPBXGroup) bad or empty 'groupId' parameter : `, error.cause, ", error : ", error);
+                    return reject(error);
                 }
 
                 that._rest.deleteCloudPBXGroup(companyId, groupId).then((result) => {
@@ -17316,9 +18020,13 @@ class AdminService extends GenericService {
         return new Promise(function (resolve, reject) {
             try {
                 if (!groupId) {
-                    that._logger.log(that.WARN, LOG_ID + "(getCloudPBXGroup) bad or empty 'groupId' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getCloudPBXGroup) bad or empty 'groupId' parameter : ", groupId);
-                    return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                    let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                    error.msg += "bad or empty 'groupId' parameter";
+                    error.label += "bad or empty 'groupId' parameter";
+                    error.cause = groupId;
+                    that._logger.log(that.WARN, LOG_ID + `(getCloudPBXGroup) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(getCloudPBXGroup) bad or empty 'groupId' parameter : `, error.cause, ", error : ", error);
+                    return reject(error);
                 }
 
                 that._rest.getCloudPBXGroup(companyId, groupId).then((result) => {

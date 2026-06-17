@@ -229,13 +229,23 @@ class RPCoverXMPPService extends GenericService {
 
         return new Promise(async (resolve, reject) => {
             if (!methodName) {
-                that._logger.log(that.ERROR, LOG_ID + "(addRPCMethod) Parameter 'methodName' is missing or null");
-                throw ErrorManager.getErrorManager().BAD_REQUEST();
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "Parameter 'methodName' is missing or null";
+                error.label += "Parameter 'methodName' is missing or null";
+                error.cause = methodName;
+                that._logger.log(that.WARN, LOG_ID + `(addRPCMethod) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(addRPCMethod) Parameter 'methodName' is missing or null : `, error.cause, ", error : ", error);
+                throw error;
             }
 
             if (!methodCallback) {
-                that._logger.log(that.ERROR, LOG_ID + "(addRPCMethod) Parameter 'callback' is missing or null");
-                throw ErrorManager.getErrorManager().BAD_REQUEST();
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "Parameter 'callback' is missing or null";
+                error.label += "Parameter 'callback' is missing or null";
+                error.cause = methodCallback;
+                that._logger.log(that.WARN, LOG_ID + `(addRPCMethod) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(addRPCMethod) Parameter 'callback' is missing or null : `, error.cause, ", error : ", error);
+                throw error;
             }
 
             try {
@@ -270,8 +280,13 @@ class RPCoverXMPPService extends GenericService {
 
         return new Promise(async (resolve, reject) => {
             if (!methodName) {
-                that._logger.log(that.ERROR, LOG_ID + "(get) Parameter 'methodName' is missing or null");
-                throw ErrorManager.getErrorManager().BAD_REQUEST();
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "Parameter 'methodName' is missing or null";
+                error.label += "Parameter 'methodName' is missing or null";
+                error.cause = methodName;
+                that._logger.log(that.WARN, LOG_ID + `(removeRPCMethod) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(removeRPCMethod) Parameter 'methodName' is missing or null : `, error.cause, ", error : ", error);
+                throw error;
             }
 
             try {

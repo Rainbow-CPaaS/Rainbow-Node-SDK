@@ -793,9 +793,11 @@ class FileServer extends GenericService{
                         },
                         (errorResponse) => {
                             let errorMessage = "(getBlobFromUrlWithOptimization) failure : " + errorResponse.message;
-                            that._logger.log(that.ERROR, LOG_ID + "(getBlobFromUrlWithOptimization) Error.");
-                            that._logger.log(that.INTERNALERROR, LOG_ID + "(getBlobFromUrlWithOptimization) : ", errorResponse);
-                            return  reject(ErrorManager.getErrorManager().OTHERERROR(errorMessage, errorMessage));
+                            let error = ErrorManager.getErrorManager().OTHERERROR(errorMessage, errorMessage);
+                            error.cause = errorResponse;
+                            that._logger.log(that.WARN, LOG_ID + `(getBlobFromUrlWithOptimization) OTHERERROR.`);
+                            that._logger.log(that.INTERNALERROR, LOG_ID + `(getBlobFromUrlWithOptimization) Error : `, error.cause, ", error : ", error);
+                            return reject(error);
                             /*
                             let error = this.errorHelperService.handleError(errorResponse);
 

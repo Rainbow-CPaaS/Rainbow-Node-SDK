@@ -435,4 +435,4 @@ In fact, for legal reason, the user data is kept by Rainbow for several months b
 
 ---
 
-_Last updated August, 18th 2017_
+_Last updated September 08, 2023_

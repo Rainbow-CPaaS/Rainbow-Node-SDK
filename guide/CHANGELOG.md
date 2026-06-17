@@ -12,6 +12,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 #### Fixed
 -   Fix `BubblesService.ts` / `registerGuestForAPublicURL`: `GuestParams` was constructed with `isInitialized=null`, causing the server to create the guest account in a non-initialized state and rejecting the first login. Fixed by passing `isInitialized=true`.
+-   Fix `ChannelsService.ts` / `publishMessageToChannel`: `imagesIds` was typed `any=null`; changed to `Array<{id: string}> = undefined` to align with `attachments`. Null or empty-array values for both `imagesIds` and `attachments` are now normalized to `undefined` before being forwarded to `createItem`, preventing empty-array serialization to the server.
 
 #### Added
 -   Add `newIncoming` management stanza handling in `conversationEventHandler.ts` (`onNewIncomingMessageReceived`) emitting `evt_internal_bubble_newincoming_received` with the waiting user's attributes (`roomid`, `roomjid`, `roomname`, `userid`, `firstname`, `lastname`, `companyname`, `additionDate`, `status`).
@@ -22,7 +23,8 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Add `rainbow_onbubbleroomlobbyreceived` and `rainbow_onbubbleroomlobbynewincoming` event listeners in `testRoomPasswordManagement` (`Samples/index.ts`); accepts the waiting guest via `acceptBubbleLobby` on `newIncoming`.
 
 #### Changed
--   None.
+-   Refactor error-guard blocks across all service files and `RESTService.ts` (patterns A/B/C/D): extract `ErrorManager` error objects before rejecting/throwing, enrich with `error.msg +=`, `error.label +=`, and `error.cause` (originating variable), and replace single-level log lines with a `WARN` + `INTERNALERROR` pair for richer diagnostics. Affected: `AdminService`, `AlertsService`, `BubblesService`, `ChannelsService`, `ContactsService`, `ConversationsService`, `FavoritesService`, `FileServerService`, `FileStorageService`, `GenericService`, `GroupsService`, `ImsService`, `PresenceService`, `ProfilesService`, `RESTService`, `TasksService`, `TelephonyService`, `WebinarsService`.
+-   Update `_Last updated` timestamps across all 17 guide files in `guide/` to reflect their actual last git commit date (standardized format `Month DD, YYYY`).
 
 ### [2.45.0] - 2026-06-08
 #### Removed

@@ -173,4 +173,4 @@ To consult the exact limits concerning Rainbow Web SDK, visit [this link](/doc/h
 
 ---
 
-_Last updated january, 6 2020_
+_Last updated September 08, 2023_

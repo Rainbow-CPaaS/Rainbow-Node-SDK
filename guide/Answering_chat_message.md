@@ -513,4 +513,4 @@ Here are the list of limits regarding chat messages
 
 ---
 
-_Last updated January, 11th 2018_
+_Last updated September 08, 2023_

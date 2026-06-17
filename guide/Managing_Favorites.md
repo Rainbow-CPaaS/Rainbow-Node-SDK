@@ -97,4 +97,4 @@ Similarly to creating a Favorite, while deleting one, an event will be dispatche
 ```
 
 
-_Last updated july, 8 2019_
+_Last updated September 08, 2023_

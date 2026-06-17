@@ -401,6 +401,50 @@ You're now ready to do greater things with the ALE Rainbow SDK for Node.JS!!!
 
 Others available guides will help you understanding the tricky parts. Take time to read these manuals, they will perhaps save you a lot of time at the end :-).
 
+#### Handling SDK errors
+
 ---
 
-_Last updated October, 10 2023_
+All SDK APIs that return a `Promise` reject with an `Err` object when something goes wrong.
+
+```typescript
+interface Err {
+    code: number;     // numeric error code
+    label: string;    // short identifier (e.g. "BADREQUEST")
+    msg: string;      // human-readable message, enriched with context
+    details?: string; // optional additional details
+    cause?: unknown;  // originating value that triggered the error
+}
+```
+
+**Standard error codes:**
+
+| Code | Label | Getter | Description |
+| ---- | ----- | ------ | ----------- |
+| -16  | `BADREQUEST`    | `BAD_REQUEST`            | One or more parameters are invalid |
+| -128 | `FORBIDDEN`     | `FORBIDDEN`              | Operation not allowed |
+| -2   | `UNAUTHORIZED`  | `UNAUTHORIZED`           | Authentication failed |
+| -4   | `XMPPERROR`     | `XMPP`                   | XMPP-level error |
+| -1   | `INTERNALERROR` | `ERROR`                  | Internal SDK error |
+| -256 | _(custom)_      | `OTHERERROR(label, msg)` | Contextual error with custom label |
+
+**Catching a rejected promise:**
+
+```js
+rainbowSDK.bubbles.getBubbleById(id)
+    .then((bubble) => {
+        // use bubble
+    })
+    .catch((err) => {
+        console.error("code  :", err.code);   // e.g. -16
+        console.error("label :", err.label);  // e.g. "BADREQUEST"
+        console.error("msg   :", err.msg);    // enriched with context, e.g. "bad or empty 'id' parameter"
+        console.error("cause :", err.cause);  // the faulty value (e.g. undefined)
+    });
+```
+
+The `cause` field contains the originating value (parameter or variable) that triggered the guard. The `msg` field is enriched at the point of rejection with context specific to the failing call.
+
+---
+
+_Last updated June 17, 2026_

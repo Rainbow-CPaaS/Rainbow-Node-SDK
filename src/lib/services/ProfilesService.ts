@@ -481,9 +481,11 @@ class ProfilesService extends GenericService {
                     if (response) {
                         errorMessage = "(getServerProfilesFeatures) failure : " + JSON.stringify(response);
                     }
-                    that._logger.log(that.ERROR, LOG_ID + "(getServerProfilesFeatures) Error.");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(getServerProfilesFeatures) Error : ", errorMessage);
-                    return reject(ErrorManager.getErrorManager().OTHERERROR("REQUESTERROR", errorMessage));
+                    let error = ErrorManager.getErrorManager().OTHERERROR("REQUESTERROR", errorMessage);
+                    error.cause = errorMessage;
+                    that._logger.log(that.WARN, LOG_ID + `(getServerProfilesFeatures) OTHERERROR.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(getServerProfilesFeatures) REQUESTERROR : `, error.cause, ", error : ", error);
+                    return reject(error);
                 });
         });
     }

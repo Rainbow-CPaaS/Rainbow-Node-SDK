@@ -1271,7 +1271,13 @@ class RESTService extends GenericRESTService {
             if (token) {
                 data.token = token;
             } else {
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'token' parameter";
+                error.label += "bad or empty 'token' parameter";
+                error.cause = token;
+                that._logger.log(that.WARN, LOG_ID + `(verifyMultifactorInformation) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(verifyMultifactorInformation) bad or empty 'token' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             let url = "/api/rainbow/enduser/v1.0/users/" + userId + "/mfa/verify";
@@ -1472,13 +1478,25 @@ class RESTService extends GenericRESTService {
             if (sourceId) {
                 data.sourceId = sourceId;
             } else {
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'sourceId' parameter";
+                error.label += "bad or empty 'sourceId' parameter";
+                error.cause = sourceId;
+                that._logger.log(that.WARN, LOG_ID + `(createSource) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(createSource) bad or empty 'sourceId' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             if (os) {
                 data.os = os;
             } else {
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'os' parameter";
+                error.label += "bad or empty 'os' parameter";
+                error.cause = os;
+                that._logger.log(that.WARN, LOG_ID + `(createSource) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(createSource) bad or empty 'os' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             let url = "/api/rainbow/enduser/v1.0/users/" + userId + "/sources";
@@ -1532,7 +1550,13 @@ class RESTService extends GenericRESTService {
             if (sourceId) {
                 data.sourceId = sourceId;
             } else {
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'sourceId' parameter";
+                error.label += "bad or empty 'sourceId' parameter";
+                error.cause = sourceId;
+                that._logger.log(that.WARN, LOG_ID + `(getSourceData) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(getSourceData) bad or empty 'sourceId' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             let url = "/api/rainbow/enduser/v1.0/users/" + userId + "/sources/" + sourceId;
@@ -1592,7 +1616,13 @@ class RESTService extends GenericRESTService {
             if (os) {
                 data.os = os;
             } else {
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'os' parameter";
+                error.label += "bad or empty 'os' parameter";
+                error.cause = os;
+                that._logger.log(that.WARN, LOG_ID + `(updateSourceData) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(updateSourceData) bad or empty 'os' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             let url = "/api/rainbow/enduser/v1.0/users/" + userId + "/sources/" + sourceId;
@@ -1624,11 +1654,23 @@ class RESTService extends GenericRESTService {
             userId = userId ? userId:that.account.id;
 
             if (!sourceId) {
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'sourceId' parameter";
+                error.label += "bad or empty 'sourceId' parameter";
+                error.cause = sourceId;
+                that._logger.log(that.WARN, LOG_ID + `(updateContactData) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(updateContactData) bad or empty 'sourceId' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             if (!contactIddb) {
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'contactIddb' parameter";
+                error.label += "bad or empty 'contactIddb' parameter";
+                error.cause = contactIddb;
+                that._logger.log(that.WARN, LOG_ID + `(updateContactData) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(updateContactData) bad or empty 'contactIddb' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             if (contactId) {
@@ -1702,73 +1744,145 @@ class RESTService extends GenericRESTService {
             if (sourceId) {
                 data.sourceId = sourceId;
             } else {
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'sourceId' parameter";
+                error.label += "bad or empty 'sourceId' parameter";
+                error.cause = sourceId;
+                that._logger.log(that.WARN, LOG_ID + `(createContact) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(createContact) bad or empty 'sourceId' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             if (contactId) {
                 data.contactId = contactId;
             } else {
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'contactId' parameter";
+                error.label += "bad or empty 'contactId' parameter";
+                error.cause = contactId;
+                that._logger.log(that.WARN, LOG_ID + `(createContact) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(createContact) bad or empty 'contactId' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             if (firstName) {
                 data.firstName = firstName;
             } else {
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'firstName' parameter";
+                error.label += "bad or empty 'firstName' parameter";
+                error.cause = firstName;
+                that._logger.log(that.WARN, LOG_ID + `(createContact) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(createContact) bad or empty 'firstName' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             if (lastName) {
                 data.lastName = lastName;
             } else {
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'lastName' parameter";
+                error.label += "bad or empty 'lastName' parameter";
+                error.cause = lastName;
+                that._logger.log(that.WARN, LOG_ID + `(createContact) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(createContact) bad or empty 'lastName' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             if (displayName) {
                 data.displayName = displayName;
             } else {
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'displayName' parameter";
+                error.label += "bad or empty 'displayName' parameter";
+                error.cause = displayName;
+                that._logger.log(that.WARN, LOG_ID + `(createContact) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(createContact) bad or empty 'displayName' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             if (company) {
                 data.company = company;
             } else {
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'company' parameter";
+                error.label += "bad or empty 'company' parameter";
+                error.cause = company;
+                that._logger.log(that.WARN, LOG_ID + `(createContact) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(createContact) bad or empty 'company' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             if (jobTitle) {
                 data.jobTitle = jobTitle;
             } else {
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'jobTitle' parameter";
+                error.label += "bad or empty 'jobTitle' parameter";
+                error.cause = jobTitle;
+                that._logger.log(that.WARN, LOG_ID + `(createContact) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(createContact) bad or empty 'jobTitle' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             if (phoneNumbers) {
                 data.phoneNumbers = phoneNumbers;
             } else {
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'phoneNumbers' parameter";
+                error.label += "bad or empty 'phoneNumbers' parameter";
+                error.cause = phoneNumbers;
+                that._logger.log(that.WARN, LOG_ID + `(createContact) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(createContact) bad or empty 'phoneNumbers' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             if (emails) {
                 data.emails = emails;
             } else {
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'emails' parameter";
+                error.label += "bad or empty 'emails' parameter";
+                error.cause = emails;
+                that._logger.log(that.WARN, LOG_ID + `(createContact) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(createContact) bad or empty 'emails' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             if (addresses) {
                 data.addresses = addresses;
             } else {
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'addresses' parameter";
+                error.label += "bad or empty 'addresses' parameter";
+                error.cause = addresses;
+                that._logger.log(that.WARN, LOG_ID + `(createContact) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(createContact) bad or empty 'addresses' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             if (groups) {
                 data.groups = groups;
             } else {
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'groups' parameter";
+                error.label += "bad or empty 'groups' parameter";
+                error.cause = groups;
+                that._logger.log(that.WARN, LOG_ID + `(createContact) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(createContact) bad or empty 'groups' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             if (otherData) {
                 data.otherData = otherData;
             } else {
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'otherData' parameter";
+                error.label += "bad or empty 'otherData' parameter";
+                error.cause = otherData;
+                that._logger.log(that.WARN, LOG_ID + `(createContact) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(createContact) bad or empty 'otherData' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             let url = "/api/rainbow/enduser/v1.0/users/" + userId + "/sources/" + sourceId + "/contacts";
@@ -1852,14 +1966,24 @@ class RESTService extends GenericRESTService {
             userId = userId ? userId:that.account.id;
 
             if (!sourceId) {
-                that._logger.log(that.ERROR, LOG_ID + "(deleteContact) bad or empty 'sourceId' parameter");
-                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'sourceId' parameter";
+                error.label += "bad or empty 'sourceId' parameter";
+                error.cause = sourceId;
+                that._logger.log(that.WARN, LOG_ID + `(deleteContact) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(deleteContact) bad or empty 'sourceId' parameter : `, error.cause, ", error : ", error);
+                reject(error);
                 return;
             }
 
             if (!contactId) {
-                that._logger.log(that.ERROR, LOG_ID + "(deleteContact) bad or empty 'contactId' parameter");
-                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'contactId' parameter";
+                error.label += "bad or empty 'contactId' parameter";
+                error.cause = contactId;
+                that._logger.log(that.WARN, LOG_ID + `(deleteContact) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(deleteContact) bad or empty 'contactId' parameter : `, error.cause, ", error : ", error);
+                reject(error);
                 return;
             }
 
@@ -4644,8 +4768,13 @@ Request Method: PUT
         return new Promise(function (resolve, reject) {
             let url: string = "/api/rainbow/enduser/v1.0/rooms/" + bubbleId;//+ "?format=full&unsubscribed=true";
             if (bubbleId===undefined) {
-                that._logger.log(that.DEBUG, LOG_ID + "(getBubble) bad request paramater bubbleId undefined.");
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad request paramater bubbleId undefined";
+                error.label += "bad request paramater bubbleId undefined";
+                error.cause = bubbleId;
+                that._logger.log(that.WARN, LOG_ID + `(getBubble) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(getBubble) bad request paramater bubbleId undefined : `, error.cause, ", error : ", error);
+                return reject(error);
             }
             if (context!=undefined) {
                 url += "/" + context;
@@ -4683,8 +4812,13 @@ Request Method: PUT
         return new Promise(function (resolve, reject) {
             let url: string = "/api/rainbow/enduser/v1.0/rooms/jids/" + bubbleJid;
             if (bubbleJid===undefined) {
-                that._logger.log(that.WARN, LOG_ID + "(getBubble) bad request paramater bubbleJid undefined.");
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad request paramater bubbleJid undefined";
+                error.label += "bad request paramater bubbleJid undefined";
+                error.cause = bubbleJid;
+                that._logger.log(that.WARN, LOG_ID + `(getBubbleByJid) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(getBubbleByJid) bad request paramater bubbleJid undefined : `, error.cause, ", error : ", error);
+                return reject(error);
             }
             let urlParamsTab: string[] = [];
             urlParamsTab.push(url);
@@ -9624,12 +9758,22 @@ kamEmailList?: string[], businessSpecific?: string, adminServiceNotificationsLev
             that._logger.log(that.HTTP, LOG_ID + "(sendS2SChatState) REST.");
             let url: string = "/api/rainbow/ucs/v1.0/connections/" + that.connectionS2SInfo.id + "/conversations/" + conversationId + "/chatstate/" + state;
             if (!isDefined(conversationId)) {
-                that._logger.log(that.DEBUG, LOG_ID + "(sendS2SChatState) bad request paramater conversationId undefined.");
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad request paramater conversationId undefined";
+                error.label += "bad request paramater conversationId undefined";
+                error.cause = conversationId;
+                that._logger.log(that.WARN, LOG_ID + `(sendS2SChatState) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(sendS2SChatState) bad request paramater conversationId undefined : `, error.cause, ", error : ", error);
+                return reject(error);
             }
             if (!isDefined(state)) {
-                that._logger.log(that.DEBUG, LOG_ID + "(sendS2SChatState) bad request paramater state undefined.");
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad request paramater state undefined";
+                error.label += "bad request paramater state undefined";
+                error.cause = state;
+                that._logger.log(that.WARN, LOG_ID + `(sendS2SChatState) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(sendS2SChatState) bad request paramater state undefined : `, error.cause, ", error : ", error);
+                return reject(error);
             }
             /*let urlParamsTab: string[] = [];
             urlParamsTab.push(url);
@@ -9877,12 +10021,22 @@ kamEmailList?: string[], businessSpecific?: string, adminServiceNotificationsLev
             that._logger.log(that.INTERNAL, LOG_ID + "(addPinWithPeerId) REST.");
             let url: string = "/api/rainbow/enduser/v1.0/users/" + that.userId + "/pins/" + types + "/" + peerId;
             if (!isDefined(peerId)) {
-                that._logger.log(that.DEBUG, LOG_ID + "(addPinWithPeerId) bad request paramater peerId undefined.");
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad request paramater peerId undefined";
+                error.label += "bad request paramater peerId undefined";
+                error.cause = peerId;
+                that._logger.log(that.WARN, LOG_ID + `(addPinWithPeerId) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(addPinWithPeerId) bad request paramater peerId undefined : `, error.cause, ", error : ", error);
+                return reject(error);
             }
             if (!isDefined(types) || types === PEERTYPE.UNKNOWN) {
-                that._logger.log(that.DEBUG, LOG_ID + "(addPinWithPeerId) bad request paramater types undefined.");
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad request paramater types undefined";
+                error.label += "bad request paramater types undefined";
+                error.cause = types;
+                that._logger.log(that.WARN, LOG_ID + `(addPinWithPeerId) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(addPinWithPeerId) bad request paramater types undefined : `, error.cause, ", error : ", error);
+                return reject(error);
             }
             /*let urlParamsTab: string[] = [];
             urlParamsTab.push(url);
@@ -9926,12 +10080,22 @@ kamEmailList?: string[], businessSpecific?: string, adminServiceNotificationsLev
             that._logger.log(that.INTERNAL, LOG_ID + "(getPinWithPeerIdById) REST.");
             let url: string = "/api/rainbow/enduser/v1.0/users/" + that.userId + "/pins/"+types+"/"+peerId+"/"+pinId;
             if (!isDefined(peerId)) {
-                that._logger.log(that.DEBUG, LOG_ID + "(getPinWithPeerIdById) bad request paramater peerId undefined.");
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad request paramater peerId undefined";
+                error.label += "bad request paramater peerId undefined";
+                error.cause = peerId;
+                that._logger.log(that.WARN, LOG_ID + `(getPinWithPeerIdById) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(getPinWithPeerIdById) bad request paramater peerId undefined : `, error.cause, ", error : ", error);
+                return reject(error);
             }
             if (!isDefined(types)) {
-                that._logger.log(that.DEBUG, LOG_ID + "(getPinWithPeerIdById) bad request paramater types undefined.");
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad request paramater types undefined";
+                error.label += "bad request paramater types undefined";
+                error.cause = types;
+                that._logger.log(that.WARN, LOG_ID + `(getPinWithPeerIdById) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(getPinWithPeerIdById) bad request paramater types undefined : `, error.cause, ", error : ", error);
+                return reject(error);
             }
             /*let urlParamsTab: string[] = [];
             urlParamsTab.push(url);
@@ -9969,12 +10133,22 @@ kamEmailList?: string[], businessSpecific?: string, adminServiceNotificationsLev
             that._logger.log(that.INTERNAL, LOG_ID + "(getAllPinsWithPeerId) REST.");
             let url: string = "/api/rainbow/enduser/v1.0/users/" + that.userId + "/pins/"+types+"/"+peerId;
             if (!isDefined(peerId)) {
-                that._logger.log(that.DEBUG, LOG_ID + "(getAllPinsWithPeerId) bad request paramater peerId undefined.");
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad request paramater peerId undefined";
+                error.label += "bad request paramater peerId undefined";
+                error.cause = peerId;
+                that._logger.log(that.WARN, LOG_ID + `(getAllPinsWithPeerId) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(getAllPinsWithPeerId) bad request paramater peerId undefined : `, error.cause, ", error : ", error);
+                return reject(error);
             }
             if (!isDefined(types)) {
-                that._logger.log(that.DEBUG, LOG_ID + "(getAllPinsWithPeerId) bad request paramater types undefined.");
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad request paramater types undefined";
+                error.label += "bad request paramater types undefined";
+                error.cause = types;
+                that._logger.log(that.WARN, LOG_ID + `(getAllPinsWithPeerId) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(getAllPinsWithPeerId) bad request paramater types undefined : `, error.cause, ", error : ", error);
+                return reject(error);
             }
             /*let urlParamsTab: string[] = [];
             urlParamsTab.push(url);
@@ -10012,12 +10186,22 @@ addPropertyToObj(param, "peerId", body.peerId, false);
             that._logger.log(that.INTERNAL, LOG_ID + "(removefromWithPeerIdAndPinId) REST.");
             let url: string = "/api/rainbow/enduser/v1.0/users/" + that.userId + "/pins/"+types+"/"+peerId+"/"+pinId;
             if (!isDefined(peerId)) {
-                that._logger.log(that.DEBUG, LOG_ID + "(removefromWithPeerIdAndPinId) bad request paramater peerId undefined.");
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad request paramater peerId undefined";
+                error.label += "bad request paramater peerId undefined";
+                error.cause = peerId;
+                that._logger.log(that.WARN, LOG_ID + `(removefromWithPeerIdAndPinId) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(removefromWithPeerIdAndPinId) bad request paramater peerId undefined : `, error.cause, ", error : ", error);
+                return reject(error);
             }
             if (!isDefined(types)) {
-                that._logger.log(that.DEBUG, LOG_ID + "(removefromWithPeerIdAndPinId) bad request paramater types undefined.");
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad request paramater types undefined";
+                error.label += "bad request paramater types undefined";
+                error.cause = types;
+                that._logger.log(that.WARN, LOG_ID + `(removefromWithPeerIdAndPinId) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(removefromWithPeerIdAndPinId) bad request paramater types undefined : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             let param = undefined;
@@ -10042,16 +10226,31 @@ addPropertyToObj(param, "peerId", body.peerId, false);
             that._logger.log(that.INTERNAL, LOG_ID + "(updatePinWithPeerId) REST.");
             let url: string = "/api/rainbow/enduser/v1.0/users/" + that.userId + "/pins/" + types + "/" + peerId + "/" + pinId;
             if (!isDefined(peerId)) {
-                that._logger.log(that.DEBUG, LOG_ID + "(updatePinWithPeerId) bad request paramater peerId undefined.");
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad request paramater peerId undefined";
+                error.label += "bad request paramater peerId undefined";
+                error.cause = peerId;
+                that._logger.log(that.WARN, LOG_ID + `(updatePinWithPeerId) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(updatePinWithPeerId) bad request paramater peerId undefined : `, error.cause, ", error : ", error);
+                return reject(error);
             }
             if (!isDefined(types)) {
-                that._logger.log(that.DEBUG, LOG_ID + "(updatePinWithPeerId) bad request paramater types undefined.");
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad request paramater types undefined";
+                error.label += "bad request paramater types undefined";
+                error.cause = types;
+                that._logger.log(that.WARN, LOG_ID + `(updatePinWithPeerId) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(updatePinWithPeerId) bad request paramater types undefined : `, error.cause, ", error : ", error);
+                return reject(error);
             }
             if (!isDefined(pinId)) {
-                that._logger.log(that.DEBUG, LOG_ID + "(updatePinWithPeerId) bad request paramater pinId undefined.");
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad request paramater pinId undefined";
+                error.label += "bad request paramater pinId undefined";
+                error.cause = pinId;
+                that._logger.log(that.WARN, LOG_ID + `(updatePinWithPeerId) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(updatePinWithPeerId) bad request paramater pinId undefined : `, error.cause, ", error : ", error);
+                return reject(error);
             }
             /*let urlParamsTab: string[] = [];
             urlParamsTab.push(url);
@@ -10101,8 +10300,13 @@ addPropertyToObj(param, "peerId", body.peerId, false);
             that._logger.log(that.INTERNAL, LOG_ID + "(getABubblePublicLinkAsModerator) REST.");
             let url: string = "/api/rainbow/enduser/v1.0/rooms/" + bubbleId + "/public-links";
             if (bubbleId===undefined) {
-                that._logger.log(that.DEBUG, LOG_ID + "(getABubblePublicLinkAsModerator) bad request paramater bubbleId undefined.");
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad request paramater bubbleId undefined";
+                error.label += "bad request paramater bubbleId undefined";
+                error.cause = bubbleId;
+                that._logger.log(that.WARN, LOG_ID + `(getABubblePublicLinkAsModerator) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(getABubblePublicLinkAsModerator) bad request paramater bubbleId undefined : `, error.cause, ", error : ", error);
+                return reject(error);
             }
             let urlParamsTab: string[] = [];
             urlParamsTab.push(url);
@@ -10280,8 +10484,13 @@ addPropertyToObj(param, "peerId", body.peerId, false);
             that._logger.log(that.INTERNAL, LOG_ID + "(checkOpenInviteIdValidity) REST.");
             let url: string = "/api/rainbow/enduser/v1.0/rooms/open-invites/validate";
             if (openInviteId===undefined) {
-                that._logger.log(that.DEBUG, LOG_ID + "(checkOpenInviteIdValidity) bad request paramater openInviteId undefined.");
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad request paramater openInviteId undefined";
+                error.label += "bad request paramater openInviteId undefined";
+                error.cause = openInviteId;
+                that._logger.log(that.WARN, LOG_ID + `(checkOpenInviteIdValidity) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(checkOpenInviteIdValidity) bad request paramater openInviteId undefined : `, error.cause, ", error : ", error);
+                return reject(error);
             }
             let urlParamsTab: string[] = [];
             urlParamsTab.push(url);
@@ -16800,7 +17009,13 @@ addPropertyToObj(param, "peerId", body.peerId, false);
             if (roomId) {
                 data.roomId = roomId;
             } else {
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'roomId' parameter";
+                error.label += "bad or empty 'roomId' parameter";
+                error.cause = roomId;
+                that._logger.log(that.WARN, LOG_ID + `(createBubblePoll) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(createBubblePoll) bad or empty 'roomId' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             if (title) {
@@ -16839,9 +17054,13 @@ addPropertyToObj(param, "peerId", body.peerId, false);
         let that = this;
         return new Promise(function (resolve, reject) {
             if (!pollId) {
-                that._logger.log(that.DEBUG, LOG_ID + "(deleteBubblePoll) failed");
-                that._logger.log(that.DEBUG, LOG_ID + "(deleteBubblePoll) No pollId provided");
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "No pollId provided";
+                error.label += "No pollId provided";
+                error.cause = pollId;
+                that._logger.log(that.WARN, LOG_ID + `(deleteBubblePoll) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(deleteBubblePoll) No pollId provided : `, error.cause, ", error : ", error);
+                return reject(error);
             } else {
                 that.http.delete("/api/rainbow/enduser/v1.0/polls/" + pollId, that.getRequestHeader()).then(function (json) {
                     that._logger.log(that.DEBUG, LOG_ID + "(deleteBubblePoll) successfull");
@@ -16980,13 +17199,25 @@ addPropertyToObj(param, "peerId", body.peerId, false);
 
             if (pollId) {
             } else {
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'pollId' parameter";
+                error.label += "bad or empty 'pollId' parameter";
+                error.cause = pollId;
+                that._logger.log(that.WARN, LOG_ID + `(updateBubblePoll) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(updateBubblePoll) bad or empty 'pollId' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             if (roomId) {
                 data.roomId = roomId;
             } else {
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'roomId' parameter";
+                error.label += "bad or empty 'roomId' parameter";
+                error.cause = roomId;
+                that._logger.log(that.WARN, LOG_ID + `(updateBubblePoll) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(updateBubblePoll) bad or empty 'roomId' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             if (title) {
@@ -17341,9 +17572,13 @@ addPropertyToObj(param, "peerId", body.peerId, false);
         let that = this;
         return new Promise(function (resolve, reject) {
             if (!userId) {
-                that._logger.log(that.DEBUG, LOG_ID + "(removeAdministratorFromGroup) failed");
-                that._logger.log(that.DEBUG, LOG_ID + "(removeAdministratorFromGroup) No pollId provided");
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "No pollId provided";
+                error.label += "No pollId provided";
+                error.cause = userId;
+                that._logger.log(that.WARN, LOG_ID + `(removeAdministratorFromGroup) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(removeAdministratorFromGroup) No pollId provided : `, error.cause, ", error : ", error);
+                return reject(error);
             } else {
                 that.http.delete("/api/rainbow/customercare/v1.0/administrators/" + userId, that.getRequestHeader()).then(function (json) {
                     that._logger.log(that.DEBUG, LOG_ID + "(removeAdministratorFromGroup) successfull");
@@ -17557,9 +17792,13 @@ addPropertyToObj(param, "peerId", body.peerId, false);
         let that = this;
         return new Promise(function (resolve, reject) {
             if (!userId) {
-                that._logger.log(that.DEBUG, LOG_ID + "(cancelOrCloseLogsSubmission) failed");
-                that._logger.log(that.DEBUG, LOG_ID + "(cancelOrCloseLogsSubmission) No pollId provided");
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "No pollId provided";
+                error.label += "No pollId provided";
+                error.cause = userId;
+                that._logger.log(that.WARN, LOG_ID + `(cancelOrCloseLogsSubmission) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(cancelOrCloseLogsSubmission) No pollId provided : `, error.cause, ", error : ", error);
+                return reject(error);
             } else {
                 that.http.delete("/api/rainbow/customercare/v1.0/users/" + userId + "/logs/" + logId, that.getRequestHeader()).then(function (json) {
                     that._logger.log(that.DEBUG, LOG_ID + "(cancelOrCloseLogsSubmission) successfull");
@@ -17740,9 +17979,13 @@ addPropertyToObj(param, "peerId", body.peerId, false);
         let that = this;
         return new Promise(function (resolve, reject) {
             if (!userId) {
-                that._logger.log(that.DEBUG, LOG_ID + "(deleteAnAtriumTicketInformation) failed");
-                that._logger.log(that.DEBUG, LOG_ID + "(deleteAnAtriumTicketInformation) No pollId provided");
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "No pollId provided";
+                error.label += "No pollId provided";
+                error.cause = userId;
+                that._logger.log(that.WARN, LOG_ID + `(deleteAnAtriumTicketInformation) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(deleteAnAtriumTicketInformation) No pollId provided : `, error.cause, ", error : ", error);
+                return reject(error);
             } else {
                 that.http.delete("/api/rainbow/customercare/v1.0/users/" + userId + "/ticket/" + ticketId, that.getRequestHeader()).then(function (json) {
                     that._logger.log(that.DEBUG, LOG_ID + "(deleteAnAtriumTicketInformation) successfull");

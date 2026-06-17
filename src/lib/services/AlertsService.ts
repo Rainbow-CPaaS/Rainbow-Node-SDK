@@ -275,9 +275,13 @@ class AlertsService extends GenericService{
 
 
             if (device == null) {
-                that._logger.log(that.WARN, LOG_ID + "(createOrUpdateDevice) bad or empty 'device' parameter");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(createOrUpdateDevice) bad or empty 'device' parameter : ", device);
-                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'device' parameter";
+                error.label += "bad or empty 'device' parameter";
+                error.cause = device;
+                that._logger.log(that.WARN, LOG_ID + `(createOrUpdateDevice) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(createOrUpdateDevice) bad or empty 'device' parameter : `, error.cause, ", error : ", error);
+                reject(error);
                 return;
             }
             let body = {
@@ -412,9 +416,13 @@ class AlertsService extends GenericService{
 
 
             if (device == null) {
-                that._logger.log(that.WARN, LOG_ID + "(deleteDevice) bad or empty 'device' parameter");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteDevice) bad or empty 'device' parameter : ", device);
-                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'device' parameter";
+                error.label += "bad or empty 'device' parameter";
+                error.cause = device;
+                that._logger.log(that.WARN, LOG_ID + `(deleteDevice) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(deleteDevice) bad or empty 'device' parameter : `, error.cause, ", error : ", error);
+                reject(error);
                 return;
             }
 
@@ -485,9 +493,13 @@ class AlertsService extends GenericService{
 
 
             if (deviceId == null) {
-                that._logger.log(that.WARN, LOG_ID + "(getDevice) bad or empty 'deviceId' parameter");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(getDevice) bad or empty 'deviceId' parameter : ", deviceId);
-                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'deviceId' parameter";
+                error.label += "bad or empty 'deviceId' parameter";
+                error.cause = deviceId;
+                that._logger.log(that.WARN, LOG_ID + `(getDevice) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(getDevice) bad or empty 'deviceId' parameter : `, error.cause, ", error : ", error);
+                reject(error);
                 return;
             }
 
@@ -648,16 +660,24 @@ class AlertsService extends GenericService{
 
         return new Promise(function (resolve, reject) {
             if (newTagName === null) {
-                that._logger.log(that.WARN, LOG_ID + "(renameDevicesTags) bad or empty 'newTagName' parameter");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(renameDevicesTags) bad or empty 'newTagName' parameter : ", newTagName);
-                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'newTagName' parameter";
+                error.label += "bad or empty 'newTagName' parameter";
+                error.cause = newTagName;
+                that._logger.log(that.WARN, LOG_ID + `(renameDevicesTags) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(renameDevicesTags) bad or empty 'newTagName' parameter : `, error.cause, ", error : ", error);
+                reject(error);
                 return;
             }
 
             if (tag === null) {
-                that._logger.log(that.WARN, LOG_ID + "(renameDevicesTags) bad or empty 'tag' parameter");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(renameDevicesTags) bad or empty 'tag' parameter : ", tag);
-                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'tag' parameter";
+                error.label += "bad or empty 'tag' parameter";
+                error.cause = tag;
+                that._logger.log(that.WARN, LOG_ID + `(renameDevicesTags) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(renameDevicesTags) bad or empty 'tag' parameter : `, error.cause, ", error : ", error);
+                reject(error);
                 return;
             }
             
@@ -694,9 +714,13 @@ class AlertsService extends GenericService{
         return new Promise(function (resolve, reject) {
 
             if (tag == null) {
-                that._logger.log(that.WARN, LOG_ID + "(deleteDevicesTags) bad or empty 'tag' parameter");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteDevicesTags) bad or empty 'tag' parameter : ", tag);
-                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'tag' parameter";
+                error.label += "bad or empty 'tag' parameter";
+                error.cause = tag;
+                that._logger.log(that.WARN, LOG_ID + `(deleteDevicesTags) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(deleteDevicesTags) bad or empty 'tag' parameter : `, error.cause, ", error : ", error);
+                reject(error);
                 return;
             }
 
@@ -791,9 +815,13 @@ class AlertsService extends GenericService{
         return new Promise((resolve, reject) => {
 
             if (template == null) {
-                that._logger.log(that.WARN, LOG_ID + "(createOrUpdateDevice) bad or empty 'template' parameter");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(createOrUpdateDevice) bad or empty 'template' parameter : ", template);
-                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'template' parameter";
+                error.label += "bad or empty 'template' parameter";
+                error.cause = template;
+                that._logger.log(that.WARN, LOG_ID + `(createOrUpdateTemplate) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(createOrUpdateTemplate) bad or empty 'template' parameter : `, error.cause, ", error : ", error);
+                reject(error);
                 return;
             }
             let body = {
@@ -917,9 +945,13 @@ class AlertsService extends GenericService{
 
 
             if (template == null) {
-                that._logger.log(that.WARN, LOG_ID + "(deleteTemplate) bad or empty 'template' parameter");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteTemplate) bad or empty 'template' parameter : ", template);
-                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'template' parameter";
+                error.label += "bad or empty 'template' parameter";
+                error.cause = template;
+                that._logger.log(that.WARN, LOG_ID + `(deleteTemplate) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(deleteTemplate) bad or empty 'template' parameter : `, error.cause, ", error : ", error);
+                reject(error);
                 return;
             }
 
@@ -985,9 +1017,13 @@ class AlertsService extends GenericService{
 
 
             if (templateId == null) {
-                that._logger.log(that.WARN, LOG_ID + "(getTemplate) bad or empty 'templateId' parameter");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(getTemplate) bad or empty 'templateId' parameter : ", templateId);
-                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'templateId' parameter";
+                error.label += "bad or empty 'templateId' parameter";
+                error.cause = templateId;
+                that._logger.log(that.WARN, LOG_ID + `(getTemplate) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(getTemplate) bad or empty 'templateId' parameter : `, error.cause, ", error : ", error);
+                reject(error);
                 return;
             }
 
@@ -1133,9 +1169,13 @@ class AlertsService extends GenericService{
         return new Promise((resolve, reject) => {
 
             if (filter == null) {
-                that._logger.log(that.WARN, LOG_ID + "(createOrUpdateFilter) bad or empty 'filter' parameter");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(createOrUpdateFilter) bad or empty 'filter' parameter : ", filter);
-                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'filter' parameter";
+                error.label += "bad or empty 'filter' parameter";
+                error.cause = filter;
+                that._logger.log(that.WARN, LOG_ID + `(createOrUpdateFilter) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(createOrUpdateFilter) bad or empty 'filter' parameter : `, error.cause, ", error : ", error);
+                reject(error);
                 return;
             }
             let body : any = {};
@@ -1215,9 +1255,13 @@ class AlertsService extends GenericService{
 
 
             if (filter == null) {
-                that._logger.log(that.WARN, LOG_ID + "(deleteFilter) bad or empty 'filter' parameter");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteFilter) bad or empty 'filter' parameter : ", filter);
-                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'filter' parameter";
+                error.label += "bad or empty 'filter' parameter";
+                error.cause = filter;
+                that._logger.log(that.WARN, LOG_ID + `(deleteFilter) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(deleteFilter) bad or empty 'filter' parameter : `, error.cause, ", error : ", error);
+                reject(error);
                 return;
             }
 
@@ -1268,9 +1312,13 @@ class AlertsService extends GenericService{
 
 
             if (filterId == null) {
-                that._logger.log(that.WARN, LOG_ID + "(getFilter) bad or empty 'filterId' parameter");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(getFilter) bad or empty 'filterId' parameter : ", filterId);
-                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'filterId' parameter";
+                error.label += "bad or empty 'filterId' parameter";
+                error.cause = filterId;
+                that._logger.log(that.WARN, LOG_ID + `(getFilter) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(getFilter) bad or empty 'filterId' parameter : `, error.cause, ", error : ", error);
+                reject(error);
                 return;
             }
 
@@ -1399,9 +1447,13 @@ class AlertsService extends GenericService{
         return new Promise((resolve, reject) => {
 
             if (alert == null) {
-                that._logger.log(that.WARN, LOG_ID + "(createOrUpdateAlert) bad or empty 'alert' parameter");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(createOrUpdateAlert) bad or empty 'alert' parameter : ", alert);
-                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'alert' parameter";
+                error.label += "bad or empty 'alert' parameter";
+                error.cause = alert;
+                that._logger.log(that.WARN, LOG_ID + `(createOrUpdateAlert) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(createOrUpdateAlert) bad or empty 'alert' parameter : `, error.cause, ", error : ", error);
+                reject(error);
                 return;
             }
 
@@ -1523,9 +1575,13 @@ class AlertsService extends GenericService{
 
 
             if (alert == null) {
-                that._logger.log(that.WARN, LOG_ID + "(deleteAlert) bad or empty 'alert' parameter");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteAlert) bad or empty 'alert' parameter : ", alert);
-                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'alert' parameter";
+                error.label += "bad or empty 'alert' parameter";
+                error.cause = alert;
+                that._logger.log(that.WARN, LOG_ID + `(deleteAlert) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(deleteAlert) bad or empty 'alert' parameter : `, error.cause, ", error : ", error);
+                reject(error);
                 return;
             }
 
@@ -1579,9 +1635,13 @@ class AlertsService extends GenericService{
             // */
 
             if (alertId == null) {
-                that._logger.log(that.WARN, LOG_ID + "(getAlert) bad or empty 'alertId' parameter");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(getAlert) bad or empty 'alertId' parameter : ", alertId);
-                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'alertId' parameter";
+                error.label += "bad or empty 'alertId' parameter";
+                error.cause = alertId;
+                that._logger.log(that.WARN, LOG_ID + `(getAlert) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(getAlert) bad or empty 'alertId' parameter : `, error.cause, ", error : ", error);
+                reject(error);
                 return;
             }
 
@@ -1692,21 +1752,33 @@ class AlertsService extends GenericService{
         return new Promise((resolve, reject) => {
 
             if (deviceId == null) {
-                that._logger.log(that.WARN, LOG_ID + "(createOrUpdateAlert) bad or empty 'deviceId' parameter");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(createOrUpdateAlert) bad or empty 'deviceId' parameter : ", deviceId);
-                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'deviceId' parameter";
+                error.label += "bad or empty 'deviceId' parameter";
+                error.cause = deviceId;
+                that._logger.log(that.WARN, LOG_ID + `(createOrUpdateAlert) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(createOrUpdateAlert) bad or empty 'deviceId' parameter : `, error.cause, ", error : ", error);
+                reject(error);
                 return;
             }
             if (alertId == null) {
-                that._logger.log(that.WARN, LOG_ID + "(createOrUpdateAlert) bad or empty 'alertId' parameter");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(createOrUpdateAlert) bad or empty 'alertId' parameter : ", alertId);
-                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'alertId' parameter";
+                error.label += "bad or empty 'alertId' parameter";
+                error.cause = alertId;
+                that._logger.log(that.WARN, LOG_ID + `(createOrUpdateAlert) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(createOrUpdateAlert) bad or empty 'alertId' parameter : `, error.cause, ", error : ", error);
+                reject(error);
                 return;
             }
             if (answerId == null) {
-                that._logger.log(that.WARN, LOG_ID + "(createOrUpdateAlert) bad or empty 'answerId' parameter");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(createOrUpdateAlert) bad or empty 'answerId' parameter : ", answerId);
-                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'answerId' parameter";
+                error.label += "bad or empty 'answerId' parameter";
+                error.cause = answerId;
+                that._logger.log(that.WARN, LOG_ID + `(createOrUpdateAlert) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(createOrUpdateAlert) bad or empty 'answerId' parameter : `, error.cause, ", error : ", error);
+                reject(error);
                 return;
             }
 
@@ -1759,9 +1831,13 @@ class AlertsService extends GenericService{
 
         return new Promise((resolve, reject) => {
             if (notificationHistoryId == null) {
-                that._logger.log(that.WARN, LOG_ID + "(getAlertFeedbackSentForANotificationMessage) bad or empty 'notificationHistoryId' parameter");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(getAlertFeedbackSentForANotificationMessage) bad or empty 'notificationHistoryId' parameter : ", notificationHistoryId);
-                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'notificationHistoryId' parameter";
+                error.label += "bad or empty 'notificationHistoryId' parameter";
+                error.cause = notificationHistoryId;
+                that._logger.log(that.WARN, LOG_ID + `(getAlertFeedbackSentForANotificationMessage) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(getAlertFeedbackSentForANotificationMessage) bad or empty 'notificationHistoryId' parameter : `, error.cause, ", error : ", error);
+                reject(error);
                 return;
             }
 
@@ -1806,9 +1882,13 @@ class AlertsService extends GenericService{
 
         return new Promise((resolve, reject) => {
             if (alertId == null) {
-                that._logger.log(that.WARN, LOG_ID + "(getAlertFeedbackSentForAnAlert) bad or empty 'alertId' parameter");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(getAlertFeedbackSentForAnAlert) bad or empty 'alertId' parameter : ", alertId);
-                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'alertId' parameter";
+                error.label += "bad or empty 'alertId' parameter";
+                error.cause = alertId;
+                that._logger.log(that.WARN, LOG_ID + `(getAlertFeedbackSentForAnAlert) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(getAlertFeedbackSentForAnAlert) bad or empty 'alertId' parameter : `, error.cause, ", error : ", error);
+                reject(error);
                 return;
             }
 
@@ -1846,9 +1926,13 @@ class AlertsService extends GenericService{
 
         return new Promise((resolve, reject) => {
             if (notificationHistoryId == null) {
-                that._logger.log(that.WARN, LOG_ID + "(getAlertStatsFeedbackSentForANotificationMessage) bad or empty 'notificationHistoryId' parameter");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(getAlertStatsFeedbackSentForANotificationMessage) bad or empty 'notificationHistoryId' parameter : ", notificationHistoryId);
-                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'notificationHistoryId' parameter";
+                error.label += "bad or empty 'notificationHistoryId' parameter";
+                error.cause = notificationHistoryId;
+                that._logger.log(that.WARN, LOG_ID + `(getAlertStatsFeedbackSentForANotificationMessage) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(getAlertStatsFeedbackSentForANotificationMessage) bad or empty 'notificationHistoryId' parameter : `, error.cause, ", error : ", error);
+                reject(error);
                 return;
             }
 
@@ -1885,9 +1969,13 @@ class AlertsService extends GenericService{
 
         return new Promise((resolve, reject) => {
             if (alertId == null) {
-                that._logger.log(that.WARN, LOG_ID + "(getReportSummary) bad or empty 'alertId' parameter");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(getReportSummary) bad or empty 'alertId' parameter : ", alertId);
-                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'alertId' parameter";
+                error.label += "bad or empty 'alertId' parameter";
+                error.cause = alertId;
+                that._logger.log(that.WARN, LOG_ID + `(getReportSummary) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(getReportSummary) bad or empty 'alertId' parameter : `, error.cause, ", error : ", error);
+                reject(error);
                 return;
             }
 
@@ -1921,9 +2009,13 @@ class AlertsService extends GenericService{
 
         return new Promise((resolve, reject) => {
             if (alertId == null) {
-                that._logger.log(that.WARN, LOG_ID + "(getReportDetails) bad or empty 'alertId' parameter");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(getReportDetails) bad or empty 'alertId' parameter : ", alertId);
-                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'alertId' parameter";
+                error.label += "bad or empty 'alertId' parameter";
+                error.cause = alertId;
+                that._logger.log(that.WARN, LOG_ID + `(getReportDetails) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(getReportDetails) bad or empty 'alertId' parameter : `, error.cause, ", error : ", error);
+                reject(error);
                 return;
             }
 
@@ -1967,9 +2059,13 @@ class AlertsService extends GenericService{
 
         return new Promise((resolve, reject) => {
             if (alertId == null) {
-                that._logger.log(that.WARN, LOG_ID + "(getReportComplete) bad or empty 'alertId' parameter");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(getReportComplete) bad or empty 'alertId' parameter : ", alertId);
-                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'alertId' parameter";
+                error.label += "bad or empty 'alertId' parameter";
+                error.cause = alertId;
+                that._logger.log(that.WARN, LOG_ID + `(getReportComplete) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(getReportComplete) bad or empty 'alertId' parameter : `, error.cause, ", error : ", error);
+                reject(error);
                 return;
             }
 

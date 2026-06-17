@@ -183,9 +183,13 @@ class TasksService extends GenericService {
 
         return new Promise(function (resolve, reject) {
             if (!task) {
-                that._logger.log(that.WARN, LOG_ID + "(addTask) bad or empty 'task' parameter");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(addTask) bad or empty 'task' parameter : ", task);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'task' parameter";
+                error.label += "bad or empty 'task' parameter";
+                error.cause = task;
+                that._logger.log(that.WARN, LOG_ID + `(addTask) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(addTask) bad or empty 'task' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             that._rest.addTask(task).then((taskAdded: any) => {
@@ -218,9 +222,13 @@ class TasksService extends GenericService {
 
         return new Promise(function (resolve, reject) {
             if (!category) {
-                that._logger.log(that.WARN, LOG_ID + "(createTaskcategory) bad or empty 'category' parameter");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(createTaskcategory) bad or empty 'category' parameter : ", category);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'category' parameter";
+                error.label += "bad or empty 'category' parameter";
+                error.cause = category;
+                that._logger.log(that.WARN, LOG_ID + `(createTaskcategory) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(createTaskcategory) bad or empty 'category' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             that._rest.createTaskcategory(category).then(result => {
@@ -255,9 +263,13 @@ class TasksService extends GenericService {
 
         return new Promise(function (resolve, reject) {
             if (!categoryId) {
-                that._logger.log(that.WARN, LOG_ID + "(createOrUpdatePropertiesTaskByCategoryId) bad or empty 'categoryId' parameter");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(createOrUpdatePropertiesTaskByCategoryId) bad or empty 'categoryId' parameter : ", categoryId);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'categoryId' parameter";
+                error.label += "bad or empty 'categoryId' parameter";
+                error.cause = categoryId;
+                that._logger.log(that.WARN, LOG_ID + `(createOrUpdatePropertiesTaskByCategoryId) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(createOrUpdatePropertiesTaskByCategoryId) bad or empty 'categoryId' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             that._rest.createOrUpdatePropertiesTaskByCategoryId(categoryId, property).then(result => {
@@ -292,9 +304,13 @@ class TasksService extends GenericService {
 
         return new Promise(function (resolve, reject) {
             if (!taskId) {
-                that._logger.log(that.WARN, LOG_ID + "(getTaskById) bad or empty 'taskId' parameter");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(getTaskById) bad or empty 'taskId' parameter : ", taskId);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'taskId' parameter";
+                error.label += "bad or empty 'taskId' parameter";
+                error.cause = taskId;
+                that._logger.log(that.WARN, LOG_ID + `(getTaskById) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(getTaskById) bad or empty 'taskId' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             let taskFound = undefined;

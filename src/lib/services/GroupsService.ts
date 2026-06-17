@@ -162,9 +162,13 @@ const API_ID = "API_CALL - ";
              }
 
              if (!name) {
-                 that._logger.log(that.WARN, LOG_ID + "(createGroup) bad or empty 'name' parameter");
-                 that._logger.log(that.INTERNALERROR, LOG_ID + "(createGroup) bad or empty 'name' parameter : ", name);
-                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                 let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                 error.msg += "bad or empty 'name' parameter";
+                 error.label += "bad or empty 'name' parameter";
+                 error.cause = name;
+                 that._logger.log(that.WARN, LOG_ID + `(createGroup) BAD_REQUEST.`);
+                 that._logger.log(that.INTERNALERROR, LOG_ID + `(createGroup) bad or empty 'name' parameter : `, error.cause, ", error : ", error);
+                 return reject(error);
              }
 
             that._rest.createGroup(name, comment, isFavorite).then(group => {
@@ -200,9 +204,13 @@ const API_ID = "API_CALL - ";
 
          return new Promise(function(resolve, reject) {
              if (!group) {
-                 that._logger.log(that.WARN, LOG_ID + "(deleteGroup) bad or empty 'group' parameter.");
-                 that._logger.log(that.INTERNALERROR, LOG_ID + "(deleteGroup) bad or empty 'group' parameter : ", group);
-                 return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                 let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                 error.msg += "bad or empty 'group' parameter";
+                 error.label += "bad or empty 'group' parameter";
+                 error.cause = group;
+                 that._logger.log(that.WARN, LOG_ID + `(deleteGroup) BAD_REQUEST.`);
+                 that._logger.log(that.INTERNALERROR, LOG_ID + `(deleteGroup) bad or empty 'group' parameter : `, error.cause, ", error : ", error);
+                 return reject(error);
              }
             that._rest.deleteGroup(group.id).then(function() {
                 let foundIndex = that._groups.findIndex(el => {
@@ -291,15 +299,22 @@ const API_ID = "API_CALL - ";
 
         return new Promise(function(resolve, reject) {
             if (!group || !name) {
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
                 if (!group) {
-                    that._logger.log(that.WARN, LOG_ID + "(updateGroupName) bad or empty 'group' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(updateGroupName) bad or empty 'group' parameter : ", group);
+                    error.msg += "bad or empty 'group' parameter";
+                    error.label += "bad or empty 'group' parameter";
+                    error.cause = group;
+                    that._logger.log(that.WARN, LOG_ID + `(updateGroupName) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(updateGroupName) bad or empty 'group' parameter : `, error.cause, ", error : ", error);
                 }
                 if (!name) {
-                    that._logger.log(that.WARN, LOG_ID + "(updateGroupName) bad or empty 'name' parameter.");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(updateGroupName) bad or empty 'name' parameter : ", name);
+                    error.msg += "bad or empty 'name' parameter";
+                    error.label += "bad or empty 'name' parameter";
+                    error.cause = name;
+                    that._logger.log(that.WARN, LOG_ID + `(updateGroupName) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(updateGroupName) bad or empty 'name' parameter : `, error.cause, ", error : ", error);
                 }
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                return reject(error);
             } else if (group.name === name) {
                 that._logger.log(that.DEBUG, LOG_ID + "(updateGroupName) name of group is already defined, nothing is done");
                 resolve(group);
@@ -345,15 +360,22 @@ const API_ID = "API_CALL - ";
 
         return new Promise(function(resolve, reject) {
             if (!group || !comment) {
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
                 if (!group) {
-                    that._logger.log(that.WARN, LOG_ID + "(updateGroupComment) bad or empty 'group' parameter");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(updateGroupComment) bad or empty 'group' parameter : ", group);
+                    error.msg += "bad or empty 'group' parameter";
+                    error.label += "bad or empty 'group' parameter";
+                    error.cause = group;
+                    that._logger.log(that.WARN, LOG_ID + `(updateGroupComment) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(updateGroupComment) bad or empty 'group' parameter : `, error.cause, ", error : ", error);
                 }
                 if (!comment) {
-                    that._logger.log(that.WARN, LOG_ID + "(updateGroupComment) bad or empty 'comment' parameter.");
-                    that._logger.log(that.INTERNALERROR, LOG_ID + "(updateGroupComment) bad or empty 'comment' parameter : ", comment);
+                    error.msg += "bad or empty 'comment' parameter";
+                    error.label += "bad or empty 'comment' parameter";
+                    error.cause = comment;
+                    that._logger.log(that.WARN, LOG_ID + `(updateGroupComment) BAD_REQUEST.`);
+                    that._logger.log(that.INTERNALERROR, LOG_ID + `(updateGroupComment) bad or empty 'comment' parameter : `, error.cause, ", error : ", error);
                 }
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                return reject(error);
             } else if (group.comment === comment) {
                 that._logger.log(that.DEBUG, LOG_ID + "(updateGroupComment) name of group is already defined, nothing is done");
                 resolve(group);
@@ -438,9 +460,13 @@ const API_ID = "API_CALL - ";
 
          return new Promise(function (resolve, reject) {
              if (!group) {
-                 that._logger.log(that.WARN, LOG_ID + "(setGroupAsFavorite) bad or empty 'group' parameter.");
-                 that._logger.log(that.INTERNALERROR, LOG_ID + "(setGroupAsFavorite) bad or empty 'group' parameter : ", group);
-                 reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                 let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                 error.msg += "bad or empty 'group' parameter";
+                 error.label += "bad or empty 'group' parameter";
+                 error.cause = group;
+                 that._logger.log(that.WARN, LOG_ID + `(setGroupAsFavorite) BAD_REQUEST.`);
+                 that._logger.log(that.INTERNALERROR, LOG_ID + `(setGroupAsFavorite) bad or empty 'group' parameter : `, error.cause, ", error : ", error);
+                 reject(error);
                  return;
              }
 
@@ -477,9 +503,13 @@ const API_ID = "API_CALL - ";
 
         return new Promise(function (resolve, reject) {
             if (!group) {
-                that._logger.log(that.WARN, LOG_ID + "(unsetGroupAsFavorite) bad or empty 'group' parameter.");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(unsetGroupAsFavorite) bad or empty 'group' parameter : ", group);
-                reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'group' parameter";
+                error.label += "bad or empty 'group' parameter";
+                error.cause = group;
+                that._logger.log(that.WARN, LOG_ID + `(unsetGroupAsFavorite) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(unsetGroupAsFavorite) bad or empty 'group' parameter : `, error.cause, ", error : ", error);
+                reject(error);
                 return;
             }
 
@@ -692,13 +722,21 @@ const API_ID = "API_CALL - ";
 
         return new Promise(async function(resolve, reject) {
             if (!contact) {
-                that._logger.log(that.WARN, LOG_ID + "(addUserInGroup) bad or empty 'contact' parameter.");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(addUserInGroup) bad or empty 'contact' parameter : ", contact);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'contact' parameter";
+                error.label += "bad or empty 'contact' parameter";
+                error.cause = contact;
+                that._logger.log(that.WARN, LOG_ID + `(addUserInGroup) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(addUserInGroup) bad or empty 'contact' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             } else if (!group) {
-                that._logger.log(that.WARN, LOG_ID + "(addUserInGroup) bad or empty 'group' parameter.");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(addUserInGroup) bad or empty 'group' parameter : ", group);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'group' parameter";
+                error.label += "bad or empty 'group' parameter";
+                error.cause = group;
+                that._logger.log(that.WARN, LOG_ID + `(addUserInGroup) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(addUserInGroup) bad or empty 'group' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             that._logger.log(that.INTERNAL, LOG_ID + "(addUserInGroup) contact : ", contact, ", group : ", group);
@@ -720,8 +758,13 @@ const API_ID = "API_CALL - ";
                     return reject(err);
                 });
             } else {
-                that._logger.log(that.WARN, LOG_ID + "(addUserInGroup) User is already a member of the group");
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "User is already a member of the group";
+                error.label += "User is already a member of the group";
+                error.cause = contact;
+                that._logger.log(that.WARN, LOG_ID + `(addUserInGroup) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(addUserInGroup) User is already a member of the group : `, error.cause, ", error : ", error);
+                return reject(error);
             }
         });
     }
@@ -747,13 +790,21 @@ const API_ID = "API_CALL - ";
 
         return new Promise(async function(resolve, reject) {
             if (!contact) {
-                that._logger.log(that.WARN, LOG_ID + "(removeUserFromGroup) bad or empty 'contact' parameter.");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(removeUserFromGroup) bad or empty 'contact' parameter : ", contact);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'contact' parameter";
+                error.label += "bad or empty 'contact' parameter";
+                error.cause = contact;
+                that._logger.log(that.WARN, LOG_ID + `(removeUserFromGroup) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(removeUserFromGroup) bad or empty 'contact' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             } else if (!group) {
-                that._logger.log(that.WARN, LOG_ID + "(removeUserFromGroup) bad or empty 'group' parameter.");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(removeUserFromGroup) bad or empty 'group' parameter : ", group);
-                return reject(ErrorManager.getErrorManager().BAD_REQUEST);
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "bad or empty 'group' parameter";
+                error.label += "bad or empty 'group' parameter";
+                error.cause = group;
+                that._logger.log(that.WARN, LOG_ID + `(removeUserFromGroup) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(removeUserFromGroup) bad or empty 'group' parameter : `, error.cause, ", error : ", error);
+                return reject(error);
             }
 
             that._logger.log(that.INTERNAL, LOG_ID + "(removeUserFromGroup) contact : ", contact, ", group : ", group);

@@ -204,4 +204,4 @@ Here is the list of events you can subscribe when using the Groups API:
 
 ---
 
-_Last updated October, 19th 2017_
+_Last updated September 08, 2023_

@@ -157,8 +157,13 @@ class HTTPoverXMPP extends GenericService {
 
         return new Promise(async (resolve, reject) => {
             if (!urlToGet) {
-                that._logger.log(that.ERROR, LOG_ID + "(get) Parameter 'urlToGet' is missing or null");
-                throw ErrorManager.getErrorManager().BAD_REQUEST();
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "Parameter 'urlToGet' is missing or null";
+                error.label += "Parameter 'urlToGet' is missing or null";
+                error.cause = urlToGet;
+                that._logger.log(that.WARN, LOG_ID + `(get) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(get) Parameter 'urlToGet' is missing or null : `, error.cause, ", error : ", error);
+                throw error;
             }
 
             if (!httpoverxmppserver_jid) {
@@ -243,8 +248,13 @@ class HTTPoverXMPP extends GenericService {
 
         return new Promise(async (resolve, reject) => {
             if (!urlToTrace) {
-                that._logger.log(that.ERROR, LOG_ID + "(trace) Parameter 'urlToTrace' is missing or null");
-                throw ErrorManager.getErrorManager().BAD_REQUEST();
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "Parameter 'urlToTrace' is missing or null";
+                error.label += "Parameter 'urlToTrace' is missing or null";
+                error.cause = urlToTrace;
+                that._logger.log(that.WARN, LOG_ID + `(trace) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(trace) Parameter 'urlToTrace' is missing or null : `, error.cause, ", error : ", error);
+                throw error;
             }
 
             if (!httpoverxmppserver_jid) {
@@ -290,8 +300,13 @@ class HTTPoverXMPP extends GenericService {
 
         return new Promise(async (resolve, reject) => {
             if (!urlToHead) {
-                that._logger.log(that.ERROR, LOG_ID + "(head) Parameter 'urlToGet' is missing or null");
-                throw ErrorManager.getErrorManager().BAD_REQUEST();
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "Parameter 'urlToGet' is missing or null";
+                error.label += "Parameter 'urlToGet' is missing or null";
+                error.cause = urlToHead;
+                that._logger.log(that.WARN, LOG_ID + `(head) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(head) Parameter 'urlToGet' is missing or null : `, error.cause, ", error : ", error);
+                throw error;
             }
 
             if (!httpoverxmppserver_jid) {
@@ -337,8 +352,13 @@ class HTTPoverXMPP extends GenericService {
 
         return new Promise(async (resolve, reject) => {
             if (!urlToPost) {
-                that._logger.log(that.ERROR, LOG_ID + "(post) Parameter 'urlToPost' is missing or null");
-                throw ErrorManager.getErrorManager().BAD_REQUEST();
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "Parameter 'urlToPost' is missing or null";
+                error.label += "Parameter 'urlToPost' is missing or null";
+                error.cause = urlToPost;
+                that._logger.log(that.WARN, LOG_ID + `(post) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(post) Parameter 'urlToPost' is missing or null : `, error.cause, ", error : ", error);
+                throw error;
             }
 
             if (!httpoverxmppserver_jid) {
@@ -384,8 +404,13 @@ class HTTPoverXMPP extends GenericService {
 
         return new Promise(async (resolve, reject) => {
             if (!urlToPost) {
-                that._logger.log(that.ERROR, LOG_ID + "(put) Parameter 'urlToPost' is missing or null");
-                throw ErrorManager.getErrorManager().BAD_REQUEST();
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "Parameter 'urlToPost' is missing or null";
+                error.label += "Parameter 'urlToPost' is missing or null";
+                error.cause = urlToPost;
+                that._logger.log(that.WARN, LOG_ID + `(put) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(put) Parameter 'urlToPost' is missing or null : `, error.cause, ", error : ", error);
+                throw error;
             }
 
             if (!httpoverxmppserver_jid) {
@@ -431,8 +456,13 @@ class HTTPoverXMPP extends GenericService {
 
         return new Promise(async (resolve, reject) => {
             if (!urlToPost) {
-                that._logger.log(that.ERROR, LOG_ID + "(delete) Parameter 'urlToPost' is missing or null");
-                throw ErrorManager.getErrorManager().BAD_REQUEST();
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "Parameter 'urlToPost' is missing or null";
+                error.label += "Parameter 'urlToPost' is missing or null";
+                error.cause = urlToPost;
+                that._logger.log(that.WARN, LOG_ID + `(delete) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(delete) Parameter 'urlToPost' is missing or null : `, error.cause, ", error : ", error);
+                throw error;
             }
 
             if (!httpoverxmppserver_jid) {

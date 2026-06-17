@@ -433,4 +433,4 @@ This event is fired each time an error occurs in the SDK for Node.JS (eg: reconn
 
 ---
 
-_Last updated January, 9th 2019_
+_Last updated October 14, 2025_

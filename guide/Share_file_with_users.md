@@ -365,4 +365,4 @@ You are now ready for playing with files in Rainbow!
 
 ---
 
-_Last updated October, 10 2018_
+_Last updated November 27, 2024_

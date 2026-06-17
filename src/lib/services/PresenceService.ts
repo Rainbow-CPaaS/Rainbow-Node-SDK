@@ -601,8 +601,13 @@ class PresenceService extends GenericService{
                         if (bubbleInfos) {
                             resolve(that._s2s.joinRoom(bubbleInfos.id, ROOMROLE.MEMBER));
                         } else {
-                            that._logger.log(that.DEBUG, LOG_ID + "(sendMessageToBubbleJid) bad or empty 'bubble.jid' parameter", bubble.jid, ", bubble not found.");
-                            return Promise.reject(Object.assign(ErrorManager.getErrorManager().BAD_REQUEST, {msg: "Bad or empty 'bubble.jid' parameter, bubble not found."}));
+                            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                            error.msg += "bad or empty 'bubble.jid' parameter";
+                            error.label += "bad or empty 'bubble.jid' parameter";
+                            error.cause = bubble.jid;
+                            that._logger.log(that.WARN, LOG_ID + `(sendMessageToBubbleJid) BAD_REQUEST.`);
+                            that._logger.log(that.INTERNALERROR, LOG_ID + `(sendMessageToBubbleJid) bad or empty 'bubble.jid' parameter : `, error.cause, ", error : ", error);
+                            return Promise.reject(error);
                         }
                     }
                 }
@@ -625,9 +630,13 @@ class PresenceService extends GenericService{
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendInitialBubblePresenceSyncFn) is bubble : ", getBubbleLogInfos(bubble));
 
         if (!bubble) {
-            that._logger.log(that.WARN, LOG_ID + "(sendInitialBubblePresenceSyncFn) bad or empty 'bubble' parameter.");
-            //that._logger.log(that.INTERNALERROR, LOG_ID + "(sendInitialBubblePresenceSyncFn) bad or empty 'bubble' parameter : ", bubble);
-            return Promise.reject(ErrorManager.getErrorManager().BAD_REQUEST);
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'bubble' parameter.";
+            error.label += "bad or empty 'bubble' parameter.";
+            error.cause = bubble;
+            that._logger.log(that.WARN, LOG_ID + `(sendInitialBubblePresenceSyncFn) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, LOG_ID + `(sendInitialBubblePresenceSyncFn) bad or empty 'bubble' parameter. : `, error.cause, ", error : ", error);
+            return Promise.reject(error);
         }
         that._logger.log(that.INFO, LOG_ID + "(sendInitialBubblePresenceSyncFn) " + intervalDelay + " -- " + getBubbleLogInfos(bubble));
         if (bubble.initialPresence.initPresencePromise) {
@@ -1530,8 +1539,13 @@ class PresenceService extends GenericService{
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendResultCalendarEvents) is calendarManager defined : ", isDefined(calendarManager));
         return new Promise(async (resolve, reject) => {
             if (!calendarManager) {
-                that._logger.log(that.ERROR, LOG_ID + "(sendResultCalendarEvents) Parameter 'calendarManager' is missing or null");
-                throw ErrorManager.getErrorManager().BAD_REQUEST();
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "Parameter 'calendarManager' is missing or null";
+                error.label += "Parameter 'calendarManager' is missing or null";
+                error.cause = calendarManager;
+                that._logger.log(that.WARN, LOG_ID + `(sendResultCalendarEvents) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(sendResultCalendarEvents) Parameter 'calendarManager' is missing or null : `, error.cause, ", error : ", error);
+                throw error;
             }
 
             try {
@@ -1588,8 +1602,13 @@ class PresenceService extends GenericService{
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendAutoReplyEvents) is autoReplyManager defined : ", isDefined(autoReplyManager));
         return new Promise(async (resolve, reject) => {
             if (!autoReplyManager) {
-                that._logger.log(that.ERROR, LOG_ID + "(sendAutoReplyEvents) Parameter 'autoReplyManager' is missing or null");
-                throw ErrorManager.getErrorManager().BAD_REQUEST();
+                let error = ErrorManager.getErrorManager().BAD_REQUEST;
+                error.msg += "Parameter 'autoReplyManager' is missing or null";
+                error.label += "Parameter 'autoReplyManager' is missing or null";
+                error.cause = autoReplyManager;
+                that._logger.log(that.WARN, LOG_ID + `(sendAutoReplyEvents) BAD_REQUEST.`);
+                that._logger.log(that.INTERNALERROR, LOG_ID + `(sendAutoReplyEvents) Parameter 'autoReplyManager' is missing or null : `, error.cause, ", error : ", error);
+                throw error;
             }
 
             try {

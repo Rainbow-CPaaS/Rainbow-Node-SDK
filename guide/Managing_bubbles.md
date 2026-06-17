@@ -642,4 +642,4 @@ To consult the exact limits concerning the Rainbow Bubbles, visit [this link](/d
 
 ---
 
-_Last updated April, 04th 2017_
+_Last updated September 08, 2023_

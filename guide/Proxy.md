@@ -103,4 +103,4 @@ If you don't want to use a Proxy, the recommandation is to remove the key `proxy
 
 ---
 
-_Last updated January, 12th 2018_
+_Last updated September 08, 2023_
