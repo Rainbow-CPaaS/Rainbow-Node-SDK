@@ -3,7 +3,7 @@
 import {Dictionary, IDictionary, List} from "ts-generic-collections-linq";
 import * as deepEqual from "deep-equal";
 import {GuestParams, MEDIATYPE, RESTService} from "../connection/RESTService";
-import {ErrorManager} from "../common/ErrorManager";
+import {ErrorManager, Err} from "../common/ErrorManager";
 import {XMPPService} from "../connection/XMPPService";
 import {EventEmitter} from "events";
 import {getBinaryData, isDefined, isStarted, logEntryExit, resizeImage, until} from "../common/Utils";

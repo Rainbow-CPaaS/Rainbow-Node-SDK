@@ -3,7 +3,7 @@
 import {Dictionary, IDictionary, List} from "ts-generic-collections-linq";
 import * as deepEqual from "deep-equal";
 import {GuestParams, MEDIATYPE} from "../connection/RESTService";
-import {ErrorManager} from "../common/ErrorManager";
+import {ErrorManager, Err} from "../common/ErrorManager";
 import {Bubble} from "../common/models/Bubble";
 import {EventEmitter} from "events";
 import {createPromiseQueue} from "../common/promiseQueue";

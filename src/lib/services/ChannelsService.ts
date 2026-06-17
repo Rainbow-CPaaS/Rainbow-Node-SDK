@@ -1,7 +1,7 @@
 "use strict";
 
 import {Contact} from "../common/models/Contact";
-import {ErrorManager} from "../common/ErrorManager";
+import {ErrorManager, Err} from "../common/ErrorManager";
 import {Appreciation, Channel} from "../common/models/Channel";
 import {ChannelEventHandler} from "../connection/XMPPServiceHandler/channelEventHandler";
 import {EventEmitter} from "events";
@@ -1297,7 +1297,7 @@ class ChannelsService extends GenericService {
      * @description
      *  Publish to a channel <br>
      */
-    createItem(channel : Channel, message : string, title : string="", url : string="", imagesIds  : Array<{id: string}> = undefined, type : string="basic", customDatas : any = {}, attachments : Array<{id: string}> = undefined) : Promise <{}> {
+    createItem(channel : Channel, message : string, title : string="", url : string="", imagesIds  : Array<{id: string}> = undefined, type : string="basic", customDatas : any = {}, attachments : Array<{id: string}> = undefined) : Promise<Err> {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(createItem) is channel defined : ", isDefined(channel));
         if (!channel || !channel.id) {

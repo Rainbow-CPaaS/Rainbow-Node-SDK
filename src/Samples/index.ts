@@ -1923,6 +1923,7 @@ let expressEngine = undefined;
             };
             rainbowSDK.tasks.addTask(task).then(resultTask => {
                 _logger.log("debug", "MAIN - [addTask    ] ::  result : ", resultTask);
+                if (!("id" in resultTask)) return;
 
                 rainbowSDK.tasks.getTasks().then(result => {
                     _logger.log("debug", "MAIN - [getTasks    ] ::  result : ", result);

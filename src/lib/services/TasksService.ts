@@ -5,7 +5,7 @@ export {};
 
 import {XMPPService} from "../connection/XMPPService";
 import {RESTService} from "../connection/RESTService";
-import {ErrorManager} from "../common/ErrorManager";
+import {ErrorManager, Err} from "../common/ErrorManager";
 import {flattenObject, isDefined, isStarted, logEntryExit} from "../common/Utils";
 import {Logger} from "../common/Logger";
 import {EventEmitter} from "events";
@@ -177,7 +177,7 @@ class TasksService extends GenericService {
      * @fulfil {Task} - Created task object or an error object depending on the result
      * @category async
      */
-    async addTask(task: TaskInput): Promise<any> {
+    async addTask(task: TaskInput): Promise<Task | Err> {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(addTask) is task defined : ", isDefined(task));
 
@@ -298,7 +298,7 @@ class TasksService extends GenericService {
      * @return {Promise<Task, ErrorManager>} The result
      * @category async
      */
-    getTaskById(taskId: string, forceServerSearch: boolean = false): Promise<any> {
+    getTaskById(taskId: string, forceServerSearch: boolean = false): Promise<Task | Err> {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(getTaskById) is taskId defined : ", isDefined(taskId));
 

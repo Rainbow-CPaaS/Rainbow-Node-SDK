@@ -5,7 +5,7 @@ export {};
 
 import {RESTService} from "../connection/RESTService";
 import {XMPPService} from "../connection/XMPPService";
-import {ErrorManager} from "../common/ErrorManager";
+import {ErrorManager, Err} from "../common/ErrorManager";
 import {Call} from "../common/models/Call";
 import * as VoiceMail from "../common/models/VoiceMail";
 import * as utils from "../common/Utils";
@@ -963,7 +963,7 @@ class TelephonyService extends GenericService {
      * @param phoneNumber
      * @param correlatorData contains User-to-User information to be sent out as a SIP header via underlying PBX trunk for a given call
      */
-    private async makeSimpleCall(contact, phoneNumber, correlatorData) : Promise<any> {
+    private async makeSimpleCall(contact, phoneNumber, correlatorData) : Promise<Call | Err> {
         let that = this;
         if (!isDefined(contact) || !isObjectNotArray(contact)) {
             let error = ErrorManager.getErrorManager().BAD_REQUEST;
