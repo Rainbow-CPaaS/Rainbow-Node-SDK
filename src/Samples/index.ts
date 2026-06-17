@@ -1667,6 +1667,7 @@ let expressEngine = undefined;
                 _logger.log("debug", "MAIN - [test_sendApplicationAndOpenAconversation_BulleDeTest] :: content : ", content);
                 // Send the message with the Adaptive Card into the bubble.
                 let msgSent = await rainbowSDK.im.sendMessageToBubbleJid("Bonjour", bubble.jid, "fr", content, "Test AdaptiveCard");
+                if (!('id' in msgSent)) return;
                 _logger.log("debug", "MAIN - [test_sendApplicationAndOpenAconversation_BulleDeTest] :: Message sent : ", msgSent.id);
             } catch (err) {
                 _logger.log("error", "MAIN - [test_sendApplicationAndOpenAconversation_BulleDeTest] :: Error sending message : ", err);
@@ -3040,6 +3041,7 @@ let expressEngine = undefined;
                 //_logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
                 msgsSent.push(msgSent);
                 _logger.log("debug", "MAIN - testremoveAllMessages - wait for message to be in conversation : ", msgSent);
+                if (!('id' in msgSent)) continue;
                 await Utils.until(() => {
                     return conversation.getMessageById(msgSent.id)!==undefined;
                 }, "Wait for message to be added in conversation num : " + i);
@@ -3068,6 +3070,7 @@ let expressEngine = undefined;
                 //_logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
                 msgsSent.push(msgSent);
                 _logger.log("debug", "MAIN - testsendMessageToConversationForContact - wait for message to be in conversation : ", msgSent);
+                if (!('id' in msgSent)) continue;
                 await Utils.until(() => {
                     return conversation.getMessageById(msgSent.id)!==undefined;
                 }, "Wait for message to be added in conversation num : " + i);
@@ -3437,6 +3440,7 @@ let expressEngine = undefined;
                 //_logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
                 msgsSent.push(msgSent);
                 _logger.log("debug", "MAIN - testsendCorrectedChatMessage - wait for message to be in conversation : ", msgSent);
+                if (!('id' in msgSent)) continue;
                 await until(() => {
                     return conversation.getMessageById(msgSent.id)!==undefined;
                 }, "Wait for message to be added in conversation num : " + i);
@@ -3483,6 +3487,7 @@ let expressEngine = undefined;
                 //_logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
                 msgsSent.push(msgSent);
                 _logger.log("debug", "MAIN - testsendCorrectedChatMessageWithContent - wait for message to be in conversation : ", msgSent);
+                if (!('id' in msgSent)) continue;
                 await until(() => {
                     return conversation.getMessageById(msgSent.id)!==undefined;
                 }, "Wait for message to be added in conversation num : " + i);
@@ -3595,6 +3600,7 @@ let expressEngine = undefined;
             //_logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
             msgsSent.push(msgSent);
             _logger.log("debug", "MAIN - testsendMessageToConversationWithContentAdaptiveCardWithHiddenAckResponse - wait for message to be in conversation : ", msgSent);
+            if (!('id' in msgSent)) return;
             await until(() => {
                 return conversation.getMessageById(msgSent.id)!==undefined;
             }, "Wait for message to be added in conversation.");
@@ -3626,6 +3632,7 @@ let expressEngine = undefined;
             //_logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
             msgsSent.push(msgSent);
             _logger.log("debug", "MAIN - testsendCorrectedChatMessageWithContentAdaptiveCard - wait for message to be in conversation : ", msgSent);
+            if (!('id' in msgSent)) return;
             await until(() => {
                 return conversation.getMessageById(msgSent.id)!==undefined;
             }, "Wait for message to be added in conversation.");
@@ -3672,6 +3679,7 @@ let expressEngine = undefined;
             //_logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
             msgsSent.push(msgSent);
             _logger.log("debug", "MAIN - testsendForwardedChatMessageWithContentAdaptiveCard - wait for message to be in conversation : ", msgSent);
+            if (!('id' in msgSent)) return;
             await until(() => {
                 return conversation.getMessageById(msgSent.id)!==undefined;
             }, "Wait for message to be added in conversation.");
@@ -3951,6 +3959,7 @@ let expressEngine = undefined;
             // Send message
             //let msgSent : any = await rainbowSDK.im.sendMessageToConversation(conversation, "Test adptaptive card big size : " + contentMessageSize + "<retry-push xmlns=\"urn:xmpp:hints\"/>", "en", content, undefined).catch((err)=>{
             let msgSent : any = await rainbowSDK.im.sendMessageToConversation(conversation, "Test adptaptive card big size : " + contentMessageSize, "en", content, undefined).then((msgSent) => {
+                if (!('id' in msgSent)) return;
                 _logger.log("debug", "MAIN - testsendChatMessageWithContentAdaptiveCardBigSize - result sendMessageToConversation : ", msgSent?.content?.message?.length);
                 //_logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
             }).catch((err)=>{
@@ -4003,6 +4012,7 @@ let expressEngine = undefined;
             type : "text/html"
         }; // */
             rainbowSDK.im.sendMessageToConversation(conversation, txt, "FR", content, "Le sujet de node").then(async (msgSent) => {
+                if (!('id' in msgSent)) return;
                 _logger.log("debug", "MAIN - testdeleteMessageFromConversation sendMessageToConversation - result : ", msgSent);
                 _logger.log("debug", "MAIN - testdeleteMessageFromConversation sendMessageToConversation - conversation : ", conversation);
 
@@ -4033,6 +4043,7 @@ let expressEngine = undefined;
             type : "text/html"
         }; // */
             rainbowSDK.im.sendMessageToConversation(conversation, txt, "FR", content, "Le sujet de node").then(async (msgSent) => {
+                if (!('id' in msgSent)) return;
                 _logger.log("debug", "MAIN - testmodifyMessageFromConversation sendMessageToConversation - result : ", msgSent);
                 _logger.log("debug", "MAIN - testmodifyMessageFromConversation sendMessageToConversation - conversation : ", conversation);
 
@@ -4075,6 +4086,7 @@ let expressEngine = undefined;
                 //_logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
                 msgsSent.push(msgSent);
                 _logger.log("debug", "MAIN - testsendCorrectedChatMessage - wait for message to be in conversation : ", msgSent);
+                if (!('id' in msgSent)) continue;
                 await Utils.until(() => {
                     return conversation.getMessageById(msgSent.id)!==undefined;
                 }, "Wait for message to be added in conversation num : " + i);
@@ -4157,6 +4169,7 @@ let expressEngine = undefined;
                 //_logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
                 msgsSent.push(msgSent);
                 _logger.log("debug", "MAIN - testSendMultipleMessages - wait for message to be in conversation : ", msgSent);
+                if (!msgSent || !('id' in msgSent)) continue;
                 await Utils.until(() => {
                     return conversation.getMessageById(msgSent.id)!==undefined;
                 }, "Wait for message to be added in conversation Msg : " + msgstr);
@@ -6145,6 +6158,7 @@ let expressEngine = undefined;
                                 //_logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
                                 msgsSent.push(msgSent);
                                 _logger.log("debug", "MAIN - testremoveAllMessages - wait for message to be in conversation : ", msgSent);
+                                if (!('id' in msgSent)) continue;
                                 await Utils.until(() => {
                                     return conversation.getMessageById(msgSent.id)!==undefined;
                                 }, "Wait for message to be added in conversation num : " + i);
@@ -7744,6 +7758,7 @@ let expressEngine = undefined;
             //_logger.log("debug", "MAIN - testsendCorrectedChatMessage - conversation : ", conversation);
             msgsSent.push(msgSent);
             _logger.log("debug", "MAIN - testsendChatMessageWithContentAdaptiveCard - wait for message to be in conversation : ", msgSent);
+            if (!('id' in msgSent)) return;
             await until(() => {
                 return conversation.getMessageById(msgSent.id)!==undefined;
             }, "Wait for message to be added in conversation.");
@@ -8142,6 +8157,7 @@ let expressEngine = undefined;
             let conversationId = conversation.id;
 
             await rainbowSDK.im.sendMessageToConversation(conversation, 'ok', "fr", alternateContent, "alternate").then(async message => {
+                if (!('id' in message)) return;
                 _logger.log("debug", "MAIN - testsendMessageToConversationFormJson - search msgId : " + message.id);
                 _logger.log("debug", "MAIN - testsendMessageToConversationFormJson - msg.origin.conversation.id : " + conversation.id)
                 await waitUntil(() => {
@@ -8359,6 +8375,7 @@ let expressEngine = undefined;
             //let conversationId = conversation.id;
 
             await rainbowSDK.im.sendMessageToConversation(conversation, 'ok', "fr", alternateContent, "retour intervension").then(async message => {
+                if (!('id' in message)) return;
                 _logger.log("debug", "MAIN - testsendMessageToConversationFormJson - search msgId : " + message.id);
                 _logger.log("debug", "MAIN - testsendMessageToConversationFormJson - msg.origin.conversation.id : " + conversation.id)
 
@@ -8560,6 +8577,7 @@ let expressEngine = undefined;
             //let conversationId = conversation.id;
 
             await rainbowSDK.im.sendMessageToConversation(conversation, 'ok', "fr", alternateContent, "retour intervension").then(async message => {
+                if (!('id' in message)) return;
                 _logger.log("debug", "MAIN - testsendMessageToConversationFormJson - search msgId : " + message.id);
                 _logger.log("debug", "MAIN - testsendMessageToConversationFormJson - msg.origin.conversation.id : " + conversation.id)
 
@@ -13166,6 +13184,7 @@ example :
                         let text = "/code Prompt: " + prompt + "\nChatGPT:\n" + bodyJson?.choices[0].text;
                         _logger.log("debug", "MAIN - testpostUrlToChatGPT, text : ", text);
                         await rainbowSDK.im.sendMessageToConversation(conversation, text, "fr", undefined, "retour de ChatGPT").then(async message => {
+                            if (!('id' in message)) return;
                             _logger.log("debug", "MAIN - testpostUrlToChatGPT - search msgId : " + message.id);
                             _logger.log("debug", "MAIN - testpostUrlToChatGPT - msg.origin.conversation.id : " + conversation.id)
 
@@ -13264,6 +13283,7 @@ example :
             _logger.log("debug", "MAIN - testpostUrlToChatGPT - alternateContent : ", alternateContent?.message);
 
             await rainbowSDK.im.sendMessageToConversation(conversation, 'ok', "fr", alternateContent, "retour intervension").then(async message => {
+                if (!('id' in message)) return;
                 _logger.log("debug", "MAIN - testpostUrlToChatGPT - search msgId : " + message.id);
                 _logger.log("debug", "MAIN - testpostUrlToChatGPT - msg.origin.conversation.id : " + conversation.id)
 

@@ -1,6 +1,6 @@
 "use strict";
 import {ConversationsService} from "./ConversationsService";
-import {ErrorManager} from "../common/ErrorManager";
+import {ErrorManager, Err} from "../common/ErrorManager";
 import {Conversation, PEERTYPE} from "../common/models/Conversation";
 import {shortnameToUnicode,} from "../common/Emoji";
 import {XMPPUTils} from "../common/XMPPUtils";
@@ -389,7 +389,7 @@ class ImsService extends GenericService{
      * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
 
      */
-    async sendMessageToConversation(conversation : Conversation, message: string, lang: string, content :any, subject : string, urgency: UrgencyType = null, p_messagesDataStore: DataStoreType = undefined) :Promise<any> {
+    async sendMessageToConversation(conversation : Conversation, message: string, lang: string, content :any, subject : string, urgency: UrgencyType = null, p_messagesDataStore: DataStoreType = undefined) :Promise<Message | Err> {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendMessageToConversation) is conversation defined : ", isDefined(conversation), " is message defined : ", isDefined(message));
         if (!conversation) {
@@ -1010,7 +1010,7 @@ class ImsService extends GenericService{
      * @return {Promise<Message, ErrorManager>}
      * @fulfil {Message} the message sent, or null in case of error, as parameter of the resolve
      */
-    async sendMessageToBubbleJid(message : string, jid: string, lang: string, content: any, subject: string, mentions : Array<any> | string = null, urgency: UrgencyType = null, p_messagesDataStore: DataStoreType = undefined) : Promise<any> {
+    async sendMessageToBubbleJid(message : string, jid: string, lang: string, content: any, subject: string, mentions : Array<any> | string = null, urgency: UrgencyType = null, p_messagesDataStore: DataStoreType = undefined) : Promise<Message | Err> {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendMessageToBubbleJid) is jid defined : ", isDefined(jid), " is message defined : ", isDefined(message));
         if (!lang) {

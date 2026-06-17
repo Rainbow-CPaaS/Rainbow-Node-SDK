@@ -1,6 +1,6 @@
 "use strict";
 import {Logger} from "../common/Logger";
-import {ErrorManager} from "../common/ErrorManager";
+import {ErrorManager, Err} from "../common/ErrorManager";
 import * as PubSub from "pubsub-js";
 import {PresenceEventHandler} from "../connection/XMPPServiceHandler/presenceEventHandler";
 import {getJsonFromXML, isDefined, isStarted, logEntryExit, until} from "../common/Utils";
@@ -625,7 +625,7 @@ class PresenceService extends GenericService{
      * @description
      *      Method called when receiving an invitation to join a bubble <br>
      */
-    public sendInitialBubblePresenceSyncFn(bubble: Bubble, intervalDelay: number = 7500): Promise<any> {
+    public sendInitialBubblePresenceSyncFn(bubble: Bubble, intervalDelay: number = 7500): Promise<Err | void> {
         let that = this;
         that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(sendInitialBubblePresenceSyncFn) is bubble : ", getBubbleLogInfos(bubble));
 
