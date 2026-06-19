@@ -33,6 +33,7 @@ import {RESTTasks} from "./RestServices/RESTTasks";
 import {RESTAlerts} from "./RestServices/RESTAlerts";
 import {RESTDirectory} from "./RestServices/RESTDirectory";
 import {RESTCustomerCare} from "./RestServices/RESTCustomerCare";
+import {RESTCalendar} from "./RestServices/RESTCalendar";
 import {GenericRESTService} from "./GenericRESTService";
 import {TimeOutManager} from "../common/TimeOutManager";
 import {Group} from "ts-generic-collections-linq";
@@ -339,6 +340,7 @@ class RESTService extends GenericRESTService {
     public restAlerts: RESTAlerts;
     public restDirectory: RESTDirectory;
     public restCustomerCare: RESTCustomerCare;
+    public restCalendar: RESTCalendar;
     public applicationToken: string;
     public connectionS2SInfo: any;
     private reconnectInProgress: boolean;
@@ -371,6 +373,7 @@ class RESTService extends GenericRESTService {
         this.restAlerts = new RESTAlerts(core, evtEmitter, _logger);
         this.restDirectory = new RESTDirectory(core, evtEmitter, _logger);
         this.restCustomerCare = new RESTCustomerCare(core, evtEmitter, _logger);
+        this.restCalendar = new RESTCalendar(core, evtEmitter, _logger);
         //this.timeOutManager = core.timeOutManager;
         this.http = null;
         this.account = null;
@@ -462,6 +465,9 @@ class RESTService extends GenericRESTService {
         prom.push(that.restCustomerCare.start(that.http).then(() => {
             that._logger.log(that.INTERNAL, LOG_ID + "(start) restCustomerCare email used", that.loginEmail);
         }));
+        prom.push(that.restCalendar.start(that.http).then(() => {
+            that._logger.log(that.INTERNAL, LOG_ID + "(start) restCalendar email used", that.loginEmail);
+        }));
         return Promise.all(prom);
     }
 
@@ -503,6 +509,10 @@ class RESTService extends GenericRESTService {
 
                 await that.restCustomerCare.stop().then(() => {
                     that._logger.log(that.INTERNAL, LOG_ID + "(stop) restCustomerCare.");
+                });
+
+                await that.restCalendar.stop().then(() => {
+                    that._logger.log(that.INTERNAL, LOG_ID + "(stop) restCalendar.");
                 });
 
                 await that.signout().then(() => {
@@ -669,6 +679,7 @@ class RESTService extends GenericRESTService {
         this.restAlerts.p_token = value;
         this.restDirectory.p_token = value;
         this.restCustomerCare.p_token = value;
+        this.restCalendar.p_token = value;
     }
 
     set decodedtokenRest(value: any) {
@@ -681,6 +692,7 @@ class RESTService extends GenericRESTService {
         this.restAlerts.p_decodedtokenRest = value;
         this.restDirectory.p_decodedtokenRest = value;
         this.restCustomerCare.p_decodedtokenRest = value;
+        this.restCalendar.p_decodedtokenRest = value;
     }
 
     set credentialsRest(value: any) {
@@ -693,6 +705,7 @@ class RESTService extends GenericRESTService {
         this.restAlerts.p_credentials = value;
         this.restDirectory.p_credentials = value;
         this.restCustomerCare.p_credentials = value;
+        this.restCalendar.p_credentials = value;
     }
 
     set applicationRest(value: any) {
@@ -705,6 +718,7 @@ class RESTService extends GenericRESTService {
         this.restAlerts.p_application = value;
         this.restDirectory.p_application = value;
         this.restCustomerCare.p_application = value;
+        this.restCalendar.p_application = value;
     }
 
     set authRest(value: any) {
@@ -717,6 +731,7 @@ class RESTService extends GenericRESTService {
         this.restAlerts.p_auth = value;
         this.restDirectory.p_auth = value;
         this.restCustomerCare.p_auth = value;
+        this.restCalendar.p_auth = value;
     }
 
     setconnectionS2SInfo(_connectionS2SInfo) {
@@ -11144,346 +11159,23 @@ addPropertyToObj(param, "peerId", body.peerId, false);
     //endregion Alerts - Notifications
 
     //region calendar
-
-    getCalendarState() {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let params: any = {};
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getCalendarState) REST params : ", params);
-
-            that.http.get("/api/rainbow/calendar/v1.0", that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getCalendarState) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getCalendarState) REST result : ", json);
-                resolve(json);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getCalendarState) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getCalendarState) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    getCalendarStates(users: Array<string> = [undefined]) {
-        // /api/rainbow/calendar/v1.0/states
-        let that = this;
-
-        let params = {
-            users
-        };
-
-        return new Promise(function (resolve, reject) {
-
-            that.http.post("/api/rainbow/calendar/v1.0/states", that.getRequestHeader(), params, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(getCalendarStates) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getCalendarStates) REST result : ", json);
-                resolve(json);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getCalendarStates) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getCalendarStates) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    setCalendarRegister(type?: string, redirect?: boolean, callbackUrl?: string) {
-        // /api/rainbow/calendar/v1.0/register
-        let that = this;
-
-        let params = {
-            type,
-            redirect,
-            callback: callbackUrl
-        };
-
-        return new Promise(function (resolve, reject) {
-
-            that.http.post("/api/rainbow/calendar/v1.0/register", that.getRequestHeader(), params, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(setCalendarRegister) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(setCalendarRegister) REST result : ", json);
-                resolve(json);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(setCalendarRegister) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(setCalendarRegister) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    getCalendarAutomaticReplyStatus(userid?: string) {
-        // /api/rainbow/calendar/v1.0/automatic_reply
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url: string = "/api/rainbow/calendar/v1.0/automatic_reply";
-            if (userid) {
-                url += "?userid =" + userid;
-            }
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getReportDetails) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getCalendarAutomaticReplyStatus) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getCalendarAutomaticReplyStatus) REST result : ", json);
-                resolve(json);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getCalendarAutomaticReplyStatus) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getCalendarAutomaticReplyStatus) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    // @deprecated 
-    enableOrNotCalendar(disable: boolean) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let params: any = {
-                disable
-            };
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(enableOrNotCalendar) REST params : ", params);
-
-            that.http.patch("/api/rainbow/calendar/v1.0", that.getRequestHeader(), params, undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(enableOrNotCalendar) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(enableOrNotCalendar) REST result : ", json);
-                resolve(json);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(enableOrNotCalendar) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(enableOrNotCalendar) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    controlCalendarOrIgnoreAnEntry(disable?: boolean, ignore?: string) {
-        // API https://api.openrainbow.org/calendar/#api-Calendar-ControlCalendar
-        // PUT /api/rainbow/calendar/v1.0/control
-
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let that = this;
-            let urlParams = "/api/rainbow/calendar/v1.0/control";
-            let urlParamsTab: string[] = [];
-            urlParamsTab.push(urlParams);
-            addParamToUrl(urlParamsTab, "disable", disable);
-            addParamToUrl(urlParamsTab, "ignore", ignore);
-            urlParams = urlParamsTab[0];
-            that._logger.log(that.INTERNAL, LOG_ID + "(controlCalendarOrIgnoreAnEntry) REST url : ", urlParams);
-
-            let params = {};
-
-            that.http.put(urlParams, that.getRequestHeader(), params, undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(controlCalendarOrIgnoreAnEntry) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(controlCalendarOrIgnoreAnEntry) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(controlCalendarOrIgnoreAnEntry) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(controlCalendarOrIgnoreAnEntry) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    unregisterCalendar() {
-        // DELETE /api/rainbow/calendar/v1.0
-        // API https://api.openrainbow.org/calendar/#api-Calendar-UnregisterCalendar
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let params: any = {};
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(deleteAnImportStatusReport) REST ");
-
-            that.http.delete("/api/rainbow/calendar/v1.0", that.getPostHeader(), JSON.stringify(params)).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(deleteAnImportStatusReport) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(deleteAnImportStatusReport) REST result : ", json);
-                resolve(json);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(deleteAnImportStatusReport) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteAnImportStatusReport) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
+    getCalendarState() { return this.restCalendar.getCalendarState(); }
+    getCalendarStates(users: Array<string> = [undefined]) { return this.restCalendar.getCalendarStates(users); }
+    setCalendarRegister(type?: string, redirect?: boolean, callbackUrl?: string) { return this.restCalendar.setCalendarRegister(type, redirect, callbackUrl); }
+    getCalendarAutomaticReplyStatus(userid?: string) { return this.restCalendar.getCalendarAutomaticReplyStatus(userid); }
+    enableOrNotCalendar(disable: boolean) { return this.restCalendar.enableOrNotCalendar(disable); }
+    controlCalendarOrIgnoreAnEntry(disable?: boolean, ignore?: string) { return this.restCalendar.controlCalendarOrIgnoreAnEntry(disable, ignore); }
+    unregisterCalendar() { return this.restCalendar.unregisterCalendar(); }
     //endregion
 
     //region MSTeams
-
-    controlMsteamsPresence(disable?: boolean, ignore?: string) {
-        // API https://api.openrainbow.org/msteamspresence/#api-msteamspresence-ControlPresence
-        // PUT /api/rainbow/msteamspresence/v1.0/control
-
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let that = this;
-            let urlParams = "/api/rainbow/msteamspresence/v1.0/control";
-            let urlParamsTab: string[] = [];
-            urlParamsTab.push(urlParams);
-            addParamToUrl(urlParamsTab, "disable", disable);
-            addParamToUrl(urlParamsTab, "ignore", ignore);
-            urlParams = urlParamsTab[0];
-            that._logger.log(that.INTERNAL, LOG_ID + "(controlMsteamsPresence) REST url : ", urlParams);
-
-            let params = {};
-
-            that.http.put(urlParams, that.getRequestHeader(), params, undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(controlMsteamsPresence) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(controlMsteamsPresence) REST result : ", json);
-                resolve(json);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(controlMsteamsPresence) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(controlMsteamsPresence) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    getMsteamsPresenceState(userId: string) {
-        // API https://api.openrainbow.org/msteamspresence/#api-msteamspresence-GetPresence
-        // GET /api/rainbow/msteamspresence/v1.0 
-
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url: string = "/api/rainbow/msteamspresence/v1.0";
-            let urlParamsTab: string[] = [];
-            urlParamsTab.push(url);
-            addParamToUrl(urlParamsTab, "userid", userId);
-            url = urlParamsTab[0];
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getMsteamsPresenceState) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getMsteamsPresenceState) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getMsteamsPresenceState) REST result : ", json);
-                resolve(json);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getMsteamsPresenceState) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getMsteamsPresenceState) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    getMsteamsPresenceStates(users: Array<string> = []) {
-        // API : https://api.openrainbow.org/msteamspresence/#api-msteamspresence-GetPresences
-        // POST /api/rainbow/msteamspresence/v1.0/states
-        let that = this;
-        let urlParams = "/api/rainbow/msteamspresence/v1.0/states";
-        let urlParamsTab: string[] = [];
-        urlParamsTab.push(urlParams);
-        //addParamToUrl(urlParamsTab, "users", users);
-        urlParams = urlParamsTab[0];
-
-        let data = {users};
-
-        return new Promise(function (resolve, reject) {
-
-            that.http.post(urlParams, that.getRequestHeader(""), data, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(getMsteamsPresenceStates) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getMsteamsPresenceStates) REST result : ", json);
-                resolve(json);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getMsteamsPresenceStates) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getMsteamsPresenceStates) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    registerMsteamsPresenceSharing(redirect?: boolean, callback?: string) {
-        // API : https://api.openrainbow.org/msteamspresence/#api-msteamspresence-registerPresence
-        // POST /api/rainbow/msteamspresence/v1.0/register
-        let that = this;
-        let urlParams = "/api/rainbow/msteamspresence/v1.0/register";
-        let urlParamsTab: string[] = [];
-        urlParamsTab.push(urlParams);
-        //addParamToUrl(urlParamsTab, "users", users);
-        urlParams = urlParamsTab[0];
-
-        let data = {redirect, callback};
-
-        return new Promise(function (resolve, reject) {
-
-            that.http.post(urlParams, that.getRequestHeader(""), data, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(registerMsteamsPresenceSharing) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(registerMsteamsPresenceSharing) REST result : ", json);
-                resolve(json);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(registerMsteamsPresenceSharing) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(registerMsteamsPresenceSharing) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    unregisterMsteamsPresenceSharing() {
-        // API https://api.openrainbow.org/msteamspresence/#api-msteamspresence-unregisterPresence
-        // DELETE /api/rainbow/msteamspresence/v1.0
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let params: any = {};
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(unregisterMsteamsPresenceSharing) REST.");
-
-            that.http.delete("/api/rainbow/msteamspresence/v1.0", that.getPostHeader(), JSON.stringify(params)).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(unregisterMsteamsPresenceSharing) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(unregisterMsteamsPresenceSharing) REST result : ", json);
-                resolve(json);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(unregisterMsteamsPresenceSharing) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(unregisterMsteamsPresenceSharing) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    activateMsteamsPresence() {
-        // API : https://api.openrainbow.org/msteamspresence/#api-msteamspresence-activatePresence
-        // POST /api/rainbow/msteamspresence/v1.0/activate
-        let that = this;
-        let urlParams = "/api/rainbow/msteamspresence/v1.0/activate";
-        let urlParamsTab: string[] = [];
-        urlParamsTab.push(urlParams);
-        //addParamToUrl(urlParamsTab, "users", users);
-        urlParams = urlParamsTab[0];
-
-        let data = {};
-
-        return new Promise(function (resolve, reject) {
-
-            that.http.post(urlParams, that.getRequestHeader(""), data, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(activateMsteamsPresence) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(activateMsteamsPresence) REST result : ", json);
-                resolve(json);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(activateMsteamsPresence) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(activateMsteamsPresence) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    deactivateMsteamsPresence() {
-        // API https://api.openrainbow.org/msteamspresence/#api-msteamspresence-deactivatePresence
-        // DELETE /api/rainbow/msteamspresence/v1.0/activate
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let params: any = {};
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(unregisterMsteamsPresenceSharing) REST.");
-
-            that.http.delete("/api/rainbow/msteamspresence/v1.0/activate", that.getPostHeader(), JSON.stringify(params)).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(deactivateMsteamsPresence) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(deactivateMsteamsPresence) REST result : ", json);
-                resolve(json);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(deactivateMsteamsPresence) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(deactivateMsteamsPresence) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
+    controlMsteamsPresence(disable?: boolean, ignore?: string) { return this.restCalendar.controlMsteamsPresence(disable, ignore); }
+    getMsteamsPresenceState(userId: string) { return this.restCalendar.getMsteamsPresenceState(userId); }
+    getMsteamsPresenceStates(users: Array<string> = []) { return this.restCalendar.getMsteamsPresenceStates(users); }
+    registerMsteamsPresenceSharing(redirect?: boolean, callback?: string) { return this.restCalendar.registerMsteamsPresenceSharing(redirect, callback); }
+    unregisterMsteamsPresenceSharing() { return this.restCalendar.unregisterMsteamsPresenceSharing(); }
+    activateMsteamsPresence() { return this.restCalendar.activateMsteamsPresence(); }
+    deactivateMsteamsPresence() { return this.restCalendar.deactivateMsteamsPresence(); }
     //endregion MSTeams
 
     //region AD/LDAP
@@ -16341,59 +16033,9 @@ addPropertyToObj(param, "peerId", body.peerId, false);
 
     //endregion Rainbow APIs Settings
 
-        //region Presence Synchronize CPE Exchange Calendar [AD/LDAP]
-    // RQRAINB-12269
-
-    notifyCalendarProvider(ids: Array<string>, headers : any = {}, forceNotify: boolean = undefined) {
-        let that = this ;
-        //that._logger.log(that.INFOAPI, LOG_ID + API_ID + "(notifyCalendarProvider) is ids defined : ", isDefined(ids));
-        // API
-        // URL POST /api/rainbow/calendarprovider/v1.0/notify?companyId=companyId
-
-        return new Promise(function (resolve, reject) {
-            let userId = that.userId ;
-            let _http = that._options?.httpOptions;
-            let serverURL = _http?.protocol + "://" + _http?.host + ":" + _http?.port;
-            let url: string = serverURL + "/api/rainbow/calendarprovider/v1.0/notify";
-            let companyId = that.account?.companyId;
-            let urlParamsTab: Array<string> = [];
-            urlParamsTab.push(url);
-            addParamToUrl(urlParamsTab, "companyId", companyId );
-            addParamToUrl(urlParamsTab, "force", forceNotify, false );
-             // */
-            url = urlParamsTab[0];
-            //let data: any = {};
-            //addPropertyToObj(data, "category", category, false);
-            /*
-            let headers = {
-                'Content-Type': 'application/json',
-            }; // */
-            let defaultHeaders=that.getDefaultHeader();
-            Object.entries(defaultHeaders).forEach(([key, value]) => {
-                addPropertyIfNotAlreadyExistToObj(headers,key, value, true);
-            });
-            addPropertyIfNotAlreadyExistToObj(headers,"Content-Type", 'application/json', true);
-            addPropertyIfNotAlreadyExistToObj(headers,"X-Rainbow-EWS-connector", 'dummy', true);
-            // addPropertyIfNotAlreadyExistToObj(headers,"x-rainbow-zone", 'EU', true);
-            //let body = decodeURIComponent(JSON.stringify({
-            let body = JSON.stringify({"value":ids});
-
-            that.http.postUrlRaw(url, headers, body).then((res) => {
-                //let bodyJson = JSON.parse(res?.body);
-                let json = res?.body;
-                that._logger.log(that.DEBUG, LOG_ID + "(notifyCalendarProvider) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(notifyCalendarProvider) REST result : ", json);
-                resolve(json);
-            }).catch((err) => {
-                that._logger.log(that.ERROR, LOG_ID, "(notifyCalendarProvider) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(notifyCalendarProvider) error : ", err);
-                return reject(err);
-            });
-            //that._logger.log("debug", "MAIN - notifyCalendarProvider - ");
-        });
-
-    }
-
+    //region Presence Synchronize CPE Exchange Calendar [AD/LDAP]
+    // RQRAINB-12269 VBR
+    notifyCalendarProvider(ids: Array<string>, headers: any = {}, forceNotify: boolean = undefined) { return this.restCalendar.notifyCalendarProvider(ids, headers, forceNotify, this.userId, this._options?.httpOptions, this.account?.companyId); }
     //endregion Presence Synchronize CPE Exchange Calendar [AD/LDAP]
 }
 
