@@ -34,6 +34,7 @@ import {RESTAlerts} from "./RestServices/RESTAlerts";
 import {RESTDirectory} from "./RestServices/RESTDirectory";
 import {RESTCustomerCare} from "./RestServices/RESTCustomerCare";
 import {RESTCalendar} from "./RestServices/RESTCalendar";
+import {RESTChannels} from "./RestServices/RESTChannels";
 import {GenericRESTService} from "./GenericRESTService";
 import {TimeOutManager} from "../common/TimeOutManager";
 import {Group} from "ts-generic-collections-linq";
@@ -341,6 +342,7 @@ class RESTService extends GenericRESTService {
     public restDirectory: RESTDirectory;
     public restCustomerCare: RESTCustomerCare;
     public restCalendar: RESTCalendar;
+    public restChannels: RESTChannels;
     public applicationToken: string;
     public connectionS2SInfo: any;
     private reconnectInProgress: boolean;
@@ -374,6 +376,7 @@ class RESTService extends GenericRESTService {
         this.restDirectory = new RESTDirectory(core, evtEmitter, _logger);
         this.restCustomerCare = new RESTCustomerCare(core, evtEmitter, _logger);
         this.restCalendar = new RESTCalendar(core, evtEmitter, _logger);
+        this.restChannels = new RESTChannels(core, evtEmitter, _logger);
         //this.timeOutManager = core.timeOutManager;
         this.http = null;
         this.account = null;
@@ -468,6 +471,9 @@ class RESTService extends GenericRESTService {
         prom.push(that.restCalendar.start(that.http).then(() => {
             that._logger.log(that.INTERNAL, LOG_ID + "(start) restCalendar email used", that.loginEmail);
         }));
+        prom.push(that.restChannels.start(that.http).then(() => {
+            that._logger.log(that.INTERNAL, LOG_ID + "(start) restChannels email used", that.loginEmail);
+        }));
         return Promise.all(prom);
     }
 
@@ -513,6 +519,10 @@ class RESTService extends GenericRESTService {
 
                 await that.restCalendar.stop().then(() => {
                     that._logger.log(that.INTERNAL, LOG_ID + "(stop) restCalendar.");
+                });
+
+                await that.restChannels.stop().then(() => {
+                    that._logger.log(that.INTERNAL, LOG_ID + "(stop) restChannels.");
                 });
 
                 await that.signout().then(() => {
@@ -680,6 +690,7 @@ class RESTService extends GenericRESTService {
         this.restDirectory.p_token = value;
         this.restCustomerCare.p_token = value;
         this.restCalendar.p_token = value;
+        this.restChannels.p_token = value;
     }
 
     set decodedtokenRest(value: any) {
@@ -693,6 +704,7 @@ class RESTService extends GenericRESTService {
         this.restDirectory.p_decodedtokenRest = value;
         this.restCustomerCare.p_decodedtokenRest = value;
         this.restCalendar.p_decodedtokenRest = value;
+        this.restChannels.p_decodedtokenRest = value;
     }
 
     set credentialsRest(value: any) {
@@ -706,6 +718,7 @@ class RESTService extends GenericRESTService {
         this.restDirectory.p_credentials = value;
         this.restCustomerCare.p_credentials = value;
         this.restCalendar.p_credentials = value;
+        this.restChannels.p_credentials = value;
     }
 
     set applicationRest(value: any) {
@@ -719,6 +732,7 @@ class RESTService extends GenericRESTService {
         this.restDirectory.p_application = value;
         this.restCustomerCare.p_application = value;
         this.restCalendar.p_application = value;
+        this.restChannels.p_application = value;
     }
 
     set authRest(value: any) {
@@ -732,6 +746,7 @@ class RESTService extends GenericRESTService {
         this.restDirectory.p_auth = value;
         this.restCustomerCare.p_auth = value;
         this.restCalendar.p_auth = value;
+        this.restChannels.p_auth = value;
     }
 
     setconnectionS2SInfo(_connectionS2SInfo) {
@@ -8444,496 +8459,25 @@ kamEmailList?: string[], businessSpecific?: string, adminServiceNotificationsLev
     //endregion Customisation Template
 
     //region Channels
-
-    // Channel
-    // Create a channel
-    createPublicChannel(name, topic, category: string = "globalnews", visibility, max_items, max_payload_size) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let channel = {
-                name: name,
-                topic: null,
-                visibility: null,
-                max_items: null,
-                max_payload_size: null,
-                category: category
-            };
-
-            if (topic) {
-                channel.topic = topic;
-            }
-            if (visibility) {
-                channel.visibility = visibility;
-            }
-            if (max_items) {
-                channel.max_items = max_items;
-            }
-            if (max_payload_size) {
-                channel.max_payload_size = max_payload_size;
-            }
-
-            that.http.post("/api/rainbow/channels/v1.0/channels", that.getRequestHeader(), channel, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(createPublicChannel) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(createPublicChannel) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(createPublicChannel) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(createPublicChannel) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    // get a channel
-    /* getChannel(channelId) {
-         let that = this;
-
-         return new Promise(function(resolve, reject) {
-
-             that._logger.log(that.DEBUG, LOG_ID + "(getChannel) _entering_");
-
-             that.http.get("/api/rainbow/channels/v1.0/channels/" + channelId, that.getRequestHeader()).then(function(json) {
-                 that._logger.log(that.DEBUG, LOG_ID + "(getChannel) successfull");
-                 that._logger.log(that.INTERNAL, LOG_ID + "(getChannel) REST read channelId : ", json.data);
-                 that._logger.log(that.DEBUG, LOG_ID + "(getChannel) _exiting_");
-                 resolve(json?.data);
-             }).catch(function(err) {
-                 that._logger.log(that.ERROR, LOG_ID, "(getChannel) error : ", err);
-                 that._logger.log(that.DEBUG, LOG_ID + "(getChannel) _exiting_");
-                 reject(err);
-             });
-         });
-     } // */
-
-    // Delete a channel
-    deleteChannel(channelId) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            that.http.delete("/api/rainbow/channels/v1.0/channels/" + channelId, that.getRequestHeader()).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(deleteChannel) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(deleteChannel) REST result : ", json);
-                resolve(json);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(deleteChannel) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteChannel) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    // Find Channels
-    findChannels(name, topic, category, limit, offset, sortField, sortOrder) {
-        let that = this;
-
-        let query = "?limit=";
-        if (limit) {
-            query += limit;
-        } else {
-            query += "100";
-        }
-        if (name) {
-            query += "&name=" + name;
-        }
-        if (topic) {
-            query += "&topic=" + topic;
-        }
-        if (category) {
-            query += "&category=" + category;
-        }
-        if (offset) {
-            query += "&offset=" + offset;
-        }
-        if (sortField) {
-            query += "&sortField=" + sortField;
-        }
-        if (sortOrder) {
-            query += "&sortOrder=" + sortOrder;
-        }
-        return new Promise(function (resolve, reject) {
-            that.http.get("/api/rainbow/channels/v1.0/channels/search" + query, that.getRequestHeader(), undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(findChannels) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(findChannels) REST result : ", json.total);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(findChannels) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(findChannels) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    // Get my channels
-    getChannels() {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            that.http.get("/api/rainbow/channels/v1.0/channels", that.getRequestHeader(), undefined, "", 5, 10000).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(fetchMyChannels) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(fetchMyChannels) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(fetchMyChannels) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(fetchMyChannels) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    getChannel(id) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            that.http.get("/api/rainbow/channels/v1.0/channels/" + id, that.getRequestHeader(), undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(getChannel) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getChannel) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getChannel) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getChannel) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    /**
-     * Publish a message to a channel.
-     * @param {string} channelId - The channel id.
-     * @param {string} message - Message content.
-     * @param {string} title - Message title.
-     * @param {string} url - Optional URL.
-     * @param {Array<{id: string}>} imagesIds - Array of image file ids stored in Rainbow.
-     * @param {string} type - Message type (urn:xmpp:channels:*).
-     * @param {any} customDatas - Extra fields merged into payload.
-     * @param {Array<{id: string}>} attachments - File attachments by Rainbow file id.
-     * @returns {Promise<any>}
-     */
-    publishMessage(channelId :string, message :string, title :string, url : string, imagesIds : Array<{id: string}> = undefined, type : string, customDatas : any = {}, attachments : Array<{id: string}> = undefined) {
-        let that = this;
-        /* {"type":"urn:xmpp:channels:html","title":"","message":"<p>test channels</p>","images":[],"attachments":[{"id":"6a2fc535b1def7a912d52ccd"}]} // */
-        that._logger.log(that.INFO, LOG_ID + `(publishMessage) channelId : ${channelId}`);
-        return new Promise((resolve, reject) => {
-            let payload = Object.assign({
-                type,
-                message: message,
-                title: title || "",
-                url: url || "",
-                images: null,
-                attachments: null
-            }, customDatas);
-
-            if (imagesIds) {
-                payload.images = imagesIds || null;
-            }
-
-            if (attachments && attachments.length > 0) {
-                payload.attachments = attachments;
-            }
-
-            that.http.post("/api/rainbow/channels/v1.0/channels/" + channelId + "/publish", that.getRequestHeader(), payload, undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(publishMessage) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(publishMessage) REST result : ", json);
-                that._logger.log(that.INFO, LOG_ID + `(publishMessage) done, channelId : ${channelId}`);
-                resolve(json);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(publishMessage) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(publishMessage) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    private chewReceivedItems(items: any[]): void {
-        items.forEach((item) => {
-            if (item.type==="urn:xmpp:channels:simple") {
-                item["entry"] = {message: item.message};
-                delete item.message;
-            }
-            item.displayId = item.id + "-" + item.timestamp;
-            item.modified = item.creation!==undefined;
-        });
-    }
-
-    /**
-     * Get latests message from channel
-     */
-    public getLatestMessages(maxMessages: number, beforeDate: Date = null, afterDate: Date = null) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            that.http.get("/api/rainbow/channels/v1.0/channels/latest-items", that.getRequestHeader(), {
-                max: maxMessages,
-                before: beforeDate,
-                after: afterDate
-            }).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(getLatestMessages) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getLatestMessages) REST result : " + JSON.stringify(json) + " latestMessages");
-                that.chewReceivedItems(json.data.items);
-                resolve(json.data.items);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getLatestMessages) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getLatestMessages) error : ", err);
-                return reject(err);
-            });
-        });
-    };
-
-    // Subscribe to a channel
-    subscribeToChannel(channelId) {
-        let that = this;
-        return new Promise((resolve, reject) => {
-            that.http.post("/api/rainbow/channels/v1.0/channels/" + channelId + "/subscribe", that.getRequestHeader(), undefined, undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(subscribeToChannel) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(subscribeToChannel) REST result : ", json);
-                resolve(json?.data);
-            }).catch((err) => {
-                that._logger.log(that.ERROR, LOG_ID, "(subscribeToChannel) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(subscribeToChannel) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    // Unsubscribe to a channel
-    unsubscribeToChannel(channelId) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            that.http.delete("/api/rainbow/channels/v1.0/channels/" + channelId + "/subscribe", that.getRequestHeader()).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(unsubscribeToChannel) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(unsubscribeToChannel) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(unsubscribeToChannel) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(unsubscribeToChannel) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    // Update channels
-    updateChannel(channelId, title, visibility, max_items, max_payload_size, channelName, mode) {
-        let that = this;
-        let channel = {
-            name: null,
-            topic: null,
-            visibility: null,
-            max_items: null,
-            max_payload_size: null,
-            mode: null
-        };
-        if (title===null) {
-            delete channel.topic;
-        } else {
-            channel.topic = title;
-        }
-        if (visibility===null) {
-            delete channel.visibility;
-        } else {
-            channel.visibility = visibility;
-        }
-        if (mode===null) {
-            delete channel.mode;
-        } else {
-            channel.mode = mode;
-        }
-        if (max_items===null) {
-            delete channel.max_items;
-        } else {
-            channel.max_items = max_items;
-        }
-        if (max_payload_size===null) {
-            delete channel.max_payload_size;
-        } else {
-            channel.max_payload_size = max_payload_size;
-        }
-        if (channelName===null) {
-            delete channel.name;
-        } else {
-            channel.name = channelName;
-        }
-        return new Promise(function (resolve, reject) {
-            that.http.put("/api/rainbow/channels/v1.0/channels/" + channelId, that.getRequestHeader(), channel, undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(updateChannel) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(updateChannel) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(updateChannel) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateChannel) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    public uploadChannelAvatar(channelId: string, avatar: any, avatarSize: number, fileType: string): Promise<any> {
-        let that = this;
-        return new Promise((resolve, reject) => {
-            //this.roomService.resizeImage(avatar, avatarSize, avatarSize)
-            //  .then((resizedImage) => {
-            //var binaryData = this.roomService.getBinaryData(resizedImage);
-            that.http.post("/api/rainbow/channels/v1.0/channels/" + channelId + "/avatar", that.getRequestHeader(), avatar, fileType).then((response: any) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(uploadChannelAvatar) successfull channelId : ", channelId);
-                that._logger.log(that.INTERNAL, LOG_ID + "(uploadChannelAvatar) REST result : ", response);
-                resolve(response);
-            })
-                    .catch((err) => {
-                        return reject(err);
-                    });
-            //});
-        });
-    }
-
-    public deleteChannelAvatar(channelId: string): Promise<any> {
-        let that = this;
-        return new Promise((resolve, reject) => {
-            that.http.delete("/api/rainbow/channels/v1.0/channels/" + channelId + "/avatar", that.getRequestHeader("image/jpeg"))
-                    .then((response: any) => {
-                        that._logger.log(that.DEBUG, LOG_ID + "(deleteChannelAvatar) successfull channelId : ", channelId);
-                        that._logger.log(that.INTERNAL, LOG_ID + "(deleteChannelAvatar) REST result : ", response);
-                        resolve(response);
-                    })
-                    .catch((err) => {
-                        return reject(err);
-                    });
-        });
-    }
-
-    // Get all users from channel
-    getChannelUsers(channelId, options) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let filterToApply = "format=full";
-            if (options.format) {
-                filterToApply = "format=" + options.format;
-            }
-
-            if (options.page > 0) {
-                filterToApply += "&offset=";
-                if (options.page > 1) {
-                    filterToApply += (options.limit * (options.page - 1));
-                } else {
-                    filterToApply += 0;
-                }
-            }
-
-            filterToApply += "&limit=" + Math.min(options.limit, 1000);
-
-            if (options.type) {
-                filterToApply += "&types=" + options.type;
-            }
-
-            that.http.get("/api/rainbow/channels/v1.0/channels/" + channelId + "/users?" + filterToApply, that.getRequestHeader(), undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(getChannelUsers) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getChannelUsers) REST result : ", json.total, " users in channel");
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getChannelUsers) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getChannelUsers) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    // Delete all users in channel
-    deleteAllUsersFromChannel(channelId) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            that.http.delete("/api/rainbow/channels/v1.0/channels/" + channelId + "/users", that.getRequestHeader()).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(deleteAllUsersFromChannel) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(deleteAllUsersFromChannel) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(deleteAllUsersFromChannel) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteAllUsersFromChannel) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    // Update a collection of channel users
-    updateChannelUsers(channelId, users) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            that.http.put("/api/rainbow/channels/v1.0/channels/" + channelId + "/users", that.getRequestHeader(), {"data": users}, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(updateChannelUsers) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(updateChannelUsers) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(updateChannelUsers) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateChannelUsers) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    // Update a collection of channel users
-    getChannelMessages(channelId, maxMessages: number = 100, beforeDate?: Date, afterDate?: Date) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let params: any = {max: maxMessages}
-            if (beforeDate) {
-                params.before = beforeDate;
-            }
-            if (afterDate) {
-                params.after = afterDate;
-            }
-            that.http.post("/api/rainbow/channels/v1.0/channels/" + channelId + "/items", that.getRequestHeader(), params, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(getChannelMessages) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getChannelMessages) REST result : ", json.data.items.length);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getChannelMessages) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getChannelMessages) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    likeItem(channelId, itemId, appreciation) {
-        let that = this;
-        let data = {"appreciation": appreciation};
-        return new Promise(function (resolve, reject) {
-            that.http.post("/api/rainbow/channels/v1.0/channels/" + channelId + "/items/" + itemId + "/like", that.getRequestHeader(), data, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(likeItem) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(likeItem) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(likeItem) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(likeItem) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    getDetailedAppreciations(channelId, itemId) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            that.http.get("/api/rainbow/channels/v1.0/channels/" + channelId + "/items/" + itemId + "/likes", that.getRequestHeader(), undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(getDetailedAppreciations) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getDetailedAppreciations) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getDetailedAppreciations) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getDetailedAppreciations) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    /**
-     * Delete item from a channel
-     */
-    deleteChannelMessage(channelId, itemId) {
-        let that = this;
-        return new Promise((resolve, reject) => {
-            that.http.delete("/api/rainbow/channels/v1.0/channels/" + channelId + "/items/" + itemId, that.getRequestHeader())
-                    .then((response) => {
-                        that._logger.log(that.DEBUG, LOG_ID + "(deleteChannelMessage) (" + channelId + ", " + itemId + ") -- success");
-                        resolve(itemId);
-                    })
-                    .catch((err) => {
-                        that._logger.log(that.ERROR, LOG_ID, "(deleteChannelMessage) (" + channelId + ", " + itemId + ") -- failure -- ");
-                        that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteChannelMessage) (" + channelId + ", " + itemId + ") -- failure -- ", err.message);
-                        return reject(err);
-                    });
-        });
-    };
-
+    createPublicChannel(name, topic, category: string = "globalnews", visibility, max_items, max_payload_size) { return this.restChannels.createPublicChannel(name, topic, category, visibility, max_items, max_payload_size); }
+    deleteChannel(channelId) { return this.restChannels.deleteChannel(channelId); }
+    findChannels(name, topic, category, limit, offset, sortField, sortOrder) { return this.restChannels.findChannels(name, topic, category, limit, offset, sortField, sortOrder); }
+    getChannels() { return this.restChannels.getChannels(); }
+    getChannel(id) { return this.restChannels.getChannel(id); }
+    publishMessage(channelId: string, message: string, title: string, url: string, imagesIds: Array<{id: string}> = undefined, type: string, customDatas: any = {}, attachments: Array<{id: string}> = undefined) { return this.restChannels.publishMessage(channelId, message, title, url, imagesIds, type, customDatas, attachments); }
+    public getLatestMessages(maxMessages: number, beforeDate: Date = null, afterDate: Date = null) { return this.restChannels.getLatestMessages(maxMessages, beforeDate, afterDate); }
+    subscribeToChannel(channelId) { return this.restChannels.subscribeToChannel(channelId); }
+    unsubscribeToChannel(channelId) { return this.restChannels.unsubscribeToChannel(channelId); }
+    updateChannel(channelId, title, visibility, max_items, max_payload_size, channelName, mode) { return this.restChannels.updateChannel(channelId, title, visibility, max_items, max_payload_size, channelName, mode); }
+    public uploadChannelAvatar(channelId: string, avatar: any, avatarSize: number, fileType: string): Promise<any> { return this.restChannels.uploadChannelAvatar(channelId, avatar, avatarSize, fileType); }
+    public deleteChannelAvatar(channelId: string): Promise<any> { return this.restChannels.deleteChannelAvatar(channelId); }
+    getChannelUsers(channelId, options) { return this.restChannels.getChannelUsers(channelId, options); }
+    deleteAllUsersFromChannel(channelId) { return this.restChannels.deleteAllUsersFromChannel(channelId); }
+    updateChannelUsers(channelId, users) { return this.restChannels.updateChannelUsers(channelId, users); }
+    getChannelMessages(channelId, maxMessages: number = 100, beforeDate?: Date, afterDate?: Date) { return this.restChannels.getChannelMessages(channelId, maxMessages, beforeDate, afterDate); }
+    likeItem(channelId, itemId, appreciation) { return this.restChannels.likeItem(channelId, itemId, appreciation); }
+    getDetailedAppreciations(channelId, itemId) { return this.restChannels.getDetailedAppreciations(channelId, itemId); }
+    deleteChannelMessage(channelId, itemId) { return this.restChannels.deleteChannelMessage(channelId, itemId); }
     //endregion Channels
 
     //region Profiles
