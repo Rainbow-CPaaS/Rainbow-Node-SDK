@@ -36,6 +36,7 @@ import {RESTCustomerCare} from "./RestServices/RESTCustomerCare";
 import {RESTCalendar} from "./RestServices/RESTCalendar";
 import {RESTChannels} from "./RestServices/RESTChannels";
 import {RESTFileStorage} from "./RestServices/RESTFileStorage";
+import {RESTSubscriptions} from "./RestServices/RESTSubscriptions";
 import {GenericRESTService} from "./GenericRESTService";
 import {TimeOutManager} from "../common/TimeOutManager";
 import {Group} from "ts-generic-collections-linq";
@@ -345,6 +346,7 @@ class RESTService extends GenericRESTService {
     public restCalendar: RESTCalendar;
     public restChannels: RESTChannels;
     public restFileStorage: RESTFileStorage;
+    public restSubscriptions: RESTSubscriptions;
     public applicationToken: string;
     public connectionS2SInfo: any;
     private reconnectInProgress: boolean;
@@ -380,6 +382,7 @@ class RESTService extends GenericRESTService {
         this.restCalendar = new RESTCalendar(core, evtEmitter, _logger);
         this.restChannels = new RESTChannels(core, evtEmitter, _logger);
         this.restFileStorage = new RESTFileStorage(core, evtEmitter, _logger);
+        this.restSubscriptions = new RESTSubscriptions(core, evtEmitter, _logger);
         //this.timeOutManager = core.timeOutManager;
         this.http = null;
         this.account = null;
@@ -480,6 +483,9 @@ class RESTService extends GenericRESTService {
         prom.push(that.restFileStorage.start(that.http).then(() => {
             that._logger.log(that.INTERNAL, LOG_ID + "(start) restFileStorage email used", that.loginEmail);
         }));
+        prom.push(that.restSubscriptions.start(that.http).then(() => {
+            that._logger.log(that.INTERNAL, LOG_ID + "(start) restSubscriptions email used", that.loginEmail);
+        }));
         return Promise.all(prom);
     }
 
@@ -533,6 +539,10 @@ class RESTService extends GenericRESTService {
 
                 await that.restFileStorage.stop().then(() => {
                     that._logger.log(that.INTERNAL, LOG_ID + "(stop) restFileStorage.");
+                });
+
+                await that.restSubscriptions.stop().then(() => {
+                    that._logger.log(that.INTERNAL, LOG_ID + "(stop) restSubscriptions.");
                 });
 
                 await that.signout().then(() => {
@@ -702,6 +712,7 @@ class RESTService extends GenericRESTService {
         this.restCalendar.p_token = value;
         this.restChannels.p_token = value;
         this.restFileStorage.p_token = value;
+        this.restSubscriptions.p_token = value;
     }
 
     set decodedtokenRest(value: any) {
@@ -717,6 +728,7 @@ class RESTService extends GenericRESTService {
         this.restCalendar.p_decodedtokenRest = value;
         this.restChannels.p_decodedtokenRest = value;
         this.restFileStorage.p_decodedtokenRest = value;
+        this.restSubscriptions.p_decodedtokenRest = value;
     }
 
     set credentialsRest(value: any) {
@@ -732,6 +744,7 @@ class RESTService extends GenericRESTService {
         this.restCalendar.p_credentials = value;
         this.restChannels.p_credentials = value;
         this.restFileStorage.p_credentials = value;
+        this.restSubscriptions.p_credentials = value;
     }
 
     set applicationRest(value: any) {
@@ -747,6 +760,7 @@ class RESTService extends GenericRESTService {
         this.restCalendar.p_application = value;
         this.restChannels.p_application = value;
         this.restFileStorage.p_application = value;
+        this.restSubscriptions.p_application = value;
     }
 
     set authRest(value: any) {
@@ -762,6 +776,7 @@ class RESTService extends GenericRESTService {
         this.restCalendar.p_auth = value;
         this.restChannels.p_auth = value;
         this.restFileStorage.p_auth = value;
+        this.restSubscriptions.p_auth = value;
     }
 
     setconnectionS2SInfo(_connectionS2SInfo) {
@@ -3775,195 +3790,13 @@ class RESTService extends GenericRESTService {
     //endregion Applications
 
     //region Favorites
-
-    getServerFavorites(peerId: string = undefined) {
-        // API https://api.openrainbow.org/enduser/#api-favorites-GetUserFavorites
-        // GET /api/rainbow/enduser/v1.0/users/:userId/favorites
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            that._logger.log(that.INTERNAL, LOG_ID + "(getServerFavorites) REST peerId : ", peerId);
-
-            let url: string = "/api/rainbow/enduser/v1.0/users/" + that.userId + "/favorites";
-            let urlParamsTab: string[] = [];
-            urlParamsTab.push(url);
-            addParamToUrl(urlParamsTab, "peerId", peerId);
-            url = urlParamsTab[0];
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getServerFavorites) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined, "", 5, 10000).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(getServerFavorites) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getServerFavorites) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getServerFavorites) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getServerFavorites) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    public async addServerFavorite(peerId: string, type: string, position: number) {
-        // API https://api.openrainbow.org/enduser/#api-favorites-createFavorite
-        // POST /api/rainbow/enduser/v1.0/users/:userId/favorites
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            if (!peerId) {
-                that._logger.log(that.DEBUG, LOG_ID + "(addServerFavorite) failed");
-                that._logger.log(that.DEBUG, LOG_ID + "(addServerFavorite) No peerId provided");
-                resolve(null);
-            } else {
-                let data = {peerId, type};
-
-                let url: string = "/api/rainbow/enduser/v1.0/users/" + that.userId + "/favorites";
-                let urlParamsTab: string[] = [];
-                urlParamsTab.push(url);
-                addParamToUrl(urlParamsTab, "position", position);
-                url = urlParamsTab[0];
-
-                that._logger.log(that.INTERNAL, LOG_ID + "(addServerFavorite) REST url : ", url);
-                that.http.post(url, that.getRequestHeader(), data, undefined).then(function (json) {
-                    that._logger.log(that.DEBUG, LOG_ID + "(addServerFavorite) successfull");
-                    that._logger.log(that.INTERNAL, LOG_ID + "(addServerFavorite) REST result : ", json);
-                    resolve(json?.data);
-                }).catch(function (err) {
-                    that._logger.log(that.ERROR, LOG_ID, "(addServerFavorite) error");
-                    that._logger.log(that.INTERNALERROR, LOG_ID, "(addServerFavorite) error : ", err);
-                    return reject(err);
-                });
-            }
-        });
-    }
-
-    public async checkIsPeerSettedAsFavorite(peerId: string) {
-        // API https://api.openrainbow.org/enduser/#api-favorites-checkUserFavoritesPeerId
-        // GET /api/rainbow/enduser/v1.0/users/:userId/favorites/peers/:peerId/check
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            that._logger.log(that.INTERNAL, LOG_ID + "(checkIsPeerSettedAsFavorite) REST peerId : ", peerId);
-
-            let url: string = "/api/rainbow/enduser/v1.0/users/" + that.userId + "/favorites/peers/" + peerId + "/check";
-            let urlParamsTab: string[] = [];
-            urlParamsTab.push(url);
-            // addParamToUrl(urlParamsTab, "types", types);
-            url = urlParamsTab[0];
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(checkIsPeerSettedAsFavorite) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined, "").then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(checkIsPeerSettedAsFavorite) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(checkIsPeerSettedAsFavorite) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(checkIsPeerSettedAsFavorite) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(checkIsPeerSettedAsFavorite) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    public async getFavoriteById(favoriteId: string) {
-        // API https://api.openrainbow.org/enduser/#api-favorites-getUserFavoritesById
-        // GET /api/rainbow/enduser/v1.0/users/:userId/favorites/:favoriteId
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            that._logger.log(that.INTERNAL, LOG_ID + "(getFavoriteById) REST favoriteId : ", favoriteId);
-
-            let url: string = "/api/rainbow/enduser/v1.0/users/" + that.userId + "/favorites/" + favoriteId;
-            let urlParamsTab: string[] = [];
-            urlParamsTab.push(url);
-            // addParamToUrl(urlParamsTab, "types", types);
-            url = urlParamsTab[0];
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getFavoriteById) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined, "").then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(getFavoriteById) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getFavoriteById) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getFavoriteById) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getFavoriteById) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    public async getAllUserFavoriteList(peerId: string) {
-        // API https://api.openrainbow.org/enduser/#api-favorites-GetUserFavorites
-        // GET /api/rainbow/enduser/v1.0/users/:userId/favorites
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            that._logger.log(that.INTERNAL, LOG_ID + "(getAllUserFavoriteList) REST peerId  : ", peerId);
-
-            let url: string = "/api/rainbow/enduser/v1.0/users/" + that.userId + "/favorites";
-            let urlParamsTab: string[] = [];
-            urlParamsTab.push(url);
-            addParamToUrl(urlParamsTab, "peerId ", peerId);
-            url = urlParamsTab[0];
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getAllUserFavoriteList) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined, "").then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(getAllUserFavoriteList) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getAllUserFavoriteList) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getAllUserFavoriteList) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getAllUserFavoriteList) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    moveFavoriteToPosition(favoriteId: string, position: number) {
-        // API https://api.openrainbow.org/enduser/#api-favorites-updateFavorite
-        // PUT /api/rainbow/enduser/v1.0/rooms/:roomId
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let data = {};
-            let url = "/api/rainbow/enduser/v1.0/users/" + that.userId + "/favorites/" + favoriteId;
-            let urlParamsTab: string[] = [];
-            urlParamsTab.push(url);
-            addParamToUrl(urlParamsTab, "position ", position);
-            url = urlParamsTab[0];
-
-            that.http.put(url, that.getRequestHeader(), data, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(moveFavoriteToPosition) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(moveFavoriteToPosition) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(moveFavoriteToPosition) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(moveFavoriteToPosition) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-
-    public async removeServerFavorite(favoriteId: string) {
-        // API https://api.openrainbow.org/enduser/#api-favorites-removeFavorites
-        // DELETE /api/rainbow/enduser/v1.0/users/:userId/favorites/:favoriteId
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            if (!favoriteId) {
-                that._logger.log(that.DEBUG, LOG_ID + "(removeServerFavorite) failed");
-                that._logger.log(that.DEBUG, LOG_ID + "(removeServerFavorite) No favoriteId provided");
-                resolve(null);
-            } else {
-                that.http.delete("/api/rainbow/enduser/v1.0/users/" + that.userId + "/favorites/" + favoriteId, that.getRequestHeader()).then(function (json) {
-                    that._logger.log(that.DEBUG, LOG_ID + "(removeServerFavorite) successfull");
-                    that._logger.log(that.INTERNAL, LOG_ID + "(removeServerFavorite) REST result : ", json);
-                    resolve(json?.data);
-                }).catch(function (err) {
-                    that._logger.log(that.ERROR, LOG_ID, "(removeServerFavorite) error");
-                    that._logger.log(that.INTERNALERROR, LOG_ID, "(removeServerFavorite) error : ", err);
-                    return reject(err);
-                });
-            }
-        });
-    }
-
+    getServerFavorites(peerId: string = undefined) { return this.restSubscriptions.getServerFavorites(this.userId, peerId); }
+    addServerFavorite(peerId: string, type: string, position: number) { return this.restSubscriptions.addServerFavorite(this.userId, peerId, type, position); }
+    checkIsPeerSettedAsFavorite(peerId: string) { return this.restSubscriptions.checkIsPeerSettedAsFavorite(this.userId, peerId); }
+    getFavoriteById(favoriteId: string) { return this.restSubscriptions.getFavoriteById(this.userId, favoriteId); }
+    getAllUserFavoriteList(peerId: string) { return this.restSubscriptions.getAllUserFavoriteList(this.userId, peerId); }
+    moveFavoriteToPosition(favoriteId: string, position: number) { return this.restSubscriptions.moveFavoriteToPosition(this.userId, favoriteId, position); }
+    removeServerFavorite(favoriteId: string) { return this.restSubscriptions.removeServerFavorite(this.userId, favoriteId); }
     //endregion Favorites
 
     //region Invitations
@@ -9622,202 +9455,14 @@ addPropertyToObj(param, "peerId", body.peerId, false);
     //endregion conference
 
     //region Offers and subscriptions
-    retrieveAllCompanyOffers(companyId: string,   format: string = "small", name?: string, canBeSold?: boolean, autoSubscribe?: boolean, isExclusive?: boolean, isPrepaid?: boolean, profileId?: boolean, offerReference?: boolean, sapReference?: boolean, limit: number = 100, offset: number = 0, sortField: string = "name", sortOrder: number = 1) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            that._logger.log(that.INTERNAL, LOG_ID + "(retrieveAllCompanyOffers) REST companyId : ", companyId);
-
-            let url: string = "/api/rainbow/subscription/v1.0/companies/" + companyId + "/offers";
-            let urlParamsTab: string[] = [];
-            urlParamsTab.push(url);
-            addParamToUrl(urlParamsTab, "format", format);
-            addParamToUrl(urlParamsTab, "name", name);
-            addParamToUrl(urlParamsTab, "canBeSold", canBeSold);
-            addParamToUrl(urlParamsTab, "autoSubscribe", autoSubscribe);
-            addParamToUrl(urlParamsTab, "isExclusive", isExclusive);
-            addParamToUrl(urlParamsTab, "isPrepaid", isPrepaid);
-            addParamToUrl(urlParamsTab, "profileId", profileId);
-            addParamToUrl(urlParamsTab, "offerReference", offerReference);
-            addParamToUrl(urlParamsTab, "sapReference", sapReference);
-            addParamToUrl(urlParamsTab, "limit", limit);
-            addParamToUrl(urlParamsTab, "offset", offset);
-            addParamToUrl(urlParamsTab, "sortField", sortField);
-            addParamToUrl(urlParamsTab, "sortOrder", sortOrder);
-            url = urlParamsTab[0];
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(retrieveAllCompanyOffers) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(retrieveAllCompanyOffers) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(retrieveAllCompanyOffers) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(retrieveAllCompanyOffers) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    retrieveAllCompanySubscriptions(companyId: string, format: string = "small") {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            that._logger.log(that.INTERNAL, LOG_ID + "(retrieveAllCompanySubscriptions) REST companyId : ", companyId);
-
-            let url: string = "/api/rainbow/subscription/v1.0/companies/" + companyId + "/subscriptions";
-            let urlParamsTab: string[] = [];
-            urlParamsTab.push(url);
-            addParamToUrl(urlParamsTab, "format", format);
-            url = urlParamsTab[0];
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(retrieveAllCompanySubscriptions) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(retrieveAllCompanySubscriptions) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(retrieveAllCompanySubscriptions) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(retrieveAllCompanySubscriptions) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(retrieveAllCompanySubscriptions) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    subscribeCompanyToOffer(companyId: string, offerId: string, maxNumberUsers?: number, autoRenew?: boolean) {
-        let that = this;
-        // /api/rainbow/subscription/v1.0/companies/:companyId/subscriptions
-        return new Promise(function (resolve, reject) {
-            let params: any = {
-                offerId //, // Id of the offer to subscribe.
-                // maxNumberUsers :     integer, // optionnel Number of users (licences) bought for this offer. Possible values : 1..
-                // autoRenew : boolean, // optionnel Specifies if subscription should be renewed automatically or not at the end of the prepaid duration. Applies only for a prepaid offer. If not provided, autoRenew will be true by default.
-            };
-
-            if (maxNumberUsers!=undefined) {
-                params.maxNumberUsers = maxNumberUsers;
-            }
-
-            if (autoRenew!=undefined) {
-                params.autoRenew = autoRenew;
-            }
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(subscribeCompanyToOffer) REST params : ", params);
-
-            that.http.post("/api/rainbow/subscription/v1.0/companies/" + companyId + "/subscriptions", that.getRequestHeader(), params, undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(subscribeCompanyToOffer) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(subscribeCompanyToOffer) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(subscribeCompanyToOffer) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(subscribeCompanyToOffer) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    unSubscribeCompanyToSubscription(companyId: string, subscriptionId: string) {
-        let that = this;
-// /api/rainbow/subscription/v1.0/companies/:companyId/subscriptions/:subscriptionId
-        return new Promise(function (resolve, reject) {
-            that._logger.log(that.INTERNAL, LOG_ID + "(unSubscribeCompanyToOffer) REST companyId : ", companyId + ", subscriptionId : ", subscriptionId);
-
-            that.http.delete("/api/rainbow/subscription/v1.0/companies/" + companyId + "/subscriptions/" + subscriptionId, that.getRequestHeader()).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(unSubscribeCompanyToOffer) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(unSubscribeCompanyToOffer) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(unSubscribeCompanyToOffer) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(unSubscribeCompanyToOffer) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    subscribeUserToSubscription(userId: string, subscriptionId: string) {
-        let that = this;
-        // POST /api/rainbow/admin/v1.0/users/:userId/profiles/subscriptions/:subscriptionId
-        return new Promise(function (resolve, reject) {
-            let params: any = {
-                // autoRenew : boolean, // optionnel Specifies if subscription should be renewed automatically or not at the end of the prepaid duration. Applies only for a prepaid offer. If not provided, autoRenew will be true by default.
-            };
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(subscribeUserToSubscription) REST params : ", params);
-
-            that.http.post("/api/rainbow/admin/v1.0/users/" + userId + "/profiles/subscriptions/" + subscriptionId, that.getRequestHeader(), params, undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(subscribeUserToSubscription) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(subscribeUserToSubscription) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(subscribeUserToSubscription) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(subscribeUserToSubscription) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    unSubscribeUserToSubscription(userId: string, subscriptionId: string) {
-        let that = this;
-        // POST /api/rainbow/admin/v1.0/users/:userId/profiles/subscriptions/:subscriptionId
-        return new Promise(function (resolve, reject) {
-            let params: any = {
-                // autoRenew : boolean, // optionnel Specifies if subscription should be renewed automatically or not at the end of the prepaid duration. Applies only for a prepaid offer. If not provided, autoRenew will be true by default.
-            };
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(unSubscribeUserToSubscription) REST params : ", params);
-
-            that.http.delete("/api/rainbow/admin/v1.0/users/" + userId + "/profiles/subscriptions/" + subscriptionId, that.getRequestHeader()).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(unSubscribeUserToSubscription) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(unSubscribeUserToSubscription) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(unSubscribeUserToSubscription) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(unSubscribeUserToSubscription) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    getAUserProfiles(userId: string) {
-        // API https://api.openrainbow.org/admin/#api-users_profiles-admin_users_GetUserProfiles 
-        // GET /api/rainbow/admin/v1.0/users/:userId/profiles
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            that._logger.log(that.INTERNAL, LOG_ID + "(getAUserProfiles) REST userId : ", userId);
-
-            let url: string = "/api/rainbow/admin/v1.0/users/" + userId + "/profiles";
-            let urlParamsTab: string[] = [];
-            urlParamsTab.push(url);
-            // addParamToUrl(urlParamsTab, "format", format);
-            url = urlParamsTab[0];
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getAUserProfiles) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getAUserProfiles) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getAUserProfiles) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getAUserProfiles) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getAUserProfiles) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    getAUserProfilesFeaturesByUserId(userId: string) {
-        let that = this;
-        return new Promise((resolve, reject) => {
-            that.http.get("/api/rainbow/enduser/v1.0/users/" + userId + "/profiles/features", that.getRequestHeader(), undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(getAUserProfilesFeaturesByUserId) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getAUserProfilesFeaturesByUserId) REST result : " + JSON.stringify(json) + " profiles features");
-                resolve(json);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getAUserProfilesFeaturesByUserId) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getAUserProfilesFeaturesByUserId) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
+    retrieveAllCompanyOffers(companyId: string, format: string = "small", name?: string, canBeSold?: boolean, autoSubscribe?: boolean, isExclusive?: boolean, isPrepaid?: boolean, profileId?: boolean, offerReference?: boolean, sapReference?: boolean, limit: number = 100, offset: number = 0, sortField: string = "name", sortOrder: number = 1) { return this.restSubscriptions.retrieveAllCompanyOffers(companyId, format, name, canBeSold, autoSubscribe, isExclusive, isPrepaid, profileId, offerReference, sapReference, limit, offset, sortField, sortOrder); }
+    retrieveAllCompanySubscriptions(companyId: string, format: string = "small") { return this.restSubscriptions.retrieveAllCompanySubscriptions(companyId, format); }
+    subscribeCompanyToOffer(companyId: string, offerId: string, maxNumberUsers?: number, autoRenew?: boolean) { return this.restSubscriptions.subscribeCompanyToOffer(companyId, offerId, maxNumberUsers, autoRenew); }
+    unSubscribeCompanyToSubscription(companyId: string, subscriptionId: string) { return this.restSubscriptions.unSubscribeCompanyToSubscription(companyId, subscriptionId); }
+    subscribeUserToSubscription(userId: string, subscriptionId: string) { return this.restSubscriptions.subscribeUserToSubscription(userId, subscriptionId); }
+    unSubscribeUserToSubscription(userId: string, subscriptionId: string) { return this.restSubscriptions.unSubscribeUserToSubscription(userId, subscriptionId); }
+    getAUserProfiles(userId: string) { return this.restSubscriptions.getAUserProfiles(userId); }
+    getAUserProfilesFeaturesByUserId(userId: string) { return this.restSubscriptions.getAUserProfilesFeaturesByUserId(userId); }
     //endregion Offers and subscriptions
 
     //region Bubbles Tags
