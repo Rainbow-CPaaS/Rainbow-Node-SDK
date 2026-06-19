@@ -43,6 +43,7 @@ import {RESTContacts} from "./RestServices/RESTContacts";
 import {RESTApplications} from "./RestServices/RESTApplications";
 import {RESTInvitations} from "./RestServices/RESTInvitations";
 import {RESTGroups} from "./RestServices/RESTGroups";
+import {RESTPresence} from "./RestServices/RESTPresence";
 import {GenericRESTService} from "./GenericRESTService";
 import {TimeOutManager} from "../common/TimeOutManager";
 import {Group} from "ts-generic-collections-linq";
@@ -359,6 +360,7 @@ class RESTService extends GenericRESTService {
     public restApplications: RESTApplications;
     public restInvitations: RESTInvitations;
     public restGroups: RESTGroups;
+    public restPresence: RESTPresence;
     public applicationToken: string;
     public connectionS2SInfo: any;
     private reconnectInProgress: boolean;
@@ -401,6 +403,7 @@ class RESTService extends GenericRESTService {
         this.restApplications = new RESTApplications(core, evtEmitter, _logger);
         this.restInvitations = new RESTInvitations(core, evtEmitter, _logger);
         this.restGroups = new RESTGroups(core, evtEmitter, _logger);
+        this.restPresence = new RESTPresence(core, evtEmitter, _logger);
         //this.timeOutManager = core.timeOutManager;
         this.http = null;
         this.account = null;
@@ -522,6 +525,9 @@ class RESTService extends GenericRESTService {
         prom.push(that.restGroups.start(that.http).then(() => {
             that._logger.log(that.INTERNAL, LOG_ID + "(start) restGroups email used", that.loginEmail);
         }));
+        prom.push(that.restPresence.start(that.http).then(() => {
+            that._logger.log(that.INTERNAL, LOG_ID + "(start) restPresence email used", that.loginEmail);
+        }));
         return Promise.all(prom);
     }
 
@@ -600,6 +606,9 @@ class RESTService extends GenericRESTService {
                 });
                 await that.restGroups.stop().then(() => {
                     that._logger.log(that.INTERNAL, LOG_ID + "(stop) restGroups.");
+                });
+                await that.restPresence.stop().then(() => {
+                    that._logger.log(that.INTERNAL, LOG_ID + "(stop) restPresence.");
                 });
 
                 await that.signout().then(() => {
@@ -776,6 +785,7 @@ class RESTService extends GenericRESTService {
         this.restApplications.p_token = value;
         this.restInvitations.p_token = value;
         this.restGroups.p_token = value;
+        this.restPresence.p_token = value;
     }
 
     set decodedtokenRest(value: any) {
@@ -798,6 +808,7 @@ class RESTService extends GenericRESTService {
         this.restApplications.p_decodedtokenRest = value;
         this.restInvitations.p_decodedtokenRest = value;
         this.restGroups.p_decodedtokenRest = value;
+        this.restPresence.p_decodedtokenRest = value;
     }
 
     set credentialsRest(value: any) {
@@ -820,6 +831,7 @@ class RESTService extends GenericRESTService {
         this.restApplications.p_credentials = value;
         this.restInvitations.p_credentials = value;
         this.restGroups.p_credentials = value;
+        this.restPresence.p_credentials = value;
     }
 
     set applicationRest(value: any) {
@@ -842,6 +854,7 @@ class RESTService extends GenericRESTService {
         this.restApplications.p_application = value;
         this.restInvitations.p_application = value;
         this.restGroups.p_application = value;
+        this.restPresence.p_application = value;
     }
 
     set authRest(value: any) {
@@ -864,6 +877,7 @@ class RESTService extends GenericRESTService {
         this.restApplications.p_auth = value;
         this.restInvitations.p_auth = value;
         this.restGroups.p_auth = value;
+        this.restPresence.p_auth = value;
     }
 
     setconnectionS2SInfo(_connectionS2SInfo) {
@@ -1399,54 +1413,8 @@ class RESTService extends GenericRESTService {
     }
 
     //region Presence
-
-    /**
-     * @description
-     *      https://api.openrainbow.org/admin/#api-users_presence-admin_users_GetUserPresence
-     * @param {any} userId
-     * @return {Promise<unknown>}
-     */
-    getUserPresenceInformation(userId: string = undefined) {
-        let that = this;
-
-        if (!userId) {
-            userId = that.userId;
-        }
-
-        return new Promise((resolve, reject) => {
-            that.http.get("/api/rainbow/admin/v1.0/users/" + userId + "/presences", that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getUserPresenceInformation) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getUserPresenceInformation) REST result : ", json, " user presence.");
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getUserPresenceInformation) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getUserPresenceInformation) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    getMyPresenceInformation() {
-        let that = this;
-/* The API server send to xmpp server the following request.
-<iq type='get' id='123' xmlns='jabber:client'>
-     *     <user-presences user='cce80c33c78c47c0907a6bfa3f4ffe72@openrainbow.com' xmlns='jabber:iq:configuration'/>
-     * </iq>
-
- */
-        return new Promise((resolve, reject) => {
-            that.http.get("/api/rainbow/enduser/v1.0/users/me/presences", that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getMyPresenceInformation) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getMyPresenceInformation) REST result : ", json, " user presence.");
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getMyPresenceInformation) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getMyPresenceInformation) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
+    getUserPresenceInformation(userId: string = undefined) { return this.restPresence.getUserPresenceInformation(userId || this.userId); }
+    getMyPresenceInformation() { return this.restPresence.getMyPresenceInformation(); }
     //endregion Presence
 
     /**
