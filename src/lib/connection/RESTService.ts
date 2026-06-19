@@ -42,6 +42,7 @@ import {RESTAuth} from "./RestServices/RESTAuth";
 import {RESTContacts} from "./RestServices/RESTContacts";
 import {RESTApplications} from "./RestServices/RESTApplications";
 import {RESTInvitations} from "./RestServices/RESTInvitations";
+import {RESTGroups} from "./RestServices/RESTGroups";
 import {GenericRESTService} from "./GenericRESTService";
 import {TimeOutManager} from "../common/TimeOutManager";
 import {Group} from "ts-generic-collections-linq";
@@ -357,6 +358,7 @@ class RESTService extends GenericRESTService {
     public restContacts: RESTContacts;
     public restApplications: RESTApplications;
     public restInvitations: RESTInvitations;
+    public restGroups: RESTGroups;
     public applicationToken: string;
     public connectionS2SInfo: any;
     private reconnectInProgress: boolean;
@@ -398,6 +400,7 @@ class RESTService extends GenericRESTService {
         this.restContacts = new RESTContacts(core, evtEmitter, _logger);
         this.restApplications = new RESTApplications(core, evtEmitter, _logger);
         this.restInvitations = new RESTInvitations(core, evtEmitter, _logger);
+        this.restGroups = new RESTGroups(core, evtEmitter, _logger);
         //this.timeOutManager = core.timeOutManager;
         this.http = null;
         this.account = null;
@@ -516,6 +519,9 @@ class RESTService extends GenericRESTService {
         prom.push(that.restInvitations.start(that.http).then(() => {
             that._logger.log(that.INTERNAL, LOG_ID + "(start) restInvitations email used", that.loginEmail);
         }));
+        prom.push(that.restGroups.start(that.http).then(() => {
+            that._logger.log(that.INTERNAL, LOG_ID + "(start) restGroups email used", that.loginEmail);
+        }));
         return Promise.all(prom);
     }
 
@@ -591,6 +597,9 @@ class RESTService extends GenericRESTService {
                 });
                 await that.restInvitations.stop().then(() => {
                     that._logger.log(that.INTERNAL, LOG_ID + "(stop) restInvitations.");
+                });
+                await that.restGroups.stop().then(() => {
+                    that._logger.log(that.INTERNAL, LOG_ID + "(stop) restGroups.");
                 });
 
                 await that.signout().then(() => {
@@ -766,6 +775,7 @@ class RESTService extends GenericRESTService {
         this.restContacts.p_token = value;
         this.restApplications.p_token = value;
         this.restInvitations.p_token = value;
+        this.restGroups.p_token = value;
     }
 
     set decodedtokenRest(value: any) {
@@ -787,6 +797,7 @@ class RESTService extends GenericRESTService {
         this.restContacts.p_decodedtokenRest = value;
         this.restApplications.p_decodedtokenRest = value;
         this.restInvitations.p_decodedtokenRest = value;
+        this.restGroups.p_decodedtokenRest = value;
     }
 
     set credentialsRest(value: any) {
@@ -808,6 +819,7 @@ class RESTService extends GenericRESTService {
         this.restContacts.p_credentials = value;
         this.restApplications.p_credentials = value;
         this.restInvitations.p_credentials = value;
+        this.restGroups.p_credentials = value;
     }
 
     set applicationRest(value: any) {
@@ -829,6 +841,7 @@ class RESTService extends GenericRESTService {
         this.restContacts.p_application = value;
         this.restApplications.p_application = value;
         this.restInvitations.p_application = value;
+        this.restGroups.p_application = value;
     }
 
     set authRest(value: any) {
@@ -850,6 +863,7 @@ class RESTService extends GenericRESTService {
         this.restContacts.p_auth = value;
         this.restApplications.p_auth = value;
         this.restInvitations.p_auth = value;
+        this.restGroups.p_auth = value;
     }
 
     setconnectionS2SInfo(_connectionS2SInfo) {
@@ -1358,198 +1372,15 @@ class RESTService extends GenericRESTService {
     //endregion Invitations
 
     //region Groups
-
-    getGroups() {
-        let that = this;
-        let getSetOfGroups = function (page, max, groups) {
-            return new Promise((resolve, reject) => {
-                that.http.get("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/groups?format=full&offset=" + page + "&limit=" + max, that.getRequestHeader(), undefined, "", 5, 10000).then(function (json) {
-                    groups = groups.concat(json?.data);
-                    that._logger.log(that.INTERNAL, LOG_ID + "(getGroups) retrieved " + json.data.length + " groups, total " + groups.length + ", existing " + json.total);
-                    resolve({groups: groups, finished: groups.length===json.total});
-                }).catch(function (err) {
-                    return reject(err);
-                });
-            });
-        };
-
-        let getAllGroups = function (page, limit, groups) {
-
-            return new Promise((resolve, reject) => {
-
-                getSetOfGroups(page, limit, groups).then((json: any) => {
-                    if (json.finished) {
-                        that._logger.log(that.DEBUG, LOG_ID + "(getGroups) getSetOfGroups no need to loop again. All groups retrieve...");
-                        return resolve(json.groups);
-                    }
-                    page += limit;
-                    that._logger.log(that.INTERNAL, LOG_ID + "(getGroups) getSetOfGroups need another loop to get more groups... [" + json.groups.length + "]");
-                    getAllGroups(page, limit, json.groups).then((allGroups) => {
-                        resolve(allGroups);
-                    }).catch((err) => {
-                        return reject(err);
-                    });
-
-                }).catch((err) => {
-                    return reject(err);
-                });
-            });
-        };
-
-        return new Promise(function (resolve, reject) {
-            let page = 0;
-            let limit = 100;
-            getAllGroups(page, limit, []).then((json: any) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getGroups) getAllGroups successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getGroups) getAllGroups received " + json.length + " groups");
-                resolve(json);
-            }).catch((err) => {
-                that._logger.log(that.ERROR, LOG_ID, "(getGroups) getAllGroups error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getGroups) getAllGroups error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    getGroup(groupId: string) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            that.http.get("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/groups/" + groupId, that.getRequestHeader(), undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(getGroup) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getGroup) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getGroup) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getGroup) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    updateGroupFavorite(groupId: string, favorite: boolean) {
-        /*
-        Request URL: https://vberder.openrainbow.org/api/rainbow/enduser/v1.0/users/5bbdc3ae2cf496c07dd8912f/groups/5e3d39e1cbc6187d74aee06c
-Request Method: PUT
-{name: "GroupTest", comment: "descgroup", isFavorite: true}
-         */
-        let that = this;
-        //  let data = { "name": group.name, "comment": group.comment, "isFavorite": group.isFavorite }
-        let data = {
-            isFavorite: favorite
-        };
-        //let groupId = group.id;
-
-        return new Promise(function (resolve, reject) {
-            that.http.put("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/groups/" + groupId, that.getRequestHeader(), data, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(updateGroupFavorite) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(updateGroupFavorite) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(updateGroupFavorite) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateGroupFavorite) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    createGroup(name: string, comment: string, isFavorite: boolean) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            that.http.post("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/groups", that.getRequestHeader(), {
-                name: name,
-                comment: comment,
-                isFavorite: isFavorite
-            }, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(createGroup) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(createGroup) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(createGroup) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(createGroup) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    deleteGroup(groupId: string) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            that.http.delete("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/groups/" + groupId, that.getRequestHeader()).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(deleteGroup) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(deleteGroup) REST result : ", json);
-                resolve(json);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(deleteGroup) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteGroup) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    updateGroupName(groupId: string, name: string) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            that.http.put("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/groups/" + groupId, that.getRequestHeader(), {
-                name: name
-            }, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(updateGroupName) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(updateGroupName) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(updateGroupName) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateGroupName) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    updateGroupComment(groupId: string, comment: string) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            that.http.put("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/groups/" + groupId, that.getRequestHeader(), {
-                comment: comment
-            }, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(updateGroupComment) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(updateGroupComment) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(updateGroupComment) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateGroupComment) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    addUserInGroup(contactId: string, groupId: string) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            that.http.post("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/groups/" + groupId + "/users/" + contactId, that.getRequestHeader(), undefined, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(addUserInGroup) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(addUserInGroup) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(addUserInGroup) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(addUserInGroup) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    removeUserFromGroup(contactId: string, groupId: string) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            that.http.delete("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/groups/" + groupId + "/users/" + contactId, that.getRequestHeader()).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(removeUserFromGroup) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(removeUserFromGroup) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID + "(removeUserFromGroup) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID + "(removeUserFromGroup) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
+    getGroups() { return this.restGroups.getGroups(this.account?.id); }
+    getGroup(groupId: string) { return this.restGroups.getGroup(this.account?.id, groupId); }
+    updateGroupFavorite(groupId: string, favorite: boolean) { return this.restGroups.updateGroupFavorite(this.account?.id, groupId, favorite); }
+    createGroup(name: string, comment: string, isFavorite: boolean) { return this.restGroups.createGroup(this.account?.id, name, comment, isFavorite); }
+    deleteGroup(groupId: string) { return this.restGroups.deleteGroup(this.account?.id, groupId); }
+    updateGroupName(groupId: string, name: string) { return this.restGroups.updateGroupName(this.account?.id, groupId, name); }
+    updateGroupComment(groupId: string, comment: string) { return this.restGroups.updateGroupComment(this.account?.id, groupId, comment); }
+    addUserInGroup(contactId: string, groupId: string) { return this.restGroups.addUserInGroup(this.account?.id, contactId, groupId); }
+    removeUserFromGroup(contactId: string, groupId: string) { return this.restGroups.removeUserFromGroup(this.account?.id, contactId, groupId); }
     //endregion Groups
 
     getBots() {
