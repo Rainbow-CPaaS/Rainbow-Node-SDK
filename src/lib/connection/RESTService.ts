@@ -41,6 +41,7 @@ import {RESTConversations} from "./RestServices/RESTConversations";
 import {RESTAuth} from "./RestServices/RESTAuth";
 import {RESTContacts} from "./RestServices/RESTContacts";
 import {RESTApplications} from "./RestServices/RESTApplications";
+import {RESTInvitations} from "./RestServices/RESTInvitations";
 import {GenericRESTService} from "./GenericRESTService";
 import {TimeOutManager} from "../common/TimeOutManager";
 import {Group} from "ts-generic-collections-linq";
@@ -355,6 +356,7 @@ class RESTService extends GenericRESTService {
     public restAuth: RESTAuth;
     public restContacts: RESTContacts;
     public restApplications: RESTApplications;
+    public restInvitations: RESTInvitations;
     public applicationToken: string;
     public connectionS2SInfo: any;
     private reconnectInProgress: boolean;
@@ -395,6 +397,7 @@ class RESTService extends GenericRESTService {
         this.restAuth = new RESTAuth(core, evtEmitter, _logger);
         this.restContacts = new RESTContacts(core, evtEmitter, _logger);
         this.restApplications = new RESTApplications(core, evtEmitter, _logger);
+        this.restInvitations = new RESTInvitations(core, evtEmitter, _logger);
         //this.timeOutManager = core.timeOutManager;
         this.http = null;
         this.account = null;
@@ -510,6 +513,9 @@ class RESTService extends GenericRESTService {
         prom.push(that.restApplications.start(that.http).then(() => {
             that._logger.log(that.INTERNAL, LOG_ID + "(start) restApplications email used", that.loginEmail);
         }));
+        prom.push(that.restInvitations.start(that.http).then(() => {
+            that._logger.log(that.INTERNAL, LOG_ID + "(start) restInvitations email used", that.loginEmail);
+        }));
         return Promise.all(prom);
     }
 
@@ -582,6 +588,9 @@ class RESTService extends GenericRESTService {
                 });
                 await that.restApplications.stop().then(() => {
                     that._logger.log(that.INTERNAL, LOG_ID + "(stop) restApplications.");
+                });
+                await that.restInvitations.stop().then(() => {
+                    that._logger.log(that.INTERNAL, LOG_ID + "(stop) restInvitations.");
                 });
 
                 await that.signout().then(() => {
@@ -756,6 +765,7 @@ class RESTService extends GenericRESTService {
         this.restAuth.p_token = value;
         this.restContacts.p_token = value;
         this.restApplications.p_token = value;
+        this.restInvitations.p_token = value;
     }
 
     set decodedtokenRest(value: any) {
@@ -776,6 +786,7 @@ class RESTService extends GenericRESTService {
         this.restAuth.p_decodedtokenRest = value;
         this.restContacts.p_decodedtokenRest = value;
         this.restApplications.p_decodedtokenRest = value;
+        this.restInvitations.p_decodedtokenRest = value;
     }
 
     set credentialsRest(value: any) {
@@ -796,6 +807,7 @@ class RESTService extends GenericRESTService {
         this.restAuth.p_credentials = value;
         this.restContacts.p_credentials = value;
         this.restApplications.p_credentials = value;
+        this.restInvitations.p_credentials = value;
     }
 
     set applicationRest(value: any) {
@@ -816,6 +828,7 @@ class RESTService extends GenericRESTService {
         this.restAuth.p_application = value;
         this.restContacts.p_application = value;
         this.restApplications.p_application = value;
+        this.restInvitations.p_application = value;
     }
 
     set authRest(value: any) {
@@ -836,6 +849,7 @@ class RESTService extends GenericRESTService {
         this.restAuth.p_auth = value;
         this.restContacts.p_auth = value;
         this.restApplications.p_auth = value;
+        this.restInvitations.p_auth = value;
     }
 
     setconnectionS2SInfo(_connectionS2SInfo) {
@@ -1326,340 +1340,21 @@ class RESTService extends GenericRESTService {
     //endregion Favorites
 
     //region Invitations
-
-    getAllSentInvitations() {
-        // API https://api.openrainbow.org/enduser/#api-invitations-getAllSentInvition
-        // GET /api/rainbow/enduser/v1.0/users/:userId/invitations/sent
-        let that = this;
-        return new Promise((resolve, reject) => {
-            that.http.get("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/sent?format=full&status=pending&limit=500", that.getRequestHeader(), undefined, "", 5, 10000).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(getAllSentInvitations) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getAllSentInvitations) REST result : ", json);
-                resolve(json);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getAllSentInvitations) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getAllSentInvitations) error : ", err);
-                return reject(err);
-            });
-        });
-    };
-
-    getInvitationsSent(sortField: string = "lastNotificationDate", status: string = "pending", format: string = "small", limit: number = 500, offset: number, sortOrder: number = 1) {
-        // API https://api.openrainbow.org/enduser/#api-invitations-getAllSentInvition
-        // GET /api/rainbow/enduser/v1.0/users/:userId/invitations/sent
-        let that = this;
-        return new Promise((resolve, reject) => {
-            that._logger.log(that.INTERNAL, LOG_ID + "(getInvitationsSent) REST sortField : ", sortField);
-
-            let url: string = "/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/sent";
-            let urlParamsTab: string[] = [];
-            urlParamsTab.push(url);
-            addParamToUrl(urlParamsTab, "sortField", sortField);
-            addParamToUrl(urlParamsTab, "status", status);
-            addParamToUrl(urlParamsTab, "format", format);
-            addParamToUrl(urlParamsTab, "limit", limit);
-            addParamToUrl(urlParamsTab, "offset", offset);
-            addParamToUrl(urlParamsTab, "sortOrder", sortOrder);
-            url = urlParamsTab[0];
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getInvitationsSent) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(getInvitationsSent) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getInvitationsSent) REST result : ", json);
-                resolve(json);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getInvitationsSent) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getInvitationsSent) error : ", err);
-                return reject(err);
-            });
-        });
-    };
-
-    getAllReceivedInvitations() {
-        // API https://api.openrainbow.org/enduser/#api-invitations-getAllReceivedInvitation
-        // GET /api/rainbow/enduser/v1.0/users/:userId/invitations/received
-        let that = this;
-        return new Promise((resolve, reject) => {
-            that.http.get("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/received?format=full&status=pending&status=accepted&status=auto-accepted&limit=500", that.getRequestHeader(), undefined, "", 5, 10000).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(getAllReceivedInvitations) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getAllReceivedInvitations) REST result : ", json);
-                resolve(json);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getAllReceivedInvitations) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getAllReceivedInvitations) error : ", err);
-                return reject(err);
-            });
-        });
-    };
-
-    getInvitationsReceived(sortField: string = "lastNotificationDate", status: string = "pending", format: string = "small", limit: number = 500, offset: number = 0, sortOrder: number = 1) {
-        // API https://api.openrainbow.org/enduser/#api-invitations-getAllReceivedInvitation
-        // GET /api/rainbow/enduser/v1.0/users/:userId/invitations/received
-        let that = this;
-        return new Promise((resolve, reject) => {
-            that._logger.log(that.INTERNAL, LOG_ID + "(getInvitationsReceived) REST sortField : ", sortField);
-
-            let url: string = "/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/received";
-            let urlParamsTab: string[] = [];
-            urlParamsTab.push(url);
-            addParamToUrl(urlParamsTab, "sortField", sortField);
-            addParamToUrl(urlParamsTab, "status", status);
-            addParamToUrl(urlParamsTab, "format", format);
-            addParamToUrl(urlParamsTab, "limit", limit);
-            addParamToUrl(urlParamsTab, "offset", offset);
-            addParamToUrl(urlParamsTab, "sortOrder", sortOrder);
-            url = urlParamsTab[0];
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getInvitationsReceived) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(getInvitationsReceived) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getInvitationsReceived) REST result : ", json);
-                resolve(json);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getInvitationsReceived) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getInvitationsReceived) error : ", err);
-                return reject(err);
-            });
-        });
-    };
-
-    getServerInvitation(invitationId) {
-        // API https://api.openrainbow.org/enduser/#api-invitations-getUserInvitation
-        // GET /api/rainbow/enduser/v1.0/users/:userId/invitations/:invitationId
-        let that = this;
-        return new Promise((resolve, reject) => {
-            that.http.get("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/" + invitationId, that.getRequestHeader(), undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(getServerInvitation) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getServerInvitation) REST result : ", json);
-                resolve(json);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getServerInvitation) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getServerInvitation) error : ", err);
-                return reject(err);
-            });
-        });
-    };
-
-    sendInvitationByCriteria(email: string, lang: string, customMessage: string, invitedPhoneNumber: string, invitedUserId: string) {
-        // API https://api.openrainbow.org/enduser/#api-invitations-createUserInvitation
-        // POST /api/rainbow/enduser/v1.0/users/:userId/invitations
-        let that = this;
-        return new Promise((resolve, reject) => {
-            let params: any = {};
-            if (email) {
-                params.email = email;
-            }
-            if (lang) {
-                params.lang = lang;
-            }
-            if (customMessage) {
-                params.customMessage = customMessage;
-            }
-            if (invitedPhoneNumber) {
-                params.invitedPhoneNumber = invitedPhoneNumber;
-            }
-            if (invitedUserId) {
-                params.invitedUserId = invitedUserId;
-            }
-
-            that.http.post("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations", that.getRequestHeader(), params, undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(sendInvitationByCriteria) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(sendInvitationByCriteria) REST result : ", json);
-                resolve(json);
-            }).catch((err) => {
-                that._logger.log(that.ERROR, LOG_ID, "(sendInvitationByCriteria) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(sendInvitationByCriteria) error : ", err);
-                return reject(err);
-            });
-        });
-    };
-
-    cancelOneSendInvitation(invitation) {
-        // API https://api.openrainbow.org/enduser/#api-invitations-cancelUserInvitation
-        // POST /api/rainbow/enduser/v1.0/users/:userId/invitations/:invitationId/cancel
-        let that = this;
-        return new Promise((resolve, reject) => {
-            that.http.post("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/" + invitation.id + "/cancel", that.getRequestHeader(), undefined, undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(cancelOneSendInvitation) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(cancelOneSendInvitation) REST result : ", json);
-                resolve(json);
-            }).catch((err) => {
-                that._logger.log(that.ERROR, LOG_ID, "(cancelOneSendInvitation) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(cancelOneSendInvitation) error : ", err);
-                return reject(err);
-            });
-        });
-    };
-
-    deleteAUserInvitation(invitation) {
-        // API https://api.openrainbow.org/enduser/#api-invitations-deleteUserInvitation
-        // DELETE /api/rainbow/enduser/v1.0/users/:userId/invitations/:invitationId
-        let that = this;
-        return new Promise((resolve, reject) => {
-            that.http.delete("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/" + invitation.id, that.getRequestHeader()).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(deleteAUserInvitation) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(deleteAUserInvitation) REST result : ", json);
-                resolve(json);
-            }).catch((err) => {
-                that._logger.log(that.ERROR, LOG_ID, "(deleteAUserInvitation) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteAUserInvitation) error : ", err);
-                return reject(err);
-            });
-        });
-    };
-
-    reSendInvitation(invitationId: string, customMessage: string) {
-        // API https://api.openrainbow.org/enduser/#api-invitations-resendUserInvitation
-        // POST /api/rainbow/enduser/v1.0/users/:userId/invitations/:invitationId/re-send
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let data: any = {};
-            if (customMessage) {
-                data.customMessage = customMessage;
-            }
-            that.http.post("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/" + invitationId + "/re-send", that.getRequestHeader(), data, undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(reSendInvitation) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(reSendInvitation) REST result : ", json);
-                resolve(json);
-            }).catch((err) => {
-                that._logger.log(that.ERROR, LOG_ID, "(reSendInvitation) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(reSendInvitation) error : ", err);
-                return reject(err);
-            });
-        });
-    };
-
-    sendInvitationsByBulk(listOfMails, lang: string = undefined, customMessage: string = undefined) {
-        // API https://api.openrainbow.org/enduser/#api-invitations-createUserBulkInvitations
-        // POST /api/rainbow/enduser/v1.0/users/:userId/invitations/bulk
-        let that = this;
-        let data: any = {
-            emails: listOfMails
-        };
-        if (lang) {
-            data.lang = lang;
-        }
-        if (customMessage) {
-            data.customMessage = customMessage;
-        }
-
-        return new Promise(function (resolve, reject) {
-            that.http.post("/api/rainbow/enduser/v1.0/users/" + that.userId + "/invitations/bulk", that.getRequestHeader(), data, undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(sendInvitationsByBulk) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(sendInvitationsByBulk) REST result : ", json);
-                resolve(json);
-            }).catch((err) => {
-                that._logger.log(that.ERROR, LOG_ID, "(sendInvitationsByBulk) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(sendInvitationsByBulk) error : ", err);
-                return reject(err);
-            });
-        });
-    };
-
-    /**
-     * ACCEPT INVITATION
-     */
-    acceptInvitation(invitation) {
-        // API https://api.openrainbow.org/enduser/#api-invitations-acceptUserInvitation
-        // POST /api/rainbow/enduser/v1.0/users/:userId/invitations/:invitationId/accept
-
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            that._logger.log(that.INTERNAL, LOG_ID + "(acceptInvitation) invitation : ", invitation);
-            that.http.post("/api/rainbow/enduser/v1.0/users/" + invitation.invitedUserId + "/invitations/" + invitation.id + "/accept", that.getRequestHeader(), {}, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(acceptInvitation) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(acceptInvitation) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(acceptInvitation) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(acceptInvitation) error : ", err);
-                return reject(err);
-            });
-        });
-    };
-
-    /**
-     * DECLINE INVITATION
-     */
-    declineInvitation(invitation) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            that._logger.log(that.INTERNAL, LOG_ID + "(declineInvitation) invitation : ", invitation);
-            that.http.post("/api/rainbow/enduser/v1.0/users/" + invitation.invitedUserId + "/invitations/" + invitation.id + "/decline", that.getRequestHeader(), {}, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(declineInvitation) successfull");
-                resolve(json);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(declineInvitation) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(declineInvitation) error : ", err);
-                return reject(err);
-            });
-        });
-    };
-
-    /**
-     * SEND INVITATION
-     */
-    joinContactInvitation(contact) {
-        // API https://api.openrainbow.org/enduser/#api-invitations-createUserInvitation
-        // POST /api/rainbow/enduser/v1.0/users/:userId/invitations
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            that._logger.log(that.INTERNAL, LOG_ID + "(joinContactInvitation) contact : ", contact);
-            that.http.post("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations", that.getRequestHeader(), {"invitedUserId": contact.id}, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(joinContactInvitation) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(joinContactInvitation) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(joinContactInvitation) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(joinContactInvitation) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    joinContacts(contact, contactIds, presence) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            that.http.post("/api/rainbow/admin/v1.0/users/" + contact.id + "/networks", that.getRequestHeader(),
-                    {
-                        "users": contactIds,
-                        "presence": Boolean(presence)
-                    }
-                    , undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(joinContacts) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(joinContacts) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(joinContacts) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(joinContacts) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    getInvitationById(invitationId) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            if (!invitationId) {
-                that._logger.log(that.DEBUG, LOG_ID + "(getInvitationById) successfull");
-                that._logger.log(that.DEBUG, LOG_ID + "(getInvitationById) No id provided");
-                resolve(null);
-            } else {
-                that.http.get("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/invitations/" + invitationId, that.getRequestHeader(), undefined).then(function (json) {
-                    that._logger.log(that.DEBUG, LOG_ID + "(getInvitationById) successfull");
-                    that._logger.log(that.INTERNAL, LOG_ID + "(getInvitationById) REST result : ", json);
-                    resolve(json?.data);
-                }).catch(function (err) {
-                    that._logger.log(that.ERROR, LOG_ID, "(getInvitationById) error");
-                    that._logger.log(that.INTERNALERROR, LOG_ID, "(getInvitationById) error : ", err);
-                    return reject(err);
-                });
-            }
-        });
-    }
-
+    getAllSentInvitations() { return this.restInvitations.getAllSentInvitations(this.account?.id); }
+    getInvitationsSent(sortField: string = "lastNotificationDate", status: string = "pending", format: string = "small", limit: number = 500, offset: number = undefined, sortOrder: number = 1) { return this.restInvitations.getInvitationsSent(this.account?.id, sortField, status, format, limit, offset, sortOrder); }
+    getAllReceivedInvitations() { return this.restInvitations.getAllReceivedInvitations(this.account?.id); }
+    getInvitationsReceived(sortField: string = "lastNotificationDate", status: string = "pending", format: string = "small", limit: number = 500, offset: number = 0, sortOrder: number = 1) { return this.restInvitations.getInvitationsReceived(this.account?.id, sortField, status, format, limit, offset, sortOrder); }
+    getServerInvitation(invitationId) { return this.restInvitations.getServerInvitation(this.account?.id, invitationId); }
+    sendInvitationByCriteria(email: string, lang: string, customMessage: string, invitedPhoneNumber: string, invitedUserId: string) { return this.restInvitations.sendInvitationByCriteria(this.account?.id, email, lang, customMessage, invitedPhoneNumber, invitedUserId); }
+    cancelOneSendInvitation(invitation) { return this.restInvitations.cancelOneSendInvitation(this.account?.id, invitation); }
+    deleteAUserInvitation(invitation) { return this.restInvitations.deleteAUserInvitation(this.account?.id, invitation); }
+    reSendInvitation(invitationId: string, customMessage: string) { return this.restInvitations.reSendInvitation(this.account?.id, invitationId, customMessage); }
+    sendInvitationsByBulk(listOfMails, lang: string = undefined, customMessage: string = undefined) { return this.restInvitations.sendInvitationsByBulk(this.userId, listOfMails, lang, customMessage); }
+    acceptInvitation(invitation) { return this.restInvitations.acceptInvitation(invitation); }
+    declineInvitation(invitation) { return this.restInvitations.declineInvitation(invitation); }
+    joinContactInvitation(contact) { return this.restInvitations.joinContactInvitation(this.account?.id, contact); }
+    joinContacts(contact, contactIds, presence) { return this.restInvitations.joinContacts(contact, contactIds, presence); }
+    getInvitationById(invitationId) { return this.restInvitations.getInvitationById(this.account?.id, invitationId); }
     //endregion Invitations
 
     //region Groups
