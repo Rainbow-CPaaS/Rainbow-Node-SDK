@@ -41,6 +41,7 @@ import * as Utils from "./common/Utils"
 import {RPCoverXMPPService} from "./services/RPCoverXMPPService.js";
 import {LevelLogs} from "./common/LevelLogs.js";
 import { TasksService } from "./services/TasksService";
+import {BackendStatusService} from "./services/BackendStatusService";
 
 /*let _signin;
 let _retrieveInformation;
@@ -91,6 +92,7 @@ class Core extends LevelLogs{
     public _rbvoice: RBVoiceService;
     public _invitations: InvitationsService;
     public _tasks: TasksService;
+    public _backendStatus: BackendStatusService;
     public _httpoverxmpp: HTTPoverXMPP;
     public _rpcoverxmpp: RPCoverXMPPService;
 	public _botsjid: any;
@@ -324,6 +326,7 @@ class Core extends LevelLogs{
         self._webinars = new WebinarsService(self, self._eventEmitter.iee, self.options.httpOptions, self._logger, self.options.servicesToStart.webinar);
         self._invitations = new InvitationsService(self, self._eventEmitter.iee,self._logger, self.options.servicesToStart.invitation);
         self._tasks = new TasksService(self, self._eventEmitter.iee, self._logger, self.options.servicesToStart.tasks);
+        self._backendStatus = new BackendStatusService(self, self._eventEmitter.iee, self._logger, self.options.servicesToStart.backendStatus);
 
         self._botsjid = [];
 
@@ -510,6 +513,7 @@ class Core extends LevelLogs{
                 {name: `RPCoverXMPP`,          svc: that._rpcoverxmpp},
                 {name: `InvitationsService`,   svc: that._invitations, extra: []},
                 {name: `TasksService`,         svc: that._tasks},
+                {name: `BackendStatusService`, svc: that._backendStatus},
             ];
             for (const {name, svc, extra} of services) {
                 if (!svc._started) {
@@ -1051,6 +1055,8 @@ class Core extends LevelLogs{
                     }).then(() => {
                         return that._tasks.start(that.options) ;
                     }).then(() => {
+                        return that._backendStatus.start(that.options) ;
+                    }).then(() => {
                         that._logger.log(that.DEBUG, LOG_ID + "(start) all modules started successfully");
                         that._stateManager.transitTo(true, that._stateManager.STARTED).then(() => {
                             that.getDurationSinceStart("start end ");
@@ -1582,6 +1588,10 @@ class Core extends LevelLogs{
 
     get tasks() {
         return this._tasks;
+    }
+
+    get backendStatus() {
+        return this._backendStatus;
     }
 
     get Utils() {

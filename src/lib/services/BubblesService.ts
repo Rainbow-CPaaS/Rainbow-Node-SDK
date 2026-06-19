@@ -7722,6 +7722,63 @@ class Bubbles extends GenericService {
 
     //endregion rooms lobbies management
 
+    //region Room
+
+    /**
+     * @public
+     * @method getMyPushToTalkRooms
+     * @instance
+     * @description Retrieves push-to-talk rooms the current user belongs to.
+     * @param {object} [params] - Optional query params: format, nbUsersToKeep
+     * @category Room
+     * @returns {Promise<any>} - Push-to-talk rooms
+     */
+    async getMyPushToTalkRooms(params?: any): Promise<any> {
+        let that = this;
+        that._logger.log(that.INFO, `${LOG_ID}(getMyPushToTalkRooms) entry`);
+        try {
+            const result = await that._rest.getMyPushToTalk(params);
+            that._logger.log(that.INFO, `${LOG_ID}(getMyPushToTalkRooms) exit`);
+            return result;
+        } catch (err) {
+            that._logger.log(that.ERROR, `${LOG_ID}(getMyPushToTalkRooms) error : `, err);
+            throw err;
+        }
+    }
+
+    /**
+     * @public
+     * @method clearRoomContent
+     * @instance
+     * @description Clears the content (messages/files) of a room.
+     * @param {string} roomId - Room unique identifier
+     * @param {object} body - Clear content payload
+     * @category Room
+     * @returns {Promise<any>} - Clear result
+     */
+    async clearRoomContent(roomId: string, body: any): Promise<any> {
+        let that = this;
+        that._logger.log(that.INFO, `${LOG_ID}(clearRoomContent) entry`);
+        if (!roomId) {
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'roomId' parameter";
+            error.label += "bad or empty 'roomId' parameter";
+            error.cause = roomId;
+            that._logger.log(that.WARN, `${LOG_ID}(clearRoomContent) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, `${LOG_ID}(clearRoomContent) bad or empty 'roomId' parameter : `, error.cause, ", error : ", error);
+            throw error;
+        }
+        try {
+            const result = await that._rest.clearRoomContent(roomId, body);
+            that._logger.log(that.INFO, `${LOG_ID}(clearRoomContent) exit`);
+            return result;
+        } catch (err) {
+            that._logger.log(that.ERROR, `${LOG_ID}(clearRoomContent) error : `, err);
+            throw err;
+        }
+    }
+
+    //endregion Room
 
 }
 

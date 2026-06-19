@@ -47,6 +47,7 @@ import {RPCoverXMPPService} from "./services/RPCoverXMPPService.js";
 import {LEVELS, LEVELSCOLORS, LEVELSNAMES, LogLevelAreas} from "./common/LevelLogs.js";
 import {CalendarManager} from "./common/CalendarManager.js";
 import {AutoReplyManager} from "./common/AutoReplyManager.js";
+import {BackendStatusService} from "./services/BackendStatusService";
 
 let LOG_ID = "NodeSDK/IDX";
 
@@ -581,7 +582,7 @@ class NodeSDK {
 
         this._option = options;
         this._core = new Core(options);
-        this._logger = this._core._logger
+        this._logger = this._core._logger;
     }
 
     /**
@@ -1026,6 +1027,20 @@ class NodeSDK {
      */
     get admin() : AdminService{
         return this._core.admin;
+    }
+
+    /**
+     * @public
+     * @property {Object} backendStatus
+     * @instance
+     * @nodered true
+     * @service true
+     * @description
+     *    Get access to the BackendStatus module
+     * @return {BackendStatusService}
+     */
+    get backendStatus() : BackendStatusService {
+        return this._core.backendStatus;
     }
 
     /**

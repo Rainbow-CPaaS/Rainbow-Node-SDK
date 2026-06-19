@@ -306,6 +306,8 @@ let expressEngine = undefined;
     logLevelAreas.httpservice.level = LEVELSNAMES.ERROR;
     logLevelAreas.rest.level = LEVELSNAMES.ERROR;
     logLevelAreas.resttelephony.level = LEVELSNAMES.ERROR;
+    logLevelAreas.restroom.level = LEVELSNAMES.ERROR;
+    logLevelAreas.backendStatus.level = LEVELSNAMES.ERROR;
     logLevelAreas.restconferencev2.level = LEVELSNAMES.ERROR;
     logLevelAreas.restwebinar.level = LEVELSNAMES.ERROR;
     logLevelAreas.xmpp.level = LEVELSNAMES.ERROR;
@@ -690,6 +692,15 @@ let expressEngine = undefined;
                 },
                 'resttelephony': {
                     "category": "lawlayer",
+                    "level": "error"
+                },
+                'restroom': {
+                    "category": "lawlayer",
+                    "level": "error"
+                },
+                'backendStatus': {
+                    "category": "services",
+                    "api": true,
                     "level": "error"
                 },
                 'restconferencev2': {
@@ -15642,6 +15653,287 @@ to='user1@pdevdv3os18f.corp.intuit.net/BANL07R9AME9X' type='get' id='e2e1'>
         }
 
         //endregion Logguer
+
+        //region Room REST API tests
+
+        /**
+         * Tests BackendStatus.room: ping, about, getMetrics.
+         * deleteMetrics and setLogLevel are kept in a separate test to avoid side effects.
+         */
+        async testBackendStatusRoom() {
+            try {
+                _logger.log("info", `MAIN - [testBackendStatusRoom] :: start.`);
+
+                _logger.log("debug", `MAIN - [testBackendStatusRoom] :: calling ping...`);
+                const pingResult: any = await rainbowSDK.backendStatus.room.ping();
+                _logger.log("debug", `MAIN - [testBackendStatusRoom] :: ping result : `, pingResult);
+                expectingIsDefined(pingResult, "ping - result should be defined.");
+
+                _logger.log("debug", `MAIN - [testBackendStatusRoom] :: calling about...`);
+                const aboutResult: any = await rainbowSDK.backendStatus.room.about();
+                _logger.log("debug", `MAIN - [testBackendStatusRoom] :: about result : `, aboutResult);
+                expectingIsDefined(aboutResult, "about - result should be defined.");
+
+                _logger.log("debug", `MAIN - [testBackendStatusRoom] :: calling getMetrics...`);
+                const metricsResult: any = await rainbowSDK.backendStatus.room.getMetrics();
+                _logger.log("debug", `MAIN - [testBackendStatusRoom] :: getMetrics result : `, metricsResult);
+                expectingIsDefined(metricsResult, "getMetrics - result should be defined.");
+
+                _logger.log("info", `MAIN - [testBackendStatusRoom] :: Test completed successfully.`);
+            } catch (err) {
+                _logger.log("error", `MAIN - [testBackendStatusRoom] :: Error : `, err);
+            }
+        }
+
+        /**
+         * Tests BackendStatus.room.setLogLevel and deleteMetrics.
+         * Run separately — these methods have server-side side effects.
+         */
+        async testBackendStatusRoomSideEffects() {
+            try {
+                _logger.log("info", `MAIN - [testBackendStatusRoomSideEffects] :: start.`);
+
+                _logger.log("debug", `MAIN - [testBackendStatusRoomSideEffects] :: setLogLevel(debug)...`);
+                await rainbowSDK.backendStatus.room.setLogLevel({ console: "debug", file: "debug" });
+
+                _logger.log("debug", `MAIN - [testBackendStatusRoomSideEffects] :: restoring setLogLevel(info)...`);
+                const restoreResult: any = await rainbowSDK.backendStatus.room.setLogLevel({ console: "info", file: "info" });
+                _logger.log("debug", `MAIN - [testBackendStatusRoomSideEffects] :: setLogLevel(info) result : `, restoreResult);
+                expectingIsDefined(restoreResult, "setLogLevel - result should be defined.");
+
+                _logger.log("debug", `MAIN - [testBackendStatusRoomSideEffects] :: calling deleteMetrics...`);
+                const deleteMetricsResult: any = await rainbowSDK.backendStatus.room.deleteMetrics();
+                _logger.log("debug", `MAIN - [testBackendStatusRoomSideEffects] :: deleteMetrics result : `, deleteMetricsResult);
+
+                _logger.log("info", `MAIN - [testBackendStatusRoomSideEffects] :: Test completed successfully.`);
+            } catch (err) {
+                _logger.log("error", `MAIN - [testBackendStatusRoomSideEffects] :: Error : `, err);
+            }
+        }
+
+        /**
+         * Full admin room lifecycle: getRooms → createRoom → getRoomById → updateRoom → deleteRoom.
+         */
+        async testAdminRoomLifecycle() {
+            let createdRoomId: string;
+            try {
+                _logger.log("info", `MAIN - [testAdminRoomLifecycle] :: start.`);
+
+                _logger.log("debug", `MAIN - [testAdminRoomLifecycle] :: calling getRooms...`);
+                const rooms: any = await rainbowSDK.admin.getRooms({ limit: 10, offset: 0 });
+                _logger.log("debug", `MAIN - [testAdminRoomLifecycle] :: getRooms result : `, rooms);
+                expectingIsDefined(rooms, "getRooms - result should be defined.");
+
+                const roomName = "SDK_Test_Room_" + makeId(6);
+                _logger.log("debug", `MAIN - [testAdminRoomLifecycle] :: creating room : `, roomName);
+                const created: any = await rainbowSDK.admin.createRoom({ name: roomName, topic: "Automated SDK test room" });
+                _logger.log("debug", `MAIN - [testAdminRoomLifecycle] :: createRoom result : `, created);
+                expectingIsDefined(created, "createRoom - result should be defined.");
+                expectingIsDefined(created?.id, "createRoom - result.id should be defined.");
+                createdRoomId = created.id;
+
+                _logger.log("debug", `MAIN - [testAdminRoomLifecycle] :: calling getRoomById : `, createdRoomId);
+                const fetched: any = await rainbowSDK.admin.getRoomById(createdRoomId);
+                _logger.log("debug", `MAIN - [testAdminRoomLifecycle] :: getRoomById result : `, fetched);
+                expectingIsDefined(fetched, "getRoomById - result should be defined.");
+                expectingIsDefined(fetched?.id, "getRoomById - result.id should be defined.");
+
+                _logger.log("debug", `MAIN - [testAdminRoomLifecycle] :: calling updateRoom...`);
+                const updated: any = await rainbowSDK.admin.updateRoom(createdRoomId, { topic: "Updated by SDK test" });
+                _logger.log("debug", `MAIN - [testAdminRoomLifecycle] :: updateRoom result : `, updated);
+                expectingIsDefined(updated, "updateRoom - result should be defined.");
+
+                _logger.log("debug", `MAIN - [testAdminRoomLifecycle] :: calling deleteRoom : `, createdRoomId);
+                const deleted: any = await rainbowSDK.admin.deleteRoom(createdRoomId);
+                _logger.log("debug", `MAIN - [testAdminRoomLifecycle] :: deleteRoom result : `, deleted);
+                createdRoomId = undefined;
+
+                _logger.log("info", `MAIN - [testAdminRoomLifecycle] :: Test completed successfully.`);
+            } catch (err) {
+                _logger.log("error", `MAIN - [testAdminRoomLifecycle] :: Error : `, err);
+                if (createdRoomId) {
+                    _logger.log("debug", `MAIN - [testAdminRoomLifecycle] :: cleanup, deleting room : `, createdRoomId);
+                    try { await rainbowSDK.admin.deleteRoom(createdRoomId); } catch (_) {}
+                }
+            }
+        }
+
+        /**
+         * Tests admin room avatar: uploadRoomAvatar then deleteRoomAvatar.
+         * Creates and deletes a temporary room internally.
+         */
+        async testAdminRoomAvatarManagement() {
+            let createdRoomId: string;
+            try {
+                _logger.log("info", `MAIN - [testAdminRoomAvatarManagement] :: start.`);
+
+                const roomName = "SDK_Test_AvatarRoom_" + makeId(6);
+                const created: any = await rainbowSDK.admin.createRoom({ name: roomName, topic: "Avatar test" });
+                expectingIsDefined(created?.id, "createRoom (avatar test) - result.id should be defined.");
+                createdRoomId = created.id;
+
+                // Minimal 1×1 red PNG
+                const pngHex =
+                    "89504e470d0a1a0a0000000d4948445200000001000000010802000000" +
+                    "90019010000000000000000000000049454e44ae426082";
+                const pngBuffer = Buffer.from(pngHex, "hex");
+
+                _logger.log("debug", `MAIN - [testAdminRoomAvatarManagement] :: uploading avatar for room : `, createdRoomId);
+                const uploadResult: any = await rainbowSDK.admin.uploadRoomAvatar(createdRoomId, { data: pngBuffer, type: "png" });
+                _logger.log("debug", `MAIN - [testAdminRoomAvatarManagement] :: uploadRoomAvatar result : `, uploadResult);
+                expectingIsDefined(uploadResult, "uploadRoomAvatar - result should be defined.");
+
+                _logger.log("debug", `MAIN - [testAdminRoomAvatarManagement] :: deleting avatar...`);
+                const deleteResult: any = await rainbowSDK.admin.deleteRoomAvatar(createdRoomId);
+                _logger.log("debug", `MAIN - [testAdminRoomAvatarManagement] :: deleteRoomAvatar result : `, deleteResult);
+
+                await rainbowSDK.admin.deleteRoom(createdRoomId);
+                createdRoomId = undefined;
+
+                _logger.log("info", `MAIN - [testAdminRoomAvatarManagement] :: Test completed successfully.`);
+            } catch (err) {
+                _logger.log("error", `MAIN - [testAdminRoomAvatarManagement] :: Error : `, err);
+                if (createdRoomId) {
+                    try { await rainbowSDK.admin.deleteRoom(createdRoomId); } catch (_) {}
+                }
+            }
+        }
+
+        /**
+         * Tests admin room user management: promoteRoomUsers, demoteRoomUsers, deleteRoomUsers.
+         * Uses scope "all" — works even if the room has no extra members.
+         */
+        async testAdminRoomUserManagement() {
+            let createdRoomId: string;
+            try {
+                _logger.log("info", `MAIN - [testAdminRoomUserManagement] :: start.`);
+
+                const roomName = "SDK_Test_UserMgmt_" + makeId(6);
+                const created: any = await rainbowSDK.admin.createRoom({ name: roomName, topic: "User management test" });
+                expectingIsDefined(created?.id, "createRoom (user mgmt) - result.id should be defined.");
+                createdRoomId = created.id;
+
+                _logger.log("debug", `MAIN - [testAdminRoomUserManagement] :: promoteRoomUsers(all) on room : `, createdRoomId);
+                const promoteResult: any = await rainbowSDK.admin.promoteRoomUsers(createdRoomId, { scope: "all" });
+                _logger.log("debug", `MAIN - [testAdminRoomUserManagement] :: promoteRoomUsers result : `, promoteResult);
+                expectingIsDefined(promoteResult, "promoteRoomUsers - result should be defined.");
+
+                _logger.log("debug", `MAIN - [testAdminRoomUserManagement] :: demoteRoomUsers(all)...`);
+                const demoteResult: any = await rainbowSDK.admin.demoteRoomUsers(createdRoomId, { scope: "all" });
+                _logger.log("debug", `MAIN - [testAdminRoomUserManagement] :: demoteRoomUsers result : `, demoteResult);
+                expectingIsDefined(demoteResult, "demoteRoomUsers - result should be defined.");
+
+                _logger.log("debug", `MAIN - [testAdminRoomUserManagement] :: deleteRoomUsers(all)...`);
+                const deleteUsersResult: any = await rainbowSDK.admin.deleteRoomUsers(createdRoomId, { scope: "all" });
+                _logger.log("debug", `MAIN - [testAdminRoomUserManagement] :: deleteRoomUsers result : `, deleteUsersResult);
+                expectingIsDefined(deleteUsersResult, "deleteRoomUsers - result should be defined.");
+
+                await rainbowSDK.admin.deleteRoom(createdRoomId);
+                createdRoomId = undefined;
+
+                _logger.log("info", `MAIN - [testAdminRoomUserManagement] :: Test completed successfully.`);
+            } catch (err) {
+                _logger.log("error", `MAIN - [testAdminRoomUserManagement] :: Error : `, err);
+                if (createdRoomId) {
+                    try { await rainbowSDK.admin.deleteRoom(createdRoomId); } catch (_) {}
+                }
+            }
+        }
+
+        /**
+         * Tests rehostRoom. Requires a valid target user ID in your environment.
+         * Edit targetUserId before running.
+         */
+        async testAdminRehostRoom() {
+            let createdRoomId: string;
+            try {
+                _logger.log("info", `MAIN - [testAdminRehostRoom] :: start.`);
+
+                // Replace with a real target user ID from your environment
+                const targetUserId = "REPLACE_WITH_TARGET_USER_ID";
+
+                const roomName = "SDK_Test_Rehost_" + makeId(6);
+                const created: any = await rainbowSDK.admin.createRoom({ name: roomName, topic: "Rehost test" });
+                expectingIsDefined(created?.id, "createRoom (rehost) - result.id should be defined.");
+                createdRoomId = created.id;
+
+                _logger.log("debug", `MAIN - [testAdminRehostRoom] :: rehostRoom to userId : `, targetUserId);
+                const rehostResult: any = await rainbowSDK.admin.rehostRoom(createdRoomId, { newOwnerId: targetUserId });
+                _logger.log("debug", `MAIN - [testAdminRehostRoom] :: rehostRoom result : `, rehostResult);
+                expectingIsDefined(rehostResult, "rehostRoom - result should be defined.");
+
+                await rainbowSDK.admin.deleteRoom(createdRoomId);
+                createdRoomId = undefined;
+
+                _logger.log("info", `MAIN - [testAdminRehostRoom] :: Test completed successfully.`);
+            } catch (err) {
+                _logger.log("error", `MAIN - [testAdminRehostRoom] :: Error : `, err);
+                if (createdRoomId) {
+                    try { await rainbowSDK.admin.deleteRoom(createdRoomId); } catch (_) {}
+                }
+            }
+        }
+
+        /**
+         * Tests getMyPushToTalkRooms and clearRoomContent via both AdminService and BubblesService.
+         */
+        async testEnduserRoomMethods() {
+            let createdRoomId: string;
+            try {
+                _logger.log("info", `MAIN - [testEnduserRoomMethods] :: start.`);
+
+                _logger.log("debug", `MAIN - [testEnduserRoomMethods] :: admin.getMyPushToTalkRooms...`);
+                const adminPttResult: any = await rainbowSDK.admin.getMyPushToTalkRooms();
+                _logger.log("debug", `MAIN - [testEnduserRoomMethods] :: admin.getMyPushToTalkRooms result : `, adminPttResult);
+                expectingIsDefined(adminPttResult, "admin.getMyPushToTalkRooms - result should be defined.");
+
+                _logger.log("debug", `MAIN - [testEnduserRoomMethods] :: bubbles.getMyPushToTalkRooms...`);
+                const bubblesPttResult: any = await rainbowSDK.bubbles.getMyPushToTalkRooms();
+                _logger.log("debug", `MAIN - [testEnduserRoomMethods] :: bubbles.getMyPushToTalkRooms result : `, bubblesPttResult);
+                expectingIsDefined(bubblesPttResult, "bubbles.getMyPushToTalkRooms - result should be defined.");
+
+                const roomName = "SDK_Test_Clear_" + makeId(6);
+                const created: any = await rainbowSDK.admin.createRoom({ name: roomName, topic: "Clear content test" });
+                expectingIsDefined(created?.id, "createRoom (clear test) - result.id should be defined.");
+                createdRoomId = created.id;
+
+                _logger.log("debug", `MAIN - [testEnduserRoomMethods] :: admin.clearRoomContent for room : `, createdRoomId);
+                const clearAdminResult: any = await rainbowSDK.admin.clearRoomContent(createdRoomId, { scope: "all" });
+                _logger.log("debug", `MAIN - [testEnduserRoomMethods] :: admin.clearRoomContent result : `, clearAdminResult);
+                expectingIsDefined(clearAdminResult, "admin.clearRoomContent - result should be defined.");
+
+                _logger.log("debug", `MAIN - [testEnduserRoomMethods] :: bubbles.clearRoomContent...`);
+                const clearBubblesResult: any = await rainbowSDK.bubbles.clearRoomContent(createdRoomId, { scope: "all" });
+                _logger.log("debug", `MAIN - [testEnduserRoomMethods] :: bubbles.clearRoomContent result : `, clearBubblesResult);
+                expectingIsDefined(clearBubblesResult, "bubbles.clearRoomContent - result should be defined.");
+
+                await rainbowSDK.admin.deleteRoom(createdRoomId);
+                createdRoomId = undefined;
+
+                _logger.log("info", `MAIN - [testEnduserRoomMethods] :: Test completed successfully.`);
+            } catch (err) {
+                _logger.log("error", `MAIN - [testEnduserRoomMethods] :: Error : `, err);
+                if (createdRoomId) {
+                    try { await rainbowSDK.admin.deleteRoom(createdRoomId); } catch (_) {}
+                }
+            }
+        }
+
+        /**
+         * Runs all non-destructive Room API tests in sequence.
+         * Excludes testBackendStatusRoomSideEffects and testAdminRehostRoom.
+         */
+        async testAllRoomAPIs() {
+            _logger.log("info", `MAIN - [testAllRoomAPIs] :: Running all Room API tests...`);
+            await this.testBackendStatusRoom();
+            await this.testAdminRoomLifecycle();
+            await this.testAdminRoomAvatarManagement();
+            await this.testAdminRoomUserManagement();
+            await this.testEnduserRoomMethods();
+            _logger.log("info", `MAIN - [testAllRoomAPIs] :: All Room API tests done.`);
+        }
+
+        //endregion Room REST API tests
 
 
     }

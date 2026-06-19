@@ -27,6 +27,7 @@ import {Core} from "../Core";
 import {ErrorManager} from "../common/ErrorManager";
 import {RESTConferenceV2} from "./RestServices/RESTConferenceV2";
 import {RESTWebinar} from "./RestServices/RESTWebinar";
+import {RESTRoom} from "./RestServices/RESTRoom";
 import {GenericRESTService} from "./GenericRESTService";
 import {TimeOutManager} from "../common/TimeOutManager";
 import {Group} from "ts-generic-collections-linq";
@@ -327,6 +328,7 @@ class RESTService extends GenericRESTService {
     public restTelephony: RESTTelephony;
     public restConferenceV2: RESTConferenceV2;
     public restWebinar: RESTWebinar;
+    public restRoom: RESTRoom;
     public applicationToken: string;
     public connectionS2SInfo: any;
     private reconnectInProgress: boolean;
@@ -353,6 +355,7 @@ class RESTService extends GenericRESTService {
         this.restTelephony = new RESTTelephony(core, evtEmitter, _logger);
         this.restConferenceV2 = new RESTConferenceV2(core, evtEmitter, _logger);
         this.restWebinar = new RESTWebinar(core, evtEmitter, _logger);
+        this.restRoom = new RESTRoom(core, evtEmitter, _logger);
         //this.timeOutManager = core.timeOutManager;
         this.http = null;
         this.account = null;
@@ -426,6 +429,9 @@ class RESTService extends GenericRESTService {
         prom.push(that.restWebinar.start(that.http).then(() => {
             that._logger.log(that.INTERNAL, LOG_ID + "(start) restWebinar email used", that.loginEmail);
         }));
+        prom.push(that.restRoom.start(that.http).then(() => {
+            that._logger.log(that.INTERNAL, LOG_ID + "(start) restRoom email used", that.loginEmail);
+        }));
         return Promise.all(prom);
     }
 
@@ -443,6 +449,10 @@ class RESTService extends GenericRESTService {
 
                 await that.restWebinar.stop().then(() => {
                     that._logger.log(that.INTERNAL, LOG_ID + "(stop) restWebinar.");
+                });
+
+                await that.restRoom.stop().then(() => {
+                    that._logger.log(that.INTERNAL, LOG_ID + "(stop) restRoom.");
                 });
 
                 await that.signout().then(() => {
@@ -603,30 +613,35 @@ class RESTService extends GenericRESTService {
         this._token = value;
         this.restConferenceV2.p_token = value;
         this.restWebinar.p_token = value;
+        this.restRoom.p_token = value;
     }
 
     set decodedtokenRest(value: any) {
         this._decodedtokenRest = value;
         this.restConferenceV2.p_decodedtokenRest = value;
         this.restWebinar.p_decodedtokenRest = value;
+        this.restRoom.p_decodedtokenRest = value;
     }
 
     set credentialsRest(value: any) {
         this._credentials = value;
         this.restConferenceV2.p_credentials = value;
         this.restWebinar.p_credentials = value;
+        this.restRoom.p_credentials = value;
     }
 
     set applicationRest(value: any) {
         this._application = value;
         this.restConferenceV2.p_application = value;
         this.restWebinar.p_application = value;
+        this.restRoom.p_application = value;
     }
 
     set authRest(value: any) {
         this._auth = value;
         this.restConferenceV2.p_auth = value;
         this.restWebinar.p_auth = value;
+        this.restRoom.p_auth = value;
     }
 
     setconnectionS2SInfo(_connectionS2SInfo) {
@@ -17513,6 +17528,29 @@ addPropertyToObj(param, "peerId", body.peerId, false);
     }
 
     //endregion Webinar
+
+    //region Room
+
+    getRoomsAsAdmin(params?: any) { let that = this; return that.restRoom.getRoomsAsAdmin(params); }
+    createRoomAsAdmin(body: any) { let that = this; return that.restRoom.createRoomAsAdmin(body); }
+    getRoomByIdAsAdmin(roomId: string, nbUsersToKeep?: number) { let that = this; return that.restRoom.getRoomByIdAsAdmin(roomId, nbUsersToKeep); }
+    updateRoomAsAdmin(roomId: string, body: any) { let that = this; return that.restRoom.updateRoomAsAdmin(roomId, body); }
+    deleteRoomAsAdmin(roomId: string) { let that = this; return that.restRoom.deleteRoomAsAdmin(roomId); }
+    rehostRoomAsAdmin(roomId: string, body: any) { let that = this; return that.restRoom.rehostRoomAsAdmin(roomId, body); }
+    uploadRoomAvatarAsAdmin(roomId: string, binaryData: { data: any; type: string }) { let that = this; return that.restRoom.uploadRoomAvatarAsAdmin(roomId, binaryData); }
+    deleteRoomAvatarAsAdmin(roomId: string) { let that = this; return that.restRoom.deleteRoomAvatarAsAdmin(roomId); }
+    promoteSomeOrAllRoomUsersAsAdmin(roomId: string, body: any) { let that = this; return that.restRoom.promoteSomeOrAllRoomUsersAsAdmin(roomId, body); }
+    demoteSomeOrAllRoomUsersAsAdmin(roomId: string, body: any) { let that = this; return that.restRoom.demoteSomeOrAllRoomUsersAsAdmin(roomId, body); }
+    deleteSomeOrAllRoomUsersAsAdmin(roomId: string, body: any) { let that = this; return that.restRoom.deleteSomeOrAllRoomUsersAsAdmin(roomId, body); }
+    getMyPushToTalk(params?: any) { let that = this; return that.restRoom.getMyPushToTalk(params); }
+    clearRoomContent(roomId: string, body: any) { let that = this; return that.restRoom.clearRoomContent(roomId, body); }
+    getApiRainbowPing() { let that = this; return that.restRoom.getApiRainbowPing(); }
+    getApiRainbowRoomV10About() { let that = this; return that.restRoom.getApiRainbowRoomV10About(); }
+    getMetricsRoom() { let that = this; return that.restRoom.getMetrics(); }
+    deleteMetricsRoom() { let that = this; return that.restRoom.deleteMetrics(); }
+    putApiRainbowLogsLevels(body: { console?: string; file?: string; syslog?: string }) { let that = this; return that.restRoom.putApiRainbowLogsLevels(body); }
+
+    //endregion Room
 
     //region Customer Care
 

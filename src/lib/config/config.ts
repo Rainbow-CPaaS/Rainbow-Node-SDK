@@ -388,6 +388,11 @@ let conf =  {
                 "optional":true,
                 "logEntryParameters":false
             }, //need services :  (that._xmpp, that._rest);
+            "backendStatus":  {
+                "start_up":true,
+                "optional":true,
+                "logEntryParameters":false
+            }, //need services :  (that._rest);
             "fileServer":  {
                 "start_up":true,
                 "optional":true,

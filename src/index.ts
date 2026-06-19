@@ -43,4 +43,5 @@ module.exports.NodeSDK = NodeSDK;
 module.exports.LogLevelAreas = LogLevelAreas;
 export default NodeSDK;
 export { NodeSDK as NodeSDK, LogLevelAreas}; //, OptionsType};
+export { BackendStatusService } from './lib/services/BackendStatusService';
 

@@ -19393,6 +19393,403 @@ class AdminService extends GenericService {
 
     //endregion Applications
 
+    //region Room
+
+    /**
+     * @public
+     * @method getRooms
+     * @instance
+     * @description Retrieves all rooms managed for the company.
+     * @param {object} [params] - Optional query params: format, name, limit, offset, sortField, sortOrder, nbUsersToKeep
+     * @category Room
+     * @returns {Promise<any>} - List of rooms
+     */
+    async getRooms(params?: any): Promise<any> {
+        let that = this;
+        that._logger.log(that.INFOAPI, `${LOG_ID}(getRooms) entry`);
+        try {
+            const result = await that._rest.getRoomsAsAdmin(params);
+            that._logger.log(that.INFO, `${LOG_ID}(getRooms) exit`);
+            return result;
+        } catch (err) {
+            that._logger.log(that.ERROR, `${LOG_ID}(getRooms) error : `, err);
+            throw err;
+        }
+    }
+
+    /**
+     * @public
+     * @method createRoom
+     * @instance
+     * @description Creates a new managed room.
+     * @param {object} body - Room creation payload
+     * @category Room
+     * @returns {Promise<any>} - Created room data
+     */
+    async createRoom(body: any): Promise<any> {
+        let that = this;
+        that._logger.log(that.INFO, `${LOG_ID}(createRoom) entry`);
+        if (!body) {
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'body' parameter";
+            error.label += "bad or empty 'body' parameter";
+            error.cause = body;
+            that._logger.log(that.WARN, `${LOG_ID}(createRoom) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, `${LOG_ID}(createRoom) bad or empty 'body' parameter : `, error.cause, ", error : ", error);
+            throw error;
+        }
+        try {
+            const result = await that._rest.createRoomAsAdmin(body);
+            that._logger.log(that.INFO, `${LOG_ID}(createRoom) exit`);
+            return result;
+        } catch (err) {
+            that._logger.log(that.ERROR, `${LOG_ID}(createRoom) error : `, err);
+            throw err;
+        }
+    }
+
+    /**
+     * @public
+     * @method getRoomById
+     * @instance
+     * @description Gets a managed room by its identifier.
+     * @param {string} roomId - Room unique identifier
+     * @param {number} [nbUsersToKeep] - Max number of users to include in the response
+     * @category Room
+     * @returns {Promise<any>} - Room data
+     */
+    async getRoomById(roomId: string, nbUsersToKeep?: number): Promise<any> {
+        let that = this;
+        that._logger.log(that.INFOAPI, `${LOG_ID}(getRoomById) entry`);
+        if (!roomId) {
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'roomId' parameter";
+            error.label += "bad or empty 'roomId' parameter";
+            error.cause = roomId;
+            that._logger.log(that.WARN, `${LOG_ID}(getRoomById) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, `${LOG_ID}(getRoomById) bad or empty 'roomId' parameter : `, error.cause, ", error : ", error);
+            throw error;
+        }
+        try {
+            const result = await that._rest.getRoomByIdAsAdmin(roomId, nbUsersToKeep);
+            that._logger.log(that.INFO, `${LOG_ID}(getRoomById) exit`);
+            return result;
+        } catch (err) {
+            that._logger.log(that.ERROR, `${LOG_ID}(getRoomById) error : `, err);
+            throw err;
+        }
+    }
+
+    /**
+     * @public
+     * @method updateRoom
+     * @instance
+     * @description Updates settings and/or users of a managed room.
+     * @param {string} roomId - Room unique identifier
+     * @param {object} body - Update payload
+     * @category Room
+     * @returns {Promise<any>} - Updated room data
+     */
+    async updateRoom(roomId: string, body: any): Promise<any> {
+        let that = this;
+        that._logger.log(that.INFOAPI, `${LOG_ID}(updateRoom) entry`);
+        if (!roomId) {
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'roomId' parameter";
+            error.label += "bad or empty 'roomId' parameter";
+            error.cause = roomId;
+            that._logger.log(that.WARN, `${LOG_ID}(updateRoom) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, `${LOG_ID}(updateRoom) bad or empty 'roomId' parameter : `, error.cause, ", error : ", error);
+            throw error;
+        }
+        try {
+            const result = await that._rest.updateRoomAsAdmin(roomId, body);
+            that._logger.log(that.INFO, `${LOG_ID}(updateRoom) exit`);
+            return result;
+        } catch (err) {
+            that._logger.log(that.ERROR, `${LOG_ID}(updateRoom) error : `, err);
+            throw err;
+        }
+    }
+
+    /**
+     * @public
+     * @method deleteRoom
+     * @instance
+     * @description Deletes a managed room and cleans up all associated data.
+     * @param {string} roomId - Room unique identifier
+     * @category Room
+     * @returns {Promise<any>} - Deletion result
+     */
+    async deleteRoom(roomId: string): Promise<any> {
+        let that = this;
+        that._logger.log(that.INFOAPI, `${LOG_ID}(deleteRoom) entry`);
+        if (!roomId) {
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'roomId' parameter";
+            error.label += "bad or empty 'roomId' parameter";
+            error.cause = roomId;
+            that._logger.log(that.WARN, `${LOG_ID}(deleteRoom) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, `${LOG_ID}(deleteRoom) bad or empty 'roomId' parameter : `, error.cause, ", error : ", error);
+            throw error;
+        }
+        try {
+            const result = await that._rest.deleteRoomAsAdmin(roomId);
+            that._logger.log(that.INFO, `${LOG_ID}(deleteRoom) exit`);
+            return result;
+        } catch (err) {
+            that._logger.log(that.ERROR, `${LOG_ID}(deleteRoom) error : `, err);
+            throw err;
+        }
+    }
+
+    /**
+     * @public
+     * @method rehostRoom
+     * @instance
+     * @description Transfers ownership of a managed room to another user.
+     * @param {string} roomId - Room unique identifier
+     * @param {object} body - Rehost payload
+     * @category Room
+     * @returns {Promise<any>} - Rehost result
+     */
+    async rehostRoom(roomId: string, body: any): Promise<any> {
+        let that = this;
+        that._logger.log(that.INFOAPI, `${LOG_ID}(rehostRoom) entry`);
+        if (!roomId) {
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'roomId' parameter";
+            error.label += "bad or empty 'roomId' parameter";
+            error.cause = roomId;
+            that._logger.log(that.WARN, `${LOG_ID}(rehostRoom) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, `${LOG_ID}(rehostRoom) bad or empty 'roomId' parameter : `, error.cause, ", error : ", error);
+            throw error;
+        }
+        try {
+            const result = await that._rest.rehostRoomAsAdmin(roomId, body);
+            that._logger.log(that.INFO, `${LOG_ID}(rehostRoom) exit`);
+            return result;
+        } catch (err) {
+            that._logger.log(that.ERROR, `${LOG_ID}(rehostRoom) error : `, err);
+            throw err;
+        }
+    }
+
+    /**
+     * @public
+     * @method uploadRoomAvatar
+     * @instance
+     * @description Uploads an avatar image for a managed room.
+     * @param {string} roomId - Room unique identifier
+     * @param {{ data: any, type: string }} binaryData - Avatar binary data and image MIME sub-type (e.g. "jpeg")
+     * @category Room
+     * @returns {Promise<any>} - Upload result
+     */
+    async uploadRoomAvatar(roomId: string, binaryData: { data: any; type: string }): Promise<any> {
+        let that = this;
+        that._logger.log(that.INFOAPI, `${LOG_ID}(uploadRoomAvatar) entry`);
+        if (!roomId) {
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'roomId' parameter";
+            error.label += "bad or empty 'roomId' parameter";
+            error.cause = roomId;
+            that._logger.log(that.WARN, `${LOG_ID}(uploadRoomAvatar) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, `${LOG_ID}(uploadRoomAvatar) bad or empty 'roomId' parameter : `, error.cause, ", error : ", error);
+            throw error;
+        }
+        try {
+            const result = await that._rest.uploadRoomAvatarAsAdmin(roomId, binaryData);
+            that._logger.log(that.INFO, `${LOG_ID}(uploadRoomAvatar) exit`);
+            return result;
+        } catch (err) {
+            that._logger.log(that.ERROR, `${LOG_ID}(uploadRoomAvatar) error : `, err);
+            throw err;
+        }
+    }
+
+    /**
+     * @public
+     * @method deleteRoomAvatar
+     * @instance
+     * @description Deletes the avatar of a managed room.
+     * @param {string} roomId - Room unique identifier
+     * @category Room
+     * @returns {Promise<any>} - Deletion result
+     */
+    async deleteRoomAvatar(roomId: string): Promise<any> {
+        let that = this;
+        that._logger.log(that.INFOAPI, `${LOG_ID}(deleteRoomAvatar) entry`);
+        if (!roomId) {
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'roomId' parameter";
+            error.label += "bad or empty 'roomId' parameter";
+            error.cause = roomId;
+            that._logger.log(that.WARN, `${LOG_ID}(deleteRoomAvatar) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, `${LOG_ID}(deleteRoomAvatar) bad or empty 'roomId' parameter : `, error.cause, ", error : ", error);
+            throw error;
+        }
+        try {
+            const result = await that._rest.deleteRoomAvatarAsAdmin(roomId);
+            that._logger.log(that.INFO, `${LOG_ID}(deleteRoomAvatar) exit`);
+            return result;
+        } catch (err) {
+            that._logger.log(that.ERROR, `${LOG_ID}(deleteRoomAvatar) error : `, err);
+            throw err;
+        }
+    }
+
+    /**
+     * @public
+     * @method promoteRoomUsers
+     * @instance
+     * @description Promotes some or all members of a managed room to moderator.
+     * @param {string} roomId - Room unique identifier
+     * @param {object} body - Promotion payload
+     * @category Room
+     * @returns {Promise<any>} - Promotion result
+     */
+    async promoteRoomUsers(roomId: string, body: any): Promise<any> {
+        let that = this;
+        that._logger.log(that.INFOAPI, `${LOG_ID}(promoteRoomUsers) entry`);
+        if (!roomId) {
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'roomId' parameter";
+            error.label += "bad or empty 'roomId' parameter";
+            error.cause = roomId;
+            that._logger.log(that.WARN, `${LOG_ID}(promoteRoomUsers) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, `${LOG_ID}(promoteRoomUsers) bad or empty 'roomId' parameter : `, error.cause, ", error : ", error);
+            throw error;
+        }
+        try {
+            const result = await that._rest.promoteSomeOrAllRoomUsersAsAdmin(roomId, body);
+            that._logger.log(that.INFO, `${LOG_ID}(promoteRoomUsers) exit`);
+            return result;
+        } catch (err) {
+            that._logger.log(that.ERROR, `${LOG_ID}(promoteRoomUsers) error : `, err);
+            throw err;
+        }
+    }
+
+    /**
+     * @public
+     * @method demoteRoomUsers
+     * @instance
+     * @description Demotes some or all moderators of a managed room to regular user.
+     * @param {string} roomId - Room unique identifier
+     * @param {object} body - Demotion payload
+     * @category Room
+     * @returns {Promise<any>} - Demotion result
+     */
+    async demoteRoomUsers(roomId: string, body: any): Promise<any> {
+        let that = this;
+        that._logger.log(that.INFOAPI, `${LOG_ID}(demoteRoomUsers) entry`);
+        if (!roomId) {
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'roomId' parameter";
+            error.label += "bad or empty 'roomId' parameter";
+            error.cause = roomId;
+            that._logger.log(that.WARN, `${LOG_ID}(demoteRoomUsers) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, `${LOG_ID}(demoteRoomUsers) bad or empty 'roomId' parameter : `, error.cause, ", error : ", error);
+            throw error;
+        }
+        try {
+            const result = await that._rest.demoteSomeOrAllRoomUsersAsAdmin(roomId, body);
+            that._logger.log(that.INFO, `${LOG_ID}(demoteRoomUsers) exit`);
+            return result;
+        } catch (err) {
+            that._logger.log(that.ERROR, `${LOG_ID}(demoteRoomUsers) error : `, err);
+            throw err;
+        }
+    }
+
+    /**
+     * @public
+     * @method deleteRoomUsers
+     * @instance
+     * @description Removes some or all users from a managed room.
+     * @param {string} roomId - Room unique identifier
+     * @param {object} body - Deletion payload
+     * @category Room
+     * @returns {Promise<any>} - Deletion result
+     */
+    async deleteRoomUsers(roomId: string, body: any): Promise<any> {
+        let that = this;
+        that._logger.log(that.INFOAPI, `${LOG_ID}(deleteRoomUsers) entry`);
+        if (!roomId) {
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'roomId' parameter";
+            error.label += "bad or empty 'roomId' parameter";
+            error.cause = roomId;
+            that._logger.log(that.WARN, `${LOG_ID}(deleteRoomUsers) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, `${LOG_ID}(deleteRoomUsers) bad or empty 'roomId' parameter : `, error.cause, ", error : ", error);
+            throw error;
+        }
+        try {
+            const result = await that._rest.deleteSomeOrAllRoomUsersAsAdmin(roomId, body);
+            that._logger.log(that.INFO, `${LOG_ID}(deleteRoomUsers) exit`);
+            return result;
+        } catch (err) {
+            that._logger.log(that.ERROR, `${LOG_ID}(deleteRoomUsers) error : `, err);
+            throw err;
+        }
+    }
+
+    /**
+     * @public
+     * @method getMyPushToTalkRooms
+     * @instance
+     * @description Retrieves push-to-talk rooms the current user is a member of.
+     * @param {object} [params] - Optional query params: format, nbUsersToKeep
+     * @category Room
+     * @returns {Promise<any>} - Push-to-talk rooms
+     */
+    async getMyPushToTalkRooms(params?: any): Promise<any> {
+        let that = this;
+        that._logger.log(that.INFOAPI, `${LOG_ID}(getMyPushToTalkRooms) entry`);
+        try {
+            const result = await that._rest.getMyPushToTalk(params);
+            that._logger.log(that.INFO, `${LOG_ID}(getMyPushToTalkRooms) exit`);
+            return result;
+        } catch (err) {
+            that._logger.log(that.ERROR, `${LOG_ID}(getMyPushToTalkRooms) error : `, err);
+            throw err;
+        }
+    }
+
+    /**
+     * @public
+     * @method clearRoomContent
+     * @instance
+     * @description Clears the content (messages/files) of a room.
+     * @param {string} roomId - Room unique identifier
+     * @param {object} body - Clear content payload
+     * @category Room
+     * @returns {Promise<any>} - Clear result
+     */
+    async clearRoomContent(roomId: string, body: any): Promise<any> {
+        let that = this;
+        that._logger.log(that.INFOAPI, `${LOG_ID}(clearRoomContent) entry`);
+        if (!roomId) {
+            let error = ErrorManager.getErrorManager().BAD_REQUEST;
+            error.msg += "bad or empty 'roomId' parameter";
+            error.label += "bad or empty 'roomId' parameter";
+            error.cause = roomId;
+            that._logger.log(that.WARN, `${LOG_ID}(clearRoomContent) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, `${LOG_ID}(clearRoomContent) bad or empty 'roomId' parameter : `, error.cause, ", error : ", error);
+            throw error;
+        }
+        try {
+            const result = await that._rest.clearRoomContent(roomId, body);
+            that._logger.log(that.INFO, `${LOG_ID}(clearRoomContent) exit`);
+            return result;
+        } catch (err) {
+            that._logger.log(that.ERROR, `${LOG_ID}(clearRoomContent) error : `, err);
+            throw err;
+        }
+    }
+
+    //endregion Room
+
     }
 
 module.exports.AdminService = AdminService;
