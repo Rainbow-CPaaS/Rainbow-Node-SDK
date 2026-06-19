@@ -38,6 +38,7 @@ import {RESTChannels} from "./RestServices/RESTChannels";
 import {RESTFileStorage} from "./RestServices/RESTFileStorage";
 import {RESTSubscriptions} from "./RestServices/RESTSubscriptions";
 import {RESTConversations} from "./RestServices/RESTConversations";
+import {RESTAuth} from "./RestServices/RESTAuth";
 import {GenericRESTService} from "./GenericRESTService";
 import {TimeOutManager} from "../common/TimeOutManager";
 import {Group} from "ts-generic-collections-linq";
@@ -349,6 +350,7 @@ class RESTService extends GenericRESTService {
     public restFileStorage: RESTFileStorage;
     public restSubscriptions: RESTSubscriptions;
     public restConversations: RESTConversations;
+    public restAuth: RESTAuth;
     public applicationToken: string;
     public connectionS2SInfo: any;
     private reconnectInProgress: boolean;
@@ -386,6 +388,7 @@ class RESTService extends GenericRESTService {
         this.restFileStorage = new RESTFileStorage(core, evtEmitter, _logger);
         this.restSubscriptions = new RESTSubscriptions(core, evtEmitter, _logger);
         this.restConversations = new RESTConversations(core, evtEmitter, _logger);
+        this.restAuth = new RESTAuth(core, evtEmitter, _logger);
         //this.timeOutManager = core.timeOutManager;
         this.http = null;
         this.account = null;
@@ -492,6 +495,9 @@ class RESTService extends GenericRESTService {
         prom.push(that.restConversations.start(that.http).then(() => {
             that._logger.log(that.INTERNAL, LOG_ID + "(start) restConversations email used", that.loginEmail);
         }));
+        prom.push(that.restAuth.start(that.http).then(() => {
+            that._logger.log(that.INTERNAL, LOG_ID + "(start) restAuth email used", that.loginEmail);
+        }));
         return Promise.all(prom);
     }
 
@@ -553,6 +559,10 @@ class RESTService extends GenericRESTService {
 
                 await that.restConversations.stop().then(() => {
                     that._logger.log(that.INTERNAL, LOG_ID + "(stop) restConversations.");
+                });
+
+                await that.restAuth.stop().then(() => {
+                    that._logger.log(that.INTERNAL, LOG_ID + "(stop) restAuth.");
                 });
 
                 await that.signout().then(() => {
@@ -724,6 +734,7 @@ class RESTService extends GenericRESTService {
         this.restFileStorage.p_token = value;
         this.restSubscriptions.p_token = value;
         this.restConversations.p_token = value;
+        this.restAuth.p_token = value;
     }
 
     set decodedtokenRest(value: any) {
@@ -741,6 +752,7 @@ class RESTService extends GenericRESTService {
         this.restFileStorage.p_decodedtokenRest = value;
         this.restSubscriptions.p_decodedtokenRest = value;
         this.restConversations.p_decodedtokenRest = value;
+        this.restAuth.p_decodedtokenRest = value;
     }
 
     set credentialsRest(value: any) {
@@ -758,6 +770,7 @@ class RESTService extends GenericRESTService {
         this.restFileStorage.p_credentials = value;
         this.restSubscriptions.p_credentials = value;
         this.restConversations.p_credentials = value;
+        this.restAuth.p_credentials = value;
     }
 
     set applicationRest(value: any) {
@@ -775,6 +788,7 @@ class RESTService extends GenericRESTService {
         this.restFileStorage.p_application = value;
         this.restSubscriptions.p_application = value;
         this.restConversations.p_application = value;
+        this.restAuth.p_application = value;
     }
 
     set authRest(value: any) {
@@ -792,6 +806,7 @@ class RESTService extends GenericRESTService {
         this.restFileStorage.p_auth = value;
         this.restSubscriptions.p_auth = value;
         this.restConversations.p_auth = value;
+        this.restAuth.p_auth = value;
     }
 
     setconnectionS2SInfo(_connectionS2SInfo) {
@@ -1103,387 +1118,22 @@ class RESTService extends GenericRESTService {
     //endregion
 
     //region apikeys rainbow authentication
-
-    deleteApiKey(apiKeyId: string) {
-        // API https://api.openrainbow.org/authentication/#api-apikeys-DeleteApiKey
-        // DELETE /api/rainbow/authentication/v1.0/apikeys/:apiKeyId
-
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let data: any = {};
-
-            //let userId = userId ? userId : that.account.id;
-            let userId = that.account.id;
-
-            let url = "/api/rainbow/authentication/v1.0/apikeys/" + apiKeyId;
-            that._logger.log(that.INTERNAL, LOG_ID + "(deleteApiKey) args : ", data);
-            that.http.delete(url, that.getRequestHeader(), undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(deleteApiKey) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(deleteApiKey) REST result : ", json);
-                resolve(json);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(deleteApiKey) error.");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteApiKey) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    generateApiKey (scope:Array<string> = ["all"], description: string = "", isActive: boolean = true, expirationDate?: string): Promise<[any]> {
-        // API https://api.openrainbow.org/authentication/#api-apikeys-PostApiKeys
-        // POST "/api/rainbow/authentication/v1.0/apikeys"
-        // for authentication
-
-        let that = this;
-        return new Promise(async function (resolve, reject) {
-            let url = "/api/rainbow/authentication/v1.0/apikeys";
-            /*let urlParamsTab: string[] = [];
-            urlParamsTab.push(url);
-            addParamToUrl(urlParamsTab, "sortOrder", sortOrder);
-            addParamToUrl(urlParamsTab, "limit", limit);
-            addParamToUrl(urlParamsTab, "offset", offset);
-            url = urlParamsTab[0];
-            // */
-
-            let body: any = {};
-            addPropertyToObj(body, "scope", scope, false);
-            addPropertyToObj(body, "description", description, false);
-            addPropertyToObj(body, "isActive", isActive, false);
-            addPropertyToObj(body, "expirationDate", expirationDate, false);
-
-            //that._logger.log(that.INTERNAL, LOG_ID + "(generateApiKey) with params : ",body);
-            await that.http.post(url, that.getRequestHeader(), body, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(generateApiKey) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(generateApiKey) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(generateApiKey) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(generateApiKey) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    getAllApiKey(isActive:boolean = undefined, fromCreationDate:string = undefined, toCreationDate:string = undefined, limit:number = 100, offset:number = 0, sortField:string = "creationDate", sortOrder : number = -1, format : string = "small", userId : string) {
-        // API https://api.openrainbow.org/authentication/#api-apikeys-GetAllApiKeys
-        // GET /api/rainbow/authentication/v1.0/apikeys
-
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            //that._logger.log(that.INTERNAL, LOG_ID + "(getMultifactorInformation) REST numberE164 : ", numberE164);
-            //let userId = that.account.id;
-
-            let url: string = "/api/rainbow/authentication/v1.0/apikeys";
-            let urlParamsTab: string[] = [];
-            urlParamsTab.push(url);
-            addParamToUrl(urlParamsTab, "isActive", isActive, false);
-            addParamToUrl(urlParamsTab, "fromCreationDate", fromCreationDate, false);
-            addParamToUrl(urlParamsTab, "toCreationDate", toCreationDate, false);
-            addParamToUrl(urlParamsTab, "limit", limit, false);
-            addParamToUrl(urlParamsTab, "offset", offset, false);
-            addParamToUrl(urlParamsTab, "sortField", sortField, false);
-            addParamToUrl(urlParamsTab, "sortOrder", sortOrder, false);
-            addParamToUrl(urlParamsTab, "format", format, false);
-            addParamToUrl(urlParamsTab, "userId", userId, false);
-            url = urlParamsTab[0];
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getAllApiKey) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getAllApiKey) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getAllApiKey) REST result : ", json);
-                resolve(json);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getAllApiKey) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getAllApiKey) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    getApiKey(apiKeyId:string = undefined) {
-        // API https://api.openrainbow.org/authentication/#api-apikeys-GetAnApiKey
-        // GET /api/rainbow/authentication/v1.0/apikeys/:apiKeyId
-
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            //that._logger.log(that.INTERNAL, LOG_ID + "(getMultifactorInformation) REST numberE164 : ", numberE164);
-            //let userId = that.account.id;
-
-            let url: string = "/api/rainbow/authentication/v1.0/apikeys/"+apiKeyId;
-/*
-            let urlParamsTab: string[] = [];
-            urlParamsTab.push(url);
-            addParamToUrl(urlParamsTab, "isActive", isActive, false);
-            url = urlParamsTab[0];
-//*/
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getApiKey) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getApiKey) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getApiKey) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getApiKey) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getApiKey) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    getCurrentApiKey(apiKeyId:string = undefined) {
-        // API https://api.openrainbow.org/authentication/#api-apikeys-GetCurrentApiKey
-        // GET /api/rainbow/authentication/v1.0/apikeys/current
-
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            //that._logger.log(that.INTERNAL, LOG_ID + "(getMultifactorInformation) REST numberE164 : ", numberE164);
-            //let userId = that.account.id;
-
-            let url: string = "/api/rainbow/authentication/v1.0/apikeys/current";
-            /*
-                        let urlParamsTab: string[] = [];
-                        urlParamsTab.push(url);
-                        addParamToUrl(urlParamsTab, "isActive", isActive, false);
-                        url = urlParamsTab[0];
-            //*/
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getCurrentApiKey) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getCurrentApiKey) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getCurrentApiKey) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getCurrentApiKey) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getCurrentApiKey) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    updateApiKey(apiKeyId : string, description : string, isActive : boolean, expirationDate: string = undefined) {
-        // API https://api.openrainbow.org/authentication/#api-apikeys-PutApiKeys
-        // PUT /api/rainbow/authentication/v1.0/apikeys/:apiKeyId
-
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let data: any = {};
-            //let userId = that.account.id;
-            let url = "/api/rainbow/authentication/v1.0/apikeys/" + apiKeyId;
-
-            let body: any = {};
-            addPropertyToObj(body, "description", description, false);
-            addPropertyToObj(body, "isActive", isActive, false);
-            addPropertyToObj(body, "expirationDate", expirationDate, false);
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(updateApiKey) args : ", body);
-            that.http.put(url, that.getRequestHeader(), body, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(updateApiKey) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(updateApiKey) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(updateApiKey) error.");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateApiKey) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
+    deleteApiKey(apiKeyId: string) { return this.restAuth.deleteApiKey(apiKeyId); }
+    generateApiKey(scope: Array<string> = ["all"], description: string = "", isActive: boolean = true, expirationDate?: string) { return this.restAuth.generateApiKey(scope, description, isActive, expirationDate); }
+    getAllApiKey(isActive: boolean = undefined, fromCreationDate: string = undefined, toCreationDate: string = undefined, limit: number = 100, offset: number = 0, sortField: string = "creationDate", sortOrder: number = -1, format: string = "small", userId: string) { return this.restAuth.getAllApiKey(isActive, fromCreationDate, toCreationDate, limit, offset, sortField, sortOrder, format, userId); }
+    getApiKey(apiKeyId: string = undefined) { return this.restAuth.getApiKey(apiKeyId); }
+    getCurrentApiKey(apiKeyId: string = undefined) { return this.restAuth.getCurrentApiKey(apiKeyId); }
+    updateApiKey(apiKeyId: string, description: string, isActive: boolean, expirationDate: string = undefined) { return this.restAuth.updateApiKey(apiKeyId, description, isActive, expirationDate); }
     //endregion apikeys rainbow authentication
 
     //region multifactor rainbow authentication
-
-    deleteTrustedApplication(appId: string) {
-        // API https://api.openrainbow.org/enduser/#api-multifactor_rainbow_authentication 
-        // DELETE /api/rainbow/enduser/v1.0/users/:userId/mfa/trusted/:appId
-
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let data: any = {};
-
-            //let userId = userId ? userId : that.account.id;
-            let userId = that.account.id;
-
-            let url = "/api/rainbow/enduser/v1.0/users/" + userId + "/mfa/trusted/" + appId;
-            that._logger.log(that.INTERNAL, LOG_ID + "(deleteTrustedApplication) args : ", data);
-            that.http.delete(url, that.getRequestHeader(), undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(deleteTrustedApplication) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(deleteTrustedApplication) REST result : ", json);
-                resolve(json);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(deleteTrustedApplication) error.");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteTrustedApplication) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    deleteAllTrustedApplications() {
-        // API https://api.openrainbow.org/enduser/#api-multifactor_rainbow_authentication-DeleteAllTrustedApp 
-        // DELETE /api/rainbow/enduser/v1.0/users/:userId/mfa/trusted
-
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let data: any = {};
-
-            //let userId = userId ? userId : that.account.id;
-            let userId = that.account.id;
-
-            let url = "/api/rainbow/enduser/v1.0/users/" + userId + "/mfa/trusted";
-            that._logger.log(that.INTERNAL, LOG_ID + "(deleteAllTrustedApplications) args : ", data);
-            that.http.delete(url, that.getRequestHeader(), undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(deleteAllTrustedApplications) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(deleteAllTrustedApplications) REST result : ", json?.data);
-                resolve(json);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(deleteAllTrustedApplications) error.");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteAllTrustedApplications) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    disableMultifactorAuthentication() {
-        // API https://api.openrainbow.org/enduser/#api-multifactor_rainbow_authentication-DisableMFA 
-        // DELETE /api/rainbow/enduser/v1.0/users/:userId/mfa
-
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let data: any = {};
-
-            //let userId = userId ? userId : that.account.id;
-            let userId = that.account.id;
-
-            let url = "/api/rainbow/enduser/v1.0/users/" + userId + "/mfa";
-            that._logger.log(that.INTERNAL, LOG_ID + "(disableMultifactorAuthentication) args : ", data);
-            that.http.delete(url, that.getRequestHeader(), undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(disableMultifactorAuthentication) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(disableMultifactorAuthentication) REST result : ", json);
-                resolve(json);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(disableMultifactorAuthentication) error.");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(disableMultifactorAuthentication) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    enableMultifactorAuthentication() {
-        // API https://api.openrainbow.org/enduser/#api-multifactor_rainbow_authentication-PutMFA
-        // PUT /api/rainbow/enduser/v1.0/users/:userId/mfa
-
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let data: any = {};
-
-            let userId = that.account.id;
-
-            let url = "/api/rainbow/enduser/v1.0/users/" + userId + "/mfa";
-            that._logger.log(that.INTERNAL, LOG_ID + "(enableMultifactorAuthentication) args : ", data);
-            that.http.put(url, that.getRequestHeader(), data, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(enableMultifactorAuthentication) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(enableMultifactorAuthentication) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(enableMultifactorAuthentication) error.");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(enableMultifactorAuthentication) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    getMultifactorInformation() {
-        // API https://api.openrainbow.org/enduser/#api-multifactor_rainbow_authentication-GetMFA 
-        // GET /api/rainbow/enduser/v1.0/users/:userId/mfa
-
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            //that._logger.log(that.INTERNAL, LOG_ID + "(getMultifactorInformation) REST numberE164 : ", numberE164);
-            let userId = that.account.id;
-
-            let url: string = "/api/rainbow/enduser/v1.0/users/" + userId + "/mfa";
-            let urlParamsTab: string[] = [];
-            urlParamsTab.push(url);
-            //addParamToUrl(urlParamsTab, "pbxId", pbxId);
-            url = urlParamsTab[0];
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getMultifactorInformation) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getMultifactorInformation) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getMultifactorInformation) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getMultifactorInformation) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getMultifactorInformation) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    verifyMultifactorInformation(token) {
-        // API https://api.openrainbow.org/enduser/#api-multifactor_rainbow_authentication-VerifyMFA 
-        // POST /api/rainbow/enduser/v1.0/users/:userId/mfa/verify
-
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let data: any = {};
-
-            let userId = that.account.id;
-
-            if (token) {
-                data.token = token;
-            } else {
-                let error = ErrorManager.getErrorManager().BAD_REQUEST;
-                error.msg += "bad or empty 'token' parameter";
-                error.label += "bad or empty 'token' parameter";
-                error.cause = token;
-                that._logger.log(that.WARN, LOG_ID + `(verifyMultifactorInformation) BAD_REQUEST.`);
-                that._logger.log(that.INTERNALERROR, LOG_ID + `(verifyMultifactorInformation) bad or empty 'token' parameter : `, error.cause, ", error : ", error);
-                return reject(error);
-            }
-
-            let url = "/api/rainbow/enduser/v1.0/users/" + userId + "/mfa/verify";
-            that._logger.log(that.INTERNAL, LOG_ID + "(verifyMultifactorInformation) args : ", data);
-            that.http.post(url, that.getRequestHeader(), data, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(verifyMultifactorInformation) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(verifyMultifactorInformation) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(verifyMultifactorInformation) error.");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(verifyMultifactorInformation) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    resetRecoveryCodeForMultifactorAuthentication() {
-        // API https://api.openrainbow.org/enduser/#api-multifactor_rainbow_authentication-ResetRecoveryCode 
-        // DELETE /api/rainbow/enduser/v1.0/users/:userId/mfa/recovery
-
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let data: any = {};
-
-            //let userId = userId ? userId : that.account.id;
-            let userId = that.account.id;
-
-            let url = "/api/rainbow/enduser/v1.0/users/" + userId + "/mfa/recovery";
-            that._logger.log(that.INTERNAL, LOG_ID + "(resetRecoveryCodeForMultifactorAuthentication) args : ", data);
-            that.http.delete(url, that.getRequestHeader(), undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(resetRecoveryCodeForMultifactorAuthentication) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(resetRecoveryCodeForMultifactorAuthentication) REST result : ", json);
-                resolve(json);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(resetRecoveryCodeForMultifactorAuthentication) error.");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(resetRecoveryCodeForMultifactorAuthentication) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
+    deleteTrustedApplication(appId: string) { return this.restAuth.deleteTrustedApplication(this.account?.id, appId); }
+    deleteAllTrustedApplications() { return this.restAuth.deleteAllTrustedApplications(this.account?.id); }
+    disableMultifactorAuthentication() { return this.restAuth.disableMultifactorAuthentication(this.account?.id); }
+    enableMultifactorAuthentication() { return this.restAuth.enableMultifactorAuthentication(this.account?.id); }
+    getMultifactorInformation() { return this.restAuth.getMultifactorInformation(this.account?.id); }
+    verifyMultifactorInformation(token) { return this.restAuth.verifyMultifactorInformation(this.account?.id, token); }
+    resetRecoveryCodeForMultifactorAuthentication() { return this.restAuth.resetRecoveryCodeForMultifactorAuthentication(this.account?.id); }
     //endregion multifactor rainbow authentication
 
     //region Contacts API
