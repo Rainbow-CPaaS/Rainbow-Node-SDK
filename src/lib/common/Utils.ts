@@ -172,11 +172,7 @@ let isNullOrEmpty = function(value) {
  * ```
  */
 let isDefined = function(value) {
-    let _isDefined = false;
-    if (value !== null && value !== undefined) {
-        _isDefined = true;
-    }
-    return _isDefined;
+    return value !== null && value !== undefined;
 }
 
 /**

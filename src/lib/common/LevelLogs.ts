@@ -1,5 +1,6 @@
 "use strict";
 import {isDefined, stackTrace} from "./Utils.js";
+import {level} from "winston";
 
 export {};
 
@@ -144,6 +145,7 @@ interface LogLevelAreasInterface {
  admin: Service;
  alerts: Service;
  bubbles: Service;
+ backendStatus: Service,
  calllog: Service;
  channels: Service;
  connectedUser: Service;
@@ -173,6 +175,7 @@ interface LogLevelAreasInterface {
  httpservice: LawLayer;
  rest: LawLayer;
  resttelephony: LawLayer;
+ restroom: LawLayer;
  restconferencev2: LawLayer;
  restwebinar: LawLayer;
  xmpp: LawLayer;
@@ -208,6 +211,11 @@ class LogLevelAreas implements LogLevelAreasInterface  {
          "level": level
      };
      this.bubbles = {
+         "category": "services",
+         "api": api,
+         "level": level
+     };
+     this.backendStatus = {
          "category": "services",
          "api": api,
          "level": level
@@ -351,6 +359,10 @@ class LogLevelAreas implements LogLevelAreasInterface  {
          "category": "lawlayer",
          "level": level
      };
+     this.restroom = {
+         "category": "lawlayer",
+         "level": level
+     };
      this.restconferencev2 = {
          "category": "lawlayer",
          "level": level
@@ -439,6 +451,8 @@ class LogLevelAreas implements LogLevelAreasInterface  {
         this.alerts.api = api;
         this.bubbles.level = level;
         this.bubbles.api = api;
+        this.backendStatus.level = level;
+        this.backendStatus.api = api;
         this.calllog.level = level;
         this.calllog.api = api;
         this.channels.level = level;
@@ -492,6 +506,8 @@ class LogLevelAreas implements LogLevelAreasInterface  {
         this.httpservice.level = level;
         this.rest.level = level;
         this.resttelephony.level = level;
+        this.restroom.level = level;
+        this.backendStatus.level = level;
         this.restconferencev2.level = level;
         this.restwebinar.level = level;
         this.xmpp.level = level;
@@ -522,6 +538,7 @@ class LogLevelAreas implements LogLevelAreasInterface  {
         this.admin.api = api;
         this.alerts.api = api;
         this.bubbles.api = api;
+        this.backendStatus.api = api;
         this.calllog.api = api;
         this.channels.api = api;
         this.connectedUser.api = api;
@@ -639,6 +656,7 @@ class LogLevelAreas implements LogLevelAreasInterface  {
          admin : this.admin,
          alerts : this.alerts,
          bubbles : this.bubbles,
+         backendStatus : this.backendStatus,
          calllog : this.calllog,
          channels : this.channels,
          connectedUser : this.connectedUser,
@@ -668,6 +686,7 @@ class LogLevelAreas implements LogLevelAreasInterface  {
          httpservice:  this.httpservice,
          rest:  this.rest,
          resttelephony:  this.resttelephony,
+         restroom:  this.restroom,
          restconferencev2:  this.restconferencev2,
          restwebinar:  this.restwebinar,
          xmpp:  this.xmpp,
@@ -736,7 +755,15 @@ class LogLevelAreas implements LogLevelAreasInterface  {
   this._bubbles = value;
  }
 
- get calllog(): Service {
+get backendStatus(): Service {
+    return this._backendStatus;
+}
+
+set backendStatus(value: Service) {
+    this._backendStatus = value;
+}
+
+get calllog(): Service {
   return this._calllog;
  }
 
@@ -992,6 +1019,14 @@ class LogLevelAreas implements LogLevelAreasInterface  {
   this._resttelephony = value;
  }
 
+ get restroom(): LawLayer {
+  return this._restroom;
+ }
+
+ set restroom(value: LawLayer) {
+  this._restroom = value;
+ }
+
  get restwebinar(): LawLayer {
   return this._restwebinar;
  }
@@ -1110,6 +1145,7 @@ class LogLevelAreas implements LogLevelAreasInterface  {
  private _alertevent: EventHandlers;
  private _alerts: Service;
  private _bubblemanager: LawLayer;
+ private _backendStatus: Service;
  private _bubbles: Service;
  private _calllog: Service;
  private _calllogevent: EventHandlers;
@@ -1143,6 +1179,7 @@ class LogLevelAreas implements LogLevelAreasInterface  {
  private _rest: LawLayer;
  private _restconferencev2: LawLayer;
  private _resttelephony: LawLayer;
+ private _restroom: LawLayer;
  private _restwebinar: LawLayer;
  private _rpcoverxmpp: Service;
  private _rpcoverxmppevent: EventHandlers;
