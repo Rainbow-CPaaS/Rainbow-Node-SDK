@@ -28,6 +28,11 @@ import {ErrorManager} from "../common/ErrorManager";
 import {RESTConferenceV2} from "./RestServices/RESTConferenceV2";
 import {RESTWebinar} from "./RestServices/RESTWebinar";
 import {RESTRoom} from "./RestServices/RESTRoom";
+import {RESTPolls} from "./RestServices/RESTPolls";
+import {RESTTasks} from "./RestServices/RESTTasks";
+import {RESTAlerts} from "./RestServices/RESTAlerts";
+import {RESTDirectory} from "./RestServices/RESTDirectory";
+import {RESTCustomerCare} from "./RestServices/RESTCustomerCare";
 import {GenericRESTService} from "./GenericRESTService";
 import {TimeOutManager} from "../common/TimeOutManager";
 import {Group} from "ts-generic-collections-linq";
@@ -329,6 +334,11 @@ class RESTService extends GenericRESTService {
     public restConferenceV2: RESTConferenceV2;
     public restWebinar: RESTWebinar;
     public restRoom: RESTRoom;
+    public restPolls: RESTPolls;
+    public restTasks: RESTTasks;
+    public restAlerts: RESTAlerts;
+    public restDirectory: RESTDirectory;
+    public restCustomerCare: RESTCustomerCare;
     public applicationToken: string;
     public connectionS2SInfo: any;
     private reconnectInProgress: boolean;
@@ -356,6 +366,11 @@ class RESTService extends GenericRESTService {
         this.restConferenceV2 = new RESTConferenceV2(core, evtEmitter, _logger);
         this.restWebinar = new RESTWebinar(core, evtEmitter, _logger);
         this.restRoom = new RESTRoom(core, evtEmitter, _logger);
+        this.restPolls = new RESTPolls(core, evtEmitter, _logger);
+        this.restTasks = new RESTTasks(core, evtEmitter, _logger);
+        this.restAlerts = new RESTAlerts(core, evtEmitter, _logger);
+        this.restDirectory = new RESTDirectory(core, evtEmitter, _logger);
+        this.restCustomerCare = new RESTCustomerCare(core, evtEmitter, _logger);
         //this.timeOutManager = core.timeOutManager;
         this.http = null;
         this.account = null;
@@ -432,6 +447,21 @@ class RESTService extends GenericRESTService {
         prom.push(that.restRoom.start(that.http).then(() => {
             that._logger.log(that.INTERNAL, LOG_ID + "(start) restRoom email used", that.loginEmail);
         }));
+        prom.push(that.restPolls.start(that.http).then(() => {
+            that._logger.log(that.INTERNAL, LOG_ID + "(start) restPolls email used", that.loginEmail);
+        }));
+        prom.push(that.restTasks.start(that.http).then(() => {
+            that._logger.log(that.INTERNAL, LOG_ID + "(start) restTasks email used", that.loginEmail);
+        }));
+        prom.push(that.restAlerts.start(that.http).then(() => {
+            that._logger.log(that.INTERNAL, LOG_ID + "(start) restAlerts email used", that.loginEmail);
+        }));
+        prom.push(that.restDirectory.start(that.http).then(() => {
+            that._logger.log(that.INTERNAL, LOG_ID + "(start) restDirectory email used", that.loginEmail);
+        }));
+        prom.push(that.restCustomerCare.start(that.http).then(() => {
+            that._logger.log(that.INTERNAL, LOG_ID + "(start) restCustomerCare email used", that.loginEmail);
+        }));
         return Promise.all(prom);
     }
 
@@ -453,6 +483,26 @@ class RESTService extends GenericRESTService {
 
                 await that.restRoom.stop().then(() => {
                     that._logger.log(that.INTERNAL, LOG_ID + "(stop) restRoom.");
+                });
+
+                await that.restPolls.stop().then(() => {
+                    that._logger.log(that.INTERNAL, LOG_ID + "(stop) restPolls.");
+                });
+
+                await that.restTasks.stop().then(() => {
+                    that._logger.log(that.INTERNAL, LOG_ID + "(stop) restTasks.");
+                });
+
+                await that.restAlerts.stop().then(() => {
+                    that._logger.log(that.INTERNAL, LOG_ID + "(stop) restAlerts.");
+                });
+
+                await that.restDirectory.stop().then(() => {
+                    that._logger.log(that.INTERNAL, LOG_ID + "(stop) restDirectory.");
+                });
+
+                await that.restCustomerCare.stop().then(() => {
+                    that._logger.log(that.INTERNAL, LOG_ID + "(stop) restCustomerCare.");
                 });
 
                 await that.signout().then(() => {
@@ -614,6 +664,11 @@ class RESTService extends GenericRESTService {
         this.restConferenceV2.p_token = value;
         this.restWebinar.p_token = value;
         this.restRoom.p_token = value;
+        this.restPolls.p_token = value;
+        this.restTasks.p_token = value;
+        this.restAlerts.p_token = value;
+        this.restDirectory.p_token = value;
+        this.restCustomerCare.p_token = value;
     }
 
     set decodedtokenRest(value: any) {
@@ -621,6 +676,11 @@ class RESTService extends GenericRESTService {
         this.restConferenceV2.p_decodedtokenRest = value;
         this.restWebinar.p_decodedtokenRest = value;
         this.restRoom.p_decodedtokenRest = value;
+        this.restPolls.p_decodedtokenRest = value;
+        this.restTasks.p_decodedtokenRest = value;
+        this.restAlerts.p_decodedtokenRest = value;
+        this.restDirectory.p_decodedtokenRest = value;
+        this.restCustomerCare.p_decodedtokenRest = value;
     }
 
     set credentialsRest(value: any) {
@@ -628,6 +688,11 @@ class RESTService extends GenericRESTService {
         this.restConferenceV2.p_credentials = value;
         this.restWebinar.p_credentials = value;
         this.restRoom.p_credentials = value;
+        this.restPolls.p_credentials = value;
+        this.restTasks.p_credentials = value;
+        this.restAlerts.p_credentials = value;
+        this.restDirectory.p_credentials = value;
+        this.restCustomerCare.p_credentials = value;
     }
 
     set applicationRest(value: any) {
@@ -635,6 +700,11 @@ class RESTService extends GenericRESTService {
         this.restConferenceV2.p_application = value;
         this.restWebinar.p_application = value;
         this.restRoom.p_application = value;
+        this.restPolls.p_application = value;
+        this.restTasks.p_application = value;
+        this.restAlerts.p_application = value;
+        this.restDirectory.p_application = value;
+        this.restCustomerCare.p_application = value;
     }
 
     set authRest(value: any) {
@@ -642,6 +712,11 @@ class RESTService extends GenericRESTService {
         this.restConferenceV2.p_auth = value;
         this.restWebinar.p_auth = value;
         this.restRoom.p_auth = value;
+        this.restPolls.p_auth = value;
+        this.restTasks.p_auth = value;
+        this.restAlerts.p_auth = value;
+        this.restDirectory.p_auth = value;
+        this.restCustomerCare.p_auth = value;
     }
 
     setconnectionS2SInfo(_connectionS2SInfo) {
@@ -11032,720 +11107,41 @@ addPropertyToObj(param, "peerId", body.peerId, false);
 
     //endregion Bubbles - dialIn
 
-    //region Alerts - Notifications
-
-    createDevice(data: Object) {
-        // /api/rainbow/notificationsadmin/v1.0/devices
-
-        let that = this;
-        return new Promise(function (resolve, reject) {
-
-            that.http.post("/api/rainbow/notificationsadmin/v1.0/devices", that.getRequestHeader(), data, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(createDevice) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(createDevice) REST bubble created : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(createDevice) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(createDevice) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    updateDevice(deviceId, params: Object) {
-        // /api/rainbow/notificationsadmin/v1.0/devices
-
-        let that = this;
-        return new Promise(function (resolve, reject) {
-
-            that.http.put("/api/rainbow/notificationsadmin/v1.0/devices/" + deviceId, that.getRequestHeader(), params, undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(updateDevice) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(updateDevice) REST bubble created : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(updateDevice) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateDevice) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    deleteDevice(deviceId: string) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let params: any = {};
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(deleteDevice) REST deviceId : ", deviceId);
-
-            that.http.delete("/api/rainbow/notificationsadmin/v1.0/devices/" + deviceId, that.getPostHeader(), JSON.stringify(params)).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(deleteDevice) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(deleteDevice) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(deleteDevice) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteDevice) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    getDevice(deviceId: string) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let params: any = {};
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getDevice) REST params : ", params);
-
-            that.http.get("/api/rainbow/notificationsadmin/v1.0/devices/" + deviceId, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getDevice) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getDevice) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getDevice) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getDevice) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    getDevices(companyId: string, userId: string, deviceName: string, type: string, tag: string, offset: number, limit: number) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let params: any = {};
-
-            let getParams = "";
-            if (companyId) {
-                getParams += getParams ? "&":"?";
-                getParams += "companyId=" + companyId;
-            }
-
-            if (userId) {
-                getParams += getParams ? "&":"?";
-                getParams += "userId=" + userId;
-            }
-
-            if (deviceName) {
-                getParams += getParams ? "&":"?";
-                getParams += "name=" + deviceName;
-            }
-
-            if (type) {
-                getParams += getParams ? "&":"?";
-                getParams += "type=" + type;
-            }
-
-            if (tag) {
-                getParams += getParams ? "&":"?";
-                getParams += "tags=" + tag;
-            }
-
-            getParams += getParams ? "&":"?";
-            getParams += "limit=" + limit;
-            getParams += getParams ? "&":"?";
-            getParams += "offset=" + offset;
-            getParams += getParams ? "&":"?";
-            getParams += "format=" + "full";
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getDevices) REST getParams : ", getParams);
-
-            that.http.get("/api/rainbow/notificationsadmin/v1.0/devices" + getParams, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getDevices) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getDevices) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getDevices) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getDevices) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    getDevicesTags(companyId: string) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let params: any = {};
-
-            let getParams = "";
-            if (companyId) {
-                getParams += getParams ? "&":"?";
-                getParams += "companyId=" + companyId;
-            }
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getDevicesTags) REST getParams : ", getParams);
-
-            that.http.get("/api/rainbow/notificationsadmin/v1.0/devices/tags" + getParams, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getDevicesTags) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getDevicesTags) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getDevicesTags) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getDevicesTags) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    /**
-     * @method renameDevicesTags
-     * @param {string} tag    tag to rename.
-     * @param {string} companyId Allows to rename a tag for the devices being in the companyIds provided in this option. <br>
-     * If companyId is not provided, the tag is renamed for all the devices linked to all the companies that the administrator manage.
-     * @param {string} newTagName New tag name. (Body Parameters)
-     * @description
-     * This API can be used to rename a tag being assigned to some devices of the companies managed by the administrator.
-     */
-    renameDevicesTags(newTagName: string, tag: string, companyId: string) {
-        // - Rename a tag for all assigned devices PUT /api/rainbow/notificationsadmin/v1.0/devices/tags
-        // Example: PUT https://openrainbow.com/api/rainbow/notificationsadmin/v1.0/devices/tags?tag=1rst%20floor&companyId=5703d0d49ccf39843c7ef897
-
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url = "/api/rainbow/notificationsadmin/v1.0/devices/tags";
-
-            let getParams = "";
-            if (companyId) {
-                getParams += getParams ? "&":"?";
-                getParams += "companyId=" + companyId; //? companyId : that.account.companyId;
-            }
-
-            if (tag) {
-                getParams += getParams ? "&":"?";
-                getParams += "tag=" + tag;
-            }
-
-            let params = {newTagName};
-
-            that.http.put(url + getParams, that.getRequestHeader(), params, undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(renameDevicesTags) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(renameDevicesTags) REST bubble created : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(renameDevicesTags) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(renameDevicesTags) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    /**
-     * @method deleteDevicesTags
-     * @param {string} tag    tag to rename.
-     * @param {string} companyId Allows to remove a tag from the devices being in the companyIds provided in this option.. <br>
-     * If companyId is not provided, the tag is deleted from all the devices linked to all the companies that the administrator manage.
-     * @description
-     * This API can be used to remove a tag being assigned to some devices of the companies managed by the administrator.
-     */
-    deleteDevicesTags(tag: string, companyId: string) {
-        // Remove a given tag from all the devices DELETE /api/rainbow/notificationsadmin/v1.0/devices/tags
-        // Example: DELETE https://openrainbow.com/api/rainbow/notificationsadmin/v1.0/devices/tags?tag=a_tag?companyId=5703d0d49ccf39843c7ef897
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            that._logger.log(that.INTERNAL, LOG_ID + "(deleteDevicesTags) REST tag : ", tag);
-            let url = "/api/rainbow/notificationsadmin/v1.0/devices/tags";
-
-            let getParams = "";
-            if (companyId) {
-                getParams += getParams ? "&":"?";
-                getParams += "companyId=" + companyId;//? companyId : that.account.companyId;
-            }
-
-            if (tag) {
-                getParams += getParams ? "&":"?";
-                getParams += "tag=" + tag;
-            }
-
-            that.http.delete(url + getParams, that.getPostHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(deleteDevicesTags) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(deleteDevicesTags) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(deleteDevicesTags) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteDevicesTags) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    /**
-     * @method getstatsTags
-     * @param {string} companyId Allows to compute the tags statistics for the devices associated to the companyIds provided in this option.  <br>
-     * if companyId is not provided, the tags statistics are computed for all the devices being in all the companies managed by the logged in administrator.
-     * @description
-     * This API can be used to list all the tags being assigned to the devices of the companies managed by the administrator, with the number of devices for each tags.
-     */
-    getstatsTags(companyId: string) {
-        // - Return stats regarding device tags GET /api/rainbow/notificationsadmin/v1.0/devices/tags/stats
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url = "/api/rainbow/notificationsadmin/v1.0/devices/tags/stats";
-
-            let getParams = "";
-            if (companyId) {
-                getParams += getParams ? "&":"?";
-                getParams += "companyId=" + companyId;//? companyId : that.account.companyId;
-            }
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getstatsTags) REST companyId : ", companyId);
-
-            that.http.get(url + getParams, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getstatsTags) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getstatsTags) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getstatsTags) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getstatsTags) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    createTemplate(data: Object) {
-        // /api/rainbow/notificationsadmin/v1.0/devices
-
-        let that = this;
-        return new Promise(function (resolve, reject) {
-
-            that.http.post("/api/rainbow/notificationsadmin/v1.0/templates", that.getRequestHeader(), data, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(createTemplate) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(createTemplate) REST bubble created : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(createTemplate) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(createTemplate) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    updateTemplate(templateId, params: Object) {
-        // /api/rainbow/notificationsadmin/v1.0/devices
-
-        let that = this;
-        return new Promise(function (resolve, reject) {
-
-            that.http.put("/api/rainbow/notificationsadmin/v1.0/templates/" + templateId, that.getRequestHeader(), params, undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(updateTemplate) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(updateTemplate) REST bubble created : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(updateTemplate) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateTemplate) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    deleteTemplate(templateId: string) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let params: any = {};
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(deleteTemplate) REST templateId : ", templateId);
-
-            that.http.delete("/api/rainbow/notificationsadmin/v1.0/templates/" + templateId, that.getPostHeader(), JSON.stringify(params)).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(deleteTemplate) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(deleteTemplate) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(deleteTemplate) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteTemplate) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    getTemplate(templateId: string) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let params: any = {};
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getTemplate) REST params : ", params);
-
-            that.http.get("/api/rainbow/notificationsadmin/v1.0/templates/" + templateId, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getTemplate) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getTemplate) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getTemplate) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getTemplate) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    getTemplates(companyId: string, offset: number, limit: number) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let params: any = {};
-
-            let getParams = "";
-            if (companyId) {
-                getParams += getParams ? "&":"?";
-                getParams += "companyId=" + companyId;
-            }
-
-            getParams += getParams ? "&":"?";
-            getParams += "limit=" + limit;
-            getParams += getParams ? "&":"?";
-            getParams += "offset=" + offset;
-            getParams += getParams ? "&":"?";
-            getParams += "format=" + "full";
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getTemplates) REST getParams : ", getParams);
-
-            that.http.get("/api/rainbow/notificationsadmin/v1.0/templates" + getParams, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getTemplates) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getTemplates) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getTemplates) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getTemplates) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    createFilter(data: Object) {
-        // /api/rainbow/notificationsadmin/v1.0/filters
-
-        let that = this;
-        return new Promise(function (resolve, reject) {
-
-            that.http.post("/api/rainbow/notificationsadmin/v1.0/filters", that.getRequestHeader(), data, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(createFilter) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(createFilter) REST created : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(createFilter) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(createFilter) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    updateFilter(FilterId, params: Object) {
-        // /api/rainbow/notificationsadmin/v1.0/filters
-
-        let that = this;
-        return new Promise(function (resolve, reject) {
-
-            that.http.put("/api/rainbow/notificationsadmin/v1.0/filters/" + FilterId, that.getRequestHeader(), params, undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(updateFilter) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(updateFilter) REST created : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(updateFilter) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateFilter) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    deleteFilter(FilterId: string) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let params: any = {};
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(deleteFilter) REST FilterId : ", FilterId);
-
-            that.http.delete("/api/rainbow/notificationsadmin/v1.0/filters/" + FilterId, that.getPostHeader(), JSON.stringify(params)).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(deleteFilter) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(deleteFilter) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(deleteFilter) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteFilter) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    getFilter(templateId: string) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let params: any = {};
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getFilter) REST params : ", params);
-
-            that.http.get("/api/rainbow/notificationsadmin/v1.0/filters/" + templateId, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getFilter) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getFilter) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getFilter) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getFilter) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    getFilters(offset: number, limit: number) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let params: any = {};
-
-            let getParams = "";
-
-            getParams += getParams ? "&":"?";
-            getParams += "limit=" + limit;
-            getParams += getParams ? "&":"?";
-            getParams += "offset=" + offset;
-            getParams += getParams ? "&":"?";
-            getParams += "format=" + "full";
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getFilters) REST getParams : ", getParams);
-
-            that.http.get("/api/rainbow/notificationsadmin/v1.0/filters" + getParams, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getFilters) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getFilters) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getFilters) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getFilters) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    createAlert(data: Object) {
-        // /api/rainbow/notifications/v1.0/notifications
-
-        let that = this;
-        return new Promise(function (resolve, reject) {
-
-            that.http.post("/api/rainbow/notifications/v1.0/notifications", that.getRequestHeader(), data, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(createAlert) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(createAlert) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(createAlert) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(createAlert) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    updateAlert(AlertId, params: Object) {
-        // /api/rainbow/notifications/v1.0/notifications
-
-        let that = this;
-        return new Promise(function (resolve, reject) {
-
-            that.http.put("/api/rainbow/notifications/v1.0/notifications/" + AlertId, that.getRequestHeader(), params, undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(updateAlert) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(updateAlert) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(updateAlert) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateAlert) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    deleteAlert(AlertId: string) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let params: any = {};
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(deleteAlert) REST AlertId : ", AlertId);
-
-            that.http.delete("/api/rainbow/notifications/v1.0/notifications/" + AlertId, that.getPostHeader(), JSON.stringify(params)).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(deleteAlert) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(deleteAlert) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(deleteAlert) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteAlert) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    getAlert(alertId: string) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let params: any = {};
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getAlert) REST params : ", params);
-
-            that.http.get("/api/rainbow/notifications/v1.0/notifications/" + alertId, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getAlert) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getAlert) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getAlert) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getAlert) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    getAlerts(offset: number, limit: number) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let params: any = {};
-
-            let getParams = "";
-
-            getParams += getParams ? "&":"?";
-            getParams += "limit=" + limit;
-            getParams += getParams ? "&":"?";
-            getParams += "offset=" + offset;
-            getParams += getParams ? "&":"?";
-            getParams += "format=" + "full";
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getAlerts) REST getParams : ", getParams);
-
-            that.http.get("/api/rainbow/notifications/v1.0/notifications" + getParams, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getAlerts) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getAlerts) REST result : ", json);
-                resolve(json);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getAlerts) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getAlerts) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    sendAlertFeedback(alertId: string, data: Object) {
-        // /api/rainbow/notifications/v1.0/feedback
-
-        let that = this;
-        return new Promise(function (resolve, reject) {
-
-            that.http.post("/api/rainbow/notifications/v1.0/notifications/" + alertId + "/feedback", that.getRequestHeader(), data, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(sendAlertFeedback) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(sendAlertFeedback) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(sendAlertFeedback) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(sendAlertFeedback) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    getAlertFeedbackSentForANotificationMessage(notificationHistoryId: string) {
-        // GET /api/rainbow/notificationsreport/v1.0/notifications/:notificationHistoryId/feedback
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let params: any = {};
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getAlertFeedbackSentForANotificationMessage) REST params : ", params);
-
-            that.http.get("/api/rainbow/notificationsreport/v1.0/notifications/" + notificationHistoryId + "/feedback", that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getAlertFeedbackSentForANotificationMessage) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getAlertFeedbackSentForANotificationMessage) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getAlertFeedbackSentForANotificationMessage) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getAlertFeedbackSentForANotificationMessage) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    getAlertFeedbackSentForAnAlert(alertId: string) {
-        // GET /api/rainbow/notificationsreport/v1.0/notifications/:notificationId/feedback
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let params: any = {};
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getAlertFeedbackSentForAnAlert) REST params : ", params);
-
-            that.http.get("/api/rainbow/notificationsreport/v1.0/notifications/" + alertId + "/feedback", that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getAlertFeedbackSentForAnAlert) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getAlertFeedbackSentForAnAlert) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getAlertFeedbackSentForAnAlert) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getAlertFeedbackSentForAnAlert) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    getAlertStatsFeedbackSentForANotificationMessage(notificationHistoryId: string) {
-        // GET /api/rainbow/notificationsreport/v1.0/notifications/:notificationHistoryId/feedback/stats
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let params: any = {};
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getAlertStatsFeedbackSentForANotificationMessage) REST params : ", params);
-
-            that.http.get("/api/rainbow/notificationsreport/v1.0/notifications/" + notificationHistoryId + "/feedback/stats", that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getAlertStatsFeedbackSentForANotificationMessage) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getAlertStatsFeedbackSentForANotificationMessage) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getAlertStatsFeedbackSentForANotificationMessage) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getAlertStatsFeedbackSentForANotificationMessage) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    getReportSummary(alertId: string) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let params: any = {};
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getReportSummary) REST params : ", params);
-
-            that.http.get("/api/rainbow/notificationsreport/v1.0/notifications/" + alertId + "/reports/summary", that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getReportSummary) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getReportSummary) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getReportSummary) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getReportSummary) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    getReportDetails(alertId: string) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let params: any = {};
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getReportDetails) REST params : ", params);
-
-            that.http.get("/api/rainbow/notificationsreport/v1.0/notifications/" + alertId + "/reports/details", that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getReportDetails) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getReportDetails) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getReportDetails) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getReportDetails) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    getReportComplete(alertId: string) {
-        // GET /api/rainbow/notificationsreport/v1.0/notifications/:notificationId/reports/complete
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let params: any = {};
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getReportComplete) REST params : ", params);
-
-            that.http.get("/api/rainbow/notificationsreport/v1.0/notifications/" + alertId + "/reports/complete", that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getReportComplete) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getReportComplete) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getReportComplete) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getReportComplete) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    //endregion
+    //region Alerts - Notifications — proxies → RESTAlerts
+
+    createDevice(data: Object) { return this.restAlerts.createDevice(data); }
+    updateDevice(deviceId, params: Object) { return this.restAlerts.updateDevice(deviceId, params); }
+    deleteDevice(deviceId: string) { return this.restAlerts.deleteDevice(deviceId); }
+    getDevice(deviceId: string) { return this.restAlerts.getDevice(deviceId); }
+    getDevices(companyId: string, userId: string, deviceName: string, type: string, tag: string, offset: number, limit: number) { return this.restAlerts.getDevices(companyId, userId, deviceName, type, tag, offset, limit); }
+    getDevicesTags(companyId: string) { return this.restAlerts.getDevicesTags(companyId); }
+    renameDevicesTags(newTagName: string, tag: string, companyId: string) { return this.restAlerts.renameDevicesTags(newTagName, tag, companyId); }
+    deleteDevicesTags(tag: string, companyId: string) { return this.restAlerts.deleteDevicesTags(tag, companyId); }
+    getstatsTags(companyId: string) { return this.restAlerts.getstatsTags(companyId); }
+    createTemplate(data: Object) { return this.restAlerts.createTemplate(data); }
+    updateTemplate(templateId, params: Object) { return this.restAlerts.updateTemplate(templateId, params); }
+    deleteTemplate(templateId: string) { return this.restAlerts.deleteTemplate(templateId); }
+    getTemplate(templateId: string) { return this.restAlerts.getTemplate(templateId); }
+    getTemplates(companyId: string, offset: number, limit: number) { return this.restAlerts.getTemplates(companyId, offset, limit); }
+    createFilter(data: Object) { return this.restAlerts.createFilter(data); }
+    updateFilter(FilterId, params: Object) { return this.restAlerts.updateFilter(FilterId, params); }
+    deleteFilter(FilterId: string) { return this.restAlerts.deleteFilter(FilterId); }
+    getFilter(templateId: string) { return this.restAlerts.getFilter(templateId); }
+    getFilters(offset: number, limit: number) { return this.restAlerts.getFilters(offset, limit); }
+    createAlert(data: Object) { return this.restAlerts.createAlert(data); }
+    updateAlert(AlertId, params: Object) { return this.restAlerts.updateAlert(AlertId, params); }
+    deleteAlert(AlertId: string) { return this.restAlerts.deleteAlert(AlertId); }
+    getAlert(alertId: string) { return this.restAlerts.getAlert(alertId); }
+    getAlerts(offset: number, limit: number) { return this.restAlerts.getAlerts(offset, limit); }
+    sendAlertFeedback(alertId: string, data: Object) { return this.restAlerts.sendAlertFeedback(alertId, data); }
+    getAlertFeedbackSentForANotificationMessage(notificationHistoryId: string) { return this.restAlerts.getAlertFeedbackSentForANotificationMessage(notificationHistoryId); }
+    getAlertFeedbackSentForAnAlert(alertId: string) { return this.restAlerts.getAlertFeedbackSentForAnAlert(alertId); }
+    getAlertStatsFeedbackSentForANotificationMessage(notificationHistoryId: string) { return this.restAlerts.getAlertStatsFeedbackSentForANotificationMessage(notificationHistoryId); }
+    getReportSummary(alertId: string) { return this.restAlerts.getReportSummary(alertId); }
+    getReportDetails(alertId: string) { return this.restAlerts.getReportDetails(alertId); }
+    getReportComplete(alertId: string) { return this.restAlerts.getReportComplete(alertId); }
+
+    //endregion Alerts - Notifications
 
     //region calendar
 
@@ -16575,716 +15971,30 @@ addPropertyToObj(param, "peerId", body.peerId, false);
     //endregion systems
 
     //region Rainbow Company Directory portal 
-    // https://api.openrainbow.org/directory/
-    //region directory
-    // Create a directory entry
-    createDirectoryEntry(companyId: string,
-                         firstName: string,
-                         lastName: string,
-                         companyName: string,
-                         department: string,
-                         street: string,
-                         city: string,
-                         state: string,
-                         postalCode: string,
-                         country: string,
-                         workPhoneNumbers: string[],
-                         mobilePhoneNumbers: string[],
-                         otherPhoneNumbers: string[],
-                         jobTitle: string,
-                         eMail: string,
-                         tags: string[],
-                         custom1: string,
-                         custom2: string
-    ) {
-        // POST  https://openrainbow.com/api/rainbow/directory/v1.0/entries     
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let data: any = {};
-
-            if (companyId) {
-                data.companyId = companyId;
-            }
-            if (firstName) {
-                data.firstName = firstName;
-            }
-            if (lastName) {
-                data.lastName = lastName;
-            }
-            if (companyName) {
-                data.companyName = companyName;
-            }
-            if (department) {
-                data.department = department;
-            }
-            if (street) {
-                data.street = street;
-            }
-            if (city) {
-                data.city = city;
-            }
-            if (state) {
-                data.state = state;
-            }
-            if (postalCode) {
-                data.postalCode = postalCode;
-            }
-            if (country) {
-                data.country = country;
-            }
-            if (workPhoneNumbers) {
-                data.workPhoneNumbers = workPhoneNumbers;
-            }
-            if (mobilePhoneNumbers) {
-                data.mobilePhoneNumbers = mobilePhoneNumbers;
-            }
-            if (otherPhoneNumbers) {
-                data.otherPhoneNumbers = otherPhoneNumbers;
-            }
-            if (jobTitle) {
-                data.jobTitle = jobTitle;
-            }
-            if (eMail) {
-                data.eMail = eMail;
-            }
-            if (tags) {
-                data.tags = tags;
-            }
-            if (custom1) {
-                data.custom1 = custom1;
-            }
-            if (custom2) {
-                data.custom2 = custom2;
-            }
-            that._logger.log(that.INTERNAL, LOG_ID + "(createDirectoryEntry) args : ", data);
-            that.http.post("/api/rainbow/directory/v1.0/entries", that.getRequestHeader(), data, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(createDirectoryEntry) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(createDirectoryEntry) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(createDirectoryEntry) error.");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(createDirectoryEntry) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    // delete all the entries in the directory of a company
-    deleteCompanyDirectoryAllEntry(companyId: string) {
-        // DELETE https://openrainbow.com/api/rainbow/directory/v1.0/companies/:companyId      
-        let that = this;
-        return new Promise((resolve, reject) => {
-            that.http.delete("/api/rainbow/directory/v1.0/companies/" + companyId, that.getRequestHeader())
-                    .then((response) => {
-                        that._logger.log(that.DEBUG, LOG_ID + "(deleteCompanyDirectoryAllEntry) (" + companyId + ") -- success");
-                        resolve(response);
-                    })
-                    .catch((err) => {
-                        that._logger.log(that.ERROR, LOG_ID, "(deleteCompanyDirectoryAllEntry) (" + companyId + ") -- failure -- ");
-                        that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteCompanyDirectoryAllEntry) (" + companyId + ") -- failure -- ", err.message);
-                        return reject(err);
-                    });
-        });
-    }
-
-    // delete a directory entry
-    deleteDirectoryEntry(entryId: string) {
-        // API https://api.openrainbow.org/directory/#api-directory-DeleteDirectory
-        // DELETE /api/rainbow/directory/v1.0/entries/:entryId      
-        let that = this;
-        return new Promise((resolve, reject) => {
-            that.http.delete("/api/rainbow/directory/v1.0/entries/" + entryId, that.getRequestHeader())
-                    .then((response) => {
-                        that._logger.log(that.DEBUG, LOG_ID + "(deleteDirectoryEntry) (" + entryId + ") -- success");
-                        resolve(response);
-                    })
-                    .catch((err) => {
-                        that._logger.log(that.ERROR, LOG_ID, "(deleteDirectoryEntry) (" + entryId + ") -- failure -- ");
-                        that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteDirectoryEntry) (" + entryId + ") -- failure -- ", err.message);
-                        return reject(err);
-                    });
-        });
-    }
-
-    // Get a directory entry data
-    getDirectoryEntryData(entryId: string, format: string) {
-        // GET  https://openrainbow.com/api/rainbow/directory/v1.0/entries/:entryId 
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url: string = "/api/rainbow/directory/v1.0/entries/" + entryId;
-            let urlParamsTab: string[] = [];
-            urlParamsTab.push(url);
-            addParamToUrl(urlParamsTab, "format", format);
-            url = urlParamsTab[0];
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getDirectoryEntryData) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getDirectoryEntryData) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getDirectoryEntryData) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getDirectoryEntryData) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getDirectoryEntryData) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    // Get a list of directory entries data
-    getListDirectoryEntriesData(companyId: string,
-                                organisationIds: string,
-                                name: string,
-                                search: string,
-                                type: string,
-                                companyName: string,
-                                phoneNumbers: string,
-                                fromUpdateDate: Date,
-                                toUpdateDate: Date,
-                                tags: string,
-                                format: string,
-                                limit: number,
-                                offset: number,
-                                sortField: string,
-                                sortOrder: number,
-                                view: string) {
-        // API https://api.openrainbow.org/directory/#api-directory-GetDirectoryList
-        // GET  https://openrainbow.com/api/rainbow/directory/v1.0/entries 
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url: string = "/api/rainbow/directory/v1.0/entries";
-            let urlParamsTab: string[] = [];
-            urlParamsTab.push(url);
-            addParamToUrl(urlParamsTab, "companyId", companyId);
-            addParamToUrl(urlParamsTab, "organisationIds", organisationIds);
-            addParamToUrl(urlParamsTab, "name", name);
-            addParamToUrl(urlParamsTab, "search", search);
-            addParamToUrl(urlParamsTab, "type", type);
-            addParamToUrl(urlParamsTab, "companyName", companyName);
-            addParamToUrl(urlParamsTab, "phoneNumbers", phoneNumbers);
-            addParamToUrl(urlParamsTab, "fromUpdateDate", fromUpdateDate ? fromUpdateDate.toJSON():"");
-            addParamToUrl(urlParamsTab, "toUpdateDate", toUpdateDate ? toUpdateDate.toJSON():"");
-            addParamToUrl(urlParamsTab, "tags", tags);
-            addParamToUrl(urlParamsTab, "format", format);
-            addParamToUrl(urlParamsTab, "limit", limit + "");
-            addParamToUrl(urlParamsTab, "offset", offset + "");
-            addParamToUrl(urlParamsTab, "sortField", sortField);
-            addParamToUrl(urlParamsTab, "sortOrder", sortOrder + "");
-            addParamToUrl(urlParamsTab, "view", view);
-            url = urlParamsTab[0];
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getListDirectoryEntriesData) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getListDirectoryEntriesData) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getListDirectoryEntriesData) REST result : ", json);
-                resolve(json);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getListDirectoryEntriesData) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getListDirectoryEntriesData) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    // Update a directory entry
-    updateDirectoryEntry(entryId: string,
-                         firstName: string,
-                         lastName: string,
-                         companyName: string,
-                         department: string,
-                         street: string,
-                         city: string,
-                         state: string,
-                         postalCode: string,
-                         country: string,
-                         workPhoneNumbers: string[],
-                         mobilePhoneNumbers: string[],
-                         otherPhoneNumbers: string[],
-                         jobTitle: string,
-                         eMail: string,
-                         tags: string[],
-                         custom1: string,
-                         custom2: string) {
-        // PUT https://openrainbow.com/api/rainbow/directory/v1.0/entries/:entryId
-        let that = this;
-        let data: any = {};
-
-        if (firstName) {
-            data.firstName = firstName;
-        }
-        if (lastName) {
-            data.lastName = lastName;
-        }
-        if (companyName) {
-            data.companyName = companyName;
-        }
-        if (department) {
-            data.department = department;
-        }
-        if (street) {
-            data.street = street;
-        }
-        if (city) {
-            data.city = city;
-        }
-        if (state) {
-            data.state = state;
-        }
-        if (postalCode) {
-            data.postalCode = postalCode;
-        }
-        if (country) {
-            data.country = country;
-        }
-        if (workPhoneNumbers) {
-            data.workPhoneNumbers = workPhoneNumbers;
-        }
-        if (mobilePhoneNumbers) {
-            data.mobilePhoneNumbers = mobilePhoneNumbers;
-        }
-        if (otherPhoneNumbers) {
-            data.otherPhoneNumbers = otherPhoneNumbers;
-        }
-        if (jobTitle) {
-            data.jobTitle = jobTitle;
-        }
-        if (eMail) {
-            data.eMail = eMail;
-        }
-        if (tags) {
-            data.tags = tags;
-        }
-        if (custom1) {
-            data.custom1 = custom1;
-        }
-        if (custom2) {
-            data.custom2 = custom2;
-        }
-
-        return new Promise(function (resolve, reject) {
-            that._logger.log(that.INTERNAL, LOG_ID + "(updateDirectoryEntry) REST data params : ", data);
-
-            that.http.put("/api/rainbow/directory/v1.0/entries/" + entryId, that.getRequestHeader(), data, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(updateDirectoryEntry) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(updateDirectoryEntry) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(updateDirectoryEntry) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateDirectoryEntry) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    ImportDirectoryCsvFile = function (companyId, csvContent, label) {
-        // POST  https://openrainbow.com/api/rainbow/directories/imports?companyId=:companyId  
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url = "/api/rainbow/massprovisioning/v1.0/directories/imports"
-            let urlParamsTab: string[] = [];
-            urlParamsTab.push(url);
-            addParamToUrl(urlParamsTab, "companyId", companyId);
-            addParamToUrl(urlParamsTab, "label", label);
-            url = urlParamsTab[0];
-
-            let data = csvContent;
-            that._logger.log(that.INTERNAL, LOG_ID + "(ImportDirectoryCsvFile) args : ", data);
-            that.http.post(url, that.getPostHeader("text/csv"), data, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(ImportDirectoryCsvFile) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(ImportDirectoryCsvFile) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(ImportDirectoryCsvFile) error.");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(ImportDirectoryCsvFile) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    //endregion directory
-
-    //region directory tags
-    // List all tags assigned to directory entries
-    getAllTagsAssignedToDirectoryEntries(companyId: string) {
-        // GET  https://openrainbow.com/api/rainbow/directory/v1.0/entries/tags 
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url: string = "/api/rainbow/directory/v1.0/entries/tags" + companyId;
-            let urlParamsTab: string[] = [];
-            urlParamsTab.push(url);
-            addParamToUrl(urlParamsTab, "companyId", companyId);
-            url = urlParamsTab[0];
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getAllTagsAssignedToDirectoryEntries) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getAllTagsAssignedToDirectoryEntries) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getAllTagsAssignedToDirectoryEntries) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getAllTagsAssignedToDirectoryEntries) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getAllTagsAssignedToDirectoryEntries) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    // Remove a given tag from all the directory entries
-    removeTagFromAllDirectoryEntries(companyId: string, tag: string) {
-        // DELETE https://openrainbow.com/api/rainbow/directory/v1.0/entries/tags      
-        let that = this;
-        return new Promise((resolve, reject) => {
-            let url = "/api/rainbow/directory/v1.0/entries/tags";
-            let urlParamsTab: string[] = [];
-            urlParamsTab.push(url);
-            addParamToUrl(urlParamsTab, "companyId", companyId);
-            addParamToUrl(urlParamsTab, "tag", tag);
-            url = urlParamsTab[0];
-
-            that.http.delete(url, that.getRequestHeader())
-                    .then((response) => {
-                        that._logger.log(that.DEBUG, LOG_ID + "(removeTagFromAllDirectoryEntries) (" + companyId + ") -- success");
-                        resolve(response);
-                    })
-                    .catch((err) => {
-                        that._logger.log(that.ERROR, LOG_ID, "(removeTagFromAllDirectoryEntries) (" + companyId + ") -- failure -- ");
-                        that._logger.log(that.INTERNALERROR, LOG_ID, "(removeTagFromAllDirectoryEntries) (" + companyId + ") -- failure -- ", err.message);
-                        return reject(err);
-                    });
-        });
-    }
-
-    // Rename a tag for all assigned directory entries
-    renameTagForAllAssignedDirectoryEntries(tag: string, companyId: string, newTagName: string) {
-        // PUT https://openrainbow.com/api/rainbow/directory/v1.0/entries/tags
-        let that = this;
-
-        return new Promise(function (resolve, reject) {
-            let url = "/api/rainbow/directory/v1.0/entries/tags";
-            let urlParamsTab: string[] = [];
-            urlParamsTab.push(url);
-            addParamToUrl(urlParamsTab, "companyId", companyId);
-            addParamToUrl(urlParamsTab, "tag", tag);
-            url = urlParamsTab[0];
-
-            let data = {
-                newTagName
-            };
-
-            that.http.put(url, that.getRequestHeader(), data, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(renameTagForAllAssignedDirectoryEntries) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(renameTagForAllAssignedDirectoryEntries) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(renameTagForAllAssignedDirectoryEntries) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(renameTagForAllAssignedDirectoryEntries) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    // Return stats regarding tags of directory entries
-    getStatsRegardingTagsOfDirectoryEntries(companyId: string) {
-        // GET  https://openrainbow.com/api/rainbow/directory/v1.0/entries/tags/stats
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url: string = "/api/rainbow/directory/v1.0/entries/tags/stats";
-            addParamToUrl([url], "companyId", companyId);
-            url = url[0];
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getStatsRegardingTagsOfDirectoryEntries) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getStatsRegardingTagsOfDirectoryEntries) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getStatsRegardingTagsOfDirectoryEntries) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getStatsRegardingTagsOfDirectoryEntries) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getStatsRegardingTagsOfDirectoryEntries) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    //endregion directory tags
-
+    createDirectoryEntry(companyId: string, firstName: string, lastName: string, companyName: string, department: string, street: string, city: string, state: string, postalCode: string, country: string, workPhoneNumbers: string[], mobilePhoneNumbers: string[], otherPhoneNumbers: string[], jobTitle: string, eMail: string, tags: string[], custom1: string, custom2: string) { return this.restDirectory.createDirectoryEntry(companyId, firstName, lastName, companyName, department, street, city, state, postalCode, country, workPhoneNumbers, mobilePhoneNumbers, otherPhoneNumbers, jobTitle, eMail, tags, custom1, custom2); }
+    deleteCompanyDirectoryAllEntry(companyId: string) { return this.restDirectory.deleteCompanyDirectoryAllEntry(companyId); }
+    deleteDirectoryEntry(entryId: string) { return this.restDirectory.deleteDirectoryEntry(entryId); }
+    getDirectoryEntryData(entryId: string, format: string) { return this.restDirectory.getDirectoryEntryData(entryId, format); }
+    getListDirectoryEntriesData(companyId: string, organisationIds: string, name: string, search: string, type: string, companyName: string, phoneNumbers: string, fromUpdateDate: Date, toUpdateDate: Date, tags: string, format: string, limit: number, offset: number, sortField: string, sortOrder: number, view: string) { return this.restDirectory.getListDirectoryEntriesData(companyId, organisationIds, name, search, type, companyName, phoneNumbers, fromUpdateDate, toUpdateDate, tags, format, limit, offset, sortField, sortOrder, view); }
+    updateDirectoryEntry(entryId: string, firstName: string, lastName: string, companyName: string, department: string, street: string, city: string, state: string, postalCode: string, country: string, workPhoneNumbers: string[], mobilePhoneNumbers: string[], otherPhoneNumbers: string[], jobTitle: string, eMail: string, tags: string[], custom1: string, custom2: string) { return this.restDirectory.updateDirectoryEntry(entryId, firstName, lastName, companyName, department, street, city, state, postalCode, country, workPhoneNumbers, mobilePhoneNumbers, otherPhoneNumbers, jobTitle, eMail, tags, custom1, custom2); }
+    ImportDirectoryCsvFile(companyId, csvContent, label) { return this.restDirectory.ImportDirectoryCsvFile(companyId, csvContent, label); }
+    getAllTagsAssignedToDirectoryEntries(companyId: string) { return this.restDirectory.getAllTagsAssignedToDirectoryEntries(companyId); }
+    removeTagFromAllDirectoryEntries(companyId: string, tag: string) { return this.restDirectory.removeTagFromAllDirectoryEntries(companyId, tag); }
+    renameTagForAllAssignedDirectoryEntries(tag: string, companyId: string, newTagName: string) { return this.restDirectory.renameTagForAllAssignedDirectoryEntries(tag, companyId, newTagName); }
+    getStatsRegardingTagsOfDirectoryEntries(companyId: string) { return this.restDirectory.getStatsRegardingTagsOfDirectoryEntries(companyId); }
     //endregion Rainbow Company Directory portal
 
-    //region Rainbow Bubbles Polls
+    //region Rainbow Bubbles Polls — proxies → RESTPolls
 
-    createBubblePoll(roomId: string, title: string, questions: Array<{ text: string, multipleChoice: boolean, answers: Array<{ text: string }> }>, anonymous: boolean = false, duration: number = 0) {
-        // API https://api.openrainbow.org/enduser/#api-polls-Create_poll
-        // POST /api/rainbow/enduser/v1.0/polls
-
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let data: any = {};
-
-            if (roomId) {
-                data.roomId = roomId;
-            } else {
-                let error = ErrorManager.getErrorManager().BAD_REQUEST;
-                error.msg += "bad or empty 'roomId' parameter";
-                error.label += "bad or empty 'roomId' parameter";
-                error.cause = roomId;
-                that._logger.log(that.WARN, LOG_ID + `(createBubblePoll) BAD_REQUEST.`);
-                that._logger.log(that.INTERNALERROR, LOG_ID + `(createBubblePoll) bad or empty 'roomId' parameter : `, error.cause, ", error : ", error);
-                return reject(error);
-            }
-
-            if (title) {
-                data.title = title;
-            }
-
-            if (questions) {
-                data.questions = questions;
-            }
-
-            if (anonymous!=undefined) {
-                data.anonymous = anonymous;
-            }
-
-            if (duration!=undefined) {
-                data.duration = duration;
-            }
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(createBubblePoll) args : ", data);
-            that.http.post("/api/rainbow/enduser/v1.0/polls", that.getRequestHeader(), data, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(createBubblePoll) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(createBubblePoll) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(createBubblePoll) error.");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(createBubblePoll) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    deleteBubblePoll(pollId) {
-        // API https://api.openrainbow.org/enduser/#api-polls-Delete_poll
-        // DELETE /api/rainbow/enduser/v1.0/polls/:pollId
-
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            if (!pollId) {
-                let error = ErrorManager.getErrorManager().BAD_REQUEST;
-                error.msg += "No pollId provided";
-                error.label += "No pollId provided";
-                error.cause = pollId;
-                that._logger.log(that.WARN, LOG_ID + `(deleteBubblePoll) BAD_REQUEST.`);
-                that._logger.log(that.INTERNALERROR, LOG_ID + `(deleteBubblePoll) No pollId provided : `, error.cause, ", error : ", error);
-                return reject(error);
-            } else {
-                that.http.delete("/api/rainbow/enduser/v1.0/polls/" + pollId, that.getRequestHeader()).then(function (json) {
-                    that._logger.log(that.DEBUG, LOG_ID + "(deleteBubblePoll) successfull");
-                    that._logger.log(that.INTERNAL, LOG_ID + "(deleteBubblePoll) REST result : ", json);
-                    resolve(json?.data);
-                }).catch(function (err) {
-                    that._logger.log(that.ERROR, LOG_ID, "(deleteBubblePoll) error");
-                    that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteBubblePoll) error : ", err);
-                    return reject(err);
-                });
-            }
-        });
-    }
-
-    getBubblePoll(pollId: string, format: string = "small") {
-        // API https://api.openrainbow.org/enduser/#api-polls-Get_a_poll
-        // GET /api/rainbow/enduser/v1.0/polls/:pollId 
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url: string = "/api/rainbow/enduser/v1.0/polls/" + pollId;
-            let urlParamsTab: string[] = [];
-            urlParamsTab.push(url);
-            addParamToUrl(urlParamsTab, "format", format);
-            url = urlParamsTab[0];
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getBubblePoll) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getBubblePoll) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getBubblePoll) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getBubblePoll) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getBubblePoll) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    getBubblePollsByBubble(roomId: string, format: string = "small", limit: number = 100, offset: number) {
-        // API https://api.openrainbow.org/enduser/#api-polls-Get_polls
-        // GET /api/rainbow/enduser/v1.0/polls
-
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url: string = "/api/rainbow/enduser/v1.0/polls";
-            let urlParamsTab: string[] = [];
-            urlParamsTab.push(url);
-            addParamToUrl(urlParamsTab, "roomId", roomId);
-            addParamToUrl(urlParamsTab, "format", format);
-            addParamToUrl(urlParamsTab, "limit", limit);
-            addParamToUrl(urlParamsTab, "offset", offset);
-            url = urlParamsTab[0];
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getBubblePollsByBubble) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getBubblePollsByBubble) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getBubblePollsByBubble) REST result : ", json);
-                resolve(json);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getBubblePollsByBubble) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getBubblePollsByBubble) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    publishBubblePoll(pollId: string) {
-        // API https://api.openrainbow.org/enduser/#api-polls-Publish_poll
-        // PUT /api/rainbow/enduser/v1.0/polls/:pollId/publish
-
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let data: any = {};
-
-            that.http.put("/api/rainbow/enduser/v1.0/polls/" + pollId + "/publish", that.getRequestHeader(), data, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(publishBubblePoll) successfull.");
-                that._logger.log(that.INTERNAL, LOG_ID + "(publishBubblePoll) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(publishBubblePoll) error.");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(publishBubblePoll) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    terminateBubblePoll(pollId: string) {
-        // API https://api.openrainbow.org/enduser/#api-polls-Terminate_poll
-        // PUT /api/rainbow/enduser/v1.0/polls/:pollId/terminate
-
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let data: any = {};
-
-            that.http.put("/api/rainbow/enduser/v1.0/polls/" + pollId + "/terminate", that.getRequestHeader(), data, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(terminateBubblePoll) successfull.");
-                that._logger.log(that.INTERNAL, LOG_ID + "(terminateBubblePoll) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(terminateBubblePoll) error.");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(terminateBubblePoll) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    unpublishBubblePoll(pollId: string) {
-        // API https://api.openrainbow.org/enduser/#api-polls-Unpublish_poll
-        // PUT /api/rainbow/enduser/v1.0/polls/:pollId/unpublish
-
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let data: any = {};
-
-            that.http.put("/api/rainbow/enduser/v1.0/polls/" + pollId + "/unpublish", that.getRequestHeader(), data, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(unpublishBubblePoll) successfull.");
-                that._logger.log(that.INTERNAL, LOG_ID + "(unpublishBubblePoll) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(unpublishBubblePoll) error.");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(unpublishBubblePoll) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    updateBubblePoll(pollId: string, roomId: string, title: string, questions: Array<{ text: string, multipleChoice: boolean, answers: Array<{ text: string }> }>, anonymous: boolean, duration: number) {
-        // API https://api.openrainbow.org/enduser/#api-polls-Update_poll
-        // PUT /api/rainbow/enduser/v1.0/polls/:pollId
-
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let data: any = {};
-
-            if (pollId) {
-            } else {
-                let error = ErrorManager.getErrorManager().BAD_REQUEST;
-                error.msg += "bad or empty 'pollId' parameter";
-                error.label += "bad or empty 'pollId' parameter";
-                error.cause = pollId;
-                that._logger.log(that.WARN, LOG_ID + `(updateBubblePoll) BAD_REQUEST.`);
-                that._logger.log(that.INTERNALERROR, LOG_ID + `(updateBubblePoll) bad or empty 'pollId' parameter : `, error.cause, ", error : ", error);
-                return reject(error);
-            }
-
-            if (roomId) {
-                data.roomId = roomId;
-            } else {
-                let error = ErrorManager.getErrorManager().BAD_REQUEST;
-                error.msg += "bad or empty 'roomId' parameter";
-                error.label += "bad or empty 'roomId' parameter";
-                error.cause = roomId;
-                that._logger.log(that.WARN, LOG_ID + `(updateBubblePoll) BAD_REQUEST.`);
-                that._logger.log(that.INTERNALERROR, LOG_ID + `(updateBubblePoll) bad or empty 'roomId' parameter : `, error.cause, ", error : ", error);
-                return reject(error);
-            }
-
-            if (title) {
-                data.title = title;
-            }
-
-            if (questions) {
-                data.questions = questions;
-            }
-
-            if (anonymous!=undefined) {
-                data.anonymous = anonymous;
-            }
-
-            if (duration) {
-                data.duration = duration;
-            }
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(updateBubblePoll) args : ", data);
-            that.http.put("/api/rainbow/enduser/v1.0/polls/" + pollId, that.getRequestHeader(), data, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(updateBubblePoll) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(updateBubblePoll) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(updateBubblePoll) error.");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateBubblePoll) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    votesForBubblePoll(pollId: string, votes: Array<{ question: number, answers: Array<number> }>) {
-        // API https://api.openrainbow.org/enduser/#api-polls-Votes_for_a_poll
-        // PUT /api/rainbow/enduser/v1.0/polls/:pollId/vote
-
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let data: any = {
-                votes
-            };
-
-            that.http.put("/api/rainbow/enduser/v1.0/polls/" + pollId + "/vote", that.getRequestHeader(), data, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(votesForBubblePoll) successfull.");
-                that._logger.log(that.INTERNAL, LOG_ID + "(votesForBubblePoll) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(votesForBubblePoll) error.");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(votesForBubblePoll) error : ", err);
-                return reject(err);
-            });
-        });
-    }
+    createBubblePoll(roomId: string, title: string, questions: Array<{ text: string, multipleChoice: boolean, answers: Array<{ text: string }> }>, anonymous: boolean = false, duration: number = 0) { return this.restPolls.createBubblePoll(roomId, title, questions, anonymous, duration); }
+    deleteBubblePoll(pollId) { return this.restPolls.deleteBubblePoll(pollId); }
+    getBubblePoll(pollId: string, format: string = "small") { return this.restPolls.getBubblePoll(pollId, format); }
+    getBubblePollsByBubble(roomId: string, format: string = "small", limit: number = 100, offset: number) { return this.restPolls.getBubblePollsByBubble(roomId, format, limit, offset); }
+    publishBubblePoll(pollId: string) { return this.restPolls.publishBubblePoll(pollId); }
+    terminateBubblePoll(pollId: string) { return this.restPolls.terminateBubblePoll(pollId); }
+    unpublishBubblePoll(pollId: string) { return this.restPolls.unpublishBubblePoll(pollId); }
+    updateBubblePoll(pollId: string, roomId: string, title: string, questions: Array<{ text: string, multipleChoice: boolean, answers: Array<{ text: string }> }>, anonymous: boolean, duration: number) { return this.restPolls.updateBubblePoll(pollId, roomId, title, questions, anonymous, duration); }
+    votesForBubblePoll(pollId: string, votes: Array<{ question: number, answers: Array<number> }>) { return this.restPolls.votesForBubblePoll(pollId, votes); }
 
     //endregion Rainbow Bubbles Polls
 
@@ -17553,804 +16263,40 @@ addPropertyToObj(param, "peerId", body.peerId, false);
     //endregion Room
 
     //region Customer Care
-
-    //region Customer Care - Administrators Group
-
-    getCustomerCareAdministratorsGroup() {
-        // API https://api.openrainbow.org/customercare/#api-Administrators_group-GetCcareAdminsGroup
-        // GET /api/rainbow/customercare/v1.0/administrators
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url: string = "/api/rainbow/customercare/v1.0/administrators" ;
-            let urlParamsTab: string[] = [];
-            urlParamsTab.push(url);
-            //addParamToUrl(urlParamsTab, "format", format);
-            url = urlParamsTab[0];
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getCustomerCareAdministratorsGroup) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getCustomerCareAdministratorsGroup) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getCustomerCareAdministratorsGroup) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getCustomerCareAdministratorsGroup) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getCustomerCareAdministratorsGroup) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    addAdministratorToGroup(userId : string) {
-        // API https://api.openrainbow.org/customercare/#api-Administrators_group-PostCcareAdminsGroup
-        // URL POST /api/rainbow/customercare/v1.0/administrators/:userId
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            userId = userId ? userId : that.userId ;
-            let url = "/api/rainbow/customercare/v1.0/administrators/" + userId;
-            let data: any = {};
-            //addPropertyToObj(data, "requestedCompanyId", requestedCompanyId, false);
-
-            that.http.post(url, that.getRequestHeader(), data, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(addAdministratorToGroup) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(addAdministratorToGroup) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(addAdministratorToGroup) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(addAdministratorToGroup) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    removeAdministratorFromGroup(userId : string) {
-        // API https://api.openrainbow.org/customercare/#api-Administrators_group-DeleteCcareAdminsGroup
-        // DELETE /api/rainbow/customercare/v1.0/administrators/:userId
-
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            if (!userId) {
-                let error = ErrorManager.getErrorManager().BAD_REQUEST;
-                error.msg += "No pollId provided";
-                error.label += "No pollId provided";
-                error.cause = userId;
-                that._logger.log(that.WARN, LOG_ID + `(removeAdministratorFromGroup) BAD_REQUEST.`);
-                that._logger.log(that.INTERNALERROR, LOG_ID + `(removeAdministratorFromGroup) No pollId provided : `, error.cause, ", error : ", error);
-                return reject(error);
-            } else {
-                that.http.delete("/api/rainbow/customercare/v1.0/administrators/" + userId, that.getRequestHeader()).then(function (json) {
-                    that._logger.log(that.DEBUG, LOG_ID + "(removeAdministratorFromGroup) successfull");
-                    that._logger.log(that.INTERNAL, LOG_ID + "(removeAdministratorFromGroup) REST result : ", json);
-                    resolve(json);
-                }).catch(function (err) {
-                    that._logger.log(that.ERROR, LOG_ID, "(removeAdministratorFromGroup) error");
-                    that._logger.log(that.INTERNALERROR, LOG_ID, "(removeAdministratorFromGroup) error : ", err);
-                    return reject(err);
-                });
-            }
-        });
-    }
-
-    //endregion Customer Care - Administrators Group
-
-    //region Customer Care - Logs
-
-    getIssue(logId : string) {
-        // API https://api.openrainbow.org/customercare/#api-Logs-getCcareOneLog
-        // GET /api/rainbow/customercare/v1.0/logs/:logId
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url: string = "/api/rainbow/customercare/v1.0/logs/" + logId ;
-            let urlParamsTab: string[] = [];
-            urlParamsTab.push(url);
-            //addParamToUrl(urlParamsTab, "format", format);
-            url = urlParamsTab[0];
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getIssue) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getIssue) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getIssue) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getIssue) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getIssue) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    getListOfIssues(limit : number = 100, offset : number = 0, sortField : string = "creationDate",
-    sortOrder : number = -1, companyId : string, bpId : string, customerCategory : string = "all", name : string, 
-    version : string, device : string, fromCreationDate : string, toCreationDate : string,
-    fromOccurrenceDate : string, toOccurrenceDate : string, format : string = "small") {
-        // API https://api.openrainbow.org/customercare/#api-Logs-getCcareLogs
-        // GET /api/rainbow/customercare/v1.0/logs
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url: string = "/api/rainbow/customercare/v1.0/logs" ;
-            let urlParamsTab: string[] = [];
-            urlParamsTab.push(url);
-            addParamToUrl(urlParamsTab, "limit", limit);
-            addParamToUrl(urlParamsTab, "offset", offset);
-            addParamToUrl(urlParamsTab, "sortField", sortField);
-            addParamToUrl(urlParamsTab, "sortOrder", sortOrder);
-            addParamToUrl(urlParamsTab, "companyId", companyId);
-            addParamToUrl(urlParamsTab, "bpId", bpId);
-            addParamToUrl(urlParamsTab, "customerCategory", customerCategory);
-            addParamToUrl(urlParamsTab, "name", name);
-            addParamToUrl(urlParamsTab, "version", version);
-            addParamToUrl(urlParamsTab, "device", device);
-            addParamToUrl(urlParamsTab, "fromCreationDate", fromCreationDate);
-            addParamToUrl(urlParamsTab, "toCreationDate", toCreationDate);
-            addParamToUrl(urlParamsTab, "fromOccurrenceDate", fromOccurrenceDate);
-            addParamToUrl(urlParamsTab, "toOccurrenceDate", toOccurrenceDate);
-            addParamToUrl(urlParamsTab, "format", format);
-            url = urlParamsTab[0];
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getListOfIssues) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getListOfIssues) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getListOfIssues) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getListOfIssues) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getListOfIssues) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-
-    //endregion Customer Care - Logs
-
-    //region Customer Care - Users Logs
-    getListOfIssuesForUser(userId : string, format : string = "small") {
-        // API https://api.openrainbow.org/customercare/#api-Users_logs-GetCcareUsersLogs
-        // GET /api/rainbow/customercare/v1.0/users/:userId/logs
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            userId = userId ? userId : that.userId;
-            let url: string = "/api/rainbow/customercare/v1.0/users/" + userId + "/logs" ;
-            let urlParamsTab: string[] = [];
-            urlParamsTab.push(url);
-            addParamToUrl(urlParamsTab, "format", format);
-            url = urlParamsTab[0];
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getListOfIssuesForUser) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getListOfIssuesForUser) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getListOfIssuesForUser) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getListOfIssuesForUser) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getListOfIssuesForUser) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    getIssueForUser(userId : string, logId : string ) {
-        // API https://api.openrainbow.org/customercare/#api-Users_logs-GetCcareUsersOneLogs
-        // GET /api/rainbow/customercare/v1.0/users/:userId/logs/:logId
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            userId = userId ? userId : that.userId;
-            let url: string = "/api/rainbow/customercare/v1.0/users/" + userId + "/logs/" + logId ;
-            let urlParamsTab: string[] = [];
-            urlParamsTab.push(url);
-            //addParamToUrl(urlParamsTab, "format", format);
-            url = urlParamsTab[0];
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getIssueForUser) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getIssueForUser) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getIssueForUser) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getIssueForUser) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getIssueForUser) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    initiateLogsContext(userId : string, occurrenceDate : string, occurrenceDateTimezone : string, type : string,
-    description : string, resourceId : string, externalRef : string, device : string, attachments : Array<string>, version : string, deviceDetails : any) {
-        // API https://api.openrainbow.org/customercare/#api-Users_logs-PostCcareUsersLogs
-        // URL POST /api/rainbow/customercare/v1.0/users/:userId/logs
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            userId = userId ? userId : that.userId ;
-            let url = "/api/rainbow/customercare/v1.0/users/" + userId + "/logs";
-            let data: any = {};
-            addPropertyToObj(data, "occurrenceDate", occurrenceDate, false);
-            addPropertyToObj(data, "occurrenceDateTimezone", occurrenceDateTimezone, false);
-            addPropertyToObj(data, "type", type, false);
-            addPropertyToObj(data, "description", description, false);
-            addPropertyToObj(data, "resourceId", resourceId, false);
-            addPropertyToObj(data, "externalRef", externalRef, false);
-            addPropertyToObj(data, "device", device, false);
-            addPropertyToObj(data, "attachments", attachments, false);
-            addPropertyToObj(data, "version", version, false);
-            addPropertyToObj(data, "deviceDetails", deviceDetails, false);
-
-            that.http.post(url, that.getRequestHeader(), data, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(initiateLogsContext) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(initiateLogsContext) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(initiateLogsContext) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(initiateLogsContext) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    completeLogsContext(userId : string, logId : string, occurrenceDate : string, occurrenceDateTimezone : string,
-                        description : string, externalRef : string, device : string, attachments : Array<string>, version : string, deviceDetails : any) {
-        // API https://api.openrainbow.org/customercare/#api-Users_logs-PutCcareUsersLogs
-        // PUT /api/rainbow/customercare/v1.0/users/:userId/logs/:logId
-
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            userId = userId ? userId : that.userId ;
-            let url = "/api/rainbow/customercare/v1.0/users/" + userId + "/logs/" + logId;
-            let data: any = {};
-            addPropertyToObj(data, "occurrenceDate", occurrenceDate, false);
-            addPropertyToObj(data, "occurrenceDateTimezone", occurrenceDateTimezone, false);
-            //addPropertyToObj(data, "type", type, false);
-            addPropertyToObj(data, "description", description, false);
-            //addPropertyToObj(data, "resourceId", resourceId, false);
-            addPropertyToObj(data, "externalRef", externalRef, false);
-            addPropertyToObj(data, "device", device, false);
-            addPropertyToObj(data, "attachments", attachments, false);
-            addPropertyToObj(data, "version", version, false);
-            addPropertyToObj(data, "deviceDetails", deviceDetails, false);
-
-            that.http.put(url, that.getRequestHeader(), data, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(completeLogsContext) successfull.");
-                that._logger.log(that.INTERNAL, LOG_ID + "(completeLogsContext) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(completeLogsContext) error.");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(completeLogsContext) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    cancelOrCloseLogsSubmission(userId : string, logId : string) {
-        // API https://api.openrainbow.org/customercare/#api-Users_logs-DeleteCcareUsersLogs
-        // DELETE /api/rainbow/customercare/v1.0/users/:userId/logs/:logId
-
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            if (!userId) {
-                let error = ErrorManager.getErrorManager().BAD_REQUEST;
-                error.msg += "No pollId provided";
-                error.label += "No pollId provided";
-                error.cause = userId;
-                that._logger.log(that.WARN, LOG_ID + `(cancelOrCloseLogsSubmission) BAD_REQUEST.`);
-                that._logger.log(that.INTERNALERROR, LOG_ID + `(cancelOrCloseLogsSubmission) No pollId provided : `, error.cause, ", error : ", error);
-                return reject(error);
-            } else {
-                that.http.delete("/api/rainbow/customercare/v1.0/users/" + userId + "/logs/" + logId, that.getRequestHeader()).then(function (json) {
-                    that._logger.log(that.DEBUG, LOG_ID + "(cancelOrCloseLogsSubmission) successfull");
-                    that._logger.log(that.INTERNAL, LOG_ID + "(cancelOrCloseLogsSubmission) REST result : ", json);
-                    resolve(json);
-                }).catch(function (err) {
-                    that._logger.log(that.ERROR, LOG_ID, "(cancelOrCloseLogsSubmission) error");
-                    that._logger.log(that.INTERNALERROR, LOG_ID, "(cancelOrCloseLogsSubmission) error : ", err);
-                    return reject(err);
-                });
-            }
-        });
-    }
-
-    acknowledgeLogsRequest(userId : string, logId : string) {
-        // API https://api.openrainbow.org/customercare/#api-Users_logs-PostCcareUsersLogsReqAck
-        // URL POST /api/rainbow/customercare/v1.0/users/:userId/logs/:logId/ack
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            userId = userId ? userId : that.userId ;
-            let url = "/api/rainbow/customercare/v1.0/users/" + userId + "/logs/" + logId + "/ack";
-            let data: any = {};
-            //addPropertyToObj(data, "occurrenceDate", occurrenceDate, false);
-
-            that.http.post(url, that.getRequestHeader(), data, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(initiateLogsContext) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(initiateLogsContext) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(initiateLogsContext) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(initiateLogsContext) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    rejectLogsRequest(userId : string, logId : string) {
-        // API https://api.openrainbow.org/customercare/#api-Users_logs-PostCcareUsersLogsReqReject
-        // URL POST /api/rainbow/customercare/v1.0/users/:userId/logs/:logId/reject
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            userId = userId ? userId : that.userId ;
-            let url = "/api/rainbow/customercare/v1.0/users/" + userId + "/logs/" + logId + "/reject";
-            let data: any = {};
-            //addPropertyToObj(data, "occurrenceDate", occurrenceDate, false);
-
-            that.http.post(url, that.getRequestHeader(), data, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(initiateLogsContext) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(initiateLogsContext) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(initiateLogsContext) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(initiateLogsContext) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    //endregion Customer Care - Users Logs
-
-    //region Customer Care - Users Logs Append
-    adminOrBotAddAdditionalFiles(userId : string, logId : string, attachments : Array<string>, conversationId : string, fileName : string ) {
-        // API https://api.openrainbow.org/customercare/#api-Users_logs_append-PutCcareUsersLogsAttachments
-        // PUT "/api/rainbow/customercare/v1.0/users/" + userId + "/logs/" + logId + "/attachments"
-
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            userId = userId ? userId : that.userId ;
-            let url = "/api/rainbow/customercare/v1.0/users/" + userId + "/logs/" + logId + "/attachments";
-            let data: any = {};
-            addPropertyToObj(data, "conversationId", conversationId, false);
-            addPropertyToObj(data, "fileName", fileName, false);
-            addPropertyToObj(data, "attachments", attachments, false);
-
-            that.http.put(url, that.getRequestHeader(), data, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(adminOrBotAddAdditionalFiles) successfull.");
-                that._logger.log(that.INTERNAL, LOG_ID + "(adminOrBotAddAdditionalFiles) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(adminOrBotAddAdditionalFiles) error.");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(adminOrBotAddAdditionalFiles) error : ", err);
-                return reject(err);
-            });
-        });
-
-    }
-
-    //endregion Customer Care - Users Logs Append
-
-    //region Customer Care - Users resources
-    getListOfResourcesForUser( userId : string) {
-        // API https://api.openrainbow.org/customercare/#api-Users_resources-GetCcareUsersResources
-        // GET /api/rainbow/customercare/v1.0/users/:userId/resources
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            userId = userId ? userId : that.userId ;
-            let url: string = "/api/rainbow/customercare/v1.0/users/" + userId + "/resources" ;
-            let urlParamsTab: string[] = [];
-            urlParamsTab.push(url);
-            //addParamToUrl(urlParamsTab, "format", format);
-            url = urlParamsTab[0];
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getListOfResourcesForUser) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getListOfResourcesForUser) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getListOfResourcesForUser) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getListOfResourcesForUser) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getListOfResourcesForUser) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    //endregion Customer Care - Users resources
-
-    //region Customer Care - Users ticket
-    createAnAtriumTicket(userId : string, subject : string, description : string, additionalDescription : string, resource : string, externalRef : string, logs : Array<string> ) {
-        // API https://api.openrainbow.org/customercare/#api-Users_ticket-PostCcareUsersTicket
-        // URL POST /api/rainbow/customercare/v1.0/users/:userId/ticket
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            userId = userId ? userId : that.userId ;
-            let url = "/api/rainbow/customercare/v1.0/users/" + userId + "/ticket";
-            let data: any = {};
-            addPropertyToObj(data, "subject", subject, false);
-            addPropertyToObj(data, "description", description, false);
-            addPropertyToObj(data, "additionalDescription", additionalDescription, false);
-            addPropertyToObj(data, "resource", resource, false);
-            addPropertyToObj(data, "externalRef", externalRef, false);
-            addPropertyToObj(data, "logs", logs, false);
-
-            that.http.post(url, that.getRequestHeader(), data, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(createAnAtriumTicket) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(createAnAtriumTicket) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(createAnAtriumTicket) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(createAnAtriumTicket) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    updateAnAtriumTicket(userId : string, ticketId : string, subject : string, description : string, additionalDescription : string, resource : string, externalRef : string, logs : Array<string> ) {
-        // API https://api.openrainbow.org/customercare/#api-Users_ticket-PutCcareUsersTicket
-        // URL PUT /api/rainbow/customercare/v1.0/users/:userId/ticket/:ticketId
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            userId = userId ? userId : that.userId ;
-            let url = "/api/rainbow/customercare/v1.0/users/" + userId + "/ticket/" + ticketId;
-            let data: any = {};
-            addPropertyToObj(data, "subject", subject, false);
-            addPropertyToObj(data, "description", description, false);
-            addPropertyToObj(data, "additionalDescription", additionalDescription, false);
-            addPropertyToObj(data, "resource", resource, false);
-            addPropertyToObj(data, "externalRef", externalRef, false);
-            addPropertyToObj(data, "logs", logs, false);
-
-            that.http.put(url, that.getRequestHeader(), data, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(updateAnAtriumTicket) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(updateAnAtriumTicket) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(updateAnAtriumTicket) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateAnAtriumTicket) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    deleteAnAtriumTicketInformation(userId : string, ticketId : string) {
-        // API https://api.openrainbow.org/customercare/#api-Users_ticket-DeleteCcareUsersTicket
-        // DELETE /api/rainbow/customercare/v1.0/users/:userId/ticket/:ticketId
-
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            if (!userId) {
-                let error = ErrorManager.getErrorManager().BAD_REQUEST;
-                error.msg += "No pollId provided";
-                error.label += "No pollId provided";
-                error.cause = userId;
-                that._logger.log(that.WARN, LOG_ID + `(deleteAnAtriumTicketInformation) BAD_REQUEST.`);
-                that._logger.log(that.INTERNALERROR, LOG_ID + `(deleteAnAtriumTicketInformation) No pollId provided : `, error.cause, ", error : ", error);
-                return reject(error);
-            } else {
-                that.http.delete("/api/rainbow/customercare/v1.0/users/" + userId + "/ticket/" + ticketId, that.getRequestHeader()).then(function (json) {
-                    that._logger.log(that.DEBUG, LOG_ID + "(deleteAnAtriumTicketInformation) successfull");
-                    that._logger.log(that.INTERNAL, LOG_ID + "(deleteAnAtriumTicketInformation) REST result : ", json);
-                    resolve(json);
-                }).catch(function (err) {
-                    that._logger.log(that.ERROR, LOG_ID, "(deleteAnAtriumTicketInformation) error");
-                    that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteAnAtriumTicketInformation) error : ", err);
-                    return reject(err);
-                });
-            }
-        });
-    }
-
-    readAnAtriumTicketInformation( userId : string, ticketId : string) {
-        // API https://api.openrainbow.org/customercare/#api-Users_ticket-GetCcareUsersTicket
-        // GET /api/rainbow/customercare/v1.0/users/:userId/ticket/:ticketId
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            userId = userId ? userId : that.userId ;
-            let url: string = "/api/rainbow/customercare/v1.0/users/" + userId + "/ticket/" + ticketId ;
-            let urlParamsTab: string[] = [];
-            urlParamsTab.push(url);
-            //addParamToUrl(urlParamsTab, "format", format);
-            url = urlParamsTab[0];
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(readAnAtriumTicketInformation) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(readAnAtriumTicketInformation) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(readAnAtriumTicketInformation) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(readAnAtriumTicketInformation) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(readAnAtriumTicketInformation) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    readAllTicketsOnASameCompany(userId : string) {
-        // API https://api.openrainbow.org/customercare/#api-Users_ticket-GetAllCcareUsersTickets
-        // GET /api/rainbow/customercare/v1.0/users/:userId/ticket
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            userId = userId ? userId : that.userId ;
-            let url: string = "/api/rainbow/customercare/v1.0/users/" + userId + "/ticket" ;
-            let urlParamsTab: string[] = [];
-            urlParamsTab.push(url);
-            //addParamToUrl(urlParamsTab, "format", format);
-            url = urlParamsTab[0];
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(readAllTicketsOnASameCompany) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(readAllTicketsOnASameCompany) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(readAllTicketsOnASameCompany) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(readAllTicketsOnASameCompany) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(readAllTicketsOnASameCompany) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    //endregion Customer Care - Users ticket
-
+    getCustomerCareAdministratorsGroup() { return this.restCustomerCare.getCustomerCareAdministratorsGroup(); }
+    addAdministratorToGroup(userId?: string) { return this.restCustomerCare.addAdministratorToGroup(userId || this.userId); }
+    removeAdministratorFromGroup(userId?: string) { return this.restCustomerCare.removeAdministratorFromGroup(userId || this.userId); }
+    getIssue(logId: string) { return this.restCustomerCare.getIssue(logId); }
+    getListOfIssues(limit: number = 100, offset: number = 0, sortField: string = "creationDate", sortOrder: number = -1, companyId: string, bpId: string, customerCategory: string = "all", name: string, version: string, device: string, fromCreationDate: string, toCreationDate: string, fromOccurrenceDate: string, toOccurrenceDate: string, format: string = "small") { return this.restCustomerCare.getListOfIssues(limit, offset, sortField, sortOrder, companyId, bpId, customerCategory, name, version, device, fromCreationDate, toCreationDate, fromOccurrenceDate, toOccurrenceDate, format); }
+    getListOfIssuesForUser(userId?: string, format: string = "small") { return this.restCustomerCare.getListOfIssuesForUser(userId || this.userId, format); }
+    getIssueForUser(userId?: string, logId: string = undefined) { return this.restCustomerCare.getIssueForUser(userId || this.userId, logId); }
+    initiateLogsContext(userId?: string, occurrenceDate: string = undefined, occurrenceDateTimezone: string = undefined, type: string = undefined, description: string = undefined, resourceId: string = undefined, externalRef: string = undefined, device: string = undefined, attachments: Array<string> = undefined, version: string = undefined, deviceDetails: any = undefined) { return this.restCustomerCare.initiateLogsContext(userId || this.userId, occurrenceDate, occurrenceDateTimezone, type, description, resourceId, externalRef, device, attachments, version, deviceDetails); }
+    completeLogsContext(userId?: string, logId: string = undefined, occurrenceDate: string = undefined, occurrenceDateTimezone: string = undefined, description: string = undefined, externalRef: string = undefined, device: string = undefined, attachments: Array<string> = undefined, version: string = undefined, deviceDetails: any = undefined) { return this.restCustomerCare.completeLogsContext(userId || this.userId, logId, occurrenceDate, occurrenceDateTimezone, description, externalRef, device, attachments, version, deviceDetails); }
+    cancelOrCloseLogsSubmission(userId?: string, logId: string = undefined) { return this.restCustomerCare.cancelOrCloseLogsSubmission(userId || this.userId, logId); }
+    acknowledgeLogsRequest(userId?: string, logId: string = undefined) { return this.restCustomerCare.acknowledgeLogsRequest(userId || this.userId, logId); }
+    rejectLogsRequest(userId?: string, logId: string = undefined) { return this.restCustomerCare.rejectLogsRequest(userId || this.userId, logId); }
+    adminOrBotAddAdditionalFiles(userId?: string, logId: string = undefined, attachments: Array<string> = undefined, conversationId: string = undefined, fileName: string = undefined) { return this.restCustomerCare.adminOrBotAddAdditionalFiles(userId || this.userId, logId, attachments, conversationId, fileName); }
+    getListOfResourcesForUser(userId?: string) { return this.restCustomerCare.getListOfResourcesForUser(userId || this.userId); }
+    createAnAtriumTicket(userId?: string, subject: string = undefined, description: string = undefined, additionalDescription: string = undefined, resource: string = undefined, externalRef: string = undefined, logs: Array<string> = undefined) { return this.restCustomerCare.createAnAtriumTicket(userId || this.userId, subject, description, additionalDescription, resource, externalRef, logs); }
+    updateAnAtriumTicket(userId?: string, ticketId: string = undefined, subject: string = undefined, description: string = undefined, additionalDescription: string = undefined, resource: string = undefined, externalRef: string = undefined, logs: Array<string> = undefined) { return this.restCustomerCare.updateAnAtriumTicket(userId || this.userId, ticketId, subject, description, additionalDescription, resource, externalRef, logs); }
+    deleteAnAtriumTicketInformation(userId?: string, ticketId: string = undefined) { return this.restCustomerCare.deleteAnAtriumTicketInformation(userId || this.userId, ticketId); }
+    readAnAtriumTicketInformation(userId?: string, ticketId: string = undefined) { return this.restCustomerCare.readAnAtriumTicketInformation(userId || this.userId, ticketId); }
+    readAllTicketsOnASameCompany(userId?: string) { return this.restCustomerCare.readAllTicketsOnASameCompany(userId || this.userId); }
     //endregion Customer Care
 
-    //region Tasks MANAGEMENT
+    //region Tasks MANAGEMENT — proxies → RESTTasks
 
-    async addTask(task:any) {
-        // API https://api.openrainbow.org/enduser/#api-to_do_list-createTodo
-        // URL POST /api/rainbow/enduser/v1.0/users/:userId/todos
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let userId = that.userId ;
-            let url = "/api/rainbow/enduser/v1.0/users/" + userId + "/todos";
-            let data: any = task;
-            /*addPropertyToObj(data, "subject", subject, false);
-            addPropertyToObj(data, "description", description, false);
-            // */
-
-            that.http.post(url, that.getRequestHeader(), data, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(addTask) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(addTask) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(addTask) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(addTask) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    getAllCategories() {
-        // API
-        // GET /api/rainbow/enduser/v1.0/users/:userId/todos/category
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url: string = "/api/rainbow/enduser/v1.0/users/" + that.userId + "/todos/category";
-            /*
-            let urlParamsTab: string[] = [];
-            urlParamsTab.push(url);
-            addParamToUrl(urlParamsTab, "category", category);
-            url = urlParamsTab[0]; // */
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getCategories) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getCategories) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getCategories) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getCategories) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getCategories) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    createTaskcategory(category:string) {
-        // API https://api.openrainbow.org/enduser/#api-to_do_list-createTodoCategory
-        // URL POST /api/rainbow/enduser/v1.0/users/:userId/todos/category
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let userId = that.userId ;
-            let url = "/api/rainbow/enduser/v1.0/users/" + userId + "/todos/category";
-            let data: any = {};
-            addPropertyToObj(data, "category", category, false);
-
-            that.http.post(url, that.getRequestHeader(), data, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(createTaskcategory) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(createTaskcategory) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(createTaskcategory) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(createTaskcategory) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    createOrUpdatePropertiesTaskByCategoryId(categoryId:string, properties: any) {
-        // API https://api.openrainbow.org/enduser/#api-to_do_list-createTodoProperties
-        // URL POST /api/rainbow/enduser/v1.0/users/:userId/todos/properties/:categoryId
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let userId = that.userId ;
-            let url = "/api/rainbow/enduser/v1.0/users/" + userId + "/todos/properties/" + categoryId;
-            let data: any = {};
-            addPropertyToObj(data, "properties", properties, false);
-
-            that.http.post(url, that.getRequestHeader(), data, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(createOrUpdatePropertiesTaskByCategoryId) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(createOrUpdatePropertiesTaskByCategoryId) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(createOrUpdatePropertiesTaskByCategoryId) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(createOrUpdatePropertiesTaskByCategoryId) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    //updatePropertiesTaskByCategoryId () {}
-
-    async getTaskById(taskId: string) {
-        // API https://api.openrainbow.org/enduser/#api-to_do_list-GetUserTodos
-        // GET /api/rainbow/enduser/v1.0/users/:userId/todos
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url: string = "/api/rainbow/enduser/v1.0/users/" + that.userId + "/todos/" + taskId;
-            /*let urlParamsTab: string[] = [];
-            urlParamsTab.push(url);
-            addParamToUrl(urlParamsTab, "taskId", taskId);
-            url = urlParamsTab[0];
-            // */
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getTaskById) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getTaskById) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getTaskById) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getTaskById) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getTaskById) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    getTasksByCategoryId(category : string) {
-        // API https://api.openrainbow.org/enduser/#api-to_do_list-getTodoCategory
-        // GET /api/rainbow/enduser/v1.0/users/:userId/todos/category/:categoryId
-        let that = this;
-
-        return new Promise(
-            function (resolve, reject) {
-                let url: string = "/api/rainbow/enduser/v1.0/users/" + that.userId + "/todos/category/" + category;
-                /* let urlParamsTab: string[] = [];
-                urlParamsTab.push(url);
-                addParamToUrl(urlParamsTab, "category", category);
-                url = urlParamsTab[0];
-                // */
-
-                that._logger.log(that.INTERNAL, LOG_ID + "(getTasksByCategoryId) REST url : ", url);
-
-                that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                    that._logger.log(that.DEBUG, LOG_ID + "(getTasksByCategoryId) successfull");
-                    that._logger.log(that.INTERNAL, LOG_ID + "(getTasksByCategoryId) REST result : ", json);
-                    resolve(json?.data);
-                }).catch(function (err) {
-                    that._logger.log(that.ERROR, LOG_ID, "(getTasksByCategoryId) error");
-                    that._logger.log(that.INTERNALERROR, LOG_ID, "(getTasksByCategoryId) error : ", err);
-                    return reject(err);
-                });
-            }
-        );
-    }
-
-    getTasks(category : string) {
-        // API https://api.openrainbow.org/enduser/#api-to_do_list-GetUserTodos
-        // GET /api/rainbow/enduser/v1.0/users/:userId/todos
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url: string = "/api/rainbow/enduser/v1.0/users/" + that.userId + "/todos";
-            let urlParamsTab: string[] = [];
-            urlParamsTab.push(url);
-            addParamToUrl(urlParamsTab, "category", category);
-            url = urlParamsTab[0];
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getTasks) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getTasks) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getTasks) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getTasks) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getTasks) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    deletePropertiesFromCategoriesTasks(categoryId : string) {
-        // API https://api.openrainbow.org/enduser/#api-to_do_list-removeTodoCategories
-        // DELETE /api/rainbow/enduser/v1.0/users/:userId/todos/properties/:categoryId
-
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url: string = "/api/rainbow/enduser/v1.0/users/" + that.userId + "/todos/properties/" + categoryId;
-            that.http.delete(url, that.getRequestHeader()).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(deletePropertiesFromCategoriesTasks) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(deletePropertiesFromCategoriesTasks) REST result : ", json);
-                resolve(json);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(deletePropertiesFromCategoriesTasks) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(deletePropertiesFromCategoriesTasks) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    deleteTask(taskId : string) {
-        // API https://api.openrainbow.org/enduser/#api-to_do_list-removeTodo
-        // DELETE /api/rainbow/enduser/v1.0/users/:userId/todos/:todoId
-
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url: string = "/api/rainbow/enduser/v1.0/users/" + that.userId + "/todos/" + taskId;
-            that.http.delete(url, that.getRequestHeader()).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(deleteTask) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(deleteTask) REST result : ", json);
-                resolve(json);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(deleteTask) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteTask) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    deleteCategoryFromTasks(categoryId : string) {
-        // API https://api.openrainbow.org/enduser/#api-to_do_list-removeTodoCategory
-        // DELETE /api/rainbow/enduser/v1.0/users/:userId/todos/category/:categoryId
-
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url: string = "/api/rainbow/enduser/v1.0/users/" + that.userId + "/todos/category/" + categoryId;
-            that.http.delete(url, that.getRequestHeader()).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(deleteCategoryFromTasks) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(deleteCategoryFromTasks) REST result : ", json);
-                resolve(json);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(deleteCategoryFromTasks) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteCategoryFromTasks) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    updateTask(taskId:string, task : TaskInput) {
-        // API https://api.openrainbow.org/enduser/#api-to_do_list-updateTodo
-        // URL PUT /api/rainbow/enduser/v1.0/users/:userId/todos/:todoId
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url = "/api/rainbow/enduser/v1.0/users/" + that.userId + "/todos/" + taskId;
-            let data: any = {};
-            addPropertyToObj(data, "category", task.category, false);
-            addPropertyToObj(data, "position", task.position, false);
-            addPropertyToObj(data, "content", task.content, false);
-
-            that.http.put(url, that.getRequestHeader(), data, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(updateTask) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(updateTask) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(updateTask) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateTask) error : ", err);
-                return reject(err);
-            });
-        });
-    }
+    async addTask(task: any) { return this.restTasks.addTask(this.userId, task); }
+    getAllCategories() { return this.restTasks.getAllCategories(this.userId); }
+    createTaskcategory(category: string) { return this.restTasks.createTaskcategory(this.userId, category); }
+    createOrUpdatePropertiesTaskByCategoryId(categoryId: string, properties: any) { return this.restTasks.createOrUpdatePropertiesTaskByCategoryId(this.userId, categoryId, properties); }
+    async getTaskById(taskId: string) { return this.restTasks.getTaskById(this.userId, taskId); }
+    getTasksByCategoryId(category: string) { return this.restTasks.getTasksByCategoryId(this.userId, category); }
+    getTasks(category: string) { return this.restTasks.getTasks(this.userId, category); }
+    deletePropertiesFromCategoriesTasks(categoryId: string) { return this.restTasks.deletePropertiesFromCategoriesTasks(this.userId, categoryId); }
+    deleteTask(taskId: string) { return this.restTasks.deleteTask(this.userId, taskId); }
+    deleteCategoryFromTasks(categoryId: string) { return this.restTasks.deleteCategoryFromTasks(this.userId, categoryId); }
+    updateTask(taskId: string, task: TaskInput) { return this.restTasks.updateTask(this.userId, taskId, task); }
 
     //endregion Tasks MANAGEMENT
 
