@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 import {addParamToUrl, addPropertyToObj, isDefined, logEntryExit} from "../../common/Utils";
 import {GenericRESTService} from "../GenericRESTService.js";
@@ -46,6 +46,8 @@ class RESTConversations extends GenericRESTService {
     //region Conversations
 
     async getTheNumberOfHitsOfASubstringInAllUsersconversations(userId: string, substring: string, limit: number = 100, webinar: boolean = true) {
+        // API https://api.openrainbow.org/enduser/#api-conversations-countTextInConversations
+        // GET /api/rainbow/enduser/v1.0/users/:userId/conversations/search
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getTheNumberOfHitsOfASubstringInAllUsersconversations) entry`);
         return new Promise(function (resolve, reject) {
@@ -194,6 +196,8 @@ class RESTConversations extends GenericRESTService {
     }
 
     updateConversationBookmark(userId: string, conversationId: string, messageId: string) {
+        // API https://api.openrainbow.org/enduser/#api-conversations-setBookmarkInConversation
+        // POST /api/rainbow/enduser/v1.0/users/:userId/conversations/:conversationId/bookmark
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(updateConversationBookmark) entry`);
         return new Promise((resolve, reject) => {
@@ -216,6 +220,8 @@ class RESTConversations extends GenericRESTService {
     }
 
     deleteConversationBookmark(userId: string, conversationId: string) {
+        // API https://api.openrainbow.org/enduser/#api-conversations-removeBookmarkInConversation
+        // DELETE /api/rainbow/enduser/v1.0/users/:userId/conversations/:conversationId/bookmark
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(deleteConversationBookmark) entry`);
         return new Promise(function (resolve, reject) {

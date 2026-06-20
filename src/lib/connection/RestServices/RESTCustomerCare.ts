@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 import {addParamToUrl, addPropertyToObj, logEntryExit} from "../../common/Utils";
 import {GenericRESTService} from "../GenericRESTService.js";
@@ -45,6 +45,8 @@ class RESTCustomerCare extends GenericRESTService {
     //region Customer Care
 
     getCustomerCareAdministratorsGroup() {
+        // API https://api.openrainbow.org/customercare/#api-Administrators_group-GetCcareAdminsGroup
+        // GET /api/rainbow/customercare/v1.0/administrators
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getCustomerCareAdministratorsGroup) entry`);
         return new Promise(function (resolve, reject) {
@@ -63,6 +65,8 @@ class RESTCustomerCare extends GenericRESTService {
     }
 
     addAdministratorToGroup(userId: string) {
+        // API https://api.openrainbow.org/customercare/#api-Administrators_group-PostCcareAdminsGroup
+        // POST /api/rainbow/customercare/v1.0/administrators/:userId
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(addAdministratorToGroup) entry`);
         return new Promise(function (resolve, reject) {
@@ -81,6 +85,8 @@ class RESTCustomerCare extends GenericRESTService {
     }
 
     removeAdministratorFromGroup(userId: string) {
+        // API https://api.openrainbow.org/customercare/#api-Administrators_group-DeleteCcareAdminsGroup
+        // DELETE /api/rainbow/customercare/v1.0/administrators/:userId
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(removeAdministratorFromGroup) entry`);
         return new Promise(function (resolve, reject) {
@@ -107,6 +113,8 @@ class RESTCustomerCare extends GenericRESTService {
     }
 
     getIssue(logId: string) {
+        // API https://api.openrainbow.org/customercare/#api-Logs-getCcareOneLog
+        // GET /api/rainbow/customercare/v1.0/logs/:logId
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getIssue) entry`);
         return new Promise(function (resolve, reject) {
@@ -128,6 +136,8 @@ class RESTCustomerCare extends GenericRESTService {
                     sortOrder: number = -1, companyId: string, bpId: string, customerCategory: string = "all",
                     name: string, version: string, device: string, fromCreationDate: string, toCreationDate: string,
                     fromOccurrenceDate: string, toOccurrenceDate: string, format: string = "small") {
+        // API https://api.openrainbow.org/customercare/#api-Logs-getCcareLogs
+        // GET /api/rainbow/customercare/v1.0/logs
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getListOfIssues) entry`);
         return new Promise(function (resolve, reject) {
@@ -164,6 +174,8 @@ class RESTCustomerCare extends GenericRESTService {
     }
 
     getListOfIssuesForUser(userId: string, format: string = "small") {
+        // API https://api.openrainbow.org/customercare/#api-Users_logs-GetCcareUsersLogs
+        // GET /api/rainbow/customercare/v1.0/users/:userId/logs
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getListOfIssuesForUser) entry`);
         return new Promise(function (resolve, reject) {
@@ -186,6 +198,8 @@ class RESTCustomerCare extends GenericRESTService {
     }
 
     getIssueForUser(userId: string, logId: string) {
+        // API https://api.openrainbow.org/customercare/#api-Users_logs-GetCcareUsersOneLogs
+        // GET /api/rainbow/customercare/v1.0/users/:userId/logs/:logId
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getIssueForUser) entry`);
         return new Promise(function (resolve, reject) {
@@ -206,6 +220,8 @@ class RESTCustomerCare extends GenericRESTService {
     initiateLogsContext(userId: string, occurrenceDate: string, occurrenceDateTimezone: string, type: string,
                         description: string, resourceId: string, externalRef: string, device: string,
                         attachments: Array<string>, version: string, deviceDetails: any) {
+        // API https://api.openrainbow.org/customercare/#api-Users_logs-PostCcareUsersLogs
+        // POST /api/rainbow/customercare/v1.0/users/:userId/logs
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(initiateLogsContext) entry`);
         return new Promise(function (resolve, reject) {
@@ -236,6 +252,8 @@ class RESTCustomerCare extends GenericRESTService {
     completeLogsContext(userId: string, logId: string, occurrenceDate: string, occurrenceDateTimezone: string,
                         description: string, externalRef: string, device: string, attachments: Array<string>,
                         version: string, deviceDetails: any) {
+        // API https://api.openrainbow.org/customercare/#api-Users_logs-PutCcareUsersLogs
+        // PUT /api/rainbow/customercare/v1.0/users/:userId/logs/:logId
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(completeLogsContext) entry`);
         return new Promise(function (resolve, reject) {
@@ -262,6 +280,8 @@ class RESTCustomerCare extends GenericRESTService {
     }
 
     cancelOrCloseLogsSubmission(userId: string, logId: string) {
+        // API https://api.openrainbow.org/customercare/#api-Users_logs-DeleteCcareUsersLogs
+        // DELETE /api/rainbow/customercare/v1.0/users/:userId/logs/:logId
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(cancelOrCloseLogsSubmission) entry`);
         return new Promise(function (resolve, reject) {
@@ -288,6 +308,8 @@ class RESTCustomerCare extends GenericRESTService {
     }
 
     acknowledgeLogsRequest(userId: string, logId: string) {
+        // API https://api.openrainbow.org/customercare/#api-Users_logs-PostCcareUsersLogsReqAck
+        // POST /api/rainbow/customercare/v1.0/users/:userId/logs/:logId/ack
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(acknowledgeLogsRequest) entry`);
         return new Promise(function (resolve, reject) {
@@ -306,6 +328,8 @@ class RESTCustomerCare extends GenericRESTService {
     }
 
     rejectLogsRequest(userId: string, logId: string) {
+        // API https://api.openrainbow.org/customercare/#api-Users_logs-PostCcareUsersLogsReqReject
+        // POST /api/rainbow/customercare/v1.0/users/:userId/logs/:logId/reject
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(rejectLogsRequest) entry`);
         return new Promise(function (resolve, reject) {
@@ -324,6 +348,8 @@ class RESTCustomerCare extends GenericRESTService {
     }
 
     adminOrBotAddAdditionalFiles(userId: string, logId: string, attachments: Array<string>, conversationId: string, fileName: string) {
+        // API https://api.openrainbow.org/customercare/#api-Users_logs_append-PutCcareUsersLogsAttachments
+        // PUT /api/rainbow/customercare/v1.0/users/:userId/logs/:logId/attachments
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(adminOrBotAddAdditionalFiles) entry`);
         return new Promise(function (resolve, reject) {
@@ -345,6 +371,8 @@ class RESTCustomerCare extends GenericRESTService {
     }
 
     getListOfResourcesForUser(userId: string) {
+        // API https://api.openrainbow.org/customercare/#api-Users_resources-GetCcareUsersResources
+        // GET /api/rainbow/customercare/v1.0/users/:userId/resources
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getListOfResourcesForUser) entry`);
         return new Promise(function (resolve, reject) {
@@ -364,6 +392,8 @@ class RESTCustomerCare extends GenericRESTService {
 
     createAnAtriumTicket(userId: string, subject: string, description: string, additionalDescription: string,
                          resource: string, externalRef: string, logs: Array<string>) {
+        // API https://api.openrainbow.org/customercare/#api-Users_ticket-PostCcareUsersTicket
+        // POST /api/rainbow/customercare/v1.0/users/:userId/ticket
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(createAnAtriumTicket) entry`);
         return new Promise(function (resolve, reject) {
@@ -389,6 +419,8 @@ class RESTCustomerCare extends GenericRESTService {
 
     updateAnAtriumTicket(userId: string, ticketId: string, subject: string, description: string,
                          additionalDescription: string, resource: string, externalRef: string, logs: Array<string>) {
+        // API https://api.openrainbow.org/customercare/#api-Users_ticket-PutCcareUsersTicket
+        // PUT /api/rainbow/customercare/v1.0/users/:userId/ticket/:ticketId
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(updateAnAtriumTicket) entry`);
         return new Promise(function (resolve, reject) {
@@ -413,6 +445,8 @@ class RESTCustomerCare extends GenericRESTService {
     }
 
     deleteAnAtriumTicketInformation(userId: string, ticketId: string) {
+        // API https://api.openrainbow.org/customercare/#api-Users_ticket-DeleteCcareUsersTicket
+        // DELETE /api/rainbow/customercare/v1.0/users/:userId/ticket/:ticketId
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(deleteAnAtriumTicketInformation) entry`);
         return new Promise(function (resolve, reject) {
@@ -439,6 +473,8 @@ class RESTCustomerCare extends GenericRESTService {
     }
 
     readAnAtriumTicketInformation(userId: string, ticketId: string) {
+        // API https://api.openrainbow.org/customercare/#api-Users_ticket-GetCcareUsersTicket
+        // GET /api/rainbow/customercare/v1.0/users/:userId/ticket/:ticketId
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(readAnAtriumTicketInformation) entry`);
         return new Promise(function (resolve, reject) {
@@ -457,6 +493,8 @@ class RESTCustomerCare extends GenericRESTService {
     }
 
     readAllTicketsOnASameCompany(userId: string) {
+        // API https://api.openrainbow.org/customercare/#api-Users_ticket-GetAllCcareUsersTickets
+        // GET /api/rainbow/customercare/v1.0/users/:userId/ticket
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(readAllTicketsOnASameCompany) entry`);
         return new Promise(function (resolve, reject) {

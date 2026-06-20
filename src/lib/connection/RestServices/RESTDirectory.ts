@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 import {addParamToUrl, logEntryExit} from "../../common/Utils";
 import {GenericRESTService} from "../GenericRESTService.js";
@@ -101,6 +101,8 @@ class RESTDirectory extends GenericRESTService {
     }
 
     deleteDirectoryEntry(entryId: string) {
+        // API https://api.openrainbow.org/directory/#api-directory-DeleteDirectory
+        // DELETE /api/rainbow/directory/v1.0/entries/:entryId
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(deleteDirectoryEntry) entry`);
         return new Promise((resolve, reject) => {
@@ -143,6 +145,8 @@ class RESTDirectory extends GenericRESTService {
                                 type: string, companyName: string, phoneNumbers: string, fromUpdateDate: Date,
                                 toUpdateDate: Date, tags: string, format: string, limit: number, offset: number,
                                 sortField: string, sortOrder: number, view: string) {
+        // API https://api.openrainbow.org/directory/#api-directory-GetDirectoryList
+        // GET /api/rainbow/directory/v1.0/entries
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getListDirectoryEntriesData) entry`);
         return new Promise(function (resolve, reject) {

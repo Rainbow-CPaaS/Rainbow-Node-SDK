@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 import {addParamToUrl, logEntryExit} from "../../common/Utils";
 import {GenericRESTService} from "../GenericRESTService.js";
@@ -45,6 +45,8 @@ class RESTPolls extends GenericRESTService {
     //region Rainbow Bubbles Polls
 
     createBubblePoll(roomId: string, title: string, questions: Array<{ text: string, multipleChoice: boolean, answers: Array<{ text: string }> }>, anonymous: boolean = false, duration: number = 0) {
+        // API https://api.openrainbow.org/enduser/#api-polls-Create_poll
+        // POST /api/rainbow/enduser/v1.0/polls
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(createBubblePoll) entry`);
         return new Promise(function (resolve, reject) {
@@ -92,6 +94,8 @@ class RESTPolls extends GenericRESTService {
     }
 
     deleteBubblePoll(pollId) {
+        // API https://api.openrainbow.org/enduser/#api-polls-Delete_poll
+        // DELETE /api/rainbow/enduser/v1.0/polls/:pollId
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(deleteBubblePoll) entry`);
         return new Promise(function (resolve, reject) {
@@ -118,6 +122,8 @@ class RESTPolls extends GenericRESTService {
     }
 
     getBubblePoll(pollId: string, format: string = "small") {
+        // API https://api.openrainbow.org/enduser/#api-polls-Get_a_poll
+        // GET /api/rainbow/enduser/v1.0/polls/:pollId
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getBubblePoll) entry`);
         return new Promise(function (resolve, reject) {
@@ -142,6 +148,8 @@ class RESTPolls extends GenericRESTService {
     }
 
     getBubblePollsByBubble(roomId: string, format: string = "small", limit: number = 100, offset: number) {
+        // API https://api.openrainbow.org/enduser/#api-polls-Get_polls
+        // GET /api/rainbow/enduser/v1.0/polls
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getBubblePollsByBubble) entry`);
         return new Promise(function (resolve, reject) {
@@ -169,6 +177,8 @@ class RESTPolls extends GenericRESTService {
     }
 
     publishBubblePoll(pollId: string) {
+        // API https://api.openrainbow.org/enduser/#api-polls-Publish_poll
+        // PUT /api/rainbow/enduser/v1.0/polls/:pollId/publish
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(publishBubblePoll) entry`);
         return new Promise(function (resolve, reject) {
@@ -187,6 +197,8 @@ class RESTPolls extends GenericRESTService {
     }
 
     terminateBubblePoll(pollId: string) {
+        // API https://api.openrainbow.org/enduser/#api-polls-Terminate_poll
+        // PUT /api/rainbow/enduser/v1.0/polls/:pollId/terminate
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(terminateBubblePoll) entry`);
         return new Promise(function (resolve, reject) {
@@ -205,6 +217,8 @@ class RESTPolls extends GenericRESTService {
     }
 
     unpublishBubblePoll(pollId: string) {
+        // API https://api.openrainbow.org/enduser/#api-polls-Unpublish_poll
+        // PUT /api/rainbow/enduser/v1.0/polls/:pollId/unpublish
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(unpublishBubblePoll) entry`);
         return new Promise(function (resolve, reject) {
@@ -223,6 +237,8 @@ class RESTPolls extends GenericRESTService {
     }
 
     updateBubblePoll(pollId: string, roomId: string, title: string, questions: Array<{ text: string, multipleChoice: boolean, answers: Array<{ text: string }> }>, anonymous: boolean, duration: number) {
+        // API https://api.openrainbow.org/enduser/#api-polls-Update_poll
+        // PUT /api/rainbow/enduser/v1.0/polls/:pollId
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(updateBubblePoll) entry`);
         return new Promise(function (resolve, reject) {
@@ -281,6 +297,8 @@ class RESTPolls extends GenericRESTService {
     }
 
     votesForBubblePoll(pollId: string, votes: Array<{ question: number, answers: Array<number> }>) {
+        // API https://api.openrainbow.org/enduser/#api-polls-Votes_for_a_poll
+        // PUT /api/rainbow/enduser/v1.0/polls/:pollId/vote
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(votesForBubblePoll) entry`);
         return new Promise(function (resolve, reject) {

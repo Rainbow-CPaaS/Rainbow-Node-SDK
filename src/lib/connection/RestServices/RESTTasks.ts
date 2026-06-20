@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 import {addParamToUrl, addPropertyToObj, logEntryExit} from "../../common/Utils";
 import {GenericRESTService} from "../GenericRESTService.js";
@@ -51,6 +51,8 @@ class RESTTasks extends GenericRESTService {
      * @returns {Promise<any>}
      */
     async addTask(userId: string, task: any) {
+        // API https://api.openrainbow.org/enduser/#api-to_do_list-createTodo
+        // POST /api/rainbow/enduser/v1.0/users/:userId/todos
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(addTask) entry`);
         return new Promise(function (resolve, reject) {
@@ -75,6 +77,7 @@ class RESTTasks extends GenericRESTService {
      * @returns {Promise<any>}
      */
     getAllCategories(userId: string) {
+        // GET /api/rainbow/enduser/v1.0/users/:userId/todos/category
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getAllCategories) entry`);
         return new Promise(function (resolve, reject) {
@@ -101,6 +104,8 @@ class RESTTasks extends GenericRESTService {
      * @returns {Promise<any>}
      */
     createTaskcategory(userId: string, category: string) {
+        // API https://api.openrainbow.org/enduser/#api-to_do_list-createTodoCategory
+        // POST /api/rainbow/enduser/v1.0/users/:userId/todos/category
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(createTaskcategory) entry`);
         return new Promise(function (resolve, reject) {
@@ -128,6 +133,8 @@ class RESTTasks extends GenericRESTService {
      * @returns {Promise<any>}
      */
     createOrUpdatePropertiesTaskByCategoryId(userId: string, categoryId: string, properties: any) {
+        // API https://api.openrainbow.org/enduser/#api-to_do_list-createTodoProperties
+        // POST /api/rainbow/enduser/v1.0/users/:userId/todos/properties/:categoryId
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(createOrUpdatePropertiesTaskByCategoryId) entry`);
         return new Promise(function (resolve, reject) {
@@ -154,6 +161,8 @@ class RESTTasks extends GenericRESTService {
      * @returns {Promise<any>}
      */
     async getTaskById(userId: string, taskId: string) {
+        // API https://api.openrainbow.org/enduser/#api-to_do_list-GetUserTodos
+        // GET /api/rainbow/enduser/v1.0/users/:userId/todos/:todoId
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getTaskById) entry`);
         return new Promise(function (resolve, reject) {
@@ -180,6 +189,8 @@ class RESTTasks extends GenericRESTService {
      * @returns {Promise<any>}
      */
     getTasksByCategoryId(userId: string, category: string) {
+        // API https://api.openrainbow.org/enduser/#api-to_do_list-getTodoCategory
+        // GET /api/rainbow/enduser/v1.0/users/:userId/todos/category/:categoryId
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getTasksByCategoryId) entry`);
         return new Promise(function (resolve, reject) {
@@ -206,6 +217,8 @@ class RESTTasks extends GenericRESTService {
      * @returns {Promise<any>}
      */
     getTasks(userId: string, category: string) {
+        // API https://api.openrainbow.org/enduser/#api-to_do_list-GetUserTodos
+        // GET /api/rainbow/enduser/v1.0/users/:userId/todos
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getTasks) entry`);
         return new Promise(function (resolve, reject) {
@@ -236,6 +249,8 @@ class RESTTasks extends GenericRESTService {
      * @returns {Promise<any>}
      */
     deletePropertiesFromCategoriesTasks(userId: string, categoryId: string) {
+        // API https://api.openrainbow.org/enduser/#api-to_do_list-removeTodoCategories
+        // DELETE /api/rainbow/enduser/v1.0/users/:userId/todos/properties/:categoryId
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(deletePropertiesFromCategoriesTasks) entry`);
         return new Promise(function (resolve, reject) {
@@ -259,6 +274,8 @@ class RESTTasks extends GenericRESTService {
      * @returns {Promise<any>}
      */
     deleteTask(userId: string, taskId: string) {
+        // API https://api.openrainbow.org/enduser/#api-to_do_list-removeTodo
+        // DELETE /api/rainbow/enduser/v1.0/users/:userId/todos/:todoId
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(deleteTask) entry`);
         return new Promise(function (resolve, reject) {
@@ -282,6 +299,8 @@ class RESTTasks extends GenericRESTService {
      * @returns {Promise<any>}
      */
     deleteCategoryFromTasks(userId: string, categoryId: string) {
+        // API https://api.openrainbow.org/enduser/#api-to_do_list-removeTodoCategory
+        // DELETE /api/rainbow/enduser/v1.0/users/:userId/todos/category/:categoryId
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(deleteCategoryFromTasks) entry`);
         return new Promise(function (resolve, reject) {
@@ -306,6 +325,8 @@ class RESTTasks extends GenericRESTService {
      * @returns {Promise<any>}
      */
     updateTask(userId: string, taskId: string, task: TaskInput) {
+        // API https://api.openrainbow.org/enduser/#api-to_do_list-updateTodo
+        // PUT /api/rainbow/enduser/v1.0/users/:userId/todos/:todoId
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(updateTask) entry`);
         return new Promise(function (resolve, reject) {

@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 import {addParamToUrl, logEntryExit} from "../../common/Utils";
 import {GenericRESTService} from "../GenericRESTService.js";
@@ -328,6 +328,7 @@ class RESTSubscriptions extends GenericRESTService {
     }
 
     subscribeUserToSubscription(userId: string, subscriptionId: string) {
+        // POST /api/rainbow/admin/v1.0/users/:userId/profiles/subscriptions/:subscriptionId
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(subscribeUserToSubscription) entry`);
         return new Promise(function (resolve, reject) {
@@ -348,6 +349,7 @@ class RESTSubscriptions extends GenericRESTService {
     }
 
     unSubscribeUserToSubscription(userId: string, subscriptionId: string) {
+        // DELETE /api/rainbow/admin/v1.0/users/:userId/profiles/subscriptions/:subscriptionId
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(unSubscribeUserToSubscription) entry`);
         return new Promise(function (resolve, reject) {
@@ -368,6 +370,8 @@ class RESTSubscriptions extends GenericRESTService {
     }
 
     getAUserProfiles(userId: string) {
+        // API https://api.openrainbow.org/admin/#api-users_profiles-admin_users_GetUserProfiles
+        // GET /api/rainbow/admin/v1.0/users/:userId/profiles
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getAUserProfiles) entry`);
         return new Promise(function (resolve, reject) {

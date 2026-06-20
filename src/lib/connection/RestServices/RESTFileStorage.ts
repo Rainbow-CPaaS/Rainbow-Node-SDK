@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 import {addParamToUrl, logEntryExit} from "../../common/Utils";
 import {GenericRESTService} from "../GenericRESTService.js";
@@ -88,6 +88,7 @@ class RESTFileStorage extends GenericRESTService {
     }
 
     retrieveFileDescriptors(fileName: string, extension: string, typeMIME: string, purpose: string, isUploaded: boolean, viewerId: string, path: string, limit: number = 1000, offset: number, sortField: string, sortOrder: number, format: string = "full") {
+        // API https://api.openrainbow.org/filestorage/#api-files-files_getAll
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(retrieveFileDescriptors) entry`);
         return new Promise(function (resolve, reject) {
@@ -139,6 +140,7 @@ class RESTFileStorage extends GenericRESTService {
     }
 
     getAllConferenceRecords(roomName?: string, recordingName?: string, status?: string, roomId?: string, purpose?: string, fetch: string = "mine", isEphemeral?: boolean, limit: number = 100, offset: number = 0, sortField: string = "recordingStartDate", sortOrder: number = 1, format: string = "small") {
+        // API https://api.openrainbow.org/filestorage/#api-conference_records-getAllConferenceRecords
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getAllConferenceRecords) entry`);
         return new Promise(function (resolve, reject) {
@@ -191,6 +193,7 @@ class RESTFileStorage extends GenericRESTService {
     }
 
     updateOneConferenceRecordName(confrecid: string, recordingName: string) {
+        // API https://api.openrainbow.org/filestorage/#api-conference_records-updateOneConferenceRecord
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(updateOneConferenceRecordName) entry`);
         return new Promise(function (resolve, reject) {
@@ -212,6 +215,7 @@ class RESTFileStorage extends GenericRESTService {
     }
 
     getOneConferenceRecord(confrecid: string) {
+        // API https://api.openrainbow.org/filestorage/#api-conference_records-getOneConferenceRecord
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getOneConferenceRecord) entry`);
         return new Promise(function (resolve, reject) {
@@ -232,6 +236,7 @@ class RESTFileStorage extends GenericRESTService {
     }
 
     deleteOneConferenceRecord(confrecid: string) {
+        // API https://api.openrainbow.org/filestorage/#api-conference_records-DeleteOneConferenceRecord
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(deleteOneConferenceRecord) entry`);
         return new Promise(function (resolve, reject) {
@@ -252,6 +257,7 @@ class RESTFileStorage extends GenericRESTService {
     }
 
     deleteOneDocumentConferenceRecord(confrecid: string, fileId: string) {
+        // API https://api.openrainbow.org/filestorage/#api-conference_records-DeleteOneDocumentConferenceRecord
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(deleteOneDocumentConferenceRecord) entry`);
         return new Promise(function (resolve, reject) {
@@ -272,6 +278,7 @@ class RESTFileStorage extends GenericRESTService {
     }
 
     getOneConferenceRecordExternalRef(registrationUuid: string) {
+        // API https://api.openrainbow.org/filestorage/#api-conference_records-getOneConferenceRecordExternalRef
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getOneConferenceRecordExternalRef) entry`);
         return new Promise(function (resolve, reject) {
@@ -293,6 +300,7 @@ class RESTFileStorage extends GenericRESTService {
     }
 
     retrieveFilesReceivedFromPeer(userId, peerId) {
+        // API https://api.openrainbow.org/filestorage/#api-files-files_getAllViewerId
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(retrieveFilesReceivedFromPeer) entry`);
         return new Promise(function (resolve, reject) {
@@ -309,6 +317,7 @@ class RESTFileStorage extends GenericRESTService {
     }
 
     retrieveReceivedFilesForRoomOrViewer(viewerId, ownerId: string, fileName: boolean, extension: string, typeMIME: string, isUploaded: boolean, purpose: string, roomName: string, overall: boolean, format: string = "full", limit: number = 100, offset: number, sortField: string, sortOrder: number) {
+        // API https://api.openrainbow.org/filestorage/#api-files-files_getAllViewerId
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(retrieveReceivedFilesForRoomOrViewer) entry`);
         return new Promise(function (resolve, reject) {
@@ -328,6 +337,7 @@ class RESTFileStorage extends GenericRESTService {
     }
 
     retrieveOneFileDescriptor(fileId) {
+        // API https://api.openrainbow.org/filestorage/#api-files-files_getOne
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(retrieveOneFileDescriptor) entry`);
         return new Promise(function (resolve, reject) {
@@ -398,6 +408,7 @@ class RESTFileStorage extends GenericRESTService {
     }
 
     getFileDescriptorsByCompanyId(companyId, fileName: boolean, extension: string, typeMIME: string, purpose: string, isUploaded: boolean, format: string = "small", limit: number = 100, offset: number = 0, sortField: string = "fileName", sortOrder: number = 1) {
+        // API : https://api.openrainbow.org/filestorage/#api-files-files_getAllByCompanyId
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getFileDescriptorsByCompanyId) entry`);
         return new Promise(function (resolve, reject) {
@@ -443,6 +454,7 @@ class RESTFileStorage extends GenericRESTService {
     }
 
     copyFileInPersonalCloudSpace(fileId: string) {
+        // API https://api.openrainbow.org/filestorage/#api-files-files_copyOne
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(copyFileInPersonalCloudSpace) entry`);
         return new Promise(function (resolve, reject) {
@@ -463,6 +475,7 @@ class RESTFileStorage extends GenericRESTService {
     }
 
     fileOwnershipChange(fileId: string, userId: string) {
+        // API https://api.openrainbow.org/filestorage/#api-files-files_dropOne
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(fileOwnershipChange) entry`);
         return new Promise(function (resolve, reject) {

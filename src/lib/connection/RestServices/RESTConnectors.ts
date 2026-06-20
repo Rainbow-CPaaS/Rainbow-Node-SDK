@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 import {logEntryExit} from "../../common/Utils";
 import {GenericRESTService} from "../GenericRESTService.js";
@@ -38,6 +38,8 @@ class RESTConnectors extends GenericRESTService {
     //region Connectors
 
     createListOfEventsForConnector(events: Array<{ eventId: string, level: string, category: string, operation: string, description: string, date: string }>) {
+        // API https://api.openrainbow.org/admin/#api-connectors-PostLdapActivate
+        // POST /api/rainbow/admin/v1.0/connectors/events
         // API https://api.openrainbow.org/admin/#api-connectors-PostLdapActivate
         // POST /api/rainbow/admin/v1.0/connectors/events
         let that = this;

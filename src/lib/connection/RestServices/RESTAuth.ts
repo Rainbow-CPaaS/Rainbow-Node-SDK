@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 import {addParamToUrl, addPropertyToObj, logEntryExit} from "../../common/Utils";
 import {GenericRESTService} from "../GenericRESTService.js";
@@ -45,6 +45,8 @@ class RESTAuth extends GenericRESTService {
     //region apikeys rainbow authentication
 
     deleteApiKey(apiKeyId: string) {
+        // API https://api.openrainbow.org/authentication/#api-apikeys-DeleteApiKey
+        // DELETE /api/rainbow/authentication/v1.0/apikeys/:apiKeyId
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(deleteApiKey) entry`);
         return new Promise(function (resolve, reject) {
@@ -63,6 +65,8 @@ class RESTAuth extends GenericRESTService {
     }
 
     generateApiKey(scope: Array<string> = ["all"], description: string = "", isActive: boolean = true, expirationDate?: string): Promise<[any]> {
+        // API https://api.openrainbow.org/authentication/#api-apikeys-PostApiKeys
+        // POST /api/rainbow/authentication/v1.0/apikeys
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(generateApiKey) entry`);
         return new Promise(async function (resolve, reject) {
@@ -87,6 +91,8 @@ class RESTAuth extends GenericRESTService {
     }
 
     getAllApiKey(isActive: boolean = undefined, fromCreationDate: string = undefined, toCreationDate: string = undefined, limit: number = 100, offset: number = 0, sortField: string = "creationDate", sortOrder: number = -1, format: string = "small", userId: string) {
+        // API https://api.openrainbow.org/authentication/#api-apikeys-GetAllApiKeys
+        // GET /api/rainbow/authentication/v1.0/apikeys
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getAllApiKey) entry`);
         return new Promise(function (resolve, reject) {
@@ -119,6 +125,8 @@ class RESTAuth extends GenericRESTService {
     }
 
     getApiKey(apiKeyId: string = undefined) {
+        // API https://api.openrainbow.org/authentication/#api-apikeys-GetAnApiKey
+        // GET /api/rainbow/authentication/v1.0/apikeys/:apiKeyId
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getApiKey) entry`);
         return new Promise(function (resolve, reject) {
@@ -139,6 +147,8 @@ class RESTAuth extends GenericRESTService {
     }
 
     getCurrentApiKey(apiKeyId: string = undefined) {
+        // API https://api.openrainbow.org/authentication/#api-apikeys-GetCurrentApiKey
+        // GET /api/rainbow/authentication/v1.0/apikeys/current
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getCurrentApiKey) entry`);
         return new Promise(function (resolve, reject) {
@@ -159,6 +169,8 @@ class RESTAuth extends GenericRESTService {
     }
 
     updateApiKey(apiKeyId: string, description: string, isActive: boolean, expirationDate: string = undefined) {
+        // API https://api.openrainbow.org/authentication/#api-apikeys-PutApiKeys
+        // PUT /api/rainbow/authentication/v1.0/apikeys/:apiKeyId
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(updateApiKey) entry`);
         return new Promise(function (resolve, reject) {
