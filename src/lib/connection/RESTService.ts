@@ -54,6 +54,10 @@ import {RESTBubblesTags} from "./RestServices/RESTBubblesTags";
 import {RESTBubblesDialIn} from "./RestServices/RESTBubblesDialIn";
 import {RESTProfiles} from "./RestServices/RESTProfiles";
 import {RESTApiSettings} from "./RestServices/RESTApiSettings";
+import {RESTBots} from "./RestServices/RESTBots";
+import {RESTPublicUrl} from "./RestServices/RESTPublicUrl";
+import {RESTClientsVersions} from "./RestServices/RESTClientsVersions";
+import {RESTSites} from "./RestServices/RESTSites";
 import {GenericRESTService} from "./GenericRESTService";
 import {TimeOutManager} from "../common/TimeOutManager";
 import {Group} from "ts-generic-collections-linq";
@@ -381,6 +385,10 @@ class RESTService extends GenericRESTService {
     public restBubblesDialIn: RESTBubblesDialIn;
     public restProfiles: RESTProfiles;
     public restApiSettings: RESTApiSettings;
+    public restBots: RESTBots;
+    public restPublicUrl: RESTPublicUrl;
+    public restClientsVersions: RESTClientsVersions;
+    public restSites: RESTSites;
     public applicationToken: string;
     public connectionS2SInfo: any;
     private reconnectInProgress: boolean;
@@ -434,6 +442,10 @@ class RESTService extends GenericRESTService {
         this.restBubblesDialIn = new RESTBubblesDialIn(core, evtEmitter, _logger);
         this.restProfiles = new RESTProfiles(core, evtEmitter, _logger);
         this.restApiSettings = new RESTApiSettings(core, evtEmitter, _logger);
+        this.restBots = new RESTBots(core, evtEmitter, _logger);
+        this.restPublicUrl = new RESTPublicUrl(core, evtEmitter, _logger);
+        this.restClientsVersions = new RESTClientsVersions(core, evtEmitter, _logger);
+        this.restSites = new RESTSites(core, evtEmitter, _logger);
         //this.timeOutManager = core.timeOutManager;
         this.http = null;
         this.account = null;
@@ -588,6 +600,18 @@ class RESTService extends GenericRESTService {
         prom.push(that.restApiSettings.start(that.http).then(() => {
             that._logger.log(that.INTERNAL, LOG_ID + "(start) restApiSettings email used", that.loginEmail);
         }));
+        prom.push(that.restBots.start(that.http).then(() => {
+            that._logger.log(that.INTERNAL, LOG_ID + "(start) restBots email used", that.loginEmail);
+        }));
+        prom.push(that.restPublicUrl.start(that.http).then(() => {
+            that._logger.log(that.INTERNAL, LOG_ID + "(start) restPublicUrl email used", that.loginEmail);
+        }));
+        prom.push(that.restClientsVersions.start(that.http).then(() => {
+            that._logger.log(that.INTERNAL, LOG_ID + "(start) restClientsVersions email used", that.loginEmail);
+        }));
+        prom.push(that.restSites.start(that.http).then(() => {
+            that._logger.log(that.INTERNAL, LOG_ID + "(start) restSites email used", that.loginEmail);
+        }));
         return Promise.all(prom);
     }
 
@@ -699,6 +723,18 @@ class RESTService extends GenericRESTService {
                 });
                 await that.restApiSettings.stop().then(() => {
                     that._logger.log(that.INTERNAL, LOG_ID + "(stop) restApiSettings.");
+                });
+                await that.restBots.stop().then(() => {
+                    that._logger.log(that.INTERNAL, LOG_ID + "(stop) restBots.");
+                });
+                await that.restPublicUrl.stop().then(() => {
+                    that._logger.log(that.INTERNAL, LOG_ID + "(stop) restPublicUrl.");
+                });
+                await that.restClientsVersions.stop().then(() => {
+                    that._logger.log(that.INTERNAL, LOG_ID + "(stop) restClientsVersions.");
+                });
+                await that.restSites.stop().then(() => {
+                    that._logger.log(that.INTERNAL, LOG_ID + "(stop) restSites.");
                 });
 
                 await that.signout().then(() => {
@@ -886,6 +922,10 @@ class RESTService extends GenericRESTService {
         this.restBubblesDialIn.p_token = value;
         this.restProfiles.p_token = value;
         this.restApiSettings.p_token = value;
+        this.restBots.p_token = value;
+        this.restPublicUrl.p_token = value;
+        this.restClientsVersions.p_token = value;
+        this.restSites.p_token = value;
     }
 
     set decodedtokenRest(value: any) {
@@ -919,6 +959,10 @@ class RESTService extends GenericRESTService {
         this.restBubblesDialIn.p_decodedtokenRest = value;
         this.restProfiles.p_decodedtokenRest = value;
         this.restApiSettings.p_decodedtokenRest = value;
+        this.restBots.p_decodedtokenRest = value;
+        this.restPublicUrl.p_decodedtokenRest = value;
+        this.restClientsVersions.p_decodedtokenRest = value;
+        this.restSites.p_decodedtokenRest = value;
     }
 
     set credentialsRest(value: any) {
@@ -952,6 +996,10 @@ class RESTService extends GenericRESTService {
         this.restBubblesDialIn.p_credentials = value;
         this.restProfiles.p_credentials = value;
         this.restApiSettings.p_credentials = value;
+        this.restBots.p_credentials = value;
+        this.restPublicUrl.p_credentials = value;
+        this.restClientsVersions.p_credentials = value;
+        this.restSites.p_credentials = value;
     }
 
     set applicationRest(value: any) {
@@ -985,6 +1033,10 @@ class RESTService extends GenericRESTService {
         this.restBubblesDialIn.p_application = value;
         this.restProfiles.p_application = value;
         this.restApiSettings.p_application = value;
+        this.restBots.p_application = value;
+        this.restPublicUrl.p_application = value;
+        this.restClientsVersions.p_application = value;
+        this.restSites.p_application = value;
     }
 
     set authRest(value: any) {
@@ -1018,6 +1070,10 @@ class RESTService extends GenericRESTService {
         this.restBubblesDialIn.p_auth = value;
         this.restProfiles.p_auth = value;
         this.restApiSettings.p_auth = value;
+        this.restBots.p_auth = value;
+        this.restPublicUrl.p_auth = value;
+        this.restClientsVersions.p_auth = value;
+        this.restSites.p_auth = value;
     }
 
     setconnectionS2SInfo(_connectionS2SInfo) {
@@ -1243,89 +1299,9 @@ class RESTService extends GenericRESTService {
     }
 
     //region Bots
-
-    getRainbowSupportBotService(): any {
-        // GET /api/rainbow/enduser/v1.0/bots/rainbow-support
-        // API https://api.openrainbow.org/enduser/#api-bots-getRainbowSupport
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url: string = "/api/rainbow/enduser/v1.0/bots/rainbow-support";
-            /*let urlParamsTab : string[]= [];
-            urlParamsTab.push(url);
-            addParamToUrl(urlParamsTab, "commandId", commandId);
-            url = urlParamsTab[0];
-            // */
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getRainbowSupportBotService) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getRainbowSupportBotService) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getRainbowSupportBotService) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getRainbowSupportBotService) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getRainbowSupportBotService) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    getABotServiceData(botId: string): any {
-        // GET /api/rainbow/enduser/v1.0/bots/:botId
-        // API https://api.openrainbow.org/enduser/#api-bots-getBotById
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url: string = "/api/rainbow/enduser/v1.0/bots/" + botId;
-            /*let urlParamsTab : string[]= [];
-            urlParamsTab.push(url);
-            addParamToUrl(urlParamsTab, "commandId", commandId);
-            url = urlParamsTab[0];
-            // */
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getABotServiceData) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getABotServiceData) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getABotServiceData) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getABotServiceData) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getABotServiceData) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    getAllBotServices(format: string = "small", limit: number = 100, offset: number = 0, sortField: string = "name", sortOrder: number = 1): any {
-        // GET /api/rainbow/enduser/v1.0/bots
-        // API https://api.openrainbow.org/enduser/#api-bots-getBots
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url: string = "/api/rainbow/enduser/v1.0/bots";
-            let urlParamsTab: string[] = [];
-            urlParamsTab.push(url);
-            addParamToUrl(urlParamsTab, "format", format);
-            addParamToUrl(urlParamsTab, "limit", limit);
-            addParamToUrl(urlParamsTab, "offset", offset);
-            addParamToUrl(urlParamsTab, "sortField", sortField);
-            addParamToUrl(urlParamsTab, "sortOrder", sortOrder);
-            url = urlParamsTab[0];
-            // */
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getAllBotServices) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getAllBotServices) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getAllBotServices) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getAllBotServices) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getAllBotServices) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
+    getRainbowSupportBotService() { return this.restBots.getRainbowSupportBotService(); }
+    getABotServiceData(botId: string) { return this.restBots.getABotServiceData(botId); }
+    getAllBotServices(format: string = "small", limit: number = 100, offset: number = 0, sortField: string = "name", sortOrder: number = 1) { return this.restBots.getAllBotServices(format, limit, offset, sortField, sortOrder); }
     //endregion
 
     //region apikeys rainbow authentication
@@ -4573,187 +4549,12 @@ kamEmailList?: string[], businessSpecific?: string, adminServiceNotificationsLev
     //endregion Messages
 
     //region Public url
-
-    getABubblePublicLinkAsModerator(bubbleId?: string, emailContent ?: boolean, language ?: string): Promise<any> {
-        // GET /api/rainbow/enduser/v1.0/rooms/:roomId/public-links
-        // API https://api.openrainbow.org/enduser/#api-rooms-getRoomIdPublicLinks
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            that._logger.log(that.INTERNAL, LOG_ID + "(getABubblePublicLinkAsModerator) REST.");
-            let url: string = "/api/rainbow/enduser/v1.0/rooms/" + bubbleId + "/public-links";
-            if (bubbleId===undefined) {
-                let error = ErrorManager.getErrorManager().BAD_REQUEST;
-                error.msg += "bad request paramater bubbleId undefined";
-                error.label += "bad request paramater bubbleId undefined";
-                error.cause = bubbleId;
-                that._logger.log(that.WARN, LOG_ID + `(getABubblePublicLinkAsModerator) BAD_REQUEST.`);
-                that._logger.log(that.INTERNALERROR, LOG_ID + `(getABubblePublicLinkAsModerator) bad request paramater bubbleId undefined : `, error.cause, ", error : ", error);
-                return reject(error);
-            }
-            let urlParamsTab: string[] = [];
-            urlParamsTab.push(url);
-            if (emailContent!=undefined) {
-                addParamToUrl(urlParamsTab, "emailContent", emailContent);
-            }
-            if (language!=undefined) {
-                addParamToUrl(urlParamsTab, "language", language);
-            }
-            url = urlParamsTab[0];
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getABubblePublicLinkAsModerator) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getABubblePublicLinkAsModerator) REST result : ", json);
-                that._logger.log(that.DEBUG, LOG_ID + "(getABubblePublicLinkAsModerator) REST success.");
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getABubblePublicLinkAsModerator) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getABubblePublicLinkAsModerator) error : ", err);
-                return reject(err);
-            });
-        });
-    };
-
-    /**
-     *
-     * @param {string} userId id of to get all openInviteId belonging to this user. If not setted the connected user is used.
-     * @param {string} type type optionnel to get the public link of personal rooms type query parameter used with personal_audio_room or personal_video_room or default.
-     * @param {string} roomId id optionnel to get the public link for a given roomId, managed by the userId roomId
-     * @return {Promise<any>}
-     */
-    getAllOpenInviteIdPerRoomOfAUser(userId?: string, type?: string, roomId?: string): Promise<Array<any>> {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            that._logger.log(that.INTERNAL, LOG_ID + "(getAllOpenInviteIdPerRoomOfAUser) REST.");
-            let userIdFilter = userId ? userId:that.userId;
-            /*
-            let requestParam : any = {};
-            if (type) {
-                requestParam.type = type;
-            }
-            if (roomId) {
-                requestParam.roomId = roomId;
-            } // */
-            let requestParam = "";
-            if (type) {
-                if (requestParam=="") {
-                    requestParam += "?";
-                } else {
-                    requestParam += "+";
-                }
-                requestParam += "type=" + type;
-            }
-            if (roomId) {
-                if (requestParam=="") {
-                    requestParam += "?";
-                } else {
-                    requestParam += "+";
-                }
-                requestParam += "roomId=" + roomId;
-            }
-
-// */
-            /*  let url = queryString.stringifyUrl({
-                url: 'https://foo.bar',
-                query: {
-                    top: 'foo'
-                },
-                fragmentIdentifier: 'bar'
-            });  // */
-
-            that.http.get("/api/rainbow/enduser/v1.0/users/" + userIdFilter + "/public-links" + requestParam, that.getRequestHeader(), requestParam).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getAllOpenInviteIdPerRoomOfAUser) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getAllOpenInviteIdPerRoomOfAUser) REST result : ", json);
-                that._logger.log(that.DEBUG, LOG_ID + "(getAllOpenInviteIdPerRoomOfAUser) -- " + userIdFilter + " -- success");
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getAllOpenInviteIdPerRoomOfAUser) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getAllOpenInviteIdPerRoomOfAUser) error : ", err);
-                return reject(err);
-            });
-        });
-    };
-
-    generateNewPublicUrl(bubbleId) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let param = {
-                "roomId": bubbleId
-            };
-            that._logger.log(that.INTERNAL, LOG_ID + "(generateNewPublicUrl) REST.");
-
-            that.http.put("/api/rainbow/enduser/v1.0/users/" + that.userId + "/public-links/reset", that.getRequestHeader(), param, undefined).then((json) => {
-                //that.http.post("/api/rainbow/conference/v1.0/conferences/" + webPontConferenceId + "/join", that.getRequestHeader(), params, undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(generateNewPublicUrl) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(generateNewPublicUrl) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(generateNewPublicUrl) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(generateNewPublicUrl) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    removePublicUrl(bubbleId) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let param = {
-                "roomId": bubbleId
-            };
-            that._logger.log(that.INTERNAL, LOG_ID + "(removePublicUrl) REST.");
-
-            that.http.put("/api/rainbow/enduser/v1.0/users/" + that.userId + "/public-links/unbind", that.getRequestHeader(), param, undefined).then((json) => {
-                //that.http.post("/api/rainbow/conference/v1.0/conferences/" + webPontConferenceId + "/join", that.getRequestHeader(), params, undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(removePublicUrl) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(removePublicUrl) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(removePublicUrl) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(removePublicUrl) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    createPublicUrl(bubbleId) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let param = {
-                "roomId": bubbleId
-            };
-            that._logger.log(that.INTERNAL, LOG_ID + "(createPublicUrl) REST bubbleId : ", bubbleId, " param : ", param);
-
-            that.http.post("/api/rainbow/enduser/v1.0/users/" + that.userId + "/public-links/bind", that.getRequestHeader(), param, undefined).then((json) => {
-                //that.http.post("/api/rainbow/conference/v1.0/conferences/" + webPontConferenceId + "/join", that.getRequestHeader(), params, undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(createPublicUrl) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(createPublicUrl) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(createPublicUrl) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(createPublicUrl) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    registerGuest(guest: GuestParams) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            that._logger.log(that.INTERNAL, LOG_ID + "(registerGuest) REST.");
-
-            that.http.post("/api/rainbow/enduser/v1.0/users/self-register", that.getRequestHeader(), guest.getUrlParam(), undefined).then((json) => {
-                //that.http.post("/api/rainbow/conference/v1.0/conferences/" + webPontConferenceId + "/join", that.getRequestHeader(), params, undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(registerGuest) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(registerGuest) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(registerGuest) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(registerGuest) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
+    getABubblePublicLinkAsModerator(bubbleId?: string, emailContent?: boolean, language?: string) { return this.restPublicUrl.getABubblePublicLinkAsModerator(bubbleId, emailContent, language); }
+    getAllOpenInviteIdPerRoomOfAUser(userId?: string, type?: string, roomId?: string) { return this.restPublicUrl.getAllOpenInviteIdPerRoomOfAUser(userId, type, roomId, this.userId); }
+    generateNewPublicUrl(bubbleId) { return this.restPublicUrl.generateNewPublicUrl(bubbleId, this.userId); }
+    removePublicUrl(bubbleId) { return this.restPublicUrl.removePublicUrl(bubbleId, this.userId); }
+    createPublicUrl(bubbleId) { return this.restPublicUrl.createPublicUrl(bubbleId, this.userId); }
+    registerGuest(guest: GuestParams) { return this.restPublicUrl.registerGuest(guest); }
     //endregion Public url
 
     //region Bubble Open Invites
@@ -8412,249 +8213,19 @@ kamEmailList?: string[], businessSpecific?: string, adminServiceNotificationsLev
     //endregion Rainbow Voice
 
     //region Clients Versions
-
-
-    createAClientVersion(id: string, version: string) {
-        // POST  https://openrainbow.com/api/rainbow/admin/v1.0/clientsversions     
-        // API https://api.openrainbow.org/admin/#api-clients_versions-PostClientsVersions
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            that._logger.log(that.INTERNAL, LOG_ID + "(createAClientVersion) id : ", id, ", version : ", version);
-            let data = {
-                id,
-                version
-            };
-            that.http.post("/api/rainbow/admin/v1.0/clientsversions", that.getRequestHeader(), data, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(createAClientVersion) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(createAClientVersion) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(createAClientVersion) error.");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(createAClientVersion) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    deleteAClientVersion(clientId: string) {
-        // DELETE https://openrainbow.com/api/rainbow/admin/v1.0/clientsversions/:clientId      
-        // API https://api.openrainbow.org/admin/#api-clients_versions-DeleteClientsVersions
-        let that = this;
-        return new Promise((resolve, reject) => {
-            that.http.delete("/api/rainbow/admin/v1.0/clientsversions/" + clientId, that.getRequestHeader())
-                    .then((response) => {
-                        that._logger.log(that.DEBUG, LOG_ID + "(deleteAClientVersion) (" + clientId + ") -- success");
-                        resolve(response);
-                    })
-                    .catch((err) => {
-                        that._logger.log(that.ERROR, LOG_ID, "(deleteAClientVersion) (" + clientId + ") -- failure -- ");
-                        that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteAClientVersion) (" + clientId + ") -- failure -- ", err.message);
-                        return reject(err);
-                    });
-        });
-    }
-
-    getAClientVersionData(clientId: string) {
-        // GET  https://openrainbow.com/api/rainbow/admin/v1.0/clientsversions/:clientId 
-        // API https://api.openrainbow.org/admin/#api-clients_versions-GetClientsVersionsId
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url: string = "/api/rainbow/admin/v1.0/clientsversions/" + clientId;
-            let urlParamsTab: string[] = [];
-            urlParamsTab.push(url);
-            /*
-            addParamToUrl(urlParamsTab, "type", type + "");
-            addParamToUrl(urlParamsTab, "offset", offset + "");
-            addParamToUrl(urlParamsTab, "sortField", sortField);
-            addParamToUrl(urlParamsTab, "sortOrder", sortOrder + "");
-            addParamToUrl(urlParamsTab, "fromDate", fromDate);
-            addParamToUrl(urlParamsTab, "toDate", toDate );
-            addParamToUrl(urlParamsTab, "callerName", callerName );
-            addParamToUrl(urlParamsTab, "callerNumber", callerNumber );
-             // */
-            url = urlParamsTab[0];
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getAClientVersionData) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getAClientVersionData) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getAClientVersionData) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getAClientVersionData) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getAClientVersionData) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    getAllClientsVersions(name?: string, typeClient?: string, limit: number = 100, offset?: number, sortField: string = "name", sortOrder: number = 1) {
-        // GET  https://openrainbow.com/api/rainbow/admin/v1.0/clientsversions 
-        // API https://api.openrainbow.org/admin/#api-clients_versions-GetClientsversions
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url: string = "/api/rainbow/admin/v1.0/clientsversions";
-            let urlParamsTab: string[] = [];
-            urlParamsTab.push(url);
-            if (name) addParamToUrl(urlParamsTab, "name", name + "");
-            if (typeClient) addParamToUrl(urlParamsTab, "type", typeClient + "");
-            addParamToUrl(urlParamsTab, "limit", limit + "");
-            addParamToUrl(urlParamsTab, "offset", offset + "");
-            addParamToUrl(urlParamsTab, "sortField", sortField);
-            addParamToUrl(urlParamsTab, "sortOrder", sortOrder + "");
-            url = urlParamsTab[0];
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getAllClientsVersions) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getAllClientsVersions) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getAllClientsVersions) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getAllClientsVersions) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getAllClientsVersions) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    updateAClientVersion(clientId: string, version: string) {
-        // PUT  https://openrainbow.com/api/rainbow/admin/v1.0/clientsversions/:clientId 
-        // API https://api.openrainbow.org/admin/#api-clients_versions-PutClientsVersions
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            that._logger.log(that.INTERNAL, LOG_ID + "(updateAClientVersion) clientId : ", clientId + ", version : ", version);
-            let data = {
-                version
-            };
-            that.http.put("/api/rainbow/admin/v1.0/clientsversions/" + clientId, that.getRequestHeader(), data, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(updateAClientVersion) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(updateAClientVersion) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(updateAClientVersion) error.");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateAClientVersion) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
+    createAClientVersion(id: string, version: string) { return this.restClientsVersions.createAClientVersion(id, version); }
+    deleteAClientVersion(clientId: string) { return this.restClientsVersions.deleteAClientVersion(clientId); }
+    getAClientVersionData(clientId: string) { return this.restClientsVersions.getAClientVersionData(clientId); }
+    getAllClientsVersions(name?: string, typeClient?: string, limit: number = 100, offset?: number, sortField: string = "name", sortOrder: number = 1) { return this.restClientsVersions.getAllClientsVersions(name, typeClient, limit, offset, sortField, sortOrder); }
+    updateAClientVersion(clientId: string, version: string) { return this.restClientsVersions.updateAClientVersion(clientId, version); }
     //endregion Clients Versions
 
     //region sites
-
-    createASite(name: string, status: string, companyId: string) {
-        // POST  https://openrainbow.com/api/rainbow/admin/v1.0/sites     
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            that._logger.log(that.INTERNAL, LOG_ID + "(createASite) name : ", name + ", status : ", status, ", companyId : " + companyId);
-            let data = {
-                name,
-                status,
-                companyId
-            };
-            that.http.post("/api/rainbow/admin/v1.0/sites", that.getRequestHeader(), data, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(createASite) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(createASite) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(createASite) error.");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(createASite) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    deleteSite(siteId: string) {
-        // DELETE https://openrainbow.com/api/rainbow/admin/v1.0/sites/{siteId}      
-        let that = this;
-        return new Promise((resolve, reject) => {
-            that.http.delete("/api/rainbow/admin/v1.0/sites/" + siteId, that.getRequestHeader())
-                    .then((response) => {
-                        that._logger.log(that.DEBUG, LOG_ID + "(deleteSite) (" + siteId + ") -- success");
-                        resolve(response);
-                    })
-                    .catch((err) => {
-                        that._logger.log(that.ERROR, LOG_ID, "(deleteSite) (" + siteId + ") -- failure -- ");
-                        that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteSite) (" + siteId + ") -- failure -- ", err.message);
-                        return reject(err);
-                    });
-        });
-    }
-
-    getSiteData(siteId: string) {
-        // GET  https://openrainbow.com/api/rainbow/admin/v1.0/sites/{siteId} 
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url: string = "/api/rainbow/admin/v1.0/sites/" + siteId;
-            //addParamToUrl(url, "rvcpInstanceId", rvcpInstanceId);
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getSiteData) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getSiteData) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getSiteData) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getSiteData) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getSiteData) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    getAllSites(format = "small", limit = 100, offset = 0, sortField = "name", sortOrder: number, name: string, companyId: string) {
-        // GET  https://openrainbow.com/api/rainbow/admin/v1.0/sites 
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url: string = "/api/rainbow/admin/v1.0/sites";
-            let urlParamsTab: string[] = [];
-            urlParamsTab.push(url);
-            addParamToUrl(urlParamsTab, "format", format);
-            addParamToUrl(urlParamsTab, "limit", limit + "");
-            addParamToUrl(urlParamsTab, "offset", offset + "");
-            addParamToUrl(urlParamsTab, "sortField", sortField);
-            addParamToUrl(urlParamsTab, "sortOrder", sortOrder + "");
-            addParamToUrl(urlParamsTab, "name", name);
-            addParamToUrl(urlParamsTab, "companyId", companyId);
-            url = urlParamsTab[0];
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getAllSites) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getAllSites) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getAllSites) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getAllSites) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getAllSites) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    updateSite(siteId: string, name: string, status: string, companyId: string) {
-        // PUT https://openrainbow.com/api/rainbow/admin/v1.0/sites/:siteId
-        let that = this;
-        let data = {
-            name,
-            status,
-            companyId
-        };
-
-        return new Promise(function (resolve, reject) {
-            that.http.put("/api/rainbow/admin/v1.0/sites/" + siteId, that.getRequestHeader(), data, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(updateSite) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(updateSite) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(updateSite) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateSite) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
+    createASite(name: string, status: string, companyId: string) { return this.restSites.createASite(name, status, companyId); }
+    deleteSite(siteId: string) { return this.restSites.deleteSite(siteId); }
+    getSiteData(siteId: string) { return this.restSites.getSiteData(siteId); }
+    getAllSites(format = "small", limit = 100, offset = 0, sortField = "name", sortOrder: number, name: string, companyId: string) { return this.restSites.getAllSites(format, limit, offset, sortField, sortOrder, name, companyId); }
+    updateSite(siteId: string, name: string, status: string, companyId: string) { return this.restSites.updateSite(siteId, name, status, companyId); }
     //endregion sites
 
     //region systems
