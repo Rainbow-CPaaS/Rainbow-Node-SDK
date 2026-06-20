@@ -178,6 +178,43 @@ interface LogLevelAreasInterface {
  restroom: LawLayer;
  restconferencev2: LawLayer;
  restwebinar: LawLayer;
+ restadldap: LawLayer;
+ restalerts: LawLayer;
+ restapplications: LawLayer;
+ restapisettings: LawLayer;
+ restauth: LawLayer;
+ restbots: LawLayer;
+ restbubbleopeninvites: LawLayer;
+ restbubblesdialin: LawLayer;
+ restbubbles: LawLayer;
+ restbubblestags: LawLayer;
+ restcalendar: LawLayer;
+ restchannels: LawLayer;
+ restclientsversions: LawLayer;
+ restcloudpbx: LawLayer;
+ restcompany: LawLayer;
+ restconference: LawLayer;
+ restconnectors: LawLayer;
+ restcontacts: LawLayer;
+ restconversations: LawLayer;
+ restcountry: LawLayer;
+ restcustomercare: LawLayer;
+ restcustomisationtemplate: LawLayer;
+ restdirectory: LawLayer;
+ restfilestorage: LawLayer;
+ restgroups: LawLayer;
+ restinvitations: LawLayer;
+ restpolls: LawLayer;
+ restpresence: LawLayer;
+ restprofiles: LawLayer;
+ restpublicurl: LawLayer;
+ restrainbowvoice: LawLayer;
+ rests2s: LawLayer;
+ restsettings: LawLayer;
+ restsites: LawLayer;
+ restsubscriptions: LawLayer;
+ restsystems: LawLayer;
+ resttasks: LawLayer;
  xmpp: LawLayer;
  s2sevent: EventHandlers;
  rbvoiceevent: EventHandlers;
@@ -371,6 +408,43 @@ class LogLevelAreas implements LogLevelAreasInterface  {
          "category": "lawlayer",
          "level": level
      };
+     this.restadldap = { "category": "lawlayer", "level": level };
+     this.restalerts = { "category": "lawlayer", "level": level };
+     this.restapplications = { "category": "lawlayer", "level": level };
+     this.restapisettings = { "category": "lawlayer", "level": level };
+     this.restauth = { "category": "lawlayer", "level": level };
+     this.restbots = { "category": "lawlayer", "level": level };
+     this.restbubbleopeninvites = { "category": "lawlayer", "level": level };
+     this.restbubblesdialin = { "category": "lawlayer", "level": level };
+     this.restbubbles = { "category": "lawlayer", "level": level };
+     this.restbubblestags = { "category": "lawlayer", "level": level };
+     this.restcalendar = { "category": "lawlayer", "level": level };
+     this.restchannels = { "category": "lawlayer", "level": level };
+     this.restclientsversions = { "category": "lawlayer", "level": level };
+     this.restcloudpbx = { "category": "lawlayer", "level": level };
+     this.restcompany = { "category": "lawlayer", "level": level };
+     this.restconference = { "category": "lawlayer", "level": level };
+     this.restconnectors = { "category": "lawlayer", "level": level };
+     this.restcontacts = { "category": "lawlayer", "level": level };
+     this.restconversations = { "category": "lawlayer", "level": level };
+     this.restcountry = { "category": "lawlayer", "level": level };
+     this.restcustomercare = { "category": "lawlayer", "level": level };
+     this.restcustomisationtemplate = { "category": "lawlayer", "level": level };
+     this.restdirectory = { "category": "lawlayer", "level": level };
+     this.restfilestorage = { "category": "lawlayer", "level": level };
+     this.restgroups = { "category": "lawlayer", "level": level };
+     this.restinvitations = { "category": "lawlayer", "level": level };
+     this.restpolls = { "category": "lawlayer", "level": level };
+     this.restpresence = { "category": "lawlayer", "level": level };
+     this.restprofiles = { "category": "lawlayer", "level": level };
+     this.restpublicurl = { "category": "lawlayer", "level": level };
+     this.restrainbowvoice = { "category": "lawlayer", "level": level };
+     this.rests2s = { "category": "lawlayer", "level": level };
+     this.restsettings = { "category": "lawlayer", "level": level };
+     this.restsites = { "category": "lawlayer", "level": level };
+     this.restsubscriptions = { "category": "lawlayer", "level": level };
+     this.restsystems = { "category": "lawlayer", "level": level };
+     this.resttasks = { "category": "lawlayer", "level": level };
      this.xmpp = {
          "category": "lawlayer",
          "level": level,
@@ -510,6 +584,43 @@ class LogLevelAreas implements LogLevelAreasInterface  {
         this.backendStatus.level = level;
         this.restconferencev2.level = level;
         this.restwebinar.level = level;
+        this.restadldap.level = level;
+        this.restalerts.level = level;
+        this.restapplications.level = level;
+        this.restapisettings.level = level;
+        this.restauth.level = level;
+        this.restbots.level = level;
+        this.restbubbleopeninvites.level = level;
+        this.restbubblesdialin.level = level;
+        this.restbubbles.level = level;
+        this.restbubblestags.level = level;
+        this.restcalendar.level = level;
+        this.restchannels.level = level;
+        this.restclientsversions.level = level;
+        this.restcloudpbx.level = level;
+        this.restcompany.level = level;
+        this.restconference.level = level;
+        this.restconnectors.level = level;
+        this.restcontacts.level = level;
+        this.restconversations.level = level;
+        this.restcountry.level = level;
+        this.restcustomercare.level = level;
+        this.restcustomisationtemplate.level = level;
+        this.restdirectory.level = level;
+        this.restfilestorage.level = level;
+        this.restgroups.level = level;
+        this.restinvitations.level = level;
+        this.restpolls.level = level;
+        this.restpresence.level = level;
+        this.restprofiles.level = level;
+        this.restpublicurl.level = level;
+        this.restrainbowvoice.level = level;
+        this.rests2s.level = level;
+        this.restsettings.level = level;
+        this.restsites.level = level;
+        this.restsubscriptions.level = level;
+        this.restsystems.level = level;
+        this.resttasks.level = level;
         this.xmpp.level = level;
         this.s2sevent.level = level;
     }
@@ -689,6 +800,43 @@ class LogLevelAreas implements LogLevelAreasInterface  {
          restroom:  this.restroom,
          restconferencev2:  this.restconferencev2,
          restwebinar:  this.restwebinar,
+         restadldap: this.restadldap,
+         restalerts: this.restalerts,
+         restapplications: this.restapplications,
+         restapisettings: this.restapisettings,
+         restauth: this.restauth,
+         restbots: this.restbots,
+         restbubbleopeninvites: this.restbubbleopeninvites,
+         restbubblesdialin: this.restbubblesdialin,
+         restbubbles: this.restbubbles,
+         restbubblestags: this.restbubblestags,
+         restcalendar: this.restcalendar,
+         restchannels: this.restchannels,
+         restclientsversions: this.restclientsversions,
+         restcloudpbx: this.restcloudpbx,
+         restcompany: this.restcompany,
+         restconference: this.restconference,
+         restconnectors: this.restconnectors,
+         restcontacts: this.restcontacts,
+         restconversations: this.restconversations,
+         restcountry: this.restcountry,
+         restcustomercare: this.restcustomercare,
+         restcustomisationtemplate: this.restcustomisationtemplate,
+         restdirectory: this.restdirectory,
+         restfilestorage: this.restfilestorage,
+         restgroups: this.restgroups,
+         restinvitations: this.restinvitations,
+         restpolls: this.restpolls,
+         restpresence: this.restpresence,
+         restprofiles: this.restprofiles,
+         restpublicurl: this.restpublicurl,
+         restrainbowvoice: this.restrainbowvoice,
+         rests2s: this.rests2s,
+         restsettings: this.restsettings,
+         restsites: this.restsites,
+         restsubscriptions: this.restsubscriptions,
+         restsystems: this.restsystems,
+         resttasks: this.resttasks,
          xmpp:  this.xmpp,
          s2sevent:  this.s2sevent,
          rbvoiceevent:  this.rbvoiceevent,
@@ -1035,6 +1183,81 @@ get calllog(): Service {
   this._restwebinar = value;
  }
 
+ get restadldap(): LawLayer { return this._restadldap; }
+ set restadldap(value: LawLayer) { this._restadldap = value; }
+ get restalerts(): LawLayer { return this._restalerts; }
+ set restalerts(value: LawLayer) { this._restalerts = value; }
+ get restapplications(): LawLayer { return this._restapplications; }
+ set restapplications(value: LawLayer) { this._restapplications = value; }
+ get restapisettings(): LawLayer { return this._restapisettings; }
+ set restapisettings(value: LawLayer) { this._restapisettings = value; }
+ get restauth(): LawLayer { return this._restauth; }
+ set restauth(value: LawLayer) { this._restauth = value; }
+ get restbots(): LawLayer { return this._restbots; }
+ set restbots(value: LawLayer) { this._restbots = value; }
+ get restbubbleopeninvites(): LawLayer { return this._restbubbleopeninvites; }
+ set restbubbleopeninvites(value: LawLayer) { this._restbubbleopeninvites = value; }
+ get restbubblesdialin(): LawLayer { return this._restbubblesdialin; }
+ set restbubblesdialin(value: LawLayer) { this._restbubblesdialin = value; }
+ get restbubbles(): LawLayer { return this._restbubbles; }
+ set restbubbles(value: LawLayer) { this._restbubbles = value; }
+ get restbubblestags(): LawLayer { return this._restbubblestags; }
+ set restbubblestags(value: LawLayer) { this._restbubblestags = value; }
+ get restcalendar(): LawLayer { return this._restcalendar; }
+ set restcalendar(value: LawLayer) { this._restcalendar = value; }
+ get restchannels(): LawLayer { return this._restchannels; }
+ set restchannels(value: LawLayer) { this._restchannels = value; }
+ get restclientsversions(): LawLayer { return this._restclientsversions; }
+ set restclientsversions(value: LawLayer) { this._restclientsversions = value; }
+ get restcloudpbx(): LawLayer { return this._restcloudpbx; }
+ set restcloudpbx(value: LawLayer) { this._restcloudpbx = value; }
+ get restcompany(): LawLayer { return this._restcompany; }
+ set restcompany(value: LawLayer) { this._restcompany = value; }
+ get restconference(): LawLayer { return this._restconference; }
+ set restconference(value: LawLayer) { this._restconference = value; }
+ get restconnectors(): LawLayer { return this._restconnectors; }
+ set restconnectors(value: LawLayer) { this._restconnectors = value; }
+ get restcontacts(): LawLayer { return this._restcontacts; }
+ set restcontacts(value: LawLayer) { this._restcontacts = value; }
+ get restconversations(): LawLayer { return this._restconversations; }
+ set restconversations(value: LawLayer) { this._restconversations = value; }
+ get restcountry(): LawLayer { return this._restcountry; }
+ set restcountry(value: LawLayer) { this._restcountry = value; }
+ get restcustomercare(): LawLayer { return this._restcustomercare; }
+ set restcustomercare(value: LawLayer) { this._restcustomercare = value; }
+ get restcustomisationtemplate(): LawLayer { return this._restcustomisationtemplate; }
+ set restcustomisationtemplate(value: LawLayer) { this._restcustomisationtemplate = value; }
+ get restdirectory(): LawLayer { return this._restdirectory; }
+ set restdirectory(value: LawLayer) { this._restdirectory = value; }
+ get restfilestorage(): LawLayer { return this._restfilestorage; }
+ set restfilestorage(value: LawLayer) { this._restfilestorage = value; }
+ get restgroups(): LawLayer { return this._restgroups; }
+ set restgroups(value: LawLayer) { this._restgroups = value; }
+ get restinvitations(): LawLayer { return this._restinvitations; }
+ set restinvitations(value: LawLayer) { this._restinvitations = value; }
+ get restpolls(): LawLayer { return this._restpolls; }
+ set restpolls(value: LawLayer) { this._restpolls = value; }
+ get restpresence(): LawLayer { return this._restpresence; }
+ set restpresence(value: LawLayer) { this._restpresence = value; }
+ get restprofiles(): LawLayer { return this._restprofiles; }
+ set restprofiles(value: LawLayer) { this._restprofiles = value; }
+ get restpublicurl(): LawLayer { return this._restpublicurl; }
+ set restpublicurl(value: LawLayer) { this._restpublicurl = value; }
+ get restrainbowvoice(): LawLayer { return this._restrainbowvoice; }
+ set restrainbowvoice(value: LawLayer) { this._restrainbowvoice = value; }
+ get rests2s(): LawLayer { return this._rests2s; }
+ set rests2s(value: LawLayer) { this._rests2s = value; }
+ get restsettings(): LawLayer { return this._restsettings; }
+ set restsettings(value: LawLayer) { this._restsettings = value; }
+ get restsites(): LawLayer { return this._restsites; }
+ set restsites(value: LawLayer) { this._restsites = value; }
+ get restsubscriptions(): LawLayer { return this._restsubscriptions; }
+ set restsubscriptions(value: LawLayer) { this._restsubscriptions = value; }
+ get restsystems(): LawLayer { return this._restsystems; }
+ set restsystems(value: LawLayer) { this._restsystems = value; }
+ get resttasks(): LawLayer { return this._resttasks; }
+ set resttasks(value: LawLayer) { this._resttasks = value; }
+
  get rpcoverxmpp(): Service {
   return this._rpcoverxmpp;
  }
@@ -1181,6 +1404,43 @@ get calllog(): Service {
  private _resttelephony: LawLayer;
  private _restroom: LawLayer;
  private _restwebinar: LawLayer;
+ private _restadldap: LawLayer;
+ private _restalerts: LawLayer;
+ private _restapplications: LawLayer;
+ private _restapisettings: LawLayer;
+ private _restauth: LawLayer;
+ private _restbots: LawLayer;
+ private _restbubbleopeninvites: LawLayer;
+ private _restbubblesdialin: LawLayer;
+ private _restbubbles: LawLayer;
+ private _restbubblestags: LawLayer;
+ private _restcalendar: LawLayer;
+ private _restchannels: LawLayer;
+ private _restclientsversions: LawLayer;
+ private _restcloudpbx: LawLayer;
+ private _restcompany: LawLayer;
+ private _restconference: LawLayer;
+ private _restconnectors: LawLayer;
+ private _restcontacts: LawLayer;
+ private _restconversations: LawLayer;
+ private _restcountry: LawLayer;
+ private _restcustomercare: LawLayer;
+ private _restcustomisationtemplate: LawLayer;
+ private _restdirectory: LawLayer;
+ private _restfilestorage: LawLayer;
+ private _restgroups: LawLayer;
+ private _restinvitations: LawLayer;
+ private _restpolls: LawLayer;
+ private _restpresence: LawLayer;
+ private _restprofiles: LawLayer;
+ private _restpublicurl: LawLayer;
+ private _restrainbowvoice: LawLayer;
+ private _rests2s: LawLayer;
+ private _restsettings: LawLayer;
+ private _restsites: LawLayer;
+ private _restsubscriptions: LawLayer;
+ private _restsystems: LawLayer;
+ private _resttasks: LawLayer;
  private _rpcoverxmpp: Service;
  private _rpcoverxmppevent: EventHandlers;
  private _s2s: Service;

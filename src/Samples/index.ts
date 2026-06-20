@@ -310,6 +310,43 @@ let expressEngine = undefined;
     logLevelAreas.backendStatus.level = LEVELSNAMES.ERROR;
     logLevelAreas.restconferencev2.level = LEVELSNAMES.ERROR;
     logLevelAreas.restwebinar.level = LEVELSNAMES.ERROR;
+    logLevelAreas.restadldap.level = LEVELSNAMES.ERROR;
+    logLevelAreas.restalerts.level = LEVELSNAMES.ERROR;
+    logLevelAreas.restapplications.level = LEVELSNAMES.ERROR;
+    logLevelAreas.restapisettings.level = LEVELSNAMES.ERROR;
+    logLevelAreas.restauth.level = LEVELSNAMES.ERROR;
+    logLevelAreas.restbots.level = LEVELSNAMES.ERROR;
+    logLevelAreas.restbubbleopeninvites.level = LEVELSNAMES.ERROR;
+    logLevelAreas.restbubblesdialin.level = LEVELSNAMES.ERROR;
+    logLevelAreas.restbubbles.level = LEVELSNAMES.ERROR;
+    logLevelAreas.restbubblestags.level = LEVELSNAMES.ERROR;
+    logLevelAreas.restcalendar.level = LEVELSNAMES.ERROR;
+    logLevelAreas.restchannels.level = LEVELSNAMES.ERROR;
+    logLevelAreas.restclientsversions.level = LEVELSNAMES.ERROR;
+    logLevelAreas.restcloudpbx.level = LEVELSNAMES.ERROR;
+    logLevelAreas.restcompany.level = LEVELSNAMES.ERROR;
+    logLevelAreas.restconference.level = LEVELSNAMES.ERROR;
+    logLevelAreas.restconnectors.level = LEVELSNAMES.ERROR;
+    logLevelAreas.restcontacts.level = LEVELSNAMES.ERROR;
+    logLevelAreas.restconversations.level = LEVELSNAMES.ERROR;
+    logLevelAreas.restcountry.level = LEVELSNAMES.ERROR;
+    logLevelAreas.restcustomercare.level = LEVELSNAMES.ERROR;
+    logLevelAreas.restcustomisationtemplate.level = LEVELSNAMES.ERROR;
+    logLevelAreas.restdirectory.level = LEVELSNAMES.ERROR;
+    logLevelAreas.restfilestorage.level = LEVELSNAMES.ERROR;
+    logLevelAreas.restgroups.level = LEVELSNAMES.ERROR;
+    logLevelAreas.restinvitations.level = LEVELSNAMES.ERROR;
+    logLevelAreas.restpolls.level = LEVELSNAMES.ERROR;
+    logLevelAreas.restpresence.level = LEVELSNAMES.ERROR;
+    logLevelAreas.restprofiles.level = LEVELSNAMES.ERROR;
+    logLevelAreas.restpublicurl.level = LEVELSNAMES.ERROR;
+    logLevelAreas.restrainbowvoice.level = LEVELSNAMES.ERROR;
+    logLevelAreas.rests2s.level = LEVELSNAMES.ERROR;
+    logLevelAreas.restsettings.level = LEVELSNAMES.ERROR;
+    logLevelAreas.restsites.level = LEVELSNAMES.ERROR;
+    logLevelAreas.restsubscriptions.level = LEVELSNAMES.ERROR;
+    logLevelAreas.restsystems.level = LEVELSNAMES.ERROR;
+    logLevelAreas.resttasks.level = LEVELSNAMES.ERROR;
     logLevelAreas.xmpp.level = LEVELSNAMES.ERROR;
     logLevelAreas.xmpp.xmppin
     logLevelAreas.xmpp.xmppout
@@ -690,27 +727,48 @@ let expressEngine = undefined;
                     "category": "lawlayer",
                     "level": "debug"
                 },
-                'resttelephony': {
-                    "category": "lawlayer",
-                    "level": "error"
-                },
-                'restroom': {
-                    "category": "lawlayer",
-                    "level": "error"
-                },
-                'backendStatus': {
-                    "category": "services",
-                    "api": true,
-                    "level": "error"
-                },
-                'restconferencev2': {
-                    "category": "lawlayer",
-                    "level": "error"
-                },
-                'restwebinar': {
-                    "category": "lawlayer",
-                    "level": "error"
-                },
+                'resttelephony': { "category": "lawlayer", "level": "error" },
+                'restroom': { "category": "lawlayer", "level": "error" },
+                'backendStatus': { "category": "services", "api": true, "level": "error" },
+                'restconferencev2': { "category": "lawlayer", "level": "error" },
+                'restwebinar': { "category": "lawlayer", "level": "error" },
+                'restadldap': { "category": "lawlayer", "level": "error" },
+                'restalerts': { "category": "lawlayer", "level": "error" },
+                'restapplications': { "category": "lawlayer", "level": "error" },
+                'restapisettings': { "category": "lawlayer", "level": "error" },
+                'restauth': { "category": "lawlayer", "level": "error" },
+                'restbots': { "category": "lawlayer", "level": "error" },
+                'restbubbleopeninvites': { "category": "lawlayer", "level": "error" },
+                'restbubblesdialin': { "category": "lawlayer", "level": "error" },
+                'restbubbles': { "category": "lawlayer", "level": "error" },
+                'restbubblestags': { "category": "lawlayer", "level": "error" },
+                'restcalendar': { "category": "lawlayer", "level": "error" },
+                'restchannels': { "category": "lawlayer", "level": "error" },
+                'restclientsversions': { "category": "lawlayer", "level": "error" },
+                'restcloudpbx': { "category": "lawlayer", "level": "error" },
+                'restcompany': { "category": "lawlayer", "level": "error" },
+                'restconference': { "category": "lawlayer", "level": "error" },
+                'restconnectors': { "category": "lawlayer", "level": "error" },
+                'restcontacts': { "category": "lawlayer", "level": "error" },
+                'restconversations': { "category": "lawlayer", "level": "error" },
+                'restcountry': { "category": "lawlayer", "level": "error" },
+                'restcustomercare': { "category": "lawlayer", "level": "error" },
+                'restcustomisationtemplate': { "category": "lawlayer", "level": "error" },
+                'restdirectory': { "category": "lawlayer", "level": "error" },
+                'restfilestorage': { "category": "lawlayer", "level": "error" },
+                'restgroups': { "category": "lawlayer", "level": "error" },
+                'restinvitations': { "category": "lawlayer", "level": "error" },
+                'restpolls': { "category": "lawlayer", "level": "error" },
+                'restpresence': { "category": "lawlayer", "level": "error" },
+                'restprofiles': { "category": "lawlayer", "level": "error" },
+                'restpublicurl': { "category": "lawlayer", "level": "error" },
+                'restrainbowvoice': { "category": "lawlayer", "level": "error" },
+                'rests2s': { "category": "lawlayer", "level": "error" },
+                'restsettings': { "category": "lawlayer", "level": "error" },
+                'restsites': { "category": "lawlayer", "level": "error" },
+                'restsubscriptions': { "category": "lawlayer", "level": "error" },
+                'restsystems': { "category": "lawlayer", "level": "error" },
+                'resttasks': { "category": "lawlayer", "level": "error" },
                 'xmpp': {
                     "category": "lawlayer",
                     "level": "error",
