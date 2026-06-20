@@ -58,6 +58,8 @@ import {RESTBots} from "./RestServices/RESTBots";
 import {RESTPublicUrl} from "./RestServices/RESTPublicUrl";
 import {RESTClientsVersions} from "./RestServices/RESTClientsVersions";
 import {RESTSites} from "./RestServices/RESTSites";
+import {RESTCustomisationTemplate} from "./RestServices/RESTCustomisationTemplate";
+import {RESTSystems} from "./RestServices/RESTSystems";
 import {GenericRESTService} from "./GenericRESTService";
 import {TimeOutManager} from "../common/TimeOutManager";
 import {Group} from "ts-generic-collections-linq";
@@ -389,6 +391,8 @@ class RESTService extends GenericRESTService {
     public restPublicUrl: RESTPublicUrl;
     public restClientsVersions: RESTClientsVersions;
     public restSites: RESTSites;
+    public restCustomisationTemplate: RESTCustomisationTemplate;
+    public restSystems: RESTSystems;
     public applicationToken: string;
     public connectionS2SInfo: any;
     private reconnectInProgress: boolean;
@@ -446,6 +450,8 @@ class RESTService extends GenericRESTService {
         this.restPublicUrl = new RESTPublicUrl(core, evtEmitter, _logger);
         this.restClientsVersions = new RESTClientsVersions(core, evtEmitter, _logger);
         this.restSites = new RESTSites(core, evtEmitter, _logger);
+        this.restCustomisationTemplate = new RESTCustomisationTemplate(core, evtEmitter, _logger);
+        this.restSystems = new RESTSystems(core, evtEmitter, _logger);
         //this.timeOutManager = core.timeOutManager;
         this.http = null;
         this.account = null;
@@ -612,6 +618,12 @@ class RESTService extends GenericRESTService {
         prom.push(that.restSites.start(that.http).then(() => {
             that._logger.log(that.INTERNAL, LOG_ID + "(start) restSites email used", that.loginEmail);
         }));
+        prom.push(that.restCustomisationTemplate.start(that.http).then(() => {
+            that._logger.log(that.INTERNAL, LOG_ID + "(start) restCustomisationTemplate email used", that.loginEmail);
+        }));
+        prom.push(that.restSystems.start(that.http).then(() => {
+            that._logger.log(that.INTERNAL, LOG_ID + "(start) restSystems email used", that.loginEmail);
+        }));
         return Promise.all(prom);
     }
 
@@ -735,6 +747,12 @@ class RESTService extends GenericRESTService {
                 });
                 await that.restSites.stop().then(() => {
                     that._logger.log(that.INTERNAL, LOG_ID + "(stop) restSites.");
+                });
+                await that.restCustomisationTemplate.stop().then(() => {
+                    that._logger.log(that.INTERNAL, LOG_ID + "(stop) restCustomisationTemplate.");
+                });
+                await that.restSystems.stop().then(() => {
+                    that._logger.log(that.INTERNAL, LOG_ID + "(stop) restSystems.");
                 });
 
                 await that.signout().then(() => {
@@ -926,6 +944,8 @@ class RESTService extends GenericRESTService {
         this.restPublicUrl.p_token = value;
         this.restClientsVersions.p_token = value;
         this.restSites.p_token = value;
+        this.restCustomisationTemplate.p_token = value;
+        this.restSystems.p_token = value;
     }
 
     set decodedtokenRest(value: any) {
@@ -963,6 +983,8 @@ class RESTService extends GenericRESTService {
         this.restPublicUrl.p_decodedtokenRest = value;
         this.restClientsVersions.p_decodedtokenRest = value;
         this.restSites.p_decodedtokenRest = value;
+        this.restCustomisationTemplate.p_decodedtokenRest = value;
+        this.restSystems.p_decodedtokenRest = value;
     }
 
     set credentialsRest(value: any) {
@@ -1000,6 +1022,8 @@ class RESTService extends GenericRESTService {
         this.restPublicUrl.p_credentials = value;
         this.restClientsVersions.p_credentials = value;
         this.restSites.p_credentials = value;
+        this.restCustomisationTemplate.p_credentials = value;
+        this.restSystems.p_credentials = value;
     }
 
     set applicationRest(value: any) {
@@ -1037,6 +1061,8 @@ class RESTService extends GenericRESTService {
         this.restPublicUrl.p_application = value;
         this.restClientsVersions.p_application = value;
         this.restSites.p_application = value;
+        this.restCustomisationTemplate.p_application = value;
+        this.restSystems.p_application = value;
     }
 
     set authRest(value: any) {
@@ -1074,6 +1100,8 @@ class RESTService extends GenericRESTService {
         this.restPublicUrl.p_auth = value;
         this.restClientsVersions.p_auth = value;
         this.restSites.p_auth = value;
+        this.restCustomisationTemplate.p_auth = value;
+        this.restSystems.p_auth = value;
     }
 
     setconnectionS2SInfo(_connectionS2SInfo) {
@@ -3475,209 +3503,13 @@ kamEmailList?: string[], businessSpecific?: string, adminServiceNotificationsLev
 
     //endregion Company
 
-    //region Customisation Template 
-
-    applyCustomisationTemplates(name: string, companyId: string, userId: string) {
-        // API https://api.openrainbow.org/admin/#api-customisation_template-ApplyCompanyTemplate
-        // URL POST /api/rainbow/admin/v1.0/customisations/templates/apply
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let data = {
-                name,
-                companyId,
-                userId
-            };
-
-            that.http.post("/api/rainbow/admin/v1.0/customisations/templates/apply", that.getRequestHeader(), data, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(applyTemplates) successfull.");
-                that._logger.log(that.INTERNAL, LOG_ID + "(applyTemplates) REST result : ", json);
-                resolve(json);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(applyTemplates) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(applyTemplates) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    createCustomisationTemplate(name: string, ownedByCompany: string, visibleBy: Array<string>, instantMessagesCustomisation: string, useGifCustomisation: string,
-                                fileSharingCustomisation: string, fileStorageCustomisation: string, phoneMeetingCustomisation: string, useDialOutCustomisation: string, useChannelCustomisation: string, useRoomCustomisation: string,
-                                useScreenSharingCustomisation: string, useWebRTCAudioCustomisation: string, useWebRTCVideoCustomisation: string, recordingConversationCustomisation: string, overridePresenceCustomisation: string,
-                                userProfileCustomisation: string, userTitleNameCustomisation: string, changeTelephonyCustomisation: string, changeSettingsCustomisation: string, fileCopyCustomisation: string,
-                                fileTransferCustomisation: string, forbidFileOwnerChangeCustomisation: string, readReceiptsCustomisation: string, useSpeakingTimeStatistics: string) {
-        // API https://api.openrainbow.org/admin/#api-customisation_template-CreateCompanyTemplate
-        // URL POST /api/rainbow/admin/v1.0/customisations/templates
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let data = {
-                ownedByCompany,
-                visibleBy,
-                //type,
-                instantMessagesCustomisation,
-                useGifCustomisation,
-                fileSharingCustomisation,
-                fileStorageCustomisation,
-                phoneMeetingCustomisation,
-                useDialOutCustomisation,
-                useChannelCustomisation,
-                useRoomCustomisation,
-                useWebRTCAudioCustomisation,
-                useWebRTCVideoCustomisation,
-                recordingConversationCustomisation,
-                overridePresenceCustomisation,
-                userProfileCustomisation,
-                userTitleNameCustomisation,
-                changeTelephonyCustomisation,
-                changeSettingsCustomisation,
-                name,
-                //createdBy,
-                //creationDate,// : '2020-08-24T15:00:45.343Z',
-                fileCopyCustomisation,
-                fileTransferCustomisation,
-                forbidFileOwnerChangeCustomisation,
-                useScreenSharingCustomisation,
-                readReceiptsCustomisation,
-                useSpeakingTimeStatistics,
-                //id: '5f43d61db7b6d40988a73e7c'
-            };
-
-            that.http.post("/api/rainbow/admin/v1.0/customisations/templates", that.getRequestHeader(), data, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(applyTemplates) successfull.");
-                that._logger.log(that.INTERNAL, LOG_ID + "(applyTemplates) REST result : ", json);
-                resolve(json);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(applyTemplates) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(applyTemplates) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    deleteCustomisationTemplate(templateId) {
-        // API https://api.openrainbow.org/admin/#api-customisation_template-DeleteCompanyTemplate
-        // URL delete /api/rainbow/admin/v1.0/customisations/templates/:templateId
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            that._logger.log(that.DEBUG, LOG_ID + "(deleteCustomisationTemplate) templateId", templateId);
-            that.http.delete('/api/rainbow/admin/v1.0/customisations/templates/' + templateId, that.getRequestHeader()).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(deleteCustomisationTemplate) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(deleteCustomisationTemplate) REST result : ", json);
-                resolve(json);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(deleteCustomisationTemplate) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteCustomisationTemplate) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    getAllAvailableCustomisationTemplates(companyId: string = undefined, format: string = "small", limit: number = 100, offset: number = 0, sortField: string = "name", sortOrder: number = 1) {
-        // API https://api.openrainbow.org/admin/#api-customisation_template-GetCustomisationTemplateAll
-        // URL get /api/rainbow/admin/v1.0/customisations/templates
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url: string = "/api/rainbow/admin/v1.0/customisations/templates";
-            let urlParamsTab: string[] = [];
-            urlParamsTab.push(url);
-            addParamToUrl(urlParamsTab, "companyId", companyId);
-            addParamToUrl(urlParamsTab, "format", format);
-            addParamToUrl(urlParamsTab, "limit", limit);
-            addParamToUrl(urlParamsTab, "offset", offset);
-            addParamToUrl(urlParamsTab, "sortField", sortField);
-            addParamToUrl(urlParamsTab, "sortOrder", sortOrder);
-            url = urlParamsTab[0];
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getAllAvailableCustomisationTemplates) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
-
-                that._logger.log(that.DEBUG, LOG_ID + "(getAllAvailableCustomisationTemplates) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getAllAvailableCustomisationTemplates) REST result : ", json);
-                resolve(json);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getAllAvailableCustomisationTemplates) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getAllAvailableCustomisationTemplates) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    getRequestedCustomisationTemplate(templateId: string = undefined) {
-        // API https://api.openrainbow.org/admin/#api-customisation_template-GetCompanyTemplate
-        // URL get /api/rainbow/admin/v1.0/customisations/templates/:templateId
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url: string = "/api/rainbow/admin/v1.0/customisations/templates/" + templateId;
-            let urlParamsTab: string[] = [];
-            urlParamsTab.push(url);
-            //addParamToUrl(urlParamsTab, "companyId", companyId);
-            url = urlParamsTab[0];
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getRequestedCustomisationTemplate) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then(function (json) {
-
-                that._logger.log(that.DEBUG, LOG_ID + "(getRequestedCustomisationTemplate) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getRequestedCustomisationTemplate) REST result : ", json);
-                resolve(json);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getRequestedCustomisationTemplate) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getRequestedCustomisationTemplate) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    updateCustomisationTemplate(templateId: string, name: string, visibleBy: string[],
-                                instantMessagesCustomisation: string = "enabled", useGifCustomisation: string = "enabled", fileSharingCustomisation: string = "enabled", fileStorageCustomisation: string = "enabled", phoneMeetingCustomisation: string = "enabled",
-                                useDialOutCustomisation: string = "enabled", useChannelCustomisation: string = "enabled", useRoomCustomisation: string = "enabled", useScreenSharingCustomisation: string = "enabled", useWebRTCAudioCustomisation: string = "enabled",
-                                useWebRTCVideoCustomisation: string = "enabled", recordingConversationCustomisation: string = "enabled", overridePresenceCustomisation: string = "enabled", userProfileCustomisation: string = "enabled",
-                                userTitleNameCustomisation: string = "enabled", changeTelephonyCustomisation: string = "enabled", changeSettingsCustomisation: string = "enabled", fileCopyCustomisation: string = "enabled",
-                                fileTransferCustomisation: string = "enabled", forbidFileOwnerChangeCustomisation: string = "enabled", readReceiptsCustomisation: string = "enabled", useSpeakingTimeStatistics: string = "enabled") {
-        // API https://api.openrainbow.org/admin/#api-customisation_template-UpdateCompanyTemplate
-        // URL PUT /api/rainbow/admin/v1.0/customisations/templates/:templateId
-
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let data = {
-                name,
-                visibleBy,
-                instantMessagesCustomisation,
-                useGifCustomisation,
-                fileSharingCustomisation,
-                fileStorageCustomisation,
-                phoneMeetingCustomisation,
-                useDialOutCustomisation,
-                useChannelCustomisation,
-                useRoomCustomisation,
-                useScreenSharingCustomisation,
-                useWebRTCAudioCustomisation,
-                useWebRTCVideoCustomisation,
-                recordingConversationCustomisation,
-                overridePresenceCustomisation,
-                userProfileCustomisation,
-                userTitleNameCustomisation,
-                changeTelephonyCustomisation,
-                changeSettingsCustomisation,
-                fileCopyCustomisation,
-                fileTransferCustomisation,
-                forbidFileOwnerChangeCustomisation,
-                readReceiptsCustomisation,
-                useSpeakingTimeStatistics
-            };
-
-            that.http.put("/api/rainbow/admin/v1.0/customisations/templates/" + templateId, that.getRequestHeader(), data, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(updateCustomisationTemplate) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(updateCustomisationTemplate) REST result : ", json);
-                resolve(json);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(updateCustomisationTemplate) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateCustomisationTemplate) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
+    //region Customisation Template
+    applyCustomisationTemplates(name: string, companyId: string, userId: string) { return this.restCustomisationTemplate.applyCustomisationTemplates(name, companyId, userId); }
+    createCustomisationTemplate(name: string, ownedByCompany: string, visibleBy: Array<string>, instantMessagesCustomisation: string, useGifCustomisation: string, fileSharingCustomisation: string, fileStorageCustomisation: string, phoneMeetingCustomisation: string, useDialOutCustomisation: string, useChannelCustomisation: string, useRoomCustomisation: string, useScreenSharingCustomisation: string, useWebRTCAudioCustomisation: string, useWebRTCVideoCustomisation: string, recordingConversationCustomisation: string, overridePresenceCustomisation: string, userProfileCustomisation: string, userTitleNameCustomisation: string, changeTelephonyCustomisation: string, changeSettingsCustomisation: string, fileCopyCustomisation: string, fileTransferCustomisation: string, forbidFileOwnerChangeCustomisation: string, readReceiptsCustomisation: string, useSpeakingTimeStatistics: string) { return this.restCustomisationTemplate.createCustomisationTemplate(name, ownedByCompany, visibleBy, instantMessagesCustomisation, useGifCustomisation, fileSharingCustomisation, fileStorageCustomisation, phoneMeetingCustomisation, useDialOutCustomisation, useChannelCustomisation, useRoomCustomisation, useScreenSharingCustomisation, useWebRTCAudioCustomisation, useWebRTCVideoCustomisation, recordingConversationCustomisation, overridePresenceCustomisation, userProfileCustomisation, userTitleNameCustomisation, changeTelephonyCustomisation, changeSettingsCustomisation, fileCopyCustomisation, fileTransferCustomisation, forbidFileOwnerChangeCustomisation, readReceiptsCustomisation, useSpeakingTimeStatistics); }
+    deleteCustomisationTemplate(templateId) { return this.restCustomisationTemplate.deleteCustomisationTemplate(templateId); }
+    getAllAvailableCustomisationTemplates(companyId: string = undefined, format: string = "small", limit: number = 100, offset: number = 0, sortField: string = "name", sortOrder: number = 1) { return this.restCustomisationTemplate.getAllAvailableCustomisationTemplates(companyId, format, limit, offset, sortField, sortOrder); }
+    getRequestedCustomisationTemplate(templateId: string = undefined) { return this.restCustomisationTemplate.getRequestedCustomisationTemplate(templateId); }
+    updateCustomisationTemplate(templateId: string, name: string, visibleBy: string[], instantMessagesCustomisation: string = "enabled", useGifCustomisation: string = "enabled", fileSharingCustomisation: string = "enabled", fileStorageCustomisation: string = "enabled", phoneMeetingCustomisation: string = "enabled", useDialOutCustomisation: string = "enabled", useChannelCustomisation: string = "enabled", useRoomCustomisation: string = "enabled", useScreenSharingCustomisation: string = "enabled", useWebRTCAudioCustomisation: string = "enabled", useWebRTCVideoCustomisation: string = "enabled", recordingConversationCustomisation: string = "enabled", overridePresenceCustomisation: string = "enabled", userProfileCustomisation: string = "enabled", userTitleNameCustomisation: string = "enabled", changeTelephonyCustomisation: string = "enabled", changeSettingsCustomisation: string = "enabled", fileCopyCustomisation: string = "enabled", fileTransferCustomisation: string = "enabled", forbidFileOwnerChangeCustomisation: string = "enabled", readReceiptsCustomisation: string = "enabled", useSpeakingTimeStatistics: string = "enabled") { return this.restCustomisationTemplate.updateCustomisationTemplate(templateId, name, visibleBy, instantMessagesCustomisation, useGifCustomisation, fileSharingCustomisation, fileStorageCustomisation, phoneMeetingCustomisation, useDialOutCustomisation, useChannelCustomisation, useRoomCustomisation, useScreenSharingCustomisation, useWebRTCAudioCustomisation, useWebRTCVideoCustomisation, recordingConversationCustomisation, overridePresenceCustomisation, userProfileCustomisation, userTitleNameCustomisation, changeTelephonyCustomisation, changeSettingsCustomisation, fileCopyCustomisation, fileTransferCustomisation, forbidFileOwnerChangeCustomisation, readReceiptsCustomisation, useSpeakingTimeStatistics); }
     //endregion Customisation Template
 
     //region Channels
@@ -8229,663 +8061,25 @@ kamEmailList?: string[], businessSpecific?: string, adminServiceNotificationsLev
     //endregion sites
 
     //region systems
-
-    // systems
-    createSystem(name: string, pbxId: string = undefined, pbxLdapId: string = undefined, siteId: string, type: string, country: string, version ?: string,
-                 serverPingTimeout ?: number, pbxMainBundlePrefix ?: Array<string>, usePbxMainBundlePrefix ?: boolean, pbxNumberingTranslator ?: Array<any>,
-                 pbxNationalPrefix ?: string, pbxInternationalPrefix ?: string, searchResultOrder ?: Array<string>, activationCode ?: string, isCentrex ?: boolean,
-                 isShared ?: boolean, bpId ?: string, isOxoManaged ?: boolean) {
-        // API https://api.openrainbow.org/admin/#api-systems-PostSystems
-        // POST /api/rainbow/admin/v1.0/systems
-
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            that._logger.log(that.INTERNAL, LOG_ID + "(createSystem) name : ", name + ", pbxId : ", pbxId);
-            let data: any = {
-                name
-            };
-            if (pbxId) {
-                data.pbxId = pbxId;
-            }
-            if (pbxLdapId) {
-                data.pbxLdapId = pbxLdapId;
-            }
-            if (siteId) {
-                data.siteId = siteId;
-            }
-            if (type) {
-                data.type = type;
-            }
-            if (country) {
-                data.country = country;
-            }
-            if (version) {
-                data.version = version;
-            }
-            if (serverPingTimeout) {
-                data.serverPingTimeout = serverPingTimeout;
-            }
-            if (pbxMainBundlePrefix) {
-                data.pbxMainBundlePrefix = pbxMainBundlePrefix;
-            }
-            if (usePbxMainBundlePrefix) {
-                data.usePbxMainBundlePrefix = usePbxMainBundlePrefix;
-            }
-            if (pbxNumberingTranslator) {
-                data.pbxNumberingTranslator = pbxNumberingTranslator;
-            }
-            if (pbxNationalPrefix) {
-                data.pbxNationalPrefix = pbxNationalPrefix;
-            }
-            if (pbxInternationalPrefix) {
-                data.pbxInternationalPrefix = pbxInternationalPrefix;
-            }
-            if (searchResultOrder) {
-                data.searchResultOrder = searchResultOrder;
-            }
-            if (activationCode) {
-                data.activationCode = activationCode;
-            }
-            if (isCentrex) {
-                data.isCentrex = isCentrex;
-            }
-            if (isShared) {
-                data.isShared = isShared;
-            }
-            if (bpId) {
-                data.bpId = bpId;
-            }
-            if (isOxoManaged) {
-                data.isOxoManaged = isOxoManaged;
-            }
-            that.http.post("/api/rainbow/admin/v1.0/systems", that.getRequestHeader(), data, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(createSystem) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(createSystem) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(createSystem) error.");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(createSystem) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    deleteSystem(systemId: string) {
-        // API https://api.openrainbow.org/admin/#api-systems-DeleteSystems
-        // DELETE /api/rainbow/admin/v1.0/systems/:systemId 
-
-        let that = this;
-        return new Promise((resolve, reject) => {
-            that.http.delete("/api/rainbow/admin/v1.0/systems/" + systemId, that.getRequestHeader())
-                    .then((response) => {
-                        that._logger.log(that.DEBUG, LOG_ID + "(deleteSystem) (" + systemId + ") -- success");
-                        resolve(response);
-                    })
-                    .catch((err) => {
-                        that._logger.log(that.ERROR, LOG_ID, "(deleteSystem) (" + systemId + ") -- failure -- ");
-                        that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteSystem) (" + systemId + ") -- failure -- ", err.message);
-                        return reject(err);
-                    });
-        });
-    }
-
-    getSystemConnectionState(systemId: string, format: string = "small", connectionHistory?: boolean) {
-        // API https://api.openrainbow.org/admin/#api-systems-GetSystemsConnectionState
-        // GET /api/rainbow/admin/v1.0/systems/:systemId/state
-
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url: string = "/api/rainbow/admin/v1.0/systems/" + systemId + "/state";
-            let urlParamsTab: string[] = [];
-            urlParamsTab.push(url);
-            addParamToUrl(urlParamsTab, "format", format);
-            addParamToUrl(urlParamsTab, "connectionHistory", connectionHistory);
-            url = urlParamsTab[0];
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getSystemConnectionState) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getSystemConnectionState) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getSystemConnectionState) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getSystemConnectionState) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getSystemConnectionState) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    getSystemDataByPbxId(pbxId: string, connectionHistory?: boolean) {
-        // API https://api.openrainbow.org/admin/#api-systems-GetSystemsIdByPbxId
-        // GET /api/rainbow/admin/v1.0/systems/pbxid/:pbxId
-
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url: string = "/api/rainbow/admin/v1.0/systems/pbxid/" + pbxId;
-            let urlParamsTab: string[] = [];
-            urlParamsTab.push(url);
-            addParamToUrl(urlParamsTab, "connectionHistory", connectionHistory);
-            url = urlParamsTab[0];
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getSystemDataByPbxId) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getSystemDataByPbxId) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getSystemDataByPbxId) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getSystemDataByPbxId) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getSystemDataByPbxId) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    getSystemData(systemId: string, connectionHistory?: boolean) {
-        // API https://api.openrainbow.org/admin/#api-systems-GetSystemsId
-        // GET /api/rainbow/admin/v1.0/systems/:systemId
-
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url: string = "/api/rainbow/admin/v1.0/systems/" + systemId;
-            let urlParamsTab: string[] = [];
-            urlParamsTab.push(url);
-            addParamToUrl(urlParamsTab, "connectionHistory", connectionHistory);
-            url = urlParamsTab[0];
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getSystemData) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getSystemData) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getSystemData) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getSystemData) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getSystemData) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    getAllSystems(connectionHistory ?: boolean, format: string = "small", limit: number = 100, offset: number = 0, sortField: string = "pbxId", sortOrder: number = 1,
-                  name ?: string, type ?: string, status ?: string, siteId ?: string, companyId ?: string, bpId ?: string, isShared ?: boolean, isCentrex ?: boolean,
-                  isSharedOrCentrex ?: boolean, isOxoManaged ?: boolean, fromCreationDate ?: string, toCreationDate ?: string) {
-        // API https://api.openrainbow.org/admin/#api-systems-GetSystems
-        // GET /api/rainbow/admin/v1.0/systems
-
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url: string = "/api/rainbow/admin/v1.0/systems";
-            let urlParamsTab: string[] = [];
-            urlParamsTab.push(url);
-            addParamToUrl(urlParamsTab, "connectionHistory", connectionHistory);
-            addParamToUrl(urlParamsTab, "format", connectionHistory);
-            addParamToUrl(urlParamsTab, "limit", connectionHistory);
-            addParamToUrl(urlParamsTab, "offset", connectionHistory);
-            addParamToUrl(urlParamsTab, "sortField", connectionHistory);
-            addParamToUrl(urlParamsTab, "sortOrder", connectionHistory);
-            addParamToUrl(urlParamsTab, "name", connectionHistory);
-            addParamToUrl(urlParamsTab, "type", connectionHistory);
-            addParamToUrl(urlParamsTab, "status", connectionHistory);
-            addParamToUrl(urlParamsTab, "siteId", connectionHistory);
-            addParamToUrl(urlParamsTab, "companyId", connectionHistory);
-            addParamToUrl(urlParamsTab, "bpId", connectionHistory);
-            addParamToUrl(urlParamsTab, "isShared", connectionHistory);
-            addParamToUrl(urlParamsTab, "isCentrex", connectionHistory);
-            addParamToUrl(urlParamsTab, "isSharedOrCentrex", connectionHistory);
-            addParamToUrl(urlParamsTab, "isOxoManaged", connectionHistory);
-            addParamToUrl(urlParamsTab, "fromCreationDate", connectionHistory);
-            addParamToUrl(urlParamsTab, "toCreationDate", connectionHistory);
-            url = urlParamsTab[0];
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getAllSystems) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getAllSystems) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getAllSystems) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getAllSystems) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getAllSystems) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    getListOfCountriesAllowedForSystems() {
-        // GET /api/rainbow/admin/v1.0/systems/countries
-        // API https://api.openrainbow.org/admin/#api-systems-GetSystemsCountries
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url: string = "/api/rainbow/admin/v1.0/systems/countries";
-            let urlParamsTab: string[] = [];
-            urlParamsTab.push(url);
-            //addParamToUrl(urlParamsTab, "format", format);
-            url = urlParamsTab[0];
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getListOfCountriesAllowedForSystems) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getListOfCountriesAllowedForSystems) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getListOfCountriesAllowedForSystems) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getListOfCountriesAllowedForSystems) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getListOfCountriesAllowedForSystems) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    updateSystem(systemId: string, name ?: string, siteId ?: string, pbxLdapId ?: string, type ?: string, country ?: string, version ?: string,
-                 serverPingTimeout: number = 100, pbxMainBundlePrefix ?: string, usePbxMainBundlePrefix ?: boolean, pbxNumberingTranslator ?: Array<any>, pbxNationalPrefix ?: string, pbxInternationalPrefix ?: string, searchResultOrder ?: Array<string>,
-                 isShared ?: boolean, bpId ?: string) {
-        // API https://api.openrainbow.org/admin/#api-systems-PutSystems
-        // PUT /api/rainbow/admin/v1.0/systems/:systemId
-        let that = this;
-
-        return new Promise(function (resolve, reject) {
-            let url = "/api/rainbow/admin/v1.0/systems/" + systemId;
-            let urlParamsTab: string[] = [];
-            urlParamsTab.push(url);
-            //addParamToUrl(urlParamsTab, "companyId", companyId);
-            //addParamToUrl(urlParamsTab, "tag", tag);
-            url = urlParamsTab[0];
-
-            let data: any = {};
-            if (name) data.name = name;
-            if (siteId) data.siteId = siteId;
-            if (pbxLdapId) data.pbxLdapId = pbxLdapId;
-            if (type) data.type = type;
-            if (country) data.country = country;
-            if (version) data.version = version;
-            if (serverPingTimeout) data.serverPingTimeout = serverPingTimeout;
-            if (pbxMainBundlePrefix) data.pbxMainBundlePrefix = pbxMainBundlePrefix;
-            if (usePbxMainBundlePrefix) data.usePbxMainBundlePrefix = usePbxMainBundlePrefix;
-            if (pbxNumberingTranslator) data.pbxNumberingTranslator = pbxNumberingTranslator;
-            if (pbxNationalPrefix) data.pbxNationalPrefix = pbxNationalPrefix;
-            if (pbxInternationalPrefix) data.pbxInternationalPrefix = pbxInternationalPrefix;
-            if (searchResultOrder) data.searchResultOrder = searchResultOrder;
-            if (isShared) data.isShared = isShared;
-            if (bpId) data.bpId = bpId;
-
-            that.http.put(url, that.getRequestHeader(), data, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(updateASystemPhoneNumber) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(updateASystemPhoneNumber) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(updateASystemPhoneNumber) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateASystemPhoneNumber) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    // systems phone numbers
-    getASystemPhoneNumber(systemId: string, phoneNumberId: string) {
-        // GET /api/rainbow/admin/v1.0/systems/:systemId/phone-numbers/:phoneNumberId
-        // API https://api.openrainbow.org/admin/#api-systems_phone_numbers-GetSystemPhoneNumbersId
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url: string = "/api/rainbow/admin/v1.0/systems/" + systemId + "/phone-numbers/" + phoneNumberId;
-            let urlParamsTab: string[] = [];
-            urlParamsTab.push(url);
-            //addParamToUrl(urlParamsTab, "format", format);
-            url = urlParamsTab[0];
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getASystemPhoneNumber) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getASystemPhoneNumber) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getASystemPhoneNumber) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getASystemPhoneNumber) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getASystemPhoneNumber) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    getAllSystemPhoneNumbers(systemId: string, shortNumber?: string, internalNumber ?: string, pbxUserId ?: string, companyPrefix?: string, isMonitored ?: boolean, name ?: string, deviceName ?: string, isAssignedToUser ?: boolean, format: string = "small", limit: number = 100, offset ?: number, sortField: string = "shortNumber", sortOrder: number = 1) {
-        // GET /api/rainbow/admin/v1.0/systems/:systemId/phone-numbers
-        // API https://api.openrainbow.org/admin/#api-systems_phone_numbers-GetSystemPhoneNumbers
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url: string = "/api/rainbow/admin/v1.0/systems/" + systemId + "/phone-numbers";
-            let urlParamsTab: string[] = [];
-            urlParamsTab.push(url);
-            addParamToUrl(urlParamsTab, "shortNumber", shortNumber);
-            addParamToUrl(urlParamsTab, "internalNumber", internalNumber);
-            addParamToUrl(urlParamsTab, "pbxUserId", pbxUserId);
-            addParamToUrl(urlParamsTab, "companyPrefix", companyPrefix);
-            addParamToUrl(urlParamsTab, "isMonitored", isMonitored);
-            addParamToUrl(urlParamsTab, "name", name);
-            addParamToUrl(urlParamsTab, "deviceName", deviceName);
-            addParamToUrl(urlParamsTab, "isAssignedToUser", isAssignedToUser);
-            addParamToUrl(urlParamsTab, "format", format);
-            addParamToUrl(urlParamsTab, "limit", limit);
-            addParamToUrl(urlParamsTab, "offset", offset);
-            addParamToUrl(urlParamsTab, "sortField", sortField);
-            addParamToUrl(urlParamsTab, "sortOrder", sortOrder);
-            url = urlParamsTab[0];
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getAllSystemPhoneNumbers) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getAllSystemPhoneNumbers) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getAllSystemPhoneNumbers) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getAllSystemPhoneNumbers) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getAllSystemPhoneNumbers) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    updateASystemPhoneNumber(systemId: string, phoneNumberId: string, isMonitored ?: boolean, userId ?: string, internalNumber ?: string,
-                             number ?: string, type ?: string, deviceType ?: string, firstName ?: string, lastName ?: string, deviceName ?: string, isVisibleByOthers ?: boolean) {
-        // API https://api.openrainbow.org/admin/#api-systems_phone_numbers-PutSystemPhoneNumbers
-        // PUT /api/rainbow/admin/v1.0/systems/:systemId/phone-numbers/:phoneNumberId
-        let that = this;
-
-        return new Promise(function (resolve, reject) {
-            let url = "/api/rainbow/admin/v1.0/systems/" + systemId + "/phone-numbers/" + phoneNumberId;
-            let urlParamsTab: string[] = [];
-            urlParamsTab.push(url);
-            //addParamToUrl(urlParamsTab, "companyId", companyId);
-            //addParamToUrl(urlParamsTab, "tag", tag);
-            url = urlParamsTab[0];
-
-            let data: any = {};
-            if (isMonitored) data.isMonitored = isMonitored;
-            if (userId) data.userId = userId;
-            if (internalNumber) data.internalNumber = internalNumber;
-            if (number) data.number = number;
-            if (type) data.type = type;
-            if (deviceType) data.deviceType = deviceType;
-            if (firstName) data.firstName = firstName;
-            if (lastName) data.lastName = lastName;
-            if (deviceName) data.deviceName = deviceName;
-            if (isVisibleByOthers) data.isVisibleByOthers = isVisibleByOthers;
-
-            that.http.put(url, that.getRequestHeader(), data, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(updateASystemPhoneNumber) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(updateASystemPhoneNumber) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(updateASystemPhoneNumber) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateASystemPhoneNumber) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    //region pcg pbxs
-
-    getPbxData(pbxId: string) {
-        // GET /api/rainbow/pcg/v1.0/pbxs/:pbxId
-        // API https://api.openrainbow.org/admin/#api-pcg_pbxs-GetPbxId
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url: string = "/api/rainbow/pcg/v1.0/pbxs";
-            let urlParamsTab: string[] = [];
-            urlParamsTab.push(url);
-            // addParamToUrl(urlParamsTab, "format", format);
-            url = urlParamsTab[0];
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getPbxData) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getPbxData) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getPbxData) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getPbxData) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getPbxData) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    getAllPbxs(format: string = "small", sortField: string = "id", limit: number = 100, offset: number = 0, sortOrder: number = 1, name: string = undefined, type: string = undefined, status: string = undefined, siteId: string = undefined, companyId: string = undefined,
-               bpId: string = undefined, isShared: boolean = undefined, isCentrex: boolean = undefined, isSharedOrCentrex: boolean = undefined, isOxoManaged: boolean = undefined, fromCreationDate: string = undefined, toCreationDate: string = undefined) {
-        // GET /api/rainbow/pcg/v1.0/pbxs
-        // API https://api.openrainbow.org/admin/#api-pcg_pbxs-GetPbxs
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url: string = "/api/rainbow/pcg/v1.0/pbxs";
-            let urlParamsTab: string[] = [];
-            urlParamsTab.push(url);
-            addParamToUrl(urlParamsTab, "format", format);
-            addParamToUrl(urlParamsTab, "sortField", sortField);
-            addParamToUrl(urlParamsTab, "limit", limit);
-            addParamToUrl(urlParamsTab, "offset", offset);
-            addParamToUrl(urlParamsTab, "sortOrder", sortOrder);
-            addParamToUrl(urlParamsTab, "name", name);
-            addParamToUrl(urlParamsTab, "type", type);
-            addParamToUrl(urlParamsTab, "status", status);
-            addParamToUrl(urlParamsTab, "siteId", siteId);
-            addParamToUrl(urlParamsTab, "companyId", companyId);
-            addParamToUrl(urlParamsTab, "bpId", bpId);
-            addParamToUrl(urlParamsTab, "isShared", isShared);
-            addParamToUrl(urlParamsTab, "isCentrex", isCentrex);
-            addParamToUrl(urlParamsTab, "isSharedOrCentrex", isSharedOrCentrex);
-            addParamToUrl(urlParamsTab, "isOxoManaged", isOxoManaged);
-            addParamToUrl(urlParamsTab, "fromCreationDate", fromCreationDate);
-            addParamToUrl(urlParamsTab, "toCreationDate", toCreationDate);
-            url = urlParamsTab[0];
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getAllPbxs) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getAllPbxs) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getAllPbxs) REST result : ", json);
-                resolve(json);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getAllPbxs) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getAllPbxs) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    //endregion pcg pbxs 
-
-    //region pcg pbxs phone numbers 
-
-    createPbxPhoneNumber(pbxId: string, shortNumber: string, voiceMailNumber: string, pbxUserId: string, companyPrefix: string, internalNumber: string, type: string, deviceType: string, firstName: string, lastName: string, deviceName: string) {
-        // POST https://openrainbow.com/api/rainbow/pcg/v1.0/pbxs/:pbxId/phone-numbers
-        // API https://api.openrainbow.org/admin/#api-pcg_pbxs_phone_numbers-PostPcgPbxPhoneNb
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let data: any = {};
-
-            if (shortNumber) {
-                data.shortNumber = shortNumber;
-            }
-            if (voiceMailNumber) {
-                data.voiceMailNumber = voiceMailNumber;
-            }
-            if (pbxUserId) {
-                data.lastName = pbxUserId;
-            }
-            if (companyPrefix) {
-                data.companyPrefix = companyPrefix;
-            }
-            if (internalNumber) {
-                data.internalNumber = internalNumber;
-            }
-            if (type) {
-                data.type = type;
-            }
-            if (deviceType) {
-                data.deviceType = deviceType;
-            }
-            if (firstName) {
-                data.firstName = firstName;
-            }
-            if (lastName) {
-                data.lastName = lastName;
-            }
-            if (deviceName) {
-                data.deviceName = deviceName;
-            }
-            that._logger.log(that.INTERNAL, LOG_ID + "(createPbxPhoneNumber) args : ", data);
-            that.http.post("/api/rainbow/pcg/v1.0/pbxs/" + pbxId + "/phone-numbers", that.getRequestHeader(), data, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(createPbxPhoneNumber) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(createPbxPhoneNumber) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(createPbxPhoneNumber) error.");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(createPbxPhoneNumber) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    deletePbxPhoneNumber(pbxId: string, shortNumber: string) {
-        // API https://api.openrainbow.org/admin/#api-pcg_pbxs_phone_numbers-DeletePcgPbxPhoneNbShortNb
-        // DELETE https://openrainbow.com/api/rainbow/pcg/v1.0/pbxs/:pbxId/phone-numbers/short-number/:shortNumber      
-        let that = this;
-        return new Promise((resolve, reject) => {
-            that.http.delete("/api/rainbow/pcg/v1.0/pbxs/" + pbxId + "/phone-numbers/short-number/" + shortNumber, that.getRequestHeader())
-                    .then((response) => {
-                        that._logger.log(that.DEBUG, LOG_ID + "(deletePbxPhoneNumber) (" + pbxId + ", " + shortNumber + ") -- success");
-                        resolve(response);
-                    })
-                    .catch((err) => {
-                        that._logger.log(that.ERROR, LOG_ID, "(deletePbxPhoneNumber) (" + pbxId + ", " + shortNumber + ") -- failure -- ");
-                        that._logger.log(that.INTERNALERROR, LOG_ID, "(deletePbxPhoneNumber) (" + pbxId + ", " + shortNumber + ") -- failure -- ", err.message);
-                        return reject(err);
-                    });
-        });
-    }
-
-    getPbxPhoneNumber(pbxId: string, shortNumber: string) {
-        // API https://api.openrainbow.org/admin/#api-pcg_pbxs_phone_numbers-GetPcgPbxPhoneNbShortNb
-        // GET https://openrainbow.com/api/rainbow/pcg/v1.0/pbxs/:pbxId/phone-numbers/short-number/:shortNumber 
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url: string = "/api/rainbow/pcg/v1.0/pbxs/" + pbxId + "/phone-numbers/short-number/" + shortNumber;
-            let urlParamsTab: string[] = [];
-            urlParamsTab.push(url);
-            //addParamToUrl(urlParamsTab, "format", format);
-            url = urlParamsTab[0];
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getPbxPhoneNumber) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getPbxPhoneNumber) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getPbxPhoneNumber) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getPbxPhoneNumber) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getPbxPhoneNumber) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    getAllPbxPhoneNumbers(pbxId: string, format: string = "small", shortNumber: string, internalNumber: string, pbxUserId: string,
-                          companyPrefix: string, isMonitored: boolean, name: string, nameOrShortNumber: string, deviceName: string,
-                          isAssignedToUser: boolean, limit: number = 100, offset: number, sortField: string = "shortNumber", sortOrder: number = 1) {
-        // API https://api.openrainbow.org/admin/#api-pcg_pbxs_phone_numbers-GetPcgPbxPhoneNb
-        // GET https://openrainbow.com/api/rainbow/pcg/v1.0/pbxs/:pbxId/phone-numbers 
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url: string = "/api/rainbow/pcg/v1.0/pbxs/" + pbxId + "/phone-numbers";
-            let urlParamsTab: string[] = [];
-            urlParamsTab.push(url);
-            addParamToUrl(urlParamsTab, "format", format);
-            addParamToUrl(urlParamsTab, "shortNumber", shortNumber);
-            addParamToUrl(urlParamsTab, "internalNumber", internalNumber);
-            addParamToUrl(urlParamsTab, "pbxUserId", pbxUserId);
-            addParamToUrl(urlParamsTab, "companyPrefix", companyPrefix);
-            addParamToUrl(urlParamsTab, "isMonitored", isMonitored);
-            addParamToUrl(urlParamsTab, "name", name);
-            addParamToUrl(urlParamsTab, "nameOrShortNumber", nameOrShortNumber);
-            addParamToUrl(urlParamsTab, "deviceName", deviceName);
-            addParamToUrl(urlParamsTab, "isAssignedToUser", isAssignedToUser);
-            addParamToUrl(urlParamsTab, "limit", limit);
-            addParamToUrl(urlParamsTab, "offset", offset);
-            addParamToUrl(urlParamsTab, "sortField", sortField);
-            addParamToUrl(urlParamsTab, "sortOrder", sortOrder);
-            url = urlParamsTab[0];
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getAllPbxPhoneNumbers) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getAllPbxPhoneNumbers) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getAllPbxPhoneNumbers) REST result : ", json);
-                resolve(json);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getAllPbxPhoneNumbers) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getAllPbxPhoneNumbers) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    updatepbxPhoneNumber(pbxId: string, shortNumber: string, voiceMailNumber: string, pbxUserId: string, companyPrefix: string, companyName: string, internalNumber: string, type: string, deviceType: string, firstName: string, lastName: string, deviceName: string) {
-        // API https://api.openrainbow.org/admin/#api-pcg_pbxs_phone_numbers-PutPcgPbxPhoneNbShortNb
-        // PUT https://openrainbow.com/api/rainbow/pcg/v1.0/pbxs/:pbxId/phone-numbers/short-number/:shortNumber
-        let that = this;
-        let data: any = {};
-
-        if (shortNumber) {
-            data.shortNumber = shortNumber;
-        }
-        if (voiceMailNumber) {
-            data.voiceMailNumber = voiceMailNumber;
-        }
-        if (pbxUserId) {
-            data.pbxUserId = pbxUserId;
-        }
-        if (companyPrefix) {
-            data.companyPrefix = companyPrefix;
-        }
-        if (companyName) {
-            data.companyName = companyName;
-        }
-        if (internalNumber) {
-            data.internalNumber = internalNumber;
-        }
-        if (type) {
-            data.type = type;
-        }
-        if (deviceType) {
-            data.deviceType = deviceType;
-        }
-        if (firstName) {
-            data.firstName = firstName;
-        }
-        if (lastName) {
-            data.lastName = lastName;
-        }
-        if (deviceName) {
-            data.deviceName = deviceName;
-        }
-
-        return new Promise(function (resolve, reject) {
-            that._logger.log(that.INTERNAL, LOG_ID + "(updateDirectoryEntry) REST data params : ", data);
-
-            that.http.put("/api/rainbow/pcg/v1.0/pbxs/" + pbxId + "/phone-numbers/short-number/" + shortNumber, that.getRequestHeader(), data, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(updatepbxPhoneNumber) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(updatepbxPhoneNumber) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(updatepbxPhoneNumber) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(updatepbxPhoneNumber) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    //endregion pcg pbxs phone numbers
-
+    createSystem(name: string, pbxId: string = undefined, pbxLdapId: string = undefined, siteId: string, type: string, country: string, version ?: string, serverPingTimeout ?: number, pbxMainBundlePrefix ?: Array<string>, usePbxMainBundlePrefix ?: boolean, pbxNumberingTranslator ?: Array<any>, pbxNationalPrefix ?: string, pbxInternationalPrefix ?: string, searchResultOrder ?: Array<string>, activationCode ?: string, isCentrex ?: boolean, isShared ?: boolean, bpId ?: string, isOxoManaged ?: boolean) { return this.restSystems.createSystem(name, pbxId, pbxLdapId, siteId, type, country, version, serverPingTimeout, pbxMainBundlePrefix, usePbxMainBundlePrefix, pbxNumberingTranslator, pbxNationalPrefix, pbxInternationalPrefix, searchResultOrder, activationCode, isCentrex, isShared, bpId, isOxoManaged); }
+    deleteSystem(systemId: string) { return this.restSystems.deleteSystem(systemId); }
+    getSystemConnectionState(systemId: string, format: string = "small", connectionHistory?: boolean) { return this.restSystems.getSystemConnectionState(systemId, format, connectionHistory); }
+    getSystemDataByPbxId(pbxId: string, connectionHistory?: boolean) { return this.restSystems.getSystemDataByPbxId(pbxId, connectionHistory); }
+    getSystemData(systemId: string, connectionHistory?: boolean) { return this.restSystems.getSystemData(systemId, connectionHistory); }
+    getAllSystems(connectionHistory ?: boolean, format: string = "small", limit: number = 100, offset: number = 0, sortField: string = "pbxId", sortOrder: number = 1, name ?: string, type ?: string, status ?: string, siteId ?: string, companyId ?: string, bpId ?: string, isShared ?: boolean, isCentrex ?: boolean, isSharedOrCentrex ?: boolean, isOxoManaged ?: boolean, fromCreationDate ?: string, toCreationDate ?: string) { return this.restSystems.getAllSystems(connectionHistory, format, limit, offset, sortField, sortOrder, name, type, status, siteId, companyId, bpId, isShared, isCentrex, isSharedOrCentrex, isOxoManaged, fromCreationDate, toCreationDate); }
+    getListOfCountriesAllowedForSystems() { return this.restSystems.getListOfCountriesAllowedForSystems(); }
+    updateSystem(systemId: string, name ?: string, siteId ?: string, pbxLdapId ?: string, type ?: string, country ?: string, version ?: string, serverPingTimeout: number = 100, pbxMainBundlePrefix ?: string, usePbxMainBundlePrefix ?: boolean, pbxNumberingTranslator ?: Array<any>, pbxNationalPrefix ?: string, pbxInternationalPrefix ?: string, searchResultOrder ?: Array<string>, isShared ?: boolean, bpId ?: string) { return this.restSystems.updateSystem(systemId, name, siteId, pbxLdapId, type, country, version, serverPingTimeout, pbxMainBundlePrefix, usePbxMainBundlePrefix, pbxNumberingTranslator, pbxNationalPrefix, pbxInternationalPrefix, searchResultOrder, isShared, bpId); }
+    getASystemPhoneNumber(systemId: string, phoneNumberId: string) { return this.restSystems.getASystemPhoneNumber(systemId, phoneNumberId); }
+    getAllSystemPhoneNumbers(systemId: string, shortNumber?: string, internalNumber ?: string, pbxUserId ?: string, companyPrefix?: string, isMonitored ?: boolean, name ?: string, deviceName ?: string, isAssignedToUser ?: boolean, format: string = "small", limit: number = 100, offset ?: number, sortField: string = "shortNumber", sortOrder: number = 1) { return this.restSystems.getAllSystemPhoneNumbers(systemId, shortNumber, internalNumber, pbxUserId, companyPrefix, isMonitored, name, deviceName, isAssignedToUser, format, limit, offset, sortField, sortOrder); }
+    updateASystemPhoneNumber(systemId: string, phoneNumberId: string, isMonitored ?: boolean, userId ?: string, internalNumber ?: string, number ?: string, type ?: string, deviceType ?: string, firstName ?: string, lastName ?: string, deviceName ?: string, isVisibleByOthers ?: boolean) { return this.restSystems.updateASystemPhoneNumber(systemId, phoneNumberId, isMonitored, userId, internalNumber, number, type, deviceType, firstName, lastName, deviceName, isVisibleByOthers); }
+    getPbxData(pbxId: string) { return this.restSystems.getPbxData(pbxId); }
+    getAllPbxs(format: string = "small", sortField: string = "id", limit: number = 100, offset: number = 0, sortOrder: number = 1, name: string = undefined, type: string = undefined, status: string = undefined, siteId: string = undefined, companyId: string = undefined, bpId: string = undefined, isShared: boolean = undefined, isCentrex: boolean = undefined, isSharedOrCentrex: boolean = undefined, isOxoManaged: boolean = undefined, fromCreationDate: string = undefined, toCreationDate: string = undefined) { return this.restSystems.getAllPbxs(format, sortField, limit, offset, sortOrder, name, type, status, siteId, companyId, bpId, isShared, isCentrex, isSharedOrCentrex, isOxoManaged, fromCreationDate, toCreationDate); }
+    createPbxPhoneNumber(pbxId: string, shortNumber: string, voiceMailNumber: string, pbxUserId: string, companyPrefix: string, internalNumber: string, type: string, deviceType: string, firstName: string, lastName: string, deviceName: string) { return this.restSystems.createPbxPhoneNumber(pbxId, shortNumber, voiceMailNumber, pbxUserId, companyPrefix, internalNumber, type, deviceType, firstName, lastName, deviceName); }
+    deletePbxPhoneNumber(pbxId: string, shortNumber: string) { return this.restSystems.deletePbxPhoneNumber(pbxId, shortNumber); }
+    getPbxPhoneNumber(pbxId: string, shortNumber: string) { return this.restSystems.getPbxPhoneNumber(pbxId, shortNumber); }
+    getAllPbxPhoneNumbers(pbxId: string, format: string = "small", shortNumber: string, internalNumber: string, pbxUserId: string, companyPrefix: string, isMonitored: boolean, name: string, nameOrShortNumber: string, deviceName: string, isAssignedToUser: boolean, limit: number = 100, offset: number, sortField: string = "shortNumber", sortOrder: number = 1) { return this.restSystems.getAllPbxPhoneNumbers(pbxId, format, shortNumber, internalNumber, pbxUserId, companyPrefix, isMonitored, name, nameOrShortNumber, deviceName, isAssignedToUser, limit, offset, sortField, sortOrder); }
+    updatepbxPhoneNumber(pbxId: string, shortNumber: string, voiceMailNumber: string, pbxUserId: string, companyPrefix: string, companyName: string, internalNumber: string, type: string, deviceType: string, firstName: string, lastName: string, deviceName: string) { return this.restSystems.updatepbxPhoneNumber(pbxId, shortNumber, voiceMailNumber, pbxUserId, companyPrefix, companyName, internalNumber, type, deviceType, firstName, lastName, deviceName); }
+    //endregion systems
     //endregion systems
 
     //region Rainbow Company Directory portal 
