@@ -63,6 +63,7 @@ import {RESTSystems} from "./RestServices/RESTSystems";
 import {RESTS2S} from "./RestServices/RESTS2S";
 import {RESTCompany} from "./RestServices/RESTCompany";
 import {RESTAdLdap} from "./RestServices/RESTAdLdap";
+import {RESTCloudPbx} from "./RestServices/RESTCloudPbx";
 import {GenericRESTService} from "./GenericRESTService";
 import {TimeOutManager} from "../common/TimeOutManager";
 import {Group} from "ts-generic-collections-linq";
@@ -399,6 +400,7 @@ class RESTService extends GenericRESTService {
     public restS2S: RESTS2S;
     public restCompany: RESTCompany;
     public restAdLdap: RESTAdLdap;
+    public restCloudPbx: RESTCloudPbx;
     public applicationToken: string;
     public connectionS2SInfo: any;
     private reconnectInProgress: boolean;
@@ -461,6 +463,7 @@ class RESTService extends GenericRESTService {
         this.restS2S = new RESTS2S(core, evtEmitter, _logger);
         this.restCompany = new RESTCompany(core, evtEmitter, _logger);
         this.restAdLdap = new RESTAdLdap(core, evtEmitter, _logger);
+        this.restCloudPbx = new RESTCloudPbx(core, evtEmitter, _logger);
         //this.timeOutManager = core.timeOutManager;
         this.http = null;
         this.account = null;
@@ -642,6 +645,9 @@ class RESTService extends GenericRESTService {
         prom.push(that.restAdLdap.start(that.http).then(() => {
             that._logger.log(that.INTERNAL, LOG_ID + "(start) restAdLdap email used", that.loginEmail);
         }));
+        prom.push(that.restCloudPbx.start(that.http).then(() => {
+            that._logger.log(that.INTERNAL, LOG_ID + "(start) restCloudPbx email used", that.loginEmail);
+        }));
         return Promise.all(prom);
     }
 
@@ -780,6 +786,9 @@ class RESTService extends GenericRESTService {
                 });
                 await that.restAdLdap.stop().then(() => {
                     that._logger.log(that.INTERNAL, LOG_ID + "(stop) restAdLdap.");
+                });
+                await that.restCloudPbx.stop().then(() => {
+                    that._logger.log(that.INTERNAL, LOG_ID + "(stop) restCloudPbx.");
                 });
 
                 await that.signout().then(() => {
@@ -976,6 +985,7 @@ class RESTService extends GenericRESTService {
         this.restS2S.p_token = value;
         this.restCompany.p_token = value;
         this.restAdLdap.p_token = value;
+        this.restCloudPbx.p_token = value;
     }
 
     set decodedtokenRest(value: any) {
@@ -1018,6 +1028,7 @@ class RESTService extends GenericRESTService {
         this.restS2S.p_decodedtokenRest = value;
         this.restCompany.p_decodedtokenRest = value;
         this.restAdLdap.p_decodedtokenRest = value;
+        this.restCloudPbx.p_decodedtokenRest = value;
     }
 
     set credentialsRest(value: any) {
@@ -1060,6 +1071,7 @@ class RESTService extends GenericRESTService {
         this.restS2S.p_credentials = value;
         this.restCompany.p_credentials = value;
         this.restAdLdap.p_credentials = value;
+        this.restCloudPbx.p_credentials = value;
     }
 
     set applicationRest(value: any) {
@@ -1102,6 +1114,7 @@ class RESTService extends GenericRESTService {
         this.restS2S.p_application = value;
         this.restCompany.p_application = value;
         this.restAdLdap.p_application = value;
+        this.restCloudPbx.p_application = value;
     }
 
     set authRest(value: any) {
@@ -1144,6 +1157,7 @@ class RESTService extends GenericRESTService {
         this.restS2S.p_auth = value;
         this.restCompany.p_auth = value;
         this.restAdLdap.p_auth = value;
+        this.restCloudPbx.p_auth = value;
     }
 
     setconnectionS2SInfo(_connectionS2SInfo) {
@@ -2589,1130 +2603,73 @@ class RESTService extends GenericRESTService {
     //endregion Connectors
     
     //region Rainbow Voice Communication Platform Provisioning
-    // Server doc : https://hub.openrainbow.com/api/ngcpprovisioning/index.html#tag/Cloudpbx
 
     //region CloudPBX
-
-    getCloudPbxById(systemId) {
-        // https://sandbox.openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/569d0ef3ef7816921f7e94fa
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url: string = "/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId;
-            //addParamToUrl(url, "systemId", systemId);
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPbxById) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getCloudPbxById) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPbxById) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getCloudPbxById) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getCloudPbxById) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    updateCloudPBX(systemId, barringOptions_permissions: string, barringOptions_restrictions: string, callForwardOptions_externalCallForward: string, customSipHeader_1: string, customSipHeader_2: string, emergencyOptions_callAuthorizationWithSoftPhone: boolean, emergencyOptions_emergencyGroupActivated: boolean, externalTrunkId: string, language: string, name: string, numberingDigits: number, numberingPrefix: number, outgoingPrefix: number, routeInternalCallsToPeer: boolean) {
-        // PUT https://sandbox.openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}
-        let that = this;
-
-
-        return new Promise(function (resolve, reject) {
-            let url: string = "/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId;
-            that._logger.log(that.INTERNAL, LOG_ID + "(updateCloudPBX) REST url : ", url);
-            let params = {
-                "barringOptions":
-                        {
-
-                            "permissions": barringOptions_permissions,
-                            "restrictions": barringOptions_restrictions
-                        },
-                "callForwardOptions":
-
-                        {
-
-                            "externalCallForward": callForwardOptions_externalCallForward
-
-                        },
-                "customSipHeader_1": customSipHeader_1,
-                "customSipHeader_2": customSipHeader_2,
-                "emergencyOptions":
-                        {
-                            "callAuthorizationWithSoftPhone": emergencyOptions_callAuthorizationWithSoftPhone,
-                            "emergencyGroupActivated": emergencyOptions_emergencyGroupActivated
-                        },
-                "externalTrunkId": externalTrunkId,
-                "language": language,
-                "name": name,
-                "numberingDigits": numberingDigits,
-                "numberingPrefix": numberingPrefix,
-                "outgoingPrefix": outgoingPrefix,
-                "routeInternalCallsToPeer": routeInternalCallsToPeer
-            };
-
-            that.http.put(url, that.getRequestHeader(), params, undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(updateCloudPBX) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(updateCloudPBX) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(updateCloudPBX) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateCloudPBX) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    deleteCloudPBX(systemId: string): Promise<{ status: string }> {
-        // DELETE https://sandbox.openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/569d0ef3ef7816921f7e94fa
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            if (!systemId) {
-                that._logger.log(that.DEBUG, LOG_ID + "(deleteCloudPBX) failed");
-                that._logger.log(that.DEBUG, LOG_ID + "(deleteCloudPBX) No ldapId provided");
-                resolve(null);
-            } else {
-                that.http.delete("/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId, that.getRequestHeader()).then(function (json) {
-                    that._logger.log(that.DEBUG, LOG_ID + "(deleteCloudPBX) successfull");
-                    that._logger.log(that.INTERNAL, LOG_ID + "(deleteCloudPBX) REST result : " + json);
-                    resolve(json?.data);
-                }).catch(function (err) {
-                    that._logger.log(that.ERROR, LOG_ID, "(deleteCloudPBX) error");
-                    that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteCloudPBX) error : ", err);
-                    return reject(err);
-                });
-            }
-        });
-    }
-
-    getCloudPbxs(limit: number, offset: number, sortField: string, sortOrder: number, companyId: string, bpId: string) {
-        // https://sandbox.openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url: string = "/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs";
-            let urlParamsTab: string[] = [];
-            urlParamsTab.push(url);
-            addParamToUrl(urlParamsTab, "limit", "" + limit);
-            addParamToUrl(urlParamsTab, "offset", "" + offset);
-            addParamToUrl(urlParamsTab, "sortField", sortField);
-            addParamToUrl(urlParamsTab, "sortOrder", "" + sortOrder);
-            addParamToUrl(urlParamsTab, "companyId", companyId);
-            addParamToUrl(urlParamsTab, "bpId", bpId);
-            url = urlParamsTab[0];
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPbxById) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getCloudPbxById) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPbxById) REST result : ", json);
-                resolve(json);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getCloudPbxById) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getCloudPbxById) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    createACloudPBX(bpId: string, companyId: string, customSipHeader_1: string, customSipHeader_2: string, externalTrunkId: string, language: string, name: string, noReplyDelay: number, numberingDigits: number, numberingPrefix: number, outgoingPrefix: number, routeInternalCallsToPeer: boolean, siteId: string) {
-        // POST https://sandbox.openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs
-
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url: string = "/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs";
-            that._logger.log(that.INTERNAL, LOG_ID + "(createACloudPBX) REST url : ", url);
-            let param = {
-                bpId,
-                companyId,
-                customSipHeader_1,
-                customSipHeader_2,
-                externalTrunkId,
-                language,
-                name,
-                noReplyDelay,
-                numberingDigits,
-                numberingPrefix,
-                outgoingPrefix,
-                routeInternalCallsToPeer,
-                siteId
-            };
-
-            that.http.post(url, that.getRequestHeader(), param, undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(createACloudPBX) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(createACloudPBX) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(createACloudPBX) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(createACloudPBX) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    getCloudPBXCLIPolicyForOutboundCalls(systemId: string) {
-        // GET https://sandbox.openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/5cd1a4f426fa4a77f8c04150/cli-options
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url: string = "/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/cli-options";
-            //addParamToUrl(url, "systemId", systemId);
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPBXCLIPolicyForOutboundCalls) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getCloudPBXCLIPolicyForOutboundCalls) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPBXCLIPolicyForOutboundCalls) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getCloudPBXCLIPolicyForOutboundCalls) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getCloudPBXCLIPolicyForOutboundCalls) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    updateCloudPBXCLIOptionsConfiguration(systemId: string, policy: string) {
-        // PUT https://sandbox.openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}/cli-options
-        let that = this;
-
-
-        return new Promise(function (resolve, reject) {
-            let url: string = "/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/cli-options";
-            that._logger.log(that.INTERNAL, LOG_ID + "(updateCloudPBXCLIOptionsConfiguration) REST url : ", url);
-            let params = {
-                policy
-            };
-
-            that.http.put(url, that.getRequestHeader(), params, undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(updateCloudPBXCLIOptionsConfiguration) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(updateCloudPBXCLIOptionsConfiguration) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(updateCloudPBXCLIOptionsConfiguration) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateCloudPBXCLIOptionsConfiguration) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    getCloudPBXlanguages(systemId: string) {
-        // GET https://sandbox.openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/5cd1a4f426fa4a77f8c04150/languages
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url: string = "/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/languages";
-            //addParamToUrl(url, "systemId", systemId);
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPBXlanguages) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getCloudPBXlanguages) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPBXlanguages) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getCloudPBXlanguages) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getCloudPBXlanguages) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    getCloudPBXDeviceModels(systemId: string) {
-        // GET https://sandbox.openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/5cd1a4f426fa4a77f8c04150/devicemodels
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url: string = "/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/devicemodels";
-            //addParamToUrl(url, "systemId", systemId);
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPBXDeviceModels) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getCloudPBXDeviceModels) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPBXDeviceModels) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getCloudPBXDeviceModels) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getCloudPBXDeviceModels) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    getCloudPBXTrafficBarringOptions(systemId: string) {
-        // GET https://sandbox.openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/5cd1a4f426fa4a77f8c04150/barring-options
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url: string = "/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/barring-options";
-            //addParamToUrl(url, "systemId", systemId);
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPBXTrafficBarringOptions) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getCloudPBXTrafficBarringOptions) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPBXTrafficBarringOptions) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getCloudPBXTrafficBarringOptions) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getCloudPBXTrafficBarringOptions) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    getCloudPBXEmergencyNumbersAndEmergencyOptions(systemId: string) {
-        // GET https://sandbox.openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/5cd1a4f426fa4a77f8c04150/emergency-numbers
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url: string = "/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/barring-options";
-            //addParamToUrl(url, "systemId", systemId);
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPBXEmergencyNumbersAndEmergencyOptions) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getCloudPBXEmergencyNumbersAndEmergencyOptions) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPBXEmergencyNumbersAndEmergencyOptions) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getCloudPBXEmergencyNumbersAndEmergencyOptions) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getCloudPBXEmergencyNumbersAndEmergencyOptions) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
+    getCloudPbxById(systemId) { return this.restCloudPbx.getCloudPbxById(systemId); }
+    updateCloudPBX(systemId, barringOptions_permissions: string, barringOptions_restrictions: string, callForwardOptions_externalCallForward: string, customSipHeader_1: string, customSipHeader_2: string, emergencyOptions_callAuthorizationWithSoftPhone: boolean, emergencyOptions_emergencyGroupActivated: boolean, externalTrunkId: string, language: string, name: string, numberingDigits: number, numberingPrefix: number, outgoingPrefix: number, routeInternalCallsToPeer: boolean) { return this.restCloudPbx.updateCloudPBX(systemId, barringOptions_permissions, barringOptions_restrictions, callForwardOptions_externalCallForward, customSipHeader_1, customSipHeader_2, emergencyOptions_callAuthorizationWithSoftPhone, emergencyOptions_emergencyGroupActivated, externalTrunkId, language, name, numberingDigits, numberingPrefix, outgoingPrefix, routeInternalCallsToPeer); }
+    deleteCloudPBX(systemId: string) { return this.restCloudPbx.deleteCloudPBX(systemId); }
+    getCloudPbxs(limit: number, offset: number, sortField: string, sortOrder: number, companyId: string, bpId: string) { return this.restCloudPbx.getCloudPbxs(limit, offset, sortField, sortOrder, companyId, bpId); }
+    createACloudPBX(bpId: string, companyId: string, customSipHeader_1: string, customSipHeader_2: string, externalTrunkId: string, language: string, name: string, noReplyDelay: number, numberingDigits: number, numberingPrefix: number, outgoingPrefix: number, routeInternalCallsToPeer: boolean, siteId: string) { return this.restCloudPbx.createACloudPBX(bpId, companyId, customSipHeader_1, customSipHeader_2, externalTrunkId, language, name, noReplyDelay, numberingDigits, numberingPrefix, outgoingPrefix, routeInternalCallsToPeer, siteId); }
+    getCloudPBXCLIPolicyForOutboundCalls(systemId: string) { return this.restCloudPbx.getCloudPBXCLIPolicyForOutboundCalls(systemId); }
+    updateCloudPBXCLIOptionsConfiguration(systemId: string, policy: string) { return this.restCloudPbx.updateCloudPBXCLIOptionsConfiguration(systemId, policy); }
+    getCloudPBXlanguages(systemId: string) { return this.restCloudPbx.getCloudPBXlanguages(systemId); }
+    getCloudPBXDeviceModels(systemId: string) { return this.restCloudPbx.getCloudPBXDeviceModels(systemId); }
+    getCloudPBXTrafficBarringOptions(systemId: string) { return this.restCloudPbx.getCloudPBXTrafficBarringOptions(systemId); }
+    getCloudPBXEmergencyNumbersAndEmergencyOptions(systemId: string) { return this.restCloudPbx.getCloudPBXEmergencyNumbersAndEmergencyOptions(systemId); }
     //endregion CloudPBX
 
     //region Companies Cloudpbx Groups (Rainbow Voice)
-
-    createCloudPBXGroup(_companyId: string, huntingGroup: HuntingGroup) {
-        // API https://api.openrainbow.org/admin/#api-companies_cloudpbx_groups-PostCloudPbxGroup
-        // URL POST /api/rainbow/admin/v1.0/companies/:companyId/groups
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let companyId = _companyId?_companyId : that.account.companyId;
-            let url = "/api/rainbow/admin/v1.0/companies/" + companyId + "/groups";
-            let data: any = huntingGroup;
-            /*addPropertyToObj(data, "subject", subject, false);
-            addPropertyToObj(data, "description", description, false);
-            // */
-
-            that.http.post(url, that.getRequestHeader(), data, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(addTask) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(addTask) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(addTask) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(addTask) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    deleteCloudPBXGroup (_companyId : string, groupId : string) {
-        // API https://api.openrainbow.org/admin/#api-companies_cloudpbx_groups-DeleteCloudPbxGroup
-        // DELETE /api/rainbow/admin/v1.0/companies/:companyId/groups/:groupId
-        let that = this;
-        return new Promise((resolve, reject) => {
-            let companyId = _companyId ? _companyId:that.account.companyId;
-            let url = "/api/rainbow/admin/v1.0/companies/" + companyId + "/groups/" + groupId;
-            that.http.delete(url, that.getRequestHeader()).then((response) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(deleteCloudPBXGroup) (" + companyId + ", " + groupId + ") -- success");
-                resolve(response);
-            }).catch((err) => {
-                that._logger.log(that.ERROR, LOG_ID, "(deleteCloudPBXGroup) (" + companyId + ", " + groupId + ") -- failure -- ");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteCloudPBXGroup) (" + companyId + ", " + groupId + ") -- failure -- ", err.message);
-                return reject(err);
-            });
-        });
-    }
-
-    getCloudPBXGroup (_companyId : string, groupId : string) {
-        // API https://api.openrainbow.org/admin/#api-companies_cloudpbx_groups-GetCloudPbxGroup
-        // GET /api/rainbow/admin/v1.0/companies/:companyId/groups/:groupId
-        let that = this;
-        return new Promise((resolve, reject) => {
-            let companyId = _companyId ? _companyId:that.account.companyId;
-            let url = "/api/rainbow/admin/v1.0/companies/" + companyId + "/groups/" + groupId;
-            /* let urlParamsTab: string[] = [];
-            urlParamsTab.push(url);
-            addParamToUrl(urlParamsTab, "category", category);
-            url = urlParamsTab[0];
-            // */
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPBXGroup) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getCloudPBXGroup) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPBXGroup) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getCloudPBXGroup) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getCloudPBXGroup) error : ", err);
-                return reject(err);
-            });
-
-        });
-    }
-
-    getAllCloudPBXGroups (_companyId?: string, sortField?: string, name?: string, shortNumber?: string, externalNumber?: string, memberId?: string, type?: string, limit?: number, offset?: number, sortOrder?: number) {
-        // API https://api.openrainbow.org/admin/#api-companies_cloudpbx_groups-GetAllCloudPbxGroup
-        // GET /api/rainbow/admin/v1.0/companies/:companyId/groups
-        let that = this;
-        return new Promise((resolve, reject) => {
-            let companyId = _companyId ? _companyId:that.account.companyId;
-            let url = "/api/rainbow/admin/v1.0/companies/" + companyId + "/groups" ;
-             let urlParamsTab: string[] = [];
-            urlParamsTab.push(url);
-            // ?: string, ?: string, ?: string, ?: string, ?: string, ?: string, ?: number, ?: number,
-            addParamToUrl(urlParamsTab, "sortField", sortField);
-            addParamToUrl(urlParamsTab, "name", name);
-            addParamToUrl(urlParamsTab, "shortNumber", shortNumber);
-            addParamToUrl(urlParamsTab, "externalNumber", externalNumber);
-            addParamToUrl(urlParamsTab, "memberId", memberId);
-            addParamToUrl(urlParamsTab, "type", type);
-            addParamToUrl(urlParamsTab, "limit", limit);
-            addParamToUrl(urlParamsTab, "offset", offset);
-            addParamToUrl(urlParamsTab, "sortOrder", sortOrder);
-            url = urlParamsTab[0];
-            // */
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getAllCloudPBXGroups) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getAllCloudPBXGroups) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getAllCloudPBXGroups) REST result : ", json);
-                resolve(json);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getAllCloudPBXGroups) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getAllCloudPBXGroups) error : ", err);
-                return reject(err);
-            });
-
-        });
-    }
-
-    getMembersOfCloudPBXGroups (_companyId?: string, limit?: number, offset?: number, sortField?: string, sortOrder?: number, displayName?: string, internalNumber?: string) {
-        // API https://api.openrainbow.org/admin/#api-companies_cloudpbx_groups-GetAllCloudPbxGroupMembers
-        // GET /api/rainbow/admin/v1.0/companies/:companyId/group-members
-        let that = this;
-        return new Promise((resolve, reject) => {
-            let companyId = _companyId ? _companyId:that.account.companyId;
-            let url = "/api/rainbow/admin/v1.0/companies/" + companyId + "/groups-members" ;
-            let urlParamsTab: string[] = [];
-            urlParamsTab.push(url);
-            // ?: string, ?: string, ?: string, ?: string, ?: string, ?: string, ?: number, ?: number,
-            addParamToUrl(urlParamsTab, "limit", limit);
-            addParamToUrl(urlParamsTab, "offset", offset);
-            addParamToUrl(urlParamsTab, "sortField", sortField);
-            addParamToUrl(urlParamsTab, "sortOrder", sortOrder);
-            addParamToUrl(urlParamsTab, "displayName", displayName);
-            addParamToUrl(urlParamsTab, "internalNumber", internalNumber);
-            url = urlParamsTab[0];
-            // */
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getMembersOfCloudPBXGroups) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getMembersOfCloudPBXGroups) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getMembersOfCloudPBXGroups) REST result : ", json);
-                resolve(json);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getMembersOfCloudPBXGroups) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getMembersOfCloudPBXGroups) error : ", err);
-                return reject(err);
-            });
-
-        });
-    }
-
-    updateCloudPBXGroup(_companyId?: string, groupId?: string, name?: string, policy?: "serial" | "parallel" | "circular", timeout?: number, externalNumberId?: string, isEmptyAllowed?: boolean, isDDIUpdateByManagerAllowed?: boolean,
-                        members?: {
-                            memberId: string,
-                            roles?: ("manager" | "agent" | "leader" | "assistant")[],
-                            status?: "active" | "idle"
-                        }[]) {
-        // API https://api.openrainbow.org/admin/#api-companies_cloudpbx_groups-PutCloudPbxGroup
-        // URL PUT /api/rainbow/admin/v1.0/companies/:companyId/groups/:groupId
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let companyId = _companyId ? _companyId:that.account.companyId;
-            let url = "/api/rainbow/admin/v1.0/companies/" + companyId + "/groups/" + groupId;
-            let data: any = {};
-            addPropertyToObj(data, "name", name, false);
-            addPropertyToObj(data, "policy", policy, false);
-            addPropertyToObj(data, "timeout", timeout, false);
-            addPropertyToObj(data, "externalNumberId", externalNumberId, false);
-            addPropertyToObj(data, "isEmptyAllowed", isEmptyAllowed, false);
-            addPropertyToObj(data, "isDDIUpdateByManagerAllowed", isDDIUpdateByManagerAllowed, false);
-            addPropertyToObj(data, "members", members, false);
-
-            that.http.put(url, that.getRequestHeader(), data, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(updateCloudPBXGroup) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(updateCloudPBXGroup) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(updateCloudPBXGroup) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateCloudPBXGroup) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    updateCloudPBXHuntingGroupAnalyticsConfiguration (_companyId?: string, groupId?: string, isManagersAllowedToSeeMembersAnalytics?: boolean) {
-        // API https://api.openrainbow.org/admin/#api-companies_cloudpbx_groups-PutAnalyticsCloudPbxGroup
-        // URL PUT /api/rainbow/admin/v1.0/companies/:companyId/groups/:groupId/analytic-settings
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let companyId = _companyId ? _companyId:that.account.companyId;
-            let url = "/api/rainbow/admin/v1.0/companies/" + companyId + "/groups/" + groupId;
-            let data: any = {};
-            addPropertyToObj(data, "isManagersAllowedToSeeMembersAnalytics", isManagersAllowedToSeeMembersAnalytics, false);
-
-            that.http.put(url, that.getRequestHeader(), data, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(updateCloudPBXHuntingGroupAnalyticsConfiguration) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(updateCloudPBXHuntingGroupAnalyticsConfiguration) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(updateCloudPBXHuntingGroupAnalyticsConfiguration) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateCloudPBXHuntingGroupAnalyticsConfiguration) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    updateCloudPBXHuntingGroupRecordingConfiguration (_companyId?: string, groupId?: string, recordingProfile?: string) {
-        // API https://api.openrainbow.org/admin/#api-companies_cloudpbx_groups-PutRecordingCloudPbxGroup
-        // URL PUT /api/rainbow/admin/v1.0/companies/:companyId/groups/:groupId/recordings
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let companyId = _companyId ? _companyId:that.account.companyId;
-            let url = "/api/rainbow/admin/v1.0/companies/" + companyId + "/groups/" + groupId + "/recordings";
-            let data: any = {};
-            addPropertyToObj(data, "recordingProfile", recordingProfile, false);
-
-            that.http.put(url, that.getRequestHeader(), data, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(updateCloudPBXHuntingGroupRecordingConfiguration) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(updateCloudPBXHuntingGroupRecordingConfiguration) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(updateCloudPBXHuntingGroupRecordingConfiguration) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateCloudPBXHuntingGroupRecordingConfiguration) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
+    createCloudPBXGroup(_companyId: string, huntingGroup) { return this.restCloudPbx.createCloudPBXGroup(_companyId, huntingGroup, this.account.companyId); }
+    deleteCloudPBXGroup(_companyId: string, groupId: string) { return this.restCloudPbx.deleteCloudPBXGroup(_companyId, groupId, this.account.companyId); }
+    getCloudPBXGroup(_companyId: string, groupId: string) { return this.restCloudPbx.getCloudPBXGroup(_companyId, groupId, this.account.companyId); }
+    getAllCloudPBXGroups(_companyId?: string, sortField?: string, name?: string, shortNumber?: string, externalNumber?: string, memberId?: string, type?: string, limit?: number, offset?: number, sortOrder?: number) { return this.restCloudPbx.getAllCloudPBXGroups(_companyId, sortField, name, shortNumber, externalNumber, memberId, type, limit, offset, sortOrder, this.account.companyId); }
+    getMembersOfCloudPBXGroups(_companyId?: string, limit?: number, offset?: number, sortField?: string, sortOrder?: number, displayName?: string, internalNumber?: string) { return this.restCloudPbx.getMembersOfCloudPBXGroups(_companyId, limit, offset, sortField, sortOrder, displayName, internalNumber, this.account.companyId); }
+    updateCloudPBXGroup(_companyId?: string, groupId?: string, name?: string, policy?: "serial" | "parallel" | "circular", timeout?: number, externalNumberId?: string, isEmptyAllowed?: boolean, isDDIUpdateByManagerAllowed?: boolean, members?: {memberId: string, roles?: ("manager"|"agent"|"leader"|"assistant")[], status?: "active"|"idle"}[]) { return this.restCloudPbx.updateCloudPBXGroup(_companyId, groupId, name, policy, timeout, externalNumberId, isEmptyAllowed, isDDIUpdateByManagerAllowed, members, this.account.companyId); }
+    updateCloudPBXHuntingGroupAnalyticsConfiguration(_companyId?: string, groupId?: string, isManagersAllowedToSeeMembersAnalytics?: boolean) { return this.restCloudPbx.updateCloudPBXHuntingGroupAnalyticsConfiguration(_companyId, groupId, isManagersAllowedToSeeMembersAnalytics, this.account.companyId); }
+    updateCloudPBXHuntingGroupRecordingConfiguration(_companyId?: string, groupId?: string, recordingProfile?: string) { return this.restCloudPbx.updateCloudPBXHuntingGroupRecordingConfiguration(_companyId, groupId, recordingProfile, this.account.companyId); }
     //endregion Companies Cloudpbx Groups (Rainbow Voice)
 
     //region Cloudpbx Devices
-
-    CreateCloudPBXSIPDevice(systemId: string, description: string, deviceTypeId: string, macAddress: string) {
-        // POST  https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}/devices 
-
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url: string = "/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/devices";
-            that._logger.log(that.INTERNAL, LOG_ID + "(CreateCloudPBXSIPDevice) REST url : ", url);
-            let param = {description, deviceTypeId, macAddress};
-
-            that.http.post(url, that.getRequestHeader(), param, undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(CreateCloudPBXSIPDevice) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(CreateCloudPBXSIPDevice) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(CreateCloudPBXSIPDevice) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(CreateCloudPBXSIPDevice) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    factoryResetCloudPBXSIPDevice(systemId: string, deviceId: string) {
-        // POST  https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}/devices/{deviceId}/reset  
-
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url: string = "/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/devices/" + deviceId + "/reset";
-            that._logger.log(that.INTERNAL, LOG_ID + "(factoryResetCloudPBXSIPDevice) REST url : ", url);
-            let param = {};
-
-            that.http.post(url, that.getRequestHeader(), param, undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(factoryResetCloudPBXSIPDevice) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(factoryResetCloudPBXSIPDevice) REST result : ", json);
-                resolve(json);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(factoryResetCloudPBXSIPDevice) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(factoryResetCloudPBXSIPDevice) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    getCloudPBXSIPDeviceById(systemId: string, deviceId: string) {
-        // GET  https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}/devices/{deviceId} 
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url: string = "/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/devices/" + deviceId;
-            //addParamToUrl(url, "systemId", systemId);
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPBXSIPDeviceById) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getCloudPBXSIPDeviceById) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPBXSIPDeviceById) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getCloudPBXSIPDeviceById) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getCloudPBXSIPDeviceById) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    deleteCloudPBXSIPDevice(systemId: string, deviceId: string) {
-        // DELETE  https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}/devices/{deviceId} 
-        let that = this;
-        return new Promise((resolve, reject) => {
-            that.http.delete("/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/devices/" + deviceId, that.getRequestHeader())
-                    .then((response) => {
-                        that._logger.log(that.DEBUG, LOG_ID + "(deleteCloudPBXSIPDevice) (" + systemId + ", " + deviceId + ") -- success");
-                        resolve(response);
-                    })
-                    .catch((err) => {
-                        that._logger.log(that.ERROR, LOG_ID, "(deleteCloudPBXSIPDevice) (" + systemId + ", " + deviceId + ") -- failure -- ");
-                        that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteCloudPBXSIPDevice) (" + systemId + ", " + deviceId + ") -- failure -- ", err.message);
-                        return reject(err);
-                    });
-        });
-    }
-
-    updateCloudPBXSIPDevice(systemId: string, description: string, deviceId: string, macAddress: string) {
-        // PUT  https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}/devices/{deviceId} 
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            that._logger.log(that.INTERNAL, LOG_ID + "(updateCloudPBXSIPDevice) systemId : ", systemId + ", deviceTypeId : ", deviceId);
-            let data = {
-                description,
-                macAddress
-            };
-            that.http.put("/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/devices/" + deviceId, that.getRequestHeader(), data, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(updateCloudPBXSIPDevice) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(updateCloudPBXSIPDevice) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(updateCloudPBXSIPDevice) error.");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateCloudPBXSIPDevice) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    getAllCloudPBXSIPDevice(systemId: string, limit: number = 100, offset: number, sortField: string, sortOrder: number = 1, assigned: boolean, phoneNumberId: string) {
-        // GET  https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}/devices/  
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url: string = "/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/devices";
-            let urlParamsTab: string[] = [];
-            urlParamsTab.push(url);
-            addParamToUrl(urlParamsTab, "limit", limit + "");
-            addParamToUrl(urlParamsTab, "offset", offset + "");
-            addParamToUrl(urlParamsTab, "sortField", sortField);
-            addParamToUrl(urlParamsTab, "sortOrder", sortOrder + "");
-            addParamToUrl(urlParamsTab, "assigned", assigned + "");
-            addParamToUrl(urlParamsTab, "phoneNumberId", phoneNumberId);
-            url = urlParamsTab[0];
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getAllCloudPBXSIPDevice) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getAllCloudPBXSIPDevice) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getAllCloudPBXSIPDevice) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getAllCloudPBXSIPDevice) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getAllCloudPBXSIPDevice) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    getCloudPBXSIPRegistrationsInformationDevice(systemId: string, deviceId: string) {
-        // GET https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}/devices/{deviceId}/registrations/ 
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url: string = "/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/devices/" + deviceId + "/registrations";
-            //addParamToUrl(url, "systemId", systemId);
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPBXSIPRegistrationsInformationDevice) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getCloudPBXSIPRegistrationsInformationDevice) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPBXSIPRegistrationsInformationDevice) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getCloudPBXSIPRegistrationsInformationDevice) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getCloudPBXSIPRegistrationsInformationDevice) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    grantCloudPBXAccessToDebugSession(systemId: string, deviceId: string, duration: string) {
-        // POST  https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}/devices/{deviceId}/debug   
-
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url: string = "/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/devices/" + deviceId + "/debug";
-            that._logger.log(that.INTERNAL, LOG_ID + "(grantCloudPBXAccessToDebugSession) REST url : ", url);
-            let param = {duration};
-
-            that.http.post(url, that.getRequestHeader(), param, undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(grantCloudPBXAccessToDebugSession) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(grantCloudPBXAccessToDebugSession) REST result : ", json);
-                resolve(json);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(grantCloudPBXAccessToDebugSession) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(grantCloudPBXAccessToDebugSession) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    revokeCloudPBXAccessFromDebugSession(systemId: string, deviceId: string) {
-        // DELETE  https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}/devices/{deviceId}/debug  
-        let that = this;
-        return new Promise((resolve, reject) => {
-            that.http.delete("/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/devices/" + deviceId + "/debug", that.getRequestHeader())
-                    .then((response) => {
-                        that._logger.log(that.DEBUG, LOG_ID + "(revokeCloudPBXAccessFromDebugSession) (" + systemId + ", " + deviceId + ") -- success");
-                        resolve(response);
-                    })
-                    .catch((err) => {
-                        that._logger.log(that.ERROR, LOG_ID, "(revokeCloudPBXAccessFromDebugSession) (" + systemId + ", " + deviceId + ") -- failure -- ");
-                        that._logger.log(that.INTERNALERROR, LOG_ID, "(revokeCloudPBXAccessFromDebugSession) (" + systemId + ", " + deviceId + ") -- failure -- ", err.message);
-                        return reject(err);
-                    });
-        });
-    }
-
-    rebootCloudPBXSIPDevice(systemId: string, deviceId: string) {
-        // POST  https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}/devices/{deviceId}/reboot    
-
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url: string = "/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/devices/" + deviceId + "/reboot";
-            that._logger.log(that.INTERNAL, LOG_ID + "(rebootCloudPBXSIPDevice) REST url : ", url);
-            let param = {};
-
-            that.http.post(url, that.getRequestHeader(), param, undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(rebootCloudPBXSIPDevice) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(rebootCloudPBXSIPDevice) REST result : ", json);
-                resolve(json);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(rebootCloudPBXSIPDevice) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(rebootCloudPBXSIPDevice) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
+    CreateCloudPBXSIPDevice(systemId: string, description: string, deviceTypeId: string, macAddress: string) { return this.restCloudPbx.CreateCloudPBXSIPDevice(systemId, description, deviceTypeId, macAddress); }
+    factoryResetCloudPBXSIPDevice(systemId: string, deviceId: string) { return this.restCloudPbx.factoryResetCloudPBXSIPDevice(systemId, deviceId); }
+    getCloudPBXSIPDeviceById(systemId: string, deviceId: string) { return this.restCloudPbx.getCloudPBXSIPDeviceById(systemId, deviceId); }
+    deleteCloudPBXSIPDevice(systemId: string, deviceId: string) { return this.restCloudPbx.deleteCloudPBXSIPDevice(systemId, deviceId); }
+    updateCloudPBXSIPDevice(systemId: string, description: string, deviceId: string, macAddress: string) { return this.restCloudPbx.updateCloudPBXSIPDevice(systemId, description, deviceId, macAddress); }
+    getAllCloudPBXSIPDevice(systemId: string, limit: number = 100, offset: number, sortField: string, sortOrder: number = 1, assigned: boolean, phoneNumberId: string) { return this.restCloudPbx.getAllCloudPBXSIPDevice(systemId, limit, offset, sortField, sortOrder, assigned, phoneNumberId); }
+    getCloudPBXSIPRegistrationsInformationDevice(systemId: string, deviceId: string) { return this.restCloudPbx.getCloudPBXSIPRegistrationsInformationDevice(systemId, deviceId); }
+    grantCloudPBXAccessToDebugSession(systemId: string, deviceId: string, duration: string) { return this.restCloudPbx.grantCloudPBXAccessToDebugSession(systemId, deviceId, duration); }
+    revokeCloudPBXAccessFromDebugSession(systemId: string, deviceId: string) { return this.restCloudPbx.revokeCloudPBXAccessFromDebugSession(systemId, deviceId); }
+    rebootCloudPBXSIPDevice(systemId: string, deviceId: string) { return this.restCloudPbx.rebootCloudPBXSIPDevice(systemId, deviceId); }
     //endregion Cloudpbx Devices
+
     //region Cloudpbx Subscribers
-
-    getCloudPBXSubscriber(systemId: string, phoneNumberId: string) {
-        // GET https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}/subscribers/{phoneNumberId}  
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url: string = "/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/subscribers/" + phoneNumberId;
-            //addParamToUrl(url, "systemId", systemId);
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPBXSubscriber) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getCloudPBXSubscriber) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPBXSubscriber) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getCloudPBXSubscriber) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getCloudPBXSubscriber) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    deleteCloudPBXSubscriber(systemId: string, phoneNumberId: string) {
-        // DELETE  https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}/subscribers/{phoneNumberId}   
-        let that = this;
-        return new Promise((resolve, reject) => {
-            that.http.delete("/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/subscribers/" + phoneNumberId, that.getRequestHeader())
-                    .then((response) => {
-                        that._logger.log(that.DEBUG, LOG_ID + "(deleteCloudPBXSubscriber) (" + systemId + ", " + phoneNumberId + ") -- success");
-                        resolve(response);
-                    })
-                    .catch((err) => {
-                        that._logger.log(that.ERROR, LOG_ID, "(deleteCloudPBXSubscriber) (" + systemId + ", " + phoneNumberId + ") -- failure -- ");
-                        that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteCloudPBXSubscriber) (" + systemId + ", " + phoneNumberId + ") -- failure -- ", err.message);
-                        return reject(err);
-                    });
-        });
-    }
-
-    createCloudPBXSubscriberRainbowUser(systemId: string, login: string, password: string, shortNumber: string, userId: string) {
-        // POST https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}/subscribers   
-
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url: string = "/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/subscribers";
-            that._logger.log(that.INTERNAL, LOG_ID + "(createCloudPBXSubscriberRainbowUser) REST url : ", url);
-            let param = {
-                login,
-                password,
-                shortNumber,
-                userId
-            };
-
-            that.http.post(url, that.getRequestHeader(), param, undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(createCloudPBXSubscriberRainbowUser) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(createCloudPBXSubscriberRainbowUser) REST result : ", json);
-                resolve(json);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(createCloudPBXSubscriberRainbowUser) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(createCloudPBXSubscriberRainbowUser) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    getCloudPBXSIPdeviceAssignedSubscriber(systemId: string, phoneNumberId: string, deviceId: string) {
-        // GET https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}/subscribers/{phoneNumberId}/devices/{deviceId}   
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url: string = "/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/subscribers/" + phoneNumberId + "/devices/" + deviceId;
-            //addParamToUrl(url, "systemId", systemId);
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPBXSIPdeviceAssignedSubscriber) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getCloudPBXSIPdeviceAssignedSubscriber) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPBXSIPdeviceAssignedSubscriber) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getCloudPBXSIPdeviceAssignedSubscriber) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getCloudPBXSIPdeviceAssignedSubscriber) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    removeCloudPBXAssociationSubscriberAndSIPdevice(systemId: string, phoneNumberId: string, deviceId: string) {
-        // DELETE https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}/subscribers/{phoneNumberId}/devices/{deviceId}    
-        let that = this;
-        return new Promise((resolve, reject) => {
-            that.http.delete(" /api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/subscribers/" + phoneNumberId + "/devices/" + deviceId, that.getRequestHeader())
-                    .then((response) => {
-                        that._logger.log(that.DEBUG, LOG_ID + "(removeCloudPBXAssociationSubscriberAndSIPdevice) (" + systemId + ", " + phoneNumberId + ") -- success");
-                        resolve(response);
-                    })
-                    .catch((err) => {
-                        that._logger.log(that.ERROR, LOG_ID, "(removeCloudPBXAssociationSubscriberAndSIPdevice) (" + systemId + ", " + phoneNumberId + ") -- failure -- ");
-                        that._logger.log(that.INTERNALERROR, LOG_ID, "(removeCloudPBXAssociationSubscriberAndSIPdevice) (" + systemId + ", " + phoneNumberId + ") -- failure -- ", err.message);
-                        return reject(err);
-                    });
-        });
-    }
-
-    getCloudPBXAllSIPdevicesAssignedSubscriber(systemId: string, limit: number = 100, offset: number, sortField: string, sortOrder: number = 1, phoneNumberId: string) {
-        // GET https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}/subscribers/{phoneNumberId}/devices/   
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url: string = "/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/subscribers/" + phoneNumberId + "/devices";
-            let urlParamsTab: string[] = [];
-            urlParamsTab.push(url);
-            addParamToUrl(urlParamsTab, "limit", limit + "");
-            addParamToUrl(urlParamsTab, "offset", offset + "");
-            addParamToUrl(urlParamsTab, "sortField", sortField);
-            addParamToUrl(urlParamsTab, "sortOrder", sortOrder + "");
-            url = urlParamsTab[0];
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPBXAllSIPdevicesAssignedSubscriber) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getCloudPBXAllSIPdevicesAssignedSubscriber) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPBXAllSIPdevicesAssignedSubscriber) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getCloudPBXAllSIPdevicesAssignedSubscriber) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getCloudPBXAllSIPdevicesAssignedSubscriber) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    getCloudPBXInfoAllRegisteredSIPdevicesSubscriber(systemId: string, phoneNumberId: string) {
-        // GET https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}/subscribers/{phoneNumberId}/registrations/    
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url: string = "/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/subscribers/" + phoneNumberId + "/registrations";
-            //addParamToUrl(url, "systemId", systemId);
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPBXInfoAllRegisteredSIPdevicesSubscriber) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getCloudPBXInfoAllRegisteredSIPdevicesSubscriber) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPBXInfoAllRegisteredSIPdevicesSubscriber) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getCloudPBXInfoAllRegisteredSIPdevicesSubscriber) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getCloudPBXInfoAllRegisteredSIPdevicesSubscriber) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    assignCloudPBXSIPDeviceToSubscriber(systemId: string, phoneNumberId: string, deviceId: string, macAddress: string) {
-        // POST https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}/subscribers/{phoneNumberId}/devices  
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            that._logger.log(that.INTERNAL, LOG_ID + "(assignCloudPBXSIPDeviceToSubscriber) systemId : ", systemId + ", deviceTypeId : ", deviceId);
-            let data = {
-                deviceId,
-                macAddress
-            };
-            that.http.post("/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/subscribers/" + phoneNumberId + "/devices", that.getRequestHeader(), data, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(assignCloudPBXSIPDeviceToSubscriber) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(assignCloudPBXSIPDeviceToSubscriber) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(assignCloudPBXSIPDeviceToSubscriber) error.");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(assignCloudPBXSIPDeviceToSubscriber) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    getCloudPBXSubscriberCLIOptions(systemId: string, phoneNumberId: string) {
-        // GET  https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}/subscribers/{phoneNumberId}/cli-options     
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url: string = "/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/subscribers/" + phoneNumberId + "/cli-options";
-            //addParamToUrl(url, "systemId", systemId);
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPBXSubscriberCLIOptions) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getCloudPBXSubscriberCLIOptions) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPBXSubscriberCLIOptions) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getCloudPBXSubscriberCLIOptions) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getCloudPBXSubscriberCLIOptions) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-
+    getCloudPBXSubscriber(systemId: string, phoneNumberId: string) { return this.restCloudPbx.getCloudPBXSubscriber(systemId, phoneNumberId); }
+    deleteCloudPBXSubscriber(systemId: string, phoneNumberId: string) { return this.restCloudPbx.deleteCloudPBXSubscriber(systemId, phoneNumberId); }
+    createCloudPBXSubscriberRainbowUser(systemId: string, login: string, password: string, shortNumber: string, userId: string) { return this.restCloudPbx.createCloudPBXSubscriberRainbowUser(systemId, login, password, shortNumber, userId); }
+    getCloudPBXSIPdeviceAssignedSubscriber(systemId: string, phoneNumberId: string, deviceId: string) { return this.restCloudPbx.getCloudPBXSIPdeviceAssignedSubscriber(systemId, phoneNumberId, deviceId); }
+    removeCloudPBXAssociationSubscriberAndSIPdevice(systemId: string, phoneNumberId: string, deviceId: string) { return this.restCloudPbx.removeCloudPBXAssociationSubscriberAndSIPdevice(systemId, phoneNumberId, deviceId); }
+    getCloudPBXAllSIPdevicesAssignedSubscriber(systemId: string, limit: number = 100, offset: number, sortField: string, sortOrder: number = 1, phoneNumberId: string) { return this.restCloudPbx.getCloudPBXAllSIPdevicesAssignedSubscriber(systemId, limit, offset, sortField, sortOrder, phoneNumberId); }
+    getCloudPBXInfoAllRegisteredSIPdevicesSubscriber(systemId: string, phoneNumberId: string) { return this.restCloudPbx.getCloudPBXInfoAllRegisteredSIPdevicesSubscriber(systemId, phoneNumberId); }
+    assignCloudPBXSIPDeviceToSubscriber(systemId: string, phoneNumberId: string, deviceId: string, macAddress: string) { return this.restCloudPbx.assignCloudPBXSIPDeviceToSubscriber(systemId, phoneNumberId, deviceId, macAddress); }
+    getCloudPBXSubscriberCLIOptions(systemId: string, phoneNumberId: string) { return this.restCloudPbx.getCloudPBXSubscriberCLIOptions(systemId, phoneNumberId); }
     //endregion Cloudpbx Subscribers
+
     //region Cloudpbx Phone Numbers
-
-    getCloudPBXUnassignedInternalPhonenumbers(systemId: string) {
-        // GET https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}/phone-numbers/free      
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url: string = "/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/phone-numbers/free";
-            //addParamToUrl(url, "systemId", systemId);
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPBXUnassignedInternalPhonenumbers) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getCloudPBXUnassignedInternalPhonenumbers) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getCloudPBXUnassignedInternalPhonenumbers) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getCloudPBXUnassignedInternalPhonenumbers) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getCloudPBXUnassignedInternalPhonenumbers) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    listCloudPBXDDINumbersAssociated(systemId: string, limit: number = 100, offset: number, sortField: string = "number", sortOrder: number = 1, isAssignedToUser: boolean, isAssignedToGroup: boolean, isAssignedToIVR: boolean, isAssignedToAutoAttendant: boolean, isAssigned: boolean) {
-        // GET https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}/phone-numbers/ddi       
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url: string = "/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/phone-numbers/ddi";
-            let urlParamsTab: string[] = [];
-            urlParamsTab.push(url);
-            addParamToUrl(urlParamsTab, "limit", limit + "");
-            addParamToUrl(urlParamsTab, "offset", offset + "");
-            addParamToUrl(urlParamsTab, "sortField", sortField);
-            addParamToUrl(urlParamsTab, "sortOrder", sortOrder + "");
-            addParamToUrl(urlParamsTab, "isAssignedToUser", isAssignedToUser + "");
-            addParamToUrl(urlParamsTab, "isAssignedToGroup", isAssignedToGroup + "");
-            addParamToUrl(urlParamsTab, "isAssignedToIVR", isAssignedToIVR + "");
-            addParamToUrl(urlParamsTab, "isAssignedToAutoAttendant", isAssignedToAutoAttendant + "");
-            addParamToUrl(urlParamsTab, "limit", isAssigned + "");
-            url = urlParamsTab[0];
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(listCloudPBXDDINumbersAssociated) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(listCloudPBXDDINumbersAssociated) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(listCloudPBXDDINumbersAssociated) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(listCloudPBXDDINumbersAssociated) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(listCloudPBXDDINumbersAssociated) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    createCloudPBXDDINumber(systemId: string, number: string) {
-        // POST https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}/phone-numbers/ddi   
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            that._logger.log(that.INTERNAL, LOG_ID + "(createCloudPBXDDINumber) systemId : ", systemId + ", number : ", number);
-            let data = {
-                number
-            };
-            that.http.post("/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/phone-numbers/ddi", that.getRequestHeader(), data, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(createCloudPBXDDINumber) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(createCloudPBXDDINumber) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(createCloudPBXDDINumber) error.");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(createCloudPBXDDINumber) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    deleteCloudPBXDDINumber(systemId: string, phoneNumberId: string) {
-        // DELETE https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}/phone-numbers/ddi/{phoneNumberId}     
-        let that = this;
-        return new Promise((resolve, reject) => {
-            that.http.delete("/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/phone-numbers/ddi/" + phoneNumberId, that.getRequestHeader())
-                    .then((response) => {
-                        that._logger.log(that.DEBUG, LOG_ID + "(deleteCloudPBXDDINumber) (" + systemId + ", " + phoneNumberId + ") -- success");
-                        resolve(response);
-                    })
-                    .catch((err) => {
-                        that._logger.log(that.ERROR, LOG_ID, "(deleteCloudPBXDDINumber) (" + systemId + ", " + phoneNumberId + ") -- failure -- ");
-                        that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteCloudPBXDDINumber) (" + systemId + ", " + phoneNumberId + ") -- failure -- ", err.message);
-                        return reject(err);
-                    });
-        });
-    }
-
-    associateCloudPBXDDINumber(systemId: string, phoneNumberId: string, userId: string) {
-        // POST https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}/phone-numbers/ddi/{phoneNumberId}/users/{userId}    
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            that._logger.log(that.INTERNAL, LOG_ID + "(associateCloudPBXDDINumber) systemId : ", systemId + ", phoneNumberId : ", phoneNumberId, ", userId : ", userId);
-            let data = {};
-            that.http.post("/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/phone-numbers/ddi/" + phoneNumberId + "/users/" + userId, that.getRequestHeader(), data, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(associateCloudPBXDDINumber) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(associateCloudPBXDDINumber) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(associateCloudPBXDDINumber) error.");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(associateCloudPBXDDINumber) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    disassociateCloudPBXDDINumber(systemId: string, phoneNumberId: string, userId: string) {
-        // DELETE https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}/phone-numbers/ddi/{phoneNumberId}/users/{userId}      
-        let that = this;
-        return new Promise((resolve, reject) => {
-            that.http.delete("/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/phone-numbers/ddi/" + phoneNumberId + "/users/" + userId, that.getRequestHeader())
-                    .then((response) => {
-                        that._logger.log(that.DEBUG, LOG_ID + "(disassociateCloudPBXDDINumber) (" + systemId + ", " + phoneNumberId + ", " + userId + ") -- success");
-                        resolve(response);
-                    })
-                    .catch((err) => {
-                        that._logger.log(that.ERROR, LOG_ID, "(disassociateCloudPBXDDINumber) (" + systemId + ", " + phoneNumberId + ", " + userId + ") -- failure -- ");
-                        that._logger.log(that.INTERNALERROR, LOG_ID, "(disassociateCloudPBXDDINumber) (" + systemId + ", " + phoneNumberId + ") -- failure -- ", err.message);
-                        return reject(err);
-                    });
-        });
-    }
-
-    setCloudPBXDDIAsdefault(systemId: string, phoneNumberId: string) {
-        // POST  https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}/phone-numbers/ddi/{phoneNumberId}/default     
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            that._logger.log(that.INTERNAL, LOG_ID + "(setCloudPBXDDIAsdefault) systemId : ", systemId + ", phoneNumberId : ", phoneNumberId);
-            let data = {};
-            that.http.post("/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/" + systemId + "/phone-numbers/ddi/" + phoneNumberId + "/default", that.getRequestHeader(), data, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(setCloudPBXDDIAsdefault) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(setCloudPBXDDIAsdefault) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(setCloudPBXDDIAsdefault) error.");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(setCloudPBXDDIAsdefault) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-
+    getCloudPBXUnassignedInternalPhonenumbers(systemId: string) { return this.restCloudPbx.getCloudPBXUnassignedInternalPhonenumbers(systemId); }
+    listCloudPBXDDINumbersAssociated(systemId: string, limit: number = 100, offset: number, sortField: string = "number", sortOrder: number = 1, isAssignedToUser: boolean, isAssignedToGroup: boolean, isAssignedToIVR: boolean, isAssignedToAutoAttendant: boolean, isAssigned: boolean) { return this.restCloudPbx.listCloudPBXDDINumbersAssociated(systemId, limit, offset, sortField, sortOrder, isAssignedToUser, isAssignedToGroup, isAssignedToIVR, isAssignedToAutoAttendant, isAssigned); }
+    createCloudPBXDDINumber(systemId: string, number: string) { return this.restCloudPbx.createCloudPBXDDINumber(systemId, number); }
+    deleteCloudPBXDDINumber(systemId: string, phoneNumberId: string) { return this.restCloudPbx.deleteCloudPBXDDINumber(systemId, phoneNumberId); }
+    associateCloudPBXDDINumber(systemId: string, phoneNumberId: string, userId: string) { return this.restCloudPbx.associateCloudPBXDDINumber(systemId, phoneNumberId, userId); }
+    disassociateCloudPBXDDINumber(systemId: string, phoneNumberId: string, userId: string) { return this.restCloudPbx.disassociateCloudPBXDDINumber(systemId, phoneNumberId, userId); }
+    setCloudPBXDDIAsdefault(systemId: string, phoneNumberId: string) { return this.restCloudPbx.setCloudPBXDDIAsdefault(systemId, phoneNumberId); }
     //endregion Cloudpbx Phone Numbers
 
     //region Cloudpbx SIP Trunk
-
-    retrieveExternalSIPTrunkById(externalTrunkId: string) {
-        // GET https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/external-trunks/{externalTrunkId} 
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url: string = "/api/rainbow/rvcpprovisioning/v1.0/external-trunks/" + externalTrunkId;
-            //addParamToUrl(url, "systemId", systemId);
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(retrieveExternalSIPTrunkById) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(retrieveExternalSIPTrunkById) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(retrieveExternalSIPTrunkById) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(retrieveExternalSIPTrunkById) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(retrieveExternalSIPTrunkById) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    retrievelistExternalSIPTrunks(rvcpInstanceId: string, status: string, trunkType: string) {
-        // GET  https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/external-trunks/ 
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url: string = "/api/rainbow/rvcpprovisioning/v1.0/external-trunks";
-            let urlParamsTab: string[] = [];
-            urlParamsTab.push(url);
-            addParamToUrl(urlParamsTab, "rvcpInstanceId", rvcpInstanceId);
-            addParamToUrl(urlParamsTab, "status", status);
-            addParamToUrl(urlParamsTab, "trunkType", trunkType);
-            url = urlParamsTab[0];
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(retrievelistExternalSIPTrunks) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(retrievelistExternalSIPTrunks) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(retrievelistExternalSIPTrunks) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(retrievelistExternalSIPTrunks) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(retrievelistExternalSIPTrunks) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
+    retrieveExternalSIPTrunkById(externalTrunkId: string) { return this.restCloudPbx.retrieveExternalSIPTrunkById(externalTrunkId); }
+    retrievelistExternalSIPTrunks(rvcpInstanceId: string, status: string, trunkType: string) { return this.restCloudPbx.retrievelistExternalSIPTrunks(rvcpInstanceId, status, trunkType); }
     //endregion Cloudpbx SIP Trunk
 
-    //endregion Rainbow Voice Communication Platform Provisioning 
-
+    //endregion Rainbow Voice Communication Platform Provisioning
     //region Rainbow Voice
 
     //region Rainbow Voice CLI Options
