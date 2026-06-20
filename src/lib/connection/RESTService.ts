@@ -45,6 +45,15 @@ import {RESTInvitations} from "./RestServices/RESTInvitations";
 import {RESTGroups} from "./RestServices/RESTGroups";
 import {RESTPresence} from "./RestServices/RESTPresence";
 import {RESTBubbles} from "./RestServices/RESTBubbles";
+import {RESTSettings} from "./RestServices/RESTSettings";
+import {RESTCountry} from "./RestServices/RESTCountry";
+import {RESTConnectors} from "./RestServices/RESTConnectors";
+import {RESTBubbleOpenInvites} from "./RestServices/RESTBubbleOpenInvites";
+import {RESTConference} from "./RestServices/RESTConference";
+import {RESTBubblesTags} from "./RestServices/RESTBubblesTags";
+import {RESTBubblesDialIn} from "./RestServices/RESTBubblesDialIn";
+import {RESTProfiles} from "./RestServices/RESTProfiles";
+import {RESTApiSettings} from "./RestServices/RESTApiSettings";
 import {GenericRESTService} from "./GenericRESTService";
 import {TimeOutManager} from "../common/TimeOutManager";
 import {Group} from "ts-generic-collections-linq";
@@ -363,6 +372,15 @@ class RESTService extends GenericRESTService {
     public restGroups: RESTGroups;
     public restPresence: RESTPresence;
     public restBubbles: RESTBubbles;
+    public restSettings: RESTSettings;
+    public restCountry: RESTCountry;
+    public restConnectors: RESTConnectors;
+    public restBubbleOpenInvites: RESTBubbleOpenInvites;
+    public restConference: RESTConference;
+    public restBubblesTags: RESTBubblesTags;
+    public restBubblesDialIn: RESTBubblesDialIn;
+    public restProfiles: RESTProfiles;
+    public restApiSettings: RESTApiSettings;
     public applicationToken: string;
     public connectionS2SInfo: any;
     private reconnectInProgress: boolean;
@@ -407,6 +425,15 @@ class RESTService extends GenericRESTService {
         this.restGroups = new RESTGroups(core, evtEmitter, _logger);
         this.restPresence = new RESTPresence(core, evtEmitter, _logger);
         this.restBubbles = new RESTBubbles(core, evtEmitter, _logger);
+        this.restSettings = new RESTSettings(core, evtEmitter, _logger);
+        this.restCountry = new RESTCountry(core, evtEmitter, _logger);
+        this.restConnectors = new RESTConnectors(core, evtEmitter, _logger);
+        this.restBubbleOpenInvites = new RESTBubbleOpenInvites(core, evtEmitter, _logger);
+        this.restConference = new RESTConference(core, evtEmitter, _logger);
+        this.restBubblesTags = new RESTBubblesTags(core, evtEmitter, _logger);
+        this.restBubblesDialIn = new RESTBubblesDialIn(core, evtEmitter, _logger);
+        this.restProfiles = new RESTProfiles(core, evtEmitter, _logger);
+        this.restApiSettings = new RESTApiSettings(core, evtEmitter, _logger);
         //this.timeOutManager = core.timeOutManager;
         this.http = null;
         this.account = null;
@@ -534,6 +561,33 @@ class RESTService extends GenericRESTService {
         prom.push(that.restBubbles.start(that.http).then(() => {
             that._logger.log(that.INTERNAL, LOG_ID + "(start) restBubbles email used", that.loginEmail);
         }));
+        prom.push(that.restSettings.start(that.http).then(() => {
+            that._logger.log(that.INTERNAL, LOG_ID + "(start) restSettings email used", that.loginEmail);
+        }));
+        prom.push(that.restCountry.start(that.http).then(() => {
+            that._logger.log(that.INTERNAL, LOG_ID + "(start) restCountry email used", that.loginEmail);
+        }));
+        prom.push(that.restConnectors.start(that.http).then(() => {
+            that._logger.log(that.INTERNAL, LOG_ID + "(start) restConnectors email used", that.loginEmail);
+        }));
+        prom.push(that.restBubbleOpenInvites.start(that.http).then(() => {
+            that._logger.log(that.INTERNAL, LOG_ID + "(start) restBubbleOpenInvites email used", that.loginEmail);
+        }));
+        prom.push(that.restConference.start(that.http).then(() => {
+            that._logger.log(that.INTERNAL, LOG_ID + "(start) restConference email used", that.loginEmail);
+        }));
+        prom.push(that.restBubblesTags.start(that.http).then(() => {
+            that._logger.log(that.INTERNAL, LOG_ID + "(start) restBubblesTags email used", that.loginEmail);
+        }));
+        prom.push(that.restBubblesDialIn.start(that.http).then(() => {
+            that._logger.log(that.INTERNAL, LOG_ID + "(start) restBubblesDialIn email used", that.loginEmail);
+        }));
+        prom.push(that.restProfiles.start(that.http).then(() => {
+            that._logger.log(that.INTERNAL, LOG_ID + "(start) restProfiles email used", that.loginEmail);
+        }));
+        prom.push(that.restApiSettings.start(that.http).then(() => {
+            that._logger.log(that.INTERNAL, LOG_ID + "(start) restApiSettings email used", that.loginEmail);
+        }));
         return Promise.all(prom);
     }
 
@@ -618,6 +672,33 @@ class RESTService extends GenericRESTService {
                 });
                 await that.restBubbles.stop().then(() => {
                     that._logger.log(that.INTERNAL, LOG_ID + "(stop) restBubbles.");
+                });
+                await that.restSettings.stop().then(() => {
+                    that._logger.log(that.INTERNAL, LOG_ID + "(stop) restSettings.");
+                });
+                await that.restCountry.stop().then(() => {
+                    that._logger.log(that.INTERNAL, LOG_ID + "(stop) restCountry.");
+                });
+                await that.restConnectors.stop().then(() => {
+                    that._logger.log(that.INTERNAL, LOG_ID + "(stop) restConnectors.");
+                });
+                await that.restBubbleOpenInvites.stop().then(() => {
+                    that._logger.log(that.INTERNAL, LOG_ID + "(stop) restBubbleOpenInvites.");
+                });
+                await that.restConference.stop().then(() => {
+                    that._logger.log(that.INTERNAL, LOG_ID + "(stop) restConference.");
+                });
+                await that.restBubblesTags.stop().then(() => {
+                    that._logger.log(that.INTERNAL, LOG_ID + "(stop) restBubblesTags.");
+                });
+                await that.restBubblesDialIn.stop().then(() => {
+                    that._logger.log(that.INTERNAL, LOG_ID + "(stop) restBubblesDialIn.");
+                });
+                await that.restProfiles.stop().then(() => {
+                    that._logger.log(that.INTERNAL, LOG_ID + "(stop) restProfiles.");
+                });
+                await that.restApiSettings.stop().then(() => {
+                    that._logger.log(that.INTERNAL, LOG_ID + "(stop) restApiSettings.");
                 });
 
                 await that.signout().then(() => {
@@ -796,6 +877,15 @@ class RESTService extends GenericRESTService {
         this.restGroups.p_token = value;
         this.restPresence.p_token = value;
         this.restBubbles.p_token = value;
+        this.restSettings.p_token = value;
+        this.restCountry.p_token = value;
+        this.restConnectors.p_token = value;
+        this.restBubbleOpenInvites.p_token = value;
+        this.restConference.p_token = value;
+        this.restBubblesTags.p_token = value;
+        this.restBubblesDialIn.p_token = value;
+        this.restProfiles.p_token = value;
+        this.restApiSettings.p_token = value;
     }
 
     set decodedtokenRest(value: any) {
@@ -820,6 +910,15 @@ class RESTService extends GenericRESTService {
         this.restGroups.p_decodedtokenRest = value;
         this.restPresence.p_decodedtokenRest = value;
         this.restBubbles.p_decodedtokenRest = value;
+        this.restSettings.p_decodedtokenRest = value;
+        this.restCountry.p_decodedtokenRest = value;
+        this.restConnectors.p_decodedtokenRest = value;
+        this.restBubbleOpenInvites.p_decodedtokenRest = value;
+        this.restConference.p_decodedtokenRest = value;
+        this.restBubblesTags.p_decodedtokenRest = value;
+        this.restBubblesDialIn.p_decodedtokenRest = value;
+        this.restProfiles.p_decodedtokenRest = value;
+        this.restApiSettings.p_decodedtokenRest = value;
     }
 
     set credentialsRest(value: any) {
@@ -844,6 +943,15 @@ class RESTService extends GenericRESTService {
         this.restGroups.p_credentials = value;
         this.restPresence.p_credentials = value;
         this.restBubbles.p_credentials = value;
+        this.restSettings.p_credentials = value;
+        this.restCountry.p_credentials = value;
+        this.restConnectors.p_credentials = value;
+        this.restBubbleOpenInvites.p_credentials = value;
+        this.restConference.p_credentials = value;
+        this.restBubblesTags.p_credentials = value;
+        this.restBubblesDialIn.p_credentials = value;
+        this.restProfiles.p_credentials = value;
+        this.restApiSettings.p_credentials = value;
     }
 
     set applicationRest(value: any) {
@@ -868,6 +976,15 @@ class RESTService extends GenericRESTService {
         this.restGroups.p_application = value;
         this.restPresence.p_application = value;
         this.restBubbles.p_application = value;
+        this.restSettings.p_application = value;
+        this.restCountry.p_application = value;
+        this.restConnectors.p_application = value;
+        this.restBubbleOpenInvites.p_application = value;
+        this.restConference.p_application = value;
+        this.restBubblesTags.p_application = value;
+        this.restBubblesDialIn.p_application = value;
+        this.restProfiles.p_application = value;
+        this.restApiSettings.p_application = value;
     }
 
     set authRest(value: any) {
@@ -892,6 +1009,15 @@ class RESTService extends GenericRESTService {
         this.restGroups.p_auth = value;
         this.restPresence.p_auth = value;
         this.restBubbles.p_auth = value;
+        this.restSettings.p_auth = value;
+        this.restCountry.p_auth = value;
+        this.restConnectors.p_auth = value;
+        this.restBubbleOpenInvites.p_auth = value;
+        this.restConference.p_auth = value;
+        this.restBubblesTags.p_auth = value;
+        this.restBubblesDialIn.p_auth = value;
+        this.restProfiles.p_auth = value;
+        this.restApiSettings.p_auth = value;
     }
 
     setconnectionS2SInfo(_connectionS2SInfo) {
@@ -1680,35 +1806,8 @@ class RESTService extends GenericRESTService {
 
     //region Settings
 
-    getUserSettings() {
-        let that = this;
-        return new Promise((resolve, reject) => {
-            that.http.get("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/settings", that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getUserSettings) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getUserSettings) REST result : ", json);
-                resolve(json?.data);
-            }).catch((err) => {
-                that._logger.log(that.ERROR, LOG_ID, "(getUserSettings) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getUserSettings) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    updateUserSettings(settings) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            that.http.put("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/settings", that.getRequestHeader(), settings, undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(updateUserSettings) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(updateUserSettings) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(updateUserSettings) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(updateUserSettings) error : ", err);
-                return reject(err);
-            });
-        });
-    }
+    getUserSettings() { return this.restSettings.getUserSettings(this.account?.id); }
+    updateUserSettings(settings) { return this.restSettings.updateUserSettings(this.account?.id, settings); }
 
     //endregion Settings
 
@@ -3629,66 +3728,10 @@ kamEmailList?: string[], businessSpecific?: string, adminServiceNotificationsLev
 
     //region Profiles
 
-    // Get Server Profiles
-    async getServerProfiles() {
-        let that = this;
-        return new Promise((resolve, reject) => {
-            that.http.get("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/profiles", that.getRequestHeader(), undefined, "", 5, 10000).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(getServerProfiles) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getServerProfiles) REST result : ", json, " profiles");
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getServerProfiles) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getServerProfiles) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    // Get Server Profiles
-    getServerProfilesFeatures() {
-        let that = this;
-        return new Promise((resolve, reject) => {
-            that.http.get("/api/rainbow/enduser/v1.0/users/" + that.account.id + "/profiles/features", that.getRequestHeader(), undefined, "", 5, 10000).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(getServerProfilesFeatures) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getServerProfilesFeatures) REST result : " + JSON.stringify(json) + " profiles features");
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getServerProfilesFeatures) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getServerProfilesFeatures) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    public async getThirdPartyApps() {
-        let that = this;
-        return new Promise((resolve, reject) => {
-            that.http.get("/api/rainbow/authentication/v1.0/oauth/tokens?format=medium", that.getRequestHeader(), undefined).then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(getThirdPartyApps) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getThirdPartyApps) REST result : ", json, " ThirdPartyApps.");
-                resolve((json && json.data) ? json?.data:[]);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getThirdPartyApps) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getThirdPartyApps) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    async revokeThirdPartyAccess(tokenId) {
-        let that = this;
-        return new Promise((resolve, reject) => {
-            that.http.delete("/api/rainbow/authentication/v1.0/oauth/tokens/" + tokenId, that.getRequestHeader()).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(revokeThirdPartyAccess) (" + tokenId + ") -- success");
-                resolve((json && json.data) ? json?.data:[]);
-            }).catch((err) => {
-                that._logger.log(that.ERROR, LOG_ID, "(revokeThirdPartyAccess) (" + tokenId + ") -- failure -- ");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(revokeThirdPartyAccess) (" + tokenId + ") -- failure -- ", err.message);
-                return reject(err);
-            });
-        });
-    };
+    async getServerProfiles() { return this.restProfiles.getServerProfiles(this.account?.id); }
+    getServerProfilesFeatures() { return this.restProfiles.getServerProfilesFeatures(this.account?.id); }
+    async getThirdPartyApps() { return this.restProfiles.getThirdPartyApps(); }
+    async revokeThirdPartyAccess(tokenId) { return this.restProfiles.revokeThirdPartyAccess(tokenId); }
 
     //endregion Profiles
 
@@ -3869,31 +3912,7 @@ kamEmailList?: string[], businessSpecific?: string, adminServiceNotificationsLev
 
     //region Country
 
-    getListOfCountries() {
-        // API https://api.openrainbow.org/enduser/#api-countries-getCountries
-        // GET /api/rainbow/enduser/v1.0/countries
-        let that = this;
-        return new Promise((resolve, reject) => {
-            that._logger.log(that.INTERNAL, LOG_ID + "(getListOfCountries) .");
-
-            let url: string = "/api/rainbow/enduser/v1.0/countries";
-            let urlParamsTab: string[] = [];
-            urlParamsTab.push(url);
-            //addParamToUrl(urlParamsTab, "maxCount", maxCount);
-            url = urlParamsTab[0];
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getListOfCountries) REST url : ", url);
-            that.http.get(url, that.getRequestHeader(), undefined, "").then(function (json) {
-                that._logger.log(that.DEBUG, LOG_ID + "(getListOfCountries) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getListOfCountries) REST result : ", JSON.stringify(json));
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getListOfCountries) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getListOfCountries) error : ", err);
-                return reject(err);
-            });
-        });
-    }
+    getListOfCountries() { return this.restCountry.getListOfCountries(); }
 
     //endregion Country
 
@@ -4739,147 +4758,15 @@ kamEmailList?: string[], businessSpecific?: string, adminServiceNotificationsLev
 
     //region Bubble Open Invites
 
-    checkOpenInviteIdValidity(openInviteId: string) {
-        // GET /api/rainbow/enduser/v1.0/rooms/open-invites/validate
-        // API https://api.openrainbow.org/enduser/#api-rooms_open_invite-checkRoomInvitationUsingOpenInviteiId
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            that._logger.log(that.INTERNAL, LOG_ID + "(checkOpenInviteIdValidity) REST.");
-            let url: string = "/api/rainbow/enduser/v1.0/rooms/open-invites/validate";
-            if (openInviteId===undefined) {
-                let error = ErrorManager.getErrorManager().BAD_REQUEST;
-                error.msg += "bad request paramater openInviteId undefined";
-                error.label += "bad request paramater openInviteId undefined";
-                error.cause = openInviteId;
-                that._logger.log(that.WARN, LOG_ID + `(checkOpenInviteIdValidity) BAD_REQUEST.`);
-                that._logger.log(that.INTERNALERROR, LOG_ID + `(checkOpenInviteIdValidity) bad request paramater openInviteId undefined : `, error.cause, ", error : ", error);
-                return reject(error);
-            }
-            let urlParamsTab: string[] = [];
-            urlParamsTab.push(url);
-            addParamToUrl(urlParamsTab, "openInviteId", openInviteId);
-            url = urlParamsTab[0];
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(checkOpenInviteIdValidity) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(checkOpenInviteIdValidity) REST result : ", json);
-                that._logger.log(that.DEBUG, LOG_ID + "(checkOpenInviteIdValidity) REST success.");
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(checkOpenInviteIdValidity) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(checkOpenInviteIdValidity) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    joinBubbleByOpenInviteId(openInviteId: string, roomPassword : string = undefined) {
-        // API https://api.openrainbow.org/enduser/#api-rooms_open_invite-sendJoinRoomInvitationUsingOpenInviteiId
-        // POST /api/rainbow/enduser/v1.0/rooms/open-invites
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let params: any = {
-                openInviteId, //, // Id
-                roomPassword
-            };
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(joinBubbleByOpenInviteId) REST params : ", params);
-
-            that.http.post("/api/rainbow/enduser/v1.0/rooms/open-invites", that.getRequestHeader(), params, undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(joinBubbleByOpenInviteId) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(joinBubbleByOpenInviteId) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(joinBubbleByOpenInviteId) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(joinBubbleByOpenInviteId) error : ", err);
-                return reject(err);
-            });
-        });
-    }
+    checkOpenInviteIdValidity(openInviteId) { return this.restBubbleOpenInvites.checkOpenInviteIdValidity(openInviteId); }
+    joinBubbleByOpenInviteId(openInviteId, roomPassword=undefined) { return this.restBubbleOpenInvites.joinBubbleByOpenInviteId(openInviteId, roomPassword); }
 
     //endregion Bubble Open Invites
 
     //region Conference
 
-    /*    askConferenceSnapshot(conferenceId : string, type : MEDIATYPE, limit : number = 100, offset : number = 0) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let params = {};
-            that._logger.log(that.INTERNAL, LOG_ID + "(askConferenceSnapshot) REST params : ", params);
-            that.http.get("/api/rainbow/conference/v1.0/conferences/" + conferenceId + "/snapshot?mediaType=" + type + "&limit=" + limit + "&offset=" + offset, that.getRequestHeader(), params).then((json) => {
-                //that.http.post("/api/rainbow/conference/v1.0/conferences/" + webPontConferenceId + "/join", that.getRequestHeader(), params, undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(askConferenceSnapshot) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(askConferenceSnapshot) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(askConferenceSnapshot) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(askConferenceSnapshot) error : ", err);
-                return reject(err);
-            });
-        });
-    } 
-    // */
-    retrieveAllConferences(scheduled) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let params = {};
-            that._logger.log(that.INTERNAL, LOG_ID + "(retrieveAllConferences) REST params : ", params);
-            let url = "/api/rainbow/confprovisioning/v1.0/conferences?";
-            if (scheduled!=undefined) {
-                url += "scheduled=" + scheduled;
-            }
-            url += "&format=full&userId=" + that.userId;
-
-            that.http.get(url, that.getRequestHeader(), params).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(retrieveAllConferences) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(retrieveAllConferences) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(retrieveAllConferences) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(retrieveAllConferences) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    /**
-     * Method retrieveWebConferences
-     * @public
-     * @param {string} mediaType mediaType of conference to retrieve. Default: this.MEDIATYPE.WEBRTC
-     * @returns {Promise<any>} a promise that resolves when conference are reterived
-     * @memberof WebConferenceService
-     */
-    retrieveWebConferences(mediaType: string = MEDIATYPE.WEBRTC): Promise<any> {
-        let that = this;
-        that._logger.log(that.DEBUG, LOG_ID + "(retrieveWebConferences) with mediaType=" + mediaType);
-        return new Promise((resolve, reject) => {
-            let urlQueryParameters = "?format=full&userId=" + that.userId;
-
-            if (mediaType) {
-                urlQueryParameters += "&mediaType=" + mediaType;
-            }
-
-            that.http.get("/api/rainbow/confprovisioning/v1.0/conferences" + urlQueryParameters, that.getRequestHeader(), undefined)
-                    /* this.$http({
-                        method: "GET",
-                        url: this.confProvPortalURL + "conferences" + urlQueryParameters,
-                        headers: this.authService.getRequestHeader()
-                    }) // */
-                    // Handle success response
-                    .then((response) => {
-                                let conferencesProvisionData = response;
-                                that._logger.log(that.DEBUG, LOG_ID + "(retrieveWebConferences) successfully");
-                                that._logger.log(that.INTERNAL, LOG_ID + "(retrieveWebConferences) REST result : ", conferencesProvisionData);
-                                resolve(conferencesProvisionData.data);
-                            },
-                            (response) => {
-                                let msg = response.data ? response.data.errorDetails:response.data;
-                                let errorMessage = "(retrieveWebConferences) failure: " + msg;
-                                that._logger.log(that.ERROR, LOG_ID + "(retrieveWebConferences) error : " + errorMessage);
-                                reject(new Error(errorMessage));
-                            });
-        });
-    };
+    retrieveAllConferences(scheduled) { return this.restConference.retrieveAllConferences(scheduled, this.userId); }
+    retrieveWebConferences(mediaType="webrtc") { return this.restConference.retrieveWebConferences(mediaType, this.userId); }
 
     //endregion conference
 
@@ -4895,200 +4782,19 @@ kamEmailList?: string[], businessSpecific?: string, adminServiceNotificationsLev
     //endregion Offers and subscriptions
 
     //region Bubbles Tags
-    retrieveAllBubblesByTags(tags: Array<string>, format: string = "small", nbUsersToKeep: number = 100) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            that._logger.log(that.INTERNAL, LOG_ID + "(retrieveAllBubblesByTags) REST companyId : ", tags);
-            let nbTags = tags.length;
-            let tagParams = "";
-            if (nbTags==0) {
-                let err = {
-                    "label": "retrieveAllBubblesByTags : No tags provided for filter the bubbles."
-                };
-                that._logger.log(that.ERROR, LOG_ID, "(retrieveAllBubblesByTags) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(retrieveAllBubblesByTags) error : ", err);
-                return reject(err);
-            }
-            if (nbTags==1) {
-                tagParams = "tag=" + encodeURI(tags[0]) + "&";
-            }
-            if (nbTags > 1) {
-                for (let id = 0; id < nbTags; id++) {
-                    tagParams += "tag" + "=" + encodeURI(tags[id]) + "&";
-                }
-            }
 
-            if (format) {
-                tagParams += "format" + "=" + encodeURI(format) + "&";
-            }
-
-            if (format) {
-                tagParams += "nbUsersToKeep" + "=" + nbUsersToKeep + "&";
-            }
-
-            that.http.get("/api/rainbow/enduser/v1.0/rooms/tags?" + tagParams, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(retrieveAllBubblesByTags) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(retrieveAllBubblesByTags) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(retrieveAllBubblesByTags) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(retrieveAllBubblesByTags) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    /**
-     *
-     * @param {string} roomId
-     * @param {Array<any>} tags : tags    Object[]
-     List of objects. Empty to reset the list
-     tag    String Tag name
-     color optionnel String Tag color - Hex Color in "0x" or "#" prefixed or "non-prefixed"
-     emoji optionnel String Tag emoji - an unicode sequence
-     * @return {Promise<unknown>}
-     */
-    setTagsOnABubble(roomId: string, tags: Array<string>) {
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let params = {"tags": tags};
-            that._logger.log(that.INTERNAL, LOG_ID + "(setTagsOnABubble) REST params : ", params);
-
-            that.http.put("/api/rainbow/enduser/v1.0/rooms/" + roomId + "/tags", that.getRequestHeader(), params, undefined).then((json) => {
-                //that.http.post("/api/rainbow/conference/v1.0/conferences/" + webPontConferenceId + "/join", that.getRequestHeader(), params, undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(setTagsOnABubble) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(setTagsOnABubble) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(setTagsOnABubble) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(setTagsOnABubble) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    deleteTagOnABubble(roomIds: Array<string>, tag: string) {
-        let that = this;
-
-        return new Promise(function (resolve, reject) {
-            let params: any = {
-                "tag": tag,
-                "rooms": roomIds
-            };
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(deleteTagOnABubble) REST params : ", params);
-
-            that.http.delete("/api/rainbow/enduser/v1.0/rooms/tags", that.getPostHeader(), JSON.stringify(params)).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(deleteTagOnABubble) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(deleteTagOnABubble) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(deleteTagOnABubble) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(deleteTagOnABubble) error : ", err);
-                return reject(err);
-            });
-        });
-    }
+    retrieveAllBubblesByTags(tags, format="small", nbUsersToKeep=100) { return this.restBubblesTags.retrieveAllBubblesByTags(tags, format, nbUsersToKeep); }
+    setTagsOnABubble(roomId, tags) { return this.restBubblesTags.setTagsOnABubble(roomId, tags); }
+    deleteTagOnABubble(roomIds, tag) { return this.restBubblesTags.deleteTagOnABubble(roomIds, tag); }
 
     //endregion Bubbles Tags
 
     //region Bubbles - dialIn
 
-    disableDialInForARoom(roomId: string) {
-        // API https://api.openrainbow.org/enduser/#api-dialIn-DisableDialIn
-        // PUT /api/rainbow/enduser/v1.0/rooms/:roomId/dial-in/disable
-
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url = "/api/rainbow/enduser/v1.0/rooms/" + roomId + "/dial-in/disable";
-            let params = {};
-            that._logger.log(that.INTERNAL, LOG_ID + "(disableDialInForARoom) REST params : ", params);
-
-            that.http.put(url, that.getRequestHeader(), params, undefined).then((json) => {
-                //that.http.post("/api/rainbow/conference/v1.0/conferences/" + webPontConferenceId + "/join", that.getRequestHeader(), params, undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(disableDialInForARoom) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(disableDialInForARoom) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(disableDialInForARoom) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(disableDialInForARoom) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    enableDialInForARoom(roomId: string) {
-        // API https://api.openrainbow.org/enduser/#api-dialIn-EnableDialIn
-        // PUT /api/rainbow/enduser/v1.0/rooms/:roomId/dial-in/enable
-
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url = "/api/rainbow/enduser/v1.0/rooms/" + roomId + "/dial-in/enable";
-            let params = {};
-            that._logger.log(that.INTERNAL, LOG_ID + "(enableDialInForARoom) REST params : ", params);
-
-            that.http.put(url, that.getRequestHeader(), params, undefined).then((json) => {
-                //that.http.post("/api/rainbow/conference/v1.0/conferences/" + webPontConferenceId + "/join", that.getRequestHeader(), params, undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(enableDialInForARoom) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(enableDialInForARoom) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(enableDialInForARoom) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(enableDialInForARoom) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    resetDialInCodeForARoom(roomId: string) {
-        // API https://api.openrainbow.org/enduser/#api-dialIn-ResetDialIn
-        // PUT /api/rainbow/enduser/v1.0/rooms/:roomId/dial-in/reset
-
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url = "/api/rainbow/enduser/v1.0/rooms/" + roomId + "/dial-in/reset";
-            let params = {};
-            that._logger.log(that.INTERNAL, LOG_ID + "(resetDialInCodeForARoom) REST params : ", params);
-
-            that.http.put(url, that.getRequestHeader(), params, undefined).then((json) => {
-                //that.http.post("/api/rainbow/conference/v1.0/conferences/" + webPontConferenceId + "/join", that.getRequestHeader(), params, undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(resetDialInCodeForARoom) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(resetDialInCodeForARoom) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(resetDialInCodeForARoom) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(resetDialInCodeForARoom) error : ", err);
-                return reject(err);
-            });
-        });
-    }
-
-    getDialInPhoneNumbersList(shortList: boolean) {
-        // API https://api.openrainbow.org/enduser/#api-dial_in_phone_numbers-GetDialInPhoneNumbers 
-        // GET /api/rainbow/enduser/v1.0/rooms/dial-in/phone-numbers
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            that._logger.log(that.INTERNAL, LOG_ID + "(getDialInPhoneNumbersList) REST shortList : ", shortList);
-
-            let url: string = "/api/rainbow/enduser/v1.0/rooms/dial-in/phone-numbers";
-            let urlParamsTab: string[] = [];
-            urlParamsTab.push(url);
-            addParamToUrl(urlParamsTab, "shortList", shortList);
-            url = urlParamsTab[0];
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getDialInPhoneNumbersList) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getDialInPhoneNumbersList) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getDialInPhoneNumbersList) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getDialInPhoneNumbersList) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getDialInPhoneNumbersList) error : ", err);
-                return reject(err);
-            });
-        });
-    }
+    disableDialInForARoom(roomId) { return this.restBubblesDialIn.disableDialInForARoom(roomId); }
+    enableDialInForARoom(roomId) { return this.restBubblesDialIn.enableDialInForARoom(roomId); }
+    resetDialInCodeForARoom(roomId) { return this.restBubblesDialIn.resetDialInCodeForARoom(roomId); }
+    getDialInPhoneNumbersList(shortList) { return this.restBubblesDialIn.getDialInPhoneNumbersList(shortList); }
 
     //endregion Bubbles - dialIn
 
@@ -6151,28 +5857,7 @@ kamEmailList?: string[], businessSpecific?: string, adminServiceNotificationsLev
 
     //region Connectors
 
-    createListOfEventsForConnector(events : Array<{ eventId : string, level : string, category : string, operation : string, description : string, date : string}>) {
-        // API https://api.openrainbow.org/admin/#api-connectors-PostLdapActivate
-        // POST /api/rainbow/admin/v1.0/connectors/events
-
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url: string = "/api/rainbow/admin/v1.0/connectors/events";
-            that._logger.log(that.INTERNAL, LOG_ID + "(createListOfEventsForConnector) REST url : ", url);
-            let data: any = { events };
-            
-
-            that.http.post(url, that.getRequestHeader(), data, undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(createListOfEventsForConnector) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(createListOfEventsForConnector) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(createListOfEventsForConnector) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(createListOfEventsForConnector) error : ", err);
-                return reject(err);
-            });
-        });  
-    }
+    createListOfEventsForConnector(events) { return this.restConnectors.createListOfEventsForConnector(events); }
 
     //endregion Connectors
     
@@ -9966,40 +9651,7 @@ kamEmailList?: string[], businessSpecific?: string, adminServiceNotificationsLev
 
     //region Rainbow APIs Settings
 
-    getApisSettings() {
-        // GET  https://api.openrainbow.org/api/rainbow/enduser/v1.0/settings/apis
-        // API https://api.openrainbow.org/enduser/#api-settings_apis-getApisSettings
-        let that = this;
-        return new Promise(function (resolve, reject) {
-            let url: string = "/api/rainbow/enduser/v1.0/settings/apis";
-
-            let urlParamsTab: string[] = [];
-            urlParamsTab.push(url);
-            /*
-            addParamToUrl(urlParamsTab, "calleeId", calleeId );
-            addParamToUrl(urlParamsTab, "addresseeId", addresseeId );
-            addParamToUrl(urlParamsTab, "addresseePhoneNumber", addresseePhoneNumber );
-            addParamToUrl(urlParamsTab, "sortOrder", sortOrder + "");
-            addParamToUrl(urlParamsTab, "fromDate", fromDate);
-            addParamToUrl(urlParamsTab, "toDate", toDate );
-            addParamToUrl(urlParamsTab, "callerName", callerName );
-            addParamToUrl(urlParamsTab, "callerNumber", callerNumber );
-             // */
-            url = urlParamsTab[0];
-
-            that._logger.log(that.INTERNAL, LOG_ID + "(getApisSettings) REST url : ", url);
-
-            that.http.get(url, that.getRequestHeader(), undefined).then((json) => {
-                that._logger.log(that.DEBUG, LOG_ID + "(getApisSettings) successfull");
-                that._logger.log(that.INTERNAL, LOG_ID + "(getApisSettings) REST result : ", json);
-                resolve(json?.data);
-            }).catch(function (err) {
-                that._logger.log(that.ERROR, LOG_ID, "(getApisSettings) error");
-                that._logger.log(that.INTERNALERROR, LOG_ID, "(getApisSettings) error : ", err);
-                return reject(err);
-            });
-        });
-    }
+    getApisSettings() { return this.restApiSettings.getApisSettings(); }
 
     //endregion Rainbow APIs Settings
 
