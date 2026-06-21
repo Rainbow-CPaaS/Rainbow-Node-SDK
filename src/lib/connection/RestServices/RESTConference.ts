@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 import {logEntryExit} from "../../common/Utils";
 import {GenericRESTService} from "../GenericRESTService.js";
@@ -38,6 +38,7 @@ class RESTConference extends GenericRESTService {
     //region Conference
 
     retrieveAllConferences(scheduled, userId: string) {
+        // GET /api/rainbow/confprovisioning/v1.0/conferences
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(retrieveAllConferences) entry`);
         return new Promise(function (resolve, reject) {
@@ -64,6 +65,7 @@ class RESTConference extends GenericRESTService {
      * @param {string} userId current user id
      */
     retrieveWebConferences(mediaType: string = "webrtc", userId: string): Promise<any> {
+        // GET /api/rainbow/confprovisioning/v1.0/conferences
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(retrieveWebConferences) entry`);
         return new Promise((resolve, reject) => {

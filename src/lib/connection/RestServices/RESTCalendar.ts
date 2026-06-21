@@ -44,6 +44,7 @@ class RESTCalendar extends GenericRESTService {
     //region calendar
 
     getCalendarState() {
+        // GET /api/rainbow/calendar/v1.0
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getCalendarState) entry`);
         return new Promise(function (resolve, reject) {
@@ -64,6 +65,7 @@ class RESTCalendar extends GenericRESTService {
     }
 
     getCalendarStates(users: Array<string> = [undefined]) {
+        // POST /api/rainbow/calendar/v1.0/states
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getCalendarStates) entry`);
         let params = { users };
@@ -82,6 +84,7 @@ class RESTCalendar extends GenericRESTService {
     }
 
     setCalendarRegister(type?: string, redirect?: boolean, callbackUrl?: string) {
+        // POST /api/rainbow/calendar/v1.0/register
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(setCalendarRegister) entry`);
         let params = {
@@ -104,6 +107,7 @@ class RESTCalendar extends GenericRESTService {
     }
 
     getCalendarAutomaticReplyStatus(userid?: string) {
+        // GET /api/rainbow/calendar/v1.0
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getCalendarAutomaticReplyStatus) entry`);
         return new Promise(function (resolve, reject) {
@@ -128,6 +132,7 @@ class RESTCalendar extends GenericRESTService {
 
     // @deprecated
     enableOrNotCalendar(disable: boolean) {
+        // PATCH /api/rainbow/calendar/v1.0
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(enableOrNotCalendar) entry`);
         return new Promise(function (resolve, reject) {
@@ -379,6 +384,7 @@ class RESTCalendar extends GenericRESTService {
      */
     notifyCalendarProvider(ids: Array<string>, headers: any = {}, forceNotify: boolean = undefined,
                            userId: string, httpOptions: any, companyId: string) {
+        // POST /api/rainbow/calendarprovider/v1.0/notify
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(notifyCalendarProvider) entry`);
 

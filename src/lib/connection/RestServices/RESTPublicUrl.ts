@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 import {addParamToUrl, logEntryExit} from "../../common/Utils";
 import {GenericRESTService} from "../GenericRESTService.js";
@@ -79,6 +79,7 @@ class RESTPublicUrl extends GenericRESTService {
      * @param {string} defaultUserId injected from RESTService (current user id)
      */
     getAllOpenInviteIdPerRoomOfAUser(userId?: string, type?: string, roomId?: string, defaultUserId?: string): Promise<Array<any>> {
+        // GET /api/rainbow/enduser/v1.0/users/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getAllOpenInviteIdPerRoomOfAUser) entry`);
         return new Promise(function (resolve, reject) {
@@ -104,6 +105,7 @@ class RESTPublicUrl extends GenericRESTService {
     }
 
     generateNewPublicUrl(bubbleId, userId: string) {
+        // PUT /api/rainbow/enduser/v1.0/users/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(generateNewPublicUrl) entry`);
         return new Promise(function (resolve, reject) {
@@ -121,6 +123,7 @@ class RESTPublicUrl extends GenericRESTService {
     }
 
     removePublicUrl(bubbleId, userId: string) {
+        // PUT /api/rainbow/enduser/v1.0/users/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(removePublicUrl) entry`);
         return new Promise(function (resolve, reject) {
@@ -138,6 +141,7 @@ class RESTPublicUrl extends GenericRESTService {
     }
 
     createPublicUrl(bubbleId, userId: string) {
+        // POST /api/rainbow/enduser/v1.0/users/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(createPublicUrl) entry`);
         return new Promise(function (resolve, reject) {
@@ -156,6 +160,7 @@ class RESTPublicUrl extends GenericRESTService {
     }
 
     registerGuest(guest: any) {
+        // POST /api/rainbow/enduser/v1.0/users/self-register
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(registerGuest) entry`);
         return new Promise(function (resolve, reject) {

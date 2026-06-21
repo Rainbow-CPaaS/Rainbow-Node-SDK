@@ -199,6 +199,7 @@ class RESTAuth extends GenericRESTService {
     //region multifactor rainbow authentication
 
     deleteTrustedApplication(accountId: string, appId: string) {
+        // DELETE /api/rainbow/enduser/v1.0/users/:accountId/mfa/trusted/:appId
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(deleteTrustedApplication) entry`);
         return new Promise(function (resolve, reject) {
@@ -217,6 +218,7 @@ class RESTAuth extends GenericRESTService {
     }
 
     deleteAllTrustedApplications(accountId: string) {
+        // DELETE /api/rainbow/enduser/v1.0/users/:accountId/mfa/trusted
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(deleteAllTrustedApplications) entry`);
         return new Promise(function (resolve, reject) {
@@ -235,6 +237,7 @@ class RESTAuth extends GenericRESTService {
     }
 
     disableMultifactorAuthentication(accountId: string) {
+        // DELETE /api/rainbow/enduser/v1.0/users/:accountId/mfa
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(disableMultifactorAuthentication) entry`);
         return new Promise(function (resolve, reject) {
@@ -253,6 +256,7 @@ class RESTAuth extends GenericRESTService {
     }
 
     enableMultifactorAuthentication(accountId: string) {
+        // PUT /api/rainbow/enduser/v1.0/users/:accountId/mfa
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(enableMultifactorAuthentication) entry`);
         return new Promise(function (resolve, reject) {
@@ -272,6 +276,7 @@ class RESTAuth extends GenericRESTService {
     }
 
     getMultifactorInformation(accountId: string) {
+        // GET /api/rainbow/enduser/v1.0/users/:accountId/mfa
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getMultifactorInformation) entry`);
         return new Promise(function (resolve, reject) {
@@ -292,6 +297,7 @@ class RESTAuth extends GenericRESTService {
     }
 
     verifyMultifactorInformation(accountId: string, token) {
+        // POST /api/rainbow/enduser/v1.0/users/:accountId/mfa/verify
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(verifyMultifactorInformation) entry`);
         return new Promise(function (resolve, reject) {
@@ -324,6 +330,7 @@ class RESTAuth extends GenericRESTService {
     }
 
     resetRecoveryCodeForMultifactorAuthentication(accountId: string) {
+        // DELETE /api/rainbow/enduser/v1.0/users/:accountId/mfa/recovery
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(resetRecoveryCodeForMultifactorAuthentication) entry`);
         return new Promise(function (resolve, reject) {

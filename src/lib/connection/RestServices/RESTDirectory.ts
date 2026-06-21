@@ -48,6 +48,7 @@ class RESTDirectory extends GenericRESTService {
                          country: string, workPhoneNumbers: string[], mobilePhoneNumbers: string[],
                          otherPhoneNumbers: string[], jobTitle: string, eMail: string, tags: string[],
                          custom1: string, custom2: string) {
+        // POST /api/rainbow/directory/v1.0/entries
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(createDirectoryEntry) entry`);
         return new Promise(function (resolve, reject) {
@@ -84,6 +85,7 @@ class RESTDirectory extends GenericRESTService {
     }
 
     deleteCompanyDirectoryAllEntry(companyId: string) {
+        // DELETE /api/rainbow/directory/v1.0/companies/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(deleteCompanyDirectoryAllEntry) entry`);
         return new Promise((resolve, reject) => {
@@ -120,6 +122,7 @@ class RESTDirectory extends GenericRESTService {
     }
 
     getDirectoryEntryData(entryId: string, format: string) {
+        // GET /api/rainbow/directory/v1.0/entries/:entryId
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getDirectoryEntryData) entry`);
         return new Promise(function (resolve, reject) {
@@ -188,6 +191,7 @@ class RESTDirectory extends GenericRESTService {
                          country: string, workPhoneNumbers: string[], mobilePhoneNumbers: string[],
                          otherPhoneNumbers: string[], jobTitle: string, eMail: string, tags: string[],
                          custom1: string, custom2: string) {
+        // PUT /api/rainbow/directory/v1.0/entries/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(updateDirectoryEntry) entry`);
         let data: any = {};
@@ -223,6 +227,7 @@ class RESTDirectory extends GenericRESTService {
     }
 
     ImportDirectoryCsvFile(companyId, csvContent, label) {
+        // POST /api/rainbow/massprovisioning/v1.0/directories/imports
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(ImportDirectoryCsvFile) entry`);
         return new Promise(function (resolve, reject) {
@@ -247,6 +252,7 @@ class RESTDirectory extends GenericRESTService {
     }
 
     getAllTagsAssignedToDirectoryEntries(companyId: string) {
+        // GET /api/rainbow/directory/v1.0/entries/tags
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getAllTagsAssignedToDirectoryEntries) entry`);
         return new Promise(function (resolve, reject) {
@@ -269,6 +275,7 @@ class RESTDirectory extends GenericRESTService {
     }
 
     removeTagFromAllDirectoryEntries(companyId: string, tag: string) {
+        // DELETE /api/rainbow/directory/v1.0/entries/tags
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(removeTagFromAllDirectoryEntries) entry`);
         return new Promise((resolve, reject) => {
@@ -292,6 +299,7 @@ class RESTDirectory extends GenericRESTService {
     }
 
     renameTagForAllAssignedDirectoryEntries(tag: string, companyId: string, newTagName: string) {
+        // PUT /api/rainbow/directory/v1.0/entries/tags
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(renameTagForAllAssignedDirectoryEntries) entry`);
         return new Promise(function (resolve, reject) {
@@ -315,6 +323,7 @@ class RESTDirectory extends GenericRESTService {
     }
 
     getStatsRegardingTagsOfDirectoryEntries(companyId: string) {
+        // GET /api/rainbow/directory/v1.0/entries/tags/stats
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getStatsRegardingTagsOfDirectoryEntries) entry`);
         return new Promise(function (resolve, reject) {

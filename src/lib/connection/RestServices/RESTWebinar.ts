@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 import {addParamToUrl, cleanEmptyMembersFromObject, logEntryExit, stackTrace} from "../../common/Utils";
 import {GenericRESTService} from "../GenericRESTService";
@@ -65,6 +65,7 @@ class RESTWebinar extends GenericRESTService {
                   stageBackground : string,
                   chatOption : string ) {
         // POST  https://openrainbow.com/api/rainbow/webinar/v1.0/webinars
+        // POST /api/rainbow/webinar/v1.0/webinars
         let that = this;
         return new Promise(function (resolve, reject) {
             let url = "/api/rainbow/webinar/v1.0/webinars";
@@ -120,6 +121,7 @@ class RESTWebinar extends GenericRESTService {
                   stageBackground : string,
                   chatOption : string) {
         // PUT  https://openrainbow.com/api/rainbow/webinar/v1.0/webinars/:webinarId
+        // PUT /api/rainbow/webinar/v1.0/webinars/:webinarId
         let that = this;
         return new Promise(function (resolve, reject) {
             let url = "/api/rainbow/webinar/v1.0/webinars/" + webinarId;
@@ -163,6 +165,7 @@ class RESTWebinar extends GenericRESTService {
     
     getWebinarData(webinarId : string ) {
         // GET  https://openrainbow.com/api/rainbow/webinar/v1.0/webinars/:webinarId
+        // GET /api/rainbow/webinar/v1.0/webinars/:webinarId
         let that = this;
         return new Promise(function (resolve, reject) {
             let url : string = "/api/rainbow/webinar/v1.0/webinars/" + webinarId ;
@@ -188,6 +191,7 @@ class RESTWebinar extends GenericRESTService {
     
     getWebinarsData(role  : string) {
         // GET  https://openrainbow.com/api/rainbow/webinar/v1.0/webinars
+        // GET /api/rainbow/webinar/v1.0/webinars/
         let that = this;
         return new Promise(function (resolve, reject) {
             let url : string = "/api/rainbow/webinar/v1.0/webinars/" ;
@@ -212,6 +216,7 @@ class RESTWebinar extends GenericRESTService {
     
     warnWebinarModerators(webinarId : string) {
         // PUT  https://openrainbow.com/api/rainbow/webinar/v1.0/webinars/:webinarId/warn-moderators
+        // PUT /api/rainbow/webinar/v1.0/webinars/:webinarId/warn-moderators
         let that = this;
         return new Promise(function (resolve, reject) {
             let url = "/api/rainbow/webinar/v1.0/webinars/" + webinarId + "/warn-moderators";
@@ -238,6 +243,7 @@ class RESTWebinar extends GenericRESTService {
     
     publishAWebinarEvent(webinarId : string) {
         // PUT  https://openrainbow.com/api/rainbow/webinar/v1.0/webinars/:webinarId/publish
+        // PUT /api/rainbow/webinar/v1.0/webinars/:webinarId/publish
         let that = this;
         return new Promise(function (resolve, reject) {
             let url = "/api/rainbow/webinar/v1.0/webinars/" + webinarId + "/publish";
@@ -264,6 +270,7 @@ class RESTWebinar extends GenericRESTService {
     
     deleteWebinar(webinarId : string) {
         // DELETE https://openrainbow.com/api/rainbow/webinar/v1.0/webinars/:webinarId     
+        // DELETE /api/rainbow/webinar/v1.0/webinars/:webinarId
         let that = this;
         return new Promise((resolve, reject) => {
             let url = "/api/rainbow/webinar/v1.0/webinars/" + webinarId;

@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 import {addParamToUrl, isDefined, logEntryExit} from "../../common/Utils";
 import {GenericRESTService} from "../GenericRESTService.js";
@@ -41,6 +41,7 @@ class RESTS2S extends GenericRESTService {
     //region S2S
 
     async listConnectionsS2S(): Promise<any> {
+        // GET /api/rainbow/ucs/v1.0/connections
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(listConnectionsS2S) entry`);
         return new Promise((resolve, reject) => {
@@ -58,6 +59,7 @@ class RESTS2S extends GenericRESTService {
 
     /** @param {string} connectionId injected from RESTService (connectionS2SInfo?.id) */
     async sendS2SPresence(obj, connectionId: string): Promise<any> {
+        // PUT /api/rainbow/ucs/v1.0/connections/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(sendS2SPresence) entry`);
         that._logger.log(that.INTERNAL, LOG_ID + "(sendS2SPresence) Set S2S presence : ", obj);
@@ -82,6 +84,7 @@ class RESTS2S extends GenericRESTService {
     }
 
     async deleteConnectionsS2S(connexions): Promise<any> {
+        // DELETE /api/rainbow/ucs/v1.0/connections/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(deleteConnectionsS2S) entry`);
         that._logger.log(that.DEBUG, LOG_ID + "(deleteConnectionsS2S) will del cnx S2S");
@@ -105,6 +108,7 @@ class RESTS2S extends GenericRESTService {
     }
 
     async loginS2S(callback_url): Promise<any> {
+        // POST /api/rainbow/ucs/v1.0/connections
         let that = this;
         let data = {connection: {callback_url}};
         that._logger.log(that.INFO, LOG_ID + `(loginS2S) entry`);
@@ -124,6 +128,7 @@ class RESTS2S extends GenericRESTService {
     }
 
     async infoS2S(s2sConnectionId): Promise<any> {
+        // GET /api/rainbow/ucs/v1.0/connections/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(infoS2S) entry`);
         that._logger.log(that.DEBUG, LOG_ID + "(infoS2S)  will get info S2S");
@@ -141,6 +146,7 @@ class RESTS2S extends GenericRESTService {
     }
 
     async setS2SConnection(connectionId): Promise<any> {
+        // POST /api/rainbow/ucs/v1.0/connections/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(setS2SConnection) entry`);
         that._logger.log(that.DEBUG, LOG_ID + "(setS2SConnection)  will get info S2S and save the session infos.");
@@ -150,6 +156,7 @@ class RESTS2S extends GenericRESTService {
     /** @param {string} connectionId injected from RESTService (connectionS2SInfo?.id) */
     async sendS2SMessageInConversation(conversationId: string, msg: any, connectionId: string): Promise<any> {
         // POST https://openrainbow.com:443/api/rainbow/ucs/v1.0/connections/{cnxId}/conversations/{cvId}/messages
+        // POST /api/rainbow/ucs/v1.0/connections/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(sendS2SMessageInConversation) entry`);
         return new Promise(function (resolve, reject) {
@@ -174,6 +181,7 @@ class RESTS2S extends GenericRESTService {
     async sendS2SCorrectedChatMessage(conversationId: string, origMsgId: string, msg: any, connectionId: string): Promise<any> {
         // POST https://openrainbow.com:443/api/rainbow/ucs/v1.0/connections/{cnxId}/conversations/{cvId}/messages/{msgId}/reply
         // API https://api.openrainbow.org/doc/api/ucs/redoc-index.html#tag/Message/operation/Message.reply
+        // POST /api/rainbow/ucs/v1.0/connections/:connectionId/conversations/:conversationId/messages/:origMsgId/reply
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(sendS2SCorrectedChatMessage) entry`);
         return new Promise(function (resolve, reject) {
@@ -199,6 +207,7 @@ class RESTS2S extends GenericRESTService {
     async sendS2SForwardChatMessage(conversationId: string, msgId: string, msg, conversationDestId: string, connectionId: string): Promise<any> {
         // POST https://openrainbow.com:443/api/rainbow/ucs/v1.0/connections/{cnxId}/conversations/{cvId}/messages/{msgId}/forward/{id}
         // API https://api.openrainbow.org/doc/api/ucs/redoc-index.html#tag/Message/operation/Message.forward
+        // POST /api/rainbow/ucs/v1.0/connections/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(sendS2SForwardChatMessage) entry`);
         return new Promise(function (resolve, reject) {
@@ -263,6 +272,7 @@ class RESTS2S extends GenericRESTService {
     /** @param {string} connectionId injected from RESTService (connectionS2SInfo?.id) */
     async getS2SServerConversation(conversationId, connectionId: string): Promise<any> {
         // GET https://openrainbow.com:443/api/rainbow/ucs/v1.0/connections/{cnxId}/conversations/{id}
+        // GET /api/rainbow/ucs/v1.0/connections/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getS2SServerConversation) entry`);
         return new Promise((resolve, reject) => {
@@ -288,6 +298,7 @@ class RESTS2S extends GenericRESTService {
     async getS2SMessagesByConversationId(conversationId, limit, before, after, connectionId: string): Promise<any> {
         // GET https://openrainbow.com:443/api/rainbow/ucs/v1.0/connections/{cnxId}/conversations/{cvId}/messages
         // API https://api.openrainbow.org/doc/api/ucs/redoc-index.html#tag/Message/operation/Message.index
+        // GET /api/rainbow/ucs/v1.0/connections/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getS2SMessagesByConversationId) entry`);
         return new Promise((resolve, reject) => {
@@ -314,6 +325,7 @@ class RESTS2S extends GenericRESTService {
     /** @param {any} connectionS2SInfo injected from RESTService (full connectionS2SInfo object) */
     async checkS2Sconnection(connectionS2SInfo: any): Promise<any> {
         // GET https://openrainbow.com:443/api/rainbow/ucs/v1.0/connections/{cnxId}
+        // HEAD /api/rainbow/ucs/v1.0/connections/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(checkS2Sconnection) entry`);
         return new Promise((resolve, reject) => {
@@ -334,6 +346,7 @@ class RESTS2S extends GenericRESTService {
 
     /** @param {any} connectionS2SInfo injected from RESTService (full connectionS2SInfo object) */
     async checkS2SAuthentication(connectionS2SInfo: any): Promise<boolean> {
+        // POST /api/rainbow/ucs/v1.0/connections/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(checkS2SAuthentication) entry`);
         let authStatus = false;
@@ -357,6 +370,7 @@ class RESTS2S extends GenericRESTService {
      */
     async joinS2SRoom(roomid, role: ROOMROLE, connectionId: string): Promise<any> {
         // POST https://openrainbow.com:443/api/rainbow/ucs/v1.0/connections/{cnxId}/rooms/{roomId}/join
+        // POST /api/rainbow/ucs/v1.0/connections/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(joinS2SRoom) entry`);
         return new Promise(function (resolve, reject) {

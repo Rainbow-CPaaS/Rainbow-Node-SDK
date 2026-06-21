@@ -44,6 +44,7 @@ class RESTAlerts extends GenericRESTService {
     //region Alerts - Notifications
 
     createDevice(data: Object) {
+        // POST /api/rainbow/notificationsadmin/v1.0/devices
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(createDevice) entry`);
         return new Promise(function (resolve, reject) {
@@ -60,6 +61,7 @@ class RESTAlerts extends GenericRESTService {
     }
 
     updateDevice(deviceId, params: Object) {
+        // PUT /api/rainbow/notificationsadmin/v1.0/devices/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(updateDevice) entry`);
         return new Promise(function (resolve, reject) {
@@ -76,6 +78,7 @@ class RESTAlerts extends GenericRESTService {
     }
 
     deleteDevice(deviceId: string) {
+        // DELETE /api/rainbow/notificationsadmin/v1.0/devices/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(deleteDevice) entry`);
         return new Promise(function (resolve, reject) {
@@ -94,6 +97,7 @@ class RESTAlerts extends GenericRESTService {
     }
 
     getDevice(deviceId: string) {
+        // GET /api/rainbow/notificationsadmin/v1.0/devices/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getDevice) entry`);
         return new Promise(function (resolve, reject) {
@@ -111,6 +115,7 @@ class RESTAlerts extends GenericRESTService {
     }
 
     getDevices(companyId: string, userId: string, deviceName: string, type: string, tag: string, offset: number, limit: number) {
+        // GET /api/rainbow/notificationsadmin/v1.0/devices
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getDevices) entry`);
         return new Promise(function (resolve, reject) {
@@ -137,6 +142,7 @@ class RESTAlerts extends GenericRESTService {
     }
 
     getDevicesTags(companyId: string) {
+        // GET /api/rainbow/notificationsadmin/v1.0/devices/tags
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getDevicesTags) entry`);
         return new Promise(function (resolve, reject) {
@@ -156,6 +162,7 @@ class RESTAlerts extends GenericRESTService {
     }
 
     renameDevicesTags(newTagName: string, tag: string, companyId: string) {
+        // PUT /api/rainbow/notificationsadmin/v1.0/templates
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(renameDevicesTags) entry`);
         return new Promise(function (resolve, reject) {
@@ -177,6 +184,7 @@ class RESTAlerts extends GenericRESTService {
     }
 
     deleteDevicesTags(tag: string, companyId: string) {
+        // DELETE /api/rainbow/notificationsadmin/v1.0/templates
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(deleteDevicesTags) entry`);
         return new Promise(function (resolve, reject) {
@@ -198,6 +206,7 @@ class RESTAlerts extends GenericRESTService {
     }
 
     getstatsTags(companyId: string) {
+        // GET /api/rainbow/notificationsadmin/v1.0/templates
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getstatsTags) entry`);
         return new Promise(function (resolve, reject) {
@@ -218,6 +227,7 @@ class RESTAlerts extends GenericRESTService {
     }
 
     createTemplate(data: Object) {
+        // POST /api/rainbow/notificationsadmin/v1.0/templates
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(createTemplate) entry`);
         return new Promise(function (resolve, reject) {
@@ -234,6 +244,7 @@ class RESTAlerts extends GenericRESTService {
     }
 
     updateTemplate(templateId, params: Object) {
+        // PUT /api/rainbow/notificationsadmin/v1.0/templates/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(updateTemplate) entry`);
         return new Promise(function (resolve, reject) {
@@ -250,6 +261,7 @@ class RESTAlerts extends GenericRESTService {
     }
 
     deleteTemplate(templateId: string) {
+        // DELETE /api/rainbow/notificationsadmin/v1.0/templates/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(deleteTemplate) entry`);
         return new Promise(function (resolve, reject) {
@@ -268,6 +280,7 @@ class RESTAlerts extends GenericRESTService {
     }
 
     getTemplate(templateId: string) {
+        // GET /api/rainbow/notificationsadmin/v1.0/templates/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getTemplate) entry`);
         return new Promise(function (resolve, reject) {
@@ -285,6 +298,7 @@ class RESTAlerts extends GenericRESTService {
     }
 
     getTemplates(companyId: string, offset: number, limit: number) {
+        // GET /api/rainbow/notificationsadmin/v1.0/templates
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getTemplates) entry`);
         return new Promise(function (resolve, reject) {
@@ -307,6 +321,7 @@ class RESTAlerts extends GenericRESTService {
     }
 
     createFilter(data: Object) {
+        // POST /api/rainbow/notificationsadmin/v1.0/filters
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(createFilter) entry`);
         return new Promise(function (resolve, reject) {
@@ -323,6 +338,7 @@ class RESTAlerts extends GenericRESTService {
     }
 
     updateFilter(FilterId, params: Object) {
+        // PUT /api/rainbow/notificationsadmin/v1.0/filters/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(updateFilter) entry`);
         return new Promise(function (resolve, reject) {
@@ -339,6 +355,7 @@ class RESTAlerts extends GenericRESTService {
     }
 
     deleteFilter(FilterId: string) {
+        // DELETE /api/rainbow/notificationsadmin/v1.0/filters/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(deleteFilter) entry`);
         return new Promise(function (resolve, reject) {
@@ -357,6 +374,7 @@ class RESTAlerts extends GenericRESTService {
     }
 
     getFilter(templateId: string) {
+        // GET /api/rainbow/notificationsadmin/v1.0/filters/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getFilter) entry`);
         return new Promise(function (resolve, reject) {
@@ -374,6 +392,7 @@ class RESTAlerts extends GenericRESTService {
     }
 
     getFilters(offset: number, limit: number) {
+        // GET /api/rainbow/notificationsadmin/v1.0/filters
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getFilters) entry`);
         return new Promise(function (resolve, reject) {
@@ -395,6 +414,7 @@ class RESTAlerts extends GenericRESTService {
     }
 
     createAlert(data: Object) {
+        // POST /api/rainbow/notifications/v1.0/notifications
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(createAlert) entry`);
         return new Promise(function (resolve, reject) {
@@ -411,6 +431,7 @@ class RESTAlerts extends GenericRESTService {
     }
 
     updateAlert(AlertId, params: Object) {
+        // PUT /api/rainbow/notifications/v1.0/notifications/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(updateAlert) entry`);
         return new Promise(function (resolve, reject) {
@@ -427,6 +448,7 @@ class RESTAlerts extends GenericRESTService {
     }
 
     deleteAlert(AlertId: string) {
+        // DELETE /api/rainbow/notifications/v1.0/notifications/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(deleteAlert) entry`);
         return new Promise(function (resolve, reject) {
@@ -445,6 +467,7 @@ class RESTAlerts extends GenericRESTService {
     }
 
     getAlert(alertId: string) {
+        // GET /api/rainbow/notifications/v1.0/notifications/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getAlert) entry`);
         return new Promise(function (resolve, reject) {
@@ -462,6 +485,7 @@ class RESTAlerts extends GenericRESTService {
     }
 
     getAlerts(offset: number, limit: number) {
+        // GET /api/rainbow/notifications/v1.0/notifications
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getAlerts) entry`);
         return new Promise(function (resolve, reject) {
@@ -483,6 +507,7 @@ class RESTAlerts extends GenericRESTService {
     }
 
     sendAlertFeedback(alertId: string, data: Object) {
+        // POST /api/rainbow/notifications/v1.0/notifications/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(sendAlertFeedback) entry`);
         return new Promise(function (resolve, reject) {
@@ -553,6 +578,7 @@ class RESTAlerts extends GenericRESTService {
     }
 
     getReportSummary(alertId: string) {
+        // GET /api/rainbow/notificationsreport/v1.0/notifications/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getReportSummary) entry`);
         return new Promise(function (resolve, reject) {
@@ -570,6 +596,7 @@ class RESTAlerts extends GenericRESTService {
     }
 
     getReportDetails(alertId: string) {
+        // GET /api/rainbow/notificationsreport/v1.0/notifications/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getReportDetails) entry`);
         return new Promise(function (resolve, reject) {

@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 import {logEntryExit} from "../../common/Utils";
 import {GenericRESTService} from "../GenericRESTService.js";
@@ -38,6 +38,7 @@ class RESTSettings extends GenericRESTService {
     //region Settings
 
     getUserSettings(accountId: string) {
+        // GET /api/rainbow/enduser/v1.0/users/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getUserSettings) entry`);
         return new Promise((resolve, reject) => {
@@ -54,6 +55,7 @@ class RESTSettings extends GenericRESTService {
     }
 
     updateUserSettings(accountId: string, settings) {
+        // PUT /api/rainbow/enduser/v1.0/users/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(updateUserSettings) entry`);
         return new Promise(function (resolve, reject) {

@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 import {logEntryExit} from "../../common/Utils";
 import {GenericRESTService} from "../GenericRESTService.js";
@@ -48,6 +48,7 @@ class RESTPresence extends GenericRESTService {
      * @param {string} userId
      */
     getUserPresenceInformation(userId: string) {
+        // GET /api/rainbow/admin/v1.0/users/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getUserPresenceInformation) entry`);
         return new Promise((resolve, reject) => {
@@ -64,6 +65,7 @@ class RESTPresence extends GenericRESTService {
     }
 
     getMyPresenceInformation() {
+        // GET /api/rainbow/enduser/v1.0/users/me/presences
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getMyPresenceInformation) entry`);
         return new Promise((resolve, reject) => {

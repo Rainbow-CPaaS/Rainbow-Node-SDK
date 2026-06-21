@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 import {addParamToUrl, logEntryExit} from "../../common/Utils";
 import {GenericRESTService} from "../GenericRESTService.js";
@@ -40,6 +40,7 @@ class RESTClientsVersions extends GenericRESTService {
     createAClientVersion(id: string, version: string) {
         // POST  https://openrainbow.com/api/rainbow/admin/v1.0/clientsversions
         // API https://api.openrainbow.org/admin/#api-clients_versions-PostClientsVersions
+        // POST /api/rainbow/admin/v1.0/clientsversions
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(createAClientVersion) entry`);
         return new Promise(function (resolve, reject) {
@@ -60,6 +61,7 @@ class RESTClientsVersions extends GenericRESTService {
     deleteAClientVersion(clientId: string) {
         // DELETE https://openrainbow.com/api/rainbow/admin/v1.0/clientsversions/:clientId
         // API https://api.openrainbow.org/admin/#api-clients_versions-DeleteClientsVersions
+        // DELETE /api/rainbow/admin/v1.0/clientsversions/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(deleteAClientVersion) entry`);
         return new Promise((resolve, reject) => {
@@ -79,6 +81,7 @@ class RESTClientsVersions extends GenericRESTService {
     getAClientVersionData(clientId: string) {
         // GET  https://openrainbow.com/api/rainbow/admin/v1.0/clientsversions/:clientId
         // API https://api.openrainbow.org/admin/#api-clients_versions-GetClientsVersionsId
+        // GET /api/rainbow/admin/v1.0/clientsversions/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getAClientVersionData) entry`);
         return new Promise(function (resolve, reject) {
@@ -100,6 +103,7 @@ class RESTClientsVersions extends GenericRESTService {
     getAllClientsVersions(name?: string, typeClient?: string, limit: number = 100, offset?: number, sortField: string = "name", sortOrder: number = 1) {
         // GET  https://openrainbow.com/api/rainbow/admin/v1.0/clientsversions
         // API https://api.openrainbow.org/admin/#api-clients_versions-GetClientsversions
+        // GET /api/rainbow/admin/v1.0/clientsversions/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getAllClientsVersions) entry`);
         return new Promise(function (resolve, reject) {
@@ -130,6 +134,7 @@ class RESTClientsVersions extends GenericRESTService {
     updateAClientVersion(clientId: string, version: string) {
         // PUT  https://openrainbow.com/api/rainbow/admin/v1.0/clientsversions/:clientId
         // API https://api.openrainbow.org/admin/#api-clients_versions-PutClientsVersions
+        // PUT /api/rainbow/admin/v1.0/clientsversions/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(updateAClientVersion) entry`);
         return new Promise(function (resolve, reject) {

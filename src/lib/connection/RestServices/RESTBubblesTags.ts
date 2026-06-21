@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 import {logEntryExit} from "../../common/Utils";
 import {GenericRESTService} from "../GenericRESTService.js";
@@ -38,6 +38,7 @@ class RESTBubblesTags extends GenericRESTService {
     //region Bubbles Tags
 
     retrieveAllBubblesByTags(tags: Array<string>, format: string = "small", nbUsersToKeep: number = 100) {
+        // GET /api/rainbow/enduser/v1.0/rooms/tags?
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(retrieveAllBubblesByTags) entry`);
         return new Promise(function (resolve, reject) {
@@ -77,6 +78,7 @@ class RESTBubblesTags extends GenericRESTService {
      * @param {Array<any>} tags list of tag objects (tag name, optional color, optional emoji)
      */
     setTagsOnABubble(roomId: string, tags: Array<string>) {
+        // PUT /api/rainbow/enduser/v1.0/rooms/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(setTagsOnABubble) entry`);
         return new Promise(function (resolve, reject) {
@@ -96,6 +98,7 @@ class RESTBubblesTags extends GenericRESTService {
     }
 
     deleteTagOnABubble(roomIds: Array<string>, tag: string) {
+        // DELETE /api/rainbow/enduser/v1.0/rooms/tags
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(deleteTagOnABubble) entry`);
         return new Promise(function (resolve, reject) {

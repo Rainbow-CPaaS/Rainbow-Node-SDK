@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 import {addParamToUrl, logEntryExit} from "../../common/Utils";
 import {GenericRESTService} from "../GenericRESTService.js";
@@ -286,6 +286,7 @@ class RESTInvitations extends GenericRESTService {
     }
 
     declineInvitation(invitation) {
+        // POST /api/rainbow/enduser/v1.0/users/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(declineInvitation) entry`);
         return new Promise(function (resolve, reject) {
@@ -321,6 +322,7 @@ class RESTInvitations extends GenericRESTService {
     }
 
     joinContacts(contact, contactIds, presence) {
+        // POST /api/rainbow/admin/v1.0/users/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(joinContacts) entry`);
         return new Promise(function (resolve, reject) {
@@ -342,6 +344,7 @@ class RESTInvitations extends GenericRESTService {
     }
 
     getInvitationById(accountId: string, invitationId) {
+        // GET /api/rainbow/enduser/v1.0/users/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getInvitationById) entry`);
         return new Promise(function (resolve, reject) {

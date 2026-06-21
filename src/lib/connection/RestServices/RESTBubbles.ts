@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 import {addParamToUrl, addPropertyToObj, logEntryExit} from "../../common/Utils";
 import {GenericRESTService} from "../GenericRESTService.js";
@@ -45,6 +45,7 @@ class RESTBubbles extends GenericRESTService {
     //region Bubbles
 
     createBubble(name: string, description: string, history: any = "all", p_number: number = 0, visibility: string = "private", disableNotifications: boolean = false, autoRegister: string = 'unlock', autoAcceptInvitation: boolean = false, muteUponEntry: boolean = false, playEntryTone: boolean = true) {
+        // POST /api/rainbow/enduser/v1.0/rooms
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(createBubble) entry`);
         return new Promise(function (resolve, reject) {
@@ -99,6 +100,7 @@ class RESTBubbles extends GenericRESTService {
     }
 
     setBubbleVisibility(bubbleId, visibility) {
+        // PUT /api/rainbow/enduser/v1.0/rooms/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(setBubbleVisibility) entry`);
         return new Promise(function (resolve, reject) {
@@ -115,6 +117,7 @@ class RESTBubbles extends GenericRESTService {
     }
 
     setBubbleAutoRegister(bubbleId: string, autoRegister: string = "unlock") {
+        // PUT /api/rainbow/enduser/v1.0/rooms/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(setBubbleAutoRegister) entry`);
         return new Promise(function (resolve, reject) {
@@ -131,6 +134,7 @@ class RESTBubbles extends GenericRESTService {
     }
 
     setBubbleTopic(bubbleId, topic) {
+        // PUT /api/rainbow/enduser/v1.0/rooms/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(setBubbleTopic) entry`);
         return new Promise(function (resolve, reject) {
@@ -147,6 +151,7 @@ class RESTBubbles extends GenericRESTService {
     }
 
     setBubbleName(bubbleId, name) {
+        // PUT /api/rainbow/enduser/v1.0/rooms/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(setBubbleName) entry`);
         return new Promise(function (resolve, reject) {
@@ -431,6 +436,7 @@ class RESTBubbles extends GenericRESTService {
     }
 
     setBubbleCustomData(bubbleId, customData) {
+        // PUT /api/rainbow/enduser/v1.0/rooms/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(setBubbleCustomData) entry`);
         return new Promise(function (resolve, reject) {
@@ -447,6 +453,7 @@ class RESTBubbles extends GenericRESTService {
     }
 
     inviteContactToBubble(contactId, bubbleId, asModerator, withInvitation, reason) {
+        // POST /api/rainbow/enduser/v1.0/rooms/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(inviteContactToBubble) entry`);
         return new Promise(function (resolve, reject) {
@@ -495,6 +502,7 @@ class RESTBubbles extends GenericRESTService {
     }
 
     getRoomUsers(bubbleId, options: any = {}) {
+        // GET /api/rainbow/enduser/v1.0/rooms/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getRoomUsers) entry`);
         return new Promise(function (resolve, reject) {
@@ -525,6 +533,7 @@ class RESTBubbles extends GenericRESTService {
     }
 
     promoteContactInBubble(contactId, bubbleId, asModerator) {
+        // PUT /api/rainbow/enduser/v1.0/rooms/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(promoteContactInBubble) entry`);
         return new Promise(function (resolve, reject) {
@@ -542,6 +551,7 @@ class RESTBubbles extends GenericRESTService {
     }
 
     changeBubbleOwner(bubbleId, contactId) {
+        // PUT /api/rainbow/enduser/v1.0/rooms/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(changeBubbleOwner) entry`);
         return new Promise(function (resolve, reject) {
@@ -577,6 +587,7 @@ class RESTBubbles extends GenericRESTService {
     }
 
     leaveBubble(bubbleId, bubbleStatus, accountId: string) {
+        // DELETE /api/rainbow/enduser/v1.0/rooms/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(leaveBubble) entry`);
         return new Promise(function (resolve, reject) {
@@ -667,6 +678,7 @@ class RESTBubbles extends GenericRESTService {
 
     setBubbleLobby(bubbleId: string, hasLobby: boolean) {
         // API PUT /api/rainbow/enduser/v1.0/rooms/:roomId/lobbies
+        // PUT /api/rainbow/enduser/v1.0/rooms/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(setBubbleLobby) entry`);
         return new Promise(function (resolve, reject) {
@@ -685,6 +697,7 @@ class RESTBubbles extends GenericRESTService {
 
     getBubbleLobby(bubbleId: string) {
         // API GET /api/rainbow/enduser/v1.0/rooms/:roomId/lobbies/pending
+        // GET /api/rainbow/enduser/v1.0/rooms/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getBubbleLobby) entry`);
         return new Promise(function (resolve, reject) {
@@ -702,6 +715,7 @@ class RESTBubbles extends GenericRESTService {
 
     acceptBubbleLobby(bubbleId: string, scope: string, users: string[] = undefined) {
         // API PUT /api/rainbow/enduser/v1.0/rooms/:roomId/lobbies/accept
+        // PUT /api/rainbow/enduser/v1.0/rooms/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(acceptBubbleLobby) entry`);
         return new Promise(function (resolve, reject) {
@@ -721,6 +735,7 @@ class RESTBubbles extends GenericRESTService {
 
     denyBubbleLobby(bubbleId: string, scope: string, users: string[] = undefined) {
         // API PUT /api/rainbow/enduser/v1.0/rooms/:roomId/lobbies/deny
+        // PUT /api/rainbow/enduser/v1.0/rooms/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(denyBubbleLobby) entry`);
         return new Promise(function (resolve, reject) {
@@ -741,6 +756,7 @@ class RESTBubbles extends GenericRESTService {
     //endregion rooms lobbies management
 
     removeInvitationOfContactToBubble(contactId, bubbleId) {
+        // DELETE /api/rainbow/enduser/v1.0/rooms/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(removeInvitationOfContactToBubble) entry`);
         return new Promise(function (resolve, reject) {
@@ -757,6 +773,7 @@ class RESTBubbles extends GenericRESTService {
     }
 
     unsubscribeContactFromBubble(contactId, bubbleId) {
+        // PUT /api/rainbow/enduser/v1.0/rooms/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(unsubscribeContactFromBubble) entry`);
         return new Promise(function (resolve, reject) {
@@ -773,6 +790,7 @@ class RESTBubbles extends GenericRESTService {
     }
 
     acceptInvitationToJoinBubble(bubbleId, accountId: string) {
+        // PUT /api/rainbow/enduser/v1.0/rooms/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(acceptInvitationToJoinBubble) entry`);
         return new Promise(function (resolve, reject) {
@@ -789,6 +807,7 @@ class RESTBubbles extends GenericRESTService {
     }
 
     declineInvitationToJoinBubble(bubbleId, accountId: string) {
+        // PUT /api/rainbow/enduser/v1.0/rooms/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(declineInvitationToJoinBubble) entry`);
         return new Promise(function (resolve, reject) {
@@ -805,6 +824,7 @@ class RESTBubbles extends GenericRESTService {
     }
 
     deleteUserFromBubble(bubbleId, accountId: string) {
+        // DELETE /api/rainbow/enduser/v1.0/rooms/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(deleteUserFromBubble) entry`);
         return new Promise(function (resolve, reject) {
@@ -821,6 +841,7 @@ class RESTBubbles extends GenericRESTService {
     }
 
     inviteUser(email, _companyId, language, message, accountCompanyId?: string) {
+        // POST /api/rainbow/admin/v1.0/companies/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(inviteUser) entry`);
         return new Promise(function (resolve, reject) {
@@ -845,6 +866,7 @@ class RESTBubbles extends GenericRESTService {
     }
 
     setAvatarRoom(bubbleid, binaryData) {
+        // POST /api/rainbow/enduser/v1.0/rooms/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(setAvatarRoom) entry`);
         return new Promise(function (resolve, reject) {
@@ -862,6 +884,7 @@ class RESTBubbles extends GenericRESTService {
     }
 
     deleteAvatarRoom(roomId) {
+        // DELETE /api/rainbow/enduser/v1.0/rooms/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(deleteAvatarRoom) entry`);
         return new Promise((resolve, reject) => {
@@ -878,6 +901,7 @@ class RESTBubbles extends GenericRESTService {
     }
 
     getBubblesConsumption() {
+        // GET /api/rainbow/enduser/v1.0/rooms/consumption
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getBubblesConsumption) entry`);
         return new Promise((resolve, reject) => {
@@ -896,6 +920,7 @@ class RESTBubbles extends GenericRESTService {
     //region CONTAINERS (Bubble Folder)
 
     getAllBubblesContainers(name: string = null) {
+        // GET /api/rainbow/enduser/v1.0/rooms/containers/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getAllBubblesContainers) entry`);
         return new Promise((resolve, reject) => {
@@ -914,6 +939,7 @@ class RESTBubbles extends GenericRESTService {
     }
 
     getABubblesContainersById(id: string = null) {
+        // GET /api/rainbow/enduser/v1.0/rooms/containers/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getABubblesContainersById) entry`);
         return new Promise((resolve, reject) => {
@@ -932,6 +958,7 @@ class RESTBubbles extends GenericRESTService {
     }
 
     addBubblesToContainerById(containerId: string, bubbleIds: Array<string>) {
+        // PUT /api/rainbow/enduser/v1.0/rooms/containers/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(addBubblesToContainerById) entry`);
         return new Promise(function (resolve, reject) {
@@ -949,6 +976,7 @@ class RESTBubbles extends GenericRESTService {
     }
 
     updateBubbleContainerNameAndDescriptionById(containerId: string, name: string, description?: string) {
+        // PUT /api/rainbow/enduser/v1.0/rooms/containers/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(updateBubbleContainerNameAndDescriptionById) entry`);
         return new Promise(function (resolve, reject) {
@@ -967,6 +995,7 @@ class RESTBubbles extends GenericRESTService {
     }
 
     createBubbleContainer(name: string, description?: string, bubbleIds?: Array<string>) {
+        // POST /api/rainbow/enduser/v1.0/rooms/containers/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(createBubbleContainer) entry`);
         return new Promise(function (resolve, reject) {
@@ -987,6 +1016,7 @@ class RESTBubbles extends GenericRESTService {
     }
 
     deleteBubbleContainer(containerId) {
+        // DELETE /api/rainbow/enduser/v1.0/rooms/containers/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(deleteBubbleContainer) entry`);
         return new Promise((resolve, reject) => {
@@ -1003,6 +1033,7 @@ class RESTBubbles extends GenericRESTService {
     }
 
     removeBubblesFromContainer(containerId: string, bubbleIds: Array<string>) {
+        // PUT /api/rainbow/enduser/v1.0/rooms/containers/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(removeBubblesFromContainer) entry`);
         return new Promise(function (resolve, reject) {

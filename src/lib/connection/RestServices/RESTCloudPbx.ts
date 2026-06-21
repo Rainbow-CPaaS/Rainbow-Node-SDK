@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 import {addParamToUrl, addPropertyToObj, logEntryExit} from "../../common/Utils";
 import {GenericRESTService} from "../GenericRESTService.js";
@@ -43,6 +43,7 @@ class RESTCloudPbx extends GenericRESTService {
 
     getCloudPbxById(systemId) {
         // https://sandbox.openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/569d0ef3ef7816921f7e94fa
+        // GET /api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getCloudPbxById) entry`);
         return new Promise(function (resolve, reject) {
@@ -64,6 +65,7 @@ class RESTCloudPbx extends GenericRESTService {
 
     updateCloudPBX(systemId, barringOptions_permissions: string, barringOptions_restrictions: string, callForwardOptions_externalCallForward: string, customSipHeader_1: string, customSipHeader_2: string, emergencyOptions_callAuthorizationWithSoftPhone: boolean, emergencyOptions_emergencyGroupActivated: boolean, externalTrunkId: string, language: string, name: string, numberingDigits: number, numberingPrefix: number, outgoingPrefix: number, routeInternalCallsToPeer: boolean) {
         // PUT https://sandbox.openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}
+        // PUT /api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(updateCloudPBX) entry`);
         return new Promise(function (resolve, reject) {
@@ -109,6 +111,7 @@ class RESTCloudPbx extends GenericRESTService {
 
     deleteCloudPBX(systemId: string): Promise<{ status: string }> {
         // DELETE https://sandbox.openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/569d0ef3ef7816921f7e94fa
+        // DELETE /api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(deleteCloudPBX) entry`);
         return new Promise(function (resolve, reject) {
@@ -132,6 +135,7 @@ class RESTCloudPbx extends GenericRESTService {
 
     getCloudPbxs(limit: number, offset: number, sortField: string, sortOrder: number, companyId: string, bpId: string) {
         // https://sandbox.openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs
+        // GET /api/rainbow/rvcpprovisioning/v1.0/cloudpbxs
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getCloudPbxs) entry`);
         return new Promise(function (resolve, reject) {
@@ -162,6 +166,7 @@ class RESTCloudPbx extends GenericRESTService {
 
     createACloudPBX(bpId: string, companyId: string, customSipHeader_1: string, customSipHeader_2: string, externalTrunkId: string, language: string, name: string, noReplyDelay: number, numberingDigits: number, numberingPrefix: number, outgoingPrefix: number, routeInternalCallsToPeer: boolean, siteId: string) {
         // POST https://sandbox.openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs
+        // POST /api/rainbow/rvcpprovisioning/v1.0/cloudpbxs
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(createACloudPBX) entry`);
         return new Promise(function (resolve, reject) {
@@ -186,6 +191,7 @@ class RESTCloudPbx extends GenericRESTService {
 
     getCloudPBXCLIPolicyForOutboundCalls(systemId: string) {
         // GET https://sandbox.openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/5cd1a4f426fa4a77f8c04150/cli-options
+        // GET /api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/:systemId/cli-options
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getCloudPBXCLIPolicyForOutboundCalls) entry`);
         return new Promise(function (resolve, reject) {
@@ -207,6 +213,7 @@ class RESTCloudPbx extends GenericRESTService {
 
     updateCloudPBXCLIOptionsConfiguration(systemId: string, policy: string) {
         // PUT https://sandbox.openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}/cli-options
+        // PUT /api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/:systemId/cli-options
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(updateCloudPBXCLIOptionsConfiguration) entry`);
         return new Promise(function (resolve, reject) {
@@ -228,6 +235,7 @@ class RESTCloudPbx extends GenericRESTService {
 
     getCloudPBXlanguages(systemId: string) {
         // GET https://sandbox.openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/5cd1a4f426fa4a77f8c04150/languages
+        // GET /api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/:systemId/languages
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getCloudPBXlanguages) entry`);
         return new Promise(function (resolve, reject) {
@@ -249,6 +257,7 @@ class RESTCloudPbx extends GenericRESTService {
 
     getCloudPBXDeviceModels(systemId: string) {
         // GET https://sandbox.openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/5cd1a4f426fa4a77f8c04150/devicemodels
+        // GET /api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/:systemId/devicemodels
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getCloudPBXDeviceModels) entry`);
         return new Promise(function (resolve, reject) {
@@ -270,6 +279,7 @@ class RESTCloudPbx extends GenericRESTService {
 
     getCloudPBXTrafficBarringOptions(systemId: string) {
         // GET https://sandbox.openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/5cd1a4f426fa4a77f8c04150/barring-options
+        // GET /api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/:systemId/barring-options
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getCloudPBXTrafficBarringOptions) entry`);
         return new Promise(function (resolve, reject) {
@@ -291,6 +301,7 @@ class RESTCloudPbx extends GenericRESTService {
 
     getCloudPBXEmergencyNumbersAndEmergencyOptions(systemId: string) {
         // GET https://sandbox.openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/5cd1a4f426fa4a77f8c04150/emergency-numbers
+        // GET /api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/:systemId/barring-options
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getCloudPBXEmergencyNumbersAndEmergencyOptions) entry`);
         return new Promise(function (resolve, reject) {
@@ -531,6 +542,7 @@ class RESTCloudPbx extends GenericRESTService {
 
     CreateCloudPBXSIPDevice(systemId: string, description: string, deviceTypeId: string, macAddress: string) {
         // POST  https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}/devices
+        // POST /api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(CreateCloudPBXSIPDevice) entry`);
         return new Promise(function (resolve, reject) {
@@ -552,6 +564,7 @@ class RESTCloudPbx extends GenericRESTService {
 
     factoryResetCloudPBXSIPDevice(systemId: string, deviceId: string) {
         // POST  https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}/devices/{deviceId}/reset
+        // POST /api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(factoryResetCloudPBXSIPDevice) entry`);
         return new Promise(function (resolve, reject) {
@@ -573,6 +586,7 @@ class RESTCloudPbx extends GenericRESTService {
 
     getCloudPBXSIPDeviceById(systemId: string, deviceId: string) {
         // GET  https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}/devices/{deviceId}
+        // GET /api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getCloudPBXSIPDeviceById) entry`);
         return new Promise(function (resolve, reject) {
@@ -594,6 +608,7 @@ class RESTCloudPbx extends GenericRESTService {
 
     deleteCloudPBXSIPDevice(systemId: string, deviceId: string) {
         // DELETE  https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}/devices/{deviceId}
+        // DELETE /api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(deleteCloudPBXSIPDevice) entry`);
         return new Promise((resolve, reject) => {
@@ -612,6 +627,7 @@ class RESTCloudPbx extends GenericRESTService {
 
     updateCloudPBXSIPDevice(systemId: string, description: string, deviceId: string, macAddress: string) {
         // PUT  https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}/devices/{deviceId}
+        // PUT /api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(updateCloudPBXSIPDevice) entry`);
         return new Promise(function (resolve, reject) {
@@ -631,6 +647,7 @@ class RESTCloudPbx extends GenericRESTService {
 
     getAllCloudPBXSIPDevice(systemId: string, limit: number = 100, offset: number, sortField: string, sortOrder: number = 1, assigned: boolean, phoneNumberId: string) {
         // GET  https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}/devices/
+        // GET /api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getAllCloudPBXSIPDevice) entry`);
         return new Promise(function (resolve, reject) {
@@ -661,6 +678,7 @@ class RESTCloudPbx extends GenericRESTService {
 
     getCloudPBXSIPRegistrationsInformationDevice(systemId: string, deviceId: string) {
         // GET https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}/devices/{deviceId}/registrations/
+        // GET /api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getCloudPBXSIPRegistrationsInformationDevice) entry`);
         return new Promise(function (resolve, reject) {
@@ -682,6 +700,7 @@ class RESTCloudPbx extends GenericRESTService {
 
     grantCloudPBXAccessToDebugSession(systemId: string, deviceId: string, duration: string) {
         // POST  https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}/devices/{deviceId}/debug
+        // POST /api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(grantCloudPBXAccessToDebugSession) entry`);
         return new Promise(function (resolve, reject) {
@@ -703,6 +722,7 @@ class RESTCloudPbx extends GenericRESTService {
 
     revokeCloudPBXAccessFromDebugSession(systemId: string, deviceId: string) {
         // DELETE  https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}/devices/{deviceId}/debug
+        // DELETE /api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(revokeCloudPBXAccessFromDebugSession) entry`);
         return new Promise((resolve, reject) => {
@@ -721,6 +741,7 @@ class RESTCloudPbx extends GenericRESTService {
 
     rebootCloudPBXSIPDevice(systemId: string, deviceId: string) {
         // POST  https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}/devices/{deviceId}/reboot
+        // POST /api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(rebootCloudPBXSIPDevice) entry`);
         return new Promise(function (resolve, reject) {
@@ -746,6 +767,7 @@ class RESTCloudPbx extends GenericRESTService {
 
     getCloudPBXSubscriber(systemId: string, phoneNumberId: string) {
         // GET https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}/subscribers/{phoneNumberId}
+        // GET /api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getCloudPBXSubscriber) entry`);
         return new Promise(function (resolve, reject) {
@@ -767,6 +789,7 @@ class RESTCloudPbx extends GenericRESTService {
 
     deleteCloudPBXSubscriber(systemId: string, phoneNumberId: string) {
         // DELETE  https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}/subscribers/{phoneNumberId}
+        // DELETE /api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(deleteCloudPBXSubscriber) entry`);
         return new Promise((resolve, reject) => {
@@ -785,6 +808,7 @@ class RESTCloudPbx extends GenericRESTService {
 
     createCloudPBXSubscriberRainbowUser(systemId: string, login: string, password: string, shortNumber: string, userId: string) {
         // POST https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}/subscribers
+        // POST /api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/:systemId/subscribers
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(createCloudPBXSubscriberRainbowUser) entry`);
         return new Promise(function (resolve, reject) {
@@ -806,6 +830,7 @@ class RESTCloudPbx extends GenericRESTService {
 
     getCloudPBXSIPdeviceAssignedSubscriber(systemId: string, phoneNumberId: string, deviceId: string) {
         // GET https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}/subscribers/{phoneNumberId}/devices/{deviceId}
+        // GET /api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/:systemId/subscribers/:phoneNumberId/devices/:deviceId
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getCloudPBXSIPdeviceAssignedSubscriber) entry`);
         return new Promise(function (resolve, reject) {
@@ -827,6 +852,7 @@ class RESTCloudPbx extends GenericRESTService {
 
     removeCloudPBXAssociationSubscriberAndSIPdevice(systemId: string, phoneNumberId: string, deviceId: string) {
         // DELETE https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}/subscribers/{phoneNumberId}/devices/{deviceId}
+        // DELETE /api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(removeCloudPBXAssociationSubscriberAndSIPdevice) entry`);
         return new Promise((resolve, reject) => {
@@ -845,6 +871,7 @@ class RESTCloudPbx extends GenericRESTService {
 
     getCloudPBXAllSIPdevicesAssignedSubscriber(systemId: string, limit: number = 100, offset: number, sortField: string, sortOrder: number = 1, phoneNumberId: string) {
         // GET https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}/subscribers/{phoneNumberId}/devices/
+        // GET /api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getCloudPBXAllSIPdevicesAssignedSubscriber) entry`);
         return new Promise(function (resolve, reject) {
@@ -873,6 +900,7 @@ class RESTCloudPbx extends GenericRESTService {
 
     getCloudPBXInfoAllRegisteredSIPdevicesSubscriber(systemId: string, phoneNumberId: string) {
         // GET https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}/subscribers/{phoneNumberId}/registrations/
+        // GET /api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getCloudPBXInfoAllRegisteredSIPdevicesSubscriber) entry`);
         return new Promise(function (resolve, reject) {
@@ -894,6 +922,7 @@ class RESTCloudPbx extends GenericRESTService {
 
     assignCloudPBXSIPDeviceToSubscriber(systemId: string, phoneNumberId: string, deviceId: string, macAddress: string) {
         // POST https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}/subscribers/{phoneNumberId}/devices
+        // POST /api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(assignCloudPBXSIPDeviceToSubscriber) entry`);
         return new Promise(function (resolve, reject) {
@@ -913,6 +942,7 @@ class RESTCloudPbx extends GenericRESTService {
 
     getCloudPBXSubscriberCLIOptions(systemId: string, phoneNumberId: string) {
         // GET  https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}/subscribers/{phoneNumberId}/cli-options
+        // GET /api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/:systemId/subscribers/:phoneNumberId/cli-options
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getCloudPBXSubscriberCLIOptions) entry`);
         return new Promise(function (resolve, reject) {
@@ -938,6 +968,7 @@ class RESTCloudPbx extends GenericRESTService {
 
     getCloudPBXUnassignedInternalPhonenumbers(systemId: string) {
         // GET https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}/phone-numbers/free
+        // GET /api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getCloudPBXUnassignedInternalPhonenumbers) entry`);
         return new Promise(function (resolve, reject) {
@@ -959,6 +990,7 @@ class RESTCloudPbx extends GenericRESTService {
 
     listCloudPBXDDINumbersAssociated(systemId: string, limit: number = 100, offset: number, sortField: string = "number", sortOrder: number = 1, isAssignedToUser: boolean, isAssignedToGroup: boolean, isAssignedToIVR: boolean, isAssignedToAutoAttendant: boolean, isAssigned: boolean) {
         // GET https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}/phone-numbers/ddi
+        // GET /api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(listCloudPBXDDINumbersAssociated) entry`);
         return new Promise(function (resolve, reject) {
@@ -992,6 +1024,7 @@ class RESTCloudPbx extends GenericRESTService {
 
     createCloudPBXDDINumber(systemId: string, number: string) {
         // POST https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}/phone-numbers/ddi
+        // POST /api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(createCloudPBXDDINumber) entry`);
         return new Promise(function (resolve, reject) {
@@ -1011,6 +1044,7 @@ class RESTCloudPbx extends GenericRESTService {
 
     deleteCloudPBXDDINumber(systemId: string, phoneNumberId: string) {
         // DELETE https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}/phone-numbers/ddi/{phoneNumberId}
+        // DELETE /api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(deleteCloudPBXDDINumber) entry`);
         return new Promise((resolve, reject) => {
@@ -1029,6 +1063,7 @@ class RESTCloudPbx extends GenericRESTService {
 
     associateCloudPBXDDINumber(systemId: string, phoneNumberId: string, userId: string) {
         // POST https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}/phone-numbers/ddi/{phoneNumberId}/users/{userId}
+        // POST /api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(associateCloudPBXDDINumber) entry`);
         return new Promise(function (resolve, reject) {
@@ -1048,6 +1083,7 @@ class RESTCloudPbx extends GenericRESTService {
 
     disassociateCloudPBXDDINumber(systemId: string, phoneNumberId: string, userId: string) {
         // DELETE https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}/phone-numbers/ddi/{phoneNumberId}/users/{userId}
+        // DELETE /api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(disassociateCloudPBXDDINumber) entry`);
         return new Promise((resolve, reject) => {
@@ -1066,6 +1102,7 @@ class RESTCloudPbx extends GenericRESTService {
 
     setCloudPBXDDIAsdefault(systemId: string, phoneNumberId: string) {
         // POST  https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/{systemId}/phone-numbers/ddi/{phoneNumberId}/default
+        // POST /api/rainbow/rvcpprovisioning/v1.0/cloudpbxs/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(setCloudPBXDDIAsdefault) entry`);
         return new Promise(function (resolve, reject) {
@@ -1089,6 +1126,7 @@ class RESTCloudPbx extends GenericRESTService {
 
     retrieveExternalSIPTrunkById(externalTrunkId: string) {
         // GET https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/external-trunks/{externalTrunkId}
+        // GET /api/rainbow/rvcpprovisioning/v1.0/external-trunks/:externalTrunkId
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(retrieveExternalSIPTrunkById) entry`);
         return new Promise(function (resolve, reject) {
@@ -1110,6 +1148,7 @@ class RESTCloudPbx extends GenericRESTService {
 
     retrievelistExternalSIPTrunks(rvcpInstanceId: string, status: string, trunkType: string) {
         // GET  https://openrainbow.com/api/rainbow/rvcpprovisioning/v1.0/external-trunks/
+        // GET /api/rainbow/rvcpprovisioning/v1.0/external-trunks
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(retrievelistExternalSIPTrunks) entry`);
         return new Promise(function (resolve, reject) {

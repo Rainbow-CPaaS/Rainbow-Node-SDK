@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 import {logEntryExit} from "../../common/Utils";
 import {GenericRESTService} from "../GenericRESTService.js";
@@ -38,6 +38,7 @@ class RESTProfiles extends GenericRESTService {
     //region Profiles
 
     async getServerProfiles(accountId: string) {
+        // GET /api/rainbow/enduser/v1.0/users/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getServerProfiles) entry`);
         return new Promise((resolve, reject) => {
@@ -54,6 +55,7 @@ class RESTProfiles extends GenericRESTService {
     }
 
     getServerProfilesFeatures(accountId: string) {
+        // GET /api/rainbow/enduser/v1.0/users/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getServerProfilesFeatures) entry`);
         return new Promise((resolve, reject) => {
@@ -70,6 +72,7 @@ class RESTProfiles extends GenericRESTService {
     }
 
     async getThirdPartyApps() {
+        // GET /api/rainbow/authentication/v1.0/oauth/tokens?format=medium
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getThirdPartyApps) entry`);
         return new Promise((resolve, reject) => {
@@ -86,6 +89,7 @@ class RESTProfiles extends GenericRESTService {
     }
 
     async revokeThirdPartyAccess(tokenId) {
+        // DELETE /api/rainbow/authentication/v1.0/oauth/tokens/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(revokeThirdPartyAccess) entry`);
         return new Promise((resolve, reject) => {

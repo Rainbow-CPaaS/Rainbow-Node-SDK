@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 import {addParamToUrl, logEntryExit, stackTrace} from "../../common/Utils";
 import {GenericRESTService} from "../GenericRESTService";
@@ -73,6 +73,7 @@ class RESTConferenceV2 extends GenericRESTService {
 
     snapshotConference(roomId : string, limit : number = 100,  offset : number = 0) {
         // GET  https://openrainbow.com/api/rainbow/conference/v1.0/rooms/:roomId/snapshot
+        // GET /api/rainbow/conference/v1.0/rooms/:roomId/snapshot
         let that = this;
         return new Promise(function (resolve, reject) {
             let url : string = "/api/rainbow/conference/v1.0/rooms/" + roomId + "/snapshot" ;
@@ -99,6 +100,7 @@ class RESTConferenceV2 extends GenericRESTService {
     delegateConference(roomId : string, userId : string) {
         // API
         // PUT  https://openrainbow.com/api/rainbow/conference/v1.0/rooms/:roomId/users/:userId/delegate
+        // PUT /api/rainbow/conference/v1.0/rooms/:roomId/users/:userId/delegate
         let that = this;
         return new Promise(function (resolve, reject) {
             let url : string = "/api/rainbow/conference/v1.0/rooms/" + roomId + "/users/" + userId + "/delegate" ;
@@ -122,6 +124,7 @@ class RESTConferenceV2 extends GenericRESTService {
 
     disconnectPSTNParticipantFromConference (roomId : string) {
         // DELETE https://openrainbow.com/api/rainbow/conference/v1.0/rooms/:roomId/phone-numbers
+        // DELETE /api/rainbow/conference/v1.0/rooms/:roomId/phone-numbers
         let that = this;
         return new Promise((resolve, reject) => {
             let url = "/api/rainbow/conference/v1.0/rooms/" + roomId + "/phone-numbers";
@@ -145,6 +148,7 @@ class RESTConferenceV2 extends GenericRESTService {
 
     disconnectParticipantFromConference (roomId : string, userId : string) {
         // DELETE https://openrainbow.com/api/rainbow/conference/v1.0/rooms/:roomId/users/:userId
+        // DELETE /api/rainbow/conference/v1.0/rooms/:roomId/users/:userId
         let that = this;
         return new Promise((resolve, reject) => {
             let url = "/api/rainbow/conference/v1.0/rooms/" + roomId + "/users/" + userId;
@@ -168,6 +172,7 @@ class RESTConferenceV2 extends GenericRESTService {
 
     getTalkingTimeForAllPparticipantsInConference(roomId : string, limit : number = 100,  offset : number = 0) {
         // GET  https://openrainbow.com/api/rainbow/conference/v1.0/rooms/:roomId/talking-time
+        // GET /api/rainbow/conference/v1.0/rooms/
         let that = this;
         return new Promise(function (resolve, reject) {
             let url : string = "/api/rainbow/conference/v1.0/rooms/" + roomId + "/talking-time" ;
@@ -242,6 +247,7 @@ class RESTConferenceV2 extends GenericRESTService {
 
     pauseRecording(roomId : string) {
         // PUT  https://openrainbow.com/api/rainbow/conference/v1.0/rooms/:roomId/pause-recording
+        // PUT /api/rainbow/conference/v1.0/rooms/:roomId/pause-recording
         let that = this;
         return new Promise(function (resolve, reject) {
             let url : string = "/api/rainbow/conference/v1.0/rooms/" + roomId + "/pause-recording" ;
@@ -265,6 +271,7 @@ class RESTConferenceV2 extends GenericRESTService {
 
     resumeRecording(roomId : string) {
         // PUT  https://openrainbow.com/api/rainbow/conference/v1.0/rooms/:roomId/resume-recording
+        // PUT /api/rainbow/conference/v1.0/rooms/:roomId/resume-recording
         let that = this;
         return new Promise(function (resolve, reject) {
             let url : string = "/api/rainbow/conference/v1.0/rooms/" + roomId + "/resume-recording" ;
@@ -288,6 +295,7 @@ class RESTConferenceV2 extends GenericRESTService {
 
     startRecording(roomId : string) {
         // PUT  https://openrainbow.com/api/rainbow/conference/v1.0/rooms/:roomId/start-recording
+        // PUT /api/rainbow/conference/v1.0/rooms/:roomId/start-recording
         let that = this;
         return new Promise(function (resolve, reject) {
             let url : string = "/api/rainbow/conference/v1.0/rooms/" + roomId + "/start-recording" ;
@@ -311,6 +319,7 @@ class RESTConferenceV2 extends GenericRESTService {
 
     stopRecording(roomId : string) {
         // PUT  https://openrainbow.com/api/rainbow/conference/v1.0/rooms/:roomId/stop-recording
+        // PUT /api/rainbow/conference/v1.0/rooms/:roomId/stop-recording
         let that = this;
         return new Promise(function (resolve, reject) {
             let url : string = "/api/rainbow/conference/v1.0/rooms/" + roomId + "/stop-recording" ;
@@ -334,6 +343,7 @@ class RESTConferenceV2 extends GenericRESTService {
 
     rejectAVideoConference(roomId : string) {
         // PUT  https://openrainbow.com/api/rainbow/conference/v1.0/rooms/:roomId/reject
+        // PUT /api/rainbow/conference/v1.0/rooms/:roomId/reject
         let that = this;
         return new Promise(function (resolve, reject) {
             let url : string = "/api/rainbow/conference/v1.0/rooms/" + roomId + "/reject" ;
@@ -359,6 +369,7 @@ class RESTConferenceV2 extends GenericRESTService {
     startConferenceOrWebinarInARoom(roomId : string, services  : any = undefined) {
         // API https://api.openrainbow.org/conference/#api-conference_v2-startConferenceV2
         // POST  https://openrainbow.com/api/rainbow/conference/v1.0/rooms/:roomId/start
+        // POST /api/rainbow/conference/v1.0/rooms/
         let that = this;
         return new Promise(function (resolve, reject) {
             let url = "/api/rainbow/conference/v1.0/rooms/" + roomId + "/start";
@@ -392,6 +403,7 @@ class RESTConferenceV2 extends GenericRESTService {
 
     stopConferenceOrWebinar(roomId : string) {
         // DELETE https://openrainbow.com/api/rainbow/conference/v1.0/rooms/:roomId/stop     
+        // DELETE /api/rainbow/conference/v1.0/rooms/
         let that = this;
         return new Promise((resolve, reject) => {
             let url = "/api/rainbow/conference/v1.0/rooms/" + roomId + "/stop";

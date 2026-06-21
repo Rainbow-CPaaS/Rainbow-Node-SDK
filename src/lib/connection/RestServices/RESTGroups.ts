@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 import {logEntryExit} from "../../common/Utils";
 import {GenericRESTService} from "../GenericRESTService.js";
@@ -44,6 +44,7 @@ class RESTGroups extends GenericRESTService {
     //region Groups
 
     getGroups(accountId: string) {
+        // GET /api/rainbow/enduser/v1.0/users/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getGroups) entry`);
         let getSetOfGroups = function (page, max, groups) {
@@ -94,6 +95,7 @@ class RESTGroups extends GenericRESTService {
     }
 
     getGroup(accountId: string, groupId: string) {
+        // GET /api/rainbow/enduser/v1.0/users/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getGroup) entry`);
         return new Promise(function (resolve, reject) {
@@ -110,6 +112,7 @@ class RESTGroups extends GenericRESTService {
     }
 
     updateGroupFavorite(accountId: string, groupId: string, favorite: boolean) {
+        // PUT /api/rainbow/enduser/v1.0/users/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(updateGroupFavorite) entry`);
         let data = { isFavorite: favorite };
@@ -127,6 +130,7 @@ class RESTGroups extends GenericRESTService {
     }
 
     createGroup(accountId: string, name: string, comment: string, isFavorite: boolean) {
+        // POST /api/rainbow/enduser/v1.0/users/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(createGroup) entry`);
         return new Promise(function (resolve, reject) {
@@ -147,6 +151,7 @@ class RESTGroups extends GenericRESTService {
     }
 
     deleteGroup(accountId: string, groupId: string) {
+        // DELETE /api/rainbow/enduser/v1.0/users/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(deleteGroup) entry`);
         return new Promise(function (resolve, reject) {
@@ -163,6 +168,7 @@ class RESTGroups extends GenericRESTService {
     }
 
     updateGroupName(accountId: string, groupId: string, name: string) {
+        // PUT /api/rainbow/enduser/v1.0/users/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(updateGroupName) entry`);
         return new Promise(function (resolve, reject) {
@@ -179,6 +185,7 @@ class RESTGroups extends GenericRESTService {
     }
 
     updateGroupComment(accountId: string, groupId: string, comment: string) {
+        // PUT /api/rainbow/enduser/v1.0/users/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(updateGroupComment) entry`);
         return new Promise(function (resolve, reject) {
@@ -195,6 +202,7 @@ class RESTGroups extends GenericRESTService {
     }
 
     addUserInGroup(accountId: string, contactId: string, groupId: string) {
+        // POST /api/rainbow/enduser/v1.0/users/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(addUserInGroup) entry`);
         return new Promise(function (resolve, reject) {
@@ -211,6 +219,7 @@ class RESTGroups extends GenericRESTService {
     }
 
     removeUserFromGroup(accountId: string, contactId: string, groupId: string) {
+        // DELETE /api/rainbow/enduser/v1.0/users/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(removeUserFromGroup) entry`);
         return new Promise(function (resolve, reject) {

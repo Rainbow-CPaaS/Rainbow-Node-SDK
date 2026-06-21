@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 import {addParamToUrl, logEntryExit} from "../../common/Utils";
 import {GenericRESTService} from "../GenericRESTService.js";
@@ -40,6 +40,7 @@ class RESTRainbowVoice extends GenericRESTService {
 
     retrieveAllAvailableCallLineIdentifications() {
         // GET  https://openrainbow.com/api/rainbow/voice/v1.0/cli-options
+        // GET /api/rainbow/voice/v1.0/cli-options
         let that = this;
         return new Promise(function (resolve, reject) {
             let url: string = "/api/rainbow/voice/v1.0/cli-options";
@@ -63,6 +64,7 @@ class RESTRainbowVoice extends GenericRESTService {
 
     retrieveCurrentCallLineIdentification() {
         // GET  https://openrainbow.com/api/rainbow/voice/v1.0/cli-options/current
+        // GET /api/rainbow/voice/v1.0/cli-options
         let that = this;
         return new Promise(function (resolve, reject) {
             let url: string = "/api/rainbow/voice/v1.0/cli-options/current";
@@ -87,6 +89,7 @@ class RESTRainbowVoice extends GenericRESTService {
     setCurrentActiveCallLineIdentification(policy: string, phoneNumberId?: string) {
         // API https://api.openrainbow.org/voice/#api-CLI_Options-Set_CLI
         // PUT  https://openrainbow.com/api/rainbow/voice/v1.0/cli-options
+        // PUT /api/rainbow/voice/v1.0/cli-options
         let that = this;
         return new Promise(function (resolve, reject) {
             that._logger.log(that.INTERNAL, LOG_ID + "(setCurrentActiveCallLineIdentification) policy : ", policy + ", phoneNumberId : ", phoneNumberId);
@@ -114,6 +117,7 @@ class RESTRainbowVoice extends GenericRESTService {
     addMemberToGroup(groupId: string, memberId: string, position: number, roles: [], status: string) {
         // POST  https://openrainbow.com/api/rainbow/voice/v1.0/groups/:groupId/members
         // API https://api.openrainbow.org/voice/#api-Cloud_PBX_group-add_user_to_group
+        // POST /api/rainbow/voice/v1.0/groups/
         let that = this;
         return new Promise(function (resolve, reject) {
             that._logger.log(that.INTERNAL, LOG_ID + "(addMemberToGroup) groupId : ", groupId + ", memberId : ", memberId + ", position : ", position + ", roles : ", roles + ", status : ", status);
@@ -138,6 +142,7 @@ class RESTRainbowVoice extends GenericRESTService {
     deleteVoiceMessageAssociatedToAGroup(groupId: string, messageId: string) {
         // DELETE https://openrainbow.com/api/rainbow/voice/v1.0/groups/:groupId/messages/:messageId
         // API https://api.openrainbow.org/voice/#api-Cloud_PBX_group-DeleteGroupVoiceMessage
+        // DELETE /api/rainbow/voice/v1.0/groups/
         let that = this;
         return new Promise((resolve, reject) => {
             that.http.delete("/api/rainbow/voice/v1.0/groups/" + groupId + "/messages/" + messageId, that.getRequestHeader())
@@ -156,6 +161,7 @@ class RESTRainbowVoice extends GenericRESTService {
     getVoiceMessagesAssociatedToGroup(groupId: string, limit: number = 100, offset: number = 0, sortField: string = "name", sortOrder: number, fromDate: string, toDate: string, callerName: string, callerNumber: string) {
         // GET  https://openrainbow.com/api/rainbow/voice/v1.0/groups/:groupId/messages
         // API https://api.openrainbow.org/voice/#api-Cloud_PBX_group-GetGroupVoiceMessages
+        // GET /api/rainbow/voice/v1.0/groups/:groupId/messages
         let that = this;
         return new Promise(function (resolve, reject) {
             let url: string = "/api/rainbow/voice/v1.0/groups/" + groupId + "/messages";
@@ -188,6 +194,7 @@ class RESTRainbowVoice extends GenericRESTService {
     getGroupForwards(groupId: string) {
         // GET  https://openrainbow.com/api/rainbow/voice/v1.0/groups/:groupId/forwards
         // API https://api.openrainbow.org/voice/#api-Cloud_PBX_group-GetCloudPbxGroupForwards
+        // GET /api/rainbow/voice/v1.0/groups/
         let that = this;
         return new Promise(function (resolve, reject) {
             let url: string = "/api/rainbow/voice/v1.0/groups/" + groupId + "/forwards";
@@ -212,6 +219,7 @@ class RESTRainbowVoice extends GenericRESTService {
     getTheUserGroup(type: string) {
         // GET  https://openrainbow.com/api/rainbow/voice/v1.0/groups
         // API https://api.openrainbow.org/voice/#api-Cloud_PBX_group-Get_User_groups
+        // GET /api/rainbow/voice/v1.0/groups/
         let that = this;
         return new Promise(function (resolve, reject) {
             let url: string = "/api/rainbow/voice/v1.0/groups";
@@ -237,6 +245,7 @@ class RESTRainbowVoice extends GenericRESTService {
     joinAGroup(groupId: string) {
         // POST  https://openrainbow.com/api/rainbow/voice/v1.0/groups/:groupId/join
         // API https://api.openrainbow.org/voice/#api-Cloud_PBX_group-Join_group
+        // POST /api/rainbow/voice/v1.0/groups/
         let that = this;
         return new Promise(function (resolve, reject) {
             that._logger.log(that.INTERNAL, LOG_ID + "(joinAGroup) groupId : ", groupId);
@@ -256,6 +265,7 @@ class RESTRainbowVoice extends GenericRESTService {
     joinAllGroups() {
         // POST  https://openrainbow.com/api/rainbow/voice/v1.0/groups/join
         // API https://api.openrainbow.org/voice/#api-Cloud_PBX_group-Join_all_groups
+        // POST /api/rainbow/voice/v1.0/groups/join
         let that = this;
         return new Promise(function (resolve, reject) {
             that._logger.log(that.INTERNAL, LOG_ID + "(joinAllGroups) .");
@@ -275,6 +285,7 @@ class RESTRainbowVoice extends GenericRESTService {
     leaveAGroup(groupId: string) {
         // POST  https://openrainbow.com/api/rainbow/voice/v1.0/groups/:groupId/leave
         // API https://api.openrainbow.org/voice/#api-Cloud_PBX_group-leave_group
+        // POST /api/rainbow/voice/v1.0/groups/
         let that = this;
         return new Promise(function (resolve, reject) {
             that._logger.log(that.INTERNAL, LOG_ID + "(leaveAGroup) groupId : ", groupId);
@@ -294,6 +305,7 @@ class RESTRainbowVoice extends GenericRESTService {
     leaveAllGroups() {
         // POST  https://openrainbow.com/api/rainbow/voice/v1.0/groups/leave
         // API https://api.openrainbow.org/voice/#api-Cloud_PBX_group-leave_all_groups
+        // POST /api/rainbow/voice/v1.0/groups/leave
         let that = this;
         return new Promise(function (resolve, reject) {
             that._logger.log(that.INTERNAL, LOG_ID + "(leaveAllGroups) .");
@@ -313,6 +325,7 @@ class RESTRainbowVoice extends GenericRESTService {
     removeMemberFromGroup(groupId: string, memberId: string) {
         // DELETE https://openrainbow.com/api/rainbow/voice/v1.0/groups/:groupId/members/:memberId
         // API https://api.openrainbow.org/voice/#api-Cloud_PBX_group-remove_user_from_group
+        // DELETE /api/rainbow/voice/v1.0/groups/
         let that = this;
         return new Promise((resolve, reject) => {
             that.http.delete("/api/rainbow/voice/v1.0/groups/" + groupId + "/members/" + memberId, that.getRequestHeader())
@@ -331,6 +344,7 @@ class RESTRainbowVoice extends GenericRESTService {
     retrieveNumberReadUnreadMessagesForHuntingGroupsOfLoggedUser() {
         // GET  https://openrainbow.com/api/rainbow/voice/v1.0/groups/messages-summary
         // API https://api.openrainbow.org/voice/#api-Cloud_PBX_group-GetGroupsMessagesSummary
+        // GET /api/rainbow/voice/v1.0/groups/
         let that = this;
         return new Promise(function (resolve, reject) {
             let url: string = "/api/rainbow/voice/v1.0/groups/messages-summary";
@@ -355,6 +369,7 @@ class RESTRainbowVoice extends GenericRESTService {
     updateAGroup(groupId: string, externalNumberId: string, isEmptyAllowed: boolean) {
         // PUT  https://openrainbow.com/api/rainbow/voice/v1.0/groups/:groupId
         // API https://api.openrainbow.org/voice/#api-Cloud_PBX_group-PutCloudPbxGroup
+        // PUT /api/rainbow/voice/v1.0/groups/
         let that = this;
         return new Promise(function (resolve, reject) {
             that._logger.log(that.INTERNAL, LOG_ID + "(updateAVoiceMessageAssociatedToAGroup) groupId : ", groupId, ", externalNumberId : ", externalNumberId, ", isEmptyAllowed : ", isEmptyAllowed);
@@ -377,6 +392,7 @@ class RESTRainbowVoice extends GenericRESTService {
     updateAVoiceMessageAssociatedToAGroup(groupId: string, messageId: string, read: boolean) {
         // PUT  https://openrainbow.com/api/rainbow/voice/v1.0/groups/:groupId/messages/:messageId
         // API https://api.openrainbow.org/voice/#api-Cloud_PBX_group-UpdateGroupVoiceMessage
+        // PUT /api/rainbow/voice/v1.0/groups/
         let that = this;
         return new Promise(function (resolve, reject) {
             that._logger.log(that.INTERNAL, LOG_ID + "(updateAVoiceMessageAssociatedToAGroup) groupId : ", groupId + ", messageId : ", messageId);
@@ -398,6 +414,7 @@ class RESTRainbowVoice extends GenericRESTService {
     updateGroupForward(groupId: string, callForwardType: string, destinationType: string, numberToForward: number, activate: boolean, noReplyDelay: number, managerIds: Array<string>, rvcpAutoAttendantId: string) {
         // PUT  https://openrainbow.com/api/rainbow/voice/v1.0/groups/:groupId/forwards/:callForwardType
         // API https://api.openrainbow.org/voice/#api-Cloud_PBX_group-PutCloudPbxGroupForwards
+        // PUT /api/rainbow/voice/v1.0/groups/
         let that = this;
         return new Promise(function (resolve, reject) {
             that._logger.log(that.INTERNAL, LOG_ID + "(updateGroupForward) groupId : ", groupId + ", callForwardType : ", callForwardType);
@@ -424,6 +441,7 @@ class RESTRainbowVoice extends GenericRESTService {
     updateGroupMember(groupId: string, memberId: string, position: number, roles: Array<string>, status: string) {
         // PUT  https://openrainbow.com/api/rainbow/voice/v1.0/groups/:groupId/members/:memberId
         // API https://api.openrainbow.org/voice/#api-Cloud_PBX_group-update_member_inside_group
+        // PUT /api/rainbow/voice/v1.0/groups/
         let that = this;
         return new Promise(function (resolve, reject) {
             that._logger.log(that.INTERNAL, LOG_ID + "(updateGroupMember) groupId : ", groupId + ", memberId : ", memberId);
@@ -451,6 +469,7 @@ class RESTRainbowVoice extends GenericRESTService {
     activateDeactivateDND(activate: boolean) {
         // PUT  https://openrainbow.com/api/rainbow/voice/v1.0/deskphones/dnd
         // API https://api.openrainbow.org/voice/#api-Deskphones-Put_Dnd_state
+        // PUT /api/rainbow/voice/v1.0/deskphones/dnd?activate=
         let that = this;
         return new Promise(function (resolve, reject) {
             that._logger.log(that.INTERNAL, LOG_ID + "(activateDeactivateDND) activate : ", activate);
@@ -470,6 +489,7 @@ class RESTRainbowVoice extends GenericRESTService {
     configureAndActivateDeactivateForward(callForwardType: string, type: string, number: string, timeout: number, activated: boolean) {
         // PUT  https://openrainbow.com/api/rainbow/voice/v1.0/deskphones/forwards/:callForwardType
         // API https://api.openrainbow.org/voice/#api-Deskphones-Put_Forward_state
+        // PUT /api/rainbow/voice/v1.0/deskphones/forwards/
         let that = this;
         return new Promise(function (resolve, reject) {
             that._logger.log(that.INTERNAL, LOG_ID + "(configureAndActivateDeactivateForward) callForwardType : ", callForwardType);
@@ -494,6 +514,7 @@ class RESTRainbowVoice extends GenericRESTService {
     retrieveActiveForwards() {
         // GET  https://openrainbow.com/api/rainbow/voice/v1.0/deskphones/forwards
         // API https://api.openrainbow.org/voice/#api-Deskphones-Get_active_forwards
+        // GET /api/rainbow/voice/v1.0/deskphones/forwards
         let that = this;
         return new Promise(function (resolve, reject) {
             let url: string = "/api/rainbow/voice/v1.0/deskphones/forwards";
@@ -518,6 +539,7 @@ class RESTRainbowVoice extends GenericRESTService {
     retrieveDNDState() {
         // GET  https://openrainbow.com/api/rainbow/voice/v1.0/deskphones/dnd
         // API https://api.openrainbow.org/voice/#api-Deskphones-Get_Dnd_state
+        // GET /api/rainbow/voice/v1.0/personalroutines/
         let that = this;
         return new Promise(function (resolve, reject) {
             let url: string = "/api/rainbow/voice/v1.0/deskphones/dnd";
@@ -542,6 +564,7 @@ class RESTRainbowVoice extends GenericRESTService {
     searchUsersGroupsContactsByName(displayName: string, limit: number) {
         // GET  https://openrainbow.com/api/rainbow/voice/v1.0/deskphones/searchbyname
         // API https://api.openrainbow.org/voice/#api-Deskphones-Search_by_name
+        // GET /api/rainbow/voice/v1.0/personalroutines/
         let that = this;
         return new Promise(function (resolve, reject) {
             let url: string = "/api/rainbow/voice/v1.0/deskphones/searchbyname";
@@ -572,6 +595,7 @@ class RESTRainbowVoice extends GenericRESTService {
     activatePersonalRoutine(routineId: string) {
         // POST  https://openrainbow.com/api/rainbow/voice/v1.0/personalroutines/:routineId/activate
         // API https://api.openrainbow.org/voice/#api-Personal_Routines-Activate_PersonalRoutine
+        // POST /api/rainbow/voice/v1.0/personalroutines/
         let that = this;
         return new Promise(function (resolve, reject) {
             that._logger.log(that.INTERNAL, LOG_ID + "(activatePersonalRoutine) routineId : ", routineId);
@@ -591,6 +615,7 @@ class RESTRainbowVoice extends GenericRESTService {
     createCustomPersonalRoutine(name: string) {
         // POST  https://openrainbow.com/api/rainbow/voice/v1.0/personalroutines
         // API https://api.openrainbow.org/voice/#api-Personal_Routines-Create_PersonalRoutine
+        // POST /api/rainbow/voice/v1.0/personalroutines
         let that = this;
         return new Promise(function (resolve, reject) {
             that._logger.log(that.INTERNAL, LOG_ID + "(createCustomPersonalRoutine) name : ", name);
@@ -610,6 +635,7 @@ class RESTRainbowVoice extends GenericRESTService {
     deleteCustomPersonalRoutine(routineId: string) {
         // DELETE https://openrainbow.com/api/rainbow/voice/v1.0/personalroutines/:routineId
         // API https://api.openrainbow.org/voice/#api-Personal_Routines-Delete_PersonalRoutine
+        // DELETE /api/rainbow/voice/v1.0/personalroutines/
         let that = this;
         return new Promise((resolve, reject) => {
             let url = "/api/rainbow/voice/v1.0/personalroutines/" + routineId;
@@ -629,6 +655,7 @@ class RESTRainbowVoice extends GenericRESTService {
     getPersonalRoutineData(routineId: string) {
         // GET  https://openrainbow.com/api/rainbow/voice/v1.0/personalroutines/:routineId
         // API https://api.openrainbow.org/voice/#api-Personal_Routines-Get_PersonalRoutine
+        // GET /api/rainbow/voice/v1.0/personalroutines/
         let that = this;
         return new Promise(function (resolve, reject) {
             let url: string = "/api/rainbow/voice/v1.0/personalroutines/" + routineId;
@@ -653,6 +680,7 @@ class RESTRainbowVoice extends GenericRESTService {
     getAllPersonalRoutines(userId) {
         // GET  https://openrainbow.com/api/rainbow/voice/v1.0/personalroutines
         // API https://api.openrainbow.org/voice/#api-Personal_Routines-Get_PersonalRoutines
+        // GET /api/rainbow/voice/v1.0/personalroutines/
         let that = this;
         return new Promise(function (resolve, reject) {
             let url: string = "/api/rainbow/voice/v1.0/personalroutines?userId=" + userId;
@@ -677,6 +705,7 @@ class RESTRainbowVoice extends GenericRESTService {
     updatePersonalRoutineData(routineId: string, dndPresence: boolean, name: string, presence: { manage: boolean, value: string }, deviceMode: { manage: boolean, mode: string }, immediateCallForward: { manage: boolean, activate: boolean, number: string, destinationType: string }, busyCallForward: { manage: boolean, activate: boolean, number: string, destinationType: string }, noreplyCallForward: { manage: boolean, activate: boolean, number: string, destinationType: string, noReplyDelay: number }, huntingGroups: { withdrawAll: boolean }) {
         // PUT  https://openrainbow.com/api/rainbow/voice/v1.0/personalroutines/:routineId
         // API https://api.openrainbow.org/voice/#api-Personal_Routines-Update_PersonalRoutine
+        // PUT /api/rainbow/voice/v1.0/personalroutines/
         let that = this;
         return new Promise(function (resolve, reject) {
             that._logger.log(that.INTERNAL, LOG_ID + "(updatePersonalRoutineData) routineId : ", routineId + ", name : ", name);
@@ -709,6 +738,7 @@ class RESTRainbowVoice extends GenericRESTService {
     manageUserRoutingData(destinations: Array<string>, currentDeviceId: string) {
         // PUT  https://openrainbow.com/api/rainbow/voice/v1.0/routing
         // API https://api.openrainbow.org/voice/#api-Routing-Set_Routing
+        // PUT /api/rainbow/voice/v1.0/routing
         let that = this;
         return new Promise(function (resolve, reject) {
             that._logger.log(that.INTERNAL, LOG_ID + "(manageUserRoutingData) destinations : ", destinations + ", currentDeviceId : ", currentDeviceId);
@@ -731,6 +761,7 @@ class RESTRainbowVoice extends GenericRESTService {
     retrievetransferRoutingData(calleeId: string, addresseeId?: string, addresseePhoneNumber?: string) {
         // GET    https://openrainbow.com/api/rainbow/voice/v1.0/transfer-routing
         // API https://api.openrainbow.org/voice/#api-Routing-Get_Transfer_Routing
+        // GET /api/rainbow/voice/v1.0/transfer-routing
         let that = this;
         return new Promise(function (resolve, reject) {
             let url: string = "/api/rainbow/voice/v1.0/transfer-routing";
@@ -758,6 +789,7 @@ class RESTRainbowVoice extends GenericRESTService {
     retrieveUserRoutingData() {
         // GET  https://api.openrainbow.org/api/rainbow/voice/v1.0/routing
         // API https://api.openrainbow.org/voice/#api-Routing-Get_Routing
+        // GET /api/rainbow/voice/v1.0/calls/
         let that = this;
         return new Promise(function (resolve, reject) {
             let url: string = "/api/rainbow/voice/v1.0/routing";
@@ -786,6 +818,7 @@ class RESTRainbowVoice extends GenericRESTService {
     retrieveVoiceUserSettings() {
         // GET  https://api.openrainbow.org/api/rainbow/voice/v1.0/settings
         // API https://api.openrainbow.org/voice/#api-Settings-Get_settings
+        // GET /api/rainbow/voice/v1.0/calls/
         let that = this;
         return new Promise(function (resolve, reject) {
             let url: string = "/api/rainbow/voice/v1.0/settings";
@@ -814,6 +847,7 @@ class RESTRainbowVoice extends GenericRESTService {
     addParticipant3PCC(callId: string, callData: { callee: string }) {
         // POST  https://openrainbow.com/api/rainbow/voice/v1.0/calls/:callId/participants
         // API https://api.openrainbow.org/voice/#api-Voice-Add_participant
+        // POST /api/rainbow/voice/v1.0/calls/
         let that = this;
         return new Promise(function (resolve, reject) {
             that._logger.log(that.INTERNAL, LOG_ID + "(addParticipant3PCC) callId : ", callId, ", callData : ", callData);
@@ -832,6 +866,7 @@ class RESTRainbowVoice extends GenericRESTService {
     answerCall3PCC(callId: string, callData: { legId: string }) {
         // POST  https://openrainbow.com/api/rainbow/voice/v1.0/calls/:callId/answer
         // API https://api.openrainbow.org/voice/#api-Voice-Answer_call
+        // POST /api/rainbow/voice/v1.0/calls/
         let that = this;
         return new Promise(function (resolve, reject) {
             that._logger.log(that.INTERNAL, LOG_ID + "(answerCall3PCC) callId : ", callId, ", callData : ", callData);
@@ -850,6 +885,7 @@ class RESTRainbowVoice extends GenericRESTService {
     blindTransferCall3PCC(callId: string, callData: { destination: { userId: string, resource: string } }) {
         // POST  https://openrainbow.com/api/rainbow/voice/v1.0/calls/:callId/blind-transfer
         // API https://api.openrainbow.org/voice/#api-Voice-Blind_Transfer_call
+        // POST /api/rainbow/voice/v1.0/calls/
         let that = this;
         return new Promise(function (resolve, reject) {
             that._logger.log(that.INTERNAL, LOG_ID + "(blindTransferCall3PCC) callId : ", callId, ", callData : ", callData);
@@ -868,6 +904,7 @@ class RESTRainbowVoice extends GenericRESTService {
     deflectCall3PCC(callId: string, callData: { destination: string }) {
         // POST  https://openrainbow.com/api/rainbow/voice/v1.0/calls/:callId/deflect
         // API https://api.openrainbow.org/voice/#api-Voice-Deflect_call
+        // POST /api/rainbow/voice/v1.0/calls/
         let that = this;
         return new Promise(function (resolve, reject) {
             that._logger.log(that.INTERNAL, LOG_ID + "(deflectCall3PCC) callId : ", callId, ", callData : ", callData);
@@ -886,6 +923,7 @@ class RESTRainbowVoice extends GenericRESTService {
     holdCall3PCC(callId: string, callData: { legId: string }) {
         // POST  https://openrainbow.com/api/rainbow/voice/v1.0/calls/:callId/hold
         // API https://api.openrainbow.org/voice/#api-Voice-Hold_call
+        // POST /api/rainbow/voice/v1.0/calls/
         let that = this;
         return new Promise(function (resolve, reject) {
             that._logger.log(that.INTERNAL, LOG_ID + "(holdCall3PCC) callId : ", callId, ", callData : ", callData);
@@ -913,6 +951,7 @@ class RESTRainbowVoice extends GenericRESTService {
     }) {
         // POST  https://openrainbow.com/api/rainbow/voice/v1.0/calls
         // API https://api.openrainbow.org/voice/#api-Voice-Make_call
+        // POST /api/rainbow/voice/v1.0/calls
         let that = this;
         return new Promise(function (resolve, reject) {
             that._logger.log(that.INTERNAL, LOG_ID + "(makeCall3PCC) callData : ", callData);
@@ -931,6 +970,7 @@ class RESTRainbowVoice extends GenericRESTService {
     mergeCall3PCC(activeCallId: string, callData: { heldCallId: string }) {
         // POST  https://openrainbow.com/api/rainbow/voice/v1.0/calls/:activeCallId/merge
         // API https://api.openrainbow.org/voice/#api-Voice-Merge_call
+        // POST /api/rainbow/voice/v1.0/calls/
         let that = this;
         return new Promise(function (resolve, reject) {
             that._logger.log(that.INTERNAL, LOG_ID + "(mergeCall3PCC) activeCallId : ", activeCallId);
@@ -953,6 +993,7 @@ class RESTRainbowVoice extends GenericRESTService {
     }) {
         // POST  https://openrainbow.com/api/rainbow/voice/v1.0/pickup
         // API https://api.openrainbow.org/voice/#api-Voice-Pickup_call
+        // POST /api/rainbow/voice/v1.0/pickup
         let that = this;
         return new Promise(function (resolve, reject) {
             that._logger.log(that.INTERNAL, LOG_ID + "(pickupCall3PCC) callData : ", callData);
@@ -971,6 +1012,7 @@ class RESTRainbowVoice extends GenericRESTService {
     releaseCall3PCC(callId: string, legId: string) {
         // DELETE https://openrainbow.com/api/rainbow/voice/v1.0/calls/:callId
         // API https://api.openrainbow.org/voice/#api-Voice-Release_call
+        // DELETE /api/rainbow/voice/v1.0/calls/
         let that = this;
         return new Promise((resolve, reject) => {
             let url = "/api/rainbow/voice/v1.0/calls/" + callId;
@@ -991,6 +1033,7 @@ class RESTRainbowVoice extends GenericRESTService {
     retrieveCall3PCC(callId: string, callData: { legId: string }) {
         // POST  https://openrainbow.com/api/rainbow/voice/v1.0/calls/:callId/retrieve
         // API https://api.openrainbow.org/voice/#api-Voice-Retrieve_call
+        // POST /api/rainbow/voice/v1.0/calls/
         let that = this;
         return new Promise(function (resolve, reject) {
             that._logger.log(that.INTERNAL, LOG_ID + "(retrieveCall3PCC) callData : ", callData);
@@ -1009,6 +1052,7 @@ class RESTRainbowVoice extends GenericRESTService {
     sendDTMF3PCC(callId: string, callData: { legId: string, digits: string }) {
         // POST  https://openrainbow.com/api/rainbow/voice/v1.0/calls/:callId/senddtmf
         // API https://api.openrainbow.org/voice/#api-Voice-Send_DTMF
+        // POST /api/rainbow/voice/v1.0/calls/
         let that = this;
         return new Promise(function (resolve, reject) {
             that._logger.log(that.INTERNAL, LOG_ID + "(sendDTMF3PCC) callData : ", callData);
@@ -1027,6 +1071,7 @@ class RESTRainbowVoice extends GenericRESTService {
     snapshot3PCC(callId: string, deviceId: string, seqNum: number) {
         // GET  https://openrainbow.com/api/rainbow/voice/v1.0/snapshot
         // API https://api.openrainbow.org/voice/#api-Voice-SnapshotCall
+        // GET /api/rainbow/voice/v1.0/calls/
         let that = this;
         return new Promise(function (resolve, reject) {
             let url: string = "/api/rainbow/voice/v1.0/snapshot";
@@ -1054,6 +1099,7 @@ class RESTRainbowVoice extends GenericRESTService {
     transferCall3PCC(activeCallId: string, callData: { heldCallId: string }) {
         // POST  https://openrainbow.com/api/rainbow/voice/v1.0/calls/:activeCallId/transfer
         // API https://api.openrainbow.org/voice/#api-Voice-Transfer_call
+        // POST /api/rainbow/voice/v1.0/calls/
         let that = this;
         return new Promise(function (resolve, reject) {
             that._logger.log(that.INTERNAL, LOG_ID + "(transferCall3PCC) callData : ", callData);
@@ -1072,6 +1118,7 @@ class RESTRainbowVoice extends GenericRESTService {
     deleteAVoiceMessage(messageId: string) {
         // DELETE https://openrainbow.com/api/rainbow/voice/v1.0/messages/:messageId
         // API https://api.openrainbow.org/voice/#api-Voice-DeleteVoiceMailMessage
+        // DELETE /api/rainbow/voice/v1.0/messages/:messageId
         let that = this;
         return new Promise((resolve, reject) => {
             let url = "/api/rainbow/voice/v1.0/messages/" + messageId;
@@ -1091,6 +1138,7 @@ class RESTRainbowVoice extends GenericRESTService {
     deleteAllVoiceMessages(messageId: string) {
         // DELETE https://openrainbow.com/api/rainbow/voice/v1.0/messages
         // API https://api.openrainbow.org/voice/#api-Voice-DeleteVoiceMailMessages
+        // DELETE /api/rainbow/voice/v1.0/messages
         let that = this;
         return new Promise((resolve, reject) => {
             let url = "/api/rainbow/voice/v1.0/messages";
@@ -1110,6 +1158,7 @@ class RESTRainbowVoice extends GenericRESTService {
     getEmergencyNumbersAndEmergencyOptions() {
         // GET  https://openrainbow.com/api/rainbow/voice/v1.0/emergency-numbers
         // API https://api.openrainbow.org/voice/#api-Voice-EmergencyNumbers
+        // GET /api/rainbow/voice/v1.0/emergency-numbers
         let that = this;
         return new Promise(function (resolve, reject) {
             let url: string = "/api/rainbow/voice/v1.0/emergency-numbers";
@@ -1134,6 +1183,7 @@ class RESTRainbowVoice extends GenericRESTService {
     getVoiceMessages(limit: number, offset: number, sortField: string, sortOrder: number, fromDate: string, toDate: string, callerName: string, callerNumber: string) {
         // GET  https://openrainbow.com/api/rainbow/voice/v1.0/messages
         // API https://api.openrainbow.org/voice/#api-Voice-GetVoiceMessages
+        // GET /api/rainbow/voice/v1.0/messages/
         let that = this;
         return new Promise(function (resolve, reject) {
             let url: string = "/api/rainbow/voice/v1.0/messages";
@@ -1166,6 +1216,7 @@ class RESTRainbowVoice extends GenericRESTService {
     getUserDevices() {
         // GET  https://openrainbow.com/api/rainbow/voice/v1.0/devices
         // API https://api.openrainbow.org/voice/#api-Voice-Devices
+        // GET /api/rainbow/voice/v1.0/messages/
         let that = this;
         return new Promise(function (resolve, reject) {
             let url: string = "/api/rainbow/voice/v1.0/devices";
@@ -1190,6 +1241,7 @@ class RESTRainbowVoice extends GenericRESTService {
     updateVoiceMessage(messageId: string, urlData: { read: boolean }) {
         // PUT  https://openrainbow.com/api/rainbow/voice/v1.0/messages/:messageId
         // API https://api.openrainbow.org/voice/#api-Voice-UpdateVoiceMessage
+        // PUT /api/rainbow/voice/v1.0/messages/
         let that = this;
         return new Promise(function (resolve, reject) {
             that._logger.log(that.INTERNAL, LOG_ID + "(updateVoiceMessage) messageId : ", messageId + ", urlData : ", urlData);
@@ -1212,6 +1264,7 @@ class RESTRainbowVoice extends GenericRESTService {
     forwardCall(callForwardType: string, userId: string, urlData: { destinationType: string, number: string, activate: boolean, noReplyDelay: number }) {
         // PUT  https://openrainbow.com/api/rainbow/voice/v1.0/forwards/:callForwardType
         // API https://api.openrainbow.org/voice/#api-Voice_Forward-Forward_call
+        // PUT /api/rainbow/voice/v1.0/forwards/:callForwardType
         let that = this;
         return new Promise(function (resolve, reject) {
             that._logger.log(that.INTERNAL, LOG_ID + "(forwardCall) callForwardType : ", callForwardType + ", urlData : ", urlData);
@@ -1235,6 +1288,7 @@ class RESTRainbowVoice extends GenericRESTService {
     getASubscriberForwards(userId: string) {
         // PUT  https://openrainbow.com/api/rainbow/voice/v1.0/forwards
         // API https://api.openrainbow.org/voice/#api-Voice_Forward-Get_Subscriber_call_forwards
+        // PUT /api/rainbow/voice/v1.0/forwards
         let that = this;
         return new Promise(function (resolve, reject) {
             that._logger.log(that.INTERNAL, LOG_ID + "(getASubscriberForwards) userId : ", userId);
@@ -1262,6 +1316,7 @@ class RESTRainbowVoice extends GenericRESTService {
     searchCloudPBXhuntingGroups(name: string) {
         // PUT  https://openrainbow.com/api/rainbow/voice/v1.0/search/huntinggroups
         // API https://api.openrainbow.org/voice/#api-Voice_Search_Hunting_Groups-Get_Cloud_PBX_Hunting_Groups
+        // PUT /api/rainbow/voice/v1.0/search/huntinggroups
         let that = this;
         return new Promise(function (resolve, reject) {
             that._logger.log(that.INTERNAL, LOG_ID + "(searchCloudPBXhuntingGroups) name : ", name);

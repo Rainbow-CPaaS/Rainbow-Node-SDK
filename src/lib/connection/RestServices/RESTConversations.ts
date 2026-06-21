@@ -76,6 +76,7 @@ class RESTConversations extends GenericRESTService {
     }
 
     getServerConversations(accountId: string, format: string = "small", maxCount: number = undefined, lastUpdateDate: string = undefined, limit: number = 1000, offset: number = 0, before: number = 1) {
+        // GET /api/rainbow/enduser/v1.0/users/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getServerConversations) entry`);
         return new Promise((resolve, reject) => {
@@ -105,6 +106,7 @@ class RESTConversations extends GenericRESTService {
     }
 
     createServerConversation(accountId: string, conversation) {
+        // POST /api/rainbow/enduser/v1.0/users/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(createServerConversation) entry`);
         return new Promise((resolve, reject) => {
@@ -121,6 +123,7 @@ class RESTConversations extends GenericRESTService {
     }
 
     deleteServerConversation(accountId: string, conversationId) {
+        // DELETE /api/rainbow/enduser/v1.0/users/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(deleteServerConversation) entry`);
         return new Promise(function (resolve, reject) {
@@ -137,6 +140,7 @@ class RESTConversations extends GenericRESTService {
     }
 
     updateServerConversation(accountId: string, conversationId, mute) {
+        // PUT /api/rainbow/enduser/v1.0/users/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(updateServerConversation) entry`);
         return new Promise(function (resolve, reject) {
@@ -153,6 +157,7 @@ class RESTConversations extends GenericRESTService {
     }
 
     sendConversationByEmail(accountId: string, conversationId, emails: Array<string> = undefined, lang: string = undefined) {
+        // POST /api/rainbow/enduser/v1.0/users/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(sendConversationByEmail) entry`);
         return new Promise((resolve, reject) => {
@@ -177,6 +182,7 @@ class RESTConversations extends GenericRESTService {
     }
 
     ackAllMessages(accountId: string, conversationId, maskRead: boolean = false) {
+        // PUT /api/rainbow/enduser/v1.0/users/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(ackAllMessages) entry`);
         return new Promise(function (resolve, reject) {
@@ -247,6 +253,7 @@ class RESTConversations extends GenericRESTService {
     //region IMS
 
     retrieveXMPPMessagesByListOfMessageIds(userId: string, ims: Array<any>) {
+        // POST /api/rainbow/ucs/v1.0/connections/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(retrieveXMPPMessagesByListOfMessageIds) entry`);
         return new Promise(function (resolve, reject) {
@@ -271,6 +278,7 @@ class RESTConversations extends GenericRESTService {
     //region Messages
 
     showAllMatchingMessagesForAPeer(userId: string, substring: string, peer: string, isRoom: boolean = undefined, limit: number = 20) {
+        // GET /api/rainbow/ucs/v1.0/connections/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(showAllMatchingMessagesForAPeer) entry`);
         return new Promise(function (resolve, reject) {
@@ -297,6 +305,7 @@ class RESTConversations extends GenericRESTService {
     }
 
     markMessageAsRead(connectionId: string, conversationId, messageId) {
+        // PUT /api/rainbow/ucs/v1.0/connections/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(markMessageAsRead) entry`);
         return new Promise(function (resolve, reject) {
@@ -325,6 +334,7 @@ class RESTConversations extends GenericRESTService {
     //region Pin list
 
     addPinWithPeerId(userId: string, peerId: string, types: PEERTYPE, body: any): Promise<any> {
+        // POST /api/rainbow/enduser/v1.0/users/:userId/pins/:types/:peerId
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(addPinWithPeerId) entry`);
         return new Promise(function (resolve, reject) {
@@ -374,6 +384,7 @@ class RESTConversations extends GenericRESTService {
     }
 
     getPinWithPeerIdById(userId: string, types: PEERTYPE, peerId: string, pinId: string) {
+        // GET /api/rainbow/enduser/v1.0/users/:userId/pins/:types/:peerId/:pinId
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getPinWithPeerIdById) entry`);
         return new Promise(function (resolve, reject) {
@@ -413,6 +424,7 @@ class RESTConversations extends GenericRESTService {
     }
 
     getAllPinsWithPeerId(userId: string, types: PEERTYPE, peerId: string) {
+        // GET /api/rainbow/enduser/v1.0/users/:userId/pins/:types/:peerId
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getAllPinsWithPeerId) entry`);
         return new Promise(function (resolve, reject) {
@@ -452,6 +464,7 @@ class RESTConversations extends GenericRESTService {
     }
 
     removefromWithPeerIdAndPinId(userId: string, types: string, peerId: string, pinId: string) {
+        // DELETE /api/rainbow/enduser/v1.0/users/:userId/pins/:types/:peerId/:pinId
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(removefromWithPeerIdAndPinId) entry`);
         return new Promise(function (resolve, reject) {
@@ -492,6 +505,7 @@ class RESTConversations extends GenericRESTService {
     }
 
     updatePinWithPeerId(userId: string, peerId?: string, types?: PEERTYPE, pinId?: string, body?: any): Promise<any> {
+        // PUT /api/rainbow/enduser/v1.0/users/:userId/pins/:types/:peerId/:pinId
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(updatePinWithPeerId) entry`);
         return new Promise(function (resolve, reject) {

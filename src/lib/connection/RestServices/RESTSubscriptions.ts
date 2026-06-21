@@ -44,6 +44,7 @@ class RESTSubscriptions extends GenericRESTService {
     //region Favorites
 
     getServerFavorites(userId: string, peerId: string = undefined) {
+        // GET /api/rainbow/enduser/v1.0/users/:userId/favorites
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getServerFavorites) entry`);
         return new Promise(function (resolve, reject) {
@@ -171,6 +172,7 @@ class RESTSubscriptions extends GenericRESTService {
     }
 
     moveFavoriteToPosition(userId: string, favoriteId: string, position: number) {
+        // PUT /api/rainbow/enduser/v1.0/users/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(moveFavoriteToPosition) entry`);
         return new Promise(function (resolve, reject) {
@@ -220,6 +222,7 @@ class RESTSubscriptions extends GenericRESTService {
     //region Offers and subscriptions
 
     retrieveAllCompanyOffers(companyId: string, format: string = "small", name?: string, canBeSold?: boolean, autoSubscribe?: boolean, isExclusive?: boolean, isPrepaid?: boolean, profileId?: boolean, offerReference?: boolean, sapReference?: boolean, limit: number = 100, offset: number = 0, sortField: string = "name", sortOrder: number = 1) {
+        // GET /api/rainbow/subscription/v1.0/companies/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(retrieveAllCompanyOffers) entry`);
         return new Promise(function (resolve, reject) {
@@ -256,6 +259,7 @@ class RESTSubscriptions extends GenericRESTService {
     }
 
     retrieveAllCompanySubscriptions(companyId: string, format: string = "small") {
+        // GET /api/rainbow/subscription/v1.0/companies/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(retrieveAllCompanySubscriptions) entry`);
         return new Promise(function (resolve, reject) {
@@ -282,6 +286,7 @@ class RESTSubscriptions extends GenericRESTService {
     }
 
     subscribeCompanyToOffer(companyId: string, offerId: string, maxNumberUsers?: number, autoRenew?: boolean) {
+        // POST /api/rainbow/subscription/v1.0/companies/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(subscribeCompanyToOffer) entry`);
         return new Promise(function (resolve, reject) {
@@ -310,6 +315,7 @@ class RESTSubscriptions extends GenericRESTService {
     }
 
     unSubscribeCompanyToSubscription(companyId: string, subscriptionId: string) {
+        // DELETE /api/rainbow/subscription/v1.0/companies/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(unSubscribeCompanyToSubscription) entry`);
         return new Promise(function (resolve, reject) {
@@ -394,6 +400,7 @@ class RESTSubscriptions extends GenericRESTService {
     }
 
     getAUserProfilesFeaturesByUserId(userId: string) {
+        // GET /api/rainbow/enduser/v1.0/users/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getAUserProfilesFeaturesByUserId) entry`);
         return new Promise((resolve, reject) => {

@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 import {addParamToUrl, logEntryExit} from "../../common/Utils";
 import {GenericRESTService} from "../GenericRESTService.js";
@@ -339,6 +339,7 @@ class RESTAdLdap extends GenericRESTService {
         label: string,
         startTime: string
     }> {
+        // POST /api/rainbow/massprovisioning/v1.0/users/imports/synchronize
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(synchronizeUsersAndDeviceswithCSV) entry`);
         let urlParams = "/api/rainbow/massprovisioning/v1.0/users/imports/synchronize";
@@ -370,6 +371,7 @@ class RESTAdLdap extends GenericRESTService {
 
     // A template can be retrieved from GET /api/rainbow/massprovisioning/v1.0/users/template?mode=useranddevice
     getCSVTemplate(companyId?: string, mode: string = "useranddevice", comment?: string): any {
+        // GET /api/rainbow/massprovisioning/v1.0/users/template
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getCSVTemplate) entry`);
         return new Promise(function (resolve, reject) {
@@ -456,6 +458,7 @@ class RESTAdLdap extends GenericRESTService {
     importRainbowVoiceUsersWithCSVdata(companyId: string, label: string = null, noemails: boolean = true, nostrict: boolean = false, delimiter: string = null, comment: string = "%", csvData: string) {
         // POST  https://openrainbow.com/api/rainbow/massprovisioning/v1.0/users/imports/rainbowvoice
         // API https://api.openrainbow.org/mass-provisiong/#api-Users_And_Devices-RainbowVoiceCSV
+        // POST /api/rainbow/massprovisioning/v1.0/users/imports/rainbowvoice
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(importRainbowVoiceUsersWithCSVdata) entry`);
         return new Promise(function (resolve, reject) {
@@ -493,6 +496,7 @@ class RESTAdLdap extends GenericRESTService {
     the ldap_id field will allow to compare rainbow users and ldap users
     // */
     retrieveRainbowUserList(companyId?: string, format: string = "csv", ldap_id: boolean = true, ldapConfigId?: string) {
+        // GET /api/rainbow/massprovisioning/v1.0/users/synchronize
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(retrieveRainbowUserList) entry`);
         return new Promise(function (resolve, reject) {
@@ -523,6 +527,7 @@ class RESTAdLdap extends GenericRESTService {
     checkCSVdataForSynchronizeDirectory(delimiter: string, comment: string, commandId: string, csvData: string) {
         // POST  /api/rainbow/massprovisioning/v1.0/directories/imports/synchronize/check
         // API https://api.openrainbow.org/mass-provisiong/#api-Directories-CheckSynchronizeCSV
+        // POST /api/rainbow/massprovisioning/v1.0/directories/imports/synchronize/check
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(checkCSVdataForSynchronizeDirectory) entry`);
         return new Promise(function (resolve, reject) {
@@ -555,6 +560,7 @@ class RESTAdLdap extends GenericRESTService {
     importCSVdataForSynchronizeDirectory(delimiter: string, comment: string, commandId: string, label: string, csvData: string, ldapConfigId?: string) {
         // POST  /api/rainbow/massprovisioning/v1.0/directories/imports/synchronize
         // API https://api.openrainbow.org/mass-provisiong/#api-Directories-PostSynchronizeData
+        // POST /api/rainbow/massprovisioning/v1.0/directories/imports/synchronize
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(importCSVdataForSynchronizeDirectory) entry`);
         return new Promise(function (resolve, reject) {
@@ -611,6 +617,7 @@ class RESTAdLdap extends GenericRESTService {
     createCSVReportByCommandId(commandId: string, data: any) {
         // POST  /api/rainbow/massprovisioning/v1.0/directories/imports/synchronize/:commandId/report
         // API https://api.openrainbow.org/mass-provisiong/#api-Directories-PostSynchronizeCSVCommandReport
+        // POST /api/rainbow/massprovisioning/v1.0/directories/imports/synchronize/:commandId/report
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(createCSVReportByCommandId) entry`);
         return new Promise(function (resolve, reject) {

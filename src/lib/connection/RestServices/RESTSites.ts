@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 import {addParamToUrl, logEntryExit} from "../../common/Utils";
 import {GenericRESTService} from "../GenericRESTService.js";
@@ -39,6 +39,7 @@ class RESTSites extends GenericRESTService {
 
     createASite(name: string, status: string, companyId: string) {
         // POST  https://openrainbow.com/api/rainbow/admin/v1.0/sites
+        // POST /api/rainbow/admin/v1.0/sites
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(createASite) entry`);
         return new Promise(function (resolve, reject) {
@@ -58,6 +59,7 @@ class RESTSites extends GenericRESTService {
 
     deleteSite(siteId: string) {
         // DELETE https://openrainbow.com/api/rainbow/admin/v1.0/sites/{siteId}
+        // DELETE /api/rainbow/admin/v1.0/sites/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(deleteSite) entry`);
         return new Promise((resolve, reject) => {
@@ -76,6 +78,7 @@ class RESTSites extends GenericRESTService {
 
     getSiteData(siteId: string) {
         // GET  https://openrainbow.com/api/rainbow/admin/v1.0/sites/{siteId}
+        // GET /api/rainbow/admin/v1.0/sites/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getSiteData) entry`);
         return new Promise(function (resolve, reject) {
@@ -96,6 +99,7 @@ class RESTSites extends GenericRESTService {
 
     getAllSites(format = "small", limit = 100, offset = 0, sortField = "name", sortOrder: number, name: string, companyId: string) {
         // GET  https://openrainbow.com/api/rainbow/admin/v1.0/sites
+        // GET /api/rainbow/admin/v1.0/sites/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getAllSites) entry`);
         return new Promise(function (resolve, reject) {
@@ -126,6 +130,7 @@ class RESTSites extends GenericRESTService {
 
     updateSite(siteId: string, name: string, status: string, companyId: string) {
         // PUT https://openrainbow.com/api/rainbow/admin/v1.0/sites/:siteId
+        // PUT /api/rainbow/admin/v1.0/sites/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(updateSite) entry`);
         let data = { name, status, companyId };

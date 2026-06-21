@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 
 
@@ -56,6 +56,7 @@ class RESTTelephony extends GenericRESTService {
     }
 
     makeCall(requestHeader, contact, phoneInfo) {
+        // POST /api/rainbow/telephony/v1.0/calls
         let that = this;
         return new Promise((resolve, reject) => {
             let data = {
@@ -84,6 +85,7 @@ class RESTTelephony extends GenericRESTService {
     }
 
     releaseCall(requestHeader, call) {
+        // DELETE /api/rainbow/telephony/v1.0/calls/
         let that = this;
         return new Promise((resolve, reject) => {
             if (call.connectionId) {
@@ -110,6 +112,7 @@ class RESTTelephony extends GenericRESTService {
     }
 
     makeConsultationCall(requestHeader, callId, contact, phoneInfo) {
+        // POST /api/rainbow/telephony/v1.0/calls/
         let that = this;
         return new Promise((resolve, reject) => {
             if (callId) {
@@ -141,6 +144,7 @@ class RESTTelephony extends GenericRESTService {
     }
 
     answerCall(requestHeader, call) {
+        // PUT /api/rainbow/telephony/v1.0/calls/
         let that = this;
         return new Promise((resolve, reject) => {
             if (call) {
@@ -164,6 +168,7 @@ class RESTTelephony extends GenericRESTService {
     }
 
     holdCall(requestHeader, call) {
+        // PUT /api/rainbow/telephony/v1.0/calls/
         let that = this;
         return new Promise((resolve, reject) => {
             if (call) {
@@ -187,6 +192,7 @@ class RESTTelephony extends GenericRESTService {
     }
 
     retrieveCall(requestHeader, call) {
+        // PUT /api/rainbow/telephony/v1.0/calls/
         let that = this;
         return new Promise((resolve, reject) => {
             if (call) {
@@ -210,6 +216,7 @@ class RESTTelephony extends GenericRESTService {
     }
 
     deflectCallToVM(requestHeader, call, VMInfos) {
+        // PUT /api/rainbow/telephony/v1.0/calls/
         let that = this;
         return new Promise((resolve, reject) => {
             if (call) {
@@ -233,6 +240,7 @@ class RESTTelephony extends GenericRESTService {
     }
 
     deflectCall(requestHeader, call, VMInfos) {
+        // PUT /api/rainbow/telephony/v1.0/calls/
         let that = this;
         return new Promise((resolve, reject) => {
             if (call) {
@@ -256,6 +264,7 @@ class RESTTelephony extends GenericRESTService {
     }
 
     transfertCall(requestHeader, activeCall, heldCall) {
+        // PUT /api/rainbow/telephony/v1.0/calls/
         let that = this;
         return new Promise((resolve, reject) => {
             if (activeCall && heldCall) {
@@ -279,6 +288,7 @@ class RESTTelephony extends GenericRESTService {
     }
 
     conferenceCall(requestHeader, activeCall, heldCall) {
+        // PUT /api/rainbow/telephony/v1.0/calls/
         let that = this;
         return new Promise((resolve, reject) => {
             if (activeCall && heldCall) {
@@ -302,6 +312,7 @@ class RESTTelephony extends GenericRESTService {
     }
 
     forwardToDevice(requestHeader, contact, phoneInfo) {
+        // POST /api/rainbow/telephony/v1.0/calls/forward
         let that = this;
         return new Promise((resolve, reject) => {
             let data = {
@@ -326,6 +337,7 @@ class RESTTelephony extends GenericRESTService {
     }
 
     getForwardStatus(requestHeader) {
+        // GET /api/rainbow/telephony/v1.0/forward
         let that = this;
         return new Promise((resolve, reject) => {
             that.http.get("/api/rainbow/telephony/v1.0/forward", requestHeader).then((json) => {
@@ -352,6 +364,7 @@ class RESTTelephony extends GenericRESTService {
      * @param data
      */
     sendDtmf(requestHeader, callId, deviceId, data) {
+        // POST /api/rainbow/telephony/v1.0/calls/
         let that = this;
         return new Promise((resolve, reject) => {
             that.http.post("/api/rainbow/telephony/v1.0/calls/" + callId + "%23" + deviceId + "/dtmf", requestHeader, data).then((json) => {
@@ -369,6 +382,7 @@ class RESTTelephony extends GenericRESTService {
 
 
     getNomadicStatus(requestHeader) {
+        // GET /api/rainbow/telephony/v1.0/nomadic
         let that = this;
         return new Promise(function (resolve, reject) {
             that.http.get("/api/rainbow/telephony/v1.0/nomadic", requestHeader).then((json) => {
@@ -385,6 +399,7 @@ class RESTTelephony extends GenericRESTService {
     }
 
     nomadicLogin(requestHeader, data) {
+        // PUT /api/rainbow/telephony/v1.0/nomadic/login
         let that = this;
         return new Promise((resolve, reject) => {
             that.http.put("/api/rainbow/telephony/v1.0/nomadic/login", requestHeader, data).then((json) => {
@@ -401,6 +416,7 @@ class RESTTelephony extends GenericRESTService {
     }
 
     logon(requestHeader, endpointTel, agentId, password, groupId) {
+        // POST /api/rainbow/telephony/v1.0/ccd/logon
         let that = this;
         return new Promise((resolve, reject) => {
             let data = {
@@ -424,6 +440,7 @@ class RESTTelephony extends GenericRESTService {
     }
 
     logoff(requestHeader, endpointTel, agentId, password, groupId) {
+        // POST /api/rainbow/telephony/v1.0/ccd/logoff
         let that = this;
         return new Promise((resolve, reject) => {
             let data = {
@@ -447,6 +464,7 @@ class RESTTelephony extends GenericRESTService {
     }
 
     withdrawal(requestHeader, agentId, groupId, status) {
+        // POST /api/rainbow/telephony/v1.0/ccd/withdrawal
         let that = this;
         return new Promise((resolve, reject) => {
             let data = {
@@ -469,6 +487,7 @@ class RESTTelephony extends GenericRESTService {
     }
 
     wrapup(requestHeader, agentId, groupId, password, status) {
+        // POST /api/rainbow/telephony/v1.0/ccd/wrapup
         let that = this;
         return new Promise((resolve, reject) => {
             let data = {

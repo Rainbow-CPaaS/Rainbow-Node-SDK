@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 import {addParamToUrl, addPropertyToObj, isDefined, logEntryExit, makeId} from "../../common/Utils";
 import {createPassword} from "../../common/Utils";
@@ -826,6 +826,7 @@ class RESTContacts extends GenericRESTService {
      * @param accountCompanyId - fallback companyId from account when companyId is not provided
      */
     async getAllUsers(format = "small", offset = 0, limit = 100, sortField = "loginEmail", companyId?: string, searchEmail?: string, accountCompanyId?: string) {
+        // GET /api/rainbow/admin/v1.0/users?format=
         let that = this;
         return new Promise(function (resolve, reject) {
             that._logger.log(that.DEBUG, LOG_ID + "(getAllUsers) entry");
@@ -910,6 +911,7 @@ class RESTContacts extends GenericRESTService {
                               useGifCustomisation: string, useDialOutCustomisation: string, fileCopyCustomisation: string, fileTransferCustomisation: string, forbidFileOwnerChangeCustomisation: string, readReceiptsCustomisation: string, useSpeakingTimeStatistics: string,
                               selectedAppCustomisationTemplate: string, format: string, limit: string,
                               offset: string, sortField: string, sortOrder: string, displayName: string, useEmails: boolean, companyName: string, loginEmail: string, email: string, visibility: string, organisationId: string, siteId: string, jid_im: string, jid_tel: string) {
+        // GET /api/rainbow/admin/v1.0/users
         let that = this;
         return new Promise(function (resolve, reject) {
             that._logger.log(that.DEBUG, LOG_ID + "(getAllUsersByFilter) entry");
@@ -992,6 +994,7 @@ class RESTContacts extends GenericRESTService {
      * @param userId - target user id
      */
     async getContactInfos(userId) {
+        // GET /api/rainbow/admin/v1.0/users/
         let that = this;
         return new Promise(function (resolve, reject) {
             that._logger.log(that.DEBUG, LOG_ID + "(getContactInfos) entry");
@@ -1014,6 +1017,7 @@ class RESTContacts extends GenericRESTService {
      * @param infos - data to update
      */
     async putContactInfos(userId, infos) {
+        // PUT /api/rainbow/admin/v1.0/users/
         let that = this;
         return new Promise(function (resolve, reject) {
             that._logger.log(that.DEBUG, LOG_ID + "(putContactInfos) entry");
@@ -1037,6 +1041,7 @@ class RESTContacts extends GenericRESTService {
     async getContacts() {
         // API https://api.openrainbow.org/enduser/#api-users-getUserNetwork
         // GET "/api/rainbow/enduser/v1.0/users/networks"
+        // GET /api/rainbow/enduser/v1.0/users/networks?format=full
         let that = this;
         return new Promise(function (resolve, reject) {
             that.http.get("/api/rainbow/enduser/v1.0/users/networks?format=full", that.getRequestHeader(), undefined, "", 5, 10000).then(function (json) {
@@ -1056,6 +1061,7 @@ class RESTContacts extends GenericRESTService {
      * @param dbId - contact database id to remove
      */
     async removeContactFromRoster(dbId) {
+        // DELETE /api/rainbow/enduser/v1.0/users/networks/
         let that = this;
         return new Promise(function (resolve, reject) {
             if (!dbId) {
@@ -1081,6 +1087,7 @@ class RESTContacts extends GenericRESTService {
      * @param jid - JID of the contact (resource part is stripped)
      */
     async getContactInformationByJID(jid) {
+        // GET /api/rainbow/enduser/v1.0/users/jids/
         let that = this;
         return new Promise(function (resolve, reject) {
             if (!jid) {
@@ -1118,6 +1125,7 @@ class RESTContacts extends GenericRESTService {
      * @param id - user id
      */
     async getContactInformationByID(id) {
+        // GET /api/rainbow/enduser/v1.0/users/
         let that = this;
         return new Promise(function (resolve, reject) {
             if (!id) {
@@ -1146,6 +1154,7 @@ class RESTContacts extends GenericRESTService {
      * Retrieves the logged-in user's own information.
      */
     async getMyInformations() {
+        // GET /api/rainbow/enduser/v1.0/users/me
         let that = this;
         return new Promise(function (resolve, reject) {
             that.http.get("/api/rainbow/enduser/v1.0/users/me", that.getRequestHeader(), undefined).then(function (json) {
@@ -1173,6 +1182,7 @@ class RESTContacts extends GenericRESTService {
         // API https://api.openrainbow.org/enduser/#api-users-searchUsersByJids
         // POST "/api/rainbow/enduser/v1.0/users/jids"
 
+        // POST /api/rainbow/enduser/v1.0/users/jids
         let that = this;
         return new Promise(async function (resolve, reject) {
             if (!jid_im) {
@@ -1211,6 +1221,7 @@ class RESTContacts extends GenericRESTService {
         // API https://api.openrainbow.org/enduser/#api-users-searchUsersByIds
         // POST "/api/rainbow/enduser/v1.0/users/ids"
 
+        // POST /api/rainbow/enduser/v1.0/users/ids
         let that = this;
         return new Promise(async function (resolve, reject) {
             if (!ids) {
@@ -1250,6 +1261,7 @@ class RESTContacts extends GenericRESTService {
         // API https://api.openrainbow.org/enduser/#api-users-getUsersByloginEmails
         // POST "/api/rainbow/enduser/v1.0/users/loginEmails"
 
+        // POST /api/rainbow/admin/v1.0/users
         let that = this;
         return new Promise(async function (resolve, reject) {
             if (!email) {
@@ -1288,6 +1300,7 @@ class RESTContacts extends GenericRESTService {
 
     /*
     createUser(email, password, firstname, lastname, companyId, language, isAdmin, roles) {
+        // POST /api/rainbow/admin/v1.0/users
         let that = this;
         return new Promise(function (resolve, reject) {
             let user = {
@@ -1486,6 +1499,7 @@ class RESTContacts extends GenericRESTService {
      * @param accountCompanyId - company id to assign the guest to
      */
     createGuestUser(firstname, lastname, language, timeToLive, appID: string, accountCompanyId: string) {
+        // POST /api/rainbow/admin/v1.0/users
         let that = this;
         return new Promise(function (resolve, reject) {
             // Generate user Email based on appId
@@ -1551,6 +1565,7 @@ class RESTContacts extends GenericRESTService {
      * @param params - query parameters including uid, country, uiLocales, useBackchannelPolling
      */
     getAuthenticationUrls(params: {uid:string, country : string, uiLocales : string, useBackchannelPolling : boolean}) {
+        // GET /api/rainbow/authentication/v1.0/urls
             let that = this;
             return new Promise(function (resolve, reject) {
                 try {
@@ -1611,6 +1626,7 @@ class RESTContacts extends GenericRESTService {
      * @param userInfo - object containing email and lang
      */
     registerUserByEmailFirstStep(userInfo: {"email":string,"lang":string}) {
+        // POST /api/rainbow/enduser/v1.0/notifications/emails/self-register
         let that = this;
         return new Promise(function (resolve, reject) {
             that._logger.log(that.INTERNAL, LOG_ID + "(registerUserByEmailFirstStep) REST.");
@@ -1651,6 +1667,7 @@ class RESTContacts extends GenericRESTService {
      * @param userLoginInfo - object containing loginEmail, password, and temporaryToken
      */
     registerUserByEmailSecondStepWithToken(userLoginInfo: {"loginEmail":string,"password":string,"temporaryToken":string}) {
+        // PUT /api/rainbow/admin/v1.0/users/
         let that = this;
         return new Promise(function (resolve, reject) {
             that._logger.log(that.INTERNAL, LOG_ID + "(registerUserByEmailSecondStepWithToken) REST.");
@@ -1674,6 +1691,7 @@ class RESTContacts extends GenericRESTService {
      * @param data object body as required by server (to, type, message, etc.)
      */
     sendMessageNotification(data: any) {
+        // PUT /api/rainbow/admin/v1.0/users/
         let that = this;
         return new Promise(function (resolve, reject) {
             that._logger.log(that.INTERNAL, LOG_ID + "(sendMessageNotification) REST.");
@@ -1695,6 +1713,7 @@ class RESTContacts extends GenericRESTService {
      * @param userId - target user id
      */
     changePassword(password, userId) {
+        // PUT /api/rainbow/admin/v1.0/users/
         let that = this;
         return new Promise(function (resolve, reject) {
             let data = {
@@ -1719,6 +1738,7 @@ class RESTContacts extends GenericRESTService {
      * @param userId - target user id
      */
     updateInformation(objData, userId) {
+        // PUT /api/rainbow/admin/v1.0/users/
         let that = this;
         return new Promise(function (resolve, reject) {
             that.http.put("/api/rainbow/admin/v1.0/users/" + userId, that.getRequestHeader(), objData, undefined).then(function (json) {
@@ -1738,6 +1758,7 @@ class RESTContacts extends GenericRESTService {
      * @param userId - target user id to delete
      */
     deleteUser(userId) {
+        // DELETE /api/rainbow/admin/v1.0/users/
         let that = this;
         return new Promise(function (resolve, reject) {
             that.http.delete("/api/rainbow/admin/v1.0/users/" + userId, that.getRequestHeader()).then(function (json) {

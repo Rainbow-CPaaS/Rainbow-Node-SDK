@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 import {logEntryExit} from "../../common/Utils";
 import {GenericRESTService} from "../GenericRESTService.js";
@@ -44,6 +44,7 @@ class RESTChannels extends GenericRESTService {
     //region Channels
 
     createPublicChannel(name, topic, category: string = "globalnews", visibility, max_items, max_payload_size) {
+        // POST /api/rainbow/channels/v1.0/channels
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(createPublicChannel) entry`);
         return new Promise(function (resolve, reject) {
@@ -82,6 +83,7 @@ class RESTChannels extends GenericRESTService {
     }
 
     deleteChannel(channelId) {
+        // DELETE /api/rainbow/channels/v1.0/channels/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(deleteChannel) entry`);
         return new Promise(function (resolve, reject) {
@@ -98,6 +100,7 @@ class RESTChannels extends GenericRESTService {
     }
 
     findChannels(name, topic, category, limit, offset, sortField, sortOrder) {
+        // GET /api/rainbow/channels/v1.0/channels/search
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(findChannels) entry`);
 
@@ -139,6 +142,7 @@ class RESTChannels extends GenericRESTService {
     }
 
     getChannels() {
+        // GET /api/rainbow/channels/v1.0/channels
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getChannels) entry`);
         return new Promise(function (resolve, reject) {
@@ -155,6 +159,7 @@ class RESTChannels extends GenericRESTService {
     }
 
     getChannel(id) {
+        // GET /api/rainbow/channels/v1.0/channels/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getChannel) entry`);
         return new Promise(function (resolve, reject) {
@@ -183,6 +188,7 @@ class RESTChannels extends GenericRESTService {
      * @returns {Promise<any>}
      */
     publishMessage(channelId: string, message: string, title: string, url: string, imagesIds: Array<{id: string}> = undefined, type: string, customDatas: any = {}, attachments: Array<{id: string}> = undefined) {
+        // POST /api/rainbow/channels/v1.0/channels/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(publishMessage) channelId : ${channelId}`);
         return new Promise((resolve, reject) => {
@@ -245,6 +251,7 @@ class RESTChannels extends GenericRESTService {
     }
 
     subscribeToChannel(channelId) {
+        // POST /api/rainbow/channels/v1.0/channels/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(subscribeToChannel) entry`);
         return new Promise((resolve, reject) => {
@@ -261,6 +268,7 @@ class RESTChannels extends GenericRESTService {
     }
 
     unsubscribeToChannel(channelId) {
+        // DELETE /api/rainbow/channels/v1.0/channels/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(unsubscribeToChannel) entry`);
         return new Promise(function (resolve, reject) {
@@ -277,6 +285,7 @@ class RESTChannels extends GenericRESTService {
     }
 
     updateChannel(channelId, title, visibility, max_items, max_payload_size, channelName, mode) {
+        // PUT /api/rainbow/channels/v1.0/channels/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(updateChannel) entry`);
         let channel: any = {
@@ -361,6 +370,7 @@ class RESTChannels extends GenericRESTService {
     }
 
     getChannelUsers(channelId, options) {
+        // GET /api/rainbow/channels/v1.0/channels/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getChannelUsers) entry`);
         return new Promise(function (resolve, reject) {
@@ -397,6 +407,7 @@ class RESTChannels extends GenericRESTService {
     }
 
     deleteAllUsersFromChannel(channelId) {
+        // DELETE /api/rainbow/channels/v1.0/channels/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(deleteAllUsersFromChannel) entry`);
         return new Promise(function (resolve, reject) {
@@ -413,6 +424,7 @@ class RESTChannels extends GenericRESTService {
     }
 
     updateChannelUsers(channelId, users) {
+        // PUT /api/rainbow/channels/v1.0/channels/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(updateChannelUsers) entry`);
         return new Promise(function (resolve, reject) {
@@ -429,6 +441,7 @@ class RESTChannels extends GenericRESTService {
     }
 
     getChannelMessages(channelId, maxMessages: number = 100, beforeDate?: Date, afterDate?: Date) {
+        // POST /api/rainbow/channels/v1.0/channels/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getChannelMessages) entry`);
         return new Promise(function (resolve, reject) {
@@ -452,6 +465,7 @@ class RESTChannels extends GenericRESTService {
     }
 
     likeItem(channelId, itemId, appreciation) {
+        // POST /api/rainbow/channels/v1.0/channels/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(likeItem) entry`);
         let data = {"appreciation": appreciation};
@@ -469,6 +483,7 @@ class RESTChannels extends GenericRESTService {
     }
 
     getDetailedAppreciations(channelId, itemId) {
+        // GET /api/rainbow/channels/v1.0/channels/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getDetailedAppreciations) entry`);
         return new Promise(function (resolve, reject) {
@@ -491,6 +506,7 @@ class RESTChannels extends GenericRESTService {
      * @returns {Promise<any>}
      */
     deleteChannelMessage(channelId, itemId) {
+        // DELETE /api/rainbow/channels/v1.0/channels/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(deleteChannelMessage) entry`);
         return new Promise((resolve, reject) => {

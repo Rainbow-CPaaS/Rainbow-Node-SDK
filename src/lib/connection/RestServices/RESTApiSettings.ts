@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 import {logEntryExit} from "../../common/Utils";
 import {GenericRESTService} from "../GenericRESTService.js";
@@ -40,6 +40,7 @@ class RESTApiSettings extends GenericRESTService {
     getApisSettings() {
         // GET  https://api.openrainbow.org/api/rainbow/enduser/v1.0/settings/apis
         // API https://api.openrainbow.org/enduser/#api-settings_apis-getApisSettings
+        // GET /api/rainbow/enduser/v1.0/settings/apis
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getApisSettings) entry`);
         return new Promise(function (resolve, reject) {

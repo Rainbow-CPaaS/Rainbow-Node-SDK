@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 import {addParamToUrl, logEntryExit} from "../../common/Utils";
 import {GenericRESTService} from "../GenericRESTService.js";
@@ -439,6 +439,7 @@ class RESTSystems extends GenericRESTService {
     createPbxPhoneNumber(pbxId: string, shortNumber: string, voiceMailNumber: string, pbxUserId: string, companyPrefix: string, internalNumber: string, type: string, deviceType: string, firstName: string, lastName: string, deviceName: string) {
         // POST https://openrainbow.com/api/rainbow/pcg/v1.0/pbxs/:pbxId/phone-numbers
         // API https://api.openrainbow.org/admin/#api-pcg_pbxs_phone_numbers-PostPcgPbxPhoneNb
+        // POST /api/rainbow/pcg/v1.0/pbxs/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(createPbxPhoneNumber) entry`);
         return new Promise(function (resolve, reject) {
@@ -469,6 +470,7 @@ class RESTSystems extends GenericRESTService {
     deletePbxPhoneNumber(pbxId: string, shortNumber: string) {
         // API https://api.openrainbow.org/admin/#api-pcg_pbxs_phone_numbers-DeletePcgPbxPhoneNbShortNb
         // DELETE https://openrainbow.com/api/rainbow/pcg/v1.0/pbxs/:pbxId/phone-numbers/short-number/:shortNumber
+        // DELETE /api/rainbow/pcg/v1.0/pbxs/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(deletePbxPhoneNumber) entry`);
         return new Promise((resolve, reject) => {
@@ -488,6 +490,7 @@ class RESTSystems extends GenericRESTService {
     getPbxPhoneNumber(pbxId: string, shortNumber: string) {
         // API https://api.openrainbow.org/admin/#api-pcg_pbxs_phone_numbers-GetPcgPbxPhoneNbShortNb
         // GET https://openrainbow.com/api/rainbow/pcg/v1.0/pbxs/:pbxId/phone-numbers/short-number/:shortNumber
+        // GET /api/rainbow/pcg/v1.0/pbxs/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getPbxPhoneNumber) entry`);
         return new Promise(function (resolve, reject) {
@@ -511,6 +514,7 @@ class RESTSystems extends GenericRESTService {
                           isAssignedToUser: boolean, limit: number = 100, offset: number, sortField: string = "shortNumber", sortOrder: number = 1) {
         // API https://api.openrainbow.org/admin/#api-pcg_pbxs_phone_numbers-GetPcgPbxPhoneNb
         // GET https://openrainbow.com/api/rainbow/pcg/v1.0/pbxs/:pbxId/phone-numbers
+        // GET /api/rainbow/pcg/v1.0/pbxs/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getAllPbxPhoneNumbers) entry`);
         return new Promise(function (resolve, reject) {
@@ -549,6 +553,7 @@ class RESTSystems extends GenericRESTService {
     updatepbxPhoneNumber(pbxId: string, shortNumber: string, voiceMailNumber: string, pbxUserId: string, companyPrefix: string, companyName: string, internalNumber: string, type: string, deviceType: string, firstName: string, lastName: string, deviceName: string) {
         // API https://api.openrainbow.org/admin/#api-pcg_pbxs_phone_numbers-PutPcgPbxPhoneNbShortNb
         // PUT https://openrainbow.com/api/rainbow/pcg/v1.0/pbxs/:pbxId/phone-numbers/short-number/:shortNumber
+        // PUT /api/rainbow/pcg/v1.0/pbxs/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(updatepbxPhoneNumber) entry`);
         let data: any = {};

@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 import {addParamToUrl, logEntryExit} from "../../common/Utils";
 import {GenericRESTService} from "../GenericRESTService";
@@ -51,6 +51,7 @@ class RESTRoom extends GenericRESTService {
         format?: string; name?: string; limit?: number; offset?: number;
         sortField?: string; sortOrder?: string; nbUsersToKeep?: number;
     }): Promise<any> {
+        // GET /api/rainbow/room/v1.0/admin/rooms
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getRoomsAsAdmin) entry`);
         try {
@@ -86,6 +87,7 @@ class RESTRoom extends GenericRESTService {
      * @returns {Promise<any>} Created room data
      */
     async createRoomAsAdmin(body: any): Promise<any> {
+        // POST /api/rainbow/room/v1.0/admin/rooms
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(createRoomAsAdmin) entry`);
         try {
@@ -108,6 +110,7 @@ class RESTRoom extends GenericRESTService {
      * @returns {Promise<any>} Room data
      */
     async getRoomByIdAsAdmin(roomId: string, nbUsersToKeep?: number): Promise<any> {
+        // GET /api/rainbow/room/v1.0/admin/rooms/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getRoomByIdAsAdmin) entry`);
         try {
@@ -136,6 +139,7 @@ class RESTRoom extends GenericRESTService {
      * @returns {Promise<any>} Updated room data
      */
     async updateRoomAsAdmin(roomId: string, body: any): Promise<any> {
+        // PUT /api/rainbow/room/v1.0/admin/rooms/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(updateRoomAsAdmin) entry`);
         try {
@@ -157,6 +161,7 @@ class RESTRoom extends GenericRESTService {
      * @returns {Promise<any>} Deletion result
      */
     async deleteRoomAsAdmin(roomId: string): Promise<any> {
+        // DELETE /api/rainbow/room/v1.0/admin/rooms/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(deleteRoomAsAdmin) entry`);
         try {
@@ -179,6 +184,7 @@ class RESTRoom extends GenericRESTService {
      * @returns {Promise<any>} Rehost result
      */
     async rehostRoomAsAdmin(roomId: string, body: any): Promise<any> {
+        // PUT /api/rainbow/room/v1.0/admin/rooms/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(rehostRoomAsAdmin) entry`);
         try {
@@ -201,6 +207,7 @@ class RESTRoom extends GenericRESTService {
      * @returns {Promise<any>} Upload result
      */
     async uploadRoomAvatarAsAdmin(roomId: string, binaryData: { data: any; type: string }): Promise<any> {
+        // POST /api/rainbow/room/v1.0/admin/rooms/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(uploadRoomAvatarAsAdmin) entry`);
         try {
@@ -227,6 +234,7 @@ class RESTRoom extends GenericRESTService {
      * @returns {Promise<any>} Deletion result
      */
     async deleteRoomAvatarAsAdmin(roomId: string): Promise<any> {
+        // DELETE /api/rainbow/room/v1.0/admin/rooms/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(deleteRoomAvatarAsAdmin) entry`);
         try {
@@ -249,6 +257,7 @@ class RESTRoom extends GenericRESTService {
      * @returns {Promise<any>} Promotion result
      */
     async promoteSomeOrAllRoomUsersAsAdmin(roomId: string, body: any): Promise<any> {
+        // PUT /api/rainbow/room/v1.0/admin/rooms/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(promoteSomeOrAllRoomUsersAsAdmin) entry`);
         try {
@@ -271,6 +280,7 @@ class RESTRoom extends GenericRESTService {
      * @returns {Promise<any>} Demotion result
      */
     async demoteSomeOrAllRoomUsersAsAdmin(roomId: string, body: any): Promise<any> {
+        // PUT /api/rainbow/room/v1.0/admin/rooms/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(demoteSomeOrAllRoomUsersAsAdmin) entry`);
         try {
@@ -293,6 +303,7 @@ class RESTRoom extends GenericRESTService {
      * @returns {Promise<any>} Deletion result
      */
     async deleteSomeOrAllRoomUsersAsAdmin(roomId: string, body: any): Promise<any> {
+        // PUT /api/rainbow/room/v1.0/admin/rooms/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(deleteSomeOrAllRoomUsersAsAdmin) entry`);
         try {
@@ -316,6 +327,7 @@ class RESTRoom extends GenericRESTService {
      * @returns {Promise<any>} Push-to-talk rooms
      */
     async getMyPushToTalk(params?: { format?: string; nbUsersToKeep?: number }): Promise<any> {
+        // GET /api/rainbow/room/v1.0/enduser/rooms/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getMyPushToTalk) entry`);
         try {
@@ -347,6 +359,7 @@ class RESTRoom extends GenericRESTService {
      * @returns {Promise<any>} Clear result
      */
     async clearRoomContent(roomId: string, body: any): Promise<any> {
+        // POST /api/rainbow/room/v1.0/enduser/rooms/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(clearRoomContent) entry`);
         try {
@@ -369,6 +382,7 @@ class RESTRoom extends GenericRESTService {
      * @returns {Promise<any>} Ping result
      */
     async getApiRainbowPing(): Promise<any> {
+        // GET /api/rainbow/ping
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getApiRainbowPing) entry`);
         try {
@@ -389,6 +403,7 @@ class RESTRoom extends GenericRESTService {
      * @returns {Promise<any>} About data
      */
     async getApiRainbowRoomV10About(): Promise<any> {
+        // GET /api/rainbow/room/v1.0/about
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getApiRainbowRoomV10About) entry`);
         try {
@@ -409,6 +424,7 @@ class RESTRoom extends GenericRESTService {
      * @returns {Promise<any>} Metrics data
      */
     async getMetrics(): Promise<any> {
+        // GET /api/rainbow/metrics
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getMetrics) entry`);
         try {
@@ -429,6 +445,7 @@ class RESTRoom extends GenericRESTService {
      * @returns {Promise<any>} Deletion result
      */
     async deleteMetrics(): Promise<any> {
+        // DELETE /api/rainbow/metrics
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(deleteMetrics) entry`);
         try {
@@ -450,6 +467,7 @@ class RESTRoom extends GenericRESTService {
      * @returns {Promise<any>} Update result
      */
     async putApiRainbowLogsLevels(body: { console?: string; file?: string; syslog?: string }): Promise<any> {
+        // PUT /api/rainbow/logs/levels
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(putApiRainbowLogsLevels) entry`);
         try {

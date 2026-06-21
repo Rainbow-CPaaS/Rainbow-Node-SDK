@@ -44,6 +44,7 @@ class RESTFileStorage extends GenericRESTService {
     //region FileStorage
 
     createFileDescriptor(name, extension, size, viewers, voicemessage: boolean, duration: number, encoding: boolean, ccarelogs: boolean, ccareclientlogs: boolean) {
+        // POST /api/rainbow/filestorage/v1.0/files
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(createFileDescriptor) entry`);
         return new Promise(function (resolve, reject) {
@@ -72,6 +73,7 @@ class RESTFileStorage extends GenericRESTService {
     }
 
     deleteFileDescriptor(fileId) {
+        // DELETE /api/rainbow/filestorage/v1.0/files/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(deleteFileDescriptor) entry`);
         return new Promise((resolve, reject) => {
@@ -89,6 +91,7 @@ class RESTFileStorage extends GenericRESTService {
 
     retrieveFileDescriptors(fileName: string, extension: string, typeMIME: string, purpose: string, isUploaded: boolean, viewerId: string, path: string, limit: number = 1000, offset: number, sortField: string, sortOrder: number, format: string = "full") {
         // API https://api.openrainbow.org/filestorage/#api-files-files_getAll
+        // GET /api/rainbow/filestorage/v1.0/files
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(retrieveFileDescriptors) entry`);
         return new Promise(function (resolve, reject) {
@@ -141,6 +144,7 @@ class RESTFileStorage extends GenericRESTService {
 
     getAllConferenceRecords(roomName?: string, recordingName?: string, status?: string, roomId?: string, purpose?: string, fetch: string = "mine", isEphemeral?: boolean, limit: number = 100, offset: number = 0, sortField: string = "recordingStartDate", sortOrder: number = 1, format: string = "small") {
         // API https://api.openrainbow.org/filestorage/#api-conference_records-getAllConferenceRecords
+        // GET /api/rainbow/filestorage/v1.0/conferences-recordings
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getAllConferenceRecords) entry`);
         return new Promise(function (resolve, reject) {
@@ -194,6 +198,7 @@ class RESTFileStorage extends GenericRESTService {
 
     updateOneConferenceRecordName(confrecid: string, recordingName: string) {
         // API https://api.openrainbow.org/filestorage/#api-conference_records-updateOneConferenceRecord
+        // PUT /api/rainbow/filestorage/v1.0/conferences-recordings/:confrecid
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(updateOneConferenceRecordName) entry`);
         return new Promise(function (resolve, reject) {
@@ -216,6 +221,7 @@ class RESTFileStorage extends GenericRESTService {
 
     getOneConferenceRecord(confrecid: string) {
         // API https://api.openrainbow.org/filestorage/#api-conference_records-getOneConferenceRecord
+        // GET /api/rainbow/filestorage/v1.0/conferences-recordings/:confrecid
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getOneConferenceRecord) entry`);
         return new Promise(function (resolve, reject) {
@@ -237,6 +243,7 @@ class RESTFileStorage extends GenericRESTService {
 
     deleteOneConferenceRecord(confrecid: string) {
         // API https://api.openrainbow.org/filestorage/#api-conference_records-DeleteOneConferenceRecord
+        // DELETE /api/rainbow/filestorage/v1.0/files/viewers/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(deleteOneConferenceRecord) entry`);
         return new Promise(function (resolve, reject) {
@@ -258,6 +265,7 @@ class RESTFileStorage extends GenericRESTService {
 
     deleteOneDocumentConferenceRecord(confrecid: string, fileId: string) {
         // API https://api.openrainbow.org/filestorage/#api-conference_records-DeleteOneDocumentConferenceRecord
+        // DELETE /api/rainbow/filestorage/v1.0/files/viewers/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(deleteOneDocumentConferenceRecord) entry`);
         return new Promise(function (resolve, reject) {
@@ -279,6 +287,7 @@ class RESTFileStorage extends GenericRESTService {
 
     getOneConferenceRecordExternalRef(registrationUuid: string) {
         // API https://api.openrainbow.org/filestorage/#api-conference_records-getOneConferenceRecordExternalRef
+        // POST /api/rainbow/filestorage/v1.0/files/viewers/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getOneConferenceRecordExternalRef) entry`);
         return new Promise(function (resolve, reject) {
@@ -301,6 +310,7 @@ class RESTFileStorage extends GenericRESTService {
 
     retrieveFilesReceivedFromPeer(userId, peerId) {
         // API https://api.openrainbow.org/filestorage/#api-files-files_getAllViewerId
+        // GET /api/rainbow/filestorage/v1.0/files/viewers/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(retrieveFilesReceivedFromPeer) entry`);
         return new Promise(function (resolve, reject) {
@@ -318,6 +328,7 @@ class RESTFileStorage extends GenericRESTService {
 
     retrieveReceivedFilesForRoomOrViewer(viewerId, ownerId: string, fileName: boolean, extension: string, typeMIME: string, isUploaded: boolean, purpose: string, roomName: string, overall: boolean, format: string = "full", limit: number = 100, offset: number, sortField: string, sortOrder: number) {
         // API https://api.openrainbow.org/filestorage/#api-files-files_getAllViewerId
+        // GET /api/rainbow/filestorage/v1.0/files/viewers/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(retrieveReceivedFilesForRoomOrViewer) entry`);
         return new Promise(function (resolve, reject) {
@@ -338,6 +349,7 @@ class RESTFileStorage extends GenericRESTService {
 
     retrieveOneFileDescriptor(fileId) {
         // API https://api.openrainbow.org/filestorage/#api-files-files_getOne
+        // GET /api/rainbow/filestorage/v1.0/files/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(retrieveOneFileDescriptor) entry`);
         return new Promise(function (resolve, reject) {
@@ -356,6 +368,7 @@ class RESTFileStorage extends GenericRESTService {
     }
 
     retrieveUserConsumption() {
+        // GET /api/rainbow/filestorage/v1.0/users/consumption
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(retrieveUserConsumption) entry`);
         return new Promise(function (resolve, reject) {
@@ -373,6 +386,7 @@ class RESTFileStorage extends GenericRESTService {
     }
 
     deleteFileViewer(viewerId, fileId) {
+        // DELETE /api/rainbow/filestorage/v1.0/files/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(deleteFileViewer) entry`);
         return new Promise((resolve, reject) => {
@@ -389,6 +403,7 @@ class RESTFileStorage extends GenericRESTService {
     }
 
     addFileViewer(fileId, viewerId, viewerType) {
+        // POST /api/rainbow/filestorage/v1.0/files/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(addFileViewer) entry`);
         return new Promise(function (resolve, reject) {
@@ -409,6 +424,7 @@ class RESTFileStorage extends GenericRESTService {
 
     getFileDescriptorsByCompanyId(companyId, fileName: boolean, extension: string, typeMIME: string, purpose: string, isUploaded: boolean, format: string = "small", limit: number = 100, offset: number = 0, sortField: string = "fileName", sortOrder: number = 1) {
         // API : https://api.openrainbow.org/filestorage/#api-files-files_getAllByCompanyId
+        // GET /api/rainbow/filestorage/v1.0/files/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getFileDescriptorsByCompanyId) entry`);
         return new Promise(function (resolve, reject) {
@@ -455,6 +471,7 @@ class RESTFileStorage extends GenericRESTService {
 
     copyFileInPersonalCloudSpace(fileId: string) {
         // API https://api.openrainbow.org/filestorage/#api-files-files_copyOne
+        // POST /api/rainbow/filestorage/v1.0/files/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(copyFileInPersonalCloudSpace) entry`);
         return new Promise(function (resolve, reject) {
@@ -476,6 +493,7 @@ class RESTFileStorage extends GenericRESTService {
 
     fileOwnershipChange(fileId: string, userId: string) {
         // API https://api.openrainbow.org/filestorage/#api-files-files_dropOne
+        // PUT /api/rainbow/filestorage/v1.0/files/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(fileOwnershipChange) entry`);
         return new Promise(function (resolve, reject) {
@@ -498,6 +516,7 @@ class RESTFileStorage extends GenericRESTService {
     //region FileServer
 
     getPartialDataFromServer(url, minRange, maxRange, index) {
+        // GET /api/rainbow/fileserver/v1.0/files/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getPartialDataFromServer) entry`);
         return new Promise(function (resolve, reject) {
@@ -514,6 +533,7 @@ class RESTFileStorage extends GenericRESTService {
     }
 
     getPartialBufferFromServer(url, minRange, maxRange, index) {
+        // GET /api/rainbow/fileserver/v1.0/files/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getPartialBufferFromServer) entry`);
         return new Promise(function (resolve, reject) {
@@ -531,6 +551,7 @@ class RESTFileStorage extends GenericRESTService {
     }
 
     getFileFromUrl(url) {
+        // GET /api/rainbow/fileserver/v1.0/files/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getFileFromUrl) entry`);
         return new Promise(function (resolve, reject) {
@@ -547,6 +568,7 @@ class RESTFileStorage extends GenericRESTService {
     }
 
     getBlobFromUrl(url) {
+        // GET /api/rainbow/fileserver/v1.0/files/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getBlobFromUrl) entry`);
         return new Promise(function (resolve, reject) {
@@ -563,6 +585,7 @@ class RESTFileStorage extends GenericRESTService {
     }
 
     uploadAFile(fileId, buffer) {
+        // PUT /api/rainbow/fileserver/v1.0/files/:fileId
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(uploadAFile) entry`);
         return new Promise(function (resolve, reject) {
@@ -579,6 +602,7 @@ class RESTFileStorage extends GenericRESTService {
     }
 
     uploadABuffer(fileId, buffer) {
+        // PUT /api/rainbow/fileserver/v1.0/files/:fileId
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(uploadABuffer) entry`);
         return new Promise(function (resolve, reject) {
@@ -597,6 +621,7 @@ class RESTFileStorage extends GenericRESTService {
     }
 
     uploadAStream(fileId, stream) {
+        // GET /api/rainbow/fileserver/v1.0/files/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(uploadAStream) entry`);
         return new Promise(function (resolve, reject) {
@@ -615,6 +640,7 @@ class RESTFileStorage extends GenericRESTService {
     }
 
     sendPartialDataToServer(fileId, file, index) {
+        // GET /api/rainbow/fileserver/v1.0/files/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(sendPartialDataToServer) entry`);
         return new Promise(function (resolve, reject) {
@@ -636,6 +662,7 @@ class RESTFileStorage extends GenericRESTService {
     }
 
     sendPartialFileCompletion(fileId) {
+        // GET /api/rainbow/fileserver/v1.0/files/
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(sendPartialFileCompletion) entry`);
         return new Promise(function (resolve, reject) {
@@ -655,6 +682,7 @@ class RESTFileStorage extends GenericRESTService {
     }
 
     getFilesTemporaryURL(fileId: string) {
+        // GET /api/rainbow/fileserver/v1.0/files/:fileId/temporary-url
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getFilesTemporaryURL) entry`);
         return new Promise(function (resolve, reject) {
