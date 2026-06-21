@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 import {logEntryExit} from "../../common/Utils";
 import {GenericRESTService} from "../GenericRESTService.js";
@@ -499,6 +499,7 @@ class RESTAlerts extends GenericRESTService {
     }
 
     getAlertFeedbackSentForANotificationMessage(notificationHistoryId: string) {
+        // GET /api/rainbow/notificationsreport/v1.0/notifications/:notificationHistoryId/feedback
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getAlertFeedbackSentForANotificationMessage) entry`);
         return new Promise(function (resolve, reject) {
@@ -516,6 +517,7 @@ class RESTAlerts extends GenericRESTService {
     }
 
     getAlertFeedbackSentForAnAlert(alertId: string) {
+        // GET /api/rainbow/notificationsreport/v1.0/notifications/:notificationId/feedback
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getAlertFeedbackSentForAnAlert) entry`);
         return new Promise(function (resolve, reject) {
@@ -533,6 +535,7 @@ class RESTAlerts extends GenericRESTService {
     }
 
     getAlertStatsFeedbackSentForANotificationMessage(notificationHistoryId: string) {
+        // GET /api/rainbow/notificationsreport/v1.0/notifications/:notificationHistoryId/feedback/stats
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getAlertStatsFeedbackSentForANotificationMessage) entry`);
         return new Promise(function (resolve, reject) {
@@ -584,6 +587,7 @@ class RESTAlerts extends GenericRESTService {
     }
 
     getReportComplete(alertId: string) {
+        // GET /api/rainbow/notificationsreport/v1.0/notifications/:notificationId/reports/complete
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getReportComplete) entry`);
         return new Promise(function (resolve, reject) {

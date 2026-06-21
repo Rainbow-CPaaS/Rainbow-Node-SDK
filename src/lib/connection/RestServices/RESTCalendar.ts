@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 import {addParamToUrl, addPropertyIfNotAlreadyExistToObj, logEntryExit} from "../../common/Utils";
 import {GenericRESTService} from "../GenericRESTService.js";
@@ -148,6 +148,8 @@ class RESTCalendar extends GenericRESTService {
     }
 
     controlCalendarOrIgnoreAnEntry(disable?: boolean, ignore?: string) {
+        // API https://api.openrainbow.org/calendar/#api-Calendar-ControlCalendar
+        // PUT /api/rainbow/calendar/v1.0/control
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(controlCalendarOrIgnoreAnEntry) entry`);
         return new Promise(function (resolve, reject) {
@@ -174,6 +176,8 @@ class RESTCalendar extends GenericRESTService {
     }
 
     unregisterCalendar() {
+        // API https://api.openrainbow.org/calendar/#api-Calendar-UnregisterCalendar
+        // DELETE /api/rainbow/calendar/v1.0
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(unregisterCalendar) entry`);
         return new Promise(function (resolve, reject) {
@@ -198,6 +202,8 @@ class RESTCalendar extends GenericRESTService {
     //region MSTeams
 
     controlMsteamsPresence(disable?: boolean, ignore?: string) {
+        // API https://api.openrainbow.org/msteamspresence/#api-msteamspresence-ControlPresence
+        // PUT /api/rainbow/msteamspresence/v1.0/control
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(controlMsteamsPresence) entry`);
         return new Promise(function (resolve, reject) {
@@ -224,6 +230,8 @@ class RESTCalendar extends GenericRESTService {
     }
 
     getMsteamsPresenceState(userId: string) {
+        // API https://api.openrainbow.org/msteamspresence/#api-msteamspresence-GetPresence
+        // GET /api/rainbow/msteamspresence/v1.0
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getMsteamsPresenceState) entry`);
         return new Promise(function (resolve, reject) {
@@ -248,6 +256,8 @@ class RESTCalendar extends GenericRESTService {
     }
 
     getMsteamsPresenceStates(users: Array<string> = []) {
+        // API : https://api.openrainbow.org/msteamspresence/#api-msteamspresence-GetPresences
+        // POST /api/rainbow/msteamspresence/v1.0/states
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getMsteamsPresenceStates) entry`);
         let urlParams = "/api/rainbow/msteamspresence/v1.0/states";
@@ -267,6 +277,8 @@ class RESTCalendar extends GenericRESTService {
     }
 
     registerMsteamsPresenceSharing(redirect?: boolean, callback?: string) {
+        // API : https://api.openrainbow.org/msteamspresence/#api-msteamspresence-registerPresence
+        // POST /api/rainbow/msteamspresence/v1.0/register
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(registerMsteamsPresenceSharing) entry`);
         let urlParams = "/api/rainbow/msteamspresence/v1.0/register";
@@ -286,6 +298,8 @@ class RESTCalendar extends GenericRESTService {
     }
 
     unregisterMsteamsPresenceSharing() {
+        // API https://api.openrainbow.org/msteamspresence/#api-msteamspresence-unregisterPresence
+        // DELETE /api/rainbow/msteamspresence/v1.0
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(unregisterMsteamsPresenceSharing) entry`);
         return new Promise(function (resolve, reject) {
@@ -306,6 +320,8 @@ class RESTCalendar extends GenericRESTService {
     }
 
     activateMsteamsPresence() {
+        // API : https://api.openrainbow.org/msteamspresence/#api-msteamspresence-activatePresence
+        // POST /api/rainbow/msteamspresence/v1.0/activate
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(activateMsteamsPresence) entry`);
         let urlParams = "/api/rainbow/msteamspresence/v1.0/activate";
@@ -325,6 +341,8 @@ class RESTCalendar extends GenericRESTService {
     }
 
     deactivateMsteamsPresence() {
+        // API https://api.openrainbow.org/msteamspresence/#api-msteamspresence-deactivatePresence
+        // DELETE /api/rainbow/msteamspresence/v1.0/activate
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(deactivateMsteamsPresence) entry`);
         return new Promise(function (resolve, reject) {
