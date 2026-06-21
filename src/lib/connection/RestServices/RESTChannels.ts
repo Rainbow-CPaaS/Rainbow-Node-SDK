@@ -230,6 +230,7 @@ class RESTChannels extends GenericRESTService {
      * @returns {Promise<any>}
      */
     public getLatestMessages(maxMessages: number, beforeDate: Date = null, afterDate: Date = null) {
+        // GET /api/rainbow/channels/v1.0/channels/latest-items
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getLatestMessages) entry`);
         return new Promise(function (resolve, reject) {
@@ -340,6 +341,7 @@ class RESTChannels extends GenericRESTService {
     }
 
     public uploadChannelAvatar(channelId: string, avatar: any, avatarSize: number, fileType: string): Promise<any> {
+        // POST /api/rainbow/channels/v1.0/channels/:channelId/avatar
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(uploadChannelAvatar) entry`);
         return new Promise((resolve, reject) => {
@@ -354,6 +356,7 @@ class RESTChannels extends GenericRESTService {
     }
 
     public deleteChannelAvatar(channelId: string): Promise<any> {
+        // DELETE /api/rainbow/channels/v1.0/channels/:channelId/avatar
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(deleteChannelAvatar) entry`);
         return new Promise((resolve, reject) => {

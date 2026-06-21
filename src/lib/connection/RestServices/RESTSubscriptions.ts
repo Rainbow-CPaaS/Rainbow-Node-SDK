@@ -71,6 +71,7 @@ class RESTSubscriptions extends GenericRESTService {
     }
 
     public async addServerFavorite(userId: string, peerId: string, type: string, position: number) {
+        // POST /api/rainbow/enduser/v1.0/users/:userId/favorites
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(addServerFavorite) entry`);
         return new Promise(function (resolve, reject) {
@@ -102,6 +103,7 @@ class RESTSubscriptions extends GenericRESTService {
     }
 
     public async checkIsPeerSettedAsFavorite(userId: string, peerId: string) {
+        // GET /api/rainbow/enduser/v1.0/users/:userId/favorites/peers/:peerId/check
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(checkIsPeerSettedAsFavorite) entry`);
         return new Promise(function (resolve, reject) {
@@ -124,6 +126,7 @@ class RESTSubscriptions extends GenericRESTService {
     }
 
     public async getFavoriteById(userId: string, favoriteId: string) {
+        // GET /api/rainbow/enduser/v1.0/users/:userId/favorites/:favoriteId
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getFavoriteById) entry`);
         return new Promise(function (resolve, reject) {
@@ -146,6 +149,7 @@ class RESTSubscriptions extends GenericRESTService {
     }
 
     public async getAllUserFavoriteList(userId: string, peerId: string) {
+        // GET /api/rainbow/enduser/v1.0/users/:userId/favorites
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(getAllUserFavoriteList) entry`);
         return new Promise(function (resolve, reject) {
@@ -196,6 +200,7 @@ class RESTSubscriptions extends GenericRESTService {
     }
 
     public async removeServerFavorite(userId: string, favoriteId: string) {
+        // DELETE /api/rainbow/enduser/v1.0/users/:userId/favorites/:favoriteId
         let that = this;
         that._logger.log(that.INFO, LOG_ID + `(removeServerFavorite) entry`);
         return new Promise(function (resolve, reject) {
