@@ -51,6 +51,7 @@
 - APIs - Services :
   - Admin Service: 'ref:doc/sdk/node/api/admin.md'
   - Alerts Service: 'ref:doc/sdk/node/api/alerts.md'
+  - Backend Status Service: 'ref:doc/sdk/node/api/backendstatus.md'
   - Bubbles Service: 'ref:doc/sdk/node/api/bubbles.md'
   - CallLog Service: 'ref:doc/sdk/node/api/calllog.md'
   - Channels Service: 'ref:doc/sdk/node/api/channels.md'

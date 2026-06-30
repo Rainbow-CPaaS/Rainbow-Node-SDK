@@ -103,7 +103,10 @@ class RoomStatus extends LevelLogs {
 
     /**
      * Changes the server-side log levels (console/file/syslog).
-     * @param {{ console?: string, file?: string, syslog?: string }} body - Log levels payload
+     * @param {object} body - Log levels payload
+     * @param {string} [body.console] - console log level
+     * @param {string} [body.file] - file log level
+     * @param {string} [body.syslog] - syslog log level
      * @returns {Promise<any>} Update result
      */
     async setLogLevel(body: { console?: string; file?: string; syslog?: string }): Promise<any> {
