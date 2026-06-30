@@ -15981,14 +15981,14 @@ to='user1@pdevdv3os18f.corp.intuit.net/BANL07R9AME9X' type='get' id='e2e1'>
          * Runs all non-destructive Room API tests in sequence.
          * Excludes testBackendStatusRoomSideEffects and testAdminRehostRoom.
          */
-        async testAllRoomAPIs() {
-            _logger.log("info", `MAIN - [testAllRoomAPIs] :: Running all Room API tests...`);
+        async testAllBubbleAPIs() {
+            _logger.log("info", `MAIN - [testAllBubbleAPIs] :: Running all Room API tests...`);
             await this.testBackendStatusRoom();
-            await this.testAdminRoomLifecycle();
-            await this.testAdminRoomAvatarManagement();
-            await this.testAdminRoomUserManagement();
-            await this.testEnduserRoomMethods();
-            _logger.log("info", `MAIN - [testAllRoomAPIs] :: All Room API tests done.`);
+            await this.testAdminBubbleLifecycle();
+            await this.testAdminBubbleAvatarManagement();
+            await this.testAdminBubbleUserManagement();
+            await this.testEnduserBubbleMethods();
+            _logger.log("info", `MAIN - [testAllBubbleAPIs] :: All Room API tests done.`);
         }
 
         //endregion Room REST API tests
