@@ -581,6 +581,7 @@ pipeline {
 
                                 mkdir -p ./build/resources/
                                 ./node_modules/.bin/mmdc -i jsdoc/diagramsMermaid/classDiagram.mmd -o ./build/resources/classDiagram.mmd.png -p ./puppeteer-config.json
+                                ls  ./build/resources/
 
                                 if [ "${DEBUGINTERNAL}" = "true" ]; then
                                      echo "Build sources with Internal DEBUG activated."
