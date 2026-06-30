@@ -600,7 +600,7 @@ pipeline {
                                     grunt delivery --verbose
                                 fi
 
-
+                                ls build/resources
 
                                 #echo ---------- STEP commit :
                                 if [ "${RELEASENAMEUPPERNAME}" = "${RELEASENAMEENUM.LTS}" ]; then
@@ -770,7 +770,8 @@ pipeline {
                                     mkdir -p Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides
                                     cp -R doc debian Documentation/
                                     mkdir -p Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/imgs
-                                    ls build/resources/.
+                                    pwd
+                                    ls build/resources
                                     cp -R build/resources/. Documentation/doc/sdk/node/${RELEASENAMELOWERNAME}/guides/imgs/
 
                                     echo "update files with doc/sdk/node path which should be doc/sdk/node/${RELEASENAMELOWERNAME} into the folder Documentation ."
