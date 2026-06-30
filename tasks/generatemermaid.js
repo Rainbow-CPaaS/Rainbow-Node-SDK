@@ -1,5 +1,6 @@
 "use strict";
 
+const path = require('path')
 let setTimeoutPromised = function(timeOutMs) {
     return new Promise((resolve, reject) => {
         setTimeout(()=> {
@@ -43,6 +44,13 @@ module.exports = function(grunt) {
         grunt.log.writeln(">> that.files : " + JSON.stringify(that.files ) );
 
         let dest = that.files[0].dest + "/resources";
+        if (!fs.existsSync(dest)){
+            grunt.log.writeln(">> create dest directory : " + dest);
+            fs.mkdirSync(dest, { recursive: true });
+        } else {
+            grunt.log.writeln(">> use already existing dest directory : " + dest);
+        }
+
         for (const index in that.files[0].src) {
             let file = that.files[0].src[index];
             //let contents = grunt.file.read(file);
@@ -55,13 +63,9 @@ module.exports = function(grunt) {
                 //let cmdStr = options.shellcmd + " -i " + file + " -o " + dest + "/" + file + ".png";
                 let cmdStr = options.shellcmd;
 
-                if (!fs.existsSync(dest)){
-                    fs.mkdirSync(dest, { recursive: true });
-                }
-
                 let destFile = dest + "/" + path.basename(file) + ".png";
                 grunt.log.writeln(">> destFile : " + destFile);
-                
+
                 let args = [];
                 args.push("./node_modules/.bin/mmdc");
                 args.push("-i");
@@ -70,38 +74,19 @@ module.exports = function(grunt) {
                 args.push(destFile);
                 args.push("-p");
                 args.push("./puppeteer-config.json");
-                //grunt.log.writeln(">> dest : " + options.shellcmd + " -i " + file + " -o " + dest + "/" + file + ".png");
-                grunt.log.writeln(">> will call cmdStr : " + cmdStr + ", with args : ", args);
-                let cp = spawn(cmdStr, args);
-/*
-                cp.stdout.pipe(process.stdout);
-                cp.stderr.pipe(process.stderr);
-                process.stdin.pipe(cp.stdin);
+                grunt.log.writeln(">> will call cmdStr : " + cmdStr + ", with args : " + JSON.stringify(args));
 
-                cp.on("error", function(err) {
-                    console.error("Error executing phantom at : ", cmdStr);
-                    console.error(err.stack);
+                await new Promise((resolve, reject) => {
+                    let cp = spawn(cmdStr, args, { stdio: "pipe" });
+                    cp.stdout.on("data", d => grunt.log.writeln(d.toString().trim()));
+                    cp.stderr.on("data", d => grunt.log.error(d.toString().trim()));
+                    cp.on("error", reject);
+                    cp.on("close", code => code === 0 ? resolve() : reject(new Error(`mmdc exited with code ${code} for ${file}`)));
                 });
-
-                cp.on("exit", function(code) {
-                    // Wait few ms for error to be printed.
-                    setTimeout(function() {
-                        process.exit(code);
-                    }, 20);
-                });
-
-                process.on("SIGTERM", function() {
-                    cp.kill("SIGTERM");
-                    process.exit(1);
-                });
-                // */
             }
 
             //grunt.file.write(file, contents);
         }
-        grunt.log.writeln(">> Wait 15 seconds.");
-        await pause(15000);
-        grunt.log.writeln(">> End wait.");
         done();
     });
 };
