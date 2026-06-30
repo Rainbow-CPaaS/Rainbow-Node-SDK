@@ -68,6 +68,8 @@ module.exports = function(grunt) {
                 args.push(file);
                 args.push("-o");
                 args.push(destFile);
+                args.push("-p");
+                args.push("./puppeteer-config.json");
                 //grunt.log.writeln(">> dest : " + options.shellcmd + " -i " + file + " -o " + dest + "/" + file + ".png");
                 grunt.log.writeln(">> will call cmdStr : " + cmdStr + ", with args : ", args);
                 let cp = spawn(cmdStr, args);
