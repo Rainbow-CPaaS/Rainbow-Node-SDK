@@ -577,7 +577,7 @@ pipeline {
 
                                 npm version "${env.FINAL_VERSION}"  --allow-same-version
 
-                                .\node_modules\.bin\mmdc --version
+                                ./node_modules/.bin/mmdc --version
 
                                 if [ "${DEBUGINTERNAL}" = "true" ]; then
                                      echo "Build sources with Internal DEBUG activated."
