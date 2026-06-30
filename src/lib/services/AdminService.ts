@@ -19393,402 +19393,402 @@ class AdminService extends GenericService {
 
     //endregion Applications
 
-    //region Room
+    //region Rainbow Bubble Admin
 
     /**
      * @public
-     * @method getRooms
+     * @method getBubbles
      * @instance
-     * @description Retrieves all rooms managed for the company.
+     * @description Retrieves all bubbles managed for the company.
      * @param {object} [params] - Optional query params: format, name, limit, offset, sortField, sortOrder, nbUsersToKeep
-     * @category Room
-     * @returns {Promise<any>} - List of rooms
+     * @category Rainbow Bubble Admin
+     * @returns {Promise<any>} - List of bubbles
      */
-    async getRooms(params?: any): Promise<any> {
+    async getBubbles(params?: any): Promise<any> {
         let that = this;
-        that._logger.log(that.INFOAPI, `${LOG_ID}(getRooms) entry`);
+        that._logger.log(that.INFOAPI, `${LOG_ID}(getBubbles) entry`);
         try {
             const result = await that._rest.getRoomsAsAdmin(params);
-            that._logger.log(that.INFO, `${LOG_ID}(getRooms) exit`);
+            that._logger.log(that.INFO, `${LOG_ID}(getBubbles) exit`);
             return result;
         } catch (err) {
-            that._logger.log(that.ERROR, `${LOG_ID}(getRooms) error : `, err);
+            that._logger.log(that.ERROR, `${LOG_ID}(getBubbles) error : `, err);
             throw err;
         }
     }
 
     /**
      * @public
-     * @method createRoom
+     * @method createBubble
      * @instance
-     * @description Creates a new managed room.
-     * @param {object} body - Room creation payload
-     * @category Room
-     * @returns {Promise<any>} - Created room data
+     * @description Creates a new managed bubble.
+     * @param {object} body - Bubble creation payload
+     * @category Rainbow Bubble Admin
+     * @returns {Promise<any>} - Created bubble data
      */
-    async createRoom(body: any): Promise<any> {
+    async createBubble(body: any): Promise<any> {
         let that = this;
-        that._logger.log(that.INFO, `${LOG_ID}(createRoom) entry`);
+        that._logger.log(that.INFO, `${LOG_ID}(createBubble) entry`);
         if (!body) {
             let error = ErrorManager.getErrorManager().BAD_REQUEST;
             error.msg += "bad or empty 'body' parameter";
             error.label += "bad or empty 'body' parameter";
             error.cause = body;
-            that._logger.log(that.WARN, `${LOG_ID}(createRoom) BAD_REQUEST.`);
-            that._logger.log(that.INTERNALERROR, `${LOG_ID}(createRoom) bad or empty 'body' parameter : `, error.cause, ", error : ", error);
+            that._logger.log(that.WARN, `${LOG_ID}(createBubble) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, `${LOG_ID}(createBubble) bad or empty 'body' parameter : `, error.cause, ", error : ", error);
             throw error;
         }
         try {
             const result = await that._rest.createRoomAsAdmin(body);
-            that._logger.log(that.INFO, `${LOG_ID}(createRoom) exit`);
+            that._logger.log(that.INFO, `${LOG_ID}(createBubble) exit`);
             return result;
         } catch (err) {
-            that._logger.log(that.ERROR, `${LOG_ID}(createRoom) error : `, err);
+            that._logger.log(that.ERROR, `${LOG_ID}(createBubble) error : `, err);
             throw err;
         }
     }
 
     /**
      * @public
-     * @method getRoomById
+     * @method getBubbleById
      * @instance
-     * @description Gets a managed room by its identifier.
-     * @param {string} roomId - Room unique identifier
+     * @description Gets a managed bubble by its identifier.
+     * @param {string} bubbleId - Bubble unique identifier
      * @param {number} [nbUsersToKeep] - Max number of users to include in the response
-     * @category Room
-     * @returns {Promise<any>} - Room data
+     * @category Rainbow Bubble Admin
+     * @returns {Promise<any>} - Bubble data
      */
-    async getRoomById(roomId: string, nbUsersToKeep?: number): Promise<any> {
+    async getBubbleById(bubbleId: string, nbUsersToKeep?: number): Promise<any> {
         let that = this;
-        that._logger.log(that.INFOAPI, `${LOG_ID}(getRoomById) entry`);
-        if (!roomId) {
+        that._logger.log(that.INFOAPI, `${LOG_ID}(getBubbleById) entry`);
+        if (!bubbleId) {
             let error = ErrorManager.getErrorManager().BAD_REQUEST;
-            error.msg += "bad or empty 'roomId' parameter";
-            error.label += "bad or empty 'roomId' parameter";
-            error.cause = roomId;
-            that._logger.log(that.WARN, `${LOG_ID}(getRoomById) BAD_REQUEST.`);
-            that._logger.log(that.INTERNALERROR, `${LOG_ID}(getRoomById) bad or empty 'roomId' parameter : `, error.cause, ", error : ", error);
+            error.msg += "bad or empty 'bubbleId' parameter";
+            error.label += "bad or empty 'bubbleId' parameter";
+            error.cause = bubbleId;
+            that._logger.log(that.WARN, `${LOG_ID}(getBubbleById) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, `${LOG_ID}(getBubbleById) bad or empty 'bubbleId' parameter : `, error.cause, ", error : ", error);
             throw error;
         }
         try {
-            const result = await that._rest.getRoomByIdAsAdmin(roomId, nbUsersToKeep);
-            that._logger.log(that.INFO, `${LOG_ID}(getRoomById) exit`);
+            const result = await that._rest.getRoomByIdAsAdmin(bubbleId, nbUsersToKeep);
+            that._logger.log(that.INFO, `${LOG_ID}(getBubbleById) exit`);
             return result;
         } catch (err) {
-            that._logger.log(that.ERROR, `${LOG_ID}(getRoomById) error : `, err);
+            that._logger.log(that.ERROR, `${LOG_ID}(getBubbleById) error : `, err);
             throw err;
         }
     }
 
     /**
      * @public
-     * @method updateRoom
+     * @method updateBubble
      * @instance
-     * @description Updates settings and/or users of a managed room.
-     * @param {string} roomId - Room unique identifier
+     * @description Updates settings and/or users of a managed bubble.
+     * @param {string} bubbleId - Bubble unique identifier
      * @param {object} body - Update payload
-     * @category Room
-     * @returns {Promise<any>} - Updated room data
+     * @category Rainbow Bubble Admin
+     * @returns {Promise<any>} - Updated bubble data
      */
-    async updateRoom(roomId: string, body: any): Promise<any> {
+    async updateBubble(bubbleId: string, body: any): Promise<any> {
         let that = this;
-        that._logger.log(that.INFOAPI, `${LOG_ID}(updateRoom) entry`);
-        if (!roomId) {
+        that._logger.log(that.INFOAPI, `${LOG_ID}(updateBubble) entry`);
+        if (!bubbleId) {
             let error = ErrorManager.getErrorManager().BAD_REQUEST;
-            error.msg += "bad or empty 'roomId' parameter";
-            error.label += "bad or empty 'roomId' parameter";
-            error.cause = roomId;
-            that._logger.log(that.WARN, `${LOG_ID}(updateRoom) BAD_REQUEST.`);
-            that._logger.log(that.INTERNALERROR, `${LOG_ID}(updateRoom) bad or empty 'roomId' parameter : `, error.cause, ", error : ", error);
+            error.msg += "bad or empty 'bubbleId' parameter";
+            error.label += "bad or empty 'bubbleId' parameter";
+            error.cause = bubbleId;
+            that._logger.log(that.WARN, `${LOG_ID}(updateBubble) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, `${LOG_ID}(updateBubble) bad or empty 'bubbleId' parameter : `, error.cause, ", error : ", error);
             throw error;
         }
         try {
-            const result = await that._rest.updateRoomAsAdmin(roomId, body);
-            that._logger.log(that.INFO, `${LOG_ID}(updateRoom) exit`);
+            const result = await that._rest.updateRoomAsAdmin(bubbleId, body);
+            that._logger.log(that.INFO, `${LOG_ID}(updateBubble) exit`);
             return result;
         } catch (err) {
-            that._logger.log(that.ERROR, `${LOG_ID}(updateRoom) error : `, err);
+            that._logger.log(that.ERROR, `${LOG_ID}(updateBubble) error : `, err);
             throw err;
         }
     }
 
     /**
      * @public
-     * @method deleteRoom
+     * @method deleteBubble
      * @instance
-     * @description Deletes a managed room and cleans up all associated data.
-     * @param {string} roomId - Room unique identifier
-     * @category Room
+     * @description Deletes a managed bubble and cleans up all associated data.
+     * @param {string} bubbleId - Bubble unique identifier
+     * @category Rainbow Bubble Admin
      * @returns {Promise<any>} - Deletion result
      */
-    async deleteRoom(roomId: string): Promise<any> {
+    async deleteBubble(bubbleId: string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFOAPI, `${LOG_ID}(deleteRoom) entry`);
-        if (!roomId) {
+        that._logger.log(that.INFOAPI, `${LOG_ID}(deleteBubble) entry`);
+        if (!bubbleId) {
             let error = ErrorManager.getErrorManager().BAD_REQUEST;
-            error.msg += "bad or empty 'roomId' parameter";
-            error.label += "bad or empty 'roomId' parameter";
-            error.cause = roomId;
-            that._logger.log(that.WARN, `${LOG_ID}(deleteRoom) BAD_REQUEST.`);
-            that._logger.log(that.INTERNALERROR, `${LOG_ID}(deleteRoom) bad or empty 'roomId' parameter : `, error.cause, ", error : ", error);
+            error.msg += "bad or empty 'bubbleId' parameter";
+            error.label += "bad or empty 'bubbleId' parameter";
+            error.cause = bubbleId;
+            that._logger.log(that.WARN, `${LOG_ID}(deleteBubble) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, `${LOG_ID}(deleteBubble) bad or empty 'bubbleId' parameter : `, error.cause, ", error : ", error);
             throw error;
         }
         try {
-            const result = await that._rest.deleteRoomAsAdmin(roomId);
-            that._logger.log(that.INFO, `${LOG_ID}(deleteRoom) exit`);
+            const result = await that._rest.deleteRoomAsAdmin(bubbleId);
+            that._logger.log(that.INFO, `${LOG_ID}(deleteBubble) exit`);
             return result;
         } catch (err) {
-            that._logger.log(that.ERROR, `${LOG_ID}(deleteRoom) error : `, err);
+            that._logger.log(that.ERROR, `${LOG_ID}(deleteBubble) error : `, err);
             throw err;
         }
     }
 
     /**
      * @public
-     * @method rehostRoom
+     * @method rehostBubble
      * @instance
-     * @description Transfers ownership of a managed room to another user.
-     * @param {string} roomId - Room unique identifier
+     * @description Transfers ownership of a managed bubble to another user.
+     * @param {string} bubbleId - Bubble unique identifier
      * @param {object} body - Rehost payload
-     * @category Room
+     * @category Rainbow Bubble Admin
      * @returns {Promise<any>} - Rehost result
      */
-    async rehostRoom(roomId: string, body: any): Promise<any> {
+    async rehostBubble(bubbleId: string, body: any): Promise<any> {
         let that = this;
-        that._logger.log(that.INFOAPI, `${LOG_ID}(rehostRoom) entry`);
-        if (!roomId) {
+        that._logger.log(that.INFOAPI, `${LOG_ID}(rehostBubble) entry`);
+        if (!bubbleId) {
             let error = ErrorManager.getErrorManager().BAD_REQUEST;
-            error.msg += "bad or empty 'roomId' parameter";
-            error.label += "bad or empty 'roomId' parameter";
-            error.cause = roomId;
-            that._logger.log(that.WARN, `${LOG_ID}(rehostRoom) BAD_REQUEST.`);
-            that._logger.log(that.INTERNALERROR, `${LOG_ID}(rehostRoom) bad or empty 'roomId' parameter : `, error.cause, ", error : ", error);
+            error.msg += "bad or empty 'bubbleId' parameter";
+            error.label += "bad or empty 'bubbleId' parameter";
+            error.cause = bubbleId;
+            that._logger.log(that.WARN, `${LOG_ID}(rehostBubble) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, `${LOG_ID}(rehostBubble) bad or empty 'bubbleId' parameter : `, error.cause, ", error : ", error);
             throw error;
         }
         try {
-            const result = await that._rest.rehostRoomAsAdmin(roomId, body);
-            that._logger.log(that.INFO, `${LOG_ID}(rehostRoom) exit`);
+            const result = await that._rest.rehostRoomAsAdmin(bubbleId, body);
+            that._logger.log(that.INFO, `${LOG_ID}(rehostBubble) exit`);
             return result;
         } catch (err) {
-            that._logger.log(that.ERROR, `${LOG_ID}(rehostRoom) error : `, err);
+            that._logger.log(that.ERROR, `${LOG_ID}(rehostBubble) error : `, err);
             throw err;
         }
     }
 
     /**
      * @public
-     * @method uploadRoomAvatar
+     * @method uploadBubbleAvatar
      * @instance
-     * @description Uploads an avatar image for a managed room.
-     * @param {string} roomId - Room unique identifier
+     * @description Uploads an avatar image for a managed bubble.
+     * @param {string} bubbleId - Bubble unique identifier
      * @param {{ data: any, type: string }} binaryData - Avatar binary data and image MIME sub-type (e.g. "jpeg")
-     * @category Room
+     * @category Rainbow Bubble Admin
      * @returns {Promise<any>} - Upload result
      */
-    async uploadRoomAvatar(roomId: string, binaryData: { data: any; type: string }): Promise<any> {
+    async uploadBubbleAvatar(bubbleId: string, binaryData: { data: any; type: string }): Promise<any> {
         let that = this;
-        that._logger.log(that.INFOAPI, `${LOG_ID}(uploadRoomAvatar) entry`);
-        if (!roomId) {
+        that._logger.log(that.INFOAPI, `${LOG_ID}(uploadBubbleAvatar) entry`);
+        if (!bubbleId) {
             let error = ErrorManager.getErrorManager().BAD_REQUEST;
-            error.msg += "bad or empty 'roomId' parameter";
-            error.label += "bad or empty 'roomId' parameter";
-            error.cause = roomId;
-            that._logger.log(that.WARN, `${LOG_ID}(uploadRoomAvatar) BAD_REQUEST.`);
-            that._logger.log(that.INTERNALERROR, `${LOG_ID}(uploadRoomAvatar) bad or empty 'roomId' parameter : `, error.cause, ", error : ", error);
+            error.msg += "bad or empty 'bubbleId' parameter";
+            error.label += "bad or empty 'bubbleId' parameter";
+            error.cause = bubbleId;
+            that._logger.log(that.WARN, `${LOG_ID}(uploadBubbleAvatar) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, `${LOG_ID}(uploadBubbleAvatar) bad or empty 'bubbleId' parameter : `, error.cause, ", error : ", error);
             throw error;
         }
         try {
-            const result = await that._rest.uploadRoomAvatarAsAdmin(roomId, binaryData);
-            that._logger.log(that.INFO, `${LOG_ID}(uploadRoomAvatar) exit`);
+            const result = await that._rest.uploadRoomAvatarAsAdmin(bubbleId, binaryData);
+            that._logger.log(that.INFO, `${LOG_ID}(uploadBubbleAvatar) exit`);
             return result;
         } catch (err) {
-            that._logger.log(that.ERROR, `${LOG_ID}(uploadRoomAvatar) error : `, err);
+            that._logger.log(that.ERROR, `${LOG_ID}(uploadBubbleAvatar) error : `, err);
             throw err;
         }
     }
 
     /**
      * @public
-     * @method deleteRoomAvatar
+     * @method deleteBubbleAvatar
      * @instance
-     * @description Deletes the avatar of a managed room.
-     * @param {string} roomId - Room unique identifier
-     * @category Room
+     * @description Deletes the avatar of a managed bubble.
+     * @param {string} bubbleId - Bubble unique identifier
+     * @category Rainbow Bubble Admin
      * @returns {Promise<any>} - Deletion result
      */
-    async deleteRoomAvatar(roomId: string): Promise<any> {
+    async deleteBubbleAvatar(bubbleId: string): Promise<any> {
         let that = this;
-        that._logger.log(that.INFOAPI, `${LOG_ID}(deleteRoomAvatar) entry`);
-        if (!roomId) {
+        that._logger.log(that.INFOAPI, `${LOG_ID}(deleteBubbleAvatar) entry`);
+        if (!bubbleId) {
             let error = ErrorManager.getErrorManager().BAD_REQUEST;
-            error.msg += "bad or empty 'roomId' parameter";
-            error.label += "bad or empty 'roomId' parameter";
-            error.cause = roomId;
-            that._logger.log(that.WARN, `${LOG_ID}(deleteRoomAvatar) BAD_REQUEST.`);
-            that._logger.log(that.INTERNALERROR, `${LOG_ID}(deleteRoomAvatar) bad or empty 'roomId' parameter : `, error.cause, ", error : ", error);
+            error.msg += "bad or empty 'bubbleId' parameter";
+            error.label += "bad or empty 'bubbleId' parameter";
+            error.cause = bubbleId;
+            that._logger.log(that.WARN, `${LOG_ID}(deleteBubbleAvatar) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, `${LOG_ID}(deleteBubbleAvatar) bad or empty 'bubbleId' parameter : `, error.cause, ", error : ", error);
             throw error;
         }
         try {
-            const result = await that._rest.deleteRoomAvatarAsAdmin(roomId);
-            that._logger.log(that.INFO, `${LOG_ID}(deleteRoomAvatar) exit`);
+            const result = await that._rest.deleteRoomAvatarAsAdmin(bubbleId);
+            that._logger.log(that.INFO, `${LOG_ID}(deleteBubbleAvatar) exit`);
             return result;
         } catch (err) {
-            that._logger.log(that.ERROR, `${LOG_ID}(deleteRoomAvatar) error : `, err);
+            that._logger.log(that.ERROR, `${LOG_ID}(deleteBubbleAvatar) error : `, err);
             throw err;
         }
     }
 
     /**
      * @public
-     * @method promoteRoomUsers
+     * @method promoteBubbleUsers
      * @instance
-     * @description Promotes some or all members of a managed room to moderator.
-     * @param {string} roomId - Room unique identifier
+     * @description Promotes some or all members of a managed bubble to moderator.
+     * @param {string} bubbleId - Bubble unique identifier
      * @param {object} body - Promotion payload
-     * @category Room
+     * @category Rainbow Bubble Admin
      * @returns {Promise<any>} - Promotion result
      */
-    async promoteRoomUsers(roomId: string, body: any): Promise<any> {
+    async promoteBubbleUsers(bubbleId: string, body: any): Promise<any> {
         let that = this;
-        that._logger.log(that.INFOAPI, `${LOG_ID}(promoteRoomUsers) entry`);
-        if (!roomId) {
+        that._logger.log(that.INFOAPI, `${LOG_ID}(promoteBubbleUsers) entry`);
+        if (!bubbleId) {
             let error = ErrorManager.getErrorManager().BAD_REQUEST;
-            error.msg += "bad or empty 'roomId' parameter";
-            error.label += "bad or empty 'roomId' parameter";
-            error.cause = roomId;
-            that._logger.log(that.WARN, `${LOG_ID}(promoteRoomUsers) BAD_REQUEST.`);
-            that._logger.log(that.INTERNALERROR, `${LOG_ID}(promoteRoomUsers) bad or empty 'roomId' parameter : `, error.cause, ", error : ", error);
+            error.msg += "bad or empty 'bubbleId' parameter";
+            error.label += "bad or empty 'bubbleId' parameter";
+            error.cause = bubbleId;
+            that._logger.log(that.WARN, `${LOG_ID}(promoteBubbleUsers) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, `${LOG_ID}(promoteBubbleUsers) bad or empty 'bubbleId' parameter : `, error.cause, ", error : ", error);
             throw error;
         }
         try {
-            const result = await that._rest.promoteSomeOrAllRoomUsersAsAdmin(roomId, body);
-            that._logger.log(that.INFO, `${LOG_ID}(promoteRoomUsers) exit`);
+            const result = await that._rest.promoteSomeOrAllRoomUsersAsAdmin(bubbleId, body);
+            that._logger.log(that.INFO, `${LOG_ID}(promoteBubbleUsers) exit`);
             return result;
         } catch (err) {
-            that._logger.log(that.ERROR, `${LOG_ID}(promoteRoomUsers) error : `, err);
+            that._logger.log(that.ERROR, `${LOG_ID}(promoteBubbleUsers) error : `, err);
             throw err;
         }
     }
 
     /**
      * @public
-     * @method demoteRoomUsers
+     * @method demoteBubbleUsers
      * @instance
-     * @description Demotes some or all moderators of a managed room to regular user.
-     * @param {string} roomId - Room unique identifier
+     * @description Demotes some or all moderators of a managed bubble to regular user.
+     * @param {string} bubbleId - Bubble unique identifier
      * @param {object} body - Demotion payload
-     * @category Room
+     * @category Rainbow Bubble Admin
      * @returns {Promise<any>} - Demotion result
      */
-    async demoteRoomUsers(roomId: string, body: any): Promise<any> {
+    async demoteBubbleUsers(bubbleId: string, body: any): Promise<any> {
         let that = this;
-        that._logger.log(that.INFOAPI, `${LOG_ID}(demoteRoomUsers) entry`);
-        if (!roomId) {
+        that._logger.log(that.INFOAPI, `${LOG_ID}(demoteBubbleUsers) entry`);
+        if (!bubbleId) {
             let error = ErrorManager.getErrorManager().BAD_REQUEST;
-            error.msg += "bad or empty 'roomId' parameter";
-            error.label += "bad or empty 'roomId' parameter";
-            error.cause = roomId;
-            that._logger.log(that.WARN, `${LOG_ID}(demoteRoomUsers) BAD_REQUEST.`);
-            that._logger.log(that.INTERNALERROR, `${LOG_ID}(demoteRoomUsers) bad or empty 'roomId' parameter : `, error.cause, ", error : ", error);
+            error.msg += "bad or empty 'bubbleId' parameter";
+            error.label += "bad or empty 'bubbleId' parameter";
+            error.cause = bubbleId;
+            that._logger.log(that.WARN, `${LOG_ID}(demoteBubbleUsers) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, `${LOG_ID}(demoteBubbleUsers) bad or empty 'bubbleId' parameter : `, error.cause, ", error : ", error);
             throw error;
         }
         try {
-            const result = await that._rest.demoteSomeOrAllRoomUsersAsAdmin(roomId, body);
-            that._logger.log(that.INFO, `${LOG_ID}(demoteRoomUsers) exit`);
+            const result = await that._rest.demoteSomeOrAllRoomUsersAsAdmin(bubbleId, body);
+            that._logger.log(that.INFO, `${LOG_ID}(demoteBubbleUsers) exit`);
             return result;
         } catch (err) {
-            that._logger.log(that.ERROR, `${LOG_ID}(demoteRoomUsers) error : `, err);
+            that._logger.log(that.ERROR, `${LOG_ID}(demoteBubbleUsers) error : `, err);
             throw err;
         }
     }
 
     /**
      * @public
-     * @method deleteRoomUsers
+     * @method deleteBubbleUsers
      * @instance
-     * @description Removes some or all users from a managed room.
-     * @param {string} roomId - Room unique identifier
+     * @description Removes some or all users from a managed bubble.
+     * @param {string} bubbleId - Bubble unique identifier
      * @param {object} body - Deletion payload
-     * @category Room
+     * @category Rainbow Bubble Admin
      * @returns {Promise<any>} - Deletion result
      */
-    async deleteRoomUsers(roomId: string, body: any): Promise<any> {
+    async deleteBubbleUsers(bubbleId: string, body: any): Promise<any> {
         let that = this;
-        that._logger.log(that.INFOAPI, `${LOG_ID}(deleteRoomUsers) entry`);
-        if (!roomId) {
+        that._logger.log(that.INFOAPI, `${LOG_ID}(deleteBubbleUsers) entry`);
+        if (!bubbleId) {
             let error = ErrorManager.getErrorManager().BAD_REQUEST;
-            error.msg += "bad or empty 'roomId' parameter";
-            error.label += "bad or empty 'roomId' parameter";
-            error.cause = roomId;
-            that._logger.log(that.WARN, `${LOG_ID}(deleteRoomUsers) BAD_REQUEST.`);
-            that._logger.log(that.INTERNALERROR, `${LOG_ID}(deleteRoomUsers) bad or empty 'roomId' parameter : `, error.cause, ", error : ", error);
+            error.msg += "bad or empty 'bubbleId' parameter";
+            error.label += "bad or empty 'bubbleId' parameter";
+            error.cause = bubbleId;
+            that._logger.log(that.WARN, `${LOG_ID}(deleteBubbleUsers) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, `${LOG_ID}(deleteBubbleUsers) bad or empty 'bubbleId' parameter : `, error.cause, ", error : ", error);
             throw error;
         }
         try {
-            const result = await that._rest.deleteSomeOrAllRoomUsersAsAdmin(roomId, body);
-            that._logger.log(that.INFO, `${LOG_ID}(deleteRoomUsers) exit`);
+            const result = await that._rest.deleteSomeOrAllRoomUsersAsAdmin(bubbleId, body);
+            that._logger.log(that.INFO, `${LOG_ID}(deleteBubbleUsers) exit`);
             return result;
         } catch (err) {
-            that._logger.log(that.ERROR, `${LOG_ID}(deleteRoomUsers) error : `, err);
+            that._logger.log(that.ERROR, `${LOG_ID}(deleteBubbleUsers) error : `, err);
             throw err;
         }
     }
 
     /**
      * @public
-     * @method getMyPushToTalkRooms
+     * @method getMyPushToTalkBubbles
      * @instance
-     * @description Retrieves push-to-talk rooms the current user is a member of.
+     * @description Retrieves push-to-talk bubbles the current user is a member of.
      * @param {object} [params] - Optional query params: format, nbUsersToKeep
-     * @category Room
-     * @returns {Promise<any>} - Push-to-talk rooms
+     * @category Rainbow Bubble Admin
+     * @returns {Promise<any>} - Push-to-talk bubbles
      */
-    async getMyPushToTalkRooms(params?: any): Promise<any> {
+    async getMyPushToTalkBubbles(params?: any): Promise<any> {
         let that = this;
-        that._logger.log(that.INFOAPI, `${LOG_ID}(getMyPushToTalkRooms) entry`);
+        that._logger.log(that.INFOAPI, `${LOG_ID}(getMyPushToTalkBubbles) entry`);
         try {
             const result = await that._rest.getMyPushToTalk(params);
-            that._logger.log(that.INFO, `${LOG_ID}(getMyPushToTalkRooms) exit`);
+            that._logger.log(that.INFO, `${LOG_ID}(getMyPushToTalkBubbles) exit`);
             return result;
         } catch (err) {
-            that._logger.log(that.ERROR, `${LOG_ID}(getMyPushToTalkRooms) error : `, err);
+            that._logger.log(that.ERROR, `${LOG_ID}(getMyPushToTalkBubbles) error : `, err);
             throw err;
         }
     }
 
     /**
      * @public
-     * @method clearRoomContent
+     * @method clearBubbleContent
      * @instance
-     * @description Clears the content (messages/files) of a room.
-     * @param {string} roomId - Room unique identifier
+     * @description Clears the content (messages/files) of a bubble.
+     * @param {string} bubbleId - Bubble unique identifier
      * @param {object} body - Clear content payload
-     * @category Room
+     * @category Rainbow Bubble Admin
      * @returns {Promise<any>} - Clear result
      */
-    async clearRoomContent(roomId: string, body: any): Promise<any> {
+    async clearBubbleContent(bubbleId: string, body: any): Promise<any> {
         let that = this;
-        that._logger.log(that.INFOAPI, `${LOG_ID}(clearRoomContent) entry`);
-        if (!roomId) {
+        that._logger.log(that.INFOAPI, `${LOG_ID}(clearBubbleContent) entry`);
+        if (!bubbleId) {
             let error = ErrorManager.getErrorManager().BAD_REQUEST;
-            error.msg += "bad or empty 'roomId' parameter";
-            error.label += "bad or empty 'roomId' parameter";
-            error.cause = roomId;
-            that._logger.log(that.WARN, `${LOG_ID}(clearRoomContent) BAD_REQUEST.`);
-            that._logger.log(that.INTERNALERROR, `${LOG_ID}(clearRoomContent) bad or empty 'roomId' parameter : `, error.cause, ", error : ", error);
+            error.msg += "bad or empty 'bubbleId' parameter";
+            error.label += "bad or empty 'bubbleId' parameter";
+            error.cause = bubbleId;
+            that._logger.log(that.WARN, `${LOG_ID}(clearBubbleContent) BAD_REQUEST.`);
+            that._logger.log(that.INTERNALERROR, `${LOG_ID}(clearBubbleContent) bad or empty 'bubbleId' parameter : `, error.cause, ", error : ", error);
             throw error;
         }
         try {
-            const result = await that._rest.clearRoomContent(roomId, body);
-            that._logger.log(that.INFO, `${LOG_ID}(clearRoomContent) exit`);
+            const result = await that._rest.clearRoomContent(bubbleId, body);
+            that._logger.log(that.INFO, `${LOG_ID}(clearBubbleContent) exit`);
             return result;
         } catch (err) {
-            that._logger.log(that.ERROR, `${LOG_ID}(clearRoomContent) error : `, err);
+            that._logger.log(that.ERROR, `${LOG_ID}(clearBubbleContent) error : `, err);
             throw err;
         }
     }
 
-    //endregion Room
+    //endregion Rainbow Bubble Admin
 
     }
 

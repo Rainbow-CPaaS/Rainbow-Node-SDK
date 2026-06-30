@@ -6,7 +6,7 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-### [2.46.0] - 2026-06-30
+### [2.46.1] - 2026-06-30
 #### Removed
 -   None.
 
@@ -17,8 +17,8 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 #### Added
 -   Add `RESTRoom.ts` — new REST sub-service (`GenericRESTService`) with 18 async HTTP wrapper methods covering the full Rainbow Room portal v1.270.0 API: `getRoomsAsAdmin`, `createRoomAsAdmin`, `getRoomByIdAsAdmin`, `updateRoomAsAdmin`, `deleteRoomAsAdmin`, `rehostRoomAsAdmin`, `uploadRoomAvatarAsAdmin`, `deleteRoomAvatarAsAdmin`, `promoteSomeOrAllRoomUsersAsAdmin`, `demoteSomeOrAllRoomUsersAsAdmin`, `deleteSomeOrAllRoomUsersAsAdmin`, `getMyPushToTalk`, `clearRoomContent`, `getApiRainbowPing`, `getApiRainbowRoomV10About`, `getMetrics`, `deleteMetrics`, `putApiRainbowLogsLevels`. Wired into `RESTService` startup/stop chain and all 5 credential setters.
--   Add 13 Room administration methods to `AdminService`: `getRooms`, `createRoom`, `getRoomById`, `updateRoom`, `deleteRoom`, `rehostRoom`, `uploadRoomAvatar`, `deleteRoomAvatar`, `promoteSomeOrAllRoomUsers`, `demoteSomeOrAllRoomUsers`, `deleteSomeOrAllRoomUsers`, `clearRoomContentAsAdmin`, `putRoomLogLevel`. All delegate to `RESTService` forwarding methods with `async/await`, `ErrorManager` guards on required params, and entry/exit logs.
--   Add 2 Room end-user methods to `BubblesService`: `getMyPushToTalkRooms` (list rooms where the user has push-to-talk) and `clearRoomContent` (delete all messages in a room). Same pattern as admin methods.
+-   Add 13 Room administration methods to `AdminService`: `getBubbles`, `createBubble`, `getBubbleById`, `updateBubble`, `deleteBubble`, `rehostBubble`, `uploadBubbleAvatar`, `deleteBubbleAvatar`, `promoteBubbleUsers`, `demoteBubbleUsers`, `deleteBubbleUsers`, `clearBubbleContent`, `putRoomLogLevel`. All delegate to `RESTService` forwarding methods with `async/await`, `ErrorManager` guards on required params, and entry/exit logs.
+-   Add 2 Room end-user methods to `BubblesService`: `getMyPushToTalkBubbles` (list rooms where the user has push-to-talk) and `clearBubbleContent` (delete all messages in a room). Same pattern as admin methods.
 -   Add `BackendStatusService` — new `GenericService` exposing health and infrastructure endpoints for the Room portal under `sdk.backendStatus.room`: `ping()`, `about()`, `getMetrics()`, `deleteMetrics()`, `setLogLevel(body)`. Wired into `Core` constructor, start chain, `_restartServicesIfNeeded`, and exposed via `NodeSDK.backendStatus` getter. Registered in `config.ts` `servicesToStart` as `backendStatus`.
 -   Add `newIncoming` management stanza handling in `conversationEventHandler.ts` (`onNewIncomingMessageReceived`) emitting `evt_internal_bubble_newincoming_received` with the waiting user's attributes (`roomid`, `roomjid`, `roomname`, `userid`, `firstname`, `lastname`, `companyname`, `additionDate`, `status`).
 -   Add bypass for `newIncoming` stanza in `alertEventHandler`, `channelEventHandler`, `TasksEventHandler`, `RBVoiceEventHandler`, `favoriteEventHandler`, `presenceEventHandler`, `webinarEventHandler`, `invitationEventHandler`.

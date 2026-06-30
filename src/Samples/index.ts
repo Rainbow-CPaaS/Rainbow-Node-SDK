@@ -15770,65 +15770,65 @@ to='user1@pdevdv3os18f.corp.intuit.net/BANL07R9AME9X' type='get' id='e2e1'>
         }
 
         /**
-         * Full admin room lifecycle: getRooms → createRoom → getRoomById → updateRoom → deleteRoom.
+         * Full admin bubble lifecycle: getBubbles → createBubble → getBubbleById → updateBubble → deleteBubble.
          */
-        async testAdminRoomLifecycle() {
-            let createdRoomId: string;
+        async testAdminBubbleLifecycle() {
+            let createdBubbleId: string;
             try {
-                _logger.log("info", `MAIN - [testAdminRoomLifecycle] :: start.`);
+                _logger.log("info", `MAIN - [testAdminBubbleLifecycle] :: start.`);
 
-                _logger.log("debug", `MAIN - [testAdminRoomLifecycle] :: calling getRooms...`);
-                const rooms: any = await rainbowSDK.admin.getRooms({ limit: 10, offset: 0 });
-                _logger.log("debug", `MAIN - [testAdminRoomLifecycle] :: getRooms result : `, rooms);
-                expectingIsDefined(rooms, "getRooms - result should be defined.");
+                _logger.log("debug", `MAIN - [testAdminBubbleLifecycle] :: calling getBubbles...`);
+                const bubbles: any = await rainbowSDK.admin.getBubbles({ limit: 10, offset: 0 });
+                _logger.log("debug", `MAIN - [testAdminBubbleLifecycle] :: getBubbles result : `, bubbles);
+                expectingIsDefined(bubbles, "getBubbles - result should be defined.");
 
-                const roomName = "SDK_Test_Room_" + makeId(6);
-                _logger.log("debug", `MAIN - [testAdminRoomLifecycle] :: creating room : `, roomName);
-                const created: any = await rainbowSDK.admin.createRoom({ name: roomName, topic: "Automated SDK test room" });
-                _logger.log("debug", `MAIN - [testAdminRoomLifecycle] :: createRoom result : `, created);
-                expectingIsDefined(created, "createRoom - result should be defined.");
-                expectingIsDefined(created?.id, "createRoom - result.id should be defined.");
-                createdRoomId = created.id;
+                const bubbleName = "SDK_Test_Bubble_" + makeId(6);
+                _logger.log("debug", `MAIN - [testAdminBubbleLifecycle] :: creating bubble : `, bubbleName);
+                const created: any = await rainbowSDK.admin.createBubble({ name: bubbleName, topic: "Automated SDK test bubble" });
+                _logger.log("debug", `MAIN - [testAdminBubbleLifecycle] :: createBubble result : `, created);
+                expectingIsDefined(created, "createBubble - result should be defined.");
+                expectingIsDefined(created?.id, "createBubble - result.id should be defined.");
+                createdBubbleId = created.id;
 
-                _logger.log("debug", `MAIN - [testAdminRoomLifecycle] :: calling getRoomById : `, createdRoomId);
-                const fetched: any = await rainbowSDK.admin.getRoomById(createdRoomId);
-                _logger.log("debug", `MAIN - [testAdminRoomLifecycle] :: getRoomById result : `, fetched);
-                expectingIsDefined(fetched, "getRoomById - result should be defined.");
-                expectingIsDefined(fetched?.id, "getRoomById - result.id should be defined.");
+                _logger.log("debug", `MAIN - [testAdminBubbleLifecycle] :: calling getBubbleById : `, createdBubbleId);
+                const fetched: any = await rainbowSDK.admin.getBubbleById(createdBubbleId);
+                _logger.log("debug", `MAIN - [testAdminBubbleLifecycle] :: getBubbleById result : `, fetched);
+                expectingIsDefined(fetched, "getBubbleById - result should be defined.");
+                expectingIsDefined(fetched?.id, "getBubbleById - result.id should be defined.");
 
-                _logger.log("debug", `MAIN - [testAdminRoomLifecycle] :: calling updateRoom...`);
-                const updated: any = await rainbowSDK.admin.updateRoom(createdRoomId, { topic: "Updated by SDK test" });
-                _logger.log("debug", `MAIN - [testAdminRoomLifecycle] :: updateRoom result : `, updated);
-                expectingIsDefined(updated, "updateRoom - result should be defined.");
+                _logger.log("debug", `MAIN - [testAdminBubbleLifecycle] :: calling updateBubble...`);
+                const updated: any = await rainbowSDK.admin.updateBubble(createdBubbleId, { topic: "Updated by SDK test" });
+                _logger.log("debug", `MAIN - [testAdminBubbleLifecycle] :: updateBubble result : `, updated);
+                expectingIsDefined(updated, "updateBubble - result should be defined.");
 
-                _logger.log("debug", `MAIN - [testAdminRoomLifecycle] :: calling deleteRoom : `, createdRoomId);
-                const deleted: any = await rainbowSDK.admin.deleteRoom(createdRoomId);
-                _logger.log("debug", `MAIN - [testAdminRoomLifecycle] :: deleteRoom result : `, deleted);
-                createdRoomId = undefined;
+                _logger.log("debug", `MAIN - [testAdminBubbleLifecycle] :: calling deleteBubble : `, createdBubbleId);
+                const deleted: any = await rainbowSDK.admin.deleteBubble(createdBubbleId);
+                _logger.log("debug", `MAIN - [testAdminBubbleLifecycle] :: deleteBubble result : `, deleted);
+                createdBubbleId = undefined;
 
-                _logger.log("info", `MAIN - [testAdminRoomLifecycle] :: Test completed successfully.`);
+                _logger.log("info", `MAIN - [testAdminBubbleLifecycle] :: Test completed successfully.`);
             } catch (err) {
-                _logger.log("error", `MAIN - [testAdminRoomLifecycle] :: Error : `, err);
-                if (createdRoomId) {
-                    _logger.log("debug", `MAIN - [testAdminRoomLifecycle] :: cleanup, deleting room : `, createdRoomId);
-                    try { await rainbowSDK.admin.deleteRoom(createdRoomId); } catch (_) {}
+                _logger.log("error", `MAIN - [testAdminBubbleLifecycle] :: Error : `, err);
+                if (createdBubbleId) {
+                    _logger.log("debug", `MAIN - [testAdminBubbleLifecycle] :: cleanup, deleting bubble : `, createdBubbleId);
+                    try { await rainbowSDK.admin.deleteBubble(createdBubbleId); } catch (_) {}
                 }
             }
         }
 
         /**
-         * Tests admin room avatar: uploadRoomAvatar then deleteRoomAvatar.
-         * Creates and deletes a temporary room internally.
+         * Tests admin bubble avatar: uploadBubbleAvatar then deleteBubbleAvatar.
+         * Creates and deletes a temporary bubble internally.
          */
-        async testAdminRoomAvatarManagement() {
-            let createdRoomId: string;
+        async testAdminBubbleAvatarManagement() {
+            let createdBubbleId: string;
             try {
-                _logger.log("info", `MAIN - [testAdminRoomAvatarManagement] :: start.`);
+                _logger.log("info", `MAIN - [testAdminBubbleAvatarManagement] :: start.`);
 
-                const roomName = "SDK_Test_AvatarRoom_" + makeId(6);
-                const created: any = await rainbowSDK.admin.createRoom({ name: roomName, topic: "Avatar test" });
-                expectingIsDefined(created?.id, "createRoom (avatar test) - result.id should be defined.");
-                createdRoomId = created.id;
+                const bubbleName = "SDK_Test_AvatarBubble_" + makeId(6);
+                const created: any = await rainbowSDK.admin.createBubble({ name: bubbleName, topic: "Avatar test" });
+                expectingIsDefined(created?.id, "createBubble (avatar test) - result.id should be defined.");
+                createdBubbleId = created.id;
 
                 // Minimal 1×1 red PNG
                 const pngHex =
@@ -15836,143 +15836,143 @@ to='user1@pdevdv3os18f.corp.intuit.net/BANL07R9AME9X' type='get' id='e2e1'>
                     "90019010000000000000000000000049454e44ae426082";
                 const pngBuffer = Buffer.from(pngHex, "hex");
 
-                _logger.log("debug", `MAIN - [testAdminRoomAvatarManagement] :: uploading avatar for room : `, createdRoomId);
-                const uploadResult: any = await rainbowSDK.admin.uploadRoomAvatar(createdRoomId, { data: pngBuffer, type: "png" });
-                _logger.log("debug", `MAIN - [testAdminRoomAvatarManagement] :: uploadRoomAvatar result : `, uploadResult);
-                expectingIsDefined(uploadResult, "uploadRoomAvatar - result should be defined.");
+                _logger.log("debug", `MAIN - [testAdminBubbleAvatarManagement] :: uploading avatar for bubble : `, createdBubbleId);
+                const uploadResult: any = await rainbowSDK.admin.uploadBubbleAvatar(createdBubbleId, { data: pngBuffer, type: "png" });
+                _logger.log("debug", `MAIN - [testAdminBubbleAvatarManagement] :: uploadBubbleAvatar result : `, uploadResult);
+                expectingIsDefined(uploadResult, "uploadBubbleAvatar - result should be defined.");
 
-                _logger.log("debug", `MAIN - [testAdminRoomAvatarManagement] :: deleting avatar...`);
-                const deleteResult: any = await rainbowSDK.admin.deleteRoomAvatar(createdRoomId);
-                _logger.log("debug", `MAIN - [testAdminRoomAvatarManagement] :: deleteRoomAvatar result : `, deleteResult);
+                _logger.log("debug", `MAIN - [testAdminBubbleAvatarManagement] :: deleting avatar...`);
+                const deleteResult: any = await rainbowSDK.admin.deleteBubbleAvatar(createdBubbleId);
+                _logger.log("debug", `MAIN - [testAdminBubbleAvatarManagement] :: deleteBubbleAvatar result : `, deleteResult);
 
-                await rainbowSDK.admin.deleteRoom(createdRoomId);
-                createdRoomId = undefined;
+                await rainbowSDK.admin.deleteBubble(createdBubbleId);
+                createdBubbleId = undefined;
 
-                _logger.log("info", `MAIN - [testAdminRoomAvatarManagement] :: Test completed successfully.`);
+                _logger.log("info", `MAIN - [testAdminBubbleAvatarManagement] :: Test completed successfully.`);
             } catch (err) {
-                _logger.log("error", `MAIN - [testAdminRoomAvatarManagement] :: Error : `, err);
-                if (createdRoomId) {
-                    try { await rainbowSDK.admin.deleteRoom(createdRoomId); } catch (_) {}
+                _logger.log("error", `MAIN - [testAdminBubbleAvatarManagement] :: Error : `, err);
+                if (createdBubbleId) {
+                    try { await rainbowSDK.admin.deleteBubble(createdBubbleId); } catch (_) {}
                 }
             }
         }
 
         /**
-         * Tests admin room user management: promoteRoomUsers, demoteRoomUsers, deleteRoomUsers.
-         * Uses scope "all" — works even if the room has no extra members.
+         * Tests admin bubble user management: promoteBubbleUsers, demoteBubbleUsers, deleteBubbleUsers.
+         * Uses scope "all" — works even if the bubble has no extra members.
          */
-        async testAdminRoomUserManagement() {
-            let createdRoomId: string;
+        async testAdminBubbleUserManagement() {
+            let createdBubbleId: string;
             try {
-                _logger.log("info", `MAIN - [testAdminRoomUserManagement] :: start.`);
+                _logger.log("info", `MAIN - [testAdminBubbleUserManagement] :: start.`);
 
-                const roomName = "SDK_Test_UserMgmt_" + makeId(6);
-                const created: any = await rainbowSDK.admin.createRoom({ name: roomName, topic: "User management test" });
-                expectingIsDefined(created?.id, "createRoom (user mgmt) - result.id should be defined.");
-                createdRoomId = created.id;
+                const bubbleName = "SDK_Test_UserMgmt_" + makeId(6);
+                const created: any = await rainbowSDK.admin.createBubble({ name: bubbleName, topic: "User management test" });
+                expectingIsDefined(created?.id, "createBubble (user mgmt) - result.id should be defined.");
+                createdBubbleId = created.id;
 
-                _logger.log("debug", `MAIN - [testAdminRoomUserManagement] :: promoteRoomUsers(all) on room : `, createdRoomId);
-                const promoteResult: any = await rainbowSDK.admin.promoteRoomUsers(createdRoomId, { scope: "all" });
-                _logger.log("debug", `MAIN - [testAdminRoomUserManagement] :: promoteRoomUsers result : `, promoteResult);
-                expectingIsDefined(promoteResult, "promoteRoomUsers - result should be defined.");
+                _logger.log("debug", `MAIN - [testAdminBubbleUserManagement] :: promoteBubbleUsers(all) on bubble : `, createdBubbleId);
+                const promoteResult: any = await rainbowSDK.admin.promoteBubbleUsers(createdBubbleId, { scope: "all" });
+                _logger.log("debug", `MAIN - [testAdminBubbleUserManagement] :: promoteBubbleUsers result : `, promoteResult);
+                expectingIsDefined(promoteResult, "promoteBubbleUsers - result should be defined.");
 
-                _logger.log("debug", `MAIN - [testAdminRoomUserManagement] :: demoteRoomUsers(all)...`);
-                const demoteResult: any = await rainbowSDK.admin.demoteRoomUsers(createdRoomId, { scope: "all" });
-                _logger.log("debug", `MAIN - [testAdminRoomUserManagement] :: demoteRoomUsers result : `, demoteResult);
-                expectingIsDefined(demoteResult, "demoteRoomUsers - result should be defined.");
+                _logger.log("debug", `MAIN - [testAdminBubbleUserManagement] :: demoteBubbleUsers(all)...`);
+                const demoteResult: any = await rainbowSDK.admin.demoteBubbleUsers(createdBubbleId, { scope: "all" });
+                _logger.log("debug", `MAIN - [testAdminBubbleUserManagement] :: demoteBubbleUsers result : `, demoteResult);
+                expectingIsDefined(demoteResult, "demoteBubbleUsers - result should be defined.");
 
-                _logger.log("debug", `MAIN - [testAdminRoomUserManagement] :: deleteRoomUsers(all)...`);
-                const deleteUsersResult: any = await rainbowSDK.admin.deleteRoomUsers(createdRoomId, { scope: "all" });
-                _logger.log("debug", `MAIN - [testAdminRoomUserManagement] :: deleteRoomUsers result : `, deleteUsersResult);
-                expectingIsDefined(deleteUsersResult, "deleteRoomUsers - result should be defined.");
+                _logger.log("debug", `MAIN - [testAdminBubbleUserManagement] :: deleteBubbleUsers(all)...`);
+                const deleteUsersResult: any = await rainbowSDK.admin.deleteBubbleUsers(createdBubbleId, { scope: "all" });
+                _logger.log("debug", `MAIN - [testAdminBubbleUserManagement] :: deleteBubbleUsers result : `, deleteUsersResult);
+                expectingIsDefined(deleteUsersResult, "deleteBubbleUsers - result should be defined.");
 
-                await rainbowSDK.admin.deleteRoom(createdRoomId);
-                createdRoomId = undefined;
+                await rainbowSDK.admin.deleteBubble(createdBubbleId);
+                createdBubbleId = undefined;
 
-                _logger.log("info", `MAIN - [testAdminRoomUserManagement] :: Test completed successfully.`);
+                _logger.log("info", `MAIN - [testAdminBubbleUserManagement] :: Test completed successfully.`);
             } catch (err) {
-                _logger.log("error", `MAIN - [testAdminRoomUserManagement] :: Error : `, err);
-                if (createdRoomId) {
-                    try { await rainbowSDK.admin.deleteRoom(createdRoomId); } catch (_) {}
+                _logger.log("error", `MAIN - [testAdminBubbleUserManagement] :: Error : `, err);
+                if (createdBubbleId) {
+                    try { await rainbowSDK.admin.deleteBubble(createdBubbleId); } catch (_) {}
                 }
             }
         }
 
         /**
-         * Tests rehostRoom. Requires a valid target user ID in your environment.
+         * Tests rehostBubble. Requires a valid target user ID in your environment.
          * Edit targetUserId before running.
          */
-        async testAdminRehostRoom() {
-            let createdRoomId: string;
+        async testAdminRehostBubble() {
+            let createdBubbleId: string;
             try {
-                _logger.log("info", `MAIN - [testAdminRehostRoom] :: start.`);
+                _logger.log("info", `MAIN - [testAdminRehostBubble] :: start.`);
 
                 // Replace with a real target user ID from your environment
                 const targetUserId = "REPLACE_WITH_TARGET_USER_ID";
 
-                const roomName = "SDK_Test_Rehost_" + makeId(6);
-                const created: any = await rainbowSDK.admin.createRoom({ name: roomName, topic: "Rehost test" });
-                expectingIsDefined(created?.id, "createRoom (rehost) - result.id should be defined.");
-                createdRoomId = created.id;
+                const bubbleName = "SDK_Test_Rehost_" + makeId(6);
+                const created: any = await rainbowSDK.admin.createBubble({ name: bubbleName, topic: "Rehost test" });
+                expectingIsDefined(created?.id, "createBubble (rehost) - result.id should be defined.");
+                createdBubbleId = created.id;
 
-                _logger.log("debug", `MAIN - [testAdminRehostRoom] :: rehostRoom to userId : `, targetUserId);
-                const rehostResult: any = await rainbowSDK.admin.rehostRoom(createdRoomId, { newOwnerId: targetUserId });
-                _logger.log("debug", `MAIN - [testAdminRehostRoom] :: rehostRoom result : `, rehostResult);
-                expectingIsDefined(rehostResult, "rehostRoom - result should be defined.");
+                _logger.log("debug", `MAIN - [testAdminRehostBubble] :: rehostBubble to userId : `, targetUserId);
+                const rehostResult: any = await rainbowSDK.admin.rehostBubble(createdBubbleId, { newOwnerId: targetUserId });
+                _logger.log("debug", `MAIN - [testAdminRehostBubble] :: rehostBubble result : `, rehostResult);
+                expectingIsDefined(rehostResult, "rehostBubble - result should be defined.");
 
-                await rainbowSDK.admin.deleteRoom(createdRoomId);
-                createdRoomId = undefined;
+                await rainbowSDK.admin.deleteBubble(createdBubbleId);
+                createdBubbleId = undefined;
 
-                _logger.log("info", `MAIN - [testAdminRehostRoom] :: Test completed successfully.`);
+                _logger.log("info", `MAIN - [testAdminRehostBubble] :: Test completed successfully.`);
             } catch (err) {
-                _logger.log("error", `MAIN - [testAdminRehostRoom] :: Error : `, err);
-                if (createdRoomId) {
-                    try { await rainbowSDK.admin.deleteRoom(createdRoomId); } catch (_) {}
+                _logger.log("error", `MAIN - [testAdminRehostBubble] :: Error : `, err);
+                if (createdBubbleId) {
+                    try { await rainbowSDK.admin.deleteBubble(createdBubbleId); } catch (_) {}
                 }
             }
         }
 
         /**
-         * Tests getMyPushToTalkRooms and clearRoomContent via both AdminService and BubblesService.
+         * Tests getMyPushToTalkBubbles and clearBubbleContent via AdminService; clearRoomContent via BubblesService.
          */
-        async testEnduserRoomMethods() {
-            let createdRoomId: string;
+        async testEnduserBubbleMethods() {
+            let createdBubbleId: string;
             try {
-                _logger.log("info", `MAIN - [testEnduserRoomMethods] :: start.`);
+                _logger.log("info", `MAIN - [testEnduserBubbleMethods] :: start.`);
 
-                _logger.log("debug", `MAIN - [testEnduserRoomMethods] :: admin.getMyPushToTalkRooms...`);
-                const adminPttResult: any = await rainbowSDK.admin.getMyPushToTalkRooms();
-                _logger.log("debug", `MAIN - [testEnduserRoomMethods] :: admin.getMyPushToTalkRooms result : `, adminPttResult);
-                expectingIsDefined(adminPttResult, "admin.getMyPushToTalkRooms - result should be defined.");
+                _logger.log("debug", `MAIN - [testEnduserBubbleMethods] :: admin.getMyPushToTalkBubbles...`);
+                const adminPttResult: any = await rainbowSDK.admin.getMyPushToTalkBubbles();
+                _logger.log("debug", `MAIN - [testEnduserBubbleMethods] :: admin.getMyPushToTalkBubbles result : `, adminPttResult);
+                expectingIsDefined(adminPttResult, "admin.getMyPushToTalkBubbles - result should be defined.");
 
-                _logger.log("debug", `MAIN - [testEnduserRoomMethods] :: bubbles.getMyPushToTalkRooms...`);
+                _logger.log("debug", `MAIN - [testEnduserBubbleMethods] :: bubbles.getMyPushToTalkRooms...`);
                 const bubblesPttResult: any = await rainbowSDK.bubbles.getMyPushToTalkRooms();
-                _logger.log("debug", `MAIN - [testEnduserRoomMethods] :: bubbles.getMyPushToTalkRooms result : `, bubblesPttResult);
+                _logger.log("debug", `MAIN - [testEnduserBubbleMethods] :: bubbles.getMyPushToTalkRooms result : `, bubblesPttResult);
                 expectingIsDefined(bubblesPttResult, "bubbles.getMyPushToTalkRooms - result should be defined.");
 
-                const roomName = "SDK_Test_Clear_" + makeId(6);
-                const created: any = await rainbowSDK.admin.createRoom({ name: roomName, topic: "Clear content test" });
-                expectingIsDefined(created?.id, "createRoom (clear test) - result.id should be defined.");
-                createdRoomId = created.id;
+                const bubbleName = "SDK_Test_Clear_" + makeId(6);
+                const created: any = await rainbowSDK.admin.createBubble({ name: bubbleName, topic: "Clear content test" });
+                expectingIsDefined(created?.id, "createBubble (clear test) - result.id should be defined.");
+                createdBubbleId = created.id;
 
-                _logger.log("debug", `MAIN - [testEnduserRoomMethods] :: admin.clearRoomContent for room : `, createdRoomId);
-                const clearAdminResult: any = await rainbowSDK.admin.clearRoomContent(createdRoomId, { scope: "all" });
-                _logger.log("debug", `MAIN - [testEnduserRoomMethods] :: admin.clearRoomContent result : `, clearAdminResult);
-                expectingIsDefined(clearAdminResult, "admin.clearRoomContent - result should be defined.");
+                _logger.log("debug", `MAIN - [testEnduserBubbleMethods] :: admin.clearBubbleContent for bubble : `, createdBubbleId);
+                const clearAdminResult: any = await rainbowSDK.admin.clearBubbleContent(createdBubbleId, { scope: "all" });
+                _logger.log("debug", `MAIN - [testEnduserBubbleMethods] :: admin.clearBubbleContent result : `, clearAdminResult);
+                expectingIsDefined(clearAdminResult, "admin.clearBubbleContent - result should be defined.");
 
-                _logger.log("debug", `MAIN - [testEnduserRoomMethods] :: bubbles.clearRoomContent...`);
-                const clearBubblesResult: any = await rainbowSDK.bubbles.clearRoomContent(createdRoomId, { scope: "all" });
-                _logger.log("debug", `MAIN - [testEnduserRoomMethods] :: bubbles.clearRoomContent result : `, clearBubblesResult);
+                _logger.log("debug", `MAIN - [testEnduserBubbleMethods] :: bubbles.clearRoomContent...`);
+                const clearBubblesResult: any = await rainbowSDK.bubbles.clearRoomContent(createdBubbleId, { scope: "all" });
+                _logger.log("debug", `MAIN - [testEnduserBubbleMethods] :: bubbles.clearRoomContent result : `, clearBubblesResult);
                 expectingIsDefined(clearBubblesResult, "bubbles.clearRoomContent - result should be defined.");
 
-                await rainbowSDK.admin.deleteRoom(createdRoomId);
-                createdRoomId = undefined;
+                await rainbowSDK.admin.deleteBubble(createdBubbleId);
+                createdBubbleId = undefined;
 
-                _logger.log("info", `MAIN - [testEnduserRoomMethods] :: Test completed successfully.`);
+                _logger.log("info", `MAIN - [testEnduserBubbleMethods] :: Test completed successfully.`);
             } catch (err) {
-                _logger.log("error", `MAIN - [testEnduserRoomMethods] :: Error : `, err);
-                if (createdRoomId) {
-                    try { await rainbowSDK.admin.deleteRoom(createdRoomId); } catch (_) {}
+                _logger.log("error", `MAIN - [testEnduserBubbleMethods] :: Error : `, err);
+                if (createdBubbleId) {
+                    try { await rainbowSDK.admin.deleteBubble(createdBubbleId); } catch (_) {}
                 }
             }
         }
