@@ -76,13 +76,17 @@ module.exports = function(grunt) {
                 args.push("./puppeteer-config.json");
                 grunt.log.writeln(">> will call cmdStr : " + cmdStr + ", with args : " + JSON.stringify(args));
 
-                await new Promise((resolve, reject) => {
-                    let cp = spawn("node", args, { stdio: "pipe" });
-                    cp.stdout.on("data", d => grunt.log.writeln(d.toString().trim()));
-                    cp.stderr.on("data", d => grunt.log.error(d.toString().trim()));
-                    cp.on("error", reject);
-                    cp.on("close", code => code === 0 ? resolve() : reject(new Error(`mmdc exited with code ${code} for ${file}`)));
-                });
+                try {
+                    await new Promise((resolve, reject) => {
+                        let cp = spawn("node", args, { stdio: "pipe" });
+                        cp.stdout.on("data", d => grunt.log.writeln(d.toString().trim()));
+                        cp.stderr.on("data", d => grunt.log.error(d.toString().trim()));
+                        cp.on("error", reject);
+                        cp.on("close", code => code === 0 ? resolve() : reject(new Error(`mmdc exited with code ${code} for ${file}`)));
+                    });
+                } catch (err) {
+                    grunt.log.warn(`>> skipping ${file} : ${err.message}`);
+                }
             }
 
             //grunt.file.write(file, contents);
