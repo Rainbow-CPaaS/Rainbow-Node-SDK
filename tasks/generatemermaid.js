@@ -77,7 +77,7 @@ module.exports = function(grunt) {
                 grunt.log.writeln(">> will call cmdStr : " + cmdStr + ", with args : " + JSON.stringify(args));
 
                 await new Promise((resolve, reject) => {
-                    let cp = spawn(cmdStr, args, { stdio: "pipe" });
+                    let cp = spawn("node", args, { stdio: "pipe" });
                     cp.stdout.on("data", d => grunt.log.writeln(d.toString().trim()));
                     cp.stderr.on("data", d => grunt.log.error(d.toString().trim()));
                     cp.on("error", reject);
