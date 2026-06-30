@@ -69,9 +69,9 @@ module.exports = function(grunt) {
                 args.push("-o");
                 args.push(destFile);
                 //grunt.log.writeln(">> dest : " + options.shellcmd + " -i " + file + " -o " + dest + "/" + file + ".png");
-                grunt.log.writeln(">> cmdStr : " + cmdStr + ", args : ", args);
+                grunt.log.writeln(">> will call cmdStr : " + cmdStr + ", with args : ", args);
                 let cp = spawn(cmdStr, args);
-                /*
+/*
                 cp.stdout.pipe(process.stdout);
                 cp.stderr.pipe(process.stderr);
                 process.stdin.pipe(cp.stdin);
@@ -97,8 +97,8 @@ module.exports = function(grunt) {
 
             //grunt.file.write(file, contents);
         }
-        grunt.log.writeln(">> Wait 5 seconds.");
-        await pause(5000);
+        grunt.log.writeln(">> Wait 15 seconds.");
+        await pause(15000);
         grunt.log.writeln(">> End wait.");
         done();
     });
