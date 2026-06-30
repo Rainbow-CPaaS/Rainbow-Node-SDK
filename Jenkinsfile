@@ -579,6 +579,7 @@ pipeline {
 
                                 ./node_modules/.bin/mmdc --version
 
+                                mkdir -p ./build/resources/
                                 ./node_modules/.bin/mmdc -i jsdoc/diagramsMermaid/classDiagram.mmd -o ./build/resources/classDiagram.mmd.png
 
                                 if [ "${DEBUGINTERNAL}" = "true" ]; then
