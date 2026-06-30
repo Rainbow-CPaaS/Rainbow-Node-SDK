@@ -579,6 +579,8 @@ pipeline {
 
                                 ./node_modules/.bin/mmdc --version
 
+                                ./node_modules/.bin/mmdc -i jsdoc/diagramsMermaid/classDiagram.mmd -o ./build/resources/classDiagram.mmd.png
+
                                 if [ "${DEBUGINTERNAL}" = "true" ]; then
                                      echo "Build sources with Internal DEBUG activated."
                                     echo ---------- STEP grunt :
