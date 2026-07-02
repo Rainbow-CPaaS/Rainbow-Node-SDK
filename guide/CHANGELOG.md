@@ -6,6 +6,19 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
+### [2.46.2] - 2026-XX-XX
+#### Removed
+-   None.
+
+#### Fixed
+-   None.
+
+#### Added
+-   Add SDK lifecycle and memory management documentation to `guide/Getting_Started.md` (`#### Stopping the SDK and avoiding memory leaks`), with cross-references in `Connecting_to_Rainbow_XMPP_Mode.md`, `Connecting_to_Rainbow_S2S_Mode.md`, and `tokenLifeCycle.md`: explains why `stop()` must be called before releasing the SDK reference.
+
+#### Changed
+-   None.
+
 ### [2.46.1] - 2026-06-30
 #### Removed
 -   None.

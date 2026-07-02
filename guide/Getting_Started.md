@@ -475,6 +475,16 @@ In a bot that creates and destroys SDK instances repeatedly (credential rotation
 
 Note: `removeAllListeners()` alone is not sufficient — it releases your callbacks but does not close the internal connections that keep the SDK alive.
 
+**On stop/start restart cycles (e.g. after `rainbow_onerror`):**
+
+`stop()` does **not** remove listeners registered via `sdk.events.on(...)`. If your bot re-registers listeners on every startup, each restart accumulates a new copy on the same EventEmitter without removing the previous one. Unsubscribe before stopping:
+
+```js
+sdk.events.removeAllListeners();
+await sdk.stop();
+// then start() and re-register your listeners
+```
+
 ---
 
 _Last updated July 2, 2026_
