@@ -197,15 +197,15 @@ class RESTChannels extends GenericRESTService {
                 message: message,
                 title: title || "",
                 url: url || "",
-                images: null,
-                attachments: null
+                images: undefined,
+                attachments: undefined
             }, customDatas);
 
-            if (imagesIds) {
-                payload.images = imagesIds || null;
+            if (imagesIds && Array.isArray(imagesIds) && imagesIds.length > 0) {
+                payload.images = imagesIds || undefined;
             }
 
-            if (attachments && attachments.length > 0) {
+            if (attachments && Array.isArray(attachments) && attachments.length > 0) {
                 payload.attachments = attachments;
             }
 
