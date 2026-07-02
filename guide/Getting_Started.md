@@ -445,6 +445,36 @@ rainbowSDK.bubbles.getBubbleById(id)
 
 The `cause` field contains the originating value (parameter or variable) that triggered the guard. The `msg` field is enriched at the point of rejection with context specific to the failing call.
 
+#### Stopping the SDK and avoiding memory leaks
+
 ---
 
-_Last updated June 17, 2026_
+When your bot is done with an SDK instance — shutting it down, rotating credentials, or managing a pool of bots — **always call `stop()` before releasing the reference**.
+
+Setting your variable to `null` without calling `stop()` first does **not** free the SDK's memory. Two reasons:
+
+- The SDK maintains long-lived connections internally (XMPP, WebSocket) and runs reconnection timers. These keep the SDK **referenced by the Node.js event loop**, regardless of whether your variable still points to it.
+- Callbacks registered with `sdk.events.on(...)` are held by the SDK's EventEmitter. As long as the SDK is alive, those callbacks — and everything they close over (your bot instance, shared state) — stay in memory too.
+
+**Correct pattern:**
+
+```js
+// Stop the SDK first — this closes XMPP/WebSocket connections and clears internal timers
+await rainbowSDK.stop();
+rainbowSDK = null;
+```
+
+**Incorrect — the SDK is still alive in the event loop:**
+
+```js
+// Wrong: internal connections keep the SDK referenced, GC cannot collect it
+rainbowSDK = null;
+```
+
+In a bot that creates and destroys SDK instances repeatedly (credential rotation, multi-tenant pools), skipping `stop()` causes monotonically growing memory because the Node.js garbage collector never finds a collectible candidate.
+
+Note: `removeAllListeners()` alone is not sufficient — it releases your callbacks but does not close the internal connections that keep the SDK alive.
+
+---
+
+_Last updated July 2, 2026_

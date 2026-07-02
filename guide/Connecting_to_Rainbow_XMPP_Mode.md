@@ -431,6 +431,14 @@ This event is fired when the maximal number of attempts to reconnect has been re
 This event is fired each time an error occurs in the SDK for Node.JS (eg: reconnection failed). When this event is fired, the application has to manually call the API `stop()` and `start()` in order to restart de SDK properly.
 
 
+#### Lifecycle and memory management
 ---
 
-_Last updated October 14, 2025_
+Always call `stop()` before releasing your SDK reference. The SDK holds XMPP/WebSocket connections and reconnection timers that keep it referenced by the Node.js event loop — setting your variable to `null` without `stop()` will not release memory, and any callbacks you registered with `events.on(...)` will also remain alive.
+
+For a full explanation and code examples, see [Getting Started — Stopping the SDK and avoiding memory leaks](/doc/sdk/node/guides/Getting_Started).
+
+
+---
+
+_Last updated July 2, 2026_
