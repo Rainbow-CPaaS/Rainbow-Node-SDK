@@ -2402,60 +2402,12 @@ safeJsonParse(str) {
                         }
                     }
                 } else {
-                    let buff = [];
-                    let err = {
-                        statusCode: null,
-                        statusMessage: null,
-                        contentType: null
-                    };
-
-                    let req = Request.get({
-                        url: urlEncoded,
-                        headers: headers,
-                        params: params,
-                        proxy: (that.proxy && that.proxy.isProxyConfigured) ? that.proxy.proxyURL : null,
-                        agentOptions: {
-                            secureProtocol: that.proxy.secureProtocol
-                        }
-                    }).on("response", function (response) {
-                        // that._logger.log(that.INFO, LOG_ID + "(get) status code:" + response.statusCode); // 200
-                        that._logger.log(that.DEBUG, LOG_ID + "(get) response headers: " + response.headers["content-type"]); // 'image/png'
-                        let xRainbowRequestId = response?.headers["x-rainbow-request-id"] ;
-                        that._logger.log(that.HTTP, LOG_ID + "(get) done statusCode : ", response?.statusCode, " for sent x-rainbow-correlation-id : ", xRainbowRequestNodeId," received x-rainbow-request-id : ", xRainbowRequestId, ", statusCode : ", response?.statusCode);
-                        if (response.statusCode === 400) {
-                            req.abort();
-                            err.statusCode = response.statusCode;
-                            err.statusMessage = response.statusMessage;
-                            err.contentType = response.headers["content-type"];
-                        }
-                    }).on("data", (chunk) => {
-                        buff.push(chunk);
-                    }).on("error", (error) => {
-                        that._logger.log(that.ERROR, LOG_ID, "(get) error");
-                        that._logger.log(that.INTERNALERROR, LOG_ID, "(get) error.message : ", error.message);
-                        that._logger.log(that.DEBUG, LOG_ID + "(get) _exiting_");
-                        return reject({
-                            code: -1,
-                            url: urlEncoded,
-                            msg: error.message,
-                            details: ""
-                        });
-                    }).on("end", () => {
-                        // that._logger.log(that.INFO, LOG_ID + "(get) successfull");
-                        that._logger.log(that.INFO, LOG_ID + "(get) get file buffer from Url successfull");
-                        that._logger.log(that.DEBUG, LOG_ID + "(get) _exiting_");
-                        if (!err.statusCode) {
-                            let data = Buffer.concat(buff);
-                            resolve(data);
-                        } else {
-                            return reject({
-                                code: err.statusCode,
-                                url: urlEncoded,
-                                msg: err.statusMessage,
-                                details: ""
-                            });
-                        }
-                    }); // */
+                    try {
+                        let result = await that._getUrlRaw(url, headers, params, nbRetryBeforeFailed, timeBetweenRetry);
+                        resolve(result.body);
+                    } catch (err) {
+                        reject(err);
+                    }
                 }
             } catch (err) {
                 that._logger.log(that.ERROR, LOG_ID + "(get) HTTP ErrorManager");
