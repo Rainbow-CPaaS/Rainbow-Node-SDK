@@ -8,16 +8,16 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 ### [2.46.2] - 2026-XX-XX
 #### Removed
--   None.
+-   Remove an unused dependency responsible for most of the findings in a security audit.
 
 #### Fixed
--   None.
+-   Fix compilation from source failing on the sample scripts when the SDK is installed as a dependency.
 
 #### Added
 -   Add SDK lifecycle and memory management documentation to `guide/Getting_Started.md` (`#### Stopping the SDK and avoiding memory leaks`), with cross-references in `Connecting_to_Rainbow_XMPP_Mode.md`, `Connecting_to_Rainbow_S2S_Mode.md`, and `tokenLifeCycle.md`: explains why `stop()` must be called before releasing the SDK reference.
 
 #### Changed
--   None.
+-   Move sample-only and documentation-only dependencies flagged by a security audit out of the published dependency tree.
 
 ### [2.46.1] - 2026-06-30
 #### Removed
