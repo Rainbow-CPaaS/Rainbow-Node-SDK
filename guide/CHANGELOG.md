@@ -13,6 +13,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 #### Fixed
 -   Fix a vulnerable dependency version flagged by the security audit.
 -   Fix binary file downloads still relying on a deprecated, vulnerable HTTP library.
+-   Fix compilation from source failing on the sample scripts when the SDK is installed as a dependency.
 
 #### Added
 -   None

@@ -43,7 +43,8 @@
     "typings",
     "**/*.spec.ts",
     "**/*.d.ts",
-    "node_modules"
+    "node_modules",
+    "src/Samples"
   ],
   "include": [
     "./src/**/*.ts",
