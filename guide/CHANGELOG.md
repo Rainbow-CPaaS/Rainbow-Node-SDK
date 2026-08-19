@@ -18,7 +18,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   None
 
 #### Changed
--   None
+-   Move sample-only dependencies flagged by the security audit out of the published dependency tree.
 
 ### [2.42.0-lts.6] - 2025-06-08
 #### Removed
