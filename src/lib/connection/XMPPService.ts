@@ -1874,8 +1874,7 @@ class XMPPService extends GenericService {
             // Remove resource if exists
             jid = that.xmppUtils.getBareJIDFromFullJID(jid);
 
-            //let url = that.host + "/api/rainbow/fileserver/v1.0/files/" + fileDescriptor.id;
-            let url = "/api/rainbow/fileserver/v1.0/files/" + fileDescriptor.id;
+            let url = that._rest.http.serverURL + "/api/rainbow/fileserver/v1.0/files/" + fileDescriptor.id;
 
             let stanza = xml("message", {
                    // "from": that.fullJid,
@@ -1938,8 +1937,7 @@ class XMPPService extends GenericService {
             // Remove resource if exists
             jid = that.xmppUtils.getBareJIDFromFullJID(jid);
 
-            //let url = that.host  + "/api/rainbow/fileserver/v1.0/files/" + fileDescriptor.id;
-            let url = "/api/rainbow/fileserver/v1.0/files/" + fileDescriptor.id;
+            let url = that._rest.http.serverURL + "/api/rainbow/fileserver/v1.0/files/" + fileDescriptor.id;
 
             let stanza = xml("message", {
                     //"from": that.fullJid,

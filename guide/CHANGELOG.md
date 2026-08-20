@@ -6,7 +6,7 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-### [2.46.2] - 2026-XX-XX
+## [2.46.3] - 2026-XX-XX
 #### Removed
 -   Remove an unused dependency responsible for most of the findings in a security audit.
 
@@ -18,6 +18,19 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 #### Changed
 -   Move sample-only and documentation-only dependencies flagged by a security audit out of the published dependency tree.
+
+### [2.46.2] - 2026-07-22
+#### Removed
+-   None.
+
+#### Fixed
+-   Fix `XMPPService.ts` / `sendChatExistingFSMessage` and `sendChatExistingFSMessageToBubble`: the `<url>` tag of the `jabber:x:oob` element in outgoing file-transfer chat messages was built as a bare relative path (`/api/rainbow/fileserver/v1.0/files/<id>`) instead of an absolute URL, causing recipients and server-side push notifications to receive an unusable file url. Fixed by prefixing with `that._rest.http.serverURL` (`protocol://host:port`), the same base-URL accessor already used for this purpose in `FileStorageService.ts` / `createFileDescriptorFromData`.
+
+#### Added
+-   Add SDK lifecycle and memory management documentation to `guide/Getting_Started.md` (`#### Stopping the SDK and avoiding memory leaks`), with cross-references in `Connecting_to_Rainbow_XMPP_Mode.md`, `Connecting_to_Rainbow_S2S_Mode.md`, and `tokenLifeCycle.md`: explains why `stop()` must be called before releasing the SDK reference.
+
+#### Changed
+-   None.
 
 ### [2.46.1] - 2026-06-30
 #### Removed
