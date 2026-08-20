@@ -452,6 +452,7 @@ let expressEngine = undefined;
             "useRestAtStartup": true,
              "gotOptions": {
                  agentOptions: {
+                     "freeSocketTimeout": 5000,  // Destroy idle sockets in pool after 5s — prevents ECONNRESET on stale connections. For bots with bursty HTTP triggered by XMPP events, 5s preserves burst reuse while avoiding stale sockets during long idle periods.
                      /**
                       * Keep sockets around in a pool to be used by other requests in the future. Default = false
                       */
@@ -2159,6 +2160,22 @@ let expressEngine = undefined;
             }).catch((err) => {
                 _logger.log("error", "MAIN - [getContactByLoginEmail    ] :: catch reject contact : ", err);
             });
+        }
+
+        /**
+         * Looks up fabrice.belloncle@al-enterprise.com and sends a contact invitation.
+         */
+        async testInviteContactFabrice() {
+            _logger.log("info", `MAIN - [testInviteContactFabrice] :: start`);
+            const email = "fabrice.belloncle@al-enterprise.com";
+            try {
+                const contact = await rainbowSDK.contacts.getContactByLoginEmail(email);
+                _logger.log("info", `MAIN - [testInviteContactFabrice] :: contact found : ${contact?.id}`);
+                const result = await rainbowSDK.contacts.addToContactsList(contact);
+                _logger.log("info", `MAIN - [testInviteContactFabrice] :: invitation sent, result : ${result?.id}`);
+            } catch (err) {
+                _logger.log("error", `MAIN - [testInviteContactFabrice] :: error : `, err);
+            }
         }
 
         async testgetContactByLoginEmailAndSubscribePresence(emailUser: string = "vincent05@vbe.test.openrainbow.net") {

@@ -81,6 +81,7 @@ let conf =  {
             "useRestAtStartup" : true,
             "gotOptions": {
                 "agentOptions": {
+                    "freeSocketTimeout": 5000,  // Destroy idle sockets in pool after 5s — prevents ECONNRESET on stale connections. For bots with bursty HTTP triggered by XMPP events, 5s preserves burst reuse while avoiding stale sockets during long idle periods.
                     /**
                      * Keep sockets around in a pool to be used by other requests in the future. Default = false
                      */
