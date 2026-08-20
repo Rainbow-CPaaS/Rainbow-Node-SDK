@@ -6,7 +6,7 @@ Here is the list of the changes and features provided by the **Rainbow-Node-SDK*
 Warning: Before deploying in production a bot that can generate heavy traffic, please contact ALE.
 All notable changes to Rainbow-Node-SDK will be documented in this file.
 
-### [2.42.0-lts.7] - Unreleased
+### [2.42.0-lts.7] - 2026-08-20
 #### Removed
 -   Remove an unused dependency responsible for most of the findings in the security audit.
 
@@ -22,7 +22,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 -   Move sample-only and documentation-only dependencies flagged by the security audit out of the published dependency tree.
 -   Lower the REST connection timeouts to align with the server's keep-alive idle timeout and avoid stale-socket connection resets.
 
-### [2.42.0-lts.6] - 2025-06-08
+### [2.42.0-lts.6] - 2026-06-08
 #### Removed
 -   None
 
@@ -37,7 +37,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 #### Changed
 -   None
  
-### [2.42.0-lts.5] - 2025-05-18
+### [2.42.0-lts.5] - 2026-05-18
 #### Removed
 -   None
 
@@ -50,7 +50,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 #### Changed
 -   Add an optional `companyId` parameter to `ActivateALdapConnectorUser` in `AdminService` and `RESTService` to allow activating a connector for a specific company. (RQRAINB-13916 Nodes - [AD/LDAP Connector] — Multi-Company Registration for BP and Admin Roles)
  
-### [2.42.0-lts.4] - 2025-04-24
+### [2.42.0-lts.4] - 2026-04-24
 #### Removed
 -   None
 
@@ -64,7 +64,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 #### Changed
 -   None.
  
-### [2.42.0-lts.3] - 2025-04-07
+### [2.42.0-lts.3] - 2026-04-07
 #### Removed
 -   None
 
@@ -77,7 +77,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 #### Changed
 -   None.
  
-### [2.42.0-lts.2] - 2025-03-09
+### [2.42.0-lts.2] - 2026-03-09
 #### Removed
 -   None
 
