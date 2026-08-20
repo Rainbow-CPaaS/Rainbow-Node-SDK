@@ -20,6 +20,7 @@ All notable changes to Rainbow-Node-SDK will be documented in this file.
 
 #### Changed
 -   Move sample-only and documentation-only dependencies flagged by the security audit out of the published dependency tree.
+-   Lower the REST connection timeouts to align with the server's keep-alive idle timeout and avoid stale-socket connection resets.
 
 ### [2.42.0-lts.6] - 2025-06-08
 #### Removed
