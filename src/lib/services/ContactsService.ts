@@ -333,6 +333,17 @@ class ContactsService extends GenericService {
         });
     }
 
+    /**
+     * @private
+     * @method cleanMemoryCache
+     * @instance
+     * @description
+     *      Removes obsolete contacts from the in-memory `_contacts` cache to avoid unbounded growth.<br>
+     *      A contact is considered obsolete if it is empty/null, or if it is not a roster contact and has not been
+     *      refreshed (via `updateLastContactCacheUpdate`) for more than one day (see `Contact::isObsoleteCache`).<br>
+     *      Roster contacts are never removed.
+     * @return {void}
+     */
     cleanMemoryCache() {
         let that = this;
         super.cleanMemoryCache();
