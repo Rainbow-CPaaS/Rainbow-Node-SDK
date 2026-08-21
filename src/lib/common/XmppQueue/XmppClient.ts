@@ -409,6 +409,26 @@ class XmppClient {
 
             let storeStanzaValue = getStoreStanzaValue(that.messagesDataStore, p_messagesDataStore);
 
+            if (stanza && typeof stanza==="object" && stanza.name=="message" && storeStanzaValue!==DataStoreType.Store) {
+                let headersElem = stanza.find("headers");
+                if (headersElem && headersElem.length > 0) {
+                    let urgencyElem = headersElem.find("header");
+                    let isEmergencyMessage = false;
+                    if (urgencyElem.length===1) {
+                        isEmergencyMessage = urgencyElem.attrs.name==='Urgency' && urgencyElem.text()==='high';
+                    } else {
+                        for (let i = 0; i < urgencyElem.length; i++) {
+                            if (urgencyElem[i].attrs.name==='Urgency' && urgencyElem[i].text()==='high') {
+                                isEmergencyMessage = true;
+                            }
+                        }
+                    }
+                    if (isEmergencyMessage) {
+                        that.logger.log("warn", LOG_ID + "(send) sending an 'emergency' (urgency=high) message with messagesDataStore resolved to '" + storeStanzaValue + "': the server is told NOT to durably retain this message, which can prevent recipients from retrieving it later (e.g. a mobile client catching up via push notification while locked, or simply re-opening the conversation) - see CRRAINB-53668. Pass DataStoreType.Store (or DataStoreType.StoreTwinSide) explicitly for urgent messages requiring reliable delivery/acknowledgment.");
+                    }
+                }
+            }
+
             if (stanza && typeof stanza==="object" && stanza.name=="message") {
             //if (storeStanzaValue!=DataStoreType.StoreTwinSide && stanza && typeof stanza==="object" && stanza.name=="message") {
                 //if ((that.storeMessages==false || p_messagesDataStore) && p_messagesDataStore != DataStoreType.StoreTwinSide && stanza && typeof stanza==="object" && stanza.name=="message") {

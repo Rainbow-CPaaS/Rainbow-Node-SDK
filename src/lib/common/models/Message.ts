@@ -144,6 +144,8 @@ class Message {
 
     public answeredMsgDate: string;
     public answeredMsgStamp: string;
+    public answeredMsgAction: string;
+    public answeredMsgType: string;
     fileTransfer: any;
 
     public eventJid: string;
@@ -226,7 +228,9 @@ class Message {
                 deleted:boolean = false,
                 modified : boolean = false,
                 rainbowCpaas: any = null,
-                datastoretypeOfMsg: DataStoreType = DataStoreType.StoreTwinSide
+                datastoretypeOfMsg: DataStoreType = DataStoreType.StoreTwinSide,
+                answeredMsgAction: string = undefined,
+                answeredMsgType: string = undefined
     ) {
         
         /**
@@ -276,6 +280,18 @@ class Message {
          * @readonly
          */
         this.answeredMsgStamp = answeredMsgStamp;
+        /**
+         * @public
+         * @property {string} answeredMsgAction The action of the acknowledgment received for the message answered ("ack" when acknowledged, "ignore" when ignored)
+         * @readonly
+         */
+        this.answeredMsgAction = answeredMsgAction;
+        /**
+         * @public
+         * @property {string} answeredMsgType The urgency type (e.g. "urgent") the acknowledgment received refers to
+         * @readonly
+         */
+        this.answeredMsgType = answeredMsgType;
 
         /**
          * @public

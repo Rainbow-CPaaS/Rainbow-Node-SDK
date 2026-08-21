@@ -498,6 +498,8 @@ class ConversationEventHandler extends GenericHandler {
             let answeredMsgId = undefined;
             let answeredMsgStamp = undefined;
             let answeredMsgDate = undefined;
+            let answeredMsgAction = undefined;
+            let answeredMsgType = undefined;
             let urgency = "std";
             let urgencyAck: boolean = false;
             let urgencyHandler: any = undefined;
@@ -547,11 +549,15 @@ class ConversationEventHandler extends GenericHandler {
                                         let answeredMsgId = stanza.find("answeredMsg").text();
                                         let answeredMsgStamp = undefined;
                                         let answeredMsgDate = undefined;
+                                        let answeredMsgAction = undefined;
+                                        let answeredMsgType = undefined;
                                         if (answeredMsgId) {
                                             answeredMsgStamp = stanza.find("answeredMsg").attrs["stamp"];
                                             answeredMsgDate = answeredMsgStamp ? new Date(parseInt(answeredMsgStamp)).toISOString():undefined;
+                                            answeredMsgAction = stanza.find("answeredMsg").attrs["action"];
+                                            answeredMsgType = stanza.find("answeredMsg").attrs["type"];
                                         }
-                                        that._logger.log(that.DEBUG, LOG_ID + "(onChatMessageReceived) id : ", id, ",message - CC message  answeredMsgId : ", answeredMsgId, ", answeredMsgStamp : ", answeredMsgStamp, ", answeredMsgDate : ", answeredMsgDate);
+                                        that._logger.log(that.DEBUG, LOG_ID + "(onChatMessageReceived) id : ", id, ",message - CC message  answeredMsgId : ", answeredMsgId, ", answeredMsgStamp : ", answeredMsgStamp, ", answeredMsgDate : ", answeredMsgDate, ", answeredMsgAction : ", answeredMsgAction, ", answeredMsgType : ", answeredMsgType);
 
                                         let nodeX = stanza.find("x");
                                         let xmlns = nodeX.attrs.xmlns;
@@ -604,7 +610,9 @@ class ConversationEventHandler extends GenericHandler {
                                                     "answeredMsg": undefined,
                                                     "answeredMsgId": answeredMsgId,
                                                     "answeredMsgDate": answeredMsgDate,
-                                                    "answeredMsgStamp": answeredMsgStamp
+                                                    "answeredMsgStamp": answeredMsgStamp,
+                                                    "answeredMsgAction": answeredMsgAction,
+                                                    "answeredMsgType": answeredMsgType
                                                 };
 
                                                 let conversationId = data.toJid;
@@ -707,11 +715,15 @@ class ConversationEventHandler extends GenericHandler {
                                         let answeredMsgId = stanza.find("answeredMsg").text();
                                         let answeredMsgStamp = undefined;
                                         let answeredMsgDate = undefined;
+                                        let answeredMsgAction = undefined;
+                                        let answeredMsgType = undefined;
                                         if (answeredMsgId) {
                                             answeredMsgStamp = stanza.find("answeredMsg").attrs["stamp"];
                                             answeredMsgDate = answeredMsgStamp ? new Date(parseInt(answeredMsgStamp)).toISOString():undefined;
+                                            answeredMsgAction = stanza.find("answeredMsg").attrs["action"];
+                                            answeredMsgType = stanza.find("answeredMsg").attrs["type"];
                                         }
-                                        that._logger.log(that.DEBUG, LOG_ID + "(onChatMessageReceived) message - CC message  answeredMsgId : ", answeredMsgId, ", answeredMsgStamp : ", answeredMsgStamp, ", answeredMsgDate : ", answeredMsgDate);
+                                        that._logger.log(that.DEBUG, LOG_ID + "(onChatMessageReceived) message - CC message  answeredMsgId : ", answeredMsgId, ", answeredMsgStamp : ", answeredMsgStamp, ", answeredMsgDate : ", answeredMsgDate, ", answeredMsgAction : ", answeredMsgAction, ", answeredMsgType : ", answeredMsgType);
 
                                         childs.forEach(async function (nodeChild) {
                                             if (nodeChild.getName()==="body") {
@@ -733,7 +745,9 @@ class ConversationEventHandler extends GenericHandler {
                                                     "answeredMsg": undefined,
                                                     "answeredMsgId": answeredMsgId,
                                                     "answeredMsgDate": answeredMsgDate,
-                                                    "answeredMsgStamp": answeredMsgStamp
+                                                    "answeredMsgStamp": answeredMsgStamp,
+                                                    "answeredMsgAction": answeredMsgAction,
+                                                    "answeredMsgType": answeredMsgType
                                                 };
 
                                                 let conversationId = data.fromJid;
@@ -847,7 +861,9 @@ class ConversationEventHandler extends GenericHandler {
                         answeredMsgId = node.getText();
                         answeredMsgStamp = node.attrs["stamp"];
                         answeredMsgDate = answeredMsgStamp ? new Date(parseInt(answeredMsgStamp)).toISOString():undefined;
-                        that._logger.log(that.DEBUG, LOG_ID + "(onChatMessageReceived) id : ", id, ", message - answeredMsgId : ", answeredMsgId, ", answeredMsgStamp : ", answeredMsgStamp, ", answeredMsgDate : ", answeredMsgDate);
+                        answeredMsgAction = node.attrs["action"];
+                        answeredMsgType = node.attrs["type"];
+                        that._logger.log(that.DEBUG, LOG_ID + "(onChatMessageReceived) id : ", id, ", message - answeredMsgId : ", answeredMsgId, ", answeredMsgStamp : ", answeredMsgStamp, ", answeredMsgDate : ", answeredMsgDate, ", answeredMsgAction : ", answeredMsgAction, ", answeredMsgType : ", answeredMsgType);
                         break;
                     case "content":
                         alternativeContent.push({
@@ -1335,6 +1351,8 @@ class ConversationEventHandler extends GenericHandler {
                     "answeredMsgId": answeredMsgId,
                     "answeredMsgDate": answeredMsgDate,
                     "answeredMsgStamp": answeredMsgStamp,
+                    "answeredMsgAction": answeredMsgAction,
+                    "answeredMsgType": answeredMsgType,
                     urgency,
                     urgencyAck,
                     urgencyHandler,
